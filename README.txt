@@ -1,0 +1,1 @@
+Static Last Lantern Workshop website. Upload all files together to a static web host. Verify the privacy policy against the final production app and Google Play Data Safety declaration before release.

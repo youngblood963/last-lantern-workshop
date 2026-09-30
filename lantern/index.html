@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Lantern Room</title>
+
+<style>
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: #050505;
+    color: #d8b45a;
+    font-family: "Courier New", monospace;
+    overflow: hidden;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#cabinet {
+    text-align: center;
+}
+
+h1 {
+    font-size: 30px;
+    letter-spacing: 5px;
+    margin: 0 0 5px;
+    text-shadow: 0 0 10px #d8b45a;
+}
+
+.subtitle {
+    font-size: 12px;
+    margin-bottom: 14px;
+    color: #8e7b4e;
+}
+
+#game {
+    width: 768px;
+    height: 512px;
+    max-width: 94vw;
+    max-height: 72vh;
+    border: 4px solid #40351f;
+    background: #090909;
+    image-rendering: pixelated;
+    box-shadow:
+        0 0 0 4px #15120c,
+        0 0 30px rgba(216,180,90,.18);
+}
+
+.controls {
+    margin-top: 14px;
+    font-size: 12px;
+    color: #74694f;
+}
+
+#screen {
+    position: relative;
+}
+
+#screen::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(0,0,0,.14),
+            rgba(0,0,0,.14) 1px,
+            transparent 1px,
+            transparent 3px
+        );
+}
+</style>
+</head>
+
+<body>
+
+<div id="cabinet">
+
+<h1>THE LANTERN ROOM</h1>
+
+<div class="subtitle">
+SOME THINGS ARE MEANT TO BE FOUND
+</div>
+
+<div id="screen">
+<canvas id="game" width="768" height="512"></canvas>
+</div>
+
+<div class="controls">
+ARROW KEYS / WASD &nbsp; • &nbsp; FIND THE LIGHT
+</div>
+
+</div>
+
+<script>
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+ctx.imageSmoothingEnabled = false;
+
+const TILE = 32;
+
+const player = {
+    x: 3 * TILE,
+    y: 7 * TILE,
+    size: 20,
+    speed: 3
+};
+
+const keys = {};
+
+document.addEventListener("keydown", e => {
+    keys[e.key.toLowerCase()] = true;
+
+    if (
+        ["arrowup","arrowdown","arrowleft","arrowright"].includes(
+            e.key.toLowerCase()
+        )
+    ) {
+        e.preventDefault();
+    }
+});
+
+document.addEventListener("keyup", e => {
+    keys[e.key.toLowerCase()] = false;
+});
+
+/*
+0 = floor
+1 = wall
+2 = lantern flame
+*/
+
+const map = [
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+[1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
+[1,0,1,1,1,0,0,1,0,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1],
+[1,0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1],
+[1,0,1,0,1,1,1,1,1,1,0,1,0,1,0,0,1,0,1,1,1,1,0,1],
+[1,0,0,0,0,0,0,0,0,1,0,1,0,1,0,0,0,0,0,0,0,1,0,1],
+[1,1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1],
+[1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,1],
+[1,0,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1],
+[1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
+[1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,0,1],
+[1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,1],
+[1,0,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,0,1,0,1],
+[1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
+[1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+];
+
+function wallAt(x, y) {
+
+    const left   = Math.floor(x / TILE);
+    const right  = Math.floor((x + player.size - 1) / TILE);
+    const top    = Math.floor(y / TILE);
+    const bottom = Math.floor((y + player.size - 1) / TILE);
+
+    return (
+        map[top]?.[left] === 1 ||
+        map[top]?.[right] === 1 ||
+        map[bottom]?.[left] === 1 ||
+        map[bottom]?.[right] === 1
+    );
+}
+
+function update() {
+
+    let dx = 0;
+    let dy = 0;
+
+    if (keys["arrowleft"] || keys["a"]) dx -= player.speed;
+    if (keys["arrowright"] || keys["d"]) dx += player.speed;
+    if (keys["arrowup"] || keys["w"]) dy -= player.speed;
+    if (keys["arrowdown"] || keys["s"]) dy += player.speed;
+
+    if (!wallAt(player.x + dx, player.y))
+        player.x += dx;
+
+    if (!wallAt(player.x, player.y + dy))
+        player.y += dy;
+}
+
+function drawMap() {
+
+    for (let y = 0; y < map.length; y++) {
+
+        for (let x = 0; x < map[y].length; x++) {
+
+            const tile = map[y][x];
+
+            if (tile === 1) {
+
+                ctx.fillStyle = "#17150f";
+                ctx.fillRect(
+                    x*TILE,
+                    y*TILE,
+                    TILE,
+                    TILE
+                );
+
+                ctx.strokeStyle = "#292315";
+                ctx.strokeRect(
+                    x*TILE+.5,
+                    y*TILE+.5,
+                    TILE-1,
+                    TILE-1
+                );
+            }
+
+            if (tile === 2) {
+
+                ctx.fillStyle = "#d8b45a";
+                ctx.fillRect(
+                    x*TILE+11,
+                    y*TILE+10,
+                    10,
+                    14
+                );
+            }
+        }
+    }
+}
+
+function drawPlayer() {
+
+    ctx.fillStyle = "#d8b45a";
+
+    ctx.fillRect(
+        Math.round(player.x),
+        Math.round(player.y),
+        player.size,
+        player.size
+    );
+
+    ctx.fillStyle = "#090909";
+
+    ctx.fillRect(
+        Math.round(player.x)+5,
+        Math.round(player.y)+5,
+        3,
+        3
+    );
+
+    ctx.fillRect(
+        Math.round(player.x)+12,
+        Math.round(player.y)+5,
+        3,
+        3
+    );
+}
+
+function drawDarkness() {
+
+    ctx.save();
+
+    ctx.fillStyle = "rgba(0,0,0,.91)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    ctx.globalCompositeOperation = "destination-out";
+
+    const cx = player.x + player.size/2;
+    const cy = player.y + player.size/2;
+
+    const glow = ctx.createRadialGradient(
+        cx,cy,20,
+        cx,cy,115
+    );
+
+    glow.addColorStop(0,"rgba(0,0,0,1)");
+    glow.addColorStop(.55,"rgba(0,0,0,.8)");
+    glow.addColorStop(1,"rgba(0,0,0,0)");
+
+    ctx.fillStyle = glow;
+
+    ctx.beginPath();
+    ctx.arc(cx,cy,115,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.restore();
+}
+
+function draw() {
+
+    ctx.fillStyle = "#080806";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    drawMap();
+    drawPlayer();
+    drawDarkness();
+}
+
+function gameLoop() {
+
+    update();
+    draw();
+
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+
+</script>
+
+</body>
+</html>

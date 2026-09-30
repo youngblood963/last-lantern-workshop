@@ -7,9 +7,9 @@
 <title>The Lantern Room</title>
 
 <style>
-* { box-sizing:border-box; }
+*{box-sizing:border-box}
 
-html,body {
+html,body{
   margin:0;
   width:100%;
   height:100%;
@@ -19,31 +19,31 @@ html,body {
   overflow:hidden;
 }
 
-body {
+body{
   display:flex;
   align-items:center;
   justify-content:center;
 }
 
-#cabinet {
+#cabinet{
   text-align:center;
   user-select:none;
 }
 
-h1 {
+h1{
   margin:0 0 4px;
   font-size:30px;
   letter-spacing:6px;
   text-shadow:0 0 12px #d8b45a;
 }
 
-.subtitle {
+.subtitle{
   color:#806c3d;
   font-size:11px;
   margin-bottom:13px;
 }
 
-#screen {
+#screen{
   position:relative;
   display:inline-block;
   border:4px solid #40351f;
@@ -52,7 +52,7 @@ h1 {
     0 0 35px rgba(216,180,90,.16);
 }
 
-canvas {
+canvas{
   display:block;
   width:min(768px,94vw);
   height:auto;
@@ -61,21 +61,21 @@ canvas {
   image-rendering:pixelated;
 }
 
-#screen:after {
+#screen:after{
   content:"";
   position:absolute;
   inset:0;
   pointer-events:none;
   background:repeating-linear-gradient(
     0deg,
-    rgba(0,0,0,.13) 0px,
-    rgba(0,0,0,.13) 1px,
+    rgba(0,0,0,.12) 0,
+    rgba(0,0,0,.12) 1px,
     transparent 1px,
     transparent 3px
   );
 }
 
-.controls {
+.controls{
   margin-top:13px;
   color:#756747;
   font-size:11px;
@@ -86,429 +86,919 @@ canvas {
 <body>
 
 <div id="cabinet">
-  <h1>THE LANTERN ROOM</h1>
-  <div class="subtitle">SOME THINGS ARE MEANT TO BE FOUND</div>
 
-  <div id="screen">
-    <canvas id="game" width="768" height="512"></canvas>
-  </div>
+<h1>THE LANTERN ROOM</h1>
 
-  <div class="controls">
-    ARROW KEYS / WASD &nbsp; • &nbsp; FIND THE LIGHT
-  </div>
+<div class="subtitle">
+SOME THINGS ARE MEANT TO BE FOUND
+</div>
+
+<div id="screen">
+<canvas id="game" width="768" height="512"></canvas>
+</div>
+
+<div class="controls">
+ARROW KEYS / WASD &nbsp; • &nbsp; FIND THE LIGHT
+</div>
+
 </div>
 
 <script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-ctx.imageSmoothingEnabled = false;
 
-const TILE = 32;
-const COLS = 24;
-const ROWS = 16;
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
 
-let state = "title";
-let collected = 0;
-let doorOpen = false;
-let frame = 0;
+ctx.imageSmoothingEnabled=false;
 
-const keys = {};
+const TILE=32;
+const COLS=24;
+const ROWS=16;
 
-const player = {
-  x: 2*TILE+6,
-  y: 13*TILE+6,
+let state="title";
+let collected=0;
+let doorOpen=false;
+let frame=0;
+
+const keys={};
+
+const player={
+  x:2*TILE+6,
+  y:13*TILE+6,
   size:20,
   speed:2.5,
   dir:"down",
   walk:0
 };
 
-/*
-0 floor
-1 wall
-2 flame
-3 exit
-*/
+const originalMap=[
 
-const originalMap = [
 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+
 [1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,1],
+
 [1,0,1,1,1,0,0,1,0,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1],
+
 [1,0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1],
+
 [1,0,1,0,1,1,1,1,1,1,0,1,0,1,0,0,1,0,1,1,1,1,0,1],
+
 [1,0,0,0,0,0,0,0,0,1,0,1,0,1,0,0,0,0,0,0,0,1,0,1],
+
 [1,1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1],
+
 [1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,1],
+
 [1,0,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1],
+
 [1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
+
 [1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,0,1],
+
 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,1],
+
 [1,0,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,0,1,0,1],
+
 [1,0,0,0,0,0,0,0,0,0,2,0,1,0,0,0,0,0,0,0,0,0,0,1],
+
 [1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,3,1],
+
 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+
 ];
 
 let map;
 
-function resetGame() {
-  map = originalMap.map(row => [...row]);
-  player.x = 2*TILE+6;
-  player.y = 13*TILE+6;
-  player.dir = "down";
-  collected = 0;
-  doorOpen = false;
+function resetGame(){
+
+  map=originalMap.map(r=>[...r]);
+
+  Object.assign(player,{
+    x:2*TILE+6,
+    y:13*TILE+6,
+    dir:"down",
+    walk:0
+  });
+
+  collected=0;
+  doorOpen=false;
 }
 
 resetGame();
 
-document.addEventListener("keydown", e => {
-  const k = e.key.toLowerCase();
+document.addEventListener("keydown",e=>{
 
-  if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))
+  const k=e.key.toLowerCase();
+
+  if([
+    "arrowup",
+    "arrowdown",
+    "arrowleft",
+    "arrowright",
+    " "
+  ].includes(k)){
     e.preventDefault();
+  }
 
-  keys[k] = true;
+  keys[k]=true;
 
-  if(state === "title" && e.key === "Enter") {
+  if(state==="title" && e.key==="Enter"){
     resetGame();
-    state = "playing";
+    state="playing";
   }
 
-  if(state === "win" && e.key === "Enter") {
-    state = "title";
+  if(state==="win" && e.key==="Enter"){
+    state="title";
   }
+
 });
 
-document.addEventListener("keyup", e => {
-  keys[e.key.toLowerCase()] = false;
+document.addEventListener("keyup",e=>{
+  keys[e.key.toLowerCase()]=false;
 });
 
-function isWallAt(x,y) {
-  const left = Math.floor(x/TILE);
-  const right = Math.floor((x+player.size-1)/TILE);
-  const top = Math.floor(y/TILE);
-  const bottom = Math.floor((y+player.size-1)/TILE);
+function isWallAt(x,y){
 
-  const cells = [
-    map[top]?.[left],
-    map[top]?.[right],
-    map[bottom]?.[left],
-    map[bottom]?.[right]
-  ];
+  const l=Math.floor(x/TILE);
+  const r=Math.floor((x+player.size-1)/TILE);
 
-  return cells.some(v => v === 1 || (v === 3 && !doorOpen));
+  const t=Math.floor(y/TILE);
+  const b=Math.floor((y+player.size-1)/TILE);
+
+  return [
+    map[t]?.[l],
+    map[t]?.[r],
+    map[b]?.[l],
+    map[b]?.[r]
+  ].some(v=>v===1 || (v===3 && !doorOpen));
+
 }
 
-function playerTile() {
-  return {
+function playerTile(){
+
+  return{
     x:Math.floor((player.x+player.size/2)/TILE),
     y:Math.floor((player.y+player.size/2)/TILE)
   };
+
 }
 
-function checkTile() {
-  const p = playerTile();
-  const tile = map[p.y]?.[p.x];
+function checkTile(){
 
-  if(tile === 2) {
-    map[p.y][p.x] = 0;
+  const p=playerTile();
+  const tile=map[p.y]?.[p.x];
+
+  if(tile===2){
+
+    map[p.y][p.x]=0;
+
     collected++;
 
-    if(collected >= 3)
-      doorOpen = true;
+    if(collected>=3){
+      doorOpen=true;
+    }
+
   }
 
-  if(tile === 3 && doorOpen) {
-    state = "win";
+  if(tile===3 && doorOpen){
+    state="win";
   }
+
 }
 
-function update() {
-  if(state !== "playing") return;
+function update(){
 
-  let dx=0,dy=0;
+  if(state!=="playing")return;
 
-  if(keys["a"] || keys["arrowleft"]) {
+  let dx=0;
+  let dy=0;
+
+  if(keys.a || keys.arrowleft){
     dx=-player.speed;
     player.dir="left";
   }
 
-  if(keys["d"] || keys["arrowright"]) {
+  if(keys.d || keys.arrowright){
     dx=player.speed;
     player.dir="right";
   }
 
-  if(keys["w"] || keys["arrowup"]) {
+  if(keys.w || keys.arrowup){
     dy=-player.speed;
     player.dir="up";
   }
 
-  if(keys["s"] || keys["arrowdown"]) {
+  if(keys.s || keys.arrowdown){
     dy=player.speed;
     player.dir="down";
   }
 
-  if(dx || dy)
-    player.walk += .18;
+  if(dx || dy){
+    player.walk+=.18;
+  }
 
-  if(!isWallAt(player.x+dx,player.y))
-    player.x += dx;
+  if(!isWallAt(player.x+dx,player.y)){
+    player.x+=dx;
+  }
 
-  if(!isWallAt(player.x,player.y+dy))
-    player.y += dy;
+  if(!isWallAt(player.x,player.y+dy)){
+    player.y+=dy;
+  }
 
   checkTile();
+
 }
 
-function drawFloor(x,y) {
-  ctx.fillStyle=((x+y)%2===0) ? "#0b0a08" : "#0d0c09";
-  ctx.fillRect(x*TILE,y*TILE,TILE,TILE);
+/* =========================
+   FLOOR
+   ========================= */
+
+function drawFloor(x,y){
+
+  ctx.fillStyle=((x+y)%2===0)
+    ? "#0b0a08"
+    : "#0e0c09";
+
+  ctx.fillRect(
+    x*TILE,
+    y*TILE,
+    TILE,
+    TILE
+  );
+
+  ctx.fillStyle="rgba(90,68,32,.08)";
+
+  ctx.fillRect(
+    x*TILE+4,
+    y*TILE+4,
+    2,
+    2
+  );
+
 }
 
-function drawWall(x,y) {
+/* =========================
+   WALLS
+   ========================= */
+
+function drawWall(x,y){
+
   const px=x*TILE;
   const py=y*TILE;
 
-  ctx.fillStyle="#17140e";
+  ctx.fillStyle="#1a1710";
   ctx.fillRect(px,py,TILE,TILE);
 
-  ctx.fillStyle="#211c12";
-  ctx.fillRect(px+2,py+2,TILE-4,4);
+  ctx.fillStyle="#2a2215";
+  ctx.fillRect(
+    px+2,
+    py+2,
+    TILE-4,
+    4
+  );
 
-  ctx.fillStyle="#0c0b08";
-  ctx.fillRect(px+3,py+TILE-5,TILE-6,3);
+  ctx.fillStyle="#0b0a07";
+  ctx.fillRect(
+    px+3,
+    py+TILE-5,
+    TILE-6,
+    3
+  );
 
-  ctx.strokeStyle="#302719";
-  ctx.strokeRect(px+.5,py+.5,TILE-1,TILE-1);
+  ctx.strokeStyle="#3b2f1c";
+
+  ctx.strokeRect(
+    px+.5,
+    py+.5,
+    TILE-1,
+    TILE-1
+  );
+
 }
 
-function drawFlame(x,y) {
-  const px=x*TILE+TILE/2;
-  const py=y*TILE+TILE/2;
+/* =========================
+   COLLECTIBLE FLAMES
+   ========================= */
 
-  const bob=Math.sin(frame*.08+x)*2;
+function drawFlame(x,y){
 
-  ctx.fillStyle="rgba(216,180,90,.15)";
+  const px=x*TILE+16;
+  const py=y*TILE+16;
+
+  const bob=
+    Math.sin(frame*.08+x)*2;
+
+  ctx.fillStyle=
+    "rgba(216,180,90,.14)";
+
   ctx.beginPath();
-  ctx.arc(px,py+bob,14,0,Math.PI*2);
+
+  ctx.arc(
+    px,
+    py+bob,
+    15,
+    0,
+    Math.PI*2
+  );
+
   ctx.fill();
 
   ctx.fillStyle="#8e5e1f";
-  ctx.fillRect(px-5,py+6+bob,10,6);
+
+  ctx.fillRect(
+    px-5,
+    py+6+bob,
+    10,
+    6
+  );
 
   ctx.fillStyle="#d89527";
-  ctx.fillRect(px-5,py-5+bob,10,12);
+
+  ctx.fillRect(
+    px-5,
+    py-5+bob,
+    10,
+    12
+  );
 
   ctx.fillStyle="#ffe49a";
-  ctx.fillRect(px-2,py-8+bob,5,10);
+
+  ctx.fillRect(
+    px-2,
+    py-8+bob,
+    5,
+    10
+  );
+
 }
 
-function drawDoor(x,y) {
+/* =========================
+   EXIT DOOR
+   ========================= */
+
+function drawDoor(x,y){
+
   const px=x*TILE;
   const py=y*TILE;
 
-  if(!doorOpen) {
+  if(!doorOpen){
+
     ctx.fillStyle="#211b11";
-    ctx.fillRect(px+5,py+2,22,30);
+
+    ctx.fillRect(
+      px+5,
+      py+2,
+      22,
+      30
+    );
 
     ctx.fillStyle="#4d3c1d";
-    ctx.fillRect(px+9,py+7,14,19);
+
+    ctx.fillRect(
+      px+9,
+      py+7,
+      14,
+      19
+    );
 
     ctx.fillStyle="#a47b2d";
-    ctx.fillRect(px+18,py+16,3,3);
-  } else {
+
+    ctx.fillRect(
+      px+18,
+      py+16,
+      3,
+      3
+    );
+
+  }else{
+
     ctx.fillStyle="#020202";
-    ctx.fillRect(px+4,py+1,24,31);
+
+    ctx.fillRect(
+      px+4,
+      py+1,
+      24,
+      31
+    );
 
     ctx.strokeStyle="#b78d3d";
-    ctx.strokeRect(px+4.5,py+1.5,23,30);
+
+    ctx.strokeRect(
+      px+4.5,
+      py+1.5,
+      23,
+      30
+    );
 
     ctx.fillStyle="#e0bd64";
-    ctx.fillRect(px+13,py+7,6,13);
+
+    ctx.fillRect(
+      px+13,
+      py+7,
+      6,
+      13
+    );
+
   }
+
 }
 
-function drawMap() {
-  for(let y=0;y<ROWS;y++) {
-    for(let x=0;x<COLS;x++) {
+/* =========================
+   MAP
+   ========================= */
+
+function drawMap(){
+
+  for(let y=0;y<ROWS;y++){
+
+    for(let x=0;x<COLS;x++){
+
       drawFloor(x,y);
 
       const t=map[y][x];
 
-      if(t===1) drawWall(x,y);
-      if(t===2) drawFlame(x,y);
-      if(t===3) drawDoor(x,y);
+      if(t===1)drawWall(x,y);
+
+      if(t===2)drawFlame(x,y);
+
+      if(t===3)drawDoor(x,y);
+
     }
+
   }
+
 }
 
-function drawPlayer() {
-  const x=Math.round(player.x);
-  const y=Math.round(player.y);
-  const bob=Math.sin(player.walk)*1.5;
+/* ==========================================================
+   DARKNESS
 
-  /* shadow */
-  ctx.fillStyle="rgba(0,0,0,.55)";
-  ctx.fillRect(x+3,y+17,16,5);
+   The room stays dark, but the player's lantern cuts a
+   larger hole through the darkness so nearby stone is visible.
+   ========================================================== */
 
-  /* cloak/body */
-  ctx.fillStyle="#5f563d";
-  ctx.fillRect(x+5,y+8+bob,11,11);
+function drawDarkness(){
 
-  ctx.fillStyle="#88734a";
-  ctx.fillRect(x+7,y+4+bob,8,8);
+  const cx=
+    player.x+
+    player.size/2;
 
-  /* hood */
-  ctx.fillStyle="#26231b";
-  ctx.fillRect(x+6,y+2+bob,10,6);
+  const cy=
+    player.y+
+    player.size/2;
 
-  /* face */
-  ctx.fillStyle="#d6b27b";
-  ctx.fillRect(x+9,y+6+bob,5,4);
-
-  /* lantern arm */
-  let lx=x+17, ly=y+11+bob;
-
-  if(player.dir==="left") lx=x-5;
-  if(player.dir==="up") { lx=x+16; ly=y+4+bob; }
-  if(player.dir==="down") { lx=x+17; ly=y+12+bob; }
-
-  ctx.fillStyle="#8c6b2e";
-  ctx.fillRect(lx,ly,5,7);
-
-  ctx.fillStyle="#ffe08a";
-  ctx.fillRect(lx+1,ly+2,3,3);
-}
-
-function drawDarkness() {
-  const cx=player.x+player.size/2;
-  const cy=player.y+player.size/2;
-
-  const flicker =
-    118 +
-    Math.sin(frame*.19)*4 +
-    Math.sin(frame*.07)*3;
+  const flicker=
+    154+
+    Math.sin(frame*.19)*5+
+    Math.sin(frame*.07)*4;
 
   ctx.save();
 
-  ctx.fillStyle="rgba(0,0,0,.92)";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle=
+    "rgba(0,0,0,.965)";
 
-  ctx.globalCompositeOperation="destination-out";
-
-  const g=ctx.createRadialGradient(
-    cx,cy,18,
-    cx,cy,flicker
+  ctx.fillRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
   );
 
-  g.addColorStop(0,"rgba(0,0,0,1)");
-  g.addColorStop(.5,"rgba(0,0,0,.82)");
-  g.addColorStop(1,"rgba(0,0,0,0)");
+  ctx.globalCompositeOperation=
+    "destination-out";
+
+  const g=
+    ctx.createRadialGradient(
+      cx,
+      cy,
+      20,
+      cx,
+      cy,
+      flicker
+    );
+
+  g.addColorStop(
+    0,
+    "rgba(0,0,0,1)"
+  );
+
+  g.addColorStop(
+    .28,
+    "rgba(0,0,0,.98)"
+  );
+
+  g.addColorStop(
+    .58,
+    "rgba(0,0,0,.82)"
+  );
+
+  g.addColorStop(
+    .82,
+    "rgba(0,0,0,.34)"
+  );
+
+  g.addColorStop(
+    1,
+    "rgba(0,0,0,0)"
+  );
 
   ctx.fillStyle=g;
+
   ctx.beginPath();
-  ctx.arc(cx,cy,flicker,0,Math.PI*2);
+
+  ctx.arc(
+    cx,
+    cy,
+    flicker,
+    0,
+    Math.PI*2
+  );
+
   ctx.fill();
 
   ctx.restore();
+
 }
 
-function drawHUD() {
-  ctx.fillStyle="rgba(0,0,0,.72)";
-  ctx.fillRect(10,10,132,27);
+/* ==========================================================
+   LANTERN LIGHT
 
-  ctx.strokeStyle="#554526";
-  ctx.strokeRect(10.5,10.5,131,26);
+   This is separate from the darkness mask.
 
-  ctx.fillStyle="#d8b45a";
-  ctx.font="14px Courier New";
-  ctx.fillText(
-    "LIGHT "+collected+" / 3",
-    21,29
+   Instead of merely revealing the wall, this layer actually
+   paints warm amber light onto the floor and stone around Syn.
+   ========================================================== */
+
+function drawLanternLight(){
+
+  const cx=
+    player.x+
+    player.size/2;
+
+  const cy=
+    player.y+
+    player.size/2;
+
+  const flicker=
+    148+
+    Math.sin(frame*.19)*5+
+    Math.sin(frame*.071)*4;
+
+  ctx.save();
+
+  ctx.globalCompositeOperation=
+    "screen";
+
+  const g=
+    ctx.createRadialGradient(
+      cx,
+      cy,
+      8,
+      cx,
+      cy,
+      flicker
+    );
+
+  g.addColorStop(
+    0,
+    "rgba(255,213,111,.28)"
   );
 
-  if(doorOpen) {
+  g.addColorStop(
+    .20,
+    "rgba(237,173,61,.20)"
+  );
+
+  g.addColorStop(
+    .52,
+    "rgba(194,118,31,.10)"
+  );
+
+  g.addColorStop(
+    .78,
+    "rgba(125,71,20,.035)"
+  );
+
+  g.addColorStop(
+    1,
+    "rgba(0,0,0,0)"
+  );
+
+  ctx.fillStyle=g;
+
+  ctx.beginPath();
+
+  ctx.arc(
+    cx,
+    cy,
+    flicker,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  ctx.restore();
+
+}
+
+/* =========================
+   PLAYER
+   ========================= */
+
+function drawPlayer(){
+
+  const x=Math.round(player.x);
+  const y=Math.round(player.y);
+
+  const bob=
+    Math.sin(player.walk)*1.5;
+
+  /* shadow */
+
+  ctx.fillStyle=
+    "rgba(0,0,0,.6)";
+
+  ctx.fillRect(
+    x+3,
+    y+17,
+    16,
+    5
+  );
+
+  /* coat */
+
+  ctx.fillStyle="#5f563d";
+
+  ctx.fillRect(
+    x+5,
+    y+8+bob,
+    11,
+    11
+  );
+
+  /* head */
+
+  ctx.fillStyle="#9a8050";
+
+  ctx.fillRect(
+    x+7,
+    y+4+bob,
+    8,
+    8
+  );
+
+  /* hat */
+
+  ctx.fillStyle="#29251c";
+
+  ctx.fillRect(
+    x+6,
+    y+2+bob,
+    10,
+    6
+  );
+
+  /* face */
+
+  ctx.fillStyle="#dfbd83";
+
+  ctx.fillRect(
+    x+9,
+    y+6+bob,
+    5,
+    4
+  );
+
+  /* lantern */
+
+  let lx=x+17;
+  let ly=y+11+bob;
+
+  if(player.dir==="left"){
+    lx=x-5;
+  }
+
+  if(player.dir==="up"){
+    lx=x+16;
+    ly=y+4+bob;
+  }
+
+  if(player.dir==="down"){
+    lx=x+17;
+    ly=y+12+bob;
+  }
+
+  ctx.fillStyle="#8c6b2e";
+
+  ctx.fillRect(
+    lx,
+    ly,
+    5,
+    7
+  );
+
+  ctx.fillStyle="#fff0a8";
+
+  ctx.fillRect(
+    lx+1,
+    ly+2,
+    3,
+    3
+  );
+
+}
+
+/* =========================
+   HUD
+   ========================= */
+
+function drawHUD(){
+
+  ctx.fillStyle=
+    "rgba(0,0,0,.72)";
+
+  ctx.fillRect(
+    10,
+    10,
+    132,
+    27
+  );
+
+  ctx.strokeStyle="#554526";
+
+  ctx.strokeRect(
+    10.5,
+    10.5,
+    131,
+    26
+  );
+
+  ctx.fillStyle="#d8b45a";
+
+  ctx.font=
+    "14px Courier New";
+
+  ctx.fillText(
+    "LIGHT "+collected+" / 3",
+    21,
+    29
+  );
+
+  if(doorOpen){
+
     ctx.textAlign="right";
-    ctx.fillStyle="#d8b45a";
+
     ctx.fillText(
       "THE WAY IS OPEN",
       canvas.width-18,
       29
     );
+
     ctx.textAlign="left";
+
   }
+
 }
 
-function drawTitle() {
-  ctx.fillStyle="#030303";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+/* =========================
+   TITLE SCREEN
+   ========================= */
 
-  /* distant lantern */
-  const glow=ctx.createRadialGradient(
-    384,225,2,
-    384,225,95
+function drawTitle(){
+
+  ctx.fillStyle="#030303";
+
+  ctx.fillRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
   );
 
-  glow.addColorStop(0,"rgba(255,220,120,.45)");
-  glow.addColorStop(1,"rgba(255,190,60,0)");
+  const glow=
+    ctx.createRadialGradient(
+      384,
+      225,
+      2,
+      384,
+      225,
+      105
+    );
+
+  glow.addColorStop(
+    0,
+    "rgba(255,220,120,.48)"
+  );
+
+  glow.addColorStop(
+    1,
+    "rgba(255,190,60,0)"
+  );
 
   ctx.fillStyle=glow;
-  ctx.fillRect(280,120,208,208);
+
+  ctx.fillRect(
+    270,
+    110,
+    228,
+    228
+  );
 
   ctx.fillStyle="#d8b45a";
-  ctx.fillRect(378,211,12,25);
+
+  ctx.fillRect(
+    378,
+    211,
+    12,
+    25
+  );
 
   ctx.fillStyle="#ffe6a0";
-  ctx.fillRect(381,216,6,11);
+
+  ctx.fillRect(
+    381,
+    216,
+    6,
+    11
+  );
 
   ctx.textAlign="center";
 
   ctx.fillStyle="#d8b45a";
-  ctx.font="bold 31px Courier New";
+
+  ctx.font=
+    "bold 31px Courier New";
+
   ctx.fillText(
     "THE LANTERN ROOM",
-    canvas.width/2,
+    384,
     330
   );
 
   ctx.fillStyle="#79663c";
-  ctx.font="13px Courier New";
+
+  ctx.font=
+    "13px Courier New";
+
   ctx.fillText(
     "SOME THINGS ARE MEANT TO BE FOUND",
-    canvas.width/2,
+    384,
     358
   );
 
-  if(Math.floor(frame/35)%2===0) {
+  if(Math.floor(frame/35)%2===0){
+
     ctx.fillStyle="#d8b45a";
-    ctx.font="16px Courier New";
+
+    ctx.font=
+      "16px Courier New";
+
     ctx.fillText(
       "PRESS ENTER",
-      canvas.width/2,
+      384,
       414
     );
+
   }
 
   ctx.fillStyle="#40371f";
-  ctx.font="11px Courier New";
+
+  ctx.font=
+    "11px Courier New";
+
   ctx.fillText(
     "LAST LANTERN WORKSHOP // 2026",
-    canvas.width/2,
+    384,
     475
   );
 
   ctx.textAlign="left";
+
 }
 
-function drawWin() {
-  ctx.fillStyle="#020202";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+/* =========================
+   WIN SCREEN
+   ========================= */
 
-  const glow=ctx.createRadialGradient(
-    384,220,0,
-    384,220,170
+function drawWin(){
+
+  ctx.fillStyle="#020202";
+
+  ctx.fillRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
   );
+
+  const glow=
+    ctx.createRadialGradient(
+      384,
+      220,
+      0,
+      384,
+      220,
+      170
+    );
 
   glow.addColorStop(
     0,
@@ -521,80 +1011,126 @@ function drawWin() {
   );
 
   ctx.fillStyle=glow;
-  ctx.fillRect(190,30,390,390);
+
+  ctx.fillRect(
+    190,
+    30,
+    390,
+    390
+  );
 
   ctx.textAlign="center";
 
   ctx.fillStyle="#d8b45a";
-  ctx.font="bold 28px Courier New";
+
+  ctx.font=
+    "bold 28px Courier New";
+
   ctx.fillText(
     "THE LIGHT REMAINS.",
-    canvas.width/2,
+    384,
     205
   );
 
   ctx.fillStyle="#8e7745";
-  ctx.font="14px Courier New";
+
+  ctx.font=
+    "14px Courier New";
+
   ctx.fillText(
     "YOU FOUND THE LANTERN ROOM.",
-    canvas.width/2,
+    384,
     247
   );
 
   ctx.fillStyle="#5e5132";
-  ctx.font="12px Courier New";
+
+  ctx.font=
+    "12px Courier New";
+
   ctx.fillText(
     "LAST LANTERN WORKSHOP™",
-    canvas.width/2,
+    384,
     304
   );
 
   ctx.fillText(
     "2026",
-    canvas.width/2,
+    384,
     326
   );
 
-  if(Math.floor(frame/35)%2===0) {
+  if(Math.floor(frame/35)%2===0){
+
     ctx.fillStyle="#a78a4a";
+
     ctx.fillText(
       "PRESS ENTER",
-      canvas.width/2,
+      384,
       403
     );
+
   }
 
   ctx.textAlign="left";
+
 }
 
-function draw() {
-  if(state==="title") {
+/* =========================
+   DRAW EVERYTHING
+   ========================= */
+
+function draw(){
+
+  if(state==="title"){
     drawTitle();
     return;
   }
 
-  if(state==="win") {
+  if(state==="win"){
     drawWin();
     return;
   }
 
   ctx.fillStyle="#070706";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  ctx.fillRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
 
   drawMap();
-drawDarkness();
-drawPlayer();
-drawHUD();
+
+  drawDarkness();
+
+  drawLanternLight();
+
+  drawPlayer();
+
+  drawHUD();
+
 }
 
-function loop() {
+/* =========================
+   GAME LOOP
+   ========================= */
+
+function loop(){
+
   frame++;
+
   update();
+
   draw();
+
   requestAnimationFrame(loop);
+
 }
 
 loop();
+
 </script>
 
 </body>

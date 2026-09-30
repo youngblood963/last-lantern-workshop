@@ -1,80 +1,84 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>The Lantern Room</title>
 
 <style>
-html, body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    background: #050505;
-    color: #d8b45a;
-    font-family: "Courier New", monospace;
-    overflow: hidden;
+* { box-sizing:border-box; }
+
+html,body {
+  margin:0;
+  width:100%;
+  height:100%;
+  background:#030303;
+  color:#d8b45a;
+  font-family:"Courier New",monospace;
+  overflow:hidden;
 }
 
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
 #cabinet {
-    text-align: center;
+  text-align:center;
+  user-select:none;
 }
 
 h1 {
-    font-size: 30px;
-    letter-spacing: 5px;
-    margin: 0 0 5px;
-    text-shadow: 0 0 10px #d8b45a;
+  margin:0 0 4px;
+  font-size:30px;
+  letter-spacing:6px;
+  text-shadow:0 0 12px #d8b45a;
 }
 
 .subtitle {
-    font-size: 12px;
-    margin-bottom: 14px;
-    color: #8e7b4e;
-}
-
-#game {
-    width: 768px;
-    height: 512px;
-    max-width: 94vw;
-    max-height: 72vh;
-    border: 4px solid #40351f;
-    background: #090909;
-    image-rendering: pixelated;
-    box-shadow:
-        0 0 0 4px #15120c,
-        0 0 30px rgba(216,180,90,.18);
-}
-
-.controls {
-    margin-top: 14px;
-    font-size: 12px;
-    color: #74694f;
+  color:#806c3d;
+  font-size:11px;
+  margin-bottom:13px;
 }
 
 #screen {
-    position: relative;
+  position:relative;
+  display:inline-block;
+  border:4px solid #40351f;
+  box-shadow:
+    0 0 0 4px #15120c,
+    0 0 35px rgba(216,180,90,.16);
 }
 
-#screen::after {
-    content: "";
-    pointer-events: none;
-    position: absolute;
-    inset: 0;
-    background:
-        repeating-linear-gradient(
-            0deg,
-            rgba(0,0,0,.14),
-            rgba(0,0,0,.14) 1px,
-            transparent 1px,
-            transparent 3px
-        );
+canvas {
+  display:block;
+  width:min(768px,94vw);
+  height:auto;
+  max-height:72vh;
+  background:#070706;
+  image-rendering:pixelated;
+}
+
+#screen:after {
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,.13) 0px,
+    rgba(0,0,0,.13) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+.controls {
+  margin-top:13px;
+  color:#756747;
+  font-size:11px;
 }
 </style>
 </head>
@@ -82,66 +86,53 @@ h1 {
 <body>
 
 <div id="cabinet">
+  <h1>THE LANTERN ROOM</h1>
+  <div class="subtitle">SOME THINGS ARE MEANT TO BE FOUND</div>
 
-<h1>THE LANTERN ROOM</h1>
+  <div id="screen">
+    <canvas id="game" width="768" height="512"></canvas>
+  </div>
 
-<div class="subtitle">
-SOME THINGS ARE MEANT TO BE FOUND
-</div>
-
-<div id="screen">
-<canvas id="game" width="768" height="512"></canvas>
-</div>
-
-<div class="controls">
-ARROW KEYS / WASD &nbsp; • &nbsp; FIND THE LIGHT
-</div>
-
+  <div class="controls">
+    ARROW KEYS / WASD &nbsp; • &nbsp; FIND THE LIGHT
+  </div>
 </div>
 
 <script>
-
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-
 ctx.imageSmoothingEnabled = false;
 
 const TILE = 32;
+const COLS = 24;
+const ROWS = 16;
 
-const player = {
-    x: 3 * TILE,
-    y: 7 * TILE,
-    size: 20,
-    speed: 3
-};
+let state = "title";
+let collected = 0;
+let doorOpen = false;
+let frame = 0;
 
 const keys = {};
 
-document.addEventListener("keydown", e => {
-    keys[e.key.toLowerCase()] = true;
-
-    if (
-        ["arrowup","arrowdown","arrowleft","arrowright"].includes(
-            e.key.toLowerCase()
-        )
-    ) {
-        e.preventDefault();
-    }
-});
-
-document.addEventListener("keyup", e => {
-    keys[e.key.toLowerCase()] = false;
-});
+const player = {
+  x: 2*TILE+6,
+  y: 13*TILE+6,
+  size:20,
+  speed:2.5,
+  dir:"down",
+  walk:0
+};
 
 /*
-0 = floor
-1 = wall
-2 = lantern flame
+0 floor
+1 wall
+2 flame
+3 exit
 */
 
-const map = [
+const originalMap = [
 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-[1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1],
+[1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,1],
 [1,0,1,1,1,0,0,1,0,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1],
 [1,0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1],
 [1,0,1,0,1,1,1,1,1,1,0,1,0,1,0,0,1,0,1,1,1,1,0,1],
@@ -153,162 +144,457 @@ const map = [
 [1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,0,1],
 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,1],
 [1,0,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,0,1,0,1],
-[1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1],
-[1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
+[1,0,0,0,0,0,0,0,0,0,2,0,1,0,0,0,0,0,0,0,0,0,0,1],
+[1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,3,1],
 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 ];
 
-function wallAt(x, y) {
+let map;
 
-    const left   = Math.floor(x / TILE);
-    const right  = Math.floor((x + player.size - 1) / TILE);
-    const top    = Math.floor(y / TILE);
-    const bottom = Math.floor((y + player.size - 1) / TILE);
+function resetGame() {
+  map = originalMap.map(row => [...row]);
+  player.x = 2*TILE+6;
+  player.y = 13*TILE+6;
+  player.dir = "down";
+  collected = 0;
+  doorOpen = false;
+}
 
-    return (
-        map[top]?.[left] === 1 ||
-        map[top]?.[right] === 1 ||
-        map[bottom]?.[left] === 1 ||
-        map[bottom]?.[right] === 1
-    );
+resetGame();
+
+document.addEventListener("keydown", e => {
+  const k = e.key.toLowerCase();
+
+  if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k))
+    e.preventDefault();
+
+  keys[k] = true;
+
+  if(state === "title" && e.key === "Enter") {
+    resetGame();
+    state = "playing";
+  }
+
+  if(state === "win" && e.key === "Enter") {
+    state = "title";
+  }
+});
+
+document.addEventListener("keyup", e => {
+  keys[e.key.toLowerCase()] = false;
+});
+
+function isWallAt(x,y) {
+  const left = Math.floor(x/TILE);
+  const right = Math.floor((x+player.size-1)/TILE);
+  const top = Math.floor(y/TILE);
+  const bottom = Math.floor((y+player.size-1)/TILE);
+
+  const cells = [
+    map[top]?.[left],
+    map[top]?.[right],
+    map[bottom]?.[left],
+    map[bottom]?.[right]
+  ];
+
+  return cells.some(v => v === 1 || (v === 3 && !doorOpen));
+}
+
+function playerTile() {
+  return {
+    x:Math.floor((player.x+player.size/2)/TILE),
+    y:Math.floor((player.y+player.size/2)/TILE)
+  };
+}
+
+function checkTile() {
+  const p = playerTile();
+  const tile = map[p.y]?.[p.x];
+
+  if(tile === 2) {
+    map[p.y][p.x] = 0;
+    collected++;
+
+    if(collected >= 3)
+      doorOpen = true;
+  }
+
+  if(tile === 3 && doorOpen) {
+    state = "win";
+  }
 }
 
 function update() {
+  if(state !== "playing") return;
 
-    let dx = 0;
-    let dy = 0;
+  let dx=0,dy=0;
 
-    if (keys["arrowleft"] || keys["a"]) dx -= player.speed;
-    if (keys["arrowright"] || keys["d"]) dx += player.speed;
-    if (keys["arrowup"] || keys["w"]) dy -= player.speed;
-    if (keys["arrowdown"] || keys["s"]) dy += player.speed;
+  if(keys["a"] || keys["arrowleft"]) {
+    dx=-player.speed;
+    player.dir="left";
+  }
 
-    if (!wallAt(player.x + dx, player.y))
-        player.x += dx;
+  if(keys["d"] || keys["arrowright"]) {
+    dx=player.speed;
+    player.dir="right";
+  }
 
-    if (!wallAt(player.x, player.y + dy))
-        player.y += dy;
+  if(keys["w"] || keys["arrowup"]) {
+    dy=-player.speed;
+    player.dir="up";
+  }
+
+  if(keys["s"] || keys["arrowdown"]) {
+    dy=player.speed;
+    player.dir="down";
+  }
+
+  if(dx || dy)
+    player.walk += .18;
+
+  if(!isWallAt(player.x+dx,player.y))
+    player.x += dx;
+
+  if(!isWallAt(player.x,player.y+dy))
+    player.y += dy;
+
+  checkTile();
+}
+
+function drawFloor(x,y) {
+  ctx.fillStyle=((x+y)%2===0) ? "#0b0a08" : "#0d0c09";
+  ctx.fillRect(x*TILE,y*TILE,TILE,TILE);
+}
+
+function drawWall(x,y) {
+  const px=x*TILE;
+  const py=y*TILE;
+
+  ctx.fillStyle="#17140e";
+  ctx.fillRect(px,py,TILE,TILE);
+
+  ctx.fillStyle="#211c12";
+  ctx.fillRect(px+2,py+2,TILE-4,4);
+
+  ctx.fillStyle="#0c0b08";
+  ctx.fillRect(px+3,py+TILE-5,TILE-6,3);
+
+  ctx.strokeStyle="#302719";
+  ctx.strokeRect(px+.5,py+.5,TILE-1,TILE-1);
+}
+
+function drawFlame(x,y) {
+  const px=x*TILE+TILE/2;
+  const py=y*TILE+TILE/2;
+
+  const bob=Math.sin(frame*.08+x)*2;
+
+  ctx.fillStyle="rgba(216,180,90,.15)";
+  ctx.beginPath();
+  ctx.arc(px,py+bob,14,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle="#8e5e1f";
+  ctx.fillRect(px-5,py+6+bob,10,6);
+
+  ctx.fillStyle="#d89527";
+  ctx.fillRect(px-5,py-5+bob,10,12);
+
+  ctx.fillStyle="#ffe49a";
+  ctx.fillRect(px-2,py-8+bob,5,10);
+}
+
+function drawDoor(x,y) {
+  const px=x*TILE;
+  const py=y*TILE;
+
+  if(!doorOpen) {
+    ctx.fillStyle="#211b11";
+    ctx.fillRect(px+5,py+2,22,30);
+
+    ctx.fillStyle="#4d3c1d";
+    ctx.fillRect(px+9,py+7,14,19);
+
+    ctx.fillStyle="#a47b2d";
+    ctx.fillRect(px+18,py+16,3,3);
+  } else {
+    ctx.fillStyle="#020202";
+    ctx.fillRect(px+4,py+1,24,31);
+
+    ctx.strokeStyle="#b78d3d";
+    ctx.strokeRect(px+4.5,py+1.5,23,30);
+
+    ctx.fillStyle="#e0bd64";
+    ctx.fillRect(px+13,py+7,6,13);
+  }
 }
 
 function drawMap() {
+  for(let y=0;y<ROWS;y++) {
+    for(let x=0;x<COLS;x++) {
+      drawFloor(x,y);
 
-    for (let y = 0; y < map.length; y++) {
+      const t=map[y][x];
 
-        for (let x = 0; x < map[y].length; x++) {
-
-            const tile = map[y][x];
-
-            if (tile === 1) {
-
-                ctx.fillStyle = "#17150f";
-                ctx.fillRect(
-                    x*TILE,
-                    y*TILE,
-                    TILE,
-                    TILE
-                );
-
-                ctx.strokeStyle = "#292315";
-                ctx.strokeRect(
-                    x*TILE+.5,
-                    y*TILE+.5,
-                    TILE-1,
-                    TILE-1
-                );
-            }
-
-            if (tile === 2) {
-
-                ctx.fillStyle = "#d8b45a";
-                ctx.fillRect(
-                    x*TILE+11,
-                    y*TILE+10,
-                    10,
-                    14
-                );
-            }
-        }
+      if(t===1) drawWall(x,y);
+      if(t===2) drawFlame(x,y);
+      if(t===3) drawDoor(x,y);
     }
+  }
 }
 
 function drawPlayer() {
+  const x=Math.round(player.x);
+  const y=Math.round(player.y);
+  const bob=Math.sin(player.walk)*1.5;
 
-    ctx.fillStyle = "#d8b45a";
+  /* shadow */
+  ctx.fillStyle="rgba(0,0,0,.55)";
+  ctx.fillRect(x+3,y+17,16,5);
 
-    ctx.fillRect(
-        Math.round(player.x),
-        Math.round(player.y),
-        player.size,
-        player.size
-    );
+  /* cloak/body */
+  ctx.fillStyle="#5f563d";
+  ctx.fillRect(x+5,y+8+bob,11,11);
 
-    ctx.fillStyle = "#090909";
+  ctx.fillStyle="#88734a";
+  ctx.fillRect(x+7,y+4+bob,8,8);
 
-    ctx.fillRect(
-        Math.round(player.x)+5,
-        Math.round(player.y)+5,
-        3,
-        3
-    );
+  /* hood */
+  ctx.fillStyle="#26231b";
+  ctx.fillRect(x+6,y+2+bob,10,6);
 
-    ctx.fillRect(
-        Math.round(player.x)+12,
-        Math.round(player.y)+5,
-        3,
-        3
-    );
+  /* face */
+  ctx.fillStyle="#d6b27b";
+  ctx.fillRect(x+9,y+6+bob,5,4);
+
+  /* lantern arm */
+  let lx=x+17, ly=y+11+bob;
+
+  if(player.dir==="left") lx=x-5;
+  if(player.dir==="up") { lx=x+16; ly=y+4+bob; }
+  if(player.dir==="down") { lx=x+17; ly=y+12+bob; }
+
+  ctx.fillStyle="#8c6b2e";
+  ctx.fillRect(lx,ly,5,7);
+
+  ctx.fillStyle="#ffe08a";
+  ctx.fillRect(lx+1,ly+2,3,3);
 }
 
 function drawDarkness() {
+  const cx=player.x+player.size/2;
+  const cy=player.y+player.size/2;
 
-    ctx.save();
+  const flicker =
+    118 +
+    Math.sin(frame*.19)*4 +
+    Math.sin(frame*.07)*3;
 
-    ctx.fillStyle = "rgba(0,0,0,.91)";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.save();
 
-    ctx.globalCompositeOperation = "destination-out";
+  ctx.fillStyle="rgba(0,0,0,.92)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    const cx = player.x + player.size/2;
-    const cy = player.y + player.size/2;
+  ctx.globalCompositeOperation="destination-out";
 
-    const glow = ctx.createRadialGradient(
-        cx,cy,20,
-        cx,cy,115
+  const g=ctx.createRadialGradient(
+    cx,cy,18,
+    cx,cy,flicker
+  );
+
+  g.addColorStop(0,"rgba(0,0,0,1)");
+  g.addColorStop(.5,"rgba(0,0,0,.82)");
+  g.addColorStop(1,"rgba(0,0,0,0)");
+
+  ctx.fillStyle=g;
+  ctx.beginPath();
+  ctx.arc(cx,cy,flicker,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawHUD() {
+  ctx.fillStyle="rgba(0,0,0,.72)";
+  ctx.fillRect(10,10,132,27);
+
+  ctx.strokeStyle="#554526";
+  ctx.strokeRect(10.5,10.5,131,26);
+
+  ctx.fillStyle="#d8b45a";
+  ctx.font="14px Courier New";
+  ctx.fillText(
+    "LIGHT "+collected+" / 3",
+    21,29
+  );
+
+  if(doorOpen) {
+    ctx.textAlign="right";
+    ctx.fillStyle="#d8b45a";
+    ctx.fillText(
+      "THE WAY IS OPEN",
+      canvas.width-18,
+      29
     );
+    ctx.textAlign="left";
+  }
+}
 
-    glow.addColorStop(0,"rgba(0,0,0,1)");
-    glow.addColorStop(.55,"rgba(0,0,0,.8)");
-    glow.addColorStop(1,"rgba(0,0,0,0)");
+function drawTitle() {
+  ctx.fillStyle="#030303";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    ctx.fillStyle = glow;
+  /* distant lantern */
+  const glow=ctx.createRadialGradient(
+    384,225,2,
+    384,225,95
+  );
 
-    ctx.beginPath();
-    ctx.arc(cx,cy,115,0,Math.PI*2);
-    ctx.fill();
+  glow.addColorStop(0,"rgba(255,220,120,.45)");
+  glow.addColorStop(1,"rgba(255,190,60,0)");
 
-    ctx.restore();
+  ctx.fillStyle=glow;
+  ctx.fillRect(280,120,208,208);
+
+  ctx.fillStyle="#d8b45a";
+  ctx.fillRect(378,211,12,25);
+
+  ctx.fillStyle="#ffe6a0";
+  ctx.fillRect(381,216,6,11);
+
+  ctx.textAlign="center";
+
+  ctx.fillStyle="#d8b45a";
+  ctx.font="bold 31px Courier New";
+  ctx.fillText(
+    "THE LANTERN ROOM",
+    canvas.width/2,
+    330
+  );
+
+  ctx.fillStyle="#79663c";
+  ctx.font="13px Courier New";
+  ctx.fillText(
+    "SOME THINGS ARE MEANT TO BE FOUND",
+    canvas.width/2,
+    358
+  );
+
+  if(Math.floor(frame/35)%2===0) {
+    ctx.fillStyle="#d8b45a";
+    ctx.font="16px Courier New";
+    ctx.fillText(
+      "PRESS ENTER",
+      canvas.width/2,
+      414
+    );
+  }
+
+  ctx.fillStyle="#40371f";
+  ctx.font="11px Courier New";
+  ctx.fillText(
+    "LAST LANTERN WORKSHOP // 2026",
+    canvas.width/2,
+    475
+  );
+
+  ctx.textAlign="left";
+}
+
+function drawWin() {
+  ctx.fillStyle="#020202";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  const glow=ctx.createRadialGradient(
+    384,220,0,
+    384,220,170
+  );
+
+  glow.addColorStop(
+    0,
+    "rgba(216,180,90,.23)"
+  );
+
+  glow.addColorStop(
+    1,
+    "rgba(216,180,90,0)"
+  );
+
+  ctx.fillStyle=glow;
+  ctx.fillRect(190,30,390,390);
+
+  ctx.textAlign="center";
+
+  ctx.fillStyle="#d8b45a";
+  ctx.font="bold 28px Courier New";
+  ctx.fillText(
+    "THE LIGHT REMAINS.",
+    canvas.width/2,
+    205
+  );
+
+  ctx.fillStyle="#8e7745";
+  ctx.font="14px Courier New";
+  ctx.fillText(
+    "YOU FOUND THE LANTERN ROOM.",
+    canvas.width/2,
+    247
+  );
+
+  ctx.fillStyle="#5e5132";
+  ctx.font="12px Courier New";
+  ctx.fillText(
+    "LAST LANTERN WORKSHOP™",
+    canvas.width/2,
+    304
+  );
+
+  ctx.fillText(
+    "2026",
+    canvas.width/2,
+    326
+  );
+
+  if(Math.floor(frame/35)%2===0) {
+    ctx.fillStyle="#a78a4a";
+    ctx.fillText(
+      "PRESS ENTER",
+      canvas.width/2,
+      403
+    );
+  }
+
+  ctx.textAlign="left";
 }
 
 function draw() {
+  if(state==="title") {
+    drawTitle();
+    return;
+  }
 
-    ctx.fillStyle = "#080806";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+  if(state==="win") {
+    drawWin();
+    return;
+  }
 
-    drawMap();
-    drawPlayer();
-    drawDarkness();
+  ctx.fillStyle="#070706";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  drawMap();
+  drawPlayer();
+  drawDarkness();
+  drawHUD();
 }
 
-function gameLoop() {
-
-    update();
-    draw();
-
-    requestAnimationFrame(gameLoop);
+function loop() {
+  frame++;
+  update();
+  draw();
+  requestAnimationFrame(loop);
 }
 
-gameLoop();
-
+loop();
 </script>
 
 </body>

@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,90 +9,49 @@
 
 <style>
 *{box-sizing:border-box}
-
 html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  background:#030303;
-  color:#d8b45a;
+  margin:0;width:100%;height:100%;
+  background:#030303;color:#d8b45a;
   font-family:"Courier New",monospace;
-  overflow:hidden;
+  overflow:hidden
 }
-
-body{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-#cabinet{
-  text-align:center;
-  user-select:none;
-}
-
+body{display:flex;align-items:center;justify-content:center}
+#cabinet{text-align:center;user-select:none}
 h1{
-  margin:0 0 4px;
-  font-size:30px;
-  letter-spacing:6px;
-  text-shadow:0 0 12px #d8b45a;
+  margin:0 0 4px;font-size:30px;letter-spacing:6px;
+  text-shadow:0 0 12px #d8b45a
 }
-
-.subtitle{
-  color:#806c3d;
-  font-size:11px;
-  margin-bottom:13px;
-}
-
+.subtitle{color:#806c3d;font-size:11px;margin-bottom:13px}
 #screen{
-  position:relative;
-  display:inline-block;
+  position:relative;display:inline-block;
   border:4px solid #40351f;
-  box-shadow:
-    0 0 0 4px #15120c,
-    0 0 35px rgba(216,180,90,.16);
+  box-shadow:0 0 0 4px #15120c,0 0 35px rgba(216,180,90,.16)
 }
-
 canvas{
-  display:block;
-  width:min(768px,94vw);
-  height:auto;
-  max-height:72vh;
-  background:#070706;
-  image-rendering:pixelated;
+  display:block;width:min(768px,94vw);height:auto;
+  max-height:72vh;background:#070706;
+  image-rendering:pixelated
 }
-
 #screen:after{
-  content:"";
-  position:absolute;
-  inset:0;
-  pointer-events:none;
+  content:"";position:absolute;inset:0;pointer-events:none;
   background:repeating-linear-gradient(
     0deg,
     rgba(0,0,0,.12) 0,
     rgba(0,0,0,.12) 1px,
     transparent 1px,
     transparent 3px
-  );
+  )
 }
-
-.controls{
-  margin-top:13px;
-  color:#756747;
-  font-size:11px;
-}
+.controls{margin-top:13px;color:#756747;font-size:11px}
 </style>
 </head>
 
 <body>
-
 <div id="cabinet">
 
 <h1>THE LANTERN ROOM</h1>
 
-<div class="subtitle">
-SOME THINGS ARE MEANT TO BE FOUND
-</div>
+<div class="subtitle">SOME THINGS ARE MEANT TO BE FOUND</div>
 
 <div id="screen">
 <canvas id="game" width="768" height="512"></canvas>
@@ -107,12 +67,9 @@ ARROW KEYS / WASD &nbsp; • &nbsp; FIND THE LIGHT
 
 const canvas=document.getElementById("game");
 const ctx=canvas.getContext("2d");
-
 ctx.imageSmoothingEnabled=false;
 
-const TILE=32;
-const COLS=24;
-const ROWS=16;
+const TILE=32,COLS=24,ROWS=16;
 
 let state="title";
 let collected=0;
@@ -131,45 +88,27 @@ const player={
 };
 
 const originalMap=[
-
 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-
 [1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,1],
-
 [1,0,1,1,1,0,0,1,0,1,1,1,1,1,0,0,1,1,1,1,1,0,0,1],
-
 [1,0,1,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,1],
-
 [1,0,1,0,1,1,1,1,1,1,0,1,0,1,0,0,1,0,1,1,1,1,0,1],
-
 [1,0,0,0,0,0,0,0,0,1,0,1,0,1,0,0,0,0,0,0,0,1,0,1],
-
 [1,1,1,1,1,1,1,1,0,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1],
-
 [1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,1],
-
 [1,0,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1],
-
 [1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
-
 [1,1,1,0,0,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,0,1],
-
 [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,1],
-
 [1,0,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,1,0,1,0,1],
-
 [1,0,0,0,0,0,0,0,0,0,2,0,1,0,0,0,0,0,0,0,0,0,0,1],
-
 [1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,3,1],
-
 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-
 ];
 
 let map;
 
 function resetGame(){
-
   map=originalMap.map(r=>[...r]);
 
   Object.assign(player,{
@@ -186,16 +125,9 @@ function resetGame(){
 resetGame();
 
 document.addEventListener("keydown",e=>{
-
   const k=e.key.toLowerCase();
 
-  if([
-    "arrowup",
-    "arrowdown",
-    "arrowleft",
-    "arrowright",
-    " "
-  ].includes(k)){
+  if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(k)){
     e.preventDefault();
   }
 
@@ -209,7 +141,6 @@ document.addEventListener("keydown",e=>{
   if(state==="win" && e.key==="Enter"){
     state="title";
   }
-
 });
 
 document.addEventListener("keyup",e=>{
@@ -220,7 +151,6 @@ function isWallAt(x,y){
 
   const l=Math.floor(x/TILE);
   const r=Math.floor((x+player.size-1)/TILE);
-
   const t=Math.floor(y/TILE);
   const b=Math.floor((y+player.size-1)/TILE);
 
@@ -229,17 +159,14 @@ function isWallAt(x,y){
     map[t]?.[r],
     map[b]?.[l],
     map[b]?.[r]
-  ].some(v=>v===1 || (v===3 && !doorOpen));
-
+  ].some(v=>v===1 || (v===3&&!doorOpen));
 }
 
 function playerTile(){
-
   return{
     x:Math.floor((player.x+player.size/2)/TILE),
     y:Math.floor((player.y+player.size/2)/TILE)
   };
-
 }
 
 function checkTile(){
@@ -248,21 +175,17 @@ function checkTile(){
   const tile=map[p.y]?.[p.x];
 
   if(tile===2){
-
     map[p.y][p.x]=0;
-
     collected++;
 
     if(collected>=3){
       doorOpen=true;
     }
-
   }
 
   if(tile===3 && doorOpen){
     state="win";
   }
-
 }
 
 function update(){
@@ -272,27 +195,27 @@ function update(){
   let dx=0;
   let dy=0;
 
-  if(keys.a || keys.arrowleft){
+  if(keys.a||keys.arrowleft){
     dx=-player.speed;
     player.dir="left";
   }
 
-  if(keys.d || keys.arrowright){
+  if(keys.d||keys.arrowright){
     dx=player.speed;
     player.dir="right";
   }
 
-  if(keys.w || keys.arrowup){
+  if(keys.w||keys.arrowup){
     dy=-player.speed;
     player.dir="up";
   }
 
-  if(keys.s || keys.arrowdown){
+  if(keys.s||keys.arrowdown){
     dy=player.speed;
     player.dir="down";
   }
 
-  if(dx || dy){
+  if(dx||dy){
     player.walk+=.18;
   }
 
@@ -305,18 +228,16 @@ function update(){
   }
 
   checkTile();
-
 }
 
-/* =========================
-   FLOOR
-   ========================= */
+
+/* FLOOR */
 
 function drawFloor(x,y){
 
   ctx.fillStyle=((x+y)%2===0)
-    ? "#0b0a08"
-    : "#0e0c09";
+    ? "#14110c"
+    : "#18140e";
 
   ctx.fillRect(
     x*TILE,
@@ -325,7 +246,7 @@ function drawFloor(x,y){
     TILE
   );
 
-  ctx.fillStyle="rgba(90,68,32,.08)";
+  ctx.fillStyle="rgba(145,105,48,.11)";
 
   ctx.fillRect(
     x*TILE+4,
@@ -333,69 +254,67 @@ function drawFloor(x,y){
     2,
     2
   );
-
 }
 
-/* =========================
-   WALLS
-   ========================= */
+
+/* WALLS */
 
 function drawWall(x,y){
 
   const px=x*TILE;
   const py=y*TILE;
 
-  ctx.fillStyle="#1a1710";
+  ctx.fillStyle="#292317";
   ctx.fillRect(px,py,TILE,TILE);
 
-  ctx.fillStyle="#2a2215";
-  ctx.fillRect(
-    px+2,
-    py+2,
-    TILE-4,
-    4
-  );
+  ctx.fillStyle="#44351f";
+  ctx.fillRect(px+2,py+2,TILE-4,4);
 
-  ctx.fillStyle="#0b0a07";
-  ctx.fillRect(
-    px+3,
-    py+TILE-5,
-    TILE-6,
-    3
-  );
+  ctx.fillStyle="#151109";
+  ctx.fillRect(px+3,py+TILE-5,TILE-6,3);
 
-  ctx.strokeStyle="#3b2f1c";
-
-  ctx.strokeRect(
-    px+.5,
-    py+.5,
-    TILE-1,
-    TILE-1
-  );
-
+  ctx.strokeStyle="#594424";
+  ctx.strokeRect(px+.5,py+.5,TILE-1,TILE-1);
 }
 
-/* =========================
-   COLLECTIBLE FLAMES
-   ========================= */
+
+/* FLAMES */
 
 function drawFlame(x,y){
 
   const px=x*TILE+16;
   const py=y*TILE+16;
 
-  const bob=
-    Math.sin(frame*.08+x)*2;
+  const bob=Math.sin(frame*.08+x)*2;
 
-  ctx.fillStyle=
-    "rgba(216,180,90,.14)";
+  const glow=ctx.createRadialGradient(
+    px,py+bob,1,
+    px,py+bob,30
+  );
+
+  glow.addColorStop(
+    0,
+    "rgba(255,225,135,.55)"
+  );
+
+  glow.addColorStop(
+    .45,
+    "rgba(220,145,42,.22)"
+  );
+
+  glow.addColorStop(
+    1,
+    "rgba(220,120,20,0)"
+  );
+
+  ctx.fillStyle=glow;
 
   ctx.beginPath();
 
   ctx.arc(
     px,
     py+bob,
-    15,
+    30,
     0,
     Math.PI*2
   );
@@ -403,37 +322,17 @@ function drawFlame(x,y){
   ctx.fill();
 
   ctx.fillStyle="#8e5e1f";
-
-  ctx.fillRect(
-    px-5,
-    py+6+bob,
-    10,
-    6
-  );
+  ctx.fillRect(px-5,py+6+bob,10,6);
 
   ctx.fillStyle="#d89527";
-
-  ctx.fillRect(
-    px-5,
-    py-5+bob,
-    10,
-    12
-  );
+  ctx.fillRect(px-5,py-5+bob,10,12);
 
   ctx.fillStyle="#ffe49a";
-
-  ctx.fillRect(
-    px-2,
-    py-8+bob,
-    5,
-    10
-  );
-
+  ctx.fillRect(px-2,py-8+bob,5,10);
 }
 
-/* =========================
-   EXIT DOOR
-   ========================= */
+
+/* DOOR */
 
 function drawDoor(x,y){
 
@@ -442,69 +341,30 @@ function drawDoor(x,y){
 
   if(!doorOpen){
 
-    ctx.fillStyle="#211b11";
+    ctx.fillStyle="#312515";
+    ctx.fillRect(px+5,py+2,22,30);
 
-    ctx.fillRect(
-      px+5,
-      py+2,
-      22,
-      30
-    );
+    ctx.fillStyle="#604720";
+    ctx.fillRect(px+9,py+7,14,19);
 
-    ctx.fillStyle="#4d3c1d";
-
-    ctx.fillRect(
-      px+9,
-      py+7,
-      14,
-      19
-    );
-
-    ctx.fillStyle="#a47b2d";
-
-    ctx.fillRect(
-      px+18,
-      py+16,
-      3,
-      3
-    );
+    ctx.fillStyle="#c29134";
+    ctx.fillRect(px+18,py+16,3,3);
 
   }else{
 
     ctx.fillStyle="#020202";
+    ctx.fillRect(px+4,py+1,24,31);
 
-    ctx.fillRect(
-      px+4,
-      py+1,
-      24,
-      31
-    );
+    ctx.strokeStyle="#d2a341";
+    ctx.strokeRect(px+4.5,py+1.5,23,30);
 
-    ctx.strokeStyle="#b78d3d";
-
-    ctx.strokeRect(
-      px+4.5,
-      py+1.5,
-      23,
-      30
-    );
-
-    ctx.fillStyle="#e0bd64";
-
-    ctx.fillRect(
-      px+13,
-      py+7,
-      6,
-      13
-    );
-
+    ctx.fillStyle="#f0cd70";
+    ctx.fillRect(px+13,py+7,6,13);
   }
-
 }
 
-/* =========================
-   MAP
-   ========================= */
+
+/* MAP */
 
 function drawMap(){
 
@@ -517,43 +377,34 @@ function drawMap(){
       const t=map[y][x];
 
       if(t===1)drawWall(x,y);
-
       if(t===2)drawFlame(x,y);
-
       if(t===3)drawDoor(x,y);
-
     }
-
   }
-
 }
 
-/* ==========================================================
-   DARKNESS
 
-   The room stays dark, but the player's lantern cuts a
-   larger hole through the darkness so nearby stone is visible.
-   ========================================================== */
+/* DARKNESS */
 
 function drawDarkness(){
 
-  const cx=
-    player.x+
-    player.size/2;
-
-  const cy=
-    player.y+
-    player.size/2;
+  const cx=player.x+player.size/2;
+  const cy=player.y+player.size/2;
 
   const flicker=
-    154+
-    Math.sin(frame*.19)*5+
+    175+
+    Math.sin(frame*.19)*6+
     Math.sin(frame*.07)*4;
 
   ctx.save();
 
-  ctx.fillStyle=
-    "rgba(0,0,0,.965)";
+  /*
+     OLD VERSION WAS .965.
+     This is now .72 so the maze remains dark
+     but isn't almost completely black.
+  */
+
+  ctx.fillStyle="rgba(0,0,0,.72)";
 
   ctx.fillRect(
     0,
@@ -562,18 +413,16 @@ function drawDarkness(){
     canvas.height
   );
 
-  ctx.globalCompositeOperation=
-    "destination-out";
+  ctx.globalCompositeOperation="destination-out";
 
-  const g=
-    ctx.createRadialGradient(
-      cx,
-      cy,
-      20,
-      cx,
-      cy,
-      flicker
-    );
+  const g=ctx.createRadialGradient(
+    cx,
+    cy,
+    15,
+    cx,
+    cy,
+    flicker
+  );
 
   g.addColorStop(
     0,
@@ -581,18 +430,18 @@ function drawDarkness(){
   );
 
   g.addColorStop(
-    .28,
-    "rgba(0,0,0,.98)"
+    .30,
+    "rgba(0,0,0,1)"
   );
 
   g.addColorStop(
-    .58,
-    "rgba(0,0,0,.82)"
+    .55,
+    "rgba(0,0,0,.90)"
   );
 
   g.addColorStop(
-    .82,
-    "rgba(0,0,0,.34)"
+    .78,
+    "rgba(0,0,0,.55)"
   );
 
   g.addColorStop(
@@ -615,66 +464,52 @@ function drawDarkness(){
   ctx.fill();
 
   ctx.restore();
-
 }
 
-/* ==========================================================
-   LANTERN LIGHT
 
-   This is separate from the darkness mask.
-
-   Instead of merely revealing the wall, this layer actually
-   paints warm amber light onto the floor and stone around Syn.
-   ========================================================== */
+/* LANTERN GLOW */
 
 function drawLanternLight(){
 
-  const cx=
-    player.x+
-    player.size/2;
-
-  const cy=
-    player.y+
-    player.size/2;
+  const cx=player.x+player.size/2;
+  const cy=player.y+player.size/2;
 
   const flicker=
-    148+
+    168+
     Math.sin(frame*.19)*5+
     Math.sin(frame*.071)*4;
 
   ctx.save();
 
-  ctx.globalCompositeOperation=
-    "screen";
+  ctx.globalCompositeOperation="screen";
 
-  const g=
-    ctx.createRadialGradient(
-      cx,
-      cy,
-      8,
-      cx,
-      cy,
-      flicker
-    );
+  const g=ctx.createRadialGradient(
+    cx,
+    cy,
+    5,
+    cx,
+    cy,
+    flicker
+  );
 
   g.addColorStop(
     0,
-    "rgba(255,213,111,.28)"
+    "rgba(255,225,140,.48)"
   );
 
   g.addColorStop(
-    .20,
-    "rgba(237,173,61,.20)"
+    .18,
+    "rgba(255,195,75,.34)"
   );
 
   g.addColorStop(
-    .52,
-    "rgba(194,118,31,.10)"
+    .42,
+    "rgba(225,145,43,.20)"
   );
 
   g.addColorStop(
-    .78,
-    "rgba(125,71,20,.035)"
+    .68,
+    "rgba(165,92,25,.09)"
   );
 
   g.addColorStop(
@@ -697,78 +532,32 @@ function drawLanternLight(){
   ctx.fill();
 
   ctx.restore();
-
 }
 
-/* =========================
-   PLAYER
-   ========================= */
+
+/* PLAYER */
 
 function drawPlayer(){
 
   const x=Math.round(player.x);
   const y=Math.round(player.y);
 
-  const bob=
-    Math.sin(player.walk)*1.5;
+  const bob=Math.sin(player.walk)*1.5;
 
-  /* shadow */
+  ctx.fillStyle="rgba(0,0,0,.55)";
+  ctx.fillRect(x+3,y+17,16,5);
 
-  ctx.fillStyle=
-    "rgba(0,0,0,.6)";
+  ctx.fillStyle="#716547";
+  ctx.fillRect(x+5,y+8+bob,11,11);
 
-  ctx.fillRect(
-    x+3,
-    y+17,
-    16,
-    5
-  );
+  ctx.fillStyle="#ad8f58";
+  ctx.fillRect(x+7,y+4+bob,8,8);
 
-  /* coat */
+  ctx.fillStyle="#302b20";
+  ctx.fillRect(x+6,y+2+bob,10,6);
 
-  ctx.fillStyle="#5f563d";
-
-  ctx.fillRect(
-    x+5,
-    y+8+bob,
-    11,
-    11
-  );
-
-  /* head */
-
-  ctx.fillStyle="#9a8050";
-
-  ctx.fillRect(
-    x+7,
-    y+4+bob,
-    8,
-    8
-  );
-
-  /* hat */
-
-  ctx.fillStyle="#29251c";
-
-  ctx.fillRect(
-    x+6,
-    y+2+bob,
-    10,
-    6
-  );
-
-  /* face */
-
-  ctx.fillStyle="#dfbd83";
-
-  ctx.fillRect(
-    x+9,
-    y+6+bob,
-    5,
-    4
-  );
-
-  /* lantern */
+  ctx.fillStyle="#efca8d";
+  ctx.fillRect(x+9,y+6+bob,5,4);
 
   let lx=x+17;
   let ly=y+11+bob;
@@ -787,55 +576,63 @@ function drawPlayer(){
     ly=y+12+bob;
   }
 
-  ctx.fillStyle="#8c6b2e";
+  /*
+     Tiny local halo directly around the lantern.
+  */
 
-  ctx.fillRect(
-    lx,
-    ly,
-    5,
-    7
+  const lg=ctx.createRadialGradient(
+    lx+2,
+    ly+3,
+    1,
+    lx+2,
+    ly+3,
+    22
   );
 
-  ctx.fillStyle="#fff0a8";
-
-  ctx.fillRect(
-    lx+1,
-    ly+2,
-    3,
-    3
+  lg.addColorStop(
+    0,
+    "rgba(255,235,160,.75)"
   );
 
+  lg.addColorStop(
+    1,
+    "rgba(255,170,40,0)"
+  );
+
+  ctx.fillStyle=lg;
+
+  ctx.beginPath();
+
+  ctx.arc(
+    lx+2,
+    ly+3,
+    22,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  ctx.fillStyle="#a47c32";
+  ctx.fillRect(lx,ly,5,7);
+
+  ctx.fillStyle="#fff4b0";
+  ctx.fillRect(lx+1,ly+2,3,3);
 }
 
-/* =========================
-   HUD
-   ========================= */
+
+/* HUD */
 
 function drawHUD(){
 
-  ctx.fillStyle=
-    "rgba(0,0,0,.72)";
-
-  ctx.fillRect(
-    10,
-    10,
-    132,
-    27
-  );
+  ctx.fillStyle="rgba(0,0,0,.72)";
+  ctx.fillRect(10,10,132,27);
 
   ctx.strokeStyle="#554526";
-
-  ctx.strokeRect(
-    10.5,
-    10.5,
-    131,
-    26
-  );
+  ctx.strokeRect(10.5,10.5,131,26);
 
   ctx.fillStyle="#d8b45a";
-
-  ctx.font=
-    "14px Courier New";
+  ctx.font="14px Courier New";
 
   ctx.fillText(
     "LIGHT "+collected+" / 3",
@@ -854,35 +651,21 @@ function drawHUD(){
     );
 
     ctx.textAlign="left";
-
   }
-
 }
 
-/* =========================
-   TITLE SCREEN
-   ========================= */
+
+/* TITLE */
 
 function drawTitle(){
 
   ctx.fillStyle="#030303";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  ctx.fillRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
+  const glow=ctx.createRadialGradient(
+    384,225,2,
+    384,225,105
   );
-
-  const glow=
-    ctx.createRadialGradient(
-      384,
-      225,
-      2,
-      384,
-      225,
-      105
-    );
 
   glow.addColorStop(
     0,
@@ -895,38 +678,18 @@ function drawTitle(){
   );
 
   ctx.fillStyle=glow;
-
-  ctx.fillRect(
-    270,
-    110,
-    228,
-    228
-  );
+  ctx.fillRect(270,110,228,228);
 
   ctx.fillStyle="#d8b45a";
-
-  ctx.fillRect(
-    378,
-    211,
-    12,
-    25
-  );
+  ctx.fillRect(378,211,12,25);
 
   ctx.fillStyle="#ffe6a0";
-
-  ctx.fillRect(
-    381,
-    216,
-    6,
-    11
-  );
+  ctx.fillRect(381,216,6,11);
 
   ctx.textAlign="center";
 
   ctx.fillStyle="#d8b45a";
-
-  ctx.font=
-    "bold 31px Courier New";
+  ctx.font="bold 31px Courier New";
 
   ctx.fillText(
     "THE LANTERN ROOM",
@@ -935,9 +698,7 @@ function drawTitle(){
   );
 
   ctx.fillStyle="#79663c";
-
-  ctx.font=
-    "13px Courier New";
+  ctx.font="13px Courier New";
 
   ctx.fillText(
     "SOME THINGS ARE MEANT TO BE FOUND",
@@ -948,22 +709,17 @@ function drawTitle(){
   if(Math.floor(frame/35)%2===0){
 
     ctx.fillStyle="#d8b45a";
-
-    ctx.font=
-      "16px Courier New";
+    ctx.font="16px Courier New";
 
     ctx.fillText(
       "PRESS ENTER",
       384,
       414
     );
-
   }
 
   ctx.fillStyle="#40371f";
-
-  ctx.font=
-    "11px Courier New";
+  ctx.font="11px Courier New";
 
   ctx.fillText(
     "LAST LANTERN WORKSHOP // 2026",
@@ -972,33 +728,20 @@ function drawTitle(){
   );
 
   ctx.textAlign="left";
-
 }
 
-/* =========================
-   WIN SCREEN
-   ========================= */
+
+/* WIN */
 
 function drawWin(){
 
   ctx.fillStyle="#020202";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
-  ctx.fillRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
+  const glow=ctx.createRadialGradient(
+    384,220,0,
+    384,220,170
   );
-
-  const glow=
-    ctx.createRadialGradient(
-      384,
-      220,
-      0,
-      384,
-      220,
-      170
-    );
 
   glow.addColorStop(
     0,
@@ -1011,20 +754,12 @@ function drawWin(){
   );
 
   ctx.fillStyle=glow;
-
-  ctx.fillRect(
-    190,
-    30,
-    390,
-    390
-  );
+  ctx.fillRect(190,30,390,390);
 
   ctx.textAlign="center";
 
   ctx.fillStyle="#d8b45a";
-
-  ctx.font=
-    "bold 28px Courier New";
+  ctx.font="bold 28px Courier New";
 
   ctx.fillText(
     "THE LIGHT REMAINS.",
@@ -1033,9 +768,7 @@ function drawWin(){
   );
 
   ctx.fillStyle="#8e7745";
-
-  ctx.font=
-    "14px Courier New";
+  ctx.font="14px Courier New";
 
   ctx.fillText(
     "YOU FOUND THE LANTERN ROOM.",
@@ -1044,9 +777,7 @@ function drawWin(){
   );
 
   ctx.fillStyle="#5e5132";
-
-  ctx.font=
-    "12px Courier New";
+  ctx.font="12px Courier New";
 
   ctx.fillText(
     "LAST LANTERN WORKSHOP™",
@@ -1069,16 +800,13 @@ function drawWin(){
       384,
       403
     );
-
   }
 
   ctx.textAlign="left";
-
 }
 
-/* =========================
-   DRAW EVERYTHING
-   ========================= */
+
+/* DRAW */
 
 function draw(){
 
@@ -1093,45 +821,30 @@ function draw(){
   }
 
   ctx.fillStyle="#070706";
-
-  ctx.fillRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height
-  );
+  ctx.fillRect(0,0,canvas.width,canvas.height);
 
   drawMap();
-
   drawDarkness();
-
   drawLanternLight();
-
   drawPlayer();
-
   drawHUD();
-
 }
 
-/* =========================
-   GAME LOOP
-   ========================= */
+
+/* LOOP */
 
 function loop(){
 
   frame++;
 
   update();
-
   draw();
 
   requestAnimationFrame(loop);
-
 }
 
 loop();
 
 </script>
-
 </body>
 </html>

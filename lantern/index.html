@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -141,6 +142,7 @@ let state="title";
 let collected=0;
 let doorOpen=false;
 let frame=0;
+let sealedMessageUntil=0;
 
 const keys={};
 
@@ -194,6 +196,48 @@ const originalMap=[
 
 let map;
 
+const LIGHT_COUNT=3;
+
+function spawnLights(){
+  const start={x:2,y:13};
+  let door=null;
+
+  for(let y=0;y<ROWS;y++){
+    for(let x=0;x<COLS;x++){
+      if(map[y][x]===3) door={x,y};
+      if(map[y][x]===2) map[y][x]=0;
+    }
+  }
+
+  const spots=[];
+  for(let y=1;y<ROWS-1;y++){
+    for(let x=1;x<COLS-1;x++){
+      if(map[y][x]!==0) continue;
+      if(Math.hypot(x-start.x,y-start.y)<4) continue;
+      if(door && Math.hypot(x-door.x,y-door.y)<2.5) continue;
+      spots.push({x,y});
+    }
+  }
+
+  for(let i=spots.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [spots[i],spots[j]]=[spots[j],spots[i]];
+  }
+
+  const chosen=[];
+  for(const c of spots){
+    if(chosen.every(q=>Math.hypot(c.x-q.x,c.y-q.y)>=6)){
+      chosen.push(c);
+      if(chosen.length===LIGHT_COUNT) break;
+    }
+  }
+  for(const c of spots){
+    if(chosen.length===LIGHT_COUNT) break;
+    if(!chosen.some(q=>q.x===c.x&&q.y===c.y)) chosen.push(c);
+  }
+  chosen.forEach(c=>map[c.y][c.x]=2);
+}
+
 
 function resetGame(){
 
@@ -201,6 +245,8 @@ function resetGame(){
     originalMap.map(
       row=>[...row]
     );
+
+  spawnLights();
 
   Object.assign(
     player,
@@ -214,6 +260,7 @@ function resetGame(){
 
   collected=0;
   doorOpen=false;
+  sealedMessageUntil=0;
 }
 
 
@@ -324,6 +371,16 @@ function isWallAt(x,y){
 
 
 
+function touchingClosedDoor(x,y){
+  if(doorOpen) return false;
+  const l=Math.floor(x/TILE);
+  const r=Math.floor((x+player.size-1)/TILE);
+  const t=Math.floor(y/TILE);
+  const b=Math.floor((y+player.size-1)/TILE);
+  return [map[t]?.[l],map[t]?.[r],map[b]?.[l],map[b]?.[r]].includes(3);
+}
+
+
 function playerTile(){
 
   return{
@@ -360,7 +417,7 @@ function checkTile(){
     collected++;
 
 
-    if(collected>=3){
+    if(collected>=LIGHT_COUNT){
 
       doorOpen=true;
 
@@ -444,29 +501,19 @@ function update(){
   }
 
 
-  if(
-    !isWallAt(
-      player.x+dx,
-      player.y
-    )
-  ){
-
+  const blockedX=isWallAt(player.x+dx,player.y);
+  if(!blockedX){
     player.x+=dx;
-
+  } else if(dx && touchingClosedDoor(player.x+dx,player.y)){
+    sealedMessageUntil=frame+90;
   }
 
-
-  if(
-    !isWallAt(
-      player.x,
-      player.y+dy
-    )
-  ){
-
+  const blockedY=isWallAt(player.x,player.y+dy);
+  if(!blockedY){
     player.y+=dy;
-
+  } else if(dy && touchingClosedDoor(player.x,player.y+dy)){
+    sealedMessageUntil=frame+90;
   }
-
 
   checkTile();
 
@@ -1290,6 +1337,44 @@ function drawWallReflections(){
 
 
 
+
+function drawDoorReflection(){
+  let doorX=null,doorY=null;
+  for(let y=0;y<ROWS;y++){
+    for(let x=0;x<COLS;x++){
+      if(map[y][x]===3){ doorX=x; doorY=y; }
+    }
+  }
+  if(doorX===null || doorOpen) return;
+
+  const cx=player.x+player.size/2;
+  const cy=player.y+player.size/2;
+  const px=doorX*TILE, py=doorY*TILE;
+  const maxDistance=getLightSettings().wall;
+  const distance=Math.hypot(px+TILE/2-cx,py+TILE/2-cy);
+  if(distance>maxDistance) return;
+
+  let strength=Math.max(0,Math.min(1,1-distance/maxDistance));
+  strength*=strength;
+
+  ctx.save();
+  ctx.globalCompositeOperation="screen";
+  ctx.fillStyle=`rgba(156,91,28,${strength*.48})`;
+  ctx.fillRect(px+5,py+2,22,30);
+  ctx.strokeStyle=`rgba(255,194,82,${strength*.72})`;
+  ctx.strokeRect(px+5.5,py+2.5,21,29);
+
+  // Small lantern mark worked into the sealed door.
+  ctx.fillStyle=`rgba(255,220,125,${strength*.85})`;
+  ctx.fillRect(px+14,py+8,4,9);
+  ctx.fillRect(px+12,py+11,8,3);
+  ctx.fillRect(px+15,py+17,2,5);
+  ctx.fillStyle=`rgba(255,232,155,${strength*.90})`;
+  ctx.fillRect(px+18,py+16,3,3);
+  ctx.restore();
+}
+
+
 /* =====================================================
    COLLECTIBLE BEACONS
 
@@ -1864,11 +1949,18 @@ function drawHUD(){
   ctx.fillText(
     "LIGHT "+
     collected+
-    " / 3",
+    " / "+LIGHT_COUNT,
     21,
     29
   );
 
+
+  if(!doorOpen && frame<sealedMessageUntil){
+    ctx.textAlign="right";
+    ctx.fillStyle="#b89550";
+    ctx.fillText("THE WAY IS SEALED",canvas.width-18,29);
+    ctx.textAlign="left";
+  }
 
   if(doorOpen){
 
@@ -2243,6 +2335,9 @@ function draw(){
   */
 
   drawWallReflections();
+
+  // Reveal the sealed exit only when the lantern reaches it.
+  drawDoorReflection();
 
 
   /*

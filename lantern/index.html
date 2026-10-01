@@ -140,6 +140,11 @@ const ROWS=16;
 let state="title";
 let room=1;
 let collected=0;
+let runStartedAt=0;
+let finalTimeMs=0;
+let initials="";
+let leaderboard=[];
+let leaderboardStatus="GLOBAL BOARD NOT CONNECTED";
 let doorOpen=false;
 let frame=0;
 let sealedMessageUntil=0;
@@ -319,6 +324,17 @@ resetGame();
 document.addEventListener(
   "keydown",
   e=>{
+  if(state==="initials"){
+    if(/^[a-zA-Z]$/.test(e.key) && initials.length<3){ initials+=e.key.toUpperCase(); e.preventDefault(); return; }
+    if(e.key==="Backspace"){ initials=initials.slice(0,-1); e.preventDefault(); return; }
+    if(e.key==="Enter" && initials.length===3){ e.preventDefault(); submitGlobalScore(); return; }
+    return;
+  }
+  if(state==="leaderboard"){
+    if(e.key==="Enter"){ state="title"; runStartedAt=0; finalTimeMs=0; e.preventDefault(); }
+    return;
+  }
+
 
     const k=
       e.key.toLowerCase();
@@ -344,7 +360,9 @@ document.addEventListener(
     ){
 
       resetGame(1);
-
+      runStartedAt=performance.now();
+      finalTimeMs=0;
+      initials="";
       state="playing";
     }
 
@@ -485,7 +503,9 @@ function checkTile(){
       state="playing";
     }
     else{
-      state="win";
+      finalTimeMs=Math.max(0,performance.now()-runStartedAt);
+      initials="";
+      state="initials";
     }
 
   }
@@ -1969,6 +1989,66 @@ function drawPlayer(){
    ===================================================== */
 
 
+
+function formatTime(ms){
+  const total=Math.max(0,Math.floor(ms));
+  const minutes=Math.floor(total/60000);
+  const seconds=Math.floor((total%60000)/1000);
+  const hundredths=Math.floor((total%1000)/10);
+  return String(minutes).padStart(2,"0")+":"+String(seconds).padStart(2,"0")+"."+String(hundredths).padStart(2,"0");
+}
+function currentRunTime(){
+  if(!runStartedAt) return 0;
+  return finalTimeMs || (performance.now()-runStartedAt);
+}
+function drawInitialsScreen(){
+  ctx.fillStyle="#050504"; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.textAlign="center"; ctx.fillStyle="#d8b45a"; ctx.font="bold 27px Courier New";
+  ctx.fillText("THE LIGHT REMAINS.",canvas.width/2,92);
+  ctx.fillStyle="#8f7842"; ctx.font="13px Courier New";
+  ctx.fillText("YOU CARRIED THE LIGHT THROUGH.",canvas.width/2,126);
+  ctx.fillStyle="#d8b45a"; ctx.font="bold 24px Courier New";
+  ctx.fillText("TIME  "+formatTime(finalTimeMs),canvas.width/2,182);
+  ctx.fillStyle="#9f8951"; ctx.font="13px Courier New";
+  ctx.fillText("ENTER YOUR INITIALS",canvas.width/2,238);
+  const shown=(initials+"___").slice(0,3).split("").join(" ");
+  ctx.fillStyle="#f0d887"; ctx.font="bold 31px Courier New";
+  ctx.fillText(shown,canvas.width/2,284);
+  ctx.fillStyle="#675a38"; ctx.font="11px Courier New";
+  ctx.fillText("TYPE 3 LETTERS  //  ENTER TO SUBMIT",canvas.width/2,328);
+  ctx.fillStyle="#4f472f"; ctx.font="10px Courier New";
+  ctx.fillText(leaderboardStatus,canvas.width/2,384);
+}
+function drawLeaderboard(){
+  ctx.fillStyle="#050504"; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.textAlign="center"; ctx.fillStyle="#d8b45a"; ctx.font="bold 21px Courier New";
+  ctx.fillText("THE ONES WHO CARRIED THE LIGHT",canvas.width/2,55);
+  ctx.fillStyle="#76663d"; ctx.font="11px Courier New"; ctx.fillText("GLOBAL TOP 10",canvas.width/2,78);
+  ctx.textAlign="left"; ctx.font="14px Courier New";
+  const rows=leaderboard.length?leaderboard.slice(0,10):Array.from({length:10},()=>({initials:"---",time_ms:null}));
+  rows.forEach((row,i)=>{
+    const y=115+i*30; ctx.fillStyle=i===0?"#d8b45a":"#8f7842";
+    ctx.fillText(String(i+1).padStart(2," ")+"   "+row.initials,230,y);
+    ctx.textAlign="right"; ctx.fillText(row.time_ms==null?"--:--.--":formatTime(row.time_ms),540,y); ctx.textAlign="left";
+  });
+  ctx.textAlign="center"; ctx.fillStyle="#554a30"; ctx.font="10px Courier New";
+  ctx.fillText(leaderboardStatus,canvas.width/2,432);
+  ctx.fillText("PRESS ENTER TO RETURN",canvas.width/2,462);
+}
+async function submitGlobalScore(){
+  const endpoint=""; // Add deployed Cloudflare Worker URL here.
+  if(!endpoint){ leaderboardStatus="GLOBAL BOARD AWAITS THE WORKER"; state="leaderboard"; return; }
+  try{
+    leaderboardStatus="SUBMITTING...";
+    const res=await fetch(endpoint+"/scores",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({initials,time_ms:Math.round(finalTimeMs)})});
+    if(!res.ok) throw new Error("submit");
+    const data=await res.json();
+    leaderboard=Array.isArray(data.scores)?data.scores:[];
+    leaderboardStatus="SCORE RECORDED";
+  }catch(e){ leaderboardStatus="THE SIGNAL WAS LOST"; }
+  state="leaderboard";
+}
+
 function drawHUD(){
 
   ctx.fillStyle=
@@ -1978,7 +2058,7 @@ function drawHUD(){
   ctx.fillRect(
     10,
     10,
-    218,
+    326,
     27
   );
 
@@ -1989,7 +2069,7 @@ function drawHUD(){
   ctx.strokeRect(
     10.5,
     10.5,
-    217,
+    325,
     26
   );
 
@@ -2004,7 +2084,8 @@ function drawHUD(){
   ctx.fillText(
     "ROOM "+room+" / 3  //  LIGHT "+
     collected+
-    " / "+LIGHT_COUNT,
+    " / "+LIGHT_COUNT+
+    "  //  "+formatTime(currentRunTime()),
     21,
     29
   );
@@ -2360,6 +2441,21 @@ function draw(){
 
     return;
 
+  }
+
+
+  if(
+    state==="initials"
+  ){
+    drawInitialsScreen();
+    return;
+  }
+
+  if(
+    state==="leaderboard"
+  ){
+    drawLeaderboard();
+    return;
   }
 
 

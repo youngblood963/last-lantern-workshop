@@ -1,188 +1,108 @@
-
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-
-  <title>Last Lantern Workshop™ | Independent Apps, Games & Digital Creations</title>
-<link rel="icon" type="image/png" href="/Favicon.png">
-  <meta
-    name="description"
-    content="Last Lantern Workshop™ is an independent studio creating apps, games and digital projects, including MetalKeep, Veiled Moon Oracle and Wasteland: Sirens."
-  >
-
-  <meta
-    name="keywords"
-    content="Last Lantern Workshop, MetalKeep, Veiled Moon Oracle, Wasteland Sirens, indie apps, indie games, digital creations"
-  >
-
-  <meta name="author" content="Last Lantern Workshop">
-
-  <meta name="robots" content="index, follow">
-
-  <link rel="canonical" href="https://lastlanternworkshop.com/">
-
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Last Lantern Workshop™">
-  <meta
-    property="og:description"
-    content="Independent apps, games and digital creations built one project at a time."
-  >
-  <meta property="og:url" content="https://lastlanternworkshop.com/">
-  <meta
-    property="og:image"
-    content="https://lastlanternworkshop.com/last-lantern-logo.png"
-  >
-
-  <link rel="stylesheet" href="styles.css">
-
-  <style>
-    .lantern-secret {
-      position: fixed;
-      right: 4%;
-      bottom: 9%;
-      width: 74px;
-      height: 74px;
-      z-index: 999;
-      cursor: pointer;
-      border-radius: 50%;
-      background: transparent;
-      transition:
-        background .35s ease,
-        box-shadow .35s ease;
-    }
-
-    .lantern-secret:hover,
-    .lantern-secret:focus {
-      outline: none;
-      background:
-        radial-gradient(
-          circle,
-          rgba(230, 167, 63, .10) 0%,
-          rgba(230, 167, 63, .035) 38%,
-          transparent 72%
-        );
-      box-shadow:
-        0 0 18px rgba(230, 167, 63, .06),
-        0 0 42px rgba(230, 167, 63, .025);
-    }
-
-    @media (max-width: 700px) {
-      .lantern-secret {
-        width: 64px;
-        height: 64px;
-        right: 3%;
-        bottom: 7%;
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Last Lantern Workshop™ | Independent Apps, Games & Digital Creations</title>
+<meta name="description" content="Last Lantern Workshop™ is an independent studio creating apps, games and digital projects, including MetalKeep, Veiled Moon Oracle and Wasteland: Sirens.">
+<link rel="canonical" href="https://lastlanternworkshop.com/">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="Last Lantern Workshop™ | Independent Apps, Games & Digital Creations">
+<meta property="og:description" content="Independent apps, games and digital creations built one project at a time.">
+<meta property="og:url" content="https://lastlanternworkshop.com/">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-
 <header>
-  <div class="wrap nav">
-    <a class="brand" href="index.html">
-      <img
-        src="last-lantern-logo.png"
-        alt="Last Lantern Workshop lantern logo"
-      >
-      <span>LAST LANTERN WORKSHOP™</span>
+  <div class="nav-wrap">
+    <a class="brand" href="index.html" aria-label="Last Lantern Workshop home">
+      <img src="last-lantern-logo.png" alt="">
+      <span>Last Lantern Workshop™</span>
     </a>
-
     <nav>
-      <a href="index.html#projects">Projects</a>
+      <a href="#projects">Projects</a>
       <a href="support.html">Support</a>
       <a href="privacy.html">Privacy</a>
     </nav>
   </div>
 </header>
 
+<main>
 <section class="hero">
-  <img
-    class="hero-logo"
-    src="last-lantern-logo.png"
-    alt="Last Lantern Workshop logo"
-  >
-
+  <img class="hero-logo" src="last-lantern-logo.png" alt="Last Lantern Workshop logo">
   <div class="eyebrow">Apps • Games • Digital Creations</div>
-
-  <h1>
-    Last Lantern<br>
-    Workshop™
-  </h1>
-
-  <p>
-    Small projects built with care, curiosity, and a light kept burning
-    for whatever comes next.
-  </p>
-
+  <h1>Last Lantern<br>Workshop™</h1>
+  <p>Small projects built with care, curiosity, and a light kept burning for whatever comes next.</p>
   <div class="buttons">
     <a class="btn" href="#projects">Explore Projects</a>
-    <a class="btn" href="support.html">Support</a>
+    <a class="btn btn-secondary" href="support.html">Support</a>
   </div>
 </section>
 
-<section class="section" id="projects">
+<section class="section projects" id="projects">
   <div class="wrap">
-
-    <h2>Projects</h2>
-
-    <div class="grid">
-
-      <div class="card">
-        <h3>MetalKeep</h3>
-        <p>
-          Track and manage your physical precious-metals collection
-          with privacy-focused tools.
-        </p>
-      </div>
-
-      <div class="card">
-        <h3>Veiled Moon Oracle</h3>
-        <p>
-          A moonlit oracle experience blending gothic atmosphere,
-          crystals, nature and mythology.
-        </p>
-      </div>
-
-      <div class="card">
-        <h3>Wasteland: Sirens</h3>
-        <p>
-          A post-apocalyptic collectible card game project set in a
-          dangerous, character-driven wasteland.
-        </p>
-      </div>
-
+    <div class="section-heading">
+      <div class="eyebrow">From the Workshop</div>
+      <h2>Projects</h2>
+      <p>Different worlds, different tools, one workshop.</p>
     </div>
+
+    <article class="project-showcase">
+      <div class="project-art square-art">
+        <img src="metalkeep-showcase.png" alt="MetalKeep precious metals artwork with gold, silver and copper bullion">
+      </div>
+      <div class="project-copy">
+        <span class="status">Android • In Testing</span>
+        <h3>MetalKeep</h3>
+        <p>Track and manage a physical precious-metals collection with a clean, privacy-focused toolkit. MetalKeep brings holdings, photos, prices, backups and long-term vault organization together without losing sight of the collection itself.</p>
+        <p class="project-note">Built for stackers who want to know what they own — and keep that information under their control.</p>
+      </div>
+    </article>
+
+    <article class="project-showcase reverse">
+      <div class="project-art card-art">
+        <img src="veiled-moon-showcase.png" alt="The Veil, card XLIV from The Veiled Moon Oracle">
+      </div>
+      <div class="project-copy">
+        <span class="status">44-Card Oracle Deck</span>
+        <h3>Veiled Moon Oracle</h3>
+        <p>A moonlit oracle experience shaped by intuition, transformation and choice. Across 44 cards, gothic ruins, crystals, goddesses, elemental imagery and a hidden Silver Key tell a second story beneath the readings.</p>
+        <p class="project-note">The moon may illuminate the road, but you choose where you walk.</p>
+      </div>
+    </article>
+
+    <article class="project-showcase">
+      <div class="project-art wide-art">
+        <img src="wasteland-sirens-showcase.png" alt="Wasteland Sirens collectible card game concept showing characters, cards, battle and deck-building screens">
+      </div>
+      <div class="project-copy">
+        <span class="status">Game Project • In Development</span>
+        <h3>Wasteland: Sirens</h3>
+        <p>A post-apocalyptic collectible card game built around powerful Sirens, deck building, recruitment and tactical battles. A broken world provides the backdrop for a growing cast of characters, stories and hard-won glimpses of a brighter tomorrow.</p>
+        <p class="project-note">Beautiful survivors. Powerful cards. A broken world.</p>
+      </div>
+    </article>
   </div>
 </section>
 
-<section class="section">
-  <div class="wrap">
-
+<section class="section about">
+  <div class="wrap narrow">
+    <div class="eyebrow">About</div>
     <h2>About the Workshop</h2>
-
-    <p>
-      Last Lantern Workshop™ is an independent home for apps, games
-      and digital creations—built one project at a time.
-    </p>
-
+    <p>Last Lantern Workshop™ is an independent home for apps, games and digital creations—built one project at a time.</p>
+    <p class="closing-line">More things are being built in the Workshop.</p>
   </div>
 </section>
+</main>
 
-<footer>
-  © 2026 Last Lantern Workshop™
-</footer>
+<footer>© 2026 Last Lantern Workshop™</footer>
 
-<!-- Some things are meant to be found. -->
-<a
-  class="lantern-secret"
-  href="lantern/"
-  aria-label="Enter the Lantern Room"
-  title="">
-</a>
-
+<!--
+  Secret entrance to The Lantern Room.
+  Invisible until a curious visitor finds the hotspot.
+  Some things are meant to be found.
+-->
+<a class="lantern-secret" href="lantern/" aria-label="Enter the Lantern Room" title=""></a>
 </body>
 </html>

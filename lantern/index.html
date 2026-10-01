@@ -138,10 +138,12 @@ const COLS=24;
 const ROWS=16;
 
 let state="title";
+let room=1;
 let collected=0;
 let doorOpen=false;
 let frame=0;
 let sealedMessageUntil=0;
+let roomIntroUntil=0;
 
 const keys={};
 
@@ -192,6 +194,25 @@ const originalMap=[
 
 ];
 
+const room2Map=[
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+[1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1],
+[1,0,1,0,1,0,1,1,1,0,1,0,1,1,1,1,0,1,0,1,1,1,0,1],
+[1,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,1,0,1],
+[1,0,1,1,1,1,1,0,1,1,1,0,1,0,1,1,1,1,1,1,0,1,0,1],
+[1,0,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,1],
+[1,1,1,1,1,0,1,1,1,0,1,0,1,1,1,1,1,1,0,1,1,1,0,1],
+[1,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1],
+[1,0,1,0,1,1,1,0,1,0,1,1,1,1,1,1,0,1,1,1,1,1,0,1],
+[1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1],
+[1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,0,1],
+[1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,1,0,1],
+[1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,0,1,0,1],
+[1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,1],
+[1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1],
+[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+];
+
 
 let map;
 
@@ -238,10 +259,17 @@ function spawnLights(){
 }
 
 
-function resetGame(){
+function resetGame(targetRoom=1){
+
+  room=targetRoom;
+
+  const sourceMap=
+    room===1
+      ? originalMap
+      : room2Map;
 
   map=
-    originalMap.map(
+    sourceMap.map(
       row=>[...row]
     );
 
@@ -252,7 +280,7 @@ function resetGame(){
     {
       x:2*TILE+6,
       y:13*TILE+6,
-      dir:"down",
+      dir:room===1 ? "down" : "right",
       walk:0
     }
   );
@@ -260,6 +288,7 @@ function resetGame(){
   collected=0;
   doorOpen=false;
   sealedMessageUntil=0;
+  roomIntroUntil=frame+105;
 }
 
 
@@ -293,7 +322,7 @@ document.addEventListener(
       e.key==="Enter"
     ){
 
-      resetGame();
+      resetGame(1);
 
       state="playing";
     }
@@ -430,7 +459,13 @@ function checkTile(){
     doorOpen
   ){
 
-    state="win";
+    if(room===1){
+      resetGame(2);
+      state="playing";
+    }
+    else{
+      state="win";
+    }
 
   }
 
@@ -1922,7 +1957,7 @@ function drawHUD(){
   ctx.fillRect(
     10,
     10,
-    132,
+    218,
     27
   );
 
@@ -1933,7 +1968,7 @@ function drawHUD(){
   ctx.strokeRect(
     10.5,
     10.5,
-    131,
+    217,
     26
   );
 
@@ -1946,13 +1981,35 @@ function drawHUD(){
 
 
   ctx.fillText(
-    "LIGHT "+
+    "ROOM "+room+"  //  LIGHT "+
     collected+
     " / "+LIGHT_COUNT,
     21,
     29
   );
 
+
+  if(frame<roomIntroUntil){
+    ctx.save();
+    ctx.textAlign="center";
+    ctx.fillStyle="rgba(216,180,90,.92)";
+    ctx.font="bold 20px Courier New";
+    ctx.fillText(
+      room===1 ? "ROOM I" : "ROOM II",
+      canvas.width/2,
+      62
+    );
+    if(room===2){
+      ctx.fillStyle="rgba(128,108,61,.92)";
+      ctx.font="11px Courier New";
+      ctx.fillText(
+        "THE DARKNESS DEEPENS",
+        canvas.width/2,
+        82
+      );
+    }
+    ctx.restore();
+  }
 
   if(!doorOpen && frame<sealedMessageUntil){
     ctx.textAlign="right";
@@ -2216,7 +2273,7 @@ function drawWin(){
 
 
   ctx.fillText(
-    "YOU FOUND THE LANTERN ROOM.",
+    "YOU CARRIED THE LIGHT THROUGH.",
     384,
     247
   );

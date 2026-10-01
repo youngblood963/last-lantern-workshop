@@ -2036,7 +2036,7 @@ function drawLeaderboard(){
   ctx.fillText("PRESS ENTER TO RETURN",canvas.width/2,462);
 }
 async function submitGlobalScore(){
-  const endpoint=""; // Add deployed Cloudflare Worker URL here.
+  const endpoint="https://lantern-room-leaderboard.youngblood963.workers.dev";
   if(!endpoint){ leaderboardStatus="GLOBAL BOARD AWAITS THE WORKER"; state="leaderboard"; return; }
   try{
     leaderboardStatus="SUBMITTING...";

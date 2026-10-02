@@ -335,3 +335,58 @@ footer{text-align:center;padding:30px 24px;border-top:1px solid var(--line);colo
   top:-.14em;
   margin-left:.04em;
 }
+
+
+/* Header composition — final balance */
+@media (min-width:821px){
+  .nav-wrap{
+    position:relative;
+    width:100%;
+    max-width:none;
+    padding-left:42px;
+    padding-right:42px;
+    justify-content:flex-start;
+  }
+
+  /* Keep Workshop branding anchored at the left. */
+  .nav-wrap .brand{
+    margin:0;
+  }
+
+  /* Center the three navigation links independently of the brand. */
+  .nav-wrap nav{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    margin-left:0;
+  }
+}
+
+/* Give the main hero lantern more presence again. */
+.hero > img,
+.hero-logo{
+  width:clamp(150px,12vw,205px);
+  height:auto;
+}
+
+/* Keep the large-title trademark clearly subordinate. */
+.hero h1 sup,
+.hero-title sup,
+.hero h1 .tm,
+.hero-title .tm{
+  font-size:.19em;
+  line-height:1;
+  vertical-align:super;
+  position:relative;
+  top:-.18em;
+  margin-left:.035em;
+  letter-spacing:0;
+}
+
+@media(max-width:820px){
+  .hero > img,
+  .hero-logo{
+    width:145px;
+  }
+}

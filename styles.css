@@ -309,3 +309,29 @@ footer{text-align:center;padding:30px 24px;border-top:1px solid var(--line);colo
     max-width:100%;
   }
 }
+
+
+/* Header composition refinement — brand left, navigation nearer center */
+@media (min-width:821px){
+  .nav-wrap{
+    width:100%;
+    max-width:none;
+    padding-left:42px;
+    padding-right:42px;
+    justify-content:flex-start;
+  }
+
+  .nav-wrap nav{
+    margin-left:clamp(170px,18vw,330px);
+  }
+}
+
+/* Make the trademark in the large center hero a true superscript accent. */
+.hero h1 sup,
+.hero-title sup,
+.hero h1 .tm,
+.hero-title .tm{
+  font-size:.24em;
+  top:-.14em;
+  margin-left:.04em;
+}

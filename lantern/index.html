@@ -31,6 +31,7 @@ html,body{
 .mobile-pad button,.mobile-action{border:1px solid #806c3d;background:#0b0906;color:#d8b45a;font:700 22px "Courier New",monospace;border-radius:8px;min-width:56px;min-height:52px;touch-action:none;-webkit-tap-highlight-color:transparent;}
 .mobile-pad .up{grid-column:2}.mobile-pad .left{grid-column:1;grid-row:2}.mobile-pad .down{grid-column:2;grid-row:2}.mobile-pad .right{grid-column:3;grid-row:2}
 .mobile-action{font-size:14px;padding:8px 18px;margin-top:8px;}
+.mobile-initials-input{position:fixed;left:50%;bottom:12px;transform:translateX(-50%);width:1px;height:1px;opacity:.01;border:0;padding:0;font-size:16px;background:transparent;color:transparent;caret-color:transparent;}
 
 @media (min-width:701px) and (pointer:fine){
  .mobile-controls{display:none;}
@@ -150,6 +151,7 @@ FIND THE LIGHT
   </div>
   <button class="mobile-action" id="mobileAction" aria-label="Start or confirm">ENTER / START</button>
 </div>
+<input id="mobileInitialsInput" class="mobile-initials-input" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="3" aria-label="Enter three initials">
 
 </div>
 
@@ -423,10 +425,43 @@ document.addEventListener(
 );
 
 // Touch controls for phones/tablets. Keyboard controls remain unchanged.
+const mobileInitialsInput=document.getElementById("mobileInitialsInput");
+
+function isTouchDevice(){
+  return window.matchMedia("(pointer:coarse)").matches || navigator.maxTouchPoints>0;
+}
+
+function openMobileInitialsKeyboard(){
+  if(!isTouchDevice()) return;
+  mobileInitialsInput.value=initials;
+  // A tiny delay lets the canvas finish changing screens before focus.
+  setTimeout(()=>{
+    mobileInitialsInput.focus({preventScroll:true});
+    mobileInitialsInput.setSelectionRange(mobileInitialsInput.value.length,mobileInitialsInput.value.length);
+  },80);
+}
+
+mobileInitialsInput.addEventListener("input",()=>{
+  const cleaned=mobileInitialsInput.value.replace(/[^a-zA-Z]/g,"").slice(0,3).toUpperCase();
+  mobileInitialsInput.value=cleaned;
+  initials=cleaned;
+});
+
+mobileInitialsInput.addEventListener("keydown",e=>{
+  if(e.key==="Enter" && initials.length===3){
+    e.preventDefault();
+    mobileInitialsInput.blur();
+    submitGlobalScore();
+  }
+});
+
 function mobileEnter(){
   if(state==="title"){ resetGame(1); runStartedAt=performance.now(); finalTimeMs=0; initials=""; state="playing"; return; }
   if(state==="leaderboard" || state==="win"){ state="title"; runStartedAt=0; finalTimeMs=0; return; }
-  if(state==="initials" && initials.length===3){ submitGlobalScore(); }
+  if(state==="initials"){
+    if(initials.length===3){ mobileInitialsInput.blur(); submitGlobalScore(); }
+    else{ openMobileInitialsKeyboard(); }
+  }
 }
 
 document.querySelectorAll(".mobile-pad button[data-key]").forEach(btn=>{
@@ -560,6 +595,7 @@ function checkTile(){
       finalTimeMs=Math.max(0,performance.now()-runStartedAt);
       initials="";
       state="initials";
+      openMobileInitialsKeyboard();
     }
 
   }

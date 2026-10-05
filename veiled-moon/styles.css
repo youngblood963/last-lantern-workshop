@@ -9,3 +9,18 @@
 .home-copy .primary{margin-top:8px}.install-note{max-width:360px;margin:8px auto 0;font-size:12px;line-height:1.4}.nav{max-width:920px}
 }
 @media (max-width:899px){.frame{min-height:calc(100vh - 102px)}}
+
+/* v1.3 draw-screen spacing and desktop shuffle sizing */
+.frame{padding-bottom:calc(104px + env(safe-area-inset-bottom))}
+.shuffle-scene{width:min(100%,360px);max-height:54vh;overflow:hidden}
+.shuffle-scene img{max-height:54vh;object-fit:contain}
+@media(min-width:900px) and (min-height:650px){
+  .frame{padding-bottom:118px}
+  .shuffle-scene{width:min(100%,310px);max-height:430px}
+  .shuffle-scene img{max-height:430px;object-fit:contain}
+}
+@media(orientation:landscape) and (max-height:600px){
+  .frame{padding-bottom:82px}
+  .shuffle-scene{width:min(100%,250px);max-height:52vh}
+  .shuffle-scene img{max-height:52vh}
+}

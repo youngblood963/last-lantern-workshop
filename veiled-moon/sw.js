@@ -1,4 +1,4 @@
-const C='veiled-moon-v2';
+const C='veiled-moon-v3';
 const A=['./','index.html','styles.css','app.js','data.js','manifest.json','images/cover.png','images/shuffle_hands.png','audio/moonlit_whispers.wav','audio/crystal_night.wav','audio/veil_between_worlds.wav','audio/classic_card_shuffle.mp3',...Array.from({length:44},(_,i)=>`cards/card_${String(i+1).padStart(2,'0')}.jpg`)];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(C).then(c=>c.addAll(A)))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});

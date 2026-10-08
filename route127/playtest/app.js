@@ -30,6 +30,7 @@ let pendingSaveSlot = null;
 let pendingNewGameSlot = null;
 let introFailureCount = 0;
 let usedHotkeys = new Set();
+let reservedChoiceKeys = new Set();
 let commandProcessing = false;
 let autoFollowOutput = true;
 screen.addEventListener("scroll",()=>{ const gap=screen.scrollHeight-(screen.scrollTop+screen.clientHeight); autoFollowOutput=gap<140; },{passive:true});
@@ -71,18 +72,34 @@ const RESERVED_INTERFACE_KEYS=new Set(["I","S","M","Q","V"]);
 function assignHotkey(command){
   const clean=command.replace(/^\([A-Z0-9]\)\s*/i,"").trim();
   for(const ch of clean.toUpperCase()){
-    if(/[A-Z]/.test(ch) && !usedHotkeys.has(ch) && !(player.flags&&player.flags.interfaceUnlocked&&RESERVED_INTERFACE_KEYS.has(ch))){ usedHotkeys.add(ch); currentHotkeys[ch.toLowerCase()]=clean; return ch; }
+    if(/[A-Z]/.test(ch) && !usedHotkeys.has(ch) && !reservedChoiceKeys.has(ch) && !(player.flags&&player.flags.interfaceUnlocked&&RESERVED_INTERFACE_KEYS.has(ch))){ usedHotkeys.add(ch); currentHotkeys[ch.toLowerCase()]=clean; return ch; }
   }
-  for(let n=1;n<=9;n++){ const k=String(n); if(!usedHotkeys.has(k)){usedHotkeys.add(k);currentHotkeys[k]=clean;return k;} }
+  for(let n=1;n<=9;n++){ const k=String(n); if(!usedHotkeys.has(k) && !reservedChoiceKeys.has(k)){usedHotkeys.add(k);currentHotkeys[k]=clean;return k;} }
   return "?";
 }
 function hotkeyLine(text){
-  const parts=text.split(/\s{2,}/).map(x=>x.trim()).filter(Boolean);
-  return parts.map(part=>{
-    const existing=part.match(/^\(([A-Z0-9])\)\s*(.*)$/i);
-    if(existing){ const k=existing[1].toUpperCase(), cmd=existing[2].trim(); usedHotkeys.add(k); currentHotkeys[k.toLowerCase()]=cmd; return `(${k}) ${cmd}`; }
+  // Preserve explicit labels, and never assign the same key to two actions.
+  // This function can also receive an already-formatted choice line.
+  const parts=String(text??"").split(/\s{2,}/).map(x=>x.trim()).filter(Boolean);
+  // Reserve explicitly advertised shortcuts before allocating automatic ones.
+  // Otherwise ASK ABOUT ROAD could steal (B) intended for BACK later in the line.
+  reservedChoiceKeys=new Set(parts.map(p=>(p.match(/^\(([A-Z0-9])\)\s*.+$/i)||[])[1]).filter(Boolean).map(k=>k.toUpperCase()));
+  const rendered=parts.map(part=>{
+    const existing=part.match(/^\(([A-Z0-9])\)\s*(.+)$/i);
+    if(existing){
+      const k=existing[1].toUpperCase(), cmd=existing[2].trim();
+      if(!usedHotkeys.has(k)){
+        usedHotkeys.add(k); currentHotkeys[k.toLowerCase()]=cmd;
+        return `(${k}) ${cmd}`;
+      }
+      // A repeated key must not silently overwrite an earlier action.
+      const key=assignHotkey(cmd);
+      return `(${key}) ${cmd}`;
+    }
     const key=assignHotkey(part); return `(${key}) ${part}`;
   }).join("   ");
+  reservedChoiceKeys.clear();
+  return rendered;
 }
 let outputQueue = Promise.resolve();
 function stableColorPositions(name,count){
@@ -953,7 +970,7 @@ function showEncounter() {
   if(!player.encounterDone[roadTurn]) player.encounterDone[roadTurn]=new Set();
   const lvl=encounterLevels[e.title] || (roadGoal==="east"? (e.title==="THE WARDEN"?50:5+(roadTurn%6)):null);
   add(""); add(`TURN ${roadTurn + 1} — ${e.title}${lvl?` — LVL ${String(lvl).padStart(2,"0")}`:""}`, "place");
-  add(e.text); add(""); add(hotkeyLine(encounterChoices(e)), "system");
+  add(e.text); add(""); add(encounterChoices(e), "system");
   if(e.exclusive) add("What do you do?", "system");
   stage = "encounter";
 }
@@ -1015,7 +1032,7 @@ function resolveEncounter(cmd) {
   if(key && done.has(key)){ add("You've already done that here.","system"); add(encounterChoices(e),"system"); return; }
   resultBuffer=[];
   const resolved=e.resolve(cmd);
-  if(!resolved){ resultBuffer=null; add(`Choose: ${hotkeyLine(encounterChoices(e))}`,"system"); return; }
+  if(!resolved){ resultBuffer=null; add(`Choose: ${encounterChoices(e)}`,"system"); add(encounterChoices(e),"system"); return; }
   flushResults();
   if(doneToken) done.add(key);
   if(isPathChoice(e,key) || e.exclusive){
@@ -1131,7 +1148,7 @@ function retrieveItem(name){
 }
 function townVisitorChoice(){ return currentTownWanderer ? `   TALK TO ${currentTownWanderer.toUpperCase()}` : ""; }
 function showBarActions(){
-  add(`(B) BUY DRINKS   (G) GAMBLE   (R) RENT ROOM — 12 BOLTS   (J) TALK TO JEN${townVisitorChoice()}   (T) RETURN TO TOWN`);
+  add(`(B) BUY DRINKS   (G) GAMBLE   (R) RENT ROOM — 12 BOLTS   (J) TALK TO JEN${townVisitorChoice()}   (T) RETURN TO TOWN`,"system");
 }
 function showDrinkMenu(){ mercyLocation="jenDrinks"; add("DRINKS","bright"); add("(E) BEER — 3 BOLTS — +5 HP   (O) SHOT — 5 BOLTS — +10 HP   (H) HOUSE SPECIAL — 8 BOLTS — +15 HP   (B) BACK","system"); }
 function showGambleMenu(){ mercyLocation="jenGames"; add("GAMBLING","bright"); add("(D) DICE   MORE GAMES — COMING LATER   (B) BACK","system"); }
@@ -1260,6 +1277,9 @@ function buyJohnny(item){
 }
 function handleSolace(cmd, raw=cmd){
   if(mercyLocation==="johnny" && player.flags.relayPartsRevealed && (cmd.includes("relay")||cmd.includes("regulator"))){ if(!ensureRelayParts().johnny){ add("JOHNNY > That old thing? Yeah, I've got one under the counter somewhere.","bright"); add("Johnny digs through a crate, produces a dust-covered power regulator, and drops it into your hands."); add("JOHNNY > Take it. Seriously. You've improved my inventory by removing it.","bright"); awardRelayPart("johnny","POWER REGULATOR"); } else add("JOHNNY > Already gave you the only one I had. You're welcome twice, apparently.","bright"); johnnyShop(); return; }
+  if(mercyLocation==="jen" && cmd==="b") cmd="buy drinks";
+  if(mercyLocation==="jen" && cmd==="g") cmd="gamble";
+  if(mercyLocation==="jen" && cmd==="r") cmd="rent room";
   if(mercyLocation==="jen" && (cmd==="buy drinks"||cmd==="drinks")){showDrinkMenu();return;}
   if(mercyLocation==="jen" && cmd==="gamble"){showGambleMenu();return;}
   if(mercyLocation==="jenGames"){ if(cmd==="b"||cmd==="back"){mercyLocation="jen";showBarActions();return;} if(cmd==="d"||cmd.includes("dice")){mercyLocation="dice";add("PICK 1 / 2 / 3 / 4 / 5 / 6   (B) BACK","system");return;} add("DICE   (B) BACK","system");return;}

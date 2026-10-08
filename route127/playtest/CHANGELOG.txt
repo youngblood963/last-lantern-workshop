@@ -1,0 +1,5 @@
+ROUTE 127 CHANGELOG
+
+v28.2: Save, load, overwrite flows verified by Syn.
+v29: Starting-room Bolts randomized; save system preserved. Playtest revealed multiple command prompts and travel-accounting issues.
+v30: Repair candidate — restore 2-turn service-road return cost; service-road progress labels; fork navigation; town/Jen hotkey routing; inventory equipment swapping; first-arrival Solace autosave; encounter choice hotkeys; gate arrival label. Gameplay verification required.

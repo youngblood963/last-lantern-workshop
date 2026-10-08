@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Route 127 — Road Prototype v25.26</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="terminal-shell">
+    <div class="terminal-header">
+      <span>ROUTE 127 // LOCAL NODE</span>
+      <span id="signal">NO SIGNAL</span>
+    </div>
+
+    <section id="hud" class="hud hidden" aria-label="Player status">
+      <span>LV <b id="hud-level">01</b></span>
+      <span>HP <b id="hud-hp">100/100</b></span>
+      <span>XP <b id="hud-xp">0/100</b></span>
+      <span>BOLTS <b id="hud-bolts">12</b></span>
+      <span>TURNS <b id="hud-turns">20/60</b></span>
+      <span>REFILL <b id="hud-refill">24:00:00</b></span>
+      <span>PACK <b id="hud-pack">2/8</b></span>
+      <span>TIME <b id="hud-time">DAY</b></span>
+    </section>
+
+    <div class="game-layout">
+      <section id="screen" class="screen" aria-live="polite"></section>
+      <aside id="utility-panel" class="utility-panel hidden" aria-label="Quick controls">
+        <div class="utility-name">--- <span id="side-level">LV 01</span></div>
+        <div class="utility-stat">HP <span id="side-hp">100 / 100</span></div>
+        <div class="utility-stat">BOLTS <span id="side-bolts">12</span></div>
+        <div class="utility-stat">TURNS <span id="side-turns">20 / 60</span></div>
+        <div class="utility-stat">TIME <span id="side-time">DAY</span></div>
+        <div class="utility-stat">REFILL <span id="side-refill">24:00:00</span></div>
+        <button type="button" data-command="status">(S) STATUS</button>
+        <button type="button" data-command="inventory">(I) INVENTORY</button>
+        <button type="button" data-command="map">(M) MAP</button>
+        <button type="button" data-command="quests">(Q) QUESTS</button>
+        <button type="button" data-command="save current">(V) SAVE CURRENT</button>
+        <button type="button" data-command="testing access">TESTING</button>
+      </aside>
+    </div>
+
+    <form id="command-form" class="command-form" autocomplete="off">
+      <span class="prompt">&gt;</span>
+      <input id="command" type="text" aria-label="Command" autofocus spellcheck="false">
+    </form>
+    <div id="transmission" class="transmission" aria-hidden="true">
+      <img src="transmission.png" alt="">
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

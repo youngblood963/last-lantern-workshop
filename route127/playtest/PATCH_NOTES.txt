@@ -1,0 +1,4 @@
+ROUTE 127 v30 REPAIR PLAYTEST
+Code syntax checked; gameplay not yet verified.
+See PLAYTEST.html for 14 test cases. Failed v29 cases remain marked FAIL until retested.
+Important: browser localStorage saves persist by browser/origin; keep existing save backups before changing builds.

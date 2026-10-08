@@ -1,0 +1,203 @@
+* { box-sizing: border-box; }
+
+:root {
+  --bg: #050706;
+  --panel: #080c09;
+  --text: #b8c7b8;
+  --bright: #e0eadf;
+  --dim: #657166;
+  --line: #263027;
+  --glow: rgba(190, 225, 190, .12);
+}
+
+html, body { min-height: 100%; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(50,65,50,.12), transparent 45%),
+    var(--bg);
+  color: var(--text);
+  font-family: Consolas, "Courier New", monospace;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.terminal-shell {
+  width: min(920px, 100%);
+  min-height: 620px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: 0 0 45px #000, inset 0 0 50px rgba(0,0,0,.65);
+  position: relative;
+  overflow: clip;
+}
+
+.terminal-shell::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent 3px, rgba(255,255,255,.018) 4px);
+}
+
+.terminal-header {
+  min-height: 42px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 18px;
+  color: var(--dim);
+  font-size: 13px;
+  letter-spacing: .12em;
+}
+
+.screen {
+  padding: 28px 30px 12px;
+  min-height: 510px;
+  height: min(68vh, 680px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: auto;
+  scrollbar-width: none;
+  white-space: pre-wrap;
+  line-height: 1.65;
+  text-shadow: 0 0 10px var(--glow);
+}
+
+.screen::-webkit-scrollbar { width: 0; height: 0; }
+.line { margin: 0 0 8px; }
+.system { color: var(--dim); }
+.bright { color: var(--bright); }
+.man { color: #d0d8cf; }
+.woman { color: #c7d4c9; }
+
+.command-form {
+  display: flex;
+  gap: 10px;
+  padding: 14px 30px 22px;
+  align-items: center;
+}
+.prompt { color: var(--bright); }
+.command-form.waiting { visibility: hidden; }
+#command { flex: 1; border: 0; outline: 0; background: transparent; color: var(--bright); font: inherit; caret-color: var(--bright); }
+
+.transmission {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  overflow: clip;
+}
+.transmission img { width: 100%; height: 100%; object-fit: cover; filter: contrast(1.06) saturate(.95); }
+.transmission::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: repeating-linear-gradient(to bottom, rgba(255,255,255,.03) 0, rgba(255,255,255,.03) 1px, transparent 2px, transparent 5px);
+  mix-blend-mode: screen;
+}
+.transmission::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  box-shadow: inset 0 0 100px #000;
+  background: linear-gradient(transparent 47%, rgba(255,255,255,.14) 49%, transparent 52%);
+  transform: translateY(-120%);
+}
+.transmission.live { animation: transmission-in 1s steps(1,end) forwards; }
+.transmission.live img { animation: image-jitter 1s linear forwards; }
+.transmission.live::after { animation: scan-jump .42s linear infinite; }
+
+@keyframes transmission-in {
+  0% { opacity: 0; transform: translateX(0); }
+  3% { opacity: 1; transform: translateX(-7px); }
+  7% { opacity: .25; transform: translateX(9px); }
+  10% { opacity: 1; transform: translateX(0); }
+  76% { opacity: 1; }
+  80% { opacity: .3; transform: translateX(12px); }
+  84% { opacity: 1; transform: translateX(-5px); }
+  90% { opacity: .12; }
+  94% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes image-jitter {
+  0%, 18%, 44%, 70%, 100% { transform: scale(1.01) translate(0,0); }
+  19% { transform: scale(1.02) translate(-5px,2px); }
+  45% { transform: scale(1.015) translate(4px,-2px); }
+  71% { transform: scale(1.02) translate(-3px,1px); }
+}
+@keyframes scan-jump { from { transform: translateY(-120%); } to { transform: translateY(120%); } }
+
+@media (max-width: 600px) {
+  body { padding: 0; }
+  .terminal-shell { min-height: 100vh; border: 0; }
+  .screen { padding: 22px 18px 10px; min-height: 70vh; }
+  .command-form { padding: 14px 18px 22px; }
+}
+
+.hud {
+  border-bottom: 1px solid var(--line);
+  padding: 10px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  color: var(--dim);
+  font-size: 12px;
+  letter-spacing: .08em;
+}
+.hud b { color: var(--bright); font-weight: 400; }
+.hidden { display: none !important; }
+/* Early Route 127 stays deliberately monochrome. Semantic classes vary only by brightness. */
+.danger { color: var(--bright); }
+.reward { color: var(--text); }
+.place { color: var(--bright); }
+
+/* A single, brief visual anomaly at Mercy hints that the interface can evolve later. */
+.anomaly { animation: mercy-anomaly .22s steps(2,end) 1; }
+@keyframes mercy-anomaly {
+  0%, 100% { color: var(--bright); text-shadow: 0 0 10px var(--glow); }
+  45% { color: #d8d0a8; text-shadow: 0 0 14px rgba(216,208,168,.28); }
+  65% { color: var(--bright); }
+}
+
+/* Level 2: tiny, unexplained interface corruption. */
+.micro-anomaly { color:#b89b57; text-shadow:0 0 2px currentColor; }
+
+.title-logo {
+  color: var(--bright);
+  font-size: clamp(28px, 6vw, 54px);
+  letter-spacing: .22em;
+  margin: 34px 0 4px;
+  text-shadow: 0 0 16px var(--glow);
+}
+
+/* v19 persistent utility controls — deliberately primitive for the early-game interface. */
+.game-layout { display:grid; grid-template-columns:minmax(0,1fr) 178px; align-items:stretch; }
+.game-layout .screen { min-width:0; }
+.utility-panel { border-left:1px solid var(--line); padding:22px 14px; color:var(--dim); font-size:12px; letter-spacing:.05em; align-self:start; position:sticky; top:0; min-height:510px; background:var(--panel); z-index:3; }
+.utility-name { color:var(--bright); border-bottom:1px solid var(--line); padding-bottom:10px; margin-bottom:10px; display:flex; justify-content:space-between; gap:8px; }
+.utility-stat { display:flex; justify-content:space-between; gap:8px; margin:7px 0; }
+.utility-panel button { width:100%; min-height:38px; margin-top:9px; border:1px solid var(--line); background:transparent; color:var(--text); font:inherit; cursor:pointer; }
+.utility-panel button:hover, .utility-panel button:focus-visible { border-color:var(--text); color:var(--bright); outline:none; }
+@media (max-width: 700px) {
+  .game-layout { display:block; }
+  .utility-panel { border-left:0; border-top:1px solid var(--line); padding:10px 12px; display:grid; position:sticky; bottom:0; top:auto; min-height:0; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .utility-name,.utility-stat { display:none; }
+  .utility-panel button { margin:0; min-height:44px; font-size:10px; padding:4px; }
+}
+/* Level 3 identity resolution */
+.npc-blue { color:#6f9fbd; text-shadow:0 0 2px currentColor; }
+.wanderer-green { color:#67a873; text-shadow:0 0 2px currentColor; }
+
+/* v25.7 early interface evolution */
+.evo-yellow { color:#b7a85a; text-shadow:0 0 2px currentColor; }

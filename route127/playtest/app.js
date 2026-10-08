@@ -80,7 +80,7 @@ function hotkeyLine(text){
   const parts=text.split(/\s{2,}/).map(x=>x.trim()).filter(Boolean);
   return parts.map(part=>{
     const existing=part.match(/^\(([A-Z0-9])\)\s*(.*)$/i);
-    if(existing){ const k=existing[1].toUpperCase(), cmd=existing[3].trim(); usedHotkeys.add(k); currentHotkeys[k.toLowerCase()]=cmd; return `(${k}) ${cmd}`; }
+    if(existing){ const k=existing[1].toUpperCase(), cmd=existing[2].trim(); usedHotkeys.add(k); currentHotkeys[k.toLowerCase()]=cmd; return `(${k}) ${cmd}`; }
     const key=assignHotkey(part); return `(${key}) ${part}`;
   }).join("   ");
 }

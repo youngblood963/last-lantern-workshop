@@ -3,3 +3,5 @@ ROUTE 127 CHANGELOG
 v28.2: Save, load, overwrite flows verified by Syn.
 v29: Starting-room Bolts randomized; save system preserved. Playtest revealed multiple command prompts and travel-accounting issues.
 v30: Repair candidate — restore 2-turn service-road return cost; service-road progress labels; fork navigation; town/Jen hotkey routing; inventory equipment swapping; first-arrival Solace autosave; encounter choice hotkeys; gate arrival label. Gameplay verification required.
+
+v31 (targeted repair candidate): Fixed hotkeyLine() accessing missing regex capture group [3] instead of [2]. This caused TypeError on already-keyed menu options and likely blocked Solace and other menus. No other gameplay logic changed. Requires browser retest. Updated PLAYTEST.html with v31 verification item. Remaining B2/B3/B4 require retesting after primary fix; not claimed resolved.

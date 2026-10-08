@@ -9,6 +9,7 @@ const utilityPanel = document.querySelector("#utility-panel");
 let stage = "title";
 let busy = false;
 let roadTurn = 0;
+let dailyRoadTurns = 0; // cumulative road movement, resets at the 24-hour refill
 let roadGoal = "mercy";
 let roadTripLength = 9;
 let mercyLocation = "town";
@@ -24,6 +25,7 @@ let wandererSerial = 0;
 let testMode = false;
 let refillTimer = null;
 let currentHotkeys = {};
+let numberedChoices = {};
 let returnStage = null;
 let inventoryMode = null;
 let pendingSaveSlot = null;
@@ -68,38 +70,29 @@ function looksLikeChoiceLine(text, cls="") {
   const verbs=/^(?:\([A-Z0-9]\)\s*)?(?:LOOK|STAND|SEARCH|CHECK|INSPECT|MOVE|KEEP|WALK|HEAD|FIGHT|OFFER|WARN|BACK|USE|ENTER|STUDY|READ|WAIT|PAY|FORCE|SMASH|OPEN|STRIP|CLIMB|TAKE|CIRCLE|GIVE|QUESTION|CRUSH|KICK|THROW|HOLD|RUSH|SNEAK|INTIMIDATE|POKE|BARGAIN|STEAL|CONTINUE|RETURN|ATTACK|PLAY|LEAVE|TALK|APPROACH|BAR|TRADER|WORKSHOP|CLINIC|BANK|BULLETIN|RENT|BEER|SHOT|HOUSE SPECIAL|GAMBLE|DEPOSIT|WITHDRAW|SELL|BUY|SAVE|STATUS|INVENTORY|MAP|TESTING|CONFIRM|CANCEL|YES|NO|MAKE CAMP|REMAIN|ASK|TOWN|DECLINE|ACCEPT)/i;
   return parts.filter(p=>verbs.test(p)).length >= 2;
 }
-const RESERVED_INTERFACE_KEYS=new Set(["I","S","M","Q","V"]);
-function assignHotkey(command){
-  const clean=command.replace(/^\([A-Z0-9]\)\s*/i,"").trim();
-  for(const ch of clean.toUpperCase()){
-    if(/[A-Z]/.test(ch) && !usedHotkeys.has(ch) && !reservedChoiceKeys.has(ch) && !(player.flags&&player.flags.interfaceUnlocked&&RESERVED_INTERFACE_KEYS.has(ch))){ usedHotkeys.add(ch); currentHotkeys[ch.toLowerCase()]=clean; return ch; }
-  }
-  for(let n=1;n<=9;n++){ const k=String(n); if(!usedHotkeys.has(k) && !reservedChoiceKeys.has(k)){usedHotkeys.add(k);currentHotkeys[k]=clean;return k;} }
-  return "?";
+// v33: action numbers are assigned once per displayed choice group.
+// Full-word commands remain valid for compatibility with older saves.
+const RESERVED_INTERFACE_KEYS=new Set(["I","S","M","Q","V","H"]);
+function choiceCommand(label){
+  const clean=String(label).replace(/^\([A-Z0-9]\)\s*/i,"").trim();
+  return clean.split(/\s+[—–]\s+/)[0].trim().toLowerCase();
 }
 function hotkeyLine(text){
-  // Preserve explicit labels, and never assign the same key to two actions.
-  // This function can also receive an already-formatted choice line.
   const parts=String(text??"").split(/\s{2,}/).map(x=>x.trim()).filter(Boolean);
-  // Reserve explicitly advertised shortcuts before allocating automatic ones.
-  // Otherwise ASK ABOUT ROAD could steal (B) intended for BACK later in the line.
-  reservedChoiceKeys=new Set(parts.map(p=>(p.match(/^\(([A-Z0-9])\)\s*.+$/i)||[])[1]).filter(Boolean).map(k=>k.toUpperCase()));
-  const rendered=parts.map(part=>{
-    const existing=part.match(/^\(([A-Z0-9])\)\s*(.+)$/i);
-    if(existing){
-      const k=existing[1].toUpperCase(), cmd=existing[2].trim();
-      if(!usedHotkeys.has(k)){
-        usedHotkeys.add(k); currentHotkeys[k.toLowerCase()]=cmd;
-        return `(${k}) ${cmd}`;
-      }
-      // A repeated key must not silently overwrite an earlier action.
-      const key=assignHotkey(cmd);
-      return `(${key}) ${cmd}`;
-    }
-    const key=assignHotkey(part); return `(${key}) ${part}`;
+  return parts.map(part=>{
+    const command=choiceCommand(part);
+    if(!command) return part;
+    const index=Object.keys(numberedChoices).length+1;
+    if(index>99) return part;
+    numberedChoices[String(index)]=command;
+    return `[${index}] ${part.replace(/^\([A-Z0-9]\)\s*/i,"")}`;
   }).join("   ");
-  reservedChoiceKeys.clear();
-  return rendered;
+}
+function renderNumberedChoices(text){
+  // Choices may be on a single line, with or without legacy letter labels.
+  if(!text || !/\s{2,}/.test(text))return text;
+  if(!looksLikeChoiceLine(text,"system") && !/^\([A-Z0-9]\)/.test(text))return text;
+  return hotkeyLine(text);
 }
 let outputQueue = Promise.resolve();
 function stableColorPositions(name,count){
@@ -130,8 +123,8 @@ function applyLevelEvolution(div, text, cls="") {
   }
 }
 function add(text = "", cls = "") {
-  if(cls.includes("place") || (!cls.includes("system") && text)) { currentHotkeys={}; usedHotkeys=new Set(); }
-  if(looksLikeChoiceLine(text,cls)) text=hotkeyLine(text);
+  if(cls.includes("place") || (!cls.includes("system") && text)) { currentHotkeys={}; numberedChoices={}; usedHotkeys=new Set(); }
+  if(cls.includes("system")) text=renderNumberedChoices(text);
   const div = document.createElement("div");
   div.className = `line ${cls}`;
   const finalText = text;
@@ -159,8 +152,8 @@ function addImmediate(text = "", cls = "") {
 function queueChoiceLine(text){
   // Choice text is queued after narrative so the player never gets a naked prompt.
   outputQueue = outputQueue.then(()=>{
-    currentHotkeys={}; usedHotkeys=new Set();
-    const line=looksLikeChoiceLine(text,"system")?hotkeyLine(text):text;
+    currentHotkeys={}; numberedChoices={}; usedHotkeys=new Set();
+    const line=renderNumberedChoices(text);
     addImmediate(line,"system"); followOutput();
   });
 }
@@ -185,11 +178,11 @@ function updateHud() {
   document.querySelector("#side-turns").textContent = testMode ? "∞ TEST" : `${player.turns} / ${player.maxTurns}`; const st=document.querySelector("#side-time"); if(st)st.textContent=timePhase();
   updateRefillDisplay();
 }
-function spendTurn() { if(!testMode) player.turns = Math.max(0, player.turns - 1); player.flags.worldHour=((player.flags.worldHour??8)+1)%24; updateHud(); }
+function spendTurn() { dailyRoadTurns++; if(!testMode) player.turns = Math.max(0, player.turns - 1); player.flags.worldHour=((player.flags.worldHour??8)+1)%24; updateHud(); }
 function timePhase(){ const h=player.flags.worldHour??8; return h<6?"DARK":h<8?"DAWN":h<17?"DAY":h<20?"DUSK":"DARK"; }
 function isDark(){ return timePhase()==="DARK"; }
 function ensureRefillClock(){ if(!player.flags) player.flags={}; if(!player.flags.nextRefillAt) player.flags.nextRefillAt=Date.now()+REFILL_MS; }
-function processRefill(){ ensureRefillClock(); let t=Number(player.flags.nextRefillAt)||Date.now()+REFILL_MS; const now=Date.now(); let gained=0; while(now>=t){ player.turns=Math.min(player.maxTurns,player.turns+TURN_REFILL_AMOUNT); t+=REFILL_MS; gained+=TURN_REFILL_AMOUNT; } player.flags.nextRefillAt=t; if(gained && stage==="zeroTurns" && player.turns>0){ stage="between"; player.flags.overnight=""; player.flags.overnightLocked=false; add(`EXPEDITION TURNS RESTORED — +${gained} TURNS`,"reward"); add("Your overnight state has ended. Route 127 is open again.","system"); } }
+function processRefill(){ ensureRefillClock(); let t=Number(player.flags.nextRefillAt)||Date.now()+REFILL_MS; const now=Date.now(); let gained=0; while(now>=t){ player.turns=Math.min(player.maxTurns,player.turns+TURN_REFILL_AMOUNT); t+=REFILL_MS; gained+=TURN_REFILL_AMOUNT; } player.flags.nextRefillAt=t; if(gained) dailyRoadTurns=0; if(gained && stage==="zeroTurns" && player.turns>0){ stage="between"; player.flags.overnight=""; player.flags.overnightLocked=false; add(`EXPEDITION TURNS RESTORED — +${gained} TURNS`,"reward"); add("Your overnight state has ended. Route 127 is open again.","system"); } }
 function refillText(){ ensureRefillClock(); const ms=Math.max(0,Number(player.flags.nextRefillAt)-Date.now()); const sec=Math.ceil(ms/1000), h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), ss=sec%60; return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`; }
 function updateRefillDisplay(){ if(!player.flags)return; processRefill(); const txt=testMode?"PAUSED / TEST":refillText(); const h=document.querySelector("#hud-refill"), side=document.querySelector("#side-refill"); if(h)h.textContent=txt;if(side)side.textContent=txt; }
 function startRefillTimer(){ if(refillTimer)clearInterval(refillTimer); refillTimer=setInterval(()=>{updateRefillDisplay();},1000); updateRefillDisplay(); }
@@ -211,17 +204,23 @@ function gainXp(n) {
   updateHud();
 }
 function handlePlayerDeath(){
+  if(stage==="fallen") return;
   player.deathStreak=(player.deathStreak||0)+1;
-  const tier=Math.min(player.deathStreak,3), turnLoss=[0,2,4,6][tier], boltPct=[0,.20,.25,.30][tier];
-  const lostBolts=Math.floor(player.bolts*boltPct); player.bolts-=lostBolts;
-  const candidates=player.pack.filter(i=>!["tool","key","quest"].includes(i.type)); let lostItem=null;
-  if(candidates.length){ const item=candidates[Math.floor(Math.random()*candidates.length)]; lostItem=item.name; removeItem(item.name,1); }
-  player.turns=Math.max(0,player.turns-turnLoss); player.hp=Math.max(1,Math.round(player.maxHp*(tier===1?.50:.25)));
+  const inTown=player.flags.mercyDiscovered;
+  // Remaining road segments are the minimum rescue travel cost; recovery adds two.
+  const travel=inTown ? (roadGoal==="house"?Math.max(0,roadTripLength-roadTurn):roadGoal==="mercy"?Math.max(0,roadTripLength-roadTurn):roadGoal==="east"?Math.max(0,roadTurn+1):0) : Math.max(0,roadTurn+1);
+  const penalty=travel+2;
+  player.turns=Math.max(0,player.turns-penalty);
+  dailyRoadTurns+=travel; // rescue travels the route; recovery itself is not a road turn
+  player.hp=Math.max(1,Math.round(player.maxHp*.5));
   combatState=null; currentRoadWanderer=null; updateHud();
-  add("Everything goes dark.","danger"); add(player.flags.mercyDiscovered?"You wake beneath a stained ceiling in Solace.":"You wake back at the old house.");
-  if(player.flags.mercyDiscovered) add(player.deathStreak===1?`WAYNE > \"You're welcome.\"`:player.deathStreak===2?`WAYNE > \"You again?\"`:`WAYNE > \"I'm starting to think you're doing this on purpose.\"`,"bright");
-  add("DEATH PENALTY","system"); add(`HP RESTORED: ${player.hp}/${player.maxHp}`); add(`BOLTS LOST: ${lostBolts}`); add(`TURNS LOST: ${turnLoss}`); if(lostItem)add(`PACK ITEM LOST: ${lostItem}`,"danger");
-  stage=(player.flags.mercyDiscovered)?"mercy":"house"; mercyLocation="town"; if(stage==="mercy")mercyMenu(); else arriveHouse();
+  add("YOU HAVE FALLEN","danger");
+  add("Your vision fades as the wasteland goes silent.");
+  add(inTown?"Hours later, you wake on a cot in Solace.":"Hours later, you wake in the old house.");
+  add("Someone dragged you back from the highway. They didn't do it for free.");
+  add(`RESCUE TRAVEL: ${travel} TURNS   RECOVERY: 2 TURNS   TOTAL: ${penalty}`, "system");
+  add(`HP RESTORED: ${player.hp}/${player.maxHp}   EQUIPMENT AND QUEST ITEMS RETAINED`, "system");
+  stage="fallen"; add("[1] GET UP", "system");
 }
 function hurt(n) { player.hp = Math.max(0, player.hp - n); updateHud(); resultLine(`-${n} HP`, "danger"); if(player.hp<=0) handlePlayerDeath(); }
 function armorDefense(){ return ({"Worn Jacket":2,"Reinforced Jacket":4})[player.armor] || 0; }
@@ -266,6 +265,7 @@ function showQuests(){
   if(["active","found"].includes(player.flags.murphyQuest)){active++;add("SIDE — ONE GOOD BELT");add(player.flags.murphyQuest==="found"?"Return the usable serpentine belt to Murphy.":"Search near the service-road fork toward the old house.","system");}
   if(player.flags.relayQuest==="ask"){active++;add("MAIN — RELAY STATION");add("Ask around Solace about the Relay Station.","system");}
   if(player.flags.relayQuest==="find"){active++;add("MAIN — RELAY STATION");add("Find and investigate the Relay Station in Solace.","system");}
+  if(player.flags.relayQuest==="complete"){active++;add("MAIN — RELAY STATION: CONNECTION STABILIZED","reward");}
   if(player.flags.relayQuest==="stabilize"){
     active++; add("MAIN — THE RELAY"); const rp=ensureRelayParts(); const count=Object.values(rp).filter(Boolean).length;
     if(!player.flags.relayPartsRevealed){ add("Inspect all four Relay systems and learn what is failing.","system"); const ri=player.flags.relayInspected||{}; if(ri.console)add("• CONSOLE — Power regulator failed. Johnny hoards old electronics.","system"); if(ri.antenna)add("• ANTENNA — Antenna servo seized. The county maintenance yard had old motor assemblies.","system"); if(ri.cables)add("• CABLES — Shielded feed coupler burned out. A lower utility/access road may still have signal hardware.","system"); if(ri.monitor)add("• MONITOR — Signal-conditioning module is dead. You passed old communications equipment east of Solace.","system"); }
@@ -441,7 +441,7 @@ function titleScreen(){
 }
 function resetPlayer(){
   Object.assign(player,{handle:"",level:1,hp:100,maxHp:100,xp:0,nextXp:100,bolts:12,bankBolts:0,turns:20,maxTurns:60,weapon:"Rusted Pipe",armor:"Worn Jacket",pack:[{name:"Energy Bars",qty:2,type:"consumable"},{name:"Battered Flashlight",qty:1,type:"tool"}],packMax:8,flags:{billboard:false,helpedTraveler:false,travelerInSolace:false,houseBandage:false,forkDiscovered:false,mercyDiscovered:false,serviceBossDead:false,serviceReward:false,rentedRoom:false,timQuest:"locked",timQuestSteps:0,murphyQuest:"locked",murphyQuestSteps:0,pendingQuest:"",mainSolaceQuest:"active",relayQuest:"locked",relayUnlocked:false,relayVisited:false,interfaceUnlocked:false,roomSearched:false,introFailed:false,worldHour:8,relayInspected:{},relayPartsRevealed:false,relayParts:{johnny:false,yard:false,branch:false,east:false},relayJohnnyAsked:false,relayBranchDiscovered:false,eastRouteDiscovered:false},wandererState:{},recentEncounters:[],deathStreak:0,encounterDone:{},stash:[],dailyDeal:["Energy Bars","Bandage","Reinforced Jacket","Claw Hammer","Tire Iron"][Math.floor(Math.random()*5)]});
-  roadTurn=0; roadTurnCharged=false; roadGoal="mercy"; roadTripLength=9; mercyLocation="town"; rerollRoad(9); updateHud();
+  roadTurn=0; dailyRoadTurns=0; roadTurnCharged=false; roadGoal="mercy"; roadTripLength=9; mercyLocation="town"; rerollRoad(9); updateHud();
 }
 function skipIntroForTesting(){
   resetPlayer();
@@ -496,7 +496,7 @@ function gameplayStageForSave(){
 function saveGame(slot=activeSaveSlot){
   if(!slot){ add("UNSAVED GAME — Choose SAVE 1, SAVE 2, or SAVE 3.","system"); return; }
   if(getSaveData(slot) && slot!==activeSaveSlot && pendingSaveSlot!==slot){ pendingSaveSlot=slot; add(`SAVE ${slot} ALREADY EXISTS — OVERWRITE?`,"danger"); add("(Y) YES   (N) NO","system"); stage="confirmSaveOverwrite"; return; }
-  pendingSaveSlot=null; activeSaveSlot=slot; const data={version:25.18,day,wandererSerial,savedAt:new Date().toISOString(),stage:gameplayStageForSave(),roadTurn,roadGoal,roadTripLength,roadTurnCharged,serviceRoadDepth,mercyLocation,roadEncounterOrder,wandererLocations,currentRoadWanderer,currentTownWanderer,player:serializablePlayer()};
+  pendingSaveSlot=null; activeSaveSlot=slot; const data={version:25.18,day,wandererSerial,savedAt:new Date().toISOString(),stage:gameplayStageForSave(),roadTurn,dailyRoadTurns,roadGoal,roadTripLength,roadTurnCharged,serviceRoadDepth,mercyLocation,roadEncounterOrder,wandererLocations,currentRoadWanderer,currentTownWanderer,player:serializablePlayer()};
   try{ localStorage.setItem(SAVE_KEYS[slot],JSON.stringify(data)); add(`SAVE ${slot} — ${player.handle || "NO HANDLE"}`, "bright"); add("Game saved.", "reward"); }
   catch(e){ add("SAVE FAILED — This browser did not allow local storage for this file.", "danger"); }
 }
@@ -518,7 +518,7 @@ function loadGame(slot=activeSaveSlot){
   stage=data.stage||"house";
   if(["inventory","inventoryItem","quests","interfaceStatus","interfaceMap","interfaceSave","confirmSaveOverwrite"].includes(stage)) stage="between";
   returnStage=stage;
-  day=data.day||1; wandererSerial=data.wandererSerial||0; serviceRoadDepth=data.serviceRoadDepth||0; roadTurn=data.roadTurn||0; roadTurnCharged=!!data.roadTurnCharged; roadGoal=data.roadGoal||"mercy"; roadTripLength=Math.max(8,data.roadTripLength||8); if(roadTurn>=roadTripLength) roadTurn=Math.max(0,roadTripLength-1);
+  day=data.day||1; wandererSerial=data.wandererSerial||0; serviceRoadDepth=data.serviceRoadDepth||0; roadTurn=data.roadTurn||0; dailyRoadTurns=Number(data.dailyRoadTurns)||0; roadTurnCharged=!!data.roadTurnCharged; roadGoal=data.roadGoal||"mercy"; roadTripLength=Math.max(8,data.roadTripLength||8); if(roadTurn>=roadTripLength) roadTurn=Math.max(0,roadTripLength-1);
   mercyLocation=data.mercyLocation||"town"; roadEncounterOrder=Array.isArray(data.roadEncounterOrder)?data.roadEncounterOrder:roadEncounterOrder;
   wandererLocations=(data.wandererLocations&&typeof data.wandererLocations==="object")?data.wandererLocations:rollWandererLocations();
   currentRoadWanderer=data.currentRoadWanderer||null; currentTownWanderer=data.currentTownWanderer||null; pendingTownFight=null; combatState=null;
@@ -712,7 +712,7 @@ function showRoadWanderer(){
   const unseen=pool.filter(w=>!ws(w.name).met); if(unseen.length) pool=unseen;
   const w=pool[Math.floor(Math.random()*pool.length)]; if(!w){stage="between";showEncounter();return;}
   const st=ws(w.name), first=!st.met; st.met=true; st.lastSeen=wandererSerial++; currentRoadWanderer=w.name;
-  add(""); add(`TURN ${roadTurn + 1} — WANDERER`,"place");
+  add(""); add(`ROAD TURN ${dailyRoadTurns} — WANDERER`,"place");
   add(first?"Another stretch of Route 127 disappears behind you. Someone unfamiliar is ahead on the road.":`A familiar figure is ahead. ${w.name} recognizes you too.`);
   showWanderer(w,"road"); stage="wandererRoad";
 }
@@ -928,13 +928,13 @@ function questRoadEvent(){
     if(!force && !roll) continue;
     add("");
     if(q==="tim"){
-      add(`TURN ${roadTurn+1} — SOMETHING IN THE WEEDS`,"place");
+      add(`ROAD TURN ${dailyRoadTurns} — SOMETHING IN THE WEEDS`,"place");
       add("A dull flash catches your eye beside the cracked shoulder. Half buried under dead grass is an old metal badge, scratched nearly smooth.");
       add("You remember Tim saying he lost his old badge somewhere on this stretch of Route 127.","bright");
       addPack("Tim's Old Badge","quest"); f.timQuest="found";
       add("TIM'S OLD BADGE FOUND — Return it to Tim in Solace.","reward");
     } else {
-      add(`TURN ${roadTurn+1} — WRECKED DELIVERY VAN`,"place");
+      add(`ROAD TURN ${dailyRoadTurns} — WRECKED DELIVERY VAN`,"place");
       add("Near the service-road fork, an old delivery van rests nose-down in the ditch. The hood is already half open.");
       add("Inside the engine bay, one serpentine belt is cracked at the edges but still flexible.");
       addPack("Usable Serpentine Belt","quest"); f.murphyQuest="found";
@@ -956,7 +956,7 @@ function noTurnsMenu(){
   stage="zeroTurns";
 }
 function showEncounter() {
-  if(roadGoal==="mercy" && roadTurn===4 && !roadTurnCharged){ player.flags.forkDiscovered=true; add("","system"); add("THE FORK","place"); add("Route 127 continues east toward Solace. An old service road climbs north through the trees beneath a bent county sign."); add(`CONTINUE TO SOLACE   CHECK SERVICE ROAD${player.flags.relayPartsRevealed?"   CHECK LOWER ACCESS ROAD":""}`,"system"); stage="fork"; return; }
+  if((roadGoal==="mercy" && roadTurn===4 || roadGoal==="house" && roadTurn===3) && !roadTurnCharged){ player.flags.forkDiscovered=true; add("","system"); add("THE FORK","place"); add("Route 127 continues east toward Solace. An old service road climbs north through the trees beneath a bent county sign."); add(`CONTINUE TO ${roadGoal==="house"?"OLD HOUSE":"SOLACE"}   CHECK SERVICE ROAD${player.flags.relayPartsRevealed?"   CHECK LOWER ACCESS ROAD":""}`,"system"); stage="fork"; return; }
   if(!roadTurnCharged){ if(!testMode && player.turns<=0){noTurnsMenu();return;} spendTurn(); roadTurnCharged=true; }
   if(isDark()) add("WORSE AFTER DARK — enemies hit harder; road rewards improve.","danger");
   else if(timePhase()==="DUSK") add("LIGHT FADING.","system");
@@ -969,7 +969,7 @@ function showEncounter() {
   const e = currentEncounter();
   if(!player.encounterDone[roadTurn]) player.encounterDone[roadTurn]=new Set();
   const lvl=encounterLevels[e.title] || (roadGoal==="east"? (e.title==="THE WARDEN"?50:5+(roadTurn%6)):null);
-  add(""); add(`TURN ${roadTurn + 1} — ${e.title}${lvl?` — LVL ${String(lvl).padStart(2,"0")}`:""}`, "place");
+  add(""); add(`ROAD TURN ${dailyRoadTurns} — ${e.title}${lvl?` — LVL ${String(lvl).padStart(2,"0")}`:""}`, "place");
   add(e.text); add(""); add(encounterChoices(e), "system");
   if(e.exclusive) add("What do you do?", "system");
   stage = "encounter";
@@ -1206,6 +1206,9 @@ function relayPartCount(){ return Object.values(ensureRelayParts()).filter(Boole
 function awardRelayPart(key,name){ const rp=ensureRelayParts(); if(rp[key]){add("You've already recovered what the Relay needs from here.","system");return false;} rp[key]=true; add(`RELAY COMPONENT RECOVERED — ${name}`,"reward"); add(`PARTS RECOVERED — ${relayPartCount()}/4`,"system"); if(relayPartCount()>=4){ add("All four components are accounted for. Return to the Relay Station.","bright"); } return true; }
 function inspectRelaySystem(key){ player.flags.relayInspected=player.flags.relayInspected||{}; player.flags.relayInspected[key]=true; const n=Object.values(player.flags.relayInspected).filter(Boolean).length; add(`RELAY DIAGNOSTICS — ${n}/4 SYSTEMS INSPECTED`,"system"); if(n>=4) revealRelayParts(); else add("QUEST UPDATED — New Relay clue recorded in QUESTS.","reward"); }
 function revealRelayParts(){ ensureRelayParts(); if(player.flags.relayPartsRevealed)return; player.flags.relayPartsRevealed=true; player.flags.relayBranchDiscovered=true; add("The failures are not one problem. They're four.","bright"); add("RELAY REPAIR — FOUR COMPONENTS REQUIRED","reward"); add("POWER REGULATOR — Johnny may have something this old.","system"); add("ANTENNA SERVO — The county maintenance yard had old motor assemblies.","system"); add("SHIELDED FEED COUPLER — A lower access road branches from the Route 127 fork.","system"); add("SIGNAL-CONDITIONING MODULE — Old communications equipment lies east of Solace.","system"); add("QUEST UPDATED — All four clues recorded in QUESTS. LOWER ACCESS ROAD UNLOCKED.","reward"); }
+function showRelayChoices(){
+  add(`(O) INSPECT MONITOR   (C) INSPECT CONSOLE   (A) INSPECT ANTENNA CONTROLS   (P) INSPECT CABLES${relayPartCount()===4 && player.flags.relayQuest!=="complete"?"   INSTALL COMPONENTS":""}   (B) BACK`,"system");
+}
 function enterRelayStation(){
   mercyLocation="relay";
   add("RELAY STATION","place");
@@ -1218,7 +1221,7 @@ function enterRelayStation(){
     add(""); add("CLICK.","bright");
     add("The monitor flickers once. Twice. Static crawls across the glass.","system");
     add("DISPLAY LINK ESTABLISHED","bright");
-    outputQueue = outputQueue.then(async()=>{ await sleep(500); transmission.classList.remove("live"); void transmission.offsetWidth; transmission.classList.add("live"); await sleep(1200); transmission.classList.remove("live"); await sleep(250); followOutput(); });
+    add("/\\//\\  ///\\  //\\//  /\\/", "system");
     add(`WOMAN'S VOICE > ${player.handle||"Syn"}? Good. You found it.`,"woman");
     add("Static tears across the screen.","system");
     add("WOMAN'S VOICE > I don't have much time. We're losing the signal again.","woman");
@@ -1229,7 +1232,7 @@ function enterRelayStation(){
     add("QUEST UPDATED — RELAY STATION","reward");
     add("Find a way to stabilize the Relay connection.","system");
   }
-  add("(O) INSPECT MONITOR   (C) INSPECT CONSOLE   (A) INSPECT ANTENNA CONTROLS   (P) INSPECT CABLES   (B) BACK","system");
+  add(`(O) INSPECT MONITOR   (C) INSPECT CONSOLE   (A) INSPECT ANTENNA CONTROLS   (P) INSPECT CABLES${relayPartCount()===4 && player.flags.relayQuest!=="complete"?"   INSTALL COMPONENTS":""}   (B) BACK`,"system");
 }
 function smallTalk(name){
   if(name==="tim" && player.flags.timQuest==="locked"){
@@ -1350,26 +1353,37 @@ function handleSolace(cmd, raw=cmd){
   if(mercyLocation==="diceAgain"){if(cmd.includes("leave")){mercyLocation="jen";add("You step away from the dice table and return to the bar.");showBarActions();return;} if(cmd.includes("play")||cmd==="p"){mercyLocation="dice";add("PICK 1 / 2 / 3 / 4 / 5 / 6   LEAVE TABLE","system");return;} add("PLAY AGAIN   LEAVE TABLE","system");return;}
 
   if((cmd==="relay station"||cmd==="relay") && player.flags.relayUnlocked){enterRelayStation();return;}
+  if(mercyLocation==="relay" && (cmd.includes("install")||cmd.includes("stabilize")||cmd.includes("repair"))){
+    if(relayPartCount()<4){add(`RELAY REPAIR INCOMPLETE — ${relayPartCount()}/4 COMPONENTS RECOVERED`,"system");return;}
+    if(player.flags.relayQuest==="complete"){add("The Relay connection is already stable.","system");return;}
+    player.flags.relayQuest="complete";
+    add("RELAY STATION — CONNECTION STABILIZED","reward");
+    add("You fit the four salvaged components into their housings. One by one, the dead meters wake.");
+    add("A steady green line crosses the monitor. For the first time, the station holds its signal.");
+    add("WOMAN'S VOICE > You did it. We can finally talk.","woman");
+    add("MAIN QUEST COMPLETE — THE RELAY STATION","reward");
+    add("(B) BACK","system");return;
+  }
   if(mercyLocation==="relay" && cmd.includes("inspect")){
-    if(cmd.includes("monitor")){add("The monitor is dead again. A faint ozone smell hangs around the vents. A signal-conditioning board behind the display is scorched beyond repair.");add("You remember the pre-collapse communications equipment along Route 127 east of Solace.","bright");inspectRelaySystem("monitor");add("(O) INSPECT MONITOR   (C) INSPECT CONSOLE   (A) INSPECT ANTENNA CONTROLS   (P) INSPECT CABLES   (B) BACK","system");return;}
-    if(cmd.includes("console")){add("The main console has power in fits and starts. The old POWER REGULATOR is cooked; SIGNAL STABILITY never rises above the bottom quarter.");add("Johnny keeps shelves of obsolete electronics. If anyone in Solace has one, he might.","bright");inspectRelaySystem("console");add("(O) INSPECT MONITOR   (C) INSPECT CONSOLE   (A) INSPECT ANTENNA CONTROLS   (P) INSPECT CABLES   (B) BACK","system");return;}
-    if(cmd.includes("antenna")){add("A bank of antenna controls is frozen halfway through calibration. The ANTENNA SERVO has seized solid.");add("You passed old motor assemblies at the county maintenance yard off the service road.","bright");inspectRelaySystem("antenna");add("(O) INSPECT MONITOR   (C) INSPECT CONSOLE   (A) INSPECT ANTENNA CONTROLS   (P) INSPECT CABLES   (B) BACK","system");return;}
-    if(cmd.includes("cable")){add("Most of the cable is brittle but intact, but the SHIELDED FEED COUPLER has burned through at the wall.");add("A faded service diagram marks a lower utility access road near the Route 127 fork.","bright");inspectRelaySystem("cables");add("(O) INSPECT MONITOR   (C) INSPECT CONSOLE   (A) INSPECT ANTENNA CONTROLS   (P) INSPECT CABLES   (B) BACK","system");return;}
+    if(cmd.includes("monitor")){add("The monitor is dead again. A faint ozone smell hangs around the vents. A signal-conditioning board behind the display is scorched beyond repair.");add("You remember the pre-collapse communications equipment along Route 127 east of Solace.","bright");inspectRelaySystem("monitor");showRelayChoices();return;}
+    if(cmd.includes("console")){add("The main console has power in fits and starts. The old POWER REGULATOR is cooked; SIGNAL STABILITY never rises above the bottom quarter.");add("Johnny keeps shelves of obsolete electronics. If anyone in Solace has one, he might.","bright");inspectRelaySystem("console");showRelayChoices();return;}
+    if(cmd.includes("antenna")){add("A bank of antenna controls is frozen halfway through calibration. The ANTENNA SERVO has seized solid.");add("You passed old motor assemblies at the county maintenance yard off the service road.","bright");inspectRelaySystem("antenna");showRelayChoices();return;}
+    if(cmd.includes("cable")){add("Most of the cable is brittle but intact, but the SHIELDED FEED COUPLER has burned through at the wall.");add("A faded service diagram marks a lower utility access road near the Route 127 fork.","bright");inspectRelaySystem("cables");showRelayChoices();return;}
   }
   if(cmd==="gate"||cmd==="west gate"||cmd==="leave solace"||cmd==="solace gate"){mercyLocation="gate";add("SOLACE — WEST GATE","place");add("Route 127 runs west toward the old house and the service-road fork.");add("HEAD WEST — OLD HOUSE   (B) BACK","system");return;}
   if(cmd==="g") cmd="east gate";
   if(cmd==="e" && mercyLocation==="town") cmd="west gate";
   if(cmd==="east gate"){mercyLocation="eastGate";player.flags.eastRouteDiscovered=true;add("SOLACE — EAST GATE","place");add("Beyond the barricade, Route 127 continues through country Solace patrols only when it has to.");add("HEAD EAST — ROUTE 127   (B) BACK","system");return;}
-  if(cmd.includes("head west")||cmd.includes("old house")||cmd==="west"){startRoadTrip("house",8);return;}
+  if(mercyLocation==="gate" && (cmd.includes("head west")||cmd.includes("old house")||cmd==="west"||cmd==="h")){startRoadTrip("house",8);return;}
   if(mercyLocation==="eastGate" && (cmd.includes("head east")||cmd==="east"||cmd==="h")){ startRoadTrip("east",16); return; }
   if(cmd.includes("stay in mercy")){mercyLocation="town";mercyMenu();return;}
   if(cmd==="b"||cmd==="back"){ if(mercyLocation==="jenTalk"){mercyLocation="jen";showBarActions();return;} if(["jenDrinks","jenGames"].includes(mercyLocation)){mercyLocation="jen";showBarActions();return;} if(["jen","murphy","johnny","wayne","amii","relay","gate","eastGate"].includes(mercyLocation)){mercyLocation="town";mercyMenu();return;} }
   if(cmd==="t"||cmd==="town"||cmd==="solace"||cmd==="return to town"||cmd.includes("main street")){mercyLocation="town";mercyMenu();return;}
   if(cmd==="j" && mercyLocation==="jen"){npcTalk("jen");return;}
-  if(cmd==="bar"||cmd==="jen's bar"||cmd==="visit bar"){mercyLocation="jen";add("JEN'S BAR","place");showWanderersAt("jen");add("Warm light leaks through patched windows. The room smells like wood smoke and something almost resembling dinner.");add("Jen is short, warm, and easy to talk to—the kind of person who makes a hard place feel less hard.");add("As she reaches for a glass, you catch a glimpse of a tiny ladybug tattoo near her wrist.");add("JEN > First one's water. You look like you need it more than anything stronger.","bright");if(player.flags.travelerInSolace)add("The wounded woman from the road is sitting near the end of the bar with a fresh dressing on her arm. She catches your eye and smiles. ‘Didn’t think I’d see you again.’","bright");showBarActions();return;}
-  if(cmd==="trader"||cmd==="trading post"||cmd==="johnny"){mercyLocation="johnny";add("JOHNNY'S TRADING POST","place");showWanderersAt("johnny");add("Shelves made from old road signs hold food, tools, ammunition, and objects whose original purpose is no longer obvious.");add("Johnny looks over your pack with the practiced grin of a man already working out three different ways to make a deal.");add("JOHNNY > I'll buy almost anything. Sell almost anything too. And lucky for you, today I happen to be feeling generous.","bright");add("JOHNNY > Generous-ish.","bright");johnnyShop();return;}
-  if(cmd==="workshop"||cmd==="murphy"){mercyLocation="murphy";add("MURPHY'S WORKSHOP","place");showWanderersAt("murphy");add("The shop looks chaotic until you notice every tool is exactly where Murphy expects it to be.");add("A faded photograph of a bright blue Corvette is pinned above his workbench, remarkably clean compared with everything around it.");add("MURPHY > Let's see what survived the trip with you.","bright");add("He checks your Rusted Pipe and gives an approving little shrug. MURPHY > Ugly. Reliable. I respect that.");add(`TALK TO MURPHY   UPGRADES   INSPECT CORVETTE PHOTO${townVisitorChoice()}   (B) BACK`,"system");return;}
-  if(cmd==="clinic"||cmd==="wayne"){mercyLocation="wayne";add("WAYNE'S CLINIC","place");showWanderersAt("wayne");add("Clean bandages, boiled instruments, labeled jars. Someone here knows what they're doing.");add("A tiny word has been scratched into the underside of one metal shelf: SEX.","system");add("Wayne notices you noticing it and says absolutely nothing.");add(`WAYNE > You're at ${player.hp}/${player.maxHp} HP. I've seen worse. Usually attached to smarter decisions.`,"bright");add("TREAT WOUNDS — 1 BOLT PER 5 HP   BUY BANDAGE — 8 BOLTS   TALK TO WAYNE   TOWN","system");return;}
+  if(cmd==="bar"||cmd==="jen's bar"||cmd==="visit bar"){mercyLocation="jen";add("JEN'S BAR","place");showWanderersAt("jen");if(!player.flags.visited_jen){player.flags.visited_jen=true;add("Warm light leaks through patched windows. The room smells like wood smoke and something almost resembling dinner.");add("Jen is short, warm, and easy to talk to—the kind of person who makes a hard place feel less hard.");add("As she reaches for a glass, you catch a glimpse of a tiny ladybug tattoo near her wrist.");add("JEN > First one's water. You look like you need it more than anything stronger.","bright");if(player.flags.travelerInSolace)add("The wounded woman from the road is sitting near the end of the bar with a fresh dressing on her arm. She catches your eye and smiles. ‘Didn’t think I’d see you again.’","bright");}else{add("JEN > Back again? What can I get you?", "bright");}showBarActions();return;}
+  if(cmd==="trader"||cmd==="trading post"||cmd==="johnny"){mercyLocation="johnny";add("JOHNNY'S TRADING POST","place");showWanderersAt("johnny");if(!player.flags.visited_johnny){player.flags.visited_johnny=true;add("Shelves made from old road signs hold food, tools, ammunition, and objects whose original purpose is no longer obvious.");add("Johnny looks over your pack with the practiced grin of a man already working out three different ways to make a deal.");add("JOHNNY > I'll buy almost anything. Sell almost anything too. And lucky for you, today I happen to be feeling generous.","bright");add("JOHNNY > Generous-ish.","bright");}else{add("JOHNNY > Back for another deal?", "bright");}johnnyShop();return;}
+  if(cmd==="workshop"||cmd==="murphy"){mercyLocation="murphy";add("MURPHY'S WORKSHOP","place");showWanderersAt("murphy");if(!player.flags.visited_murphy){player.flags.visited_murphy=true;add("The shop looks chaotic until you notice every tool is exactly where Murphy expects it to be.");add("A faded photograph of a bright blue Corvette is pinned above his workbench, remarkably clean compared with everything around it.");add("MURPHY > Let's see what survived the trip with you.","bright");add("He checks your Rusted Pipe and gives an approving little shrug. MURPHY > Ugly. Reliable. I respect that.");}else{add("MURPHY > Back again? What needs fixing?", "bright");}add(`TALK TO MURPHY   UPGRADES   INSPECT CORVETTE PHOTO${townVisitorChoice()}   (B) BACK`,"system");return;}
+  if(cmd==="clinic"||cmd==="wayne"){mercyLocation="wayne";add("WAYNE'S CLINIC","place");showWanderersAt("wayne");if(!player.flags.visited_wayne){player.flags.visited_wayne=true;add("Clean bandages, boiled instruments, labeled jars. Someone here knows what they're doing.");add("A tiny word has been scratched into the underside of one metal shelf: SEX.","system");add("Wayne notices you noticing it and says absolutely nothing.");add(`WAYNE > You're at ${player.hp}/${player.maxHp} HP. I've seen worse. Usually attached to smarter decisions.`,"bright");}else{add("WAYNE > Try not to bleed on the floor.", "bright");}add("TREAT WOUNDS — 1 BOLT PER 5 HP   BUY BANDAGE — 8 BOLTS   TALK TO WAYNE   TOWN","system");return;}
   if(cmd==="bank"||cmd==="bank stash"||cmd==="amii"||cmd.includes("visit bank")){bankMenu();return;}
   if(cmd.startsWith("post ")){postToBulletinBoard(raw.trim().slice(5));return;}
   if(cmd==="post"){postToBulletinBoard("");return;}
@@ -1407,7 +1421,7 @@ function openInterface(which){
 function redrawState(){
   if(stage==="standing") return showStandingOptions();
   if(stage==="house") return add("SEARCH BATHROOM CABINET   CHECK FIREPLACE   CHECK PACK   MAP   SAVE GAME 01   HEAD NORTH — SOLACE","system");
-  if(stage==="mercy"){ if(mercyLocation==="town") return mercyMenu(); if(mercyLocation==="jen") return showBarActions(); if(mercyLocation==="relay") return add("(O) INSPECT MONITOR   (C) INSPECT CONSOLE   (A) INSPECT ANTENNA CONTROLS   (P) INSPECT CABLES   (B) BACK","system"); if(mercyLocation==="eastGate")return add("(H) HEAD EAST — ROUTE 127   (B) BACK","system"); }
+  if(stage==="mercy"){ if(mercyLocation==="town") return mercyMenu(); if(mercyLocation==="jen") return showBarActions(); if(mercyLocation==="relay") return showRelayChoices(); if(mercyLocation==="eastGate")return add("(H) HEAD EAST — ROUTE 127   (B) BACK","system"); }
   if(stage==="encounter") return add(encounterChoices(currentEncounter()),"system");
   if(stage==="roadReady") return add("(R) ROAD — BEGIN JOURNEY","system");
   showCurrentContext();
@@ -1420,8 +1434,8 @@ function renderCurrentChoices(){
   if(stage==="inventoryItem"){ const item=findItem(inventoryMode&&inventoryMode.item); if(item && (item.type==="weapon"||item.type==="armor"))return add("(E) EQUIP   (D) DROP   (B) BACK","system"); if(item) return add(item.name==="Battered Flashlight"?"(D) DISMANTLE   (B) BACK":item.type==="consumable"?"(U) USE   (D) DROP   (B) BACK":"(D) DROP   (B) BACK","system"); }
   if(stage==="quests"){showQuests();return showInterfaceNav();} if(stage==="interfaceStatus"){showStatus();return showInterfaceNav();} if(stage==="interfaceMap"){showMap();return showInterfaceNav();} if(stage==="interfaceSave")return add("(B) BACK — RETURN TO GAME", "system");
   if(stage==="serviceRoad")return add(player.flags.serviceBossDead?"(E) SEARCH MAINTENANCE YARD   (R) RETURN TO FORK":"(C) CONTINUE UP ROAD   (R) RETURN TO FORK","system");
-  if(stage==="fork")return add(`(C) CONTINUE TO SOLACE   (S) CHECK SERVICE ROAD${player.flags.relayPartsRevealed?"   CHECK LOWER ACCESS ROAD":""}`,"system");
-  if(stage==="mercy"){ if(mercyLocation==="town")return mercyMenu(); if(mercyLocation==="jen")return showBarActions(); if(mercyLocation==="jenDrinks")return showDrinkMenu(); if(mercyLocation==="jenGames")return showGambleMenu(); if(mercyLocation==="relay")return add("(O) INSPECT MONITOR   (C) INSPECT CONSOLE   (A) INSPECT ANTENNA CONTROLS   (P) INSPECT CABLES   (B) BACK","system"); if(mercyLocation==="eastGate")return add("(H) HEAD EAST — ROUTE 127   (B) BACK","system"); if(mercyLocation==="gate")return add("(H) HEAD WEST — OLD HOUSE   (B) BACK","system"); if(["jen","johnny","murphy","wayne","amii","tim"].includes(mercyLocation))return npcTalk(mercyLocation); }
+  if(stage==="fork")return add(`(C) CONTINUE TO ${roadGoal==="house"?"OLD HOUSE":"SOLACE"}   (S) CHECK SERVICE ROAD${player.flags.relayPartsRevealed?"   CHECK LOWER ACCESS ROAD":""}`,"system");
+  if(stage==="mercy"){ if(mercyLocation==="town")return mercyMenu(); if(mercyLocation==="jen")return showBarActions(); if(mercyLocation==="jenDrinks")return showDrinkMenu(); if(mercyLocation==="jenGames")return showGambleMenu(); if(mercyLocation==="relay")return showRelayChoices(); if(mercyLocation==="eastGate")return add("(H) HEAD EAST — ROUTE 127   (B) BACK","system"); if(mercyLocation==="gate")return add("(H) HEAD WEST — OLD HOUSE   (B) BACK","system"); if(["jen","johnny","murphy","wayne","amii","tim"].includes(mercyLocation))return npcTalk(mercyLocation); }
   redrawState();
 }
 async function handleCommand(raw) {
@@ -1437,8 +1451,9 @@ async function handleCommand(raw) {
   if(!player.flags.interfaceUnlocked && stage==="wake") { if(cmd==="l") cmd="look around"; else if(cmd==="s") cmd="stand up"; }
   if(!player.flags.interfaceUnlocked && stage==="standing") { const k={c:"check cabinet",s:"search room",h:"check pack",i:"inspect computer"}; if(k[cmd]) cmd=k[cmd]; }
   const interfaceStages=["inventory","inventoryItem","quests","interfaceStatus","interfaceMap","interfaceSave"];
-  if(stage==="mercy" && mercyLocation!=="town" && cmd==="t") cmd="town";
+  if(stage==="mercy" && mercyLocation!=="town" && cmd==="t" && !numberedChoices[cmd]) cmd="town";
   else if(!interfaceStages.includes(stage) && cmd.length===1 && currentHotkeys[cmd]) cmd=currentHotkeys[cmd].toLowerCase();
+  if(/^\d+$/.test(cmd) && numberedChoices[cmd] && !["inventory","inventoryItem","combatItems","confirmNewSlot","title","fallen"].includes(stage)) cmd=numberedChoices[cmd];
   add(`> ${raw||"[ENTER]"}`, "bright");
 
   // PRE-INTERFACE OPENING STATES OWN THEIR INPUT. Nothing from the later global/item
@@ -1533,6 +1548,7 @@ async function handleCommand(raw) {
   if(stage === "confirmHandle"){ if(cmd===""||cmd==="y"||cmd==="yes"){player.handle=pendingHandle;pendingHandle="";updateHud();add(`The faded letters read: ${player.handle.toUpperCase()}.`,"bright");add("Still yours. That's something.");stage="standing";await outputQueue;showStandingOptions();} else if(cmd==="n"||cmd==="no"||cmd==="change"){const old=pendingHandle;pendingHandle="";stage="handle";add(`CHANGE HANDLE — current entry: ${old}`,"system");add("Enter a new Handle, or RANDOM for a suggestion.","system");} else add("(Y) YES [ENTER]   (N) CHANGE","system"); return; }
   if(stage === "handle"){ if(cmd==="random"||cmd==="autofill"){ const names=["Drifter","Rook","Rust","Crow","Hollow","Slate","Nomad","Flint"]; const h=names[Math.floor(Math.random()*names.length)]; add(`Suggested Handle: ${h}`,"bright"); add(`Type ${h} to accept, or RANDOM to reroll.`,"system"); } else setHandle(raw); return; }
   if(stage==="confirmSaveOverwrite"){ if(cmd==="y"||cmd==="yes"){const sl=pendingSaveSlot; stage=returnStage||"between"; pendingSaveSlot=sl; saveGame(sl);} else {pendingSaveSlot=null;stage=returnStage||"between";add("SAVE CANCELLED","system");} return; }
+  if(stage==="fallen"){ if(cmd==="1"||cmd==="get up"||cmd==="get"||cmd==="continue"){stage=player.flags.mercyDiscovered?"mercy":"house";mercyLocation="town";if(stage==="mercy")mercyMenu();else arriveHouse();}else add("[1] GET UP","system");return;}
   if(stage==="combatItems"){ if(cmd==="b"||cmd==="back"){stage="combat";inventoryMode=null;showCurrentContext();return;} const n=parseInt(cmd,10); if(n&&inventoryMode&&inventoryMode.items[n-1]){useItem(inventoryMode.items[n-1]);stage="combat";inventoryMode=null;showCurrentContext();return;} add("Choose an item NUMBER or (B) BACK.","system");return; }
   if(stage==="inventory"){ if(cmd==="b"||cmd==="back"||cmd==="exit"){stage=returnStage||"between";inventoryMode=null;redrawState();return;} const n=parseInt(cmd,10); const items=player.pack.filter(i=>!["key","quest"].includes(i.type)); if(n&&items[n-1]){await showInventoryItem(items[n-1].name);return;} add("Select an item NUMBER or (B) BACK.","system");return; }
   if(stage==="inventoryItem"){ const name=inventoryMode&&inventoryMode.item; if((cmd==="e"||cmd==="equip") && name){ const item=findItem(name); if(item && (item.type==="weapon"||item.type==="armor")){ const slot=item.type; const previous=player[slot]; removeItem(name); player[slot]=name; if(previous && previous!==name)addPack(previous,slot); updateHud();add(`EQUIPPED — ${name}. Previous ${slot}: ${previous||"none"}.`,"reward");stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} add("That item cannot be equipped.","system");return;} if(cmd==="b"||cmd==="back"){stage="inventory";showInventory();showInterfaceNav();return;} if(cmd==="u"||cmd==="use"||cmd.startsWith("use ")){useItem(name);stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} if(name==="Battered Flashlight" && (cmd==="d"||cmd.includes("dismantle"))){dismantleItem(name);stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} if(cmd==="d"||cmd==="drop"||cmd.startsWith("drop ")){dropItem(name);stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} add(name==="Battered Flashlight"?"Choose (D) DISMANTLE or (B) BACK.":"Choose (U) USE, (D) DROP, or (B) BACK.","system");return; }
@@ -1557,10 +1573,10 @@ async function handleCommand(raw) {
     else if(cmd==="r"||cmd.includes("remain")||cmd.includes("road")){player.flags.pendingOvernight="road";add("REMAIN ON THE ROAD?","bright");add("Higher danger / higher chance of finding loot. This choice locks until Turns replenish.","system");add("(Y) CONFIRM   (N) CANCEL","system");stage="overnightConfirm";}
     else noTurnsMenu(); return; }
   if(stage==="overnightConfirm"){ if(cmd==="n"||cmd==="cancel"||cmd==="no"){player.flags.pendingOvernight="";noTurnsMenu();return;} if(cmd==="y"||cmd==="confirm"||cmd==="yes"){player.flags.overnight=player.flags.pendingOvernight;player.flags.pendingOvernight="";player.flags.overnightLocked=true;stage="zeroTurns"; if(player.flags.overnight==="camp")add("CAMP SET — You settle somewhere defensible. Lower danger, lower loot chance.","reward"); else add("ROAD WATCH SET — You remain active through the night. Higher danger, higher loot chance.","reward"); add(`LOCKED UNTIL REFILL — ${refillText()}`,"system"); add("SAVE CURRENT   STATUS   INVENTORY   MAP   TESTING","system");return;} add("(Y) CONFIRM   (N) CANCEL","system");return; }
-  if(stage==="fork"){ if(cmd==="c")cmd="continue to solace"; if(cmd==="s")cmd="check service road"; if(cmd.includes("lower")||cmd.includes("access")){ player.flags.relayBranchDiscovered=true; stage="relayBranch"; serviceRoadDepth=1; add("LOWER ACCESS ROAD","place");add("A narrow three-segment utility road drops away from Route 127 on the opposite side of the fork.");add("CONTINUE DOWN ROAD   RETURN TO FORK","system"); return;} if(cmd.includes("service")||cmd.includes("check")){ if(!testMode && player.turns<=0){noTurnsMenu();return;}spendTurn();serviceRoadDepth=1;stage="serviceRoad";add("SERVICE ROAD — LOWER GRADE","place");add("SERVICE ROAD — STEP 1 / 3 (1 TURN SPENT)","system");add("The cracked lane climbs away from Route 127. Fresh scrape marks score the pavement.");add("(C) CONTINUE UP ROAD   (R) RETURN TO FORK","system"); } else if(cmd.includes("mercy")||cmd.includes("continue")){ roadTurnCharged=false; advanceRoad(); } else add("(C) CONTINUE TO SOLACE   (S) CHECK SERVICE ROAD","system"); return;}
+  if(stage==="fork"){ if(cmd==="c")cmd="continue"; if(cmd==="s")cmd="check service road"; if(cmd.includes("lower")||cmd.includes("access")){ player.flags.relayBranchDiscovered=true; stage="relayBranch"; serviceRoadDepth=1; add("LOWER ACCESS ROAD","place");add("A narrow three-segment utility road drops away from Route 127 on the opposite side of the fork.");add("CONTINUE DOWN ROAD   RETURN TO FORK","system"); return;} if(cmd.includes("service")||cmd.includes("check")){ if(!testMode && player.turns<=0){noTurnsMenu();return;}spendTurn();serviceRoadDepth=1;stage="serviceRoad";add("SERVICE ROAD — LOWER GRADE","place");add("The cracked lane climbs away from Route 127. Fresh scrape marks score the pavement.");add("(C) CONTINUE UP ROAD   (R) RETURN TO FORK","system"); } else if(cmd.includes("mercy")||cmd.includes("house")||cmd.includes("continue")){ roadTurnCharged=false; advanceRoad(); } else add("(C) CONTINUE TO SOLACE   (S) CHECK SERVICE ROAD","system"); return;}
   if(stage==="eastEnd"){ if(cmd.includes("search")||cmd.includes("rack")){ if(player.flags.relayPartsRevealed) awardRelayPart("east","SIGNAL-CONDITIONING MODULE"); else add("You find a sealed communications module. You have no idea whether it's useful yet, so you leave it protected in the rack.","system"); add("RETURN TO SOLACE","system"); return;} if(cmd.includes("return")||cmd.includes("solace")){ stage="mercy";mercyLocation="town";add("You hike back west to Solace.","bright");mercyMenu();return;} add("SEARCH EQUIPMENT RACK   RETURN TO SOLACE","system");return;}
-  if(stage==="relayBranch"){ if(cmd.includes("return")){stage="fork";serviceRoadDepth=0;add("You climb back to the Route 127 fork.");add(`CONTINUE TO SOLACE   CHECK SERVICE ROAD${player.flags.relayPartsRevealed?"   CHECK LOWER ACCESS ROAD":""}`,"system");return;} if(cmd.includes("continue")||cmd.includes("down")){ serviceRoadDepth++; if(serviceRoadDepth<3){add(`LOWER ACCESS ROAD — SEGMENT ${serviceRoadDepth}`,"place");add(serviceRoadDepth===2?"The road squeezes between dead trees and a collapsed drainage wall. Fresh tool marks show somebody has scavenged here before.":"A rusted utility enclosure appears through the trees.");add("CONTINUE DOWN ROAD   RETURN TO FORK","system");} else {add("ABANDONED SIGNAL CABINET","place");add("A weatherproof roadside cabinet has been ripped open. One shielded feed coupler is still bolted to the backplane."); if(player.flags.relayPartsRevealed)awardRelayPart("branch","SHIELDED FEED COUPLER"); else add("You don't know what you need from this hardware yet.","system");add("(R) RETURN TO FORK","system");} return;} add("CONTINUE DOWN ROAD   RETURN TO FORK","system");return;}
-  if(stage==="serviceRoad"){ if(cmd==="e")cmd="search maintenance yard"; if(cmd==="r")cmd="return to fork"; if(cmd==="c")cmd="continue up road"; if(cmd.includes("search")&&player.flags.serviceBossDead){ if(player.flags.maintenanceYardSearched){add("You've already searched the maintenance yard.","system");add("(R) RETURN TO FORK","system");return;} player.flags.maintenanceYardSearched=true; if(player.flags.relayPartsRevealed)awardRelayPart("yard","ANTENNA SERVO"); else add("You find several old motor assemblies, but nothing means much to you yet.","system"); add("(R) RETURN TO FORK","system");return;} if(cmd.includes("return")){ const cost=2; if(!testMode && player.turns<cost){noTurnsMenu();return;} if(!testMode){player.turns-=cost;updateHud();} serviceRoadDepth=0;stage="fork";add("You hike back to the fork. RETURN TRIP — 2 TURNS SPENT.","system");add("(C) CONTINUE TO SOLACE   (S) CHECK SERVICE ROAD","system");return;} if(cmd.includes("continue")||cmd.includes("up road")){if(!testMode && player.turns<=0){noTurnsMenu();return;}spendTurn(); if(serviceRoadDepth<2){serviceRoadDepth=2;add("SERVICE ROAD — WASHOUT","place");add("SERVICE ROAD — STEP 2 / 3 (2 TURNS SPENT)","system");add("The lane bends around a washed-out culvert. Tire ruts vanish into weeds, then reappear beside an old county equipment fence.");add("(C) CONTINUE UP ROAD   (R) RETURN TO FORK","system");return;} serviceRoadDepth=3;if(player.flags.serviceBossDead){add("The maintenance yard is quiet now. You've already taken what mattered.");add("(R) RETURN TO FORK","system");return;}add("COUNTY MAINTENANCE YARD","place");add("SERVICE ROAD — STEP 3 / 3 (3 TURNS SPENT)","system");add("A hulking figure steps from the ruined garage, dragging a heavy wrench across the concrete.");startCombat({name:"THE YARDMAN",level:5,hp:28,min:6,max:10,xp:45,bolts:18,end:"The Yardman drops hard. The maintenance yard finally goes quiet."},"serviceBoss",false);return;} add("(C) CONTINUE UP ROAD   (R) RETURN TO FORK","system");return;}
+  if(stage==="relayBranch"){ if(cmd.includes("return")){stage="fork";serviceRoadDepth=0;add("You climb back to the Route 127 fork.");add(`CONTINUE TO ${roadGoal==="house"?"OLD HOUSE":"SOLACE"}   CHECK SERVICE ROAD${player.flags.relayPartsRevealed?"   CHECK LOWER ACCESS ROAD":""}`,"system");return;} if(cmd.includes("continue")||cmd.includes("down")){ serviceRoadDepth++; if(serviceRoadDepth<3){add(`LOWER ACCESS ROAD — SEGMENT ${serviceRoadDepth}`,"place");add(serviceRoadDepth===2?"The road squeezes between dead trees and a collapsed drainage wall. Fresh tool marks show somebody has scavenged here before.":"A rusted utility enclosure appears through the trees.");add("CONTINUE DOWN ROAD   RETURN TO FORK","system");} else {add("ABANDONED SIGNAL CABINET","place");add("A weatherproof roadside cabinet has been ripped open. One shielded feed coupler is still bolted to the backplane."); if(player.flags.relayPartsRevealed)awardRelayPart("branch","SHIELDED FEED COUPLER"); else add("You don't know what you need from this hardware yet.","system");add("(R) RETURN TO FORK","system");} return;} add("CONTINUE DOWN ROAD   RETURN TO FORK","system");return;}
+  if(stage==="serviceRoad"){ if(cmd==="e")cmd="search maintenance yard"; if(cmd==="r")cmd="return to fork"; if(cmd==="c")cmd="continue up road"; if(cmd.includes("search")&&player.flags.serviceBossDead){ if(player.flags.maintenanceYardSearched){add("You've already searched the maintenance yard.","system");add("(R) RETURN TO FORK","system");return;} player.flags.maintenanceYardSearched=true; if(player.flags.relayPartsRevealed)awardRelayPart("yard","ANTENNA SERVO"); else add("You find several old motor assemblies, but nothing means much to you yet.","system"); add("(R) RETURN TO FORK","system");return;} if(cmd.includes("return")){ const cost=2; if(!testMode && player.turns<cost){noTurnsMenu();return;} if(!testMode){player.turns-=cost;updateHud();} serviceRoadDepth=0;stage="fork";dailyRoadTurns+=2; add("You hike back to the fork.","system");add(`(C) CONTINUE TO ${roadGoal==="house"?"OLD HOUSE":"SOLACE"}   (S) CHECK SERVICE ROAD`,"system");return;} if(cmd.includes("continue")||cmd.includes("up road")){if(!testMode && player.turns<=0){noTurnsMenu();return;}spendTurn(); if(serviceRoadDepth<2){serviceRoadDepth=2;add("SERVICE ROAD — WASHOUT","place");add("The lane bends around a washed-out culvert. Tire ruts vanish into weeds, then reappear beside an old county equipment fence.");add("(C) CONTINUE UP ROAD   (R) RETURN TO FORK","system");return;} serviceRoadDepth=3;if(player.flags.serviceBossDead){add("The maintenance yard is quiet now. You've already taken what mattered.");add("(R) RETURN TO FORK","system");return;}add("COUNTY MAINTENANCE YARD","place");add("A hulking figure steps from the ruined garage, dragging a heavy wrench across the concrete.");startCombat({name:"THE YARDMAN",level:5,hp:28,min:6,max:10,xp:45,bolts:18,end:"The Yardman drops hard. The maintenance yard finally goes quiet."},"serviceBoss",false);return;} add("(C) CONTINUE UP ROAD   (R) RETURN TO FORK","system");return;}
   if(stage === "combat"){ handleCombat(cmd); return; }
   if(stage === "wandererRoad"){ handleRoadWanderer(cmd); return; }
   if(stage === "mercy" && currentTownWanderer && handleTownWanderer(cmd)) return;

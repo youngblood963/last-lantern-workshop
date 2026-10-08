@@ -1,18 +1,26 @@
-ROUTE 127 CHANGELOG
+ROUTE 127 — v33 QA CANDIDATE (2026-10-08)
+Based on v32_Menu_Repair.zip. This is a TEST BUILD, not a verified release.
 
-v28.2: Save, load, overwrite flows verified by Syn.
-v29: Starting-room Bolts randomized; save system preserved. Playtest revealed multiple command prompts and travel-accounting issues.
-v30: Repair candidate — restore 2-turn service-road return cost; service-road progress labels; fork navigation; town/Jen hotkey routing; inventory equipment swapping; first-arrival Solace autosave; encounter choice hotkeys; gate arrival label. Gameplay verification required.
+CHANGED
+- Numbered context-action labels and numeric command dispatch in common menus; global S/I/M/Q/V utilities remain available. Full-word commands retained.
+- Road encounter headings now use a persistent daily road-turn count, saved/loaded and reset at the 24-hour turn refill.
+- Death now displays YOU HAVE FALLEN and requires GET UP; 50% HP restoration, no random loss of equipment or quest items, rescue travel cost plus two recovery turns.
+- Repeat visits to Jen, Johnny, Murphy and Wayne use shorter greetings while keeping wandering visitors.
+- Fork detection on the reverse trip toward the old house; direction-aware fork continuation.
+- Removed Service Road STEP/TURNS SPENT debug-style lines.
+- Relay Station uses a brief scrambled-line effect instead of replaying the intro transmission.
+- Relay Station now offers INSTALL COMPONENTS when all four parts are collected, with a completion message.
+- East/West gate departures still use existing travel logic; specifically flagged for Work QA.
+- Page title identifies Playtest v33.
 
-v31 (targeted repair candidate): Fixed hotkeyLine() accessing missing regex capture group [3] instead of [2]. This caused TypeError on already-keyed menu options and likely blocked Solace and other menus. No other gameplay logic changed. Requires browser retest. Updated PLAYTEST.html with v31 verification item. Remaining B2/B3/B4 require retesting after primary fix; not claimed resolved.
+KNOWN / NEEDS QA
+- Numeric conversion is broad but not yet audited on every dialogue, confirmation, combat, or inventory screen; old explicit hotkeys may still be visible in single-choice menus.
+- The fourth Relay component depends on reaching the east-road endpoint and searching the rack; full route not yet exercised in this build.
+- GPS step offset, save location normalization and turn-cost corner cases still require investigation.
+- No complete browser playthrough has been performed on this candidate; JavaScript syntax check passed.
+- Rescue distance calculation needs balancing on service branches, east road, and when available turns are low.
+- Some menus may still show repeated navigation; do not assume duplication is fully resolved.
 
-v32 — TARGETED MENU/HOTKEY REPAIR CANDIDATE (2026-10-08)
-- Defensively parse pre-labeled menu choices; never access an absent capture group.
-- Reserve explicit hotkeys before auto-generating other hotkeys, preventing duplicate assignments (notably BACK in NPC dialogue).
-- Prevent encounter options from being processed twice by hotkeyLine().
-- Tag Jen's Bar options as a system menu so shortcuts are registered and shown consistently.
-- Explicitly route Jen's Bar B/G/R shortcuts to drinks/gambling/room actions.
-- Update page title to v32 and cache-bust app.js/styles.css so testers can identify the deployed build.
-- Preserve existing Solace entry, Service Road, combat, equipment, and save logic.
-- Not yet browser-playtested. Encounter substitution, GPS counting and combat-state mismatches require targeted regression tests before marking fixed.
-- Room rental turn balance intentionally unchanged for testing.
+TEST INSTRUCTIONS
+Use PLAYTEST.html for the checklist. Test a fresh save and an existing v32 save separately.
+Check advertised numbers against actual actions. Record first failure with exact screen, number and result.

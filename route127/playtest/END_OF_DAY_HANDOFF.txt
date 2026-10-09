@@ -1,0 +1,34 @@
+ROUTE 127 — END-OF-DAY HANDOFF (2026-10-08)
+========================================
+BASE BUILD: v33 QA Candidate (unchanged game code). This is NOT a v34 fix build.
+
+Observed during Work's live v33 testing (user-shared progress messages):
+PASS / WORKING IN TESTED PATHS
+- Combat choices reappear after attacks/healing.
+- Unsupported commands preserved tested encounters.
+- Service Road travel included in daily Road Turn counter.
+- Save/load preserved stats and Road Turn 10.
+- Numbered beer/shot purchases worked; Jen's repeat greeting was shorter.
+- Status, Inventory, Map and Back worked in some tested contexts.
+- Yardman defeated, wrench equipped, fork returned to without reloading.
+
+KNOWN ISSUES TO INVESTIGATE FOR v34
+- Inventory item numbers collide with numbered navigation footer (e.g. 1 Energy Bar / 1 STATUS).
+- First-step GPS mismatch: road Step 1/9 while GPS still indicates starting house.
+- Saving/loading on main road replaced Rook encounter with a different one at same step.
+- B from Jen dialogue opens Drinks instead of Back.
+- Rook [2] INSPECT after small talk returns generic town message.
+- Intro uses letter choices before numbered redraw; user explicitly considers this acceptable.
+
+UNTESTED / NO CLAIM OF FIX
+- Both gates, fourth Relay component and full quest completion.
+- YOU HAVE FALLEN rescue flow and travel-cost calculation.
+- Full daily reset and remaining menu/encounter coverage.
+
+NOTE: Uploaded 'Route127_v33_Deployed_QA_Report.md' documents an EARLIER
+version-gate attempt when v32 was still deployed, not the later v33 gameplay
+progress reported in chat. Included as historical QA context only.
+
+NEXT SESSION: Test gates/Relay progression and death system first; then fix
+confirmed menu collisions, GPS update timing, and encounter save persistence.
+Preserve known-working features.

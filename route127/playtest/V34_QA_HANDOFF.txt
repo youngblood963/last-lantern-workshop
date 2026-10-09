@@ -1,0 +1,15 @@
+Route 127 v34 — QA handoff
+
+Start with version title v34. Test local ZIP or deployed v34 only.
+
+1. INVENTORY: Item [1] must select first item. Footer must show (S) STATUS etc., never [1] STATUS. Open item, test numbered USE/EQUIP/DROP and B Back.
+2. JEN: Buy Drinks via number, B Back from Jen dialogue and bar; beer/shot numbered purchases.
+3. ROOK: Talk, Small Talk, [2] Inspect should inspect Rook, not return generic town text.
+4. GPS: first ROAD PROGRESS STEP 1/9 should map one node away from house. Check reverse direction.
+5. SAVE: Save during road encounter or wanderer; reload should show same encounter, same road turn and stats.
+6. GATES: Test both Solace gates, travel and returns, and reverse fork.
+7. RELAY: Retrieve all four parts and install; note precise blocker if any.
+8. DEATH: 0 HP rescue, 50% HP, travel cost +2, preserve equipment and quest items.
+9. REGRESSION: Combat menus, daily road count, NPCs, purchases, service road, unsupported commands.
+
+Report PASS/FAIL/UNTESTED with reproduction steps. This is a candidate build, not a verified release.

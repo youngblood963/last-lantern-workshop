@@ -1,3 +1,22 @@
+ROUTE 127 — v34 QA CANDIDATE (October 8, 2026)
+
+TARGETED CHANGES FROM v33
+- Global S/I/M/Q/V navigation footer now remains letter-based and does not claim item numbers.
+- B no longer means Buy Drinks at Jen’s Bar; it is reserved for Back.
+- Jen’s dialogue Back returns to the bar menu.
+- Numbered inventory-detail actions now map to item actions; inventory list numbers stay item selectors.
+- Rook and other active town wanderers accept short numbered INSPECT / SMALL TALK / FIGHT commands.
+- GPS road position accounts for the currently spent travel step, without altering turn charges.
+- Save/load resumes road encounters without rerolling wanderers and preserves an active road wanderer.
+- Westbound road length aligned with eastbound (9 steps) and fork appears at step 5 of 9.
+- HTML page title and asset cache identifiers updated to v34.
+
+STILL NEEDS LIVE BROWSER QA
+- Gate routes, all four Relay parts, quest completion, death and rescue penalties.
+- Inventory selection and Jen B/numbered drink actions; road encounter save/load.
+- No claim of completed end-to-end browser playthrough.
+
+PRIOR v33 NOTES
 ROUTE 127 — v33 QA CANDIDATE (2026-10-08)
 Based on v32_Menu_Repair.zip. This is a TEST BUILD, not a verified release.
 

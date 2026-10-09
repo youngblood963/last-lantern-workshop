@@ -26,6 +26,8 @@ let testMode = false;
 let refillTimer = null;
 let currentHotkeys = {};
 let numberedChoices = {};
+let resumeSavedEncounter = false;
+let townWandererFocus = null;
 let returnStage = null;
 let inventoryMode = null;
 let pendingSaveSlot = null;
@@ -80,6 +82,7 @@ function choiceCommand(label){
 function hotkeyLine(text){
   const parts=String(text??"").split(/\s{2,}/).map(x=>x.trim()).filter(Boolean);
   return parts.map(part=>{
+    if(/^\(B\)\s*BACK\b/i.test(part)) return part;
     const command=choiceCommand(part);
     if(!command) return part;
     const index=Object.keys(numberedChoices).length+1;
@@ -91,6 +94,8 @@ function hotkeyLine(text){
 function renderNumberedChoices(text){
   // Choices may be on a single line, with or without legacy letter labels.
   if(!text || !/\s{2,}/.test(text))return text;
+  // Persistent navigation is LETTERS ONLY, never allocate numbered actions.
+  if(/^\(S\) STATUS\s+\(I\) INVENTORY/i.test(text)) return text;
   if(!looksLikeChoiceLine(text,"system") && !/^\([A-Z0-9]\)/.test(text))return text;
   return hotkeyLine(text);
 }
@@ -341,7 +346,8 @@ async function showInventoryItem(name){
     : item.type==="consumable"
       ? "(U) USE   (D) DROP   (B) BACK"
       : (["key","quest"].includes(item.type) ? "(B) BACK" : "(D) DROP   (B) BACK");
-  addImmediate(actions,"system");
+  numberedChoices={};
+  addImmediate(hotkeyLine(actions),"system");
   followOutput();
 }
 function dismantleItem(name){
@@ -457,7 +463,9 @@ function mapPosition(){
   const total = Math.max(1, roadTripLength || 5);
   if(stage === "house" || stage === "wake" || stage === "hello" || stage === "listen" || stage === "savecoords" || stage === "roadReady") return {pos:0,total};
   if(stage === "mercy" || stage === "settlement") return {pos:total,total};
-  const travelled = Math.max(0, Math.min(total, roadTurn));
+  // roadTurn indexes the current encounter (zero-based); once its travel turn
+  // has been spent the player is already one step beyond the previous node.
+  const travelled = Math.max(0, Math.min(total, roadTurn + (roadTurnCharged ? 1 : 0)));
   return {pos: roadGoal === "house" ? total-travelled : travelled, total};
 }
 function showMap(){
@@ -496,7 +504,7 @@ function gameplayStageForSave(){
 function saveGame(slot=activeSaveSlot){
   if(!slot){ add("UNSAVED GAME — Choose SAVE 1, SAVE 2, or SAVE 3.","system"); return; }
   if(getSaveData(slot) && slot!==activeSaveSlot && pendingSaveSlot!==slot){ pendingSaveSlot=slot; add(`SAVE ${slot} ALREADY EXISTS — OVERWRITE?`,"danger"); add("(Y) YES   (N) NO","system"); stage="confirmSaveOverwrite"; return; }
-  pendingSaveSlot=null; activeSaveSlot=slot; const data={version:25.18,day,wandererSerial,savedAt:new Date().toISOString(),stage:gameplayStageForSave(),roadTurn,dailyRoadTurns,roadGoal,roadTripLength,roadTurnCharged,serviceRoadDepth,mercyLocation,roadEncounterOrder,wandererLocations,currentRoadWanderer,currentTownWanderer,player:serializablePlayer()};
+  pendingSaveSlot=null; activeSaveSlot=slot; const data={version:25.18,day,wandererSerial,savedAt:new Date().toISOString(),stage:gameplayStageForSave(),roadTurn,dailyRoadTurns,roadGoal,roadTripLength,roadTurnCharged,serviceRoadDepth,mercyLocation,roadEncounterOrder,wandererLocations,currentRoadWanderer,currentTownWanderer,townWandererFocus,player:serializablePlayer()};
   try{ localStorage.setItem(SAVE_KEYS[slot],JSON.stringify(data)); add(`SAVE ${slot} — ${player.handle || "NO HANDLE"}`, "bright"); add("Game saved.", "reward"); }
   catch(e){ add("SAVE FAILED — This browser did not allow local storage for this file.", "danger"); }
 }
@@ -521,13 +529,21 @@ function loadGame(slot=activeSaveSlot){
   day=data.day||1; wandererSerial=data.wandererSerial||0; serviceRoadDepth=data.serviceRoadDepth||0; roadTurn=data.roadTurn||0; dailyRoadTurns=Number(data.dailyRoadTurns)||0; roadTurnCharged=!!data.roadTurnCharged; roadGoal=data.roadGoal||"mercy"; roadTripLength=Math.max(8,data.roadTripLength||8); if(roadTurn>=roadTripLength) roadTurn=Math.max(0,roadTripLength-1);
   mercyLocation=data.mercyLocation||"town"; roadEncounterOrder=Array.isArray(data.roadEncounterOrder)?data.roadEncounterOrder:roadEncounterOrder;
   wandererLocations=(data.wandererLocations&&typeof data.wandererLocations==="object")?data.wandererLocations:rollWandererLocations();
-  currentRoadWanderer=data.currentRoadWanderer||null; currentTownWanderer=data.currentTownWanderer||null; pendingTownFight=null; combatState=null;
+  currentRoadWanderer=data.currentRoadWanderer||null; currentTownWanderer=data.currentTownWanderer||null; townWandererFocus=data.townWandererFocus||null; pendingTownFight=null; combatState=null;
   if(player.flags.interfaceUnlocked!==false){hud.classList.remove("hidden");utilityPanel.classList.remove("hidden");}else{hud.classList.add("hidden");utilityPanel.classList.add("hidden");} updateHud(); screen.innerHTML="";
   add(`SAVE ${slot} — ${(player.handle||"NO HANDLE")}`, "bright"); add("Save loaded.", "reward");
   if(stage==="house") arriveHouse();
   else if(stage==="mercy"){ add("SOLACE", "place"); mercyMenu(); }
   else if(stage==="settlement"){ add("SOLACE GATE", "place"); add("The settlement waits beyond the barricade."); add("(P) APPROACH GATE", "system"); }
-  else if(stage==="encounter" || stage==="between" || stage==="wandererRoad" || stage==="combat"){ stage="between"; showEncounter(); }
+  else if(stage==="wandererRoad" && currentRoadWanderer){
+    const w=wandererByName(currentRoadWanderer);
+    if(w){add(`ROAD TURN ${dailyRoadTurns} — WANDERER`,"place");showWanderer(w,"road");}
+    else {stage="between";resumeSavedEncounter=true;showEncounter();}
+  }
+  else if(stage==="encounter" || stage==="between" || stage==="combat"){
+    // Restore the same road event, rather than rolling a new wanderer on load.
+    stage="between";resumeSavedEncounter=!!roadTurnCharged;showEncounter();
+  }
   else if(stage==="roadReady"){ add("THE OLD HOUSE", "place"); add("The road east leads toward Solace."); add("STATUS   INVENTORY   MAP   SAVE 1/2/3   ROAD", "system"); }
   else { add(`LOCATION RESTORED — ${stage.toUpperCase()}`, "system"); redrawState(); }
 
@@ -956,15 +972,16 @@ function noTurnsMenu(){
   stage="zeroTurns";
 }
 function showEncounter() {
-  if((roadGoal==="mercy" && roadTurn===4 || roadGoal==="house" && roadTurn===3) && !roadTurnCharged){ player.flags.forkDiscovered=true; add("","system"); add("THE FORK","place"); add("Route 127 continues east toward Solace. An old service road climbs north through the trees beneath a bent county sign."); add(`CONTINUE TO ${roadGoal==="house"?"OLD HOUSE":"SOLACE"}   CHECK SERVICE ROAD${player.flags.relayPartsRevealed?"   CHECK LOWER ACCESS ROAD":""}`,"system"); stage="fork"; return; }
+  if((roadGoal==="mercy" && roadTurn===4 || roadGoal==="house" && roadTurn===4) && !roadTurnCharged){ player.flags.forkDiscovered=true; add("","system"); add("THE FORK","place"); add("Route 127 continues east toward Solace. An old service road climbs north through the trees beneath a bent county sign."); add(`CONTINUE TO ${roadGoal==="house"?"OLD HOUSE":"SOLACE"}   CHECK SERVICE ROAD${player.flags.relayPartsRevealed?"   CHECK LOWER ACCESS ROAD":""}`,"system"); stage="fork"; return; }
   if(!roadTurnCharged){ if(!testMode && player.turns<=0){noTurnsMenu();return;} spendTurn(); roadTurnCharged=true; }
   if(isDark()) add("WORSE AFTER DARK — enemies hit harder; road rewards improve.","danger");
   else if(timePhase()==="DUSK") add("LIGHT FADING.","system");
   add(`ROAD PROGRESS — STEP ${Math.min(roadTurn+1,roadTripLength)} / ${roadTripLength} toward ${roadGoal==="mercy"?"Solace":roadGoal==="east"?"the eastern road":"the old house"}.`,"system");
-  if(questRoadEvent()) return;
+  if(!resumeSavedEncounter && questRoadEvent()) return;
   player.flags.wandererRoadCooldown=player.flags.wandererRoadCooldown||0;
   if(player.flags.wandererRoadCooldown>0) player.flags.wandererRoadCooldown--;
-  else if(Math.random()<0.30){ player.flags.wandererRoadCooldown=2; showRoadWanderer(); return; }
+  else if(!resumeSavedEncounter && Math.random()<0.30){ player.flags.wandererRoadCooldown=2; showRoadWanderer(); return; }
+  resumeSavedEncounter=false;
   currentRoadWanderer=null;
   const e = currentEncounter();
   if(!player.encounterDone[roadTurn]) player.encounterDone[roadTurn]=new Set();
@@ -1076,8 +1093,9 @@ function handleRoadWanderer(cmd){
 }
 function handleTownWanderer(cmd){
   const w=wandererByName(currentTownWanderer); if(!w)return false;
-  const named=cmd.includes(w.name.toLowerCase());
+  const named=cmd.includes(w.name.toLowerCase()) || (townWandererFocus===w.name && ["small talk","inspect","fight","leave"].includes(cmd));
   if(cmd===`talk to ${w.name.toLowerCase()}` || cmd===w.name.toLowerCase()){
+    townWandererFocus=w.name;
     add(w.name.toUpperCase()+" — WANDERER — LVL "+String(w.level).padStart(2,"0"),"place");
     add(w.lines && w.lines[1] ? w.lines[1] : `${w.name} looks ${w.vibe}.`);
     add(`SMALL TALK ${w.name.toUpperCase()}   INSPECT ${w.name.toUpperCase()}   FIGHT ${w.name.toUpperCase()}   TOWN`,"system"); return true;
@@ -1090,7 +1108,7 @@ function handleTownWanderer(cmd){
   if(cmd==="confirm fight" && pendingTownFight===w.name){ pendingTownFight=null; startCombat({name:w.name.toUpperCase(),level:w.level,hp:12+w.level*2,min:2+w.level,max:4+w.level,xp:10+w.level*4,bolts:Math.floor(w.level/2)+2,end:`${w.name} goes down. Solace gets very quiet for a moment.`},"townWanderer",true,true); return true; }
   if(cmd.includes("fight") && named){ pendingTownFight=w.name; add(`START A FIGHT WITH ${w.name.toUpperCase()}?`,"danger"); add("This action will cost 1 TURN.","system"); add("CONFIRM FIGHT   BACK OFF","system"); return true; }
   if(cmd==="back off" && pendingTownFight){ pendingTownFight=null; add("You decide not to start trouble."); add("SMALL TALK   INSPECT   FIGHT   LEAVE","system"); return true; }
-  if(cmd==="leave"||cmd==="town"){ add(`You leave ${w.name} to their business.`); return true; }
+  if(cmd==="leave"||cmd==="town"){ townWandererFocus=null; add(`You leave ${w.name} to their business.`); return true; }
   return false;
 }
 async function arriveSettlement() {
@@ -1148,12 +1166,14 @@ function retrieveItem(name){
 }
 function townVisitorChoice(){ return currentTownWanderer ? `   TALK TO ${currentTownWanderer.toUpperCase()}` : ""; }
 function showBarActions(){
+  player.flags.jenInDialogue=false;
   add(`(B) BUY DRINKS   (G) GAMBLE   (R) RENT ROOM — 12 BOLTS   (J) TALK TO JEN${townVisitorChoice()}   (T) RETURN TO TOWN`,"system");
 }
 function showDrinkMenu(){ mercyLocation="jenDrinks"; add("DRINKS","bright"); add("(E) BEER — 3 BOLTS — +5 HP   (O) SHOT — 5 BOLTS — +10 HP   (H) HOUSE SPECIAL — 8 BOLTS — +15 HP   (B) BACK","system"); }
 function showGambleMenu(){ mercyLocation="jenGames"; add("GAMBLING","bright"); add("(D) DICE   MORE GAMES — COMING LATER   (B) BACK","system"); }
 function npcTalk(name){
   const n=name.toLowerCase(); mercyLocation=n;
+  if(n==="jen") player.flags.jenInDialogue=true;
   if(n==="jen"){
     add("JEN", "place"); add("Jen leans against the bar and gives you her full attention.");
     add(`ASK ABOUT SOLACE   ASK ABOUT ROAD   ASK RUMORS${(!player.flags.relayUnlocked && player.flags.relayQuest==="ask")?"   ASK ABOUT RELAY STATION":""}   SMALL TALK   (B) BACK`, "system"); return;
@@ -1280,7 +1300,7 @@ function buyJohnny(item){
 }
 function handleSolace(cmd, raw=cmd){
   if(mercyLocation==="johnny" && player.flags.relayPartsRevealed && (cmd.includes("relay")||cmd.includes("regulator"))){ if(!ensureRelayParts().johnny){ add("JOHNNY > That old thing? Yeah, I've got one under the counter somewhere.","bright"); add("Johnny digs through a crate, produces a dust-covered power regulator, and drops it into your hands."); add("JOHNNY > Take it. Seriously. You've improved my inventory by removing it.","bright"); awardRelayPart("johnny","POWER REGULATOR"); } else add("JOHNNY > Already gave you the only one I had. You're welcome twice, apparently.","bright"); johnnyShop(); return; }
-  if(mercyLocation==="jen" && cmd==="b") cmd="buy drinks";
+  // B is reserved for Back. Buying drinks uses the numbered local action.
   if(mercyLocation==="jen" && cmd==="g") cmd="gamble";
   if(mercyLocation==="jen" && cmd==="r") cmd="rent room";
   if(mercyLocation==="jen" && (cmd==="buy drinks"||cmd==="drinks")){showDrinkMenu();return;}
@@ -1374,10 +1394,10 @@ function handleSolace(cmd, raw=cmd){
   if(cmd==="g") cmd="east gate";
   if(cmd==="e" && mercyLocation==="town") cmd="west gate";
   if(cmd==="east gate"){mercyLocation="eastGate";player.flags.eastRouteDiscovered=true;add("SOLACE — EAST GATE","place");add("Beyond the barricade, Route 127 continues through country Solace patrols only when it has to.");add("HEAD EAST — ROUTE 127   (B) BACK","system");return;}
-  if(mercyLocation==="gate" && (cmd.includes("head west")||cmd.includes("old house")||cmd==="west"||cmd==="h")){startRoadTrip("house",8);return;}
+  if(mercyLocation==="gate" && (cmd.includes("head west")||cmd.includes("old house")||cmd==="west"||cmd==="h")){startRoadTrip("house",9);return;}
   if(mercyLocation==="eastGate" && (cmd.includes("head east")||cmd==="east"||cmd==="h")){ startRoadTrip("east",16); return; }
   if(cmd.includes("stay in mercy")){mercyLocation="town";mercyMenu();return;}
-  if(cmd==="b"||cmd==="back"){ if(mercyLocation==="jenTalk"){mercyLocation="jen";showBarActions();return;} if(["jenDrinks","jenGames"].includes(mercyLocation)){mercyLocation="jen";showBarActions();return;} if(["jen","murphy","johnny","wayne","amii","relay","gate","eastGate"].includes(mercyLocation)){mercyLocation="town";mercyMenu();return;} }
+  if(cmd==="b"||cmd==="back"){ if(mercyLocation==="jen" && player.flags.jenInDialogue){showBarActions();return;} if(mercyLocation==="jenTalk"){mercyLocation="jen";showBarActions();return;} if(["jenDrinks","jenGames"].includes(mercyLocation)){mercyLocation="jen";showBarActions();return;} if(["jen","murphy","johnny","wayne","amii","relay","gate","eastGate"].includes(mercyLocation)){mercyLocation="town";mercyMenu();return;} }
   if(cmd==="t"||cmd==="town"||cmd==="solace"||cmd==="return to town"||cmd.includes("main street")){mercyLocation="town";mercyMenu();return;}
   if(cmd==="j" && mercyLocation==="jen"){npcTalk("jen");return;}
   if(cmd==="bar"||cmd==="jen's bar"||cmd==="visit bar"){mercyLocation="jen";add("JEN'S BAR","place");showWanderersAt("jen");if(!player.flags.visited_jen){player.flags.visited_jen=true;add("Warm light leaks through patched windows. The room smells like wood smoke and something almost resembling dinner.");add("Jen is short, warm, and easy to talk to—the kind of person who makes a hard place feel less hard.");add("As she reaches for a glass, you catch a glimpse of a tiny ladybug tattoo near her wrist.");add("JEN > First one's water. You look like you need it more than anything stronger.","bright");if(player.flags.travelerInSolace)add("The wounded woman from the road is sitting near the end of the bar with a fresh dressing on her arm. She catches your eye and smiles. ‘Didn’t think I’d see you again.’","bright");}else{add("JEN > Back again? What can I get you?", "bright");}showBarActions();return;}
@@ -1453,7 +1473,7 @@ async function handleCommand(raw) {
   const interfaceStages=["inventory","inventoryItem","quests","interfaceStatus","interfaceMap","interfaceSave"];
   if(stage==="mercy" && mercyLocation!=="town" && cmd==="t" && !numberedChoices[cmd]) cmd="town";
   else if(!interfaceStages.includes(stage) && cmd.length===1 && currentHotkeys[cmd]) cmd=currentHotkeys[cmd].toLowerCase();
-  if(/^\d+$/.test(cmd) && numberedChoices[cmd] && !["inventory","inventoryItem","combatItems","confirmNewSlot","title","fallen"].includes(stage)) cmd=numberedChoices[cmd];
+  if(/^\d+$/.test(cmd) && numberedChoices[cmd] && !["inventory","combatItems","confirmNewSlot","title","fallen"].includes(stage)) cmd=numberedChoices[cmd];
   add(`> ${raw||"[ENTER]"}`, "bright");
 
   // PRE-INTERFACE OPENING STATES OWN THEIR INPUT. Nothing from the later global/item

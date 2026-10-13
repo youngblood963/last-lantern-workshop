@@ -1,0 +1,52 @@
+[
+  {
+    "file": "app.js",
+    "status": "changed",
+    "sha256": "27d9781608905097c6f7e65218ae8b4aff37e0d5e35d6baabf266564134e0d86"
+  },
+  {
+    "file": "crime.js",
+    "status": "changed",
+    "sha256": "5db0f6b849c0bfb9243bc21c3687d0ff21c5c6c0aa8f2cfcc323c2da69f03318"
+  },
+  {
+    "file": "consolidation.js",
+    "status": "added",
+    "sha256": "8458db00127d9311e14aeabb00581542fd6622a38ba7809f3de66d411cb733fd"
+  },
+  {
+    "file": "styles.css",
+    "status": "unchanged",
+    "sha256": "8d97c898d38a1301fe236df01e951de4cfc4290fb379627cf42dda820b449bf4"
+  },
+  {
+    "file": "expansion.js",
+    "status": "unchanged",
+    "sha256": "68909b2e17ac84d06ef8134f599ded9a9f4b1ab3fd2e579ad247f7698c55acff"
+  },
+  {
+    "file": "polish.js",
+    "status": "unchanged",
+    "sha256": "ce489cdd474f787cc8a67a828627b8ca44ef2c0201c28c2c859c59741bdd6b5f"
+  },
+  {
+    "file": "casino.js",
+    "status": "unchanged",
+    "sha256": "b67ec5acf27c4e67e025d83188b334da173ebdfc41956be2f9ef30a67c7b5927"
+  },
+  {
+    "file": "transmission.png",
+    "status": "unchanged",
+    "sha256": "e46c600316d6e0d76699497bf4ecc018b7f583081d9456fac6b9444840876e5b"
+  },
+  {
+    "file": "index.html",
+    "status": "changed",
+    "sha256": "6bcba15dd54b8249d0ad88ae416af45ba1bd423ab88f1f797e37d1cf4e155afe"
+  },
+  {
+    "file": "QA_MODE.html",
+    "status": "changed",
+    "sha256": "e25331b88507d5d12d0b7637ca33d8e008b7eadde4c837b7b0013e3d62fd4380"
+  }
+]

@@ -1,45 +1,38 @@
-ROUTE 127 — v34 QA CANDIDATE (October 8, 2026)
+ROUTE 127 v53 — PLAYTEST CONSOLIDATION / FOCUSED DELIVERY
+Authoritative base: supplied v52.1 Targeted Audit Playtest ZIP.
+Status: automated QA passed; human/browser playtesting still required.
 
-TARGETED CHANGES FROM v33
-- Global S/I/M/Q/V navigation footer now remains letter-based and does not claim item numbers.
-- B no longer means Buy Drinks at Jen’s Bar; it is reserved for Back.
-- Jen’s dialogue Back returns to the bar menu.
-- Numbered inventory-detail actions now map to item actions; inventory list numbers stay item selectors.
-- Rook and other active town wanderers accept short numbered INSPECT / SMALL TALK / FIGHT commands.
-- GPS road position accounts for the currently spent travel step, without altering turn charges.
-- Save/load resumes road encounters without rerolling wanderers and preserves an active road wanderer.
-- Westbound road length aligned with eastbound (9 steps) and fork appears at step 5 of 9.
-- HTML page title and asset cache identifiers updated to v34.
+HIGH-PRIORITY FIXES
+- Combat-entry menu callback is part of the tracked output queue. Current game state restores actionable menus after crime/reward messages instead of trusting stale shortcut mappings.
+- One canonical wanderer menu covers town/road, friendly/hostile, and named encounters. Eligible people expose TALK, BROWSE WARES, STEAL, INSPECT, FIGHT and LEAVE/MOVE ON once each. Hostile Rook correctly has no shop.
+- Vendor and wanderer sales use default quantity 1, Sell 1 / Sell 5 when quantity allows / Sell All / Custom / Cancel, followed by explicit quantity/unit/total confirmation. Exact-item, capacity, protected-item, finite-wallet and integer checks preserve atomic accounting.
 
-STILL NEEDS LIVE BROWSER QA
-- Gate routes, all four Relay parts, quest completion, death and rescue penalties.
-- Inventory selection and Jen B/numbered drink actions; road encounter save/load.
-- No claim of completed end-to-end browser playthrough.
+APPROVED CRITICAL UX / THEFT
+- SMALL TALK display is now TALK; original commands remain accepted. Existing conversation and quest handlers stay intact. Main Street FIND TIM opens TALK / PAY FINE when relevant / INSPECT / TOWN; payment remains outside conversation topics.
+- Wanderer TRADE display is BROWSE WARES; existing transactions/prices unchanged.
+- Sidebar BOUNTY row follows INV; red when positive and neutral NONE when clear. Existing WANTED HUD remains. Posters show actual character handle, current and lifetime bounty, active offenses and retained history.
+- Board: numbered Post a Message / View Bounties / Return to Town. Draft entry shows 120-character maximum/count, preserves filtering, and confirms Post/Edit/Cancel. No Relay completion statement on shared board.
+- Repeat theft allowed against finite holdings; each attempt costs one turn. Suspicion/level modifiers/clamps persist. Empty targets cost no turn. Legendary and Blackglass Requiem exclusion affects stealing only; ownership/quests untouched. No theft XP.
+- Wallet daily top-up: 4 Bolts per existing daily refill, capped at 15 + 3*level (original maximum initial-wallet range). Legitimate trade proceeds above cap are retained. Reopening/re-encountering does not replenish money. No new timer.
+- Vendor NEXT RESTOCK display uses the existing turn-refill clock and preserves discounts.
+- Optional CLEAR YOUR NAME journal guidance derives from outstanding bounty; disappears when paid, with no rewards.
 
-PRIOR v33 NOTES
-ROUTE 127 — v33 QA CANDIDATE (2026-10-08)
-Based on v32_Menu_Repair.zip. This is a TEST BUILD, not a verified release.
+DEFERRED, NOT IMPLEMENTED
+- B6: full-backpack replacement/sell-on-purchase recovery UI.
+- B7: equipment comparison / superior-gear equip prompts.
+- B8: universal any-segment Turn Around travel changes.
+- B10: explorable rented room and four-slot chest.
+- C: numerical rarity penalties / proposed epic 5% cap need approval; existing theft base odds and 12% lower clamp unchanged.
+- B5 occupation buying restrictions not introduced; B12 expanded components/recipes remain a later content task.
 
-CHANGED
-- Numbered context-action labels and numeric command dispatch in common menus; global S/I/M/Q/V utilities remain available. Full-word commands retained.
-- Road encounter headings now use a persistent daily road-turn count, saved/loaded and reset at the 24-hour turn refill.
-- Death now displays YOU HAVE FALLEN and requires GET UP; 50% HP restoration, no random loss of equipment or quest items, rescue travel cost plus two recovery turns.
-- Repeat visits to Jen, Johnny, Murphy and Wayne use shorter greetings while keeping wandering visitors.
-- Fork detection on the reverse trip toward the old house; direction-aware fork continuation.
-- Removed Service Road STEP/TURNS SPENT debug-style lines.
-- Relay Station uses a brief scrambled-line effect instead of replaying the intro transmission.
-- Relay Station now offers INSTALL COMPONENTS when all four parts are collected, with a completion message.
-- East/West gate departures still use existing travel logic; specifically flagged for Work QA.
-- Page title identifies Playtest v33.
+BALANCE / QA
+- Rook Solace assault +48 and murder +120 =168 retained. Crime formulas, prices, daily discounts, weapon drops, combat rewards, and travel costs unchanged except explicitly approved repeat theft/wallet replenishment behavior.
+- 183 automated checks pass: legacy 34, expansion 28, full-module crime 79, new consolidation 42. Two obsolete theft-cap expectations updated to the approved repeat-attempt design.
+- Spawn audit uses 100,000 controlled samples per scenario; rates unchanged. Raw counts supplied.
+- Actual browser tests NOT RUN: Playwright has no Chromium executable here. Factory numbers passed dispatcher tests only.
+- Read QA_RESULTS.md; PLAYTEST.html contains pending human checks. No claim of full work-order completion or a browser-verified stable release.
 
-KNOWN / NEEDS QA
-- Numeric conversion is broad but not yet audited on every dialogue, confirmation, combat, or inventory screen; old explicit hotkeys may still be visible in single-choice menus.
-- The fourth Relay component depends on reaching the east-road endpoint and searching the rack; full route not yet exercised in this build.
-- GPS step offset, save location normalization and turn-cost corner cases still require investigation.
-- No complete browser playthrough has been performed on this candidate; JavaScript syntax check passed.
-- Rescue distance calculation needs balancing on service branches, east road, and when available turns are low.
-- Some menus may still show repeated navigation; do not assume duplication is fully resolved.
-
-TEST INSTRUCTIONS
-Use PLAYTEST.html for the checklist. Test a fresh save and an existing v32 save separately.
-Check advertised numbers against actual actions. Record first failure with exact screen, number and result.
+v54 — FACTORY DUNGEON FIRST PASS
+- Replaced workshop sealed-door placeholder with free entry to the 22-room factory dungeon; retained Forge's crafting room and all v53 files.
+- Added three freely selectable upper floors, restricted basement, four permanent bosses, four puzzles, daily encounters and scavenging, persistent progress, and subtle lore.
+- See FACTORY_V54_NOTES.txt for scope, testing and known limitations.

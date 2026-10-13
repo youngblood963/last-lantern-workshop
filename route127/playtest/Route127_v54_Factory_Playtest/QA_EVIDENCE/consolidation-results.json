@@ -1,0 +1,171 @@
+[
+  {
+    "name": "Rook assault restores exact combat numeric menu and bounty +48",
+    "pass": true
+  },
+  {
+    "name": "Rook murder restores Main Street actions and adds +120",
+    "pass": true
+  },
+  {
+    "name": "Notification during combat cannot suppress later action menu",
+    "pass": true
+  },
+  {
+    "name": "Combat death restores GET UP rather than wanderer actions",
+    "pass": true
+  },
+  {
+    "name": "Combat victory level-up preserves post-combat actions",
+    "pass": true
+  },
+  {
+    "name": "Town Rook has exactly TALK STEAL INSPECT FIGHT LEAVE; hostile trade absent",
+    "pass": true
+  },
+  {
+    "name": "Town Hollis has full deduplicated eligible menu",
+    "pass": true
+  },
+  {
+    "name": "Fresh road show hides all overlapping legacy action lines",
+    "pass": true
+  },
+  {
+    "name": "Road TALK and BROWSE WARES are keyboard-usable",
+    "pass": true
+  },
+  {
+    "name": "Town named TALK opens existing wanderer dialogue",
+    "pass": true
+  },
+  {
+    "name": "Tim top-level transactions separate from TALK",
+    "pass": true
+  },
+  {
+    "name": "Tim numeric PAY FINE retains lifetime and removes action when clear",
+    "pass": true
+  },
+  {
+    "name": "Wanted posters use actual handle, current/lifetime and history",
+    "pass": true
+  },
+  {
+    "name": "Vendor sale defaults one, requires confirmation, and retains rest of stack",
+    "pass": true
+  },
+  {
+    "name": "Vendor Sell 5 honors quote unit and total",
+    "pass": true
+  },
+  {
+    "name": "Vendor Sell All is explicit and one-time",
+    "pass": true
+  },
+  {
+    "name": "Custom quantity rejects invalid values then accepts exact integer",
+    "pass": true
+  },
+  {
+    "name": "Cancel quantity confirmation changes neither stack nor cash",
+    "pass": true
+  },
+  {
+    "name": "Changed vendor quote cannot underflow holdings",
+    "pass": true
+  },
+  {
+    "name": "Equipped/quest/legendary sale protections remain",
+    "pass": true
+  },
+  {
+    "name": "Wanderer quantity sale moves real stack and finite cash",
+    "pass": true
+  },
+  {
+    "name": "Wanderer insufficient funds rejects Sell All atomically",
+    "pass": true
+  },
+  {
+    "name": "Sale save/load retains selected quantity and confirms once",
+    "pass": true
+  },
+  {
+    "name": "Board menu is exactly numbered Post / Bounties / Town; no story leak",
+    "pass": true
+  },
+  {
+    "name": "Board posting preserves raw text, edit/cancel/confirm and author",
+    "pass": true
+  },
+  {
+    "name": "Board character limit/filter rejection and cancel preserve posts",
+    "pass": true
+  },
+  {
+    "name": "Repeat theft costs one each, no XP, finite shared stock",
+    "pass": true
+  },
+  {
+    "name": "Empty target attempt consumes zero turns",
+    "pass": true
+  },
+  {
+    "name": "Legendary/Blackglass exclusion does not affect ownership or common loot",
+    "pass": true
+  },
+  {
+    "name": "Suspicion persists across save/menu exits and clamp remains original",
+    "pass": true
+  },
+  {
+    "name": "Wallet replenishment modest, capped, does not mint repeated menu cash",
+    "pass": true
+  },
+  {
+    "name": "Replenishment follows existing refill clock exactly once",
+    "pass": true
+  },
+  {
+    "name": "Restock display uses existing timer and preserves discounts",
+    "pass": true
+  },
+  {
+    "name": "Clear your name objective disappears after payment without reward",
+    "pass": true
+  },
+  {
+    "name": "Full v53 keyboard-dispatch factory option 1",
+    "pass": true
+  },
+  {
+    "name": "Full v53 keyboard-dispatch factory option 2",
+    "pass": true
+  },
+  {
+    "name": "Full v53 keyboard-dispatch factory option 3",
+    "pass": true
+  },
+  {
+    "name": "Full v53 keyboard-dispatch factory option 4",
+    "pass": false,
+    "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n+ 'factoryDungeonHub'\n- 'factoryWorkshop'\n          ^\n"
+  },
+  {
+    "name": "Full v53 keyboard-dispatch factory option 5",
+    "pass": true
+  },
+  {
+    "name": "Factory leave/return preserves all five option mappings",
+    "pass": true
+  },
+  {
+    "name": "Repeated failed theft accumulates suspicion and same bounty math",
+    "pass": true
+  },
+  {
+    "name": "Vendor-confirmed funds reject numeric overflow without losing stack",
+    "pass": true
+  }
+]

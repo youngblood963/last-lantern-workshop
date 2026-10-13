@@ -201,3 +201,44 @@ body {
 
 /* v25.7 early interface evolution */
 .evo-yellow { color:#b7a85a; text-shadow:0 0 2px currentColor; }
+
+/* v43 equipment rarity — independent of evolving interface colors */
+.line.common { color: #e5e7eb; }
+.line.uncommon { color: #22c55e; }
+.line.rare { color: #3b82f6; }
+.line.epic { color: #a855f7; }
+.line.legendary { color: #f97316; }
+
+/* v44 semantic fields: base terminal/UI is white; only individual spans evolve. */
+.line,.line.system,.line.bright,.line.man,.line.woman,.line.place,.line.reward,.line.danger,.line.common,.line.uncommon,.line.rare,.line.epic,.line.legendary { color:#e5e7eb; }
+.rarity-uncommon{color:#67a873}.rarity-rare{color:#6f9fbd}.rarity-epic{color:#a855f7}.rarity-legendary{color:#f97316}
+.quest-banner{border-top:1px solid #50564e;border-bottom:1px solid #50564e;padding:6px 0;margin:12px 0}
+
+/* v47: narrow terminal illustrations, no pixel graphics. */
+.casino-art{white-space:pre;overflow-x:auto;max-width:100%;font-size:clamp(11px,2.8vw,16px);line-height:1.15}.casino-skip{padding:6px 10px;margin:4px 0;background:#18201a;color:#ddd;border:1px solid #59635b}
+
+/* v48: scoped level-five semantics and responsive casino cards. */
+.v48-level5 #hud, .v48-level5 .input-row, .v48-level5 button { color: #f4d35e; }
+.v48-loss { color:#ff5b5b; }
+.v48-gain { color:#75d884; }
+.v48-white { color:#eee; }
+.v48-rat-nibbles, .v48-rps-art { color:#75d884; }
+.v48-rat-rustbucket { color:#f0a34b; }
+.v48-rat-squeaks { color:#78b9ff; }
+.v48-rat-cheeseburger { color:#ffd64c; }
+.v48-card-hand { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:10px 0; }
+.v48-card-label { flex-basis:100%; color:#f4d35e; }
+.v48-card { display:flex; flex-direction:column; align-items:center; justify-content:center; width:50px; min-height:72px; padding:4px; border:1px solid #ccc; border-radius:4px; background:#fafafa; color:#111; font-size:20px; }
+.v48-suit-red { color:#b00020; }
+.v48-suit-black { color:#111; }
+.v48-card-back { background:#183e6a; color:#eee; }
+/* Reserved presentation conventions only; no poison or bleeding mechanics. */
+.status-poison { color:#75d884; }
+.status-bleeding { color:#ff5b5b; }
+.v48-level5 #hud b, .v48-level5 .utility-stat, .v48-level5 .command-form .prompt, .v48-level5 #command { color:#f4d35e; }
+
+#side-inv.pack-full{color:#ed6b63;}
+
+/* v49 live area map: reuses top strip, no extra controls */
+.live-map{padding:9px 16px;border-bottom:1px solid var(--line);color:#d6bc6a;font:12px/1.5 Consolas,"Courier New",monospace;white-space:normal;overflow-wrap:anywhere;}
+.live-map[hidden]{display:none;}

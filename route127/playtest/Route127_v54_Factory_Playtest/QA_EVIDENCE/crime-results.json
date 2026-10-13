@@ -1,0 +1,318 @@
+[
+  {
+    "name": "First purchase decrements shared stock exactly once",
+    "pass": true
+  },
+  {
+    "name": "Purchase transfers Bolts to wanderer",
+    "pass": true
+  },
+  {
+    "name": "Repeated purchases stop at zero stock",
+    "pass": true
+  },
+  {
+    "name": "Unaffordable purchase changes neither inventory nor cash",
+    "pass": true
+  },
+  {
+    "name": "Full pack purchase does not charge or remove victim stock",
+    "pass": true
+  },
+  {
+    "name": "Full pack can purchase existing consumable stack",
+    "pass": true
+  },
+  {
+    "name": "Sale transfers exactly one item and NPC payment",
+    "pass": true
+  },
+  {
+    "name": "Sale cannot mint payment from broke wanderer",
+    "pass": true
+  },
+  {
+    "name": "Sale cancellation does not mutate holdings",
+    "pass": true
+  },
+  {
+    "name": "Sale respects exact item when names overlap",
+    "pass": true
+  },
+  {
+    "name": "Equipped and quest items cannot be sold",
+    "pass": true
+  },
+  {
+    "name": "Theft removes exactly one shared item",
+    "pass": true
+  },
+  {
+    "name": "Theft removes exact victim currency and transfers it",
+    "pass": true
+  },
+  {
+    "name": "Approved repeated theft consumes another turn without replenishing stock",
+    "pass": true
+  },
+  {
+    "name": "Repeated encounter allows theft without replenishing inventory",
+    "pass": true
+  },
+  {
+    "name": "Suspicion persists while approved repeat theft remains available after load",
+    "pass": true
+  },
+  {
+    "name": "Full pack theft cannot remove victim item",
+    "pass": true
+  },
+  {
+    "name": "Zero turns theft makes no mutation",
+    "pass": true
+  },
+  {
+    "name": "Empty victim grants neither currency nor item",
+    "pass": true
+  },
+  {
+    "name": "Failed road theft has reaction, suspicion, no bounty",
+    "pass": true
+  },
+  {
+    "name": "Witnessed failed Solace theft records victim/action/location",
+    "pass": true
+  },
+  {
+    "name": "Successful unseen town theft adds no invented charge",
+    "pass": true
+  },
+  {
+    "name": "Bounty rates remain original",
+    "pass": true
+  },
+  {
+    "name": "No-turn blocked assault has no bounty",
+    "pass": true
+  },
+  {
+    "name": "Town fight confirmation required and costs exactly one turn",
+    "pass": true
+  },
+  {
+    "name": "Repeated confirmation does not duplicate assault",
+    "pass": true
+  },
+  {
+    "name": "Uppercase defeated town victim records murder once",
+    "pass": true
+  },
+  {
+    "name": "Road violence stays bounty-free even with old target flag",
+    "pass": true
+  },
+  {
+    "name": "Flee town then kill same victim on road does not add murder",
+    "pass": true
+  },
+  {
+    "name": "Town combat save/load retains charge and location",
+    "pass": true
+  },
+  {
+    "name": "Road combat save/load does not acquire town charge",
+    "pass": true
+  },
+  {
+    "name": "Fixed reward plus remaining carried Bolts occur only once",
+    "pass": true
+  },
+  {
+    "name": "Purchased and stolen goods are not duplicated by loot",
+    "pass": true
+  },
+  {
+    "name": "Items sold to wanderer persist and can be reclaimed without duplication",
+    "pass": true
+  },
+  {
+    "name": "Weapon loot exactly matches visible equipment and cannot repeat",
+    "pass": true
+  },
+  {
+    "name": "Weapon chance remains 45 percent, failed roll stays failed",
+    "pass": true
+  },
+  {
+    "name": "Pending weapon survives full pack and save/load, claimed once",
+    "pass": true
+  },
+  {
+    "name": "Living victim cannot be looted by typed claim",
+    "pass": true
+  },
+  {
+    "name": "Dead victim cannot trade or be robbed again",
+    "pass": true
+  },
+  {
+    "name": "Tim payment clears active only and deducts once",
+    "pass": true
+  },
+  {
+    "name": "Insufficient fine payment preserves everything",
+    "pass": true
+  },
+  {
+    "name": "Payment outside Tim is blocked",
+    "pass": true
+  },
+  {
+    "name": "Cleared bounty and lifetime history survive load",
+    "pass": true
+  },
+  {
+    "name": "Small Talk Tim exposes payment through actual conversation entry",
+    "pass": true
+  },
+  {
+    "name": "Level4 wanted board is locked",
+    "pass": true
+  },
+  {
+    "name": "Level5 wanted board announces unlocked with contracts still absent",
+    "pass": true
+  },
+  {
+    "name": "Essential NPC theft is rejected",
+    "pass": true
+  },
+  {
+    "name": "Stale focus cannot target absent wanderer",
+    "pass": true
+  },
+  {
+    "name": "Old trade focus cannot remotely buy stock",
+    "pass": true
+  },
+  {
+    "name": "Hostile wanderer still refuses trade",
+    "pass": true
+  },
+  {
+    "name": "Road trade allows inspect integration",
+    "pass": true
+  },
+  {
+    "name": "Road trade allows small talk integration",
+    "pass": true
+  },
+  {
+    "name": "Road trade allows attack integration",
+    "pass": true
+  },
+  {
+    "name": "Town trade allows named inspect and small talk",
+    "pass": true
+  },
+  {
+    "name": "Save/load relinks shared inventory without reroll or loss",
+    "pass": true
+  },
+  {
+    "name": "v51 fixture without crime/inventory fields migrates lazily",
+    "pass": true
+  },
+  {
+    "name": "Legacy mismatched v52 quantities reconcile conservatively",
+    "pass": true
+  },
+  {
+    "name": "Real HUD wrapper makes red WANTED visible outside hidden utility panel",
+    "pass": true
+  },
+  {
+    "name": "Road named theft cannot silently target a different victim",
+    "pass": true
+  },
+  {
+    "name": "Failed named town theft can follow warning with FIGHT",
+    "pass": true
+  },
+  {
+    "name": "Opening town trade sets correct plain SMALL TALK focus",
+    "pass": true
+  },
+  {
+    "name": "Actual town reentry increments encounter, not menu redraw",
+    "pass": true
+  },
+  {
+    "name": "Moving town locations clears stale focus and trade quote",
+    "pass": true
+  },
+  {
+    "name": "Fine and passive encounter actions do not spend turns",
+    "pass": true
+  },
+  {
+    "name": "Crime-loaded Small Talk preserves Tim badge completion",
+    "pass": true
+  },
+  {
+    "name": "Crime-loaded Small Talk preserves Murphy belt completion",
+    "pass": true
+  },
+  {
+    "name": "Crime-loaded Wayne house lead unlocks only once",
+    "pass": true
+  },
+  {
+    "name": "Town death does not generate murder or duplicate salvage",
+    "pass": true
+  },
+  {
+    "name": "Long mixed trade/theft/loot sequence conserves holdings",
+    "pass": true
+  },
+  {
+    "name": "Full-module dispatcher workshop 1",
+    "pass": true
+  },
+  {
+    "name": "Full-module dispatcher workshop 2",
+    "pass": true
+  },
+  {
+    "name": "Full-module dispatcher workshop 3",
+    "pass": true
+  },
+  {
+    "name": "Full-module dispatcher workshop 4",
+    "pass": true
+  },
+  {
+    "name": "Full-module dispatcher workshop 5",
+    "pass": true
+  },
+  {
+    "name": "Full-module dispatcher terminal 1",
+    "pass": true
+  },
+  {
+    "name": "Full-module dispatcher terminal 2",
+    "pass": true
+  },
+  {
+    "name": "Full-module dispatcher terminal 3",
+    "pass": true
+  },
+  {
+    "name": "Full-module dispatcher terminal 4",
+    "pass": true
+  },
+  {
+    "name": "Factory leave and return dispatcher",
+    "pass": true
+  }
+]

@@ -1,0 +1,32 @@
+ROUTE 127 v52.1 — TARGETED INVENTORY / CRIME AUDIT
+Based solely on the attached v52 Crime & Wanderer Playtest build.
+STATUS: AUDITED PLAYTEST CANDIDATE — NOT BROWSER-VERIFIED STABLE.
+
+CONFIRMED FIXES
+1. Wanderer stock quantities and carried inventory now share the same item records. First purchases no longer double-decrement carried stock. Theft and salvage each remove one item exactly once.
+2. Purchases transfer the player's payment to the wanderer's carried Bolts. Confirmed player sales transfer one exact carried item to the victim and deduct that wanderer's payment. A wanderer without enough carried Bolts cannot mint a sale payment. Existing item prices are unchanged.
+3. Saved stock/inventory references are relinked before transactions. Old v52 mismatched quantities retain the lower remaining count; no previously removed goods are resurrected. Already-lost items from the old double-decrement cannot be reconstructed. v51 saves lacking crime inventory fields seed lazily from their saved stock.
+4. Assault is recorded only after an actual town fight begins, not when a zero-turn confirmation is rejected.
+5. Murder uses the current defeated combat's source and canonical victim identity. Uppercase combat names work. Fleeing/old victim flags cannot charge a subsequent road kill. Save/load retains combat location without recharging assault.
+6. Crime records include the specific Solace establishment/location. Failed theft is witnessed by the caught victim; successful unseen theft and road crimes retain their existing no-bounty behavior.
+7. Trade context no longer traps INSPECT, SMALL TALK or ATTACK/FIGHT. Town trade/theft correctly focuses the actual wanderer. Stale trade/focus cannot remotely buy/steal from an absent victim. A named road theft cannot silently target a different person.
+8. ATTACK uses the existing town FIGHT/confirmation flow. No new combat system or automatic retaliation added.
+9. WANTED retains its existing red styling, now outside the hidden early-level utility panel. Tim's SMALL TALK exposes PAY FINE, which preserves lifetime totals/history.
+10. QA_MODE.html now loads crime.js in production script order. Previously it omitted the crime system entirely.
+
+UNCHANGED
+- app.js, expansion.js, casino.js, polish.js, styles.css and original transmission.png are byte-identical to supplied v52.
+- Existing prices (including v51's 18-Bolt room), bounty formulas, theft probabilities, weapon drop probability, fixed combat reward plus carried-Bolt salvage, and turn costs retained.
+- Factory, main quests, gradual interface evolution, equipment definitions and save keys preserved.
+- No recruitment, contracts, Seaport, factory development, or economy rebalancing.
+
+QA
+- Existing legacy suite: 34/34.
+- Existing expansion suite: 28/28.
+- New full-module crime/inventory suite: 79/79.
+- Six original defect reproductions fail on supplied v52 and pass on v52.1.
+- Five JavaScript syntax checks pass; ZIP integrity verified.
+- Browser gameplay NOT RUN: local Playwright Chromium executable unavailable.
+- Factory numbers 1–5, records terminal 1–4 and leave/return pass dispatcher tests, not browser keyboard tests.
+
+Read QA_RESULTS.md; open PLAYTEST.html for human verification.

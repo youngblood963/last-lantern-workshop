@@ -1,0 +1,26 @@
+[
+  {
+    "name": "first trade purchase keeps shared quantities equal",
+    "pass": true
+  },
+  {
+    "name": "sale transfers item and NPC payment",
+    "pass": true
+  },
+  {
+    "name": "blocked town attack cannot generate bounty",
+    "pass": true
+  },
+  {
+    "name": "uppercase combat victim still records murder",
+    "pass": true
+  },
+  {
+    "name": "stale town target cannot criminalize road kill",
+    "pass": true
+  },
+  {
+    "name": "trade menu allows inspect without trapping command",
+    "pass": true
+  }
+]

@@ -1,0 +1,34 @@
+ROUTE 127 v51 — TARGETED AUDIT PATCH (PLAYTEST CANDIDATE)
+
+- Renamed original road wanderer Mara to Tess; armory owner Mara unchanged. Old save wanderer state, locations, current encounter, and trade context migrate to Tess.
+- Tavern full-heal rented room price 12 -> 18 Bolts; clinic remains 5 HP per Bolt and other healing unchanged.
+- Fixed wanderer trading purchase lookup for lowercased typed commands (BUY BANDAGE, BUY ENERGY BARS, etc.).
+- No factory content, progression, turn rules, or other balance changes.
+- Real browser validation still pending; use PLAYTEST.html.
+
+ROUTE 127 v50 — SOLACE & WANDERER EXPANSION — QA CANDIDATE
+Based on the supplied v49.1 Crafting QA Fixed build.
+
+- Resident conversation entry points use SMALL TALK, retaining existing topic dialogue, quest offers, hand-ins and service menus. Wayne's house lead is no longer repeated merely by rendering his dialogue menu.
+- Solace display names updated; saved internal location keys retained.
+- New Mara armory sells the existing daily equipment selection. Original vendorStock/vendorSold data, prices, daily discounts, equipment definitions and refresh behavior preserved. Johnny sells survival supplies, backpack upgrade and flashlight replacement.
+- Existing road wanderer Mara retained to preserve old saved identity; new armory owner is a separate resident.
+- Wanderer roster now covers levels 1–10. Weighted early-road selection favors lower levels without player-level scaling; eastern road has a less steep weighting.
+- INSPECT shows exact level, relative threat, visible weapon/armor and occupation/appearance clues. Full threat colors begin at player level 5; early levels retain gradual coloring.
+- Persistent occupation inventories, quantities, buying and confirmed selling for nonhostile wanderers. Suspicious/cocky wanderers refuse trade. No recruitment added.
+- Weapons use requested level-band rarity weights, drawn from existing vendor equipment. Equipment influences wanderer attack/armor defense. Victory has a 45% chance to recover the visible weapon, independent of generation rarity. Fixed pending rewards survive full packs and saves. Type CLAIM WANDERER LOOT <name> if needed.
+- Relay now uses generated grayscale static for 300 milliseconds. Original introduction still uses original transmission image and one-second reveal.
+- Factory workshop numeric options 1–5 and records terminal options 1–4 repaired; explicit text aliases retained. Factory content, crafting and sealed door unchanged.
+- Healing audited; values unchanged pending approval. Restricted clinic treatment/bandage service to Wayne's location.
+
+VALIDATION
+- JavaScript syntax checks pass.
+- 34 existing crafting/save regression assertions pass.
+- 28 expansion/state/dispatcher assertions pass.
+- Actual browser gameplay tests NOT COMPLETED: local Chromium unavailable, download failed, cloud browser could not reach local server. This is a candidate, not a browser-certified stable release.
+- Automated tests use a mocked DOM and controlled state, not rendered browser UI.
+
+KNOWN LIMITS
+- Real-browser numeric input, pacing, static timing, full quest playthrough, death/respawn and UI evolution need checklist verification.
+- Existing road Mara and resident armorer Mara have the same name but distinct data/contexts.
+- No factory or Seaport development beyond input repair.

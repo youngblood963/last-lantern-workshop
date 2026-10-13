@@ -1,0 +1,114 @@
+[
+  {
+    "name": "Threat boundaries",
+    "pass": true
+  },
+  {
+    "name": "Roster covers levels 1 through 10",
+    "pass": true
+  },
+  {
+    "name": "Persisted gear and stock never reroll",
+    "pass": true
+  },
+  {
+    "name": "Hostile wanderer cannot trade",
+    "pass": true
+  },
+  {
+    "name": "Trade purchase exact price and quantity",
+    "pass": true
+  },
+  {
+    "name": "Sold out cannot repeat purchase",
+    "pass": true
+  },
+  {
+    "name": "Trade sale confirmation awards one item value",
+    "pass": true
+  },
+  {
+    "name": "Trade full pack cannot charge",
+    "pass": true
+  },
+  {
+    "name": "Visible weapon loot persisted and awarded once",
+    "pass": true
+  },
+  {
+    "name": "Full pack retains fixed loot",
+    "pass": true
+  },
+  {
+    "name": "Armory preserves stock and deducts existing prices",
+    "pass": true
+  },
+  {
+    "name": "Johnny refuses weapon purchases",
+    "pass": true
+  },
+  {
+    "name": "Wayne healing location gate",
+    "pass": true
+  },
+  {
+    "name": "Small Talk preserves Tim badge hand-in",
+    "pass": true
+  },
+  {
+    "name": "Small Talk preserves Murphy belt hand-in",
+    "pass": true
+  },
+  {
+    "name": "Completed quest not reoffered",
+    "pass": true
+  },
+  {
+    "name": "Wayne house quest only unlocked once",
+    "pass": true
+  },
+  {
+    "name": "Encounter data survives save/load",
+    "pass": true
+  },
+  {
+    "name": "Rarity exact generation boundaries",
+    "pass": true
+  },
+  {
+    "name": "Core factory workshop numeric 1",
+    "pass": true
+  },
+  {
+    "name": "Core factory workshop numeric 2",
+    "pass": true
+  },
+  {
+    "name": "Core factory workshop numeric 3",
+    "pass": true
+  },
+  {
+    "name": "Core factory workshop numeric 4",
+    "pass": true
+  },
+  {
+    "name": "Core factory workshop numeric 5",
+    "pass": true
+  },
+  {
+    "name": "Core terminal numeric 1",
+    "pass": true
+  },
+  {
+    "name": "Core terminal numeric 2",
+    "pass": true
+  },
+  {
+    "name": "Core terminal numeric 3",
+    "pass": true
+  },
+  {
+    "name": "Core terminal numeric 4",
+    "pass": true
+  }
+]

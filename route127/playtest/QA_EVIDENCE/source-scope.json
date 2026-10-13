@@ -1,0 +1,56 @@
+[
+  {
+    "file": "app.js",
+    "unchanged": true,
+    "baseline_sha256": "aedd37e6d4a2f01c47934de18e5e8044bb24294a74d01412377f0aac8a77712b",
+    "updated_sha256": "aedd37e6d4a2f01c47934de18e5e8044bb24294a74d01412377f0aac8a77712b"
+  },
+  {
+    "file": "casino.js",
+    "unchanged": true,
+    "baseline_sha256": "b67ec5acf27c4e67e025d83188b334da173ebdfc41956be2f9ef30a67c7b5927",
+    "updated_sha256": "b67ec5acf27c4e67e025d83188b334da173ebdfc41956be2f9ef30a67c7b5927"
+  },
+  {
+    "file": "polish.js",
+    "unchanged": true,
+    "baseline_sha256": "ce489cdd474f787cc8a67a828627b8ca44ef2c0201c28c2c859c59741bdd6b5f",
+    "updated_sha256": "ce489cdd474f787cc8a67a828627b8ca44ef2c0201c28c2c859c59741bdd6b5f"
+  },
+  {
+    "file": "expansion.js",
+    "unchanged": true,
+    "baseline_sha256": "68909b2e17ac84d06ef8134f599ded9a9f4b1ab3fd2e579ad247f7698c55acff",
+    "updated_sha256": "68909b2e17ac84d06ef8134f599ded9a9f4b1ab3fd2e579ad247f7698c55acff"
+  },
+  {
+    "file": "styles.css",
+    "unchanged": true,
+    "baseline_sha256": "8d97c898d38a1301fe236df01e951de4cfc4290fb379627cf42dda820b449bf4",
+    "updated_sha256": "8d97c898d38a1301fe236df01e951de4cfc4290fb379627cf42dda820b449bf4"
+  },
+  {
+    "file": "transmission.png",
+    "unchanged": true,
+    "baseline_sha256": "e46c600316d6e0d76699497bf4ecc018b7f583081d9456fac6b9444840876e5b",
+    "updated_sha256": "e46c600316d6e0d76699497bf4ecc018b7f583081d9456fac6b9444840876e5b"
+  },
+  {
+    "file": "crime.js",
+    "unchanged": false,
+    "baseline_sha256": "3cf44a298e170ec403110f2cd58689c861a426d519d8aaaa9bbb25d5ae73783a",
+    "updated_sha256": "19b4db7f006701687f36ecbaf96b118ff08f55fc7f7e5a1f85385ed6b3cf1957"
+  },
+  {
+    "file": "index.html",
+    "unchanged": false,
+    "baseline_sha256": "209b40d0be8eb3cb5011353b4329bef96b4517b56b710dd4bb47b6e8e1e9b69a",
+    "updated_sha256": "d9ecc48989687dfb731b84cc25efda0db50f11b0c5951c4303c31fc867c9b95e"
+  },
+  {
+    "file": "QA_MODE.html",
+    "unchanged": false,
+    "baseline_sha256": "d427a69a1f9c877395f2868ffd83c1dba5310fb28a10b49ec4f7d67c42a68572",
+    "updated_sha256": "a132d69ea9734c895e3901fb0c5954a0f2f2955074826b81363dc1f92e1f9da5"
+  }
+]

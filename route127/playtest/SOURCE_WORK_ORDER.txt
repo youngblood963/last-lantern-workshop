@@ -1,0 +1,65 @@
+LAST LANTERN WORKSHOP(TM) — ROUTE 127
+FORGE WORK ORDER — v52.1 PLAYTEST CONSOLIDATION
+Date: 2026-10-13
+SOURCE PACKAGE: Route127_v52_1_Targeted_Audit_Playtest(1).zip
+
+MISSION
+Audit and repair confirmed playtest defects, implement approved targeted UX/economy changes, and run comprehensive automated regression tests. Preserve all working systems. Do not expand the factory, road to Seaport, or Seaport in this pass. Report results honestly; distinguish automated tests from actual browser tests. Return a complete next-version ZIP with CHANGELOG.txt and browser-openable PLAYTEST.html checklist. Preserve QA_MODE.html and index.html.
+
+NON-NEGOTIABLE GUARDRAILS
+- Start by inspecting actual code and confirming existing implementations; do not assume a feature is absent merely because its UI is hidden.
+- Make smallest safe changes; preserve working crime amounts, combat rewards, trade prices/discounts, quest state, inventory stacking, level-color progression, and turn mechanics.
+- Keep current bounty balance: observed assault +48 and murder +120 for Rook; do not rebalance penalties or theft base odds without explicit approval.
+- Preserve free-play demo development focus. No speculative major rewrites, new multiplayer backend, or new factory content.
+- Never replace existing menu functionality with cosmetic-only placeholders. All commands must remain keyboard-usable.
+
+A. CONFIRMED BUGS — FIX FIRST
+A1. NAKED CURSOR AFTER CRIME NOTIFICATIONS (HIGH)
+  - On first assault crime/WANTED notification in combat, the command prompt displayed without combat options.
+  - After killing Rook and receiving murder crime notification, prompt again displayed without location actions.
+  - Restore active [1] ATTACK [2] USE ITEM [3] BACK OFF during combat; after combat restore proper Solace Main Street/location menu. Test notifications interrupting combat, rewards, level-ups, death and navigation. Preserve crime reporting and bounty math.
+A2. INCONSISTENT WANDERER MENUS (HIGH)
+  - Rook, recurring named NPC on Solace Main Street, showed only SMALL TALK, INSPECT, FIGHT, TOWN. Hollis/random wanderer had updated trade menu. Some town wanderers could trade but lacked STEAL; a road wanderer offered STEAL.
+  - Audit named/random, town/road, pre/post trade and encounter-state conditions. Eligible wanderers should expose TALK, BROWSE WARES, STEAL, INSPECT, FIGHT, LEAVE/MOVE ON as applicable. Respect genuinely special NPC restrictions, but document them.
+  - Another wanderer encounter showed duplicate SMALL TALK / INSPECT / FIGHT / MOVE ON actions in a single menu. Deduplicate to one of each.
+A3. SELLING STACKS (HIGH)
+  - Selling a stacked item appeared to sell the entire stack unexpectedly. Offer Sell 1 / Sell 5 (when valid) / Sell All / Custom Amount / Cancel with quantities, unit price, total and confirmation; default to 1. Apply to vendors and wanderers. Atomic inventory/Bolt/stock accounting, no negative quantities, no duplication or free Bolts.
+
+B. APPROVED UX / CONTENT CHANGES
+B1. NPC INTERACTIONS: Rename SMALL TALK to TALK globally (town NPCs and wanderers). Nest conversations, quest offers, rumors, lore under TALK, without losing existing dialogue or quest triggers. Keep functional transactions outside TALK (e.g. Tim's PAY FINE, Johnny's shop, Wayne's clinic, Jen's rental). Tim top-level: TALK / PAY FINE [when relevant] / INSPECT / TOWN. PAY FINE must call existing working payment logic.
+B2. BOUNTY DISPLAY: In sidebar, display BOUNTY below INV (not adjacent to wallet BOLTS); red when positive, neutral/none when clear. Keep existing WANTED HUD indicator. Wanted Posters must identify actual player character by name: WANTED — [name], CURRENT BOUNTY, LIFETIME BOUNTY. After paying Tim, current bounty clears but lifetime accrued remains. Do not hardcode 'Syn'. Audit historical crime-record persistence and differentiate active offenses from history.
+B3. BULLETIN BOARD: Provide simple numbered menu [1] POST A MESSAGE [2] VIEW BOUNTIES [3] RETURN TO TOWN. Posting opens text entry with visible maximum and remaining character count, then Post/Edit/Cancel confirmation; preserve profanity filtering, existing messages and persistence. Wanted posters accessed from board. Remove hardcoded 'RESOLVED: The Relay Station is operational' from shared board; do not alter Relay Station quest itself or leak per-player story completion to other players.
+B4. BROWSE WARES: Rename wanderer TRADE label to BROWSE WARES only; keep Bolt-based purchase/sale mechanics and daily vendor discount logic.
+B5. WANDERER WALLET: Audit existing finite Bolt/inventory state first. Buying from wanderer adds Bolts to their wallet; selling to them subtracts, cannot exceed funds. Wallet/stock must not reset by reopening menu or re-encountering. Modest capped daily replenishment, not infinite cash. Consider occupation-based purchase preferences only where existing item taxonomy supports it; do not block essential trading without design evidence.
+B6. FULL BACKPACK: When loot would add a new stack beyond capacity, offer Replace an Item / Return. Confirm discards, protect quest items/equipped items, never silently lose loot. When purchasing from a wanderer at capacity, offer Replace an Item / Sell an Item / Return to Browse Wares; retain encounter, selected item, and merchant stock, no charge or stock decrement until confirmed success. Selling stacks uses B3? Use A3 quantity selection. Preserve same-item stacking even when backpack is full.
+B7. EQUIPMENT COMPARISON: Before manual equip show current vs candidate weapon damage min/max or armor defense, deltas and Equip/Cancel. On obtaining clearly superior gear, prompt Equip New / Keep Current (not forced auto-equip). Do not interrupt combat; avoid duplicate or lost gear. Mixed/equal/worse gear need not prompt.
+B8. ROAD DIRECTION: On every road segment show current heading/destination; Continue moves in heading; Turn Around flips heading without movement and can be used at any point. No repeated Reverse Direction clicking. Preserve turn costs, routes, maps, location gates and reverse narration.
+B9. RESTOCK DISPLAY: If existing stock timer exists, show accurate 'NEXT RESTOCK: hh:mm' in rotating vendor screens. Do not introduce a competing timer or alter current discounts.
+B10. RENTED ROOM AT JEN'S BAR: Existing 18-Bolt rental/rest service works but no explorable room. Add modest room interior: bed/rest, four-slot personal storage chest, INSPECT flavor, return to bar. Preserve existing rental cost and rest effects; secure storage persistence, no future multiplayer raiding in this pass. If this is too large for stabilization, flag for next content phase rather than jeopardizing A fixes.
+B11. 'CLEAR YOUR NAME' GUIDANCE: After positive bounty, optional repeatable journal objective to speak with Tim; close after paying fine. Preserve existing quest journal behavior and avoid extra XP/Bolt rewards. PAY FINE discoverability is the priority; do not break main quest.
+B12. ITEM POOL: Later content-phase candidate only: expand practical scavenging/crafting components (wire, plates, tubing, circuit boards, springs, etc.) with actual recipe uses. Do not dump useless items or invent recipes in this stabilization pass.
+
+C. THEFT SYSTEM — APPROVED DESIGN, VERIFY CODE FIRST
+- Remove arbitrary one-attempt-per-encounter cap; allow repeat attempts while finite stealable inventory/Bolts remain.
+- Each attempt costs one turn; successes transfer real stock and reduce target's inventory/wallet; no loot duplication. Empty target: 'Nothing left to steal.' No theft XP.
+- Preserve existing suspicion increases and level modifiers; repeated attempts become progressively harder, with suspicion persisting across menu exits/re-encounters and optionally decaying gradually, not instant reset.
+- Audit current actual formula and lower clamp. Rarity modifies odds: common normal, uncommon slight penalty, rare substantial, epic extremely hard (proposed cap 5%, tune only if approved), legendary unique Blackglass Requiem unstealable. Preserve mystery in UI; do not mislead with a guaranteed success when impossible. INSPECT can hint visible equipment/rarity, pockets remain unknown.
+- Ensure caught stealing inside Solace triggers existing appropriate bounty; road theft remains lawless. Preserve existing theft bounty formula and crime rules unless audit shows a bug.
+- IMPORTANT: Legendary protection must not accidentally block normal quest/item ownership or create impossible quest progression.
+
+D. CODE AUDIT / AUTOMATED QA — FORGE HANDLES THE BORING STUFF
+D1. Save/reload: character stats, inventory stacks, Bolts, current bounty, lifetime bounty, historical crime log, quest state, wanderer stock/wallet/suspicion, rental chest, vendor timers.
+D2. Spawn randomness: actual chance and roll triggers on town entry, menu navigation, leaving buildings, road movement; persistence, death cleanup, cooldown, and differences between named Rook and random Hollis. User saw frequent replacements shortly after killing Rook. Measure and report distribution before changing rates; no invented percentages.
+D3. Trading integrity: full backpack, insufficient funds, stock exhaustion, partial stack, sell-all, canceled transactions, reopen/return, merchant balance, daily refresh; no duplication or money creation.
+D4. Theft: transfer verification, target inventory decrement, repeated attempts, suspicion scaling, rarity restrictions, finite stock, location-specific bounty, empty target.
+D5. Crime: assault -> murder escalation; Rook Solace observed +48 then +120 = 168; road kills no Solace bounty; Tim PAY FINE clears current only, lifetime persists; crime report identifies correct victim/location; HUD/menu restoration.
+D6. Regression: turn accrual, travel directions, map gates, town services, quest journal, Relay Station story flags, bar/rest, combat and death/respawn, inventory and equipment, UI keyboard options, browser load.
+D7. Test actual browser flows when possible, not only unit/JS automated tests. Explicitly state what was NOT browser-tested.
+
+DELIVERY
+1. Complete next-version ZIP (not just patch fragments); retain index.html, QA_MODE.html, PLAYTEST.html, CHANGELOG.txt.
+2. Concise report with: files changed, confirmed root causes, completed vs deferred items, automated test counts, manual/browser verification, known risks.
+3. No claim that an unimplemented/deferred feature was fixed. If scope is too broad, deliver A + critical B/C fixes first and mark remaining approved polish as deferred.
+4. Keep progression roadmap intact: FACTORY -> ROAD TO SEAPORT -> SEAPORT -> POLISH -> FREE LEVELS 1–10 DEMO.
+
+END WORK ORDER

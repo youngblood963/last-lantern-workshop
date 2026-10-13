@@ -1,0 +1,21 @@
+ROUTE 127 v54 — FACTORY DUNGEON FIRST PLAYABLE BUILD
+Base: Route127_v53_Playtest_Consolidation(1).zip. All existing Forge workshop/terminal/workbench crafting remains in place.
+
+IMPLEMENTED
+- Forge's former sealed-door command now enters the inner factory at 0 turns. Factory exterior and workshop entrance remain free.
+- 22 named rooms: 6 Loading & Receiving, 6 Production & Assembly, 6 Chemical Processing, 4 Restricted Basement.
+- Central stairwell and floor selection free. Floor room entry costs 1 turn; returning to floor/stairwell free.
+- Progress 0/4 through 4/4; basement can be attempted early (ACCESS DENIED), unlocks after all three upper bosses, unlock message one time.
+- Four mandatory, non-respawning bosses. Boss rewards, authorization progress, and final component persist in existing player.flags save format.
+- Four persistent environmental puzzles with inspection clues, one-turn solution costs.
+- Daily floor-specific ordinary encounters and daily searchable room supplies; defeated daily enemies stay gone until the next day. Bosses never respawn.
+- Environmental hints for BATCH 47, Dominion, unusual control technology, and one-time USER4387 name drop at Foreman defeat.
+- Returnable factory for grinding after completion. Existing Forge workbench unchanged.
+
+IMPORTANT PLAYTEST LIMITATIONS
+- This is a functional first-pass skeleton, NOT a fully polished 22-scenario narrative experience. Room-to-room traversal uses a floor room list rather than a physical room graph.
+- Random daily enemy presence is deterministic by game day and room, with curated floor-specific enemy names. More scenario varieties and narrative decisions are future polish.
+- The Foreman drops a quest component, but the full charge crafting, boulder removal and Seaport road are NOT implemented here.
+- Existing game-wide inventory/travel/room deferrals from v53 remain.
+- Browser gameplay not executed; automated VM tests passed (8/8 factory). Legacy QA passes; v53 consolidation QA has one obsolete expectation asserting sealed door stays shut.
+- QA build should be manually tested with an existing save. No saved player data should be overwritten by the ZIP itself.

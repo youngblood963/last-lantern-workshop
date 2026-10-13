@@ -1,0 +1,21 @@
+ROUTE 127 v52 — CRIME & WANDERER INVENTORY PLAYTEST CANDIDATE
+
+NEW
+- Wanderers receive persistent, occupation-influenced stock and carried Bolts.
+- STEAL command for wanderers in town or on roads. One attempt per encounter; repeat encounters permit new attempts.
+- Stolen stock removed from trade inventory; remaining supplies/Bolts may be salvaged after a defeat.
+- Failed theft generates warnings/suspicion; detected town theft raises bounty. Road theft does not.
+- Unprovoked Solace wanderer attacks and kills generate distinct criminal records.
+- Active bounty, lifetime bounty and recorded crimes; WANTED status in red, including early levels.
+- WANTED POSTERS / WANTED commands on Solace board; PAY FINE at Tim clears active bounty, retains history.
+- Level 5 bounty hunting unlock noted on wanted board. NPC contracts NOT implemented in this patch.
+- No vendor or named story NPC theft, no multiplayer/player chest burglary.
+
+QA / KNOWN LIMITATIONS
+- Existing legacy and expansion automated suites pass. These suites do not exercise new v52 theft/bounty gameplay.
+- New v52 systems are NOT browser verified. Please test save/load, repeated encounters, town crime, road theft,
+  Tim fines, and trading inventory synchronization manually before treating as stable.
+- Wanderer carried stock is generated once per persistent named wanderer; it does not refresh daily.
+- The existing fixed combat Bolt reward remains in addition to carried Bolt salvage.
+- No actual bounty hunting contracts yet; level-5 unlock is display-only.
+- This is a targeted foundation, not the entire planned criminal justice / multiplayer system.

@@ -1,0 +1,9 @@
+1. Meet a wanderer on the road. INSPECT; STEAL; attempt again immediately (must be blocked).
+2. Leave and encounter same wanderer again; stealing must be allowed again.
+3. Trade and steal an item; ensure trade stock decrements and inventory does not duplicate.
+4. In Solace, meet wanderer and fail a steal; check WANTED / WANTED POSTERS and red HUD.
+5. Fight a peaceful wanderer in Solace; verify assault and murder are separate crimes.
+6. Attack a road wanderer; confirm no bounty increase.
+7. Visit Tim; PAY FINE; verify Bolts deducted, active bounty cleared, history preserved.
+8. Save and reload; verify inventory, suspicion, bounty, criminal history persist.
+9. Confirm existing quests, factory numeric menus and Solace trading still work.

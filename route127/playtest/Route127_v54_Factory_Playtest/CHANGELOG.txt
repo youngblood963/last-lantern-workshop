@@ -1,0 +1,38 @@
+ROUTE 127 v53 — PLAYTEST CONSOLIDATION / FOCUSED DELIVERY
+Authoritative base: supplied v52.1 Targeted Audit Playtest ZIP.
+Status: automated QA passed; human/browser playtesting still required.
+
+HIGH-PRIORITY FIXES
+- Combat-entry menu callback is part of the tracked output queue. Current game state restores actionable menus after crime/reward messages instead of trusting stale shortcut mappings.
+- One canonical wanderer menu covers town/road, friendly/hostile, and named encounters. Eligible people expose TALK, BROWSE WARES, STEAL, INSPECT, FIGHT and LEAVE/MOVE ON once each. Hostile Rook correctly has no shop.
+- Vendor and wanderer sales use default quantity 1, Sell 1 / Sell 5 when quantity allows / Sell All / Custom / Cancel, followed by explicit quantity/unit/total confirmation. Exact-item, capacity, protected-item, finite-wallet and integer checks preserve atomic accounting.
+
+APPROVED CRITICAL UX / THEFT
+- SMALL TALK display is now TALK; original commands remain accepted. Existing conversation and quest handlers stay intact. Main Street FIND TIM opens TALK / PAY FINE when relevant / INSPECT / TOWN; payment remains outside conversation topics.
+- Wanderer TRADE display is BROWSE WARES; existing transactions/prices unchanged.
+- Sidebar BOUNTY row follows INV; red when positive and neutral NONE when clear. Existing WANTED HUD remains. Posters show actual character handle, current and lifetime bounty, active offenses and retained history.
+- Board: numbered Post a Message / View Bounties / Return to Town. Draft entry shows 120-character maximum/count, preserves filtering, and confirms Post/Edit/Cancel. No Relay completion statement on shared board.
+- Repeat theft allowed against finite holdings; each attempt costs one turn. Suspicion/level modifiers/clamps persist. Empty targets cost no turn. Legendary and Blackglass Requiem exclusion affects stealing only; ownership/quests untouched. No theft XP.
+- Wallet daily top-up: 4 Bolts per existing daily refill, capped at 15 + 3*level (original maximum initial-wallet range). Legitimate trade proceeds above cap are retained. Reopening/re-encountering does not replenish money. No new timer.
+- Vendor NEXT RESTOCK display uses the existing turn-refill clock and preserves discounts.
+- Optional CLEAR YOUR NAME journal guidance derives from outstanding bounty; disappears when paid, with no rewards.
+
+DEFERRED, NOT IMPLEMENTED
+- B6: full-backpack replacement/sell-on-purchase recovery UI.
+- B7: equipment comparison / superior-gear equip prompts.
+- B8: universal any-segment Turn Around travel changes.
+- B10: explorable rented room and four-slot chest.
+- C: numerical rarity penalties / proposed epic 5% cap need approval; existing theft base odds and 12% lower clamp unchanged.
+- B5 occupation buying restrictions not introduced; B12 expanded components/recipes remain a later content task.
+
+BALANCE / QA
+- Rook Solace assault +48 and murder +120 =168 retained. Crime formulas, prices, daily discounts, weapon drops, combat rewards, and travel costs unchanged except explicitly approved repeat theft/wallet replenishment behavior.
+- 183 automated checks pass: legacy 34, expansion 28, full-module crime 79, new consolidation 42. Two obsolete theft-cap expectations updated to the approved repeat-attempt design.
+- Spawn audit uses 100,000 controlled samples per scenario; rates unchanged. Raw counts supplied.
+- Actual browser tests NOT RUN: Playwright has no Chromium executable here. Factory numbers passed dispatcher tests only.
+- Read QA_RESULTS.md; PLAYTEST.html contains pending human checks. No claim of full work-order completion or a browser-verified stable release.
+
+v54 — FACTORY DUNGEON FIRST PASS
+- Replaced workshop sealed-door placeholder with free entry to the 22-room factory dungeon; retained Forge's crafting room and all v53 files.
+- Added three freely selectable upper floors, restricted basement, four permanent bosses, four puzzles, daily encounters and scavenging, persistent progress, and subtle lore.
+- See FACTORY_V54_NOTES.txt for scope, testing and known limitations.

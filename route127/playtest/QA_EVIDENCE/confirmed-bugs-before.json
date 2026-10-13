@@ -1,0 +1,32 @@
+[
+  {
+    "name": "first trade purchase keeps shared quantities equal",
+    "pass": false,
+    "error": "Expected values to be strictly deep-equal:\n\n1 !== 2\n"
+  },
+  {
+    "name": "sale transfers item and NPC payment",
+    "pass": false,
+    "error": "Expected values to be strictly deep-equal:\n\n11 !== 8\n"
+  },
+  {
+    "name": "blocked town attack cannot generate bounty",
+    "pass": false,
+    "error": "Expected values to be strictly deep-equal:\n\n24 !== 0\n"
+  },
+  {
+    "name": "uppercase combat victim still records murder",
+    "pass": false,
+    "error": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    'Assault',\n-   'Murder'\n  ]\n"
+  },
+  {
+    "name": "stale town target cannot criminalize road kill",
+    "pass": false,
+    "error": "Expected values to be strictly deep-equal:\n\n60 !== 0\n"
+  },
+  {
+    "name": "trade menu allows inspect without trapping command",
+    "pass": false,
+    "error": "The expression evaluated to a falsy value:\n\n  assert(c.logs.some(s=>s.includes('relative threat')))\n"
+  }
+]

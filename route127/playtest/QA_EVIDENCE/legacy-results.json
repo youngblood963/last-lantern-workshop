@@ -1,0 +1,138 @@
+[
+  {
+    "name": "Terminal 03 records and exit",
+    "pass": true
+  },
+  {
+    "name": "Tutorial kit cannot enter inventory; repeated dialogue",
+    "pass": true
+  },
+  {
+    "name": "Tutorial timer, success, single reward and no turns",
+    "pass": true
+  },
+  {
+    "name": "Tutorial failure retries only bench kit",
+    "pass": true
+  },
+  {
+    "name": "Tutorial full pack holds output until free slot",
+    "pass": true
+  },
+  {
+    "name": "Murphy bandage deductions and single success",
+    "pass": true
+  },
+  {
+    "name": "Murphy pipe deductions and failure",
+    "pass": true
+  },
+  {
+    "name": "Recipe switch cannot substitute unpaid output",
+    "pass": true
+  },
+  {
+    "name": "Insufficient no cloth is atomic",
+    "pass": true
+  },
+  {
+    "name": "Insufficient low scrap is atomic",
+    "pass": true
+  },
+  {
+    "name": "Insufficient low bolts is atomic",
+    "pass": true
+  },
+  {
+    "name": "Murphy full pack and stacking",
+    "pass": true
+  },
+  {
+    "name": "Manual mid-job load preserves timer and fixed roll",
+    "pass": true
+  },
+  {
+    "name": "Autosave preserves active tutorial after reload",
+    "pass": true
+  },
+  {
+    "name": "90% boundary for both benches",
+    "pass": true
+  },
+  {
+    "name": "Reinforced Bandage healing and full health no consumption",
+    "pass": true
+  },
+  {
+    "name": "Regression inventory stack/capacity, key slots, snapshot flags",
+    "pass": true
+  },
+  {
+    "name": "Regression casino state and save serialization",
+    "pass": true
+  },
+  {
+    "name": "Murphy recipe gate before tutorial",
+    "pass": true
+  },
+  {
+    "name": "Forge and Murphy jobs coexist without cross rewards",
+    "pass": true
+  },
+  {
+    "name": "Murphy success autosave cannot recollect",
+    "pass": true
+  },
+  {
+    "name": "Forge success autosave prevents repeated tutorial grants",
+    "pass": true
+  },
+  {
+    "name": "Murphy failure autosave stays failed after loading",
+    "pass": true
+  },
+  {
+    "name": "Full backpack accepts existing output stack",
+    "pass": true
+  },
+  {
+    "name": "Tutorial retry result persisted with bench-only kit",
+    "pass": true
+  },
+  {
+    "name": "Recipe switch survives save/load with original output",
+    "pass": true
+  },
+  {
+    "name": "Save/load command routing passes through Murphy menu",
+    "pass": true
+  },
+  {
+    "name": "Regression legacy save without crafting flags",
+    "pass": true
+  },
+  {
+    "name": "Regression overlays save physical location",
+    "pass": true
+  },
+  {
+    "name": "Regression equipped gear cannot be sold",
+    "pass": true
+  },
+  {
+    "name": "Regression combat damage and healing availability",
+    "pass": true
+  },
+  {
+    "name": "Clock moving backwards cannot early-collect",
+    "pass": true
+  },
+  {
+    "name": "Core dispatcher Forge I and manual save",
+    "pass": true
+  },
+  {
+    "name": "Core dispatcher Murphy I and manual save",
+    "pass": true
+  }
+]

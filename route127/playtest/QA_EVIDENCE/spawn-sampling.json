@@ -1,0 +1,58 @@
+{
+  "seed": 12753,
+  "samplesPerScenario": 100000,
+  "townOccupied": 79914,
+  "townObservedPercent": 79.914,
+  "counts": {
+    "town": {
+      "Ash": 6701,
+      "Lark": 6737,
+      "Bram": 6536,
+      "Tess": 6618,
+      "Patch": 6704,
+      "June": 6696,
+      "Moss": 6647,
+      "Deke": 6795,
+      "Hollis": 6620,
+      "Kettle": 6525,
+      "Vera": 6594,
+      "Rook": 6741
+    },
+    "early": {
+      "Moss": 12190,
+      "Vera": 8072,
+      "June": 13688,
+      "Patch": 13689,
+      "Hollis": 14731,
+      "Tess": 12183,
+      "Rook": 10259,
+      "Bram": 2583,
+      "Kettle": 5871,
+      "Deke": 1724,
+      "Ash": 3939,
+      "Lark": 1071
+    },
+    "east": {
+      "Tess": 10062,
+      "Bram": 5702,
+      "Hollis": 11749,
+      "June": 10966,
+      "Kettle": 7331,
+      "Rook": 9198,
+      "Moss": 10178,
+      "Patch": 10953,
+      "Ash": 6444,
+      "Vera": 8310,
+      "Deke": 4910,
+      "Lark": 4197
+    }
+  },
+  "roadGate": {
+    "samples": 100000,
+    "eligibleRolls": 62387,
+    "spawns": 18807,
+    "observedPercent": 18.807
+  },
+  "rookResurrectedAfter10000Moves": false,
+  "note": "Seeded controlled sampling; excludes quest/Steve gates for the isolated road gate. Source rates unchanged."
+}

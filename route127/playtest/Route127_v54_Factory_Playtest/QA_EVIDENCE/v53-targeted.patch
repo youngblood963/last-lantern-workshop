@@ -1,0 +1,42 @@
+--- v52.1/app.js
++++ v53/app.js
+@@ -1199,7 +1199,7 @@
+   busy=true; input.disabled=true;
+   add(`${spec.name} — LVL ${String(spec.level).padStart(2,"0")} — HP ${spec.hp}/${spec.hp}`,"bright");
+   // Combat entry is a state transition, not a hidden extra attack. Always show the combat menu first.
+-  outputQueue.then(()=>{
++  outputQueue=outputQueue.then(()=>{
+     if(stage==="combat" && combatState){
+       const line=hotkeyLine("ATTACK   USE ITEM   BACK OFF");
+       addImmediate(line,"system");
+@@ -1813,7 +1813,7 @@
+   player.flags.solaceMenu="town";
+   currentTownWanderer=null;
+   add("──────────────────── SOLACE ────────────────────", "system"); showWanderersAt("mercy");
+-  queueChoiceLine(`(B) THE RUSTY LANTERN TAVERN   (T) JOHNNY'S TRADING POST   (W) MURPHY'S MOTOR WORKS   (C) LAST CHANCE CLINIC   (A) SOLACE SAVINGS & LOAN   ARMORY   (U) BULLETIN BOARD${player.flags.relayUnlocked?"   (R) RELAY STATION":""}   (E) WEST GATE   (G) EAST GATE   (L) SMALL TALK TIM${townVisitorChoice()}`);
++  queueChoiceLine(`(B) THE RUSTY LANTERN TAVERN   (T) JOHNNY'S TRADING POST   (W) MURPHY'S MOTOR WORKS   (C) LAST CHANCE CLINIC   (A) SOLACE SAVINGS & LOAN   ARMORY   (U) BULLETIN BOARD${player.flags.relayUnlocked?"   (R) RELAY STATION":""}   (E) WEST GATE   (G) EAST GATE   (L) FIND TIM${townVisitorChoice()}`);
+ }
+ function bankMenu(){v48BankMain();}
+ function showBankActions(){const page=player.flags.v48BankPage;if(page&&page!=="main")v48BankPage(page);else v48BankMain();}
+--- v52.1/crime.js
++++ v53/crime.js
+@@ -15,8 +15,8 @@
+  if(inv.version!==2){for(const item of inv.items){const stock=(p.stock||[]).find(x=>x.name===item.name);item.type=item.type||v52ItemType(item.name);item.trade=!!stock;if(stock){item.qty=Math.min(item.qty,stock.qty);item.price=stock.price;}}inv.version=2;}
+  p.stock=inv.items.filter(x=>x.trade);return inv;
+ }
+-function v52Pickpocket(w,inTown){if(!w||!wandererAlive(w)){add('Nobody here to steal from.','system');return;}const state=ws(w.name),inv=v52Inventory(w),p=v50Profile(w);state.v52EncounterSerial=state.v52EncounterSerial||1;if(state.v52AttemptSerial===state.v52EncounterSerial){add(`${w.name} is watching your hands. Leave and meet them again before attempting another theft.`,'system');return;}if(!spendTurn()){add('NO TURNS LEFT FOR THEFT.','danger');return;}state.v52AttemptSerial=state.v52EncounterSerial;const chance=Math.max(.12,Math.min(.78,.54+(player.level-p.level)*.045-(state.v52Suspicion||0)*.04));const success=Math.random()<chance;
+- if(success){const possibilities=inv.items.filter(x=>x.qty>0);if(inv.bolts>0)possibilities.push({name:'Bolts',qty:inv.bolts,type:'currency'});if(!possibilities.length){add(`${w.name} has nothing left worth taking.`,'system');return;}const item=possibilities[Math.floor(Math.random()*possibilities.length)];if(item.name==='Bolts'){const n=Math.min(inv.bolts,1+Math.floor(Math.random()*Math.min(8,inv.bolts)));inv.bolts-=n;player.bolts+=n;add(`STOLEN — ${n} Bolts from ${w.name}.`,'reward');}else{if(!addPack(item.name,item.type)){add('Your pack is full; you cannot carry the stolen item.','system');return;}item.qty--;add(`STOLEN — ${item.name} from ${w.name}.`,'reward');}state.v52Suspicion=(state.v52Suspicion||0)+1;updateHud();return;}
++function v52Pickpocket(w,inTown){if(!w||!wandererAlive(w)){add('Nobody here to steal from.','system');return;}const state=ws(w.name),inv=v52Inventory(w),p=v50Profile(w);state.v52EncounterSerial=state.v52EncounterSerial||1;if(!inv.items.some(x=>x.qty>0&&!v53Unstealable(x))&&inv.bolts<=0){add('Nothing left to steal.','system');return;}if(!spendTurn()){add('NO TURNS LEFT FOR THEFT.','danger');return;}state.v52AttemptSerial=state.v52EncounterSerial;const chance=Math.max(.12,Math.min(.78,.54+(player.level-p.level)*.045-(state.v52Suspicion||0)*.04));const success=Math.random()<chance;
++ if(success){const possibilities=inv.items.filter(x=>x.qty>0&&!v53Unstealable(x));if(inv.bolts>0)possibilities.push({name:'Bolts',qty:inv.bolts,type:'currency'});if(!possibilities.length){add(`${w.name} has nothing left worth taking.`,'system');return;}const item=possibilities[Math.floor(Math.random()*possibilities.length)];if(item.name==='Bolts'){const n=Math.min(inv.bolts,1+Math.floor(Math.random()*Math.min(8,inv.bolts)));inv.bolts-=n;player.bolts+=n;add(`STOLEN — ${n} Bolts from ${w.name}.`,'reward');}else{if(!addPack(item.name,item.type)){add('Your pack is full; you cannot carry the stolen item.','system');return;}item.qty--;add(`STOLEN — ${item.name} from ${w.name}.`,'reward');}state.v52Suspicion=(state.v52Suspicion||0)+1;updateHud();return;}
+  state.v52Suspicion=(state.v52Suspicion||0)+2;add(`${w.name} catches your hand. "Keep your hands where I can see them!"`,'danger');if(inTown)v52Record('Attempted theft',w.name,`Attempted to steal from ${w.name} at ${v52CrimeLocation()}`,Math.max(10,p.level*8));if(Math.random()<.35){add(`${w.name} reaches for a weapon! Type FIGHT to retaliate, or leave.`,'danger');}else add(`${w.name} backs away, watching you carefully.`,'system');}
+ function v52WandererCommand(cmd,inTown){const named=cmd.match(/^steal(?: from)?(?: (.+))?$/);if(!named)return false;const w=inTown?wandererByName(named[1]||townWandererFocus||currentTownWanderer):wandererByName(currentRoadWanderer);if(!w|| (inTown && currentTownWanderer!==w.name)||(!inTown&&named[1]&&named[1].toLowerCase()!==w.name.toLowerCase())){add('Approach a wanderer before trying to steal.','system');return true;}if(inTown)townWandererFocus=w.name;v52Pickpocket(w,inTown);return true;}
+ const v52OldRoad=handleRoadWanderer;handleRoadWanderer=function(cmd){if(v52WandererCommand(cmd,false))return;return v52OldRoad(cmd);};
+@@ -72,7 +72,7 @@
+ };
+ // Reuse remaining carried goods for post-combat salvage; do not duplicate stolen goods.
+ const v52LootBeforeInventory=v50WandererLoot;v50WandererLoot=function(name){const w=wandererByName(name);const inv=w?v52Inventory(w):null;v52LootBeforeInventory(name);if(!inv||inv.salvaged)return;inv.salvaged=true;if(inv.bolts>0){player.bolts+=inv.bolts;add(`SALVAGED — ${inv.bolts} carried Bolts from ${name}.`,'reward');inv.bolts=0;updateHud();}const available=inv.items.filter(x=>x.qty>0);if(available.length){const item=available[Math.floor(Math.random()*available.length)];if(addPack(item.name,item.type)){item.qty--;add(`SALVAGED — ${item.name} from ${name}.`,'reward');}}};
+-const v52OldChoices=renderCurrentChoices;renderCurrentChoices=function(){v52OldChoices();if(stage==='wandererRoad'&&currentRoadWanderer)add('STEAL — one attempt per encounter','system');};
++const v52OldChoices=renderCurrentChoices;renderCurrentChoices=function(){v52OldChoices();if(stage==='wandererRoad'&&currentRoadWanderer)add('STEAL — one turn per attempt','system');};
+ 
+ const v52OldClaim=v50ClaimLoot;v50ClaimLoot=function(cmd){if(!cmd.startsWith('claim wanderer loot'))return false;const w=wandererByName(cmd.slice('claim wanderer loot'.length).trim());if(w&&wandererAlive(w)){add('There is no defeated wanderer to loot.','system');return true;}return v52OldClaim(cmd);};
+ // ATTACK is a synonym for the existing FIGHT flow, including town confirmation.

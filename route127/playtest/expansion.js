@@ -14,7 +14,16 @@ function v50Profile(w){
  const goods={Medic:['Bandage','Cloth'],Mechanic:['Scrap Metal','Wire','Battered Flashlight'],Trader:['Energy Bars','Bandage','Tent','Wire'],Guard:['Bandage','Scrap Metal'],Scavenger:['Scrap Metal','Wire','Cloth'],Cook:['Energy Bars','Cloth']}[w.occupation];
  st.profile={level,weapon,armor,occupation:w.occupation,hostile:['suspicious','cocky'].includes(w.vibe),stock:goods.filter(()=>Math.random()<.75).map(name=>({name,qty:1+Math.floor(Math.random()*3),price:VENDOR_BASE[name]||Math.max(1,(V48_LOOT_PRICES[name]||2)*2)})),lootRolled:false,pendingLoot:null};return st.profile;
 }
-function v50WeightedWanderer(pool){const weights=pool.map(w=>Math.pow(roadGoal==='east'?.82:.62,w.level-1));let roll=Math.random()*weights.reduce((a,b)=>a+b,0);return pool.find((w,i)=>(roll-=weights[i])<0)||pool[pool.length-1];}
+function v50WeightedWanderer(pool){
+ // Keep named wanderers and their saved profiles stable; change only encounter likelihood.
+ // Early characters mostly meet approachable wanderers, while advanced characters
+ // encounter the full level 1–10 cast more often. No wanderer is permanently excluded.
+ if(!pool.length)return null;
+ const target=Math.max(1,Math.min(10,Number(player.level)||1));
+ const weights=pool.map(w=>Math.max(.08,Math.pow(.72,Math.abs(w.level-target))));
+ let roll=Math.random()*weights.reduce((a,b)=>a+b,0);
+ return pool.find((w,i)=>(roll-=weights[i])<0)||pool[pool.length-1];
+}
 function v50Threat(level){const d=level-player.level;return d<=-3?['Trivial','green']:d<0?['Easy','green']:d===0?['Even','yellow']:d<=2?['Challenging','orange']:d<=4?['Dangerous','red']:['Deadly','purple'];}
 function v50Inspect(w){const p=v50Profile(w),[threat,color]=v50Threat(p.level);add(`${w.name} — LEVEL ${p.level} — ${threat.toUpperCase()} (relative threat; no guarantee)`,'system');outputQueue=outputQueue.then(()=>{if(player.level>=5){const last=screen.lastElementChild;if(last){last.dataset.threat=color;last.style.color={green:'#22c55e',yellow:'#facc15',orange:'#fb923c',red:'#ef4444',purple:'#a855f7'}[color];}}});add(`VISIBLE WEAPON: ${gearLabel(p.weapon)}; ARMOR: ${p.armor?gearLabel(p.armor):'None visible'}`);add(`${V50_CLUES[p.occupation]} ${w.name} looks ${w.vibe}.`);}
 function v50WandererCombat(w){const p=v50Profile(w),g=GEAR[p.weapon];return {hp:12+p.level*4,min:g.min,max:g.max,armorDef:GEAR[p.armor]?.def||0};}

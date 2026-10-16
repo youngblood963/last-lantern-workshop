@@ -2,6 +2,7 @@
 function v53Unstealable(i){return i.name.toLowerCase()==='blackglass requiem'||GEAR[i.name]?.rarity==='legendary';}
 function v53Normalize(cmd){
  let s=String(cmd).trim().toLowerCase();
+ if(s==='leave browse wares')return 'back';
  if(/^browse wares(?: |$)/.test(s))return s.replace(/^browse wares/,'trade');
  if(/^talk(?: |$)/.test(s)&&!s.startsWith('talk to '))return s.replace(/^talk/,'small talk');
  return s;
@@ -60,7 +61,7 @@ handleCommand=async function(raw){
  // shortcut presence, owns the final actionable menu.
  if(!busy&&(stage==='combat'||stage==='mercy'&&!player.flags.v50Trade||stage==='wandererRoad'&&!player.flags.v50Trade)){
   if(stage==='mercy'&&!currentTownWanderer)townWandererFocus=null;
-  if(v53LastMenuSerial!==v53OutputSerial||v53LastMenuContext!==v53Context()){renderCurrentChoices();await outputQueue;}
+  if(!Object.keys(numberedChoices).length&&!Object.keys(currentHotkeys).length&&(v53LastMenuSerial!==v53OutputSerial||v53LastMenuContext!==v53Context())){renderCurrentChoices();await outputQueue;}
  }
 };
 const v53OldHud=updateHud;updateHud=function(){v53OldHud();let el=document.querySelector('#v53-bounty');if(!el){el=document.createElement('div');el.id='v53-bounty';el.className='utility-stat';const inv=document.querySelector('#side-inv');if(inv?.parentElement)inv.parentElement.insertAdjacentElement('afterend',el);}if(el){const n=v52Crime().bounty;el.textContent='BOUNTY '+(n>0?n:'NONE');el.style.color=n>0?'#ef4444':'';}};

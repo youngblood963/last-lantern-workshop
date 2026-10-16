@@ -11,10 +11,10 @@ function v48Migrate(){
 }
 function v48Choices(labels){outputQueue=outputQueue.then(()=>{currentHotkeys={};numberedChoices={};usedHotkeys=new Set();for(const text of labels)addImmediate(hotkeyLine(text),'system');followOutput()});}
 function v48Checkpoint(){if(activeSaveSlot)saveGame(activeSaveSlot);}
-function v48Ordinary(item){return !!item&&Number.isSafeInteger(item.qty)&&item.qty>0&&!['key','quest'].includes(item.type)&&item.name!==player.weapon&&item.name!==player.armor;}
+function v48Ordinary(item){return !!item&&Number.isSafeInteger(item.qty)&&item.qty>0&&!['key','quest'].includes(item.type)&&item.name!==player.weapon&&item.name!==player.armor&&item.name!==player.accessory;}
 function v48SellPrice(item){
  if(!v48Ordinary(item))return 0;const gear=GEAR[item.name];
- if(gear){if(gear.rarity==='legendary'||!['common','uncommon','rare','epic'].includes(gear.rarity))return 0;const defaults={common:{weapon:12,armor:10},uncommon:{weapon:50,armor:45},rare:{weapon:125,armor:135},epic:{weapon:320,armor:340}};const base=VENDOR_BASE[item.name]||defaults[gear.rarity][gear.type];return Number.isFinite(base)&&base>0?Math.max(1,Math.floor(base*.25)):0;}
+ if(gear){if(gear.rarity==='legendary'||!['common','uncommon','rare','epic'].includes(gear.rarity))return 0;const defaults={common:{weapon:12,armor:10,accessory:18},uncommon:{weapon:50,armor:45,accessory:60},rare:{weapon:125,armor:135,accessory:125},epic:{weapon:320,armor:340,accessory:320}};const base=VENDOR_BASE[item.name]||defaults[gear.rarity][gear.type];return Number.isFinite(base)&&base>0?Math.max(1,Math.floor(base*.25)):0;}
  return ['material','consumable','tool','supply'].includes(item.type)?V48_LOOT_PRICES[item.name]||0:0;
 }
 function v48SaleMenu(){
@@ -25,12 +25,12 @@ function v48SaleMenu(){
  v48Choices([...items.map(i=>`SELL ${i.name.toUpperCase()} ×${i.qty} — ${v48SellPrice(i)*i.qty} BOLTS TOTAL`),'(B) BACK']);
 }
 function v48Sell(name,confirmed=false){
- const item=player.pack.find(i=>i.name.toLowerCase()===name.toLowerCase().trim()),unit=v48SellPrice(item);
- if(!item||unit<=0||!Number.isSafeInteger(unit*item.qty)||!Number.isSafeInteger(player.bolts+unit*item.qty)){add('That item cannot be sold. Equipped, quest and Legendary items are protected.','system');return false;}
+ const requested=String(name).trim().match(/^(.*?)\s+(?:x|×)([0-9]+)$/i);const saleName=(requested?requested[1]:name).trim();const item=player.pack.find(i=>i.name.toLowerCase()===saleName.toLowerCase()),unit=v48SellPrice(item);const quantity=requested?Number(requested[2]):item?.qty;
+ if(!item||unit<=0||!Number.isSafeInteger(quantity)||quantity<=0||quantity>item.qty||!Number.isSafeInteger(unit*quantity)||!Number.isSafeInteger(player.bolts+unit*quantity)){add('That item cannot be sold. Equipped, quest and Legendary items are protected.','system');return false;}
  const quote=player.flags.v48Sale;
- if(confirmed&&(!quote||quote.name!==item.name||quote.type!==item.type||quote.qty!==item.qty||quote.total!==unit*item.qty)){delete player.flags.v48Sale;add('The sale changed. Nothing sold; choose the item again.','system');return false;}
- if(!confirmed&&['rare','epic'].includes(GEAR[item.name]?.rarity)){player.flags.v48Sale={name:item.name,type:item.type,qty:item.qty,total:unit*item.qty};v48SaleMenu();return false;}
- const total=unit*item.qty;delete player.flags.v48Sale;player.pack.splice(player.pack.indexOf(item),1);player.bolts+=total;updateHud();add(`SOLD — ${item.name} ×${item.qty} / +${total} BOLTS`,'reward');v48Checkpoint();return true;
+ if(confirmed&&(!quote||quote.name!==item.name||quote.type!==item.type||quote.qty!==quantity||quote.total!==unit*quantity)){delete player.flags.v48Sale;add('The sale changed. Nothing sold; choose the item again.','system');return false;}
+ if(!confirmed&&['rare','epic'].includes(GEAR[item.name]?.rarity)){player.flags.v48Sale={name:item.name,type:item.type,qty:quantity,total:unit*quantity};v48SaleMenu();return false;}
+ const total=unit*quantity;delete player.flags.v48Sale;item.qty-=quantity;if(item.qty===0)player.pack.splice(player.pack.indexOf(item),1);player.bolts+=total;updateHud();add(`SOLD — ${item.name} ×${quantity} / +${total} BOLTS`,'reward');v48Checkpoint();return true;
 }
 function v48BuyBackpack(){
  if(player.packMax>=10){add('Your backpack already holds at least 10 slots. No purchase needed.','system');return false;}
@@ -57,8 +57,8 @@ function v48BankMain(entered=false){
  mercyLocation='amii';player.flags.solaceMenu='bank48';player.flags.v48BankPage='main';add("SOLACE SAVINGS & LOAN",'place');if(entered)showWanderersAt('amii');
  v48Intro('bank',[["The old municipal records office has been rebuilt into the most secure room in Solace. Plate steel covers the windows and a reinforced cage surrounds the counter."],["Amii looks up and gives you a slightly awkward but friendly wave."],["Two massive junkyard dogs lounge beside the counter. Niko thumps his tail. Alex just watches you."],["AMII > Don't worry. They're friendly.",'bright'],['Alex gives a low rumble.'],['AMII > ...mostly.','bright']],'Amii nods from behind the secure counter.',entered);
  add(`CARRIED BOLTS: ${player.bolts} / BANKED BOLTS: ${player.bankBolts}`,'system');
- add('For bank quests or conversation, type SMALL TALK AMII.','system');
- v48Choices(['DEPOSIT BOLTS','WITHDRAW BOLTS','STASH ITEMS','RETRIEVE ITEMS','VIEW STORAGE','(B) BACK']);
+ add('TALK opens Amii’s conversation topics; existing bank quests remain available through SMALL TALK AMII.','system');
+ v48Choices(['DEPOSIT BOLTS','WITHDRAW BOLTS','STASH ITEMS','RETRIEVE ITEMS','VIEW STORAGE','TALK','(B) BACK']);
 }
 function v48BankPage(page){
  player.flags.solaceMenu='bank48';player.flags.v48BankPage=page;add({deposit:'DEPOSIT BOLTS',withdraw:'WITHDRAW BOLTS',stash:'STASH ITEMS',retrieve:'RETRIEVE ITEMS',storage:'VIEW STORAGE'}[page],'place');
@@ -82,8 +82,8 @@ function handleV48Command(cmd){
  if(vendor&&player.flags.v48Shop==='sell'){
   if(['back','b','town','return to town','buy'].includes(cmd)){delete player.flags.v48Sale;delete player.flags.v48Shop;if(cmd.includes('town')){mercyLocation='town';mercyMenu()}else if(mercyLocation==='johnny')johnnyShop();else if(mercyLocation==='jen')showBarActions();else{add('BUY BANDAGE   SELL ITEMS   TALK TO WAYNE   (B) BACK','system')}return true;}
   if(cmd==='cancel sale'||cmd==='no'){delete player.flags.v48Sale;v48SaleMenu();return true;}
-  if(cmd==='confirm sale'||cmd==='yes'){const q=player.flags.v48Sale;if(q)v48Sell(q.name,true);v48SaleMenu();return true;}
-  if(cmd.startsWith('sell ')){v48Sell(cmd==='sell all scrap'?'Scrap Metal':cmd.slice(5).split(' ×')[0].trim());if(!player.flags.v48Sale)v48SaleMenu();return true;}v48SaleMenu();return true;
+  if(cmd==='confirm sale'||cmd==='yes'){const q=player.flags.v48Sale;if(q)v48Sell(`${q.name} x${q.qty}`,true);v48SaleMenu();return true;}
+  if(cmd.startsWith('sell ')){v48Sell(cmd==='sell all scrap'?'Scrap Metal':cmd.slice(5).replace(/\s+[—–-]\s+.*$/,'').trim());if(!player.flags.v48Sale)v48SaleMenu();return true;}v48SaleMenu();return true;
  }
  if(vendor&&['sell','sell items'].includes(cmd)){v48SaleMenu();return true;}
  if(vendor&&cmd.startsWith('sell ')){v48Sell(cmd==='sell all scrap'?'Scrap Metal':cmd.slice(5).split(' ×')[0].trim());if(!player.flags.v48Sale)v48SaleMenu();return true;}
@@ -93,6 +93,26 @@ function handleV48Command(cmd){
  if(['bank','bank stash','amii','visit bank'].includes(cmd)){delete player.flags.v48Shop;v48BankMain(true);return true;}
  const bankWords=/^(?:deposit|withdraw|stash|retrieve|view storage|view stash)/.test(cmd);
  if(bankWords&&mercyLocation!=='amii'){add("Visit Amii's bank for transactions.",'system');return true;}
+ if(mercyLocation==='amii'&&cmd==='talk'){player.flags.v55AmiiTalk=true;add('AMII — TALK','place');v48Choices(['ASK ABOUT BANKING','ASK ABOUT NIKO AND ALEX','PET NIKO','PET ALEX',...(player.flags.nikoPendingRewards?.length?['CLAIM NIKO GIFT']:[]),'(B) BACK']);return true;}
+ if(mercyLocation==='amii'&&player.flags.v55AmiiTalk){
+  if(cmd==='b'||cmd==='back'){delete player.flags.v55AmiiTalk;v48BankMain();return true;}
+  if(cmd==='ask about banking'){add('AMII > Bolts stored here stay safe, even when the road does not.','bright');return true;}
+  if(cmd==='ask about niko and alex'){add('Niko thumps his tail. Alex keeps watching. AMII > They take their jobs seriously. Especially Alex.','bright');return true;}
+  if(cmd==='pet alex'){add('Alex sniffs your hand, then gives one sharp, pleased bark. No damage, no fuss. AMII > That is practically a love letter from him.','bright');return true;}
+  if(cmd==='claim niko gift'){const pending=player.flags.nikoPendingRewards||[];const item=pending[0];if(!item){add('No Niko gift is waiting.','system');return true;}if(addPack(item,GEAR[item]?.type||'quest')){pending.shift();add(`CLAIMED NIKO'S GIFT — ${gearLabel(item)}`,'reward');if(!pending.length)delete player.flags.nikoPendingRewards;}else add('Make room in your pack before claiming the gift.','system');return true;}
+  if(cmd==='pet niko'){
+   const f=player.flags;
+   if(f.nikoRewardClaimed){add('Niko leans into your hand and thumps his tail. AMII > You already got his gift. He remembers you, though.','bright');return true;}
+   f.nikoRewardClaimed=true;
+   const roll=Math.random()*100;let reward;
+   if(roll<30)reward="Niko's Lucky Vest";else if(roll<55)reward='Giant Dog Bone';else if(roll<80)reward='Rusty License Plate';else if(roll<95){const pool=Object.keys(GEAR).filter(n=>GEAR[n].rarity==='rare'&&['weapon','armor'].includes(GEAR[n].type));reward=pool[Math.floor(Math.random()*pool.length)]||"Niko's Lucky Vest";}else reward="Niko's Collar";
+   if(addPack(reward,GEAR[reward]?.type||'quest'))add(`NIKO'S GIFT — ${gearLabel(reward)}`,'reward');
+   else{(f.nikoPendingRewards||(f.nikoPendingRewards=[])).push(reward);add(`NIKO'S GIFT — ${reward} is being held until your pack has room.`,'reward');}
+   if(reward==="Niko's Collar")add('LEGENDARY EFFECTS — +15 MAX HP, +3 DEF, +2% critical chance, and once per game day a Second Chance at 1 HP.','bright');
+   if(typeof v49Autosave==='function')v49Autosave();return true;
+  }
+  add('Choose a conversation topic or Back.','system');return true;
+ }
  if(mercyLocation==='amii'){
   const pages={'deposit bolts':'deposit','withdraw bolts':'withdraw','stash items':'stash','retrieve items':'retrieve','view storage':'storage','view stash':'storage'};
   if(pages[cmd]){v48BankPage(pages[cmd]);return true;}

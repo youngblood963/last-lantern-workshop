@@ -242,3 +242,18 @@ body {
 /* v49 live area map: reuses top strip, no extra controls */
 .live-map{padding:9px 16px;border-bottom:1px solid var(--line);color:#d6bc6a;font:12px/1.5 Consolas,"Courier New",monospace;white-space:normal;overflow-wrap:anywhere;}
 .live-map[hidden]{display:none;}
+
+/* v54.1f: early graphical navigation remains locked through level 4. */
+body.early-no-nav #live-map {display:none!important;}
+
+/* v55.2: true monospaced character artwork, no raster assets. */
+.port552-ansi {white-space:pre!important;line-height:1.12!important;overflow-x:auto;max-width:100%;}
+.port552-sunset{color:#e2a451!important}.port552-ruins{color:#a7b0b5!important}.port552-boat{color:#d8b07c!important}.port552-water{color:#4fadc3!important}
+
+/* v55.3: original Seaport cinematic, responsive terminal presentation. */
+.port553-cinematic{display:block;margin:14px 0 18px;padding:0;max-width:100%;overflow:hidden;background:#0f1923;border:1px solid rgba(196,151,109,.35);box-shadow:0 12px 32px rgba(0,0,0,.4);animation:port553-reveal .85s ease-out both;}
+.port553-cinematic img{display:block;width:100%;height:auto;max-height:min(70vh,780px);object-fit:contain;filter:contrast(1.06) saturate(.94);}
+.port553-fallback{padding:18px;color:#e7bc8d;line-height:1.5;}
+@keyframes port553-reveal{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){.port553-cinematic{margin:10px 0 14px}.port553-cinematic img{max-height:55vh}}
+@media(prefers-reduced-motion:reduce){.port553-cinematic{animation:none}}

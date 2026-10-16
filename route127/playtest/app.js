@@ -55,8 +55,8 @@ const QA_BUILD = typeof window !== "undefined" && window.ROUTE127_QA_BUILD === t
 const TEST_ACCESS_CODE = "LANTERN127";
 const player = {
   handle: "", level: 1, hp: 100, maxHp: 100, xp: 0, nextXp: 100,
-  bolts: 12, bankBolts: 0, turns: 50, maxTurns: TURN_CAP,
-  weapon: "Rusted Pipe", armor: "Worn Jacket",
+  bolts: 12, bankBolts: 0, turns: 50, maxTurns: TURN_CAP, lifetimeTurns: 0,
+  weapon: "Rusted Pipe", armor: "Worn Jacket", accessory: null,
   pack: [
     {name:"Energy Bars", qty:2, type:"consumable"},
     {name:"Battered Flashlight", qty:1, type:"tool"},
@@ -124,25 +124,40 @@ function colorField(div,text,klass,fraction,start=0,end=text.length){
   div.textContent="";
   for(let i=0;i<text.length;i++){if(i>=start&&i<end&&positions.has(i-start)){const span=document.createElement("span");span.className=klass;span.textContent=text[i];div.append(span);}else div.append(document.createTextNode(text[i]));}
 }
+function earlyColorPhase(){
+  const turns=Math.max(0,Number(player.lifetimeTurns)||0);
+  return turns<6?0:turns<11?1:turns<16?2:turns<21?3:turns<26?4:5;
+}
 function applyLevelEvolution(div,text,cls=""){
   if(player&&player.level>=5)return applyV48Colors(div,text,cls);
-  if(!player||!text||player.level<2)return;
-  const level=player.level,upper=text.toUpperCase();
-  const equipment=Object.keys(GEAR).find(name=>upper.includes(name.toUpperCase()));
-  if(equipment&&cls.includes("quest-banner")){
-    const start=upper.indexOf(equipment.toUpperCase()),end=start+equipment.length,g=GEAR[equipment];
-    const yellow=new Set(stableColorPositions(text,Math.ceil((text.match(/[A-Za-z]/g)||[]).length*(level===2?.035:level===3?.60:.72))));
-    const itemColor=level<3||g.rarity==="common"?new Set():new Set(stableColorPositions(equipment,Math.ceil(equipment.length*(level===3?.12:.25))));
-    div.textContent="";for(let i=0;i<text.length;i++){let klass=i>=start&&i<end?(itemColor.has(i-start)?"rarity-"+g.rarity:null):(yellow.has(i)?"evo-yellow":null);if(klass){const sp=document.createElement("span");sp.className=klass;sp.textContent=text[i];div.append(sp)}else div.append(document.createTextNode(text[i]));}return;
-  }
-  if(equipment){const g=GEAR[equipment];if(level>=3&&g.rarity!=="common"){const start=upper.indexOf(equipment.toUpperCase());colorField(div,text,"rarity-"+g.rarity,level===3?.12:level===4?.25:Math.min(.75,.3+(level-5)*.03),start,start+equipment.length);}return;}
+  if(!player||!text)return;
+  const phase=earlyColorPhase();
+  if(!phase)return;
   if(/system|ui/.test(cls)&&!cls.includes("quest-banner"))return;
-  const named=/^(TIM|MURPHY|JEN|WAYNE|JOHNNY|AMII)\b/.test(upper);
-  const wanderer=(typeof wanderers!=="undefined"?wanderers:[]).some(w=>upper.startsWith(w.name.toUpperCase()));
-  if(named||wanderer){if(level>=3)colorField(div,text,named?"npc-blue":"wanderer-green",level===3?.12:level===4?.25:Math.min(.75,.3+(level-5)*.03));return;}
-  const narrative=!/common|uncommon|rare|epic|legendary|title-logo/.test(cls)||cls.includes("quest-banner");
-  if(narrative)colorField(div,text,"evo-yellow",level===2?.035:level===3?.60:level===4?.72:Math.min(.90,.75+(level-5)*.02));
+  const upper=text.toUpperCase();
+  const equipment=Object.keys(GEAR).find(name=>upper.includes(name.toUpperCase()));
+  if(equipment){
+    const g=GEAR[equipment];
+    if(phase>=3&&g.rarity!=="common"){
+      const start=upper.indexOf(equipment.toUpperCase());
+      colorField(div,text,"rarity-"+g.rarity,phase===3?.12:phase===4?.20:.28,start,start+equipment.length);
+    }else if(phase>=1)colorField(div,text,"evo-yellow",phase===1?.035:phase===2?.20:.40);
+    return;
+  }
+  const npcMatch=upper.match(/^(TIM|MURPHY|JEN|WAYNE|JOHNNY|AMII)\b/);
+  const named=!!npcMatch;
+  const wandererName=(typeof wanderers!=="undefined"?wanderers:[]).find(w=>upper.startsWith(w.name.toUpperCase()) && (upper.length===w.name.length || !/[A-Z0-9]/i.test(text[w.name.length]||"")));
+  if((named||wandererName)&&phase>=3){
+    // Color only the speaker/name token. Coloring random letters across the full
+    // line caused dialogue/description color leakage (notably Hollis).
+    const name=named?npcMatch[0]:wandererName.name;
+    const klass=named&&phase>=4?"npc-blue":"wanderer-green";
+    colorField(div,text,klass,1,0,name.length);
+    return;
+  }
+  colorField(div,text,"evo-yellow",[0,.035,.20,.40,.55,.70][phase]);
 }
+
 function normalizeQuestNotice(text,cls){
   text=String(text??"");
   const original=text;
@@ -197,7 +212,7 @@ async function typeLine(text, cls = "", speed = 18) {
 }
 function v49LiveMap(){
  const el=document.querySelector('#live-map');if(!el)return;
- if(!player.flags?.interfaceUnlocked||['title','wake','standing','handle','confirmHandle'].includes(stage)){el.hidden=true;return;}
+ if(player.level<5||!player.flags?.interfaceUnlocked||['title','wake','standing','handle','confirmHandle'].includes(stage)){el.hidden=true;return;}
  el.hidden=false;
  let st=gameplayStageForSave();
  const east=roadGoal==='east'||['eastEnd','factoryWorkshop','factoryTerminal','factoryForge','factoryBench'].includes(st);
@@ -216,6 +231,11 @@ function v49LiveMap(){
  el.textContent=`${east?'EAST ROAD':'WEST ROAD'}  ${nodes.join(' ─ ')}  |  ${dir}`;
 }
 function updateHud() {
+  const navUnlocked=player.level>=5 && !!player.flags?.interfaceUnlocked;
+  const liveNav=document.querySelector("#live-map");
+  if(liveNav && !navUnlocked)liveNav.hidden=true;
+  // Level gate is authoritative even when an old save already unlocked the interface.
+  document.body.classList.toggle("early-no-nav",!navUnlocked);
   v49LiveMap();
   document.body.classList.toggle("v48-level5",player.level>=5);
   document.querySelector("#hud-level").textContent = String(player.level).padStart(2,"0");
@@ -239,6 +259,7 @@ function spendTurns(count=1){
   if(!testMode && player.turns<count) return false;
   if(!testMode)player.turns-=count;
   dailyRoadTurns+=count;
+  player.lifetimeTurns=(Number(player.lifetimeTurns)||0)+count;
   player.flags.worldHour=((player.flags.worldHour??8)+count)%24;
   updateHud(); return true;
 }
@@ -318,10 +339,28 @@ function gainXp(n) {
   ensureSteveAnnouncements();
   updateHud();
 }
+function tryNikoSecondChance(){
+  const collarEquipped=player.accessory==="Niko's Collar";
+  const today=Number(day)||1;
+  if(!collarEquipped || player.hp>0 || Number(player.flags.nikoSecondChanceDay)===today)return false;
+  player.flags.nikoSecondChanceDay=today;
+  player.hp=1;
+  updateHud();
+  add("NIKO'S COLLAR FLASHES WARM. You collapse to one knee, alive at 1 HP. The collar's Second Chance is spent for today.","legendary");
+  // Use the established retreat routing so a rescued character never remains
+  // in the combat stage with an empty combatState (an unplayable softlock).
+  if(combatState)handleCombat("flee");
+  else if(stage==="combat"){stage="fallen";add("(1) GET UP","system");}
+  return true;
+}
 function handlePlayerDeath(){
   if(stage==="fallen") return;
+  if(tryNikoSecondChance())return;
   player.deathStreak=(player.deathStreak||0)+1;
   const inTown=player.flags.mercyDiscovered;
+  const defeatedByGateGuards=!!(combatState&&combatState.source==="gateGuards");
+  const jenGateRescue=defeatedByGateGuards&&!player.flags.jenGateRescueUsed;
+  if(jenGateRescue)player.flags.jenGateRescueUsed=true;
   // Remaining road segments are the minimum rescue travel cost; recovery adds two.
   const atHouse=stage==="house" || ["houseStorage","houseDeposit","houseWithdraw"].includes(stage) || (combatState&&combatState.source==="houseBoss");
   const travel=atHouse ? (inTown?roadTripLength:0) : inTown ? (roadGoal==="house"?Math.max(0,roadTripLength-roadTurn):roadGoal==="mercy"?Math.max(0,roadTripLength-roadTurn):roadGoal==="east"?Math.max(0,roadTurn+1):0) : Math.max(0,roadTurn+1);
@@ -334,13 +373,29 @@ function handlePlayerDeath(){
   add("YOU HAVE FALLEN","danger");
   add("Your vision fades as the wasteland goes silent.");
   add(inTown?"Hours later, you wake on a cot in Solace.":"Hours later, you wake in the old house.");
-  add("Someone dragged you back from the highway. They didn't do it for free.");
+  if(jenGateRescue)add("JEN > The gate guards were going to leave you out there. I brought you back myself. Don't make me do that twice.","bright");
+  else add("Someone dragged you back from the highway. They didn't do it for free.");
   add(`RESCUE TRAVEL: ${travel} TURNS   RECOVERY: 2 TURNS   TOTAL: ${penalty}`, "system");
   add(`HP RESTORED: ${player.hp}/${player.maxHp}   EQUIPMENT AND QUEST ITEMS RETAINED`, "system");
   stage="fallen"; add("(1) GET UP", "system");
 }
 function hurt(n) { player.hp = Math.max(0, player.hp - n); updateHud(); resultLine(`-${n} HP`, "danger"); if(player.hp<=0) handlePlayerDeath(); }
+const FACTORY_WEAPON_STATS={
+ "King's Breaker":{rarity:"rare",type:"weapon",min:17,max:24},
+ "Grinder's Cutter":{rarity:"rare",type:"weapon",min:20,max:27},
+ "Chemist's Injector":{rarity:"epic",type:"weapon",min:23,max:30},
+ "Foreman's Verdict":{rarity:"epic",type:"weapon",min:26,max:34},
+ 'Dockside Cleaver':{rarity:'rare',type:'weapon',min:16,max:25},
+ 'Salvage Hook':{rarity:'rare',type:'weapon',min:18,max:23},
+ 'Rotary Tooth':{rarity:'rare',type:'weapon',min:19,max:28},
+ 'Assembly Maul':{rarity:'rare',type:'weapon',min:21,max:26},
+ 'Containment Scalpel':{rarity:'epic',type:'weapon',min:22,max:31},
+ 'Reactive Prod':{rarity:'epic',type:'weapon',min:24,max:29},
+ 'Command Sledge':{rarity:'epic',type:'weapon',min:25,max:35},
+ 'Overseer Rail':{rarity:'epic',type:'weapon',min:27,max:33}
+};
 const GEAR={
+ ...FACTORY_WEAPON_STATS,
  "Balanced Hunting Knife":{rarity:"rare",type:"weapon",min:14,max:20},
  "Precision Hunting Rifle":{rarity:"rare",type:"weapon",min:16,max:22},
  "Reinforced Combat Machete":{rarity:"rare",type:"weapon",min:12,max:23},
@@ -352,12 +407,23 @@ const GEAR={
  "Insulated Patrol Coat":{rarity:"rare",type:"armor",def:7},
  "Rusted Pipe":{rarity:"common",type:"weapon",min:5,max:10},"Claw Hammer":{rarity:"uncommon",type:"weapon",min:7,max:13},"Tire Iron":{rarity:"rare",type:"weapon",min:13,max:20},"Yardman's Wrench":{rarity:"uncommon",type:"weapon",min:11,max:18},"Heavy Wrench":{rarity:"uncommon",type:"weapon",min:11,max:18},
  "Reinforced Pipe":{rarity:"uncommon",type:"weapon",min:7,max:12},"Tempered Steel Pipe":{rarity:"rare",type:"weapon",min:13,max:21},"Bluefang Hunting Knife":{rarity:"rare",type:"weapon",min:14,max:22},"Devastator's Iron Pipe":{rarity:"epic",type:"weapon",min:17,max:25},
- "Worn Jacket":{rarity:"common",type:"armor",def:2},"Reinforced Jacket":{rarity:"uncommon",type:"armor",def:4},"Padded Jacket":{rarity:"uncommon",type:"armor",def:4},"Reinforced Work Vest":{rarity:"uncommon",type:"armor",def:5},"Hardened Scavenger Coat":{rarity:"rare",type:"armor",def:7},"Highway Warden's Coat":{rarity:"rare",type:"armor",def:8},"Wraith's Reinforced Coat":{rarity:"epic",type:"armor",def:10}
+ "Worn Jacket":{rarity:"common",type:"armor",def:2},"Reinforced Jacket":{rarity:"uncommon",type:"armor",def:4},"Padded Jacket":{rarity:"uncommon",type:"armor",def:4},"Reinforced Work Vest":{rarity:"uncommon",type:"armor",def:5},"Hardened Scavenger Coat":{rarity:"rare",type:"armor",def:7},"Highway Warden's Coat":{rarity:"rare",type:"armor",def:8},"Wraith's Reinforced Coat":{rarity:"epic",type:"armor",def:10},
+ "Worn Leather Wristband":{rarity:"common",type:"accessory",def:1},
+ "Lucky Bottle Cap":{rarity:"common",type:"accessory",min:1,max:1},
+ "Reinforced Belt":{rarity:"common",type:"accessory",def:1},
+ "Scavenger's Charm":{rarity:"uncommon",type:"accessory",def:1,min:1,max:1},
+ "Rusted Dog Tags":{rarity:"uncommon",type:"accessory",def:2},
+ "Road Warrior's Bracelet":{rarity:"uncommon",type:"accessory",min:1,max:2},
+ "Niko's Lucky Vest":{rarity:"common",type:"armor",def:2},
+ "Giant Dog Bone":{rarity:"common",type:"consumable"},
+ "Rusty License Plate":{rarity:"common",type:"accessory",def:1},
+ "Niko's Collar":{rarity:"legendary",type:"accessory",def:3,maxHpBonus:15,critBonus:0.02,secondChance:true},
+ "Iron Reaper":{rarity:"rare",type:"weapon",min:18,max:27,bleedChance:0.10}
 };
 const RARITY_COLOR={common:"#e5e7eb",uncommon:"#22c55e",rare:"#3b82f6",epic:"#a855f7",legendary:"#f97316"};
 function gearLabel(name){const g=GEAR[name];return g?`${name} [${g.rarity.toUpperCase()}]`:name;}
-function armorDefense(){return GEAR[player.armor]?.def||0;}
-function weaponRange(){const g=GEAR[player.weapon];return g&&g.type==="weapon"?[g.min,g.max]:[5,10];}
+function armorDefense(){return (GEAR[player.armor]?.def||0)+(GEAR[player.accessory]?.def||0);}
+function weaponRange(){const g=GEAR[player.weapon],a=GEAR[player.accessory];return g&&g.type==="weapon"?[g.min+(a?.min||0),g.max+(a?.max||0)]:[5+(a?.min||0),10+(a?.max||0)];}
 function enemyHit(min,max) {
   const raw = Math.floor(Math.random()*(max-min+1))+min;
   const defense = armorDefense();
@@ -394,10 +460,16 @@ function showStatus() {
 function jenQuestObjective(){return ({active:"Find the missing runner's supply cart on eastern segment 3.",cart:"SEARCH SUPPLY CART at eastern segment 3. Return the crate to Jen.",recovered:"DELIVER JEN'S SUPPLY CRATE to Jen in Solace.",hideout:"Follow the runner's trail east to segment 5, near the abandoned checkpoint.",raiders:"SEARCH RAIDER CHECKPOINT at eastern segment 5 to rescue the runner.",fight:"Rescue the runner at the eastern checkpoint.",rescued:"DELIVER RUNNER'S TOKEN to Jen in Solace."})[player.flags.jenQuest]||"Find Jen in Solace.";}
 function showQuests(){
   add("──────────────── QUEST LOG ────────────────","system");
-  add("ACTIVE","bright"); let active=0;
+  add("MAIN QUEST","bright");
+  if(player.flags.chapterOneComplete){add('MAIN QUEST: COMPLETE','reward');add('Chapter One — The Road to Seaport','bright');add('Status: Completed','reward');add('Further chapters are in development.','system');add('TYPE: READ CHAPTER ONE to revisit the finale.','system');}
+  else if(typeof portQuestObjective==="function")add("THE ROAD TO SEAPORT — "+portQuestObjective(),"system");
+  add("ACTIVE SIDE QUESTS","bright"); let active=0;
   for(const [key,title,description] of [["jenQuest","LAST CALL","Search the eastern road for the supply cart; SEARCH SUPPLY CART; DELIVER JEN'S SUPPLY CRATE, then find the raider checkpoint and DELIVER RUNNER'S TOKEN."],["johnnyQuest","A DEAL GONE BAD","Search the western road for the ledger; SEARCH LEDGER; return to Johnny and DELIVER JOHNNY'S LEDGER."],["amiiQuest","THE MISSING DEPOSIT","Search the western road for the satchel; SEARCH SATCHEL; return to Amii and DELIVER BANK SATCHEL."],["waynePatientQuest","THE LAST PATIENT","Search the eastern road for medicine; SEARCH AMBULANCE; return to Wayne and DELIVER CLINIC MEDICINE."]]){if(player.flags[key]&&player.flags[key]!=="done"){active++;add(`SIDE — ${title} [${player.flags[key].toUpperCase()}]`);add(key==="jenQuest"?jenQuestObjective():description,"system");}}
+  for(const [key,title,description] of [["jenUnpaidTab","UNPAID TAB","Settle the tavern's outstanding 12-Bolt tab with Jen."],["jenFamiliarFace","A FAMILIAR FACE","Follow up with Jen about the traveler she recognizes."]]){if(player.flags[key]&&player.flags[key]!=="done"){active++;add(`SIDE — ${title} [${player.flags[key].toUpperCase()}]`);add(description,"system");}}
   if(player.flags.mainSolaceQuest!=="done"){active++;add("MAIN — HEAD TO SOLACE");add("Follow the coordinates logged in the battered GPS and reach Solace.","system");}
   if(["active","cleared"].includes(player.flags.houseQuest)){active++;add("SIDE — INVESTIGATE THE ABANDONED HOUSE");add(player.flags.houseQuest==="cleared"?"Lift the loose floorboard in the starting house to claim your wooden storage box.":"Return to the starting house west of Solace and investigate the recent occupation.","system");}
+  if(player.flags.timHouseBounty && player.flags.timHouseBounty!=="done"){active++;add(`BOUNTY — TROUBLE AT THE OLD HOUSE [${String(player.flags.timHouseBounty).toUpperCase()}]`);add(player.flags.timHouseBounty==="proof"?"Return to Tim with proof that the old-house squatter has been driven out.":"Investigate the occupied old house after Wayne unlocks the house lead, then defeat the squatter.","system");}
+  if(player.flags.terribleBillyBounty && player.flags.terribleBillyBounty!=="done"){active++;add(`BOUNTY — TERRIBLE BILLY [${String(player.flags.terribleBillyBounty).toUpperCase()}]`);add(player.flags.terribleBillyBounty==="proof"?"Return to Tim with proof that Terrible Billy has been stopped.":"On the road, use HUNT TERRIBLE BILLY to confront the wanted raider.","system");}
   if(["active","found"].includes(player.flags.timQuest)){active++;add("SIDE — THE OLD BADGE");add(player.flags.timQuest==="found"?"Return Tim's old badge to him in Solace.":"Search Route 127 between Solace and the old house.","system");}
   if(["active","found"].includes(player.flags.murphyQuest)){active++;add("SIDE — ONE GOOD BELT");add(player.flags.murphyQuest==="found"?"Return the usable serpentine belt to Murphy.":"Search near the service-road fork toward the old house.","system");}
   if(player.flags.relayQuest==="ask"){active++;add("MAIN — RELAY STATION");add("Ask around Solace about the Relay Station.","system");}
@@ -409,19 +481,23 @@ function showQuests(){
     else { add(`Recover four components needed to stabilize the Relay. PARTS ${count}/4.`,"system"); add(`${rp.johnny?"✓":"□"} POWER REGULATOR — Johnny may have something this old.`,"system"); add(`${rp.yard?"✓":"□"} ANTENNA SERVO — Search the county maintenance yard.`,"system"); add(`${rp.branch?"✓":"□"} SHIELDED FEED COUPLER — Search the Lower Access Road off the fork.`,"system"); add(`${rp.east?"✓":"□"} SIGNAL-CONDITIONING MODULE — Search old communications equipment east of Solace.`,"system"); if(count>=4)add("Return to the Relay Station and stabilize the connection.","bright"); }
   }
   if(!active)add("NONE","system");
-  add("");add("COMPLETED","bright"); let completed=0;
+  add("");add("COMPLETED QUESTS","bright"); let completed=0;
   for(const [key,title] of [["jenQuest","LAST CALL"],["johnnyQuest","A DEAL GONE BAD"],["amiiQuest","THE MISSING DEPOSIT"],["waynePatientQuest","THE LAST PATIENT"]]){if(player.flags[key]==="done"){completed++;add(`SIDE — ${title} — COMPLETE`,"reward");}}
+  for(const [key,title] of [["jenUnpaidTab","UNPAID TAB"],["jenFamiliarFace","A FAMILIAR FACE"]]){if(player.flags[key]==="done"){completed++;add(`SIDE — ${title} — COMPLETE`,"reward");}}
   if(player.flags.mainSolaceQuest==="done"){completed++;add("MAIN — HEAD TO SOLACE");add("Reached the settlement of Solace.","system");}
   if(player.flags.timQuest==="done"){completed++;add("SIDE — THE OLD BADGE");add("Returned Tim's old badge. Reward: 120 XP · 30 Bolts","system");}
   if(player.flags.murphyQuest==="done"){completed++;add("SIDE — ONE GOOD BELT");add("Brought Murphy a usable serpentine belt. Reward: 120 XP · 35 Bolts","system");}
   if(player.flags.houseQuest==="done"){completed++;add("SIDE — INVESTIGATE THE ABANDONED HOUSE");add("House claimed. Six-slot wooden storage box unlocked.","system");}
+  if(player.flags.timHouseBounty==="done"){completed++;add("BOUNTY — TROUBLE AT THE OLD HOUSE — COMPLETE","reward");add("Returned proof to Tim. Reward: 100 XP · 75 Bolts.","system");}
+  if(player.flags.terribleBillyBounty==="done"){completed++;add("BOUNTY — TERRIBLE BILLY — COMPLETE","reward");add("Stopped Terrible Billy and returned proof to Tim. Reward: 140 XP · 100 Bolts.","system");}
   if(player.flags.relayQuest==="complete"){completed++;add("MAIN — RELAY STATION: CONNECTION STABILIZED","reward");add("The Relay is operational. Contact with the Tomorrow Project established.","system");}
   if(!completed)add("NONE","system"); add("────────────────────────────────────────","system");add("(B) BACK","system");
 }
 function showEquipmentSummary(){
   const [low,high]=weaponRange();
   add(`WEAPON: ${gearLabel(player.weapon)}`,GEAR[player.weapon]?.rarity||"system");add(`        DMG ${low}–${high}`,"system");add("","system");
-  add(`ARMOR: ${gearLabel(player.armor)}`,GEAR[player.armor]?.rarity||"system");add(`       DEF ${armorDefense()}`,"system");
+  add(`PET: ${player.flags?.equippedPet||"None"} — MANAGE PETS`,"system");
+  add(`ARMOR: ${gearLabel(player.armor)}`,GEAR[player.armor]?.rarity||"system");add(`       DEF ${armorDefense()}`,"system");add(`ACCESSORY: ${player.accessory?gearLabel(player.accessory):"None"}`,GEAR[player.accessory]?.rarity||"system");
 }
 function showInventory() {
   numberedChoices={};currentHotkeys={b:"back"};refreshInterfaceShortcutLabels();
@@ -436,6 +512,13 @@ function showInventory() {
     add(item?`[${i+1}] ${gearLabel(item.name)}${item.qty>1?` ×${item.qty}`:""}  <${item.type.toUpperCase()}>`:`${i+1}. EMPTY`,item&&GEAR[item.name]?GEAR[item.name].rarity:"system");
   }
   if(keys.length){ add("KEY ITEMS", "bright"); keys.forEach(i=>add(`• ${i.name}${i.qty>1?` ×${i.qty}`:""}`)); }
+  // Relay parts are durable quest flags, not physical backpack items.
+  if(player.flags.relayPartsRevealed || player.flags.relayQuest==="stabilize" || player.flags.relayQuest==="complete"){
+    const parts=ensureRelayParts();
+    add("RELAY COMPONENTS — QUEST STORAGE (NO PACK SLOTS)","bright");
+    for(const [key,label] of [["johnny","Power Regulator"],["yard","Antenna Servo"],["branch","Shielded Feed Coupler"],["east","Signal-Conditioning Module"]])
+      add(`${parts[key]?"✓":"□"} ${label}`,"system");
+  }
   add("Select an item by NUMBER. Full commands still work.", "system");
   add("────────────────────────────────────────", "system");
   add("(B) BACK","system");
@@ -488,7 +571,7 @@ async function showInventoryItem(name){
   stage="inventoryItem";
   inspectItem(item.name);
   await outputQueue;
-  const actions = item.type==="weapon" || item.type==="armor" ? "(E) EQUIP   (D) DROP   (B) BACK" : item.name==="Battered Flashlight"
+  const actions = item.type==="weapon" || item.type==="armor" || item.type==="accessory" ? "(E) EQUIP   (D) DROP   (B) BACK" : item.name==="Battered Flashlight"
     ? "(D) DISMANTLE   (B) BACK"
     : item.type==="consumable"
       ? (player.hp<player.maxHp?"(U) USE   (D) DROP   (B) BACK":"(D) DROP   (B) BACK")
@@ -573,6 +656,7 @@ function saveLocationLabel(data){
   if(s==="mercy"||s==="settlement") return "SOLACE";
   if(s==="house"||s==="roadReady") return "OLD HOUSE";
   if(s==="encounter"||s==="between") return "ROUTE 127";
+  if(s.startsWith("factoryDungeon"))return "FACTORY INTERIOR";
   if(s.startsWith("factory"))return "FACTORY WORKSHOP";
   if(s==="eastEnd")return "FACTORY EXTERIOR";
   return s.toUpperCase();
@@ -612,13 +696,14 @@ function showV49TitleConfirm(){add('RETURN TO TITLE SCREEN? Unsaved progress wil
 function v49ReturnToTitle(){cancelCasinoOnLoad();currentHotkeys={};numberedChoices={};pendingSaveSlot=null;returnStage=null;titleScreen();}
 function resetPlayer(){
   combatState=null;currentRoadWanderer=null;currentTownWanderer=null;returnStage=null;
-  Object.assign(player,{handle:"",level:1,hp:100,maxHp:100,xp:0,nextXp:100,bolts:12,bankBolts:0,turns:50,maxTurns:TURN_CAP,weapon:"Rusted Pipe",armor:"Worn Jacket",pack:[{name:"Energy Bars",qty:2,type:"consumable"},{name:"Battered Flashlight",qty:1,type:"tool"},{name:"Tent",qty:1,type:"supply"}],packMax:8,flags:{billboard:false,helpedTraveler:false,travelerInSolace:false,houseBandage:false,forkDiscovered:false,mercyDiscovered:false,serviceBossDead:false,serviceReward:false,rentedRoom:false,timQuest:"locked",timQuestSteps:0,murphyQuest:"locked",murphyQuestSteps:0,pendingQuest:"",mainSolaceQuest:"active",relayQuest:"locked",relayUnlocked:false,relayVisited:false,interfaceUnlocked:false,roomSearched:false,introFailed:false,worldHour:8,relayInspected:{},relayPartsRevealed:false,relayParts:{johnny:false,yard:false,branch:false,east:false},relayJohnnyAsked:false,relayBranchDiscovered:false,eastRouteDiscovered:false},wandererState:{},recentEncounters:[],deathStreak:0,encounterDone:{},houseStorage:[],houseBoxMax:6,stash:[],dailyDeal:["Energy Bars","Bandage","Reinforced Jacket","Claw Hammer","Tire Iron"][Math.floor(Math.random()*5)]});
+  Object.assign(player,{handle:"",level:1,hp:100,maxHp:100,xp:0,nextXp:100,bolts:12,bankBolts:0,turns:50,maxTurns:TURN_CAP,lifetimeTurns:0,weapon:"Rusted Pipe",armor:"Worn Jacket",accessory:null,pack:[{name:"Energy Bars",qty:2,type:"consumable"},{name:"Battered Flashlight",qty:1,type:"tool"},{name:"Tent",qty:1,type:"supply"}],packMax:8,flags:{billboard:false,helpedTraveler:false,travelerInSolace:false,houseBandage:false,forkDiscovered:false,mercyDiscovered:false,serviceBossDead:false,serviceReward:false,rentedRoom:false,timQuest:"locked",timQuestSteps:0,murphyQuest:"locked",murphyQuestSteps:0,pendingQuest:"",mainSolaceQuest:"active",relayQuest:"locked",relayUnlocked:false,relayVisited:false,interfaceUnlocked:false,roomSearched:false,introFailed:false,worldHour:8,relayInspected:{},relayPartsRevealed:false,relayParts:{johnny:false,yard:false,branch:false,east:false},relayJohnnyAsked:false,relayBranchDiscovered:false,eastRouteDiscovered:false},wandererState:{},recentEncounters:[],deathStreak:0,encounterDone:{},houseStorage:[],houseBoxMax:6,stash:[],dailyDeal:["Energy Bars","Bandage","Reinforced Jacket","Claw Hammer","Tire Iron"][Math.floor(Math.random()*5)]});
   ensureHousing();
   player.vendorStock=null;player.vendorSold=[];player.vendorRefreshes=0;refreshVendorStock();
   roadTurn=0; dailyRoadTurns=0; roadTurnCharged=false; roadGoal="mercy"; roadTripLength=9; mercyLocation="town"; rerollRoad(9); updateHud();
 }
 function skipIntroForTesting(){
   resetPlayer();
+  player.flags.interfaceUnlocked=true;
   hud.classList.remove("hidden"); utilityPanel.classList.remove("hidden"); screen.innerHTML=""; signal.textContent="SIGNAL LOGGED";
   add("TEST START — INTRO SKIPPED", "system");
   add("The Solace coordinates are already logged.", "system");
@@ -712,10 +797,12 @@ function loadGame(slot=activeSaveSlot){
   if(slot!=="auto")activeSaveSlot=slot;else if(data)activeSaveSlot=[1,2,3].includes(data.manualSlot)?data.manualSlot:0;
   if(!data){ add("SAVE GAME 01 is empty.", "system"); return; }
   Object.assign(player,data.player||{});
+  if(player.accessory===undefined)player.accessory=null;
   player.vendorStock=Array.isArray(data.player&&data.player.vendorStock)?[...data.player.vendorStock]:["Rusted Pipe","Worn Jacket","Claw Hammer"];
   player.vendorSold=Array.isArray(data.player&&data.player.vendorSold)?[...data.player.vendorSold]:[];
   ensureVendorStock();
   player.houseStorage=Array.isArray(data.player&&data.player.houseStorage)?data.player.houseStorage.map(i=>({...i})):[];
+  player.rustyRoomChest=Array.isArray(data.player&&data.player.rustyRoomChest)?data.player.rustyRoomChest.map(i=>({...i})):[];
   player.houseBoxMax=6;
   ensureRelayParts();ensureHousing();
   player.flags=player.flags||{};
@@ -724,8 +811,10 @@ function loadGame(slot=activeSaveSlot){
   if(player.flags.travelerInSolace===undefined && savedFlags.travelerInMercy!==undefined) player.flags.travelerInSolace=savedFlags.travelerInMercy;
   const hadInterfaceFlag=savedFlags.interfaceUnlocked!==undefined;
   for(const [k,v] of Object.entries({timQuest:"locked",timQuestSteps:0,murphyQuest:"locked",murphyQuestSteps:0,pendingQuest:"",overnight:"",overnightLocked:false,nextRefillAt:Date.now()+REFILL_MS,wandererRoadCooldown:0,mainSolaceQuest:(player.flags.mercyDiscovered?"done":"active"),relayQuest:"locked",relayUnlocked:false,relayVisited:false,interfaceUnlocked:false,roomSearched:false,introFailed:false,worldHour:8,relayInspected:{}})) if(player.flags[k]===undefined) player.flags[k]=v;
-  if(!hadInterfaceFlag) player.flags.interfaceUnlocked=!( ["wake","wakeNamed","handle","confirmHandle","standing","hello","listen","savecoords"].includes(data.stage) );
+  const openingStages=["wake","wakeNamed","handle","confirmHandle","standing","hello","listen","savecoords"];
+  if(!hadInterfaceFlag || (player.flags.interfaceUnlocked===false && !openingStages.includes(data.stage))) player.flags.interfaceUnlocked=!openingStages.includes(data.stage);
   if(player.flags.mercyDiscovered && player.flags.relayQuest==="locked") player.flags.relayQuest="ask";
+  if(!Number.isFinite(Number(player.lifetimeTurns))) player.lifetimeTurns=Math.max(0,Number(data.dailyRoadTurns)||0);
   player.maxTurns=TURN_CAP; player.turns=Math.max(0,Math.min(TURN_CAP,Number(player.turns)||0));
   if(player.flags.relayQuest==="complete" && player.flags.factoryQuest===undefined) player.flags.factoryQuest="active";
   testMode=false;
@@ -755,7 +844,9 @@ function loadGame(slot=activeSaveSlot){
   }
   else if(["houseStorage","houseDeposit","houseWithdraw"].includes(stage)){showHouseStorage(stage);}
   else if(stage==="house") arriveHouse();
-  else if(stage==="mercy"){add("SOLACE","place");showSolaceContext();}
+  else if(["port55Vendor","port55Pets","port55Kaiden","port55Mia","port55Docks","port55Stop"].includes(stage))port55Resume();
+  else if(["portRoad","seaport","portMarket","portClinic","portDocks","portWatch"].includes(stage))portMenu();
+  else if(stage==="mercy"){if(!(typeof port55CasinoRestore==="function"&&port55CasinoRestore())){add("SOLACE","place");showSolaceContext();}}
   else if(stage==="settlement"){ add("SOLACE GATE", "place"); add("The settlement waits beyond the barricade."); add("(P) APPROACH GATE", "system"); }
   else if(stage==="wandererRoad" && currentRoadWanderer){
     const w=wandererByName(currentRoadWanderer);
@@ -980,102 +1071,102 @@ const encounters = [
   { title:"THE TRAVELER", text:"A woman sits against a mile marker, one sleeve dark with blood. A small pack lies just beyond her reach. She watches you approach without asking for help.", choices:"USE BANDAGE   GIVE RATION   QUESTION HER   TAKE PACK   WALK AWAY",
     resolve(cmd){ if(cmd.includes("bandage")){if(!hasItem("Bandage")){add("You don't have a bandage.","system");return false;} removeItem("Bandage");player.flags.helpedTraveler=true;player.flags.travelerInSolace=true;gainXp(22);add("She tells you the Solace guards trade fair if you don't lie to them. 'Tell Mara that Vale sent you.'");} else if(cmd.includes("ration")||cmd.includes("give")){if(!hasItem("Energy Bars")){add("You don't have an energy bar to spare.","system");return false;} removeItem("Energy Bars");gainXp(15);add("She eats slowly and points east. 'You're close.'");} else if(cmd.includes("question")){gainXp(8);add("She gives you one useful word: Solace. Then closes her eyes.");} else if(cmd.includes("take")||cmd.includes("pack")){gainBolts(14);addPack("Wire");gainXp(8);add("She doesn't stop you. Somehow that makes it worse.","danger");} else if(cmd.includes("walk")||cmd.includes("away")){add("You keep walking. The mile marker disappears behind you.");} else return false; return true;} },
   { title:"RIDGELINE", text:"The road crests a long hill. For the first time you see walls in the distance—sheet metal, old buses, timber, smoke. A settlement. Off the shoulder, a wrecked utility truck still has one closed compartment.", choices:"HEAD FOR LIGHTS   SEARCH TRUCK   WATCH SETTLEMENT   WAIT",
-    resolve(cmd){ if(cmd.includes("truck")||cmd.includes("search")){gainBolts(8);addPack("Scrap Metal");gainXp(10);add("You make one last salvage stop before the descent.");} else if(cmd.includes("watch")){gainXp(12);add("You count two guards, one gate, and smoke from at least a dozen chimneys.");} else if(cmd.includes("head")||cmd.includes("light")){gainXp(15);add("You tighten your pack straps and start down the hill.");} else if(cmd.includes("wait")){add("You listen for gunfire. None comes. Eventually you move on.");} else return false; return true;} },
+    resolve(cmd){ if(cmd.includes("truck")||cmd.includes("search")){gainBolts(8);addPack("Scrap Metal");gainXp(10);add("You make one last salvage stop before the descent.");} else if(cmd.includes("watch")){gainXp(12);add("You count two guards, one gate, and smoke from at least a dozen chimneys.");} else if(cmd.includes("head")||cmd.includes("light")){add("You tighten your pack straps and start down the hill.");} else if(cmd.includes("wait")){add("You listen for gunfire. None comes. Eventually you move on.");} else return false; return true;} },
   { exclusive:true, title:"THE BIG MAN", text:"A broad-shouldered scavenger steps into the road. He is bigger than you by a lot, wearing a tire-tread vest and carrying a length of chain. He looks at your pack, then at you. 'Toll road.'", choices:"FIGHT HIM   PAY 6 BOLTS   BACK DOWN",
-    resolve(cmd){ if(cmd.includes("fight")){ const dealt=rollDamage(); add(`You catch him once with the pipe for ${dealt} damage. It only makes him angry.`,"bright"); enemyHit(34,46); const stolen=Math.min(player.bolts,Math.floor(Math.random()*6)+5); player.bolts-=stolen; updateHud(); add(`You wake in the ditch. He took ${stolen} Bolts, but left you breathing.`,"danger"); gainXp(18);} else if(cmd.includes("pay")){ if(player.bolts<6){add("You don't have 6 Bolts.","system");return false;} player.bolts-=6;updateHud();gainXp(6);add("He weighs the bolts in his palm and waves you through.");} else if(cmd.includes("back")){gainXp(4);add("You swallow your pride and take the long way around. Sometimes surviving is the win.");} else return false; return true;} },
+    resolve(cmd){ if(cmd.includes("fight")){ const dealt=rollDamage(); add(`You catch him once with the pipe for ${dealt} damage. It only makes him angry.`,"bright"); enemyHit(34,46); const stolen=Math.min(player.bolts,Math.floor(Math.random()*6)+5); player.bolts-=stolen; updateHud(); add(`You wake in the ditch. He took ${stolen} Bolts, but left you breathing.`,"danger"); gainXp(18);} else if(cmd.includes("pay")){ if(player.bolts<6){add("You don't have 6 Bolts.","system");return false;} player.bolts-=6;updateHud();gainXp(6);add("He weighs the bolts in his palm and waves you through.");} else if(cmd.includes("back")){add("You swallow your pride and take the long way around. Sometimes surviving is the win.");} else return false; return true;} },
   { title:"BROKEN MOTEL", text:"A six-room roadside motel sags toward the highway. Two doors stand open. A third is chained shut from the outside.", choices:"SEARCH ROOM 2   CHECK OFFICE   INSPECT CHAINED ROOM   MOVE ON",
     resolve(cmd){ if(cmd.includes("room 2")){hurt(5);gainBolts(8);gainXp(10);add("A rotten floorboard gives way, but an old toolbox pays for the bruise.");} else if(cmd.includes("office")){addPack("Energy Bars","consumable");gainXp(8);add("One sealed energy bar survives behind the desk.");} else if(cmd.includes("chain")){gainXp(8);add("A heavy chain loops twice through the handles and a battered padlock holds it tight. The door is reinforced from the outside.");add("Fresh scratches score the bottom of the frame—from the inside.","bright");add("You can’t tell whether something was trying to get in... or get out.");} else return false; return true;} },
   { exclusive:true, title:"HIGHWAY ROBBERS", text:"Two figures rise from behind the guardrail. One has a tire iron. The other has a homemade spear. 'Pack on the ground.'", choices:"FIGHT   THROW 5 BOLTS   RUN",
-    resolve(cmd){ if(cmd.includes("fight")){const dealt=rollDamage();add(`Your pipe lands for ${dealt} damage.`,"bright");enemyHit(18,28);gainBolts(9);gainXp(24);add("They break first and disappear into the weeds.");} else if(cmd.includes("throw")){const paid=Math.min(5,player.bolts);player.bolts-=paid;updateHud();gainXp(8);add(`You scatter ${paid} Bolts across the pavement and move while they scramble for them.`);} else if(cmd.includes("run")){hurt(6);gainXp(6);add("You get away, but not before the spear catches your jacket.");} else return false;return true;} },
+    resolve(cmd){ if(cmd.includes("fight")){const dealt=rollDamage();add(`Your pipe lands for ${dealt} damage.`,"bright");enemyHit(18,28);gainBolts(9);gainXp(24);add("They break first and disappear into the weeds.");} else if(cmd.includes("throw")){if(player.bolts<5){add("You need 5 Bolts to distract both robbers.","system");return false;}const paid=5;player.bolts-=paid;updateHud();add(`You scatter ${paid} Bolts across the pavement and move while they scramble for them.`);} else if(cmd.includes("run")){if(Math.random()<0.6){add("You break line of sight and escape both robbers without injury.");}else{hurt(15);add("The spear catches you hard before you escape.","danger");}} else return false;return true;} },
   { title:"DRAINAGE CULVERT", text:"Rainwater trickles through a concrete culvert beneath the highway. Something reflective glints twenty feet inside. The concrete around the entrance is slick with moss.", choices:"CLIMB INSIDE   REACH FROM EDGE   SEARCH BANK   MOVE ON",
     resolve(cmd){ if(cmd.includes("inside")){hurt(7);gainBolts(13);gainXp(12);add("You slip hard, but the glint is a pouch of machine hardware.");} else if(cmd.includes("reach")){gainBolts(4);gainXp(6);add("You snag only what you can reach without committing to the tunnel.");} else if(cmd.includes("bank")){addPack("Cloth");gainXp(5);add("A weatherproof scrap of fabric is tangled in the brush.");} else return false;return true;} },
   { exclusive:true, title:"ROACH NEST", text:"A rusted delivery van rocks once on its dead suspension. Then fist-sized roaches begin pouring from beneath it, antennae twitching toward you.", choices:"CRUSH THEM   KICK OPEN VAN   BACK AWAY",
-    resolve(cmd){ if(cmd.includes("crush")){hurt(5);gainXp(16);gainBolts(3);add("The pipe makes ugly work of the swarm. A few usable bolts lie beneath the nest.");} else if(cmd.includes("kick")||cmd.includes("van")){hurt(9);gainXp(20);gainBolts(7);addPack("Scrap Metal");add("You crack the van open, fight through the nest, and salvage what's left inside.");} else if(cmd.includes("back")){gainXp(3);add("You decide the van belongs to the roaches.");} else return false; return true;} },
+    resolve(cmd){ if(cmd.includes("crush")){hurt(5);gainXp(25);gainBolts(8);add("The pipe makes ugly work of the swarm. A few usable bolts lie beneath the nest.");} else if(cmd.includes("kick")||cmd.includes("van")){hurt(9);gainXp(20);gainBolts(7);addPack("Scrap Metal");add("You crack the van open, fight through the nest, and salvage what's left inside.");} else if(cmd.includes("back")){add("You decide the van belongs to the roaches.");} else return false; return true;} },
   { exclusive:true, title:"TUNNEL RATS", text:"A pack of oversized rats spills from a storm drain and fans across the road. There are too many to ignore if you keep walking straight.", choices:"FIGHT PACK   CLIMB WRECK   THROW FOOD",
     resolve(cmd){ if(cmd.includes("fight")){hurt(12);gainXp(22);gainBolts(4);add("They swarm your boots until the pipe convinces the survivors to scatter.");} else if(cmd.includes("climb")||cmd.includes("wreck")){hurt(4);gainXp(10);add("You scramble onto a wreck and wait them out. One gets a bite in first.");} else if(cmd.includes("food")||cmd.includes("throw")){if(!hasItem("Energy Bars")){add("You don't have food to throw.","system");return false;} removeItem("Energy Bars");gainXp(12);add("The pack follows the food into the weeds. Effective, if expensive.");} else return false; return true;} },
   { exclusive:true, title:"FERAL DOG", text:"A scarred dog steps from the brush with its head low and teeth showing. This one is not asking to be rescued.", choices:"FIGHT DOG   OFFER FOOD   HOLD GROUND",
     resolve(cmd){ if(cmd.includes("fight")){hurt(15);gainXp(24);add("Fast, mean, and desperate. You drive it off before it can do worse.");} else if(cmd.includes("food")||cmd.includes("offer")){if(!hasItem("Energy Bars")){add("You don't have food to offer.","system");return false;} removeItem("Energy Bars");gainXp(16);add("The dog snatches the food and disappears into the brush.");} else if(cmd.includes("hold")){hurt(6);gainXp(14);add("You keep the pipe raised and refuse to run. After a long stare, it backs away.");} else return false; return true;} },
   { exclusive:true, title:"LONE SCAVENGER", text:"A scavenger is stripping copper from a wreck when he spots you. His hand drops to a short blade. Neither of you looks eager to share the shoulder.", choices:"FIGHT   OFFER TRADE   WARN HIM OFF",
-    resolve(cmd){ if(cmd.includes("fight")){hurt(14);gainXp(25);gainBolts(8);add("He gives ground after two hard exchanges and leaves a pouch behind.");} else if(cmd.includes("trade")||cmd.includes("offer")){if(player.bolts<4){add("You need 4 Bolts to make the offer.","system");return false;} player.bolts-=4;updateHud();addPack("Wire");gainXp(12);add("Four Bolts buys a coil of stripped wire and a peaceful road.");} else if(cmd.includes("warn")){gainXp(10);add("You tap the pipe against the guardrail. He decides another wreck will do.");} else return false; return true;} },
+    resolve(cmd){ if(cmd.includes("fight")){hurt(14);gainXp(25);gainBolts(8);add("He gives ground after two hard exchanges and leaves a pouch behind.");} else if(cmd.includes("trade")||cmd.includes("offer")){if(player.bolts<4){add("You need 4 Bolts to make the offer.","system");return false;} player.bolts-=4;updateHud();addPack("Wire");gainXp(12);add("Four Bolts buys a coil of stripped wire and a peaceful road.");} else if(cmd.includes("warn")){if(Math.random()<0.6){gainXp(10);add("You tap the pipe against the guardrail. He decides another wreck will do.");}else{hurt(7);gainXp(4);add("He lunges before backing off. The blade catches your arm, and neither of you gets the copper.","danger");}} else return false; return true;} },
   { exclusive:true, title:"GANG LOOKOUT", text:"A teenager in a patched road vest watches from an overpass with a hunting knife and a whistle. You spot him a second before he can signal whoever is nearby.", choices:"RUSH HIM   SNEAK AROUND   INTIMIDATE",
-    resolve(cmd){ if(cmd.includes("rush")){hurt(10);gainXp(23);gainBolts(5);add("You reach him before the whistle does. He bolts, dropping a small hardware pouch.");} else if(cmd.includes("sneak")){gainXp(14);add("You vanish through the drainage weeds before he gets a clean look at you.");} else if(cmd.includes("intimidate")){gainXp(16);add("You point the pipe at the whistle. He thinks better of testing you.");} else return false; return true;} },
+    resolve(cmd){ if(cmd.includes("rush")){hurt(10);gainXp(23);gainBolts(5);add("You reach him before the whistle does. He bolts, dropping a small hardware pouch.");} else if(cmd.includes("sneak")){add("You vanish through the drainage weeds before he gets a clean look at you.");} else if(cmd.includes("intimidate")){gainXp(16);add("You point the pipe at the whistle. He thinks better of testing you.");} else return false; return true;} },
   { exclusive:true, title:"THE CRAWLER", text:"Something pale shifts beneath an overturned station wagon. A long arm reaches into the daylight, followed by a shape that moves too quickly on all fours.", choices:"FIGHT CRAWLER   CLIMB BARRIER   RETREAT",
     resolve(cmd){ if(cmd.includes("fight")){hurt(19);gainXp(30);gainBolts(6);addPack("Chemicals");add("It finally stops moving. A scavenger's torn satchel nearby still holds useful chemicals.");} else if(cmd.includes("climb")||cmd.includes("barrier")){hurt(7);gainXp(15);add("You get over the concrete divider before it reaches you.");} else if(cmd.includes("retreat")){gainXp(5);add("You give the wreck a very wide berth. Whatever it is can keep the car.");} else return false; return true;} },
   { exclusive:true, title:"SECURITY DRONE", text:"A squat pre-collapse highway security unit twitches awake beside a ruined toll booth. One optic burns weak red. 'RESTRICTED... CORRIDOR... PRESENT... AUTHORIZATION.'", choices:"SMASH DRONE   CIRCLE BEHIND   MOVE ON",
-    resolve(cmd){ if(cmd.includes("smash")||cmd.includes("drone")){hurt(22);gainXp(34);addPack("Electronics");gainBolts(8);add("The pipe dents more than it breaks, but eventually the old machine dies. Its control board is still salvageable.");} else if(cmd.includes("circle")||cmd.includes("behind")){hurt(6);gainXp(18);addPack("Wire");add("Its damaged optic can't track you through the booth. You pull loose cable on the way past.");} else return false; return true;} },
+    resolve(cmd){ if(cmd.includes("smash")||cmd==="fight drone"){hurt(22);gainXp(34);addPack("Electronics");gainBolts(8);add("The pipe dents more than it breaks, but eventually the old machine dies. Its control board is still salvageable.");} else if(cmd.includes("circle")||cmd.includes("behind")){if(Math.random()<0.65){gainXp(18);addPack("Wire","material");add("You slip behind its damaged optic and recover useful wiring without drawing fire.");}else{hurt(10);gainXp(9);add("The drone catches your movement and fires before you reach cover.","danger");}} else if(cmd.includes("move on")||cmd.includes("leave")){add("You leave the dormant security drone behind without disturbing it.");}else return false; return true;} },
   { exclusive:true, title:"THE WRECKERS", text:"Two raiders are stripping an ambulance on the shoulder. One notices you and rests a pry bar across his shoulder. 'Plenty here. None of it yours.'", choices:"FIGHT WRECKERS   BARGAIN   STEAL SUPPLIES",
     resolve(cmd){ if(cmd.includes("fight")){hurt(20);gainXp(32);gainBolts(10);addPack("Bandage","consumable");add("They run when the fight stops being easy. The ambulance gives up one clean bandage.");} else if(cmd.includes("bargain")){if(player.bolts<5){add("You need 5 Bolts to bargain.","system");return false;} player.bolts-=5;updateHud();addPack("Bandage","consumable");gainXp(12);add("Five Bolts buys a sealed bandage and no broken teeth.");} else if(cmd.includes("steal")){hurt(11);gainXp(24);addPack("Bandage","consumable");add("You grab a medical pouch and run. The thrown pry bar nearly ruins the plan.");} else return false; return true;} },
   { exclusive:true, title:"SOMETHING IN THE DRAIN", text:"A metal scraping sound follows you beneath a cracked section of highway. A maintenance grate shudders. Something on the other side is breathing.", choices:"OPEN GRATE   POKE WITH PIPE   WALK AROUND",
     resolve(cmd){ if(cmd.includes("open")){hurt(18);gainXp(28);gainBolts(9);add("The thing hits the grate harder than expected. You win the argument and find a dead scavenger's bolt pouch inside.");} else if(cmd.includes("poke")||cmd.includes("pipe")){hurt(8);gainXp(18);add("Bad idea. Useful information, but still a bad idea.","danger");} else if(cmd.includes("walk")||cmd.includes("around")){gainXp(4);add("You decide some mysteries deserve privacy.");} else return false; return true;} },
-  {exclusive:true, title:"THE HANGING SHOES", text:"Shoes sway from a cable across the road. One pair has been tied with bright copper wire.", choices:"CUT DOWN SHOES   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("shoes") && !cmd.includes("cut")) return false; gainBolts(5);addPack("Wire","material");gainXp(9);add("You recover a length of copper wire and a small pouch tucked in a boot.");return true;}},
-  {exclusive:true, title:"THE LAST MAIL", text:"A postal truck is wedged against a concrete barrier. Hundreds of envelopes carpet the floor.", choices:"SORT PARCELS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("parcels") && !cmd.includes("sort")) return false; gainBolts(5);addPack("Cloth","material");gainXp(9);add("A parcel contains a sealed roll of cloth and a few useful fasteners.");return true;}},
-  {exclusive:true, title:"THE FALSE SHOULDER", text:"The asphalt shoulder looks solid until a pebble drops straight through it.", choices:"PROBE GROUND   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("ground") && !cmd.includes("probe")) return false; gainXp(11);add("You find a safe crossing and mark the sinkhole with white stones.");return true;}},
-  {exclusive:true, title:"CEMETERY OF TIRES", text:"Stacks of tires form a maze beneath a collapsed overpass. Something metallic glints at its center.", choices:"ENTER MAZE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("maze") && !cmd.includes("enter")) return false; hurt(2);gainBolts(6);addPack("Scrap Metal","material");gainXp(12);add("A forgotten toolbox waits in the middle of the rubber walls.");return true;}},
-  {exclusive:true, title:"THE HONEY JAR", text:"A beekeeper suit hangs in a dead orchard. Bees still crowd a hollow tree.", choices:"SMOKE HIVE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("hive") && !cmd.includes("smoke")) return false; hurt(3);gainBolts(10);gainXp(10);add("You coax the swarm aside and find a sealed jar of honey, traded later for Bolts.");return true;}},
-  {exclusive:true, title:"SALT ON THE ROAD", text:"A perfect circle of salt surrounds an overturned chair. The tracks outside stop abruptly.", choices:"INSPECT CIRCLE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("circle") && !cmd.includes("inspect")) return false; gainBolts(8);gainXp(10);add("The chair hides a small tin of coins and a message: DO NOT SIT.");return true;}},
-  {exclusive:true, title:"THE PAPER STORM", text:"A gust fills the highway with old court records. One sheet carries a map drawn on the back.", choices:"FOLLOW PAPERS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("papers") && !cmd.includes("follow")) return false; gainBolts(4);addPack("Scrap Metal","material");gainXp(11);add("The map leads to a dry culvert containing scrap.");return true;}},
-  {exclusive:true, title:"THE CAROUSEL HORSE", text:"A chipped fiberglass horse stands in a ditch, bolted to a concrete slab.", choices:"EXAMINE BASE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("base") && !cmd.includes("examine")) return false; gainBolts(9);gainXp(9);add("The base conceals a rusted cash box full of usable fasteners.");return true;}},
-  {exclusive:true, title:"THE LOCKED FREEZER", text:"A restaurant freezer lies in the sun with a padlock on its door. Something knocks inside when the wind blows.", choices:"BREAK PADLOCK   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("padlock") && !cmd.includes("break")) return false; hurt(2);gainBolts(4);addPack("Cloth","material");gainXp(10);add("The knocking was a loose shelf. The insulated lining can be salvaged.");return true;}},
-  {exclusive:true, title:"THE BRIDGE TOLL", text:"An old man has painted a toll booth on a sheet of plywood. He insists payment can be a joke.", choices:"(T) TELL JOKE   (B) BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("joke") && !cmd.includes("tell")) return false; gainBolts(3);gainXp(10);add("He laughs at the worst joke he has heard in years and hands over a bolt for the effort.");return true;}},
-  {exclusive:true, title:"THE RAIN BARREL", text:"A row of barrels catches runoff beneath a ruined greenhouse. One is filled with glass marbles.", choices:"SIFT MARBLES   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("marbles") && !cmd.includes("sift")) return false; gainBolts(3);addPack("Wire","material");gainXp(10);add("Under the marbles sits a watertight repair kit.");return true;}},
-  {exclusive:true, title:"THE BURNT LIBRARY", text:"Books spill from a scorched bookmobile. One shelf has escaped the flames.", choices:"SALVAGE BOOKS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("books") && !cmd.includes("salvage")) return false; addPack("Bandage","consumable");gainXp(13);add("You find a field guide with practical first-aid notes.");return true;}},
-  {exclusive:true, title:"THE GARDEN GNOMES", text:"Dozens of painted gnomes face the same empty window. Fresh soil surrounds the smallest.", choices:"DIG NEAR GNOME   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("gnome") && !cmd.includes("dig")) return false; gainBolts(11);gainXp(8);add("Someone buried a stash of Bolts beneath the smallest statue.");return true;}},
-  {exclusive:true, title:"THE MISSING STAIRS", text:"A stairwell rises from an empty foundation and ends at a door suspended in air.", choices:"CLIMB STAIRS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("stairs") && !cmd.includes("climb")) return false; hurt(3);gainBolts(4);addPack("Cloth","material");gainXp(12);add("Behind the doorframe is a hook with a forgotten canvas bag.");return true;}},
-  {exclusive:true, title:"THE WASH LINE", text:"Clean bedsheets hang between two dead trees. No house stands within sight.", choices:"CHECK CLOTHESLINE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("clothesline") && !cmd.includes("check")) return false; addPack("Cloth","material");gainXp(10);add("The sheets are patched with surprisingly durable cloth.");return true;}},
-  {exclusive:true, title:"THE PAINTED ARROWS", text:"Bright arrows have been painted across the pavement, each pointing in a different direction.", choices:"FOLLOW BLUE ARROW   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("arrow") && !cmd.includes("follow")) return false; gainBolts(7);gainXp(12);add("The blue arrow ends at a hidden cache under a guardrail.");return true;}},
-  {exclusive:true, title:"THE WHEELBARROW", text:"A wheelbarrow full of stones sits in the center lane. A steel case is buried underneath.", choices:"UNLOAD STONES   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("stones") && !cmd.includes("unload")) return false; hurt(2);gainBolts(5);addPack("Scrap Metal","material");gainXp(12);add("You lift the last stone and claim the case of salvaged fittings.");return true;}},
-  {exclusive:true, title:"THE SILENT PICNIC", text:"A picnic blanket holds four empty plates and a chessboard midgame. The food is long gone.", choices:"STUDY CHESSBOARD   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("chessboard") && !cmd.includes("study")) return false; gainBolts(6);gainXp(10);add("A hollow chess piece hides a handful of Bolts.");return true;}},
-  {exclusive:true, title:"THE COIN WELL", text:"A roadside wishing well has dried out. Its bottom glitters with offerings.", choices:"(D) DESCEND WELL   (B) BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("well") && !cmd.includes("descend")) return false; hurt(4);gainBolts(12);gainXp(12);add("You climb back up with a fistful of hardware and scraped knuckles.");return true;}},
-  {exclusive:true, title:"THE FENCE ARTIST", text:"Someone has woven a giant bird from scrap into a chain-link fence.", choices:"INSPECT SCULPTURE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("sculpture") && !cmd.includes("inspect")) return false; gainBolts(2);addPack("Scrap Metal","material");gainXp(10);add("A removable wing makes a useful strip of metal.");return true;}},
-  {exclusive:true, title:"THE MILK CRATES", text:"A pyramid of crates blocks a driveway. A ratty flag marks the top.", choices:"SHIFT CRATES   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("crates") && !cmd.includes("shift")) return false; gainBolts(2);addPack("Energy Bars","consumable");gainXp(10);add("You find a wrapped emergency ration beneath the bottom crate.");return true;}},
-  {exclusive:true, title:"THE DRY FOUNTAIN", text:"A cracked fountain holds thousands of bottle caps arranged into a spiral.", choices:"TRACE SPIRAL   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("spiral") && !cmd.includes("trace")) return false; gainBolts(8);gainXp(12);add("The spiral points to a loose stone hiding Bolts.");return true;}}
+  {exclusive:true, title:"THE HANGING SHOES", text:"Shoes sway from a cable across the road. One pair has been tied with bright copper wire.", choices:"CUT DOWN SHOES   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("shoes") && !cmd.includes("cut")) return false; gainBolts(5);addPack("Wire","material");gainXp(9);add("You recover a length of copper wire and a small pouch tucked in a boot.");return true;}},
+  {exclusive:true, title:"THE LAST MAIL", text:"A postal truck is wedged against a concrete barrier. Hundreds of envelopes carpet the floor.", choices:"SORT PARCELS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("parcels") && !cmd.includes("sort")) return false; gainBolts(5);addPack("Cloth","material");gainXp(9);add("A parcel contains a sealed roll of cloth and a few useful fasteners.");return true;}},
+  {exclusive:true, title:"THE FALSE SHOULDER", text:"The asphalt shoulder looks solid until a pebble drops straight through it.", choices:"PROBE GROUND   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("ground") && !cmd.includes("probe")) return false; gainXp(11);add("You find a safe crossing and mark the sinkhole with white stones.");return true;}},
+  {exclusive:true, title:"CEMETERY OF TIRES", text:"Stacks of tires form a maze beneath a collapsed overpass. Something metallic glints at its center.", choices:"ENTER MAZE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("maze") && !cmd.includes("enter")) return false; hurt(2);gainBolts(6);addPack("Scrap Metal","material");gainXp(12);add("A forgotten toolbox waits in the middle of the rubber walls.");return true;}},
+  {exclusive:true, title:"THE HONEY JAR", text:"A beekeeper suit hangs in a dead orchard. Bees still crowd a hollow tree.", choices:"SMOKE HIVE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("hive") && !cmd.includes("smoke")) return false; hurt(3);gainBolts(10);gainXp(10);add("You coax the swarm aside and find a sealed jar of honey, traded later for Bolts.");return true;}},
+  {exclusive:true, title:"SALT ON THE ROAD", text:"A perfect circle of salt surrounds an overturned chair. The tracks outside stop abruptly.", choices:"INSPECT CIRCLE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("circle") && !cmd.includes("inspect")) return false; gainBolts(8);gainXp(10);add("The chair hides a small tin of coins and a message: DO NOT SIT.");return true;}},
+  {exclusive:true, title:"THE PAPER STORM", text:"A gust fills the highway with old court records. One sheet carries a map drawn on the back.", choices:"FOLLOW PAPERS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("papers") && !cmd.includes("follow")) return false; gainBolts(4);addPack("Scrap Metal","material");gainXp(11);add("The map leads to a dry culvert containing scrap.");return true;}},
+  {exclusive:true, title:"THE CAROUSEL HORSE", text:"A chipped fiberglass horse stands in a ditch, bolted to a concrete slab.", choices:"EXAMINE BASE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("base") && !cmd.includes("examine")) return false; gainBolts(9);gainXp(9);add("The base conceals a rusted cash box full of usable fasteners.");return true;}},
+  {exclusive:true, title:"THE LOCKED FREEZER", text:"A restaurant freezer lies in the sun with a padlock on its door. Something knocks inside when the wind blows.", choices:"BREAK PADLOCK   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("padlock") && !cmd.includes("break")) return false; hurt(2);gainBolts(4);addPack("Cloth","material");gainXp(10);add("The knocking was a loose shelf. The insulated lining can be salvaged.");return true;}},
+  {exclusive:true, title:"THE BRIDGE TOLL", text:"An old man has painted a toll booth on a sheet of plywood. He insists payment can be a joke.", choices:"(T) TELL JOKE   (B) BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("joke") && !cmd.includes("tell")) return false; gainBolts(3);gainXp(10);add("He laughs at the worst joke he has heard in years and hands over a bolt for the effort.");return true;}},
+  {exclusive:true, title:"THE RAIN BARREL", text:"A row of barrels catches runoff beneath a ruined greenhouse. One is filled with glass marbles.", choices:"SIFT MARBLES   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("marbles") && !cmd.includes("sift")) return false; gainBolts(3);addPack("Wire","material");gainXp(10);add("Under the marbles sits a watertight repair kit.");return true;}},
+  {exclusive:true, title:"THE BURNT LIBRARY", text:"Books spill from a scorched bookmobile. One shelf has escaped the flames.", choices:"SALVAGE BOOKS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("books") && !cmd.includes("salvage")) return false; addPack("Bandage","consumable");gainXp(13);add("You find a field guide with practical first-aid notes.");return true;}},
+  {exclusive:true, title:"THE GARDEN GNOMES", text:"Dozens of painted gnomes face the same empty window. Fresh soil surrounds the smallest.", choices:"DIG NEAR GNOME   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("gnome") && !cmd.includes("dig")) return false; if(Math.random()<0.3){hurt(6);gainXp(4);add("A rusted snare snaps around your wrist beneath the fresh soil. You wrench free before reaching the stash.","danger");}else{gainBolts(11);gainXp(8);add("Someone buried a stash of Bolts beneath the smallest statue.");}return true;}},
+  {exclusive:true, title:"THE MISSING STAIRS", text:"A stairwell rises from an empty foundation and ends at a door suspended in air.", choices:"CLIMB STAIRS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("stairs") && !cmd.includes("climb")) return false; if(Math.random()<0.4){hurt(12);gainXp(7);add("The rotten landing gives way. You tumble through the floor and crawl out bruised, without reaching the bag.","danger");}else{hurt(3);gainBolts(4);addPack("Cloth","material");gainXp(12);add("The landing creaks but holds. Behind the doorframe you recover a forgotten canvas bag.");}return true;}},
+  {exclusive:true, title:"THE WASH LINE", text:"Clean bedsheets hang between two dead trees. No house stands within sight.", choices:"CHECK CLOTHESLINE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("clothesline") && !cmd.includes("check")) return false; addPack("Cloth","material");gainXp(10);add("The sheets are patched with surprisingly durable cloth.");return true;}},
+  {exclusive:true, title:"THE PAINTED ARROWS", text:"Bright arrows have been painted across the pavement, each pointing in a different direction.", choices:"FOLLOW BLUE ARROW   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("arrow") && !cmd.includes("follow")) return false; gainBolts(7);gainXp(12);add("The blue arrow ends at a hidden cache under a guardrail.");return true;}},
+  {exclusive:true, title:"THE WHEELBARROW", text:"A wheelbarrow full of stones sits in the center lane. A steel case is buried underneath.", choices:"UNLOAD STONES   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("stones") && !cmd.includes("unload")) return false; if(Math.random()<0.35){hurt(9);gainXp(8);add("A snake coils beneath the stones and strikes your hand. You retreat before reaching the case.","danger");}else{hurt(2);gainBolts(5);addPack("Scrap Metal","material");gainXp(12);add("You lift the stones carefully, avoid a sleeping snake, and claim the case of salvaged fittings.");}return true;}},
+  {exclusive:true, title:"THE SILENT PICNIC", text:"A picnic blanket holds four empty plates and a chessboard midgame. The food is long gone.", choices:"STUDY CHESSBOARD   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("chessboard") && !cmd.includes("study")) return false; gainBolts(6);gainXp(10);add("A hollow chess piece hides a handful of Bolts.");return true;}},
+  {exclusive:true, title:"THE COIN WELL", text:"A roadside wishing well has dried out. Its bottom glitters with offerings.", choices:"(D) DESCEND WELL   (B) BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("well") && !cmd.includes("descend")) return false; hurt(4);gainBolts(12);gainXp(12);add("You climb back up with a fistful of hardware and scraped knuckles.");return true;}},
+  {exclusive:true, title:"THE FENCE ARTIST", text:"Someone has woven a giant bird from scrap into a chain-link fence.", choices:"INSPECT SCULPTURE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("sculpture") && !cmd.includes("inspect")) return false; gainBolts(2);addPack("Scrap Metal","material");gainXp(10);add("A removable wing makes a useful strip of metal.");return true;}},
+  {exclusive:true, title:"THE MILK CRATES", text:"A pyramid of crates blocks a driveway. A ratty flag marks the top.", choices:"SHIFT CRATES   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("crates") && !cmd.includes("shift")) return false; gainBolts(2);addPack("Energy Bars","consumable");gainXp(10);add("You find a wrapped emergency ration beneath the bottom crate.");return true;}},
+  {exclusive:true, title:"THE DRY FOUNTAIN", text:"A cracked fountain holds thousands of bottle caps arranged into a spiral.", choices:"TRACE SPIRAL   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("spiral") && !cmd.includes("trace")) return false; gainBolts(8);gainXp(12);add("The spiral points to a loose stone hiding Bolts.");return true;}}
 ];
 
 const eastEncounters = [
-  {exclusive:true, title:"THE IRON HARVEST", text:"A combine crawls across an empty field, blades still spinning without a driver.", choices:"DISABLE BLADES   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("blades") && !cmd.includes("disable")) return false; hurt(9);gainBolts(12);addPack("Scrap Metal","material");gainXp(23);add("You jam its belt with a fallen branch and strip its casing.");return true;}},
-  {exclusive:true, title:"THE GLASS FIELD", text:"An ancient fire fused the soil into jagged green glass. A supply box sits on the far side.", choices:"CROSS GLASS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("glass") && !cmd.includes("cross")) return false; hurt(7);gainBolts(12);addPack("Bandage","consumable");gainXp(20);add("You reach the box but slice your sleeve on the way.");return true;}},
-  {exclusive:true, title:"THE BURIED FREIGHT", text:"A freight carriage protrudes from a hillside. Cargo containers lean at impossible angles.", choices:"PRY CARGO   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("cargo") && !cmd.includes("pry")) return false; hurt(8);gainBolts(15);addPack("Scrap Metal","material");gainXp(22);add("You recover a sealed crate of useful salvage.");return true;}},
-  {exclusive:true, title:"THE RED RAIN", text:"Rust-colored rain sweeps across the road, stinging exposed skin.", choices:"FIND SHELTER   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("shelter") && !cmd.includes("find")) return false; hurt(4);gainBolts(7);addPack("Cloth","material");gainXp(20);add("You wait beneath a concrete lip and find an old cache there.");return true;}},
-  {exclusive:true, title:"THE ASH PROCESSION", text:"Figures in ash-coated protective suits carry an empty coffin toward the hills.", choices:"FOLLOW PROCESSION   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("procession") && !cmd.includes("follow")) return false; gainBolts(14);gainXp(22);add("Their path passes a sheltered supply dump. They never acknowledge you.");return true;}},
-  {exclusive:true, title:"THE COLLAPSED DAM", text:"Water surges through a broken spillway beside the highway.", choices:"CROSS SPILLWAY   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("spillway") && !cmd.includes("cross")) return false; hurt(9);gainBolts(13);addPack("Wire","material");gainXp(23);add("You leap a widening crack and find repair materials beyond it.");return true;}},
-  {exclusive:true, title:"THE IRON CHOIR", text:"Wind makes hundreds of hanging engine valves ring like bells. A raider patrol is nearby.", choices:"SILENCE BELLS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("bells") && !cmd.includes("silence")) return false; hurt(5);gainBolts(16);gainXp(24);add("You tie off the valves and slip past the patrol to a stash.");return true;}},
-  {exclusive:true, title:"THE FURNACE PIT", text:"A smoldering pit burns under an abandoned brickworks. Something valuable shines inside.", choices:"HOOK METAL   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("metal") && !cmd.includes("hook")) return false; hurt(8);gainBolts(10);addPack("Scrap Metal","material");gainXp(21);add("You pull out a forged bracket before the heat drives you away.");return true;}},
-  {exclusive:true, title:"THE MASK MARKET", text:"Three masked traders auction items without speaking. Their bids are made with hand signs.", choices:"TRADE HAND SIGNS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("signs") && !cmd.includes("trade")) return false; gainBolts(17);gainXp(20);add("Your clumsy bid earns a laugh and a pouch of Bolts.");return true;}},
-  {exclusive:true, title:"THE CRACKED AQUEDUCT", text:"A narrow aqueduct crosses the road overhead. The supports are buckling.", choices:"RUN UNDER ARCH   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("arch") && !cmd.includes("run")) return false; hurt(8);gainBolts(7);addPack("Wire","material");gainXp(24);add("Stone rains down behind you. You salvage a fallen tool pouch.");return true;}},
-  {exclusive:true, title:"THE BONE FLAGS", text:"Polished bones hang from red flags at a ravine crossing.", choices:"SEARCH RAVINE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("ravine") && !cmd.includes("search")) return false; hurt(5);gainBolts(11);addPack("Cloth","material");gainXp(22);add("You uncover an abandoned expedition pack.");return true;}},
-  {exclusive:true, title:"THE SCRAP DUEL", text:"Two armored scavengers settle a dispute by throwing sharpened hubcaps at targets.", choices:"CHALLENGE WINNER   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("winner") && !cmd.includes("challenge")) return false; hurt(6);gainBolts(20);gainXp(26);add("You win a small wager, though one hubcap clips your arm.");return true;}},
-  {exclusive:true, title:"THE QUARRY LIFT", text:"An industrial lift hangs above a flooded quarry. Its hand crank still turns.", choices:"LOWER PLATFORM   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("platform") && !cmd.includes("lower")) return false; hurt(8);gainBolts(14);addPack("Scrap Metal","material");gainXp(23);add("The platform reaches a ledge with forgotten mining supplies.");return true;}},
-  {exclusive:true, title:"THE BLACK SNOW", text:"Ash flakes fall like snow from a distant burn. Fresh bootprints appear through the dust.", choices:"TRACK FOOTPRINTS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("footprints") && !cmd.includes("track")) return false; hurt(4);gainBolts(16);gainXp(24);add("The prints lead to a hidden smuggler cache.");return true;}},
-  {exclusive:true, title:"THE ROAD EATER", text:"A massive burrowing creature tears through the pavement ahead.", choices:"HIDE FROM BEAST   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("beast") && !cmd.includes("hide")) return false; gainXp(30);add("You survive by lying motionless as the road buckles nearby.");return true;}},
-  {exclusive:true, title:"THE CHAIN BRIDGE", text:"A suspension footbridge swings over a dry gorge. Its middle planks are missing.", choices:"CROSS CHAINS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("chains") && !cmd.includes("cross")) return false; hurt(10);gainBolts(13);addPack("Wire","material");gainXp(25);add("You crawl the cables and claim a toolbox on the other side.");return true;}},
-  {exclusive:true, title:"THE WELDED BUS", text:"A school bus has been welded into a crude armored bunker.", choices:"OPEN HATCH   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("hatch") && !cmd.includes("open")) return false; hurt(5);gainBolts(10);addPack("Bandage","consumable");gainXp(22);add("The bunker is abandoned, but its storage lockers remain intact.");return true;}},
-  {exclusive:true, title:"THE WAX MUSEUM", text:"Life-size wax figures fill a shattered roadside attraction. One wears genuine armor.", choices:"STRIP MANNEQUIN   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("mannequin") && !cmd.includes("strip")) return false; hurt(3);gainBolts(9);addPack("Cloth","material");gainXp(22);add("The figure collapses into fragments as you recover its reinforced cloth.");return true;}},
-  {exclusive:true, title:"THE STEEL ORCHARD", text:"Metal stakes stand in perfect rows where fruit trees once grew.", choices:"EXAMINE ROOTS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("roots") && !cmd.includes("examine")) return false; gainBolts(12);addPack("Scrap Metal","material");gainXp(21);add("The stakes conceal buried bolts and fasteners.");return true;}},
-  {exclusive:true, title:"THE QUICKSAND CUT", text:"Fine gray silt covers a washed-out road. Half a wagon protrudes from the mud.", choices:"REACH WAGON   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("wagon") && !cmd.includes("reach")) return false; hurt(9);gainBolts(18);gainXp(23);add("You retrieve a pouch but lose your footing in the silt.");return true;}},
-  {exclusive:true, title:"THE GRINDER CREW", text:"A salvage crew is feeding whole vehicles into an enormous hand-powered crusher.", choices:"BARGAIN FOR SCRAP   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("scrap") && !cmd.includes("bargain")) return false; gainBolts(8);addPack("Scrap Metal","material");gainXp(22);add("They sell you a box of offcuts for an unexpectedly fair price.");return true;}},
-  {exclusive:true, title:"THE HOLLOW STATUE", text:"A giant concrete worker statue has fallen across the highway. Its chest is hollow.", choices:"ENTER STATUE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("statue") && !cmd.includes("enter")) return false; hurt(5);gainBolts(10);addPack("Wire","material");gainXp(24);add("Inside is a stash of tools left by an earlier traveler.");return true;}},
-  {exclusive:true, title:"THE SALT MINERS", text:"A mining crew drags sleds of white mineral blocks across the road.", choices:"HELP PULL SLED   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("sled") && !cmd.includes("help")) return false; hurt(5);gainBolts(16);gainXp(24);add("The miners reward your effort with spare fittings.");return true;}},
-  {exclusive:true, title:"THE CINDER WOLVES", text:"Heat-scarred predators stalk a charcoal forest, their eyes reflecting orange light.", choices:"SCARE PACK   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("pack") && !cmd.includes("scare")) return false; hurt(12);gainBolts(8);gainXp(28);add("You drive them off with noise but suffer a glancing bite.");return true;}},
-  {exclusive:true, title:"THE BLADE CART", text:"A runaway handcart bristling with metal blades rolls downhill toward you.", choices:"DODGE CART   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("cart") && !cmd.includes("dodge")) return false; hurt(7);gainBolts(9);addPack("Scrap Metal","material");gainXp(24);add("It smashes into a barrier. You salvage its wheels.");return true;}},
-  {exclusive:true, title:"THE EMPTY ARMORY", text:"A military bunker has been stripped clean except for a welded floor plate.", choices:"LIFT FLOOR PLATE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("plate") && !cmd.includes("lift")) return false; hurt(8);gainBolts(9);addPack("Bandage","consumable");gainXp(23);add("Beneath it sits a waterproof first-aid pouch.");return true;}},
-  {exclusive:true, title:"THE BONE COLLECTOR", text:"A masked hunter carries trophies from creatures far larger than you.", choices:"KEEP DISTANCE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("distance") && !cmd.includes("keep")) return false; gainBolts(13);gainXp(27);add("You follow the hunter’s tracks to a dropped supply pouch, then leave quickly.");return true;}},
-  {exclusive:true, title:"THE SUNKEN CHAPEL", text:"Only a chapel steeple rises above a muddy reservoir. A rope leads down inside.", choices:"DESCEND ROPE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("rope") && !cmd.includes("descend")) return false; hurt(10);gainBolts(19);gainXp(26);add("A dry alcove contains a sealed metal strongbox.");return true;}},
-  {exclusive:true, title:"THE LIME FOG", text:"White industrial dust rolls across the road, hiding a steep drop.", choices:"FEEL FOR EDGE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("edge") && !cmd.includes("feel")) return false; hurt(6);gainBolts(8);addPack("Wire","material");gainXp(25);add("You navigate by touch and find a lost surveyor kit.");return true;}},
-  {exclusive:true, title:"THE FIGHTING RING", text:"A circle of wrecked cars surrounds a bare-knuckle contest.", choices:"ENTER CONTEST   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("contest") && !cmd.includes("enter")) return false; hurt(19);gainBolts(24);gainXp(35);add("You survive three brutal rounds and collect the purse.");return true;}},
-  {exclusive:true, title:"THE GATELESS WALL", text:"A huge defensive wall runs across the plain, but its gate was removed years ago.", choices:"CLIMB BREACH   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("breach") && !cmd.includes("climb")) return false; hurt(7);gainBolts(13);addPack("Scrap Metal","material");gainXp(24);add("You find abandoned sentry supplies atop the rubble.");return true;}},
-  {exclusive:true, title:"THE TAR POOL", text:"A black pool bubbles beside the road. Metal objects protrude from its surface.", choices:"FISH FOR METAL   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("metal") && !cmd.includes("fish")) return false; hurt(10);gainBolts(10);addPack("Scrap Metal","material");gainXp(25);add("You snag a heavy toolbox but burn your hand on the tar.");return true;}},
-  {exclusive:true, title:"THE RUST PARADE", text:"Scavengers push elaborate metal floats through the dust, celebrating a victory nobody remembers.", choices:"JOIN PARADE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("parade") && !cmd.includes("join")) return false; gainBolts(17);gainXp(23);add("You help push a float and receive a few Bolts for the effort.");return true;}},
-  {exclusive:true, title:"THE KNIFE WIND", text:"A narrow canyon funnels sand sharp enough to strip paint.", choices:"COVER FACE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("face") && !cmd.includes("cover")) return false; hurt(8);gainBolts(12);addPack("Cloth","material");gainXp(25);add("You emerge scratched but recover a lost pack wedged in the rock.");return true;}},
-  {exclusive:true, title:"THE WARDEN", text:"An armored enforcer orders everyone on the highway to kneel. His equipment is far beyond yours.", choices:"HIDE FROM WARDEN   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("warden") && !cmd.includes("hide")) return false; gainXp(35);add("You disappear into a drainage crack and wait for his patrol to pass.");return true;}},
-  {exclusive:true, title:"THE OIL DERRICK", text:"A pumpjack moves slowly despite its broken drive belt. The ground trembles beneath it.", choices:"SEARCH SHED   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("shed") && !cmd.includes("search")) return false; hurt(7);gainBolts(14);addPack("Wire","material");gainXp(24);add("The shed holds old maintenance tools and a salvage tin.");return true;}},
-  {exclusive:true, title:"THE CRANE NEST", text:"Giant birds have nested in the cab of a construction crane. Something shiny hangs from the nest.", choices:"CLIMB CRANE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("crane") && !cmd.includes("climb")) return false; hurt(13);gainBolts(20);gainXp(29);add("You retrieve a cache while the birds circle overhead.");return true;}},
-  {exclusive:true, title:"THE COLD FOUNDRY", text:"A foundry floor is littered with unfinished iron castings and shattered molds.", choices:"SEARCH MOLDS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("molds") && !cmd.includes("search")) return false; hurt(5);gainBolts(11);addPack("Scrap Metal","material");gainXp(24);add("You find a usable metal bracket beneath the slag.");return true;}},
-  {exclusive:true, title:"THE MUD CANNON", text:"A pressurized pipe erupts from a flooded excavation, hurling mud across the highway.", choices:"CLOSE VALVE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("valve") && !cmd.includes("close")) return false; hurt(9);gainBolts(11);addPack("Wire","material");gainXp(26);add("You shut it down and recover the crew’s forgotten tools.");return true;}},
-  {exclusive:true, title:"THE HANGING CAGE", text:"A steel cage swings from a highway gantry. The door is open, and a locked chest sits inside.", choices:"REACH CHEST   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("chest") && !cmd.includes("reach")) return false; hurt(12);gainBolts(22);gainXp(29);add("You retrieve the chest as the cable starts to fray.");return true;}},
-  {exclusive:true, title:"THE DUST HORSES", text:"A herd of feral horses races across the road, pursued by a distant fire.", choices:"CLEAR THEIR PATH   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("path") && !cmd.includes("clear")) return false; gainBolts(12);addPack("Cloth","material");gainXp(25);add("You move debris and discover a dropped saddlebag after they pass.");return true;}},
-  {exclusive:true, title:"THE SHATTERED SILO", text:"A grain silo split down the middle. Its surviving staircase twists upward.", choices:"CLIMB SILO   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("silo") && !cmd.includes("climb")) return false; hurt(10);gainBolts(11);addPack("Bandage","consumable");gainXp(26);add("A high platform holds an old emergency supply box.");return true;}},
-  {exclusive:true, title:"THE FORGOTTEN ARENA", text:"Concrete bleachers surround a pit filled with scavenged armor.", choices:"SEARCH BLEACHERS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("bleachers") && !cmd.includes("search")) return false; hurt(6);gainBolts(18);gainXp(25);add("A spectator cache still holds a pouch of bolts.");return true;}},
-  {exclusive:true, title:"THE LAST ORCHARD", text:"A single fruit tree grows inside a barricade of sharpened metal.", choices:"ENTER ORCHARD   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");gainXp(3);return true;} if(!cmd.includes("orchard") && !cmd.includes("enter")) return false; hurt(8);gainBolts(10);addPack("Scrap Metal","material");gainXp(25);add("The fruit is inedible, but the barricade contains useful salvage.");return true;}}
+  {exclusive:true, title:"THE IRON HARVEST", text:"A combine crawls across an empty field, blades still spinning without a driver.", choices:"DISABLE BLADES   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("blades") && !cmd.includes("disable")) return false; hurt(9);gainBolts(12);addPack("Scrap Metal","material");gainXp(23);add("You jam its belt with a fallen branch and strip its casing.");return true;}},
+  {exclusive:true, title:"THE GLASS FIELD", text:"An ancient fire fused the soil into jagged green glass. A supply box sits on the far side.", choices:"CROSS GLASS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("glass") && !cmd.includes("cross")) return false; hurt(7);gainBolts(12);addPack("Bandage","consumable");gainXp(20);add("You reach the box but slice your sleeve on the way.");return true;}},
+  {exclusive:true, title:"THE BURIED FREIGHT", text:"A freight carriage protrudes from a hillside. Cargo containers lean at impossible angles.", choices:"PRY CARGO   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("cargo") && !cmd.includes("pry")) return false; hurt(8);gainBolts(15);addPack("Scrap Metal","material");gainXp(22);add("You recover a sealed crate of useful salvage.");return true;}},
+  {exclusive:true, title:"THE RED RAIN", text:"Rust-colored rain sweeps across the road, stinging exposed skin.", choices:"FIND SHELTER   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("shelter") && !cmd.includes("find")) return false; hurt(4);gainBolts(7);addPack("Cloth","material");gainXp(20);add("You wait beneath a concrete lip and find an old cache there.");return true;}},
+  {exclusive:true, title:"THE ASH PROCESSION", text:"Figures in ash-coated protective suits carry an empty coffin toward the hills.", choices:"FOLLOW PROCESSION   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("procession") && !cmd.includes("follow")) return false; gainBolts(14);gainXp(22);add("Their path passes a sheltered supply dump. They never acknowledge you.");return true;}},
+  {exclusive:true, title:"THE COLLAPSED DAM", text:"Water surges through a broken spillway beside the highway.", choices:"CROSS SPILLWAY   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("spillway") && !cmd.includes("cross")) return false; hurt(9);gainBolts(13);addPack("Wire","material");gainXp(23);add("You leap a widening crack and find repair materials beyond it.");return true;}},
+  {exclusive:true, title:"THE IRON CHOIR", text:"Wind makes hundreds of hanging engine valves ring like bells. A raider patrol is nearby.", choices:"SILENCE BELLS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("bells") && !cmd.includes("silence")) return false; hurt(5);gainBolts(16);gainXp(24);add("You tie off the valves and slip past the patrol to a stash.");return true;}},
+  {exclusive:true, title:"THE FURNACE PIT", text:"A smoldering pit burns under an abandoned brickworks. Something valuable shines inside.", choices:"HOOK METAL   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("metal") && !cmd.includes("hook")) return false; hurt(8);gainBolts(10);addPack("Scrap Metal","material");gainXp(21);add("You pull out a forged bracket before the heat drives you away.");return true;}},
+  {exclusive:true, title:"THE MASK MARKET", text:"Three masked traders auction items without speaking. Their bids are made with hand signs.", choices:"TRADE HAND SIGNS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("signs") && !cmd.includes("trade")) return false; gainBolts(17);gainXp(20);add("Your clumsy bid earns a laugh and a pouch of Bolts.");return true;}},
+  {exclusive:true, title:"THE CRACKED AQUEDUCT", text:"A narrow aqueduct crosses the road overhead. The supports are buckling.", choices:"RUN UNDER ARCH   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("arch") && !cmd.includes("run")) return false; hurt(8);gainBolts(7);addPack("Wire","material");gainXp(24);add("Stone rains down behind you. You salvage a fallen tool pouch.");return true;}},
+  {exclusive:true, title:"THE BONE FLAGS", text:"Polished bones hang from red flags at a ravine crossing.", choices:"SEARCH RAVINE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("ravine") && !cmd.includes("search")) return false; hurt(5);gainBolts(11);addPack("Cloth","material");gainXp(22);add("You uncover an abandoned expedition pack.");return true;}},
+  {exclusive:true, title:"THE SCRAP DUEL", text:"Two armored scavengers settle a dispute by throwing sharpened hubcaps at targets.", choices:"CHALLENGE WINNER   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("winner") && !cmd.includes("challenge")) return false; hurt(6);gainBolts(20);gainXp(26);add("You win a small wager, though one hubcap clips your arm.");return true;}},
+  {exclusive:true, title:"THE QUARRY LIFT", text:"An industrial lift hangs above a flooded quarry. Its hand crank still turns.", choices:"LOWER PLATFORM   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("platform") && !cmd.includes("lower")) return false; hurt(8);gainBolts(14);addPack("Scrap Metal","material");gainXp(23);add("The platform reaches a ledge with forgotten mining supplies.");return true;}},
+  {exclusive:true, title:"THE BLACK SNOW", text:"Ash flakes fall like snow from a distant burn. Fresh bootprints appear through the dust.", choices:"TRACK FOOTPRINTS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("footprints") && !cmd.includes("track")) return false; hurt(4);gainBolts(16);gainXp(24);add("The prints lead to a hidden smuggler cache.");return true;}},
+  {exclusive:true, title:"THE ROAD EATER", text:"A massive burrowing creature tears through the pavement ahead.", choices:"HIDE FROM BEAST   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("beast") && !cmd.includes("hide")) return false; gainXp(30);add("You survive by lying motionless as the road buckles nearby.");return true;}},
+  {exclusive:true, title:"THE CHAIN BRIDGE", text:"A suspension footbridge swings over a dry gorge. Its middle planks are missing.", choices:"CROSS CHAINS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("chains") && !cmd.includes("cross")) return false; hurt(10);gainBolts(13);addPack("Wire","material");gainXp(25);add("You crawl the cables and claim a toolbox on the other side.");return true;}},
+  {exclusive:true, title:"THE WELDED BUS", text:"A school bus has been welded into a crude armored bunker.", choices:"OPEN HATCH   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("hatch") && !cmd.includes("open")) return false; hurt(5);gainBolts(10);addPack("Bandage","consumable");gainXp(22);add("The bunker is abandoned, but its storage lockers remain intact.");return true;}},
+  {exclusive:true, title:"THE WAX MUSEUM", text:"Life-size wax figures fill a shattered roadside attraction. One wears genuine armor.", choices:"STRIP MANNEQUIN   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("mannequin") && !cmd.includes("strip")) return false; hurt(3);gainBolts(9);addPack("Cloth","material");gainXp(22);add("The figure collapses into fragments as you recover its reinforced cloth.");return true;}},
+  {exclusive:true, title:"THE STEEL ORCHARD", text:"Metal stakes stand in perfect rows where fruit trees once grew.", choices:"EXAMINE ROOTS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("roots") && !cmd.includes("examine")) return false; gainBolts(12);addPack("Scrap Metal","material");gainXp(21);add("The stakes conceal buried bolts and fasteners.");return true;}},
+  {exclusive:true, title:"THE QUICKSAND CUT", text:"Fine gray silt covers a washed-out road. Half a wagon protrudes from the mud.", choices:"REACH WAGON   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("wagon") && !cmd.includes("reach")) return false; hurt(9);gainBolts(18);gainXp(23);add("You retrieve a pouch but lose your footing in the silt.");return true;}},
+  {exclusive:true, title:"THE GRINDER CREW", text:"A salvage crew is feeding whole vehicles into an enormous hand-powered crusher.", choices:"BARGAIN FOR SCRAP   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("scrap") && !cmd.includes("bargain")) return false; gainBolts(8);addPack("Scrap Metal","material");gainXp(22);add("They sell you a box of offcuts for an unexpectedly fair price.");return true;}},
+  {exclusive:true, title:"THE HOLLOW STATUE", text:"A giant concrete worker statue has fallen across the highway. Its chest is hollow.", choices:"ENTER STATUE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("statue") && !cmd.includes("enter")) return false; hurt(5);gainBolts(10);addPack("Wire","material");gainXp(24);add("Inside is a stash of tools left by an earlier traveler.");return true;}},
+  {exclusive:true, title:"THE SALT MINERS", text:"A mining crew drags sleds of white mineral blocks across the road.", choices:"HELP PULL SLED   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("sled") && !cmd.includes("help")) return false; hurt(5);gainBolts(16);gainXp(24);add("The miners reward your effort with spare fittings.");return true;}},
+  {exclusive:true, title:"THE CINDER WOLVES", text:"Heat-scarred predators stalk a charcoal forest, their eyes reflecting orange light.", choices:"SCARE PACK   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("pack") && !cmd.includes("scare")) return false; hurt(12);gainBolts(8);gainXp(28);add("You drive them off with noise but suffer a glancing bite.");return true;}},
+  {exclusive:true, title:"THE BLADE CART", text:"A runaway handcart bristling with metal blades rolls downhill toward you.", choices:"DODGE CART   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("cart") && !cmd.includes("dodge")) return false; hurt(7);gainBolts(9);addPack("Scrap Metal","material");gainXp(24);add("It smashes into a barrier. You salvage its wheels.");return true;}},
+  {exclusive:true, title:"THE EMPTY ARMORY", text:"A military bunker has been stripped clean except for a welded floor plate.", choices:"LIFT FLOOR PLATE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("plate") && !cmd.includes("lift")) return false; hurt(8);gainBolts(9);addPack("Bandage","consumable");gainXp(23);add("Beneath it sits a waterproof first-aid pouch.");return true;}},
+  {exclusive:true, title:"THE BONE COLLECTOR", text:"A masked hunter carries trophies from creatures far larger than you.", choices:"KEEP DISTANCE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("distance") && !cmd.includes("keep")) return false; gainBolts(13);gainXp(27);add("You follow the hunter’s tracks to a dropped supply pouch, then leave quickly.");return true;}},
+  {exclusive:true, title:"THE SUNKEN CHAPEL", text:"Only a chapel steeple rises above a muddy reservoir. A rope leads down inside.", choices:"DESCEND ROPE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("rope") && !cmd.includes("descend")) return false; hurt(10);gainBolts(19);gainXp(26);add("A dry alcove contains a sealed metal strongbox.");return true;}},
+  {exclusive:true, title:"THE LIME FOG", text:"White industrial dust rolls across the road, hiding a steep drop.", choices:"FEEL FOR EDGE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("edge") && !cmd.includes("feel")) return false; hurt(6);gainBolts(8);addPack("Wire","material");gainXp(25);add("You navigate by touch and find a lost surveyor kit.");return true;}},
+  {exclusive:true, title:"THE FIGHTING RING", text:"A circle of wrecked cars surrounds a bare-knuckle contest.", choices:"ENTER CONTEST   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("contest") && !cmd.includes("enter")) return false; hurt(19);gainBolts(24);gainXp(35);add("You survive three brutal rounds and collect the purse.");return true;}},
+  {exclusive:true, title:"THE GATELESS WALL", text:"A huge defensive wall runs across the plain, but its gate was removed years ago.", choices:"CLIMB BREACH   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("breach") && !cmd.includes("climb")) return false; hurt(7);gainBolts(13);addPack("Scrap Metal","material");gainXp(24);add("You find abandoned sentry supplies atop the rubble.");return true;}},
+  {exclusive:true, title:"THE TAR POOL", text:"A black pool bubbles beside the road. Metal objects protrude from its surface.", choices:"FISH FOR METAL   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("metal") && !cmd.includes("fish")) return false; hurt(10);gainBolts(10);addPack("Scrap Metal","material");gainXp(25);add("You snag a heavy toolbox but burn your hand on the tar.");return true;}},
+  {exclusive:true, title:"THE RUST PARADE", text:"Scavengers push elaborate metal floats through the dust, celebrating a victory nobody remembers.", choices:"JOIN PARADE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("parade") && !cmd.includes("join")) return false; gainBolts(17);gainXp(23);add("You help push a float and receive a few Bolts for the effort.");return true;}},
+  {exclusive:true, title:"THE KNIFE WIND", text:"A narrow canyon funnels sand sharp enough to strip paint.", choices:"COVER FACE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("face") && !cmd.includes("cover")) return false; hurt(8);gainBolts(12);addPack("Cloth","material");gainXp(25);add("You emerge scratched but recover a lost pack wedged in the rock.");return true;}},
+  {exclusive:true, title:"THE WARDEN", text:"An armored enforcer orders everyone on the highway to kneel. His equipment is far beyond yours.", choices:"HIDE FROM WARDEN   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("warden") && !cmd.includes("hide")) return false; gainXp(35);add("You disappear into a drainage crack and wait for his patrol to pass.");return true;}},
+  {exclusive:true, title:"THE OIL DERRICK", text:"A pumpjack moves slowly despite its broken drive belt. The ground trembles beneath it.", choices:"SEARCH SHED   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("shed") && !cmd.includes("search")) return false; hurt(7);gainBolts(14);addPack("Wire","material");gainXp(24);add("The shed holds old maintenance tools and a salvage tin.");return true;}},
+  {exclusive:true, title:"THE CRANE NEST", text:"Giant birds have nested in the cab of a construction crane. Something shiny hangs from the nest.", choices:"CLIMB CRANE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("crane") && !cmd.includes("climb")) return false; hurt(13);gainBolts(20);gainXp(29);add("You retrieve a cache while the birds circle overhead.");return true;}},
+  {exclusive:true, title:"THE COLD FOUNDRY", text:"A foundry floor is littered with unfinished iron castings and shattered molds.", choices:"SEARCH MOLDS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("molds") && !cmd.includes("search")) return false; hurt(5);gainBolts(11);addPack("Scrap Metal","material");gainXp(24);add("You find a usable metal bracket beneath the slag.");return true;}},
+  {exclusive:true, title:"THE MUD CANNON", text:"A pressurized pipe erupts from a flooded excavation, hurling mud across the highway.", choices:"CLOSE VALVE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("valve") && !cmd.includes("close")) return false; hurt(9);gainBolts(11);addPack("Wire","material");gainXp(26);add("You shut it down and recover the crew’s forgotten tools.");return true;}},
+  {exclusive:true, title:"THE HANGING CAGE", text:"A steel cage swings from a highway gantry. The door is open, and a locked chest sits inside.", choices:"REACH CHEST   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("chest") && !cmd.includes("reach")) return false; hurt(12);gainBolts(22);gainXp(29);add("You retrieve the chest as the cable starts to fray.");return true;}},
+  {exclusive:true, title:"THE DUST HORSES", text:"A herd of feral horses races across the road, pursued by a distant fire.", choices:"CLEAR THEIR PATH   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("path") && !cmd.includes("clear")) return false; gainBolts(12);addPack("Cloth","material");gainXp(25);add("You move debris and discover a dropped saddlebag after they pass.");return true;}},
+  {exclusive:true, title:"THE SHATTERED SILO", text:"A grain silo split down the middle. Its surviving staircase twists upward.", choices:"CLIMB SILO   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("silo") && !cmd.includes("climb")) return false; hurt(10);gainBolts(11);addPack("Bandage","consumable");gainXp(26);add("A high platform holds an old emergency supply box.");return true;}},
+  {exclusive:true, title:"THE FORGOTTEN ARENA", text:"Concrete bleachers surround a pit filled with scavenged armor.", choices:"SEARCH BLEACHERS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("bleachers") && !cmd.includes("search")) return false; hurt(6);gainBolts(18);gainXp(25);add("A spectator cache still holds a pouch of bolts.");return true;}},
+  {exclusive:true, title:"THE LAST ORCHARD", text:"A single fruit tree grows inside a barricade of sharpened metal.", choices:"ENTER ORCHARD   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("orchard") && !cmd.includes("enter")) return false; hurt(8);gainBolts(10);addPack("Scrap Metal","material");gainXp(25);add("The fruit is inedible, but the barricade contains useful salvage.");return true;}}
 ];
 
 
@@ -1091,7 +1182,7 @@ function roadTrade(name,type,cost){
   if(player.bolts<cost){add(`You need ${cost} Bolts.`,"system");return false;}
   if(!existing&&packSlotsUsed()>=player.packMax){add("Your backpack is full. Nothing traded.","system");return false;}
   if(!addPack(name,type))return false;
-  player.bolts-=cost;updateHud();gainXp(8);return true;
+  player.bolts-=cost;updateHud();return true;
 }
 const beginnerAdditions=[
   beginnerEvent("IRRADIATED ROACHES","Pale, swollen roaches crowd a split flour sack beside a bakery van. The far shoulder is clear.",{
@@ -1102,7 +1193,7 @@ const beginnerAdditions=[
   beginnerEvent("RATS IN THE PANTRY","A tipped roadside food cart rattles with movement. Thick-tailed rats gnaw at a crate inside.",{
     "FIGHT RATS":()=>true,
     "LURE WITH RATION":()=>{if(!hasItem("Energy Bars")){add("You have no ration to spare.","system");return false;}removeItem("Energy Bars");add("You toss food well away from the cart and salvage a wrapped dressing.");roadLoot("Bandage","consumable");gainXp(14);},
-    "WAIT ON ROOF":()=>{add("You wait on the cart's roof. Eventually the rats wander off; the crate is empty.");gainXp(7);}
+    "WAIT ON ROOF":()=>{add("You wait on the cart's roof. Eventually the rats wander off; the crate is empty.");}
   },{action:"FIGHT RATS",name:"MUTATED PANTRY RATS",level:2,hp:22,min:3,max:6,xp:22,bolts:3,end:"The rats abandon the cart."}),
   beginnerEvent("THE SCRAP CLAIM","A hostile scavenger kicks your boot away from a spilled toolbox. 'My claim. Your problem.'",{
     "FIGHT CLAIMANT":()=>true,
@@ -1111,18 +1202,18 @@ const beginnerAdditions=[
   },{action:"FIGHT CLAIMANT",name:"SCRAP CLAIMANT",level:3,hp:25,min:4,max:7,xp:24,bolts:6,end:"He abandons the claim and limps away."}),
   beginnerEvent("DOG AT THE DEN","A brindled dog guards a hollow beneath an old bus. Tiny paws move in the shadows behind her.",{
     "LEAVE A RATION":()=>{if(!hasItem("Energy Bars")){add("You have no food to leave.","system");return false;}removeItem("Energy Bars");add("You leave food and give the den space. She never leaves the pups.");gainXp(15);},
-    "CIRCLE THE DEN":()=>{add("You take the far shoulder. She watches until you are gone.");gainXp(7);},
+    "CIRCLE THE DEN":()=>{add("You take the far shoulder. She watches until you are gone.");},
     "FIGHT GUARD DOG":()=>true
   },{action:"FIGHT GUARD DOG",name:"DEN GUARD DOG",level:3,hp:24,min:4,max:7,xp:18,bolts:0,end:"She retreats beneath the bus. You leave the den alone."}),
   beginnerEvent("THE LIMPING HOUND","A limping hound trails you at a distance. It stops whenever you turn and makes no move to attack.",{
     "OFFER FOOD":()=>{if(!hasItem("Energy Bars")){add("You have no food to offer.","system");return false;}removeItem("Energy Bars");add("It takes the food, then noses a discarded satchel before slipping into the grass.");gainBolts(4);gainXp(14);},
     "FOLLOW AT DISTANCE":()=>{if(Math.random()<.5){add("Its trail passes a torn coat with one good pocket.");roadLoot("Cloth");gainXp(9);}else{add("The hound beds down beneath a hedge. You let it rest.");gainXp(6);}},
-    "HOLD STILL":()=>{add("It sniffs the air, decides you are uninteresting, and moves on.");gainXp(5);}
+    "HOLD STILL":()=>{add("It sniffs the air, decides you are uninteresting, and moves on.");}
   }),
-  beginnerEvent("BROKEN CLEANER BOT","A knee-high street-cleaning robot circles a pothole, sweeping the same patch of dust. Its spinning brush catches sparks on concrete.",{
+  beginnerEvent("BROKEN CLEANER BOT","A knee-high street-cleaning robot circles a pothole, sweeping the same patch of dust. Its cracked battery indicator blinks red; the motor is audibly slowing, but its brush still throws sparks on concrete.",{
     "FIGHT CLEANER":()=>true,
     "JAM BRUSH WITH STICK":()=>{if(Math.random()<.7){add("A fallen stick jams the brush. You unbolt the dead motor housing.");roadLoot("Scrap Metal");gainBolts(4);gainXp(13);}else{add("The brush snaps the stick. You step clear of the flying splinter.");hurt(3);gainXp(7);}},
-    "WAIT FOR BATTERY":()=>{add("The motor winds down. You recover loose fasteners without a fight.");gainBolts(3);gainXp(7);}
+    "WAIT FOR BATTERY":()=>{add("You keep your distance until the failing battery drains. The brush stops; you collect three loose Bolts without a fight.");gainBolts(3);}
   },{action:"FIGHT CLEANER",name:"MALFUNCTIONING CLEANER",level:2,hp:20,min:2,max:6,xp:20,bolts:5,end:"The cleaner tips over. Its brush finally stops."}),
   beginnerEvent("THE DITCH BACKPACK","A faded backpack hangs from a thorn bush. No tracks lead away from it.",{
     "SEARCH POCKETS":()=>{if(Math.random()<.55){add("A waterproof pocket holds a clean bandage.");roadLoot("Bandage","consumable");gainXp(10);}else{add("The pockets hold a few useful fasteners.");gainBolts(5);gainXp(8);}},
@@ -1146,16 +1237,24 @@ const beginnerAdditions=[
     "SMASH THE LOCK":()=>{add("The lock breaks, but so does the brittle lid. A sharp edge catches your hand.");hurt(4);gainBolts(7);gainXp(10);}
   }),
   beginnerEvent("PRINTS IN THE MUD","Bare footprints cross the shoulder. Each has six toes. They lead toward a dry ditch, then vanish.",{
-    "FOLLOW THE PRINTS":()=>{if(Math.random()<.5){add("A scrap of discarded fabric snags a branch where the trail ends. No creature waits there.");roadLoot("Cloth");gainXp(10);}else{add("Rainwater erases the trail. Whatever passed through is long gone.");gainXp(7);}},
-    "STUDY FROM ROAD":()=>{add("The stride is uneven. You remember the pattern and keep your distance.");gainXp(6);}
+    "FOLLOW THE PRINTS":()=>{if(Math.random()<.5){add("A scrap of discarded fabric snags a branch where the trail ends. No creature waits there.");roadLoot("Cloth");gainXp(10);}else{add("The mud gives way beneath your foot. You scramble clear of the ditch, but the trail is lost.");hurt(5);gainXp(4);}},
+    "STUDY FROM ROAD":()=>{add("The stride is uneven. You identify a safer route around the ditch and keep your distance.");gainXp(3);}
   }),
   beginnerEvent("THE EMPTY BUS SHELTER","A bus shelter still has three seats and a timetable sun-faded to nothing. A tin sits beneath the middle seat.",{
     "OPEN THE TIN":()=>{add("Inside is a sealed ration and a child's drawing of a bus that never came.");roadLoot("Energy Bars","consumable");gainXp(9);},
     "STUDY TIMETABLE":()=>{add("Every bus once stopped here at 6:15. The ordinary certainty feels stranger than the ruins.");gainXp(6);}
   }),
+  beginnerEvent("TORN BACKPACK","A torn canvas backpack hangs from a guardrail. Its seams are still intact.",{
+    "SALVAGE THE STRAPS":()=>{add("You cut free sturdy canvas straps.");roadLoot("Cloth");gainXp(7);},
+    "SEARCH HIDDEN POCKET":()=>{if(Math.random()<0.6){add("A concealed lining holds usable wire.");roadLoot("Wire");gainXp(9);}else{add("A rusted needle catches your finger. The pocket is empty.","danger");hurt(3);gainXp(3);}}
+  }),
+  beginnerEvent("BROKEN RADIO","A cracked portable radio rests on a concrete barrier. Its battery compartment is swollen shut.",{
+    "SALVAGE THE CIRCUIT":()=>{if(Math.random()<0.65){add("You recover a coil of wire without disturbing the battery.");roadLoot("Wire");gainXp(10);}else{add("The corroded battery leaks. You drop the radio before recovering anything.","danger");hurt(4);gainXp(3);}},
+    "REMOVE THE CASING":()=>{add("The metal casing yields a useful piece of scrap.");roadLoot("Scrap Metal");gainXp(6);}
+  }),
   beginnerEvent("THE SPRAINED RUNNER","A traveler sits beside a broken handcart, rubbing a swollen ankle. 'Just need it wrapped. No knives, no tricks.'",{
     "GIVE A BANDAGE":()=>{if(!hasItem("Bandage")){add("You have no bandage to give.","system");return false;}removeItem("Bandage");add("You wrap the ankle. The runner gives you spare cart fittings and promises to find shelter.");gainBolts(4);gainXp(18);},
-    "MAKE A WALKING STICK":()=>{add("You break a straight branch and help the runner stand. They can reach cover without you.");gainXp(11);},
+    "MAKE A WALKING STICK":()=>{add("You brace a straight branch against the cart and help the runner stand. The splint takes time, but they can reach shelter without using your medical supplies.");gainXp(9);},
     "IGNORE THE RUNNER":()=>{add("You pass without stopping. The cart's wheel creaks behind you.");}
   }),
   beginnerEvent("SCRATCHING IN THE SHED","Something scratches inside a roadside shed. The roof is sound, and a gap beneath the door admits daylight.",{
@@ -1168,13 +1267,13 @@ const beginnerAdditions=[
   }),
   beginnerEvent("THE WALKING PEDDLER","A peddler pushes a bicycle loaded with tins. 'Bandage, food, or a little honest conversation. Your choice.'",{
     "BUY RATION":()=>{if(!roadTrade("Energy Bars","consumable",6))return false;add("The ration is sealed. The peddler counts your Bolts once and moves on.");},
-    "SELL ONE SCRAP":()=>{if(!hasItem("Scrap Metal")){add("You have no scrap to sell.","system");return false;}removeItem("Scrap Metal");gainBolts(4);gainXp(7);add("A fair exchange. No knife appears.");},
-    "APPROACH FOR TALK":()=>{add("The peddler recommends dry socks and short arguments. Useful advice from someone still walking.");gainXp(8);}
+    "SELL ONE SCRAP":()=>{if(!hasItem("Scrap Metal")){add("You have no scrap to sell.","system");return false;}removeItem("Scrap Metal");gainBolts(4);add("A fair exchange. No knife appears.");},
+    "APPROACH FOR TALK":()=>{add("The peddler recommends dry socks and short arguments. Useful advice from someone still walking.");}
   }),
   beginnerEvent("DUST OVER THE SCHOOLYARD","Dust rolls through an abandoned schoolyard. Beyond it, shapes move between swings that still rock in the wind.",{
-    "SHELTER BY THE WALL":()=>{add("You wait behind the wall. The shapes resolve into deer; beneath your boot lies a dropped hardware pouch.");gainBolts(3);gainXp(8);},
-    "WATCH THE MOVEMENT":()=>{add("Deer cross between the swings. One stops beside a painted hopscotch grid before following the others.");gainXp(9);},
-    "PUSH THROUGH DUST":()=>{add("You cross quickly, face covered. Grit stings your eyes, but the road is clear.");hurt(2);gainXp(6);}
+    "SHELTER BY THE WALL":()=>{add("You wait behind the wall. The shapes resolve into deer; beneath your boot lies a dropped hardware pouch.");gainBolts(3);},
+    "WATCH THE MOVEMENT":()=>{add("Deer cross between the swings. One stops beside a painted hopscotch grid before following the others.");},
+    "PUSH THROUGH DUST":()=>{add("You cross quickly, face covered. Grit stings your eyes, but the road is clear.");hurt(10);gainXp(6);}
   })
 ];
 encounters.push(...beginnerAdditions);
@@ -1185,18 +1284,48 @@ const combatSpecs={
   "TUNNEL RATS":{name:"RAT PACK",level:2,hp:24,min:3,max:6,xp:22,bolts:4,end:"The last of the rats scatters into the drain."},
   "FERAL DOG":{name:"FERAL DOG",level:3,hp:22,min:4,max:8,xp:24,bolts:0,end:"The dog finally backs away and disappears into the brush."},
   "LONE SCAVENGER":{name:"SCAVENGER",level:3,hp:26,min:4,max:8,xp:25,bolts:8,end:"The scavenger gives ground and finally bolts into the weeds."},
-  "HIGHWAY ROBBERS":{name:"HIGHWAY ROBBERS",level:4,hp:30,min:5,max:9,xp:24,bolts:9,end:"The robbers break first and disappear into the weeds."},
+  "HIGHWAY ROBBERS":{name:"HIGHWAY ROBBERS",level:4,hp:30,min:5,max:9,xp:24,bolts:9,enemies:[{name:"TIRE IRON ROBBER",hp:16,bolts:4},{name:"SPEAR ROBBER",hp:14,bolts:5}],end:"Both robbers are defeated."},
   "THE CRAWLER":{name:"CRAWLER",level:5,hp:34,min:6,max:10,xp:30,bolts:6,end:"The crawler spasms once and goes still."},
   "THE WRECKERS":{name:"WRECKERS",level:5,hp:36,min:6,max:10,xp:32,bolts:10,end:"The wreckers decide this stopped being easy and run."},
-  "ROACH NEST":{name:"ROACH SWARM",level:1,hp:14,min:1,max:4,xp:16,bolts:3,end:"The surviving roaches vanish beneath the wreck."},
-  "GANG LOOKOUT":{name:"GANG LOOKOUT",level:4,hp:28,min:5,max:9,xp:26,bolts:5,end:"The lookout abandons the overpass and runs."},
+  "ROACH NEST":{name:"ROACH SWARM",level:1,hp:14,min:1,max:4,xp:25,bolts:8,end:"The surviving roaches vanish beneath the wreck."},
+  "GANG LOOKOUT":{name:"GANG LOOKOUT",level:4,hp:18,min:5,max:9,xp:35,bolts:5,signalRounds:0,reinforcementsArrived:false,enemies:[{name:"LOOKOUT",hp:18,bolts:5}],end:"The gang lookout is defeated."},
   "SECURITY DRONE":{name:"SECURITY DRONE",level:5,hp:32,min:5,max:10,xp:30,bolts:7,end:"The drone gives one last electronic whine and goes dark."},
   "SOMETHING IN THE DRAIN":{name:"DRAIN CREATURE",level:6,hp:38,min:7,max:11,xp:34,bolts:9,end:"The scraping stops. Whatever was in the drain is no longer moving."}
 };
 const combatTriggers={"ROACH NEST":["crush"],"GANG LOOKOUT":["rush"],"SECURITY DRONE":["smash"],"SOMETHING IN THE DRAIN":["open"]};
+function v555RollEquipmentDrop(){
+  // Approved rarity distribution: Common 55%, Uncommon 30%, Rare 13%, Epic 2%.
+  const roll=Math.random()*100;
+  const rarity=roll<55?'common':roll<85?'uncommon':roll<98?'rare':'epic';
+  const pool=Object.keys(GEAR).filter(name=>GEAR[name]&&GEAR[name].rarity===rarity&&['weapon','armor'].includes(GEAR[name].type));
+  if(!pool.length)return null;
+  return pool[Math.floor(Math.random()*pool.length)]||null;
+}
+function v555AwardEquipmentDrop(){
+  const item=v555RollEquipmentDrop();
+  if(!item)return false;
+  if(addPack(item,GEAR[item].type)){
+    add(`RANDOM EQUIPMENT DROP — ${gearLabel(item)}`,'reward');
+  }else{
+    player.flags=player.flags||{};
+    player.flags.pendingEquipmentDrops=player.flags.pendingEquipmentDrops||[];
+    player.flags.pendingEquipmentDrops.push(item);
+    add(`EQUIPMENT DROP HELD — ${gearLabel(item)}. Free a backpack slot, then claim pending equipment.`,'system');
+  }
+  return true;
+}
+function v555ClaimEquipmentDrop(){
+  const pending=player.flags?.pendingEquipmentDrops;
+  if(!Array.isArray(pending)||!pending.length)return false;
+  if(addPack(pending[0],GEAR[pending[0]]?.type||'weapon')){
+    const name=pending.shift();add(`CLAIMED EQUIPMENT DROP — ${gearLabel(name)}`,'reward');
+    if(!pending.length)delete player.flags.pendingEquipmentDrops;
+  }
+  return true;
+}
 function startCombat(spec, source="encounter", townCost=false, openingAttack=false){
-  if(townCost){ if(player.turns<=0){add("NO EXPEDITION TURNS REMAIN.","danger");return;} player.turns--; updateHud(); }
-  combatState={...spec,hp:spec.hp,maxHp:spec.hp,source}; stage="combat";
+  if(townCost){ if(player.turns<=0){add("NO EXPEDITION TURNS REMAIN.","danger");return;} player.turns--; player.lifetimeTurns=(Number(player.lifetimeTurns)||0)+1; updateHud(); }
+  combatState={...spec,hp:spec.hp,maxHp:spec.hp,source,bolts:Math.max(0,Number(spec.bolts)||0),enemies:spec.enemies?spec.enemies.map(e=>({...e})):undefined}; stage="combat";
   busy=true; input.disabled=true;
   add(`${spec.name} — LVL ${String(spec.level).padStart(2,"0")} — HP ${spec.hp}/${spec.hp}`,"bright");
   // Combat entry is a state transition, not a hidden extra attack. Always show the combat menu first.
@@ -1211,17 +1340,70 @@ function startCombat(spec, source="encounter", townCost=false, openingAttack=fal
 }
 function handleCombat(cmd){
   const c=combatState; if(!c){stage="between";return;}
-  if(cmd==="b"||cmd.includes("back")||cmd.includes("flee")||cmd.includes("run")){ add("You break contact before the fight gets worse."); combatState=null; if(c.source==="factoryFight"){factoryCombatRetreat(c); } else if(c.source==="jenBoss"){player.flags.jenQuest="raiders";completeRoadTurn();} else if(c.source==="houseBoss"){add("You retreat onto the porch. The occupant stays inside.");arriveHouse();} else if(c.source==="serviceBoss"){stage="serviceRoad";add("You retreat to the maintenance-yard fence.");add("CONTINUE UP ROAD   RETURN TO FORK","system");} else if(c.source==="roadWanderer"){currentRoadWanderer=null;completeRoadTurn();} else if(c.source==="townWanderer"){stage="mercy"; showCurrentContext();} else {completeRoadTurn();} return; }
+  if(cmd==="b"||cmd.includes("back")||cmd.includes("flee")||cmd.includes("run")){ add("You break contact before the fight gets worse."); combatState=null; if(c.source==="gateGuards"){stage="settlement";player.flags.solaceGateChallenge=true;add("The guard raises his weapon again. State your business or turn around.","man");add("STATE YOUR BUSINESS   (1) TERMINAL   (2) TRADE   (3) RELAY   (4) PASSING THROUGH   (5) FIGHT","system");} else if(c.source==="seaportLiberation"){portLiberationRetreat();} else if(c.source==="seaportRoadFight"){portCombatRetreat(c);} else if(c.source==="factoryFight"){factoryCombatRetreat(c); } else if(c.source==="jenBoss"){player.flags.jenQuest="raiders";completeRoadTurn();} else if(c.source==="houseBoss"){add("You retreat onto the porch. The occupant stays inside.");arriveHouse();} else if(c.source==="serviceBoss"){stage="serviceRoad";add("You retreat to the maintenance-yard fence.");add("CONTINUE UP ROAD   RETURN TO FORK","system");} else if(c.source==="roadWanderer"){currentRoadWanderer=null;completeRoadTurn();} else if(c.source==="townWanderer"){stage="mercy"; showCurrentContext();} else {completeRoadTurn();} return; }
   if(cmd==="u"||cmd==="i"||cmd.includes("use item")){ showCombatItems(); return; }
   if(cmd.startsWith("use ")){ useItem(cmd.slice(4)); add("(A) ATTACK   (U) USE ITEM   (B) BACK OFF","system"); return; }
   if(cmd==="a"||cmd==="f") cmd="attack"; if(!cmd.includes("attack")&&!cmd.includes("fight")&&!cmd.includes("hit")){add("(A) ATTACK   (U) USE ITEM   (B) BACK OFF","system");return;}
-  const dealt=Math.max(1,rollDamage()-(c.armorDef||0)); c.hp=Math.max(0,c.hp-dealt);
+  const baseAttackDamage=rollDamage();
+  const criticalChance=player.accessory==="Niko's Collar"?(GEAR["Niko's Collar"]?.critBonus||0):0;
+  const critical=criticalChance>0 && Math.random()<criticalChance;
+  const bleedChance=player.weapon==="Iron Reaper"?(GEAR["Iron Reaper"]?.bleedChance||0):0;
+  const bleedProc=bleedChance>0 && Math.random()<bleedChance;
+  const dealt=Math.max(1,Math.floor(baseAttackDamage*(critical?1.5:1))+(bleedProc?3:0)-(c.armorDef||0));
+  if(critical)add("NIKO'S COLLAR FLARES — CRITICAL HIT!","legendary");
+  if(bleedProc)add("IRON REAPER BLEED — the hooked edge opens a wound (+3 damage).","rare");
+  let actualDamage=dealt;
+  if(c.enemies?.length){
+    const target=c.enemies.find(e=>e.hp>0);
+    if(target){
+      actualDamage=Math.min(dealt,target.hp);
+      target.hp-=actualDamage;
+      add(`${target.name}: ${target.hp} HP remaining.`,"bright");
+      if(target.hp===0){target.defeated=true;add(`${target.name} drops ${target.bolts} Bolts.`,"reward");}
+    }else actualDamage=0;
+    c.hp=c.enemies.reduce((total,e)=>total+Math.max(0,e.hp),0);
+  }else {actualDamage=Math.min(dealt,c.hp);c.hp=Math.max(0,c.hp-dealt);}
   add(`You swing the ${player.weapon.toLowerCase()} and connect.`);
-  add("RESULT","system"); add(`YOU DEAL ${dealt}   ${c.name} HP ${c.hp}/${c.maxHp}`,"reward");
-  if(c.hp<=0){ add(c.end||`${c.name} is finished.`); resultBuffer=[]; if(c.xp) gainXp(isDark()?Math.ceil(c.xp*1.1):c.xp); if(c.bolts) gainBolts(isDark()?Math.ceil(c.bolts*1.1):c.bolts); flushResults(); const source=c.source; combatState=null; if(source==="factoryFight"){factoryCombatWin(c);} else if(source==="jenBoss"){player.flags.jenQuest="rescued";addPack("Runner's Token","quest");add("QUEST UPDATED — LAST CALL: You rescue Jen's runner and recover their token. Return to Jen.","reward");completeRoadTurn();} else if(source==="houseBoss"){player.flags.houseQuest="cleared";stage="house";add("The occupant abandons the house. Beneath his blanket, one floorboard sits loose.");add("QUEST UPDATED — Lift the floorboard to claim the house.","reward");showHouseChoices();} else if(source==="serviceBoss"){player.flags.serviceBossDead=true;player.flags.serviceReward=true;const oldWeapon=player.weapon; player.weapon="Yardman\'s Wrench"; addPack(oldWeapon,"weapon"); updateHud();add("UNCOMMON — YARDMAN\'S WRENCH — DMG 11–18","uncommon");add(`Equipped. ${oldWeapon} moved to your backpack.`,"reward");add("The maintenance yard is quiet now. Beyond it, the road disappears beneath collapsed trees and concrete.");stage="serviceRoad";serviceRoadDepth=3;add(serviceRoadChoices(),"system");} else if(source==="roadWanderer"){v50WandererLoot(c.name);markWandererDead(c.name); currentRoadWanderer=null; completeRoadTurn();} else if(source==="townWanderer"){v50WandererLoot(c.name);markWandererDead(c.name); currentTownWanderer=null; stage="mercy";showCurrentContext();} else { completeRoadTurn(); } return; }
-  const raw=Math.floor(Math.random()*(c.max-c.min+1))+c.min; const nightRaw=isDark()?Math.ceil(raw*1.15):raw; const dmg=Math.max(1,nightRaw-armorDefense()); player.hp=Math.max(0,player.hp-dmg); updateHud();
+  add("RESULT","system"); add(`YOU DEAL ${actualDamage}   ${c.name} HP ${c.hp}/${c.maxHp}`,"reward");
+  if(c.hp<=0){ add(c.end||`${c.name} is finished.`); resultBuffer=[]; if(c.xp) gainXp(isDark()?Math.ceil(c.xp*1.1):c.xp); const victoryBolts=c.enemies?.length?c.enemies.filter(e=>e.defeated||e.hp===0).reduce((sum,e)=>sum+Math.max(0,Number(e.bolts)||0),0):c.bolts; if(victoryBolts) gainBolts(isDark()?Math.ceil(victoryBolts*1.1):victoryBolts); flushResults(); const source=c.source; combatState=null; if(source==="encounter"&&typeof v555AwardEquipmentDrop==="function")v555AwardEquipmentDrop(); if(source==="seaportLiberation"){portLiberationVictory();} else if(source==="seaportRoadFight"){portCombatWin(c);} else if(source==="factoryFight"){factoryCombatWin(c);} else if(source==="jenBoss"){player.flags.jenQuest="rescued";addPack("Runner's Token","quest");add("QUEST UPDATED — LAST CALL: You rescue Jen's runner and recover their token. Return to Jen.","reward");completeRoadTurn();} else if(source==="terribleBilly"){player.flags.terribleBillyBounty="proof";add("BOUNTY PROOF ACQUIRED — TERRIBLE BILLY IS DOWN. Return to Tim in Solace.","reward");completeRoadTurn();} else if(source==="houseBoss"){player.flags.houseQuest="cleared";if(player.flags.timHouseBounty==="active")player.flags.timHouseBounty="proof";stage="house";add("The occupant abandons the house. Beneath his blanket, one floorboard sits loose.");if(player.flags.timHouseBounty==="proof")add("BOUNTY PROOF ACQUIRED — Return to Tim in Solace.","reward");add("QUEST UPDATED — Lift the floorboard to claim the house.","reward");showHouseChoices();} else if(source==="serviceBoss"){player.flags.serviceBossDead=true;player.flags.serviceReward=true;const oldWeapon=player.weapon; player.weapon="Yardman\'s Wrench"; addPack(oldWeapon,"weapon"); updateHud();add("UNCOMMON — YARDMAN\'S WRENCH — DMG 11–18","uncommon");add(`Equipped. ${oldWeapon} moved to your backpack.`,"reward");add("The maintenance yard is quiet now. Beyond it, the road disappears beneath collapsed trees and concrete.");stage="serviceRoad";serviceRoadDepth=3;add(serviceRoadChoices(),"system");} else if(source==="roadWanderer"){v50WandererLoot(c.name);markWandererDead(c.name); currentRoadWanderer=null; completeRoadTurn();} else if(source==="townWanderer"){v50WandererLoot(c.name);markWandererDead(c.name); currentTownWanderer=null; stage="mercy";showCurrentContext();} else if(source==="gateGuards"){player.flags.solaceGateChallenge=false;player.flags.mercyDiscovered=true;player.flags.mainSolaceQuest="done";stage="mercy";mercyLocation="town";add("You force the gate guard to stand down. The gate opens, and Tim steps forward to meet you.","bright");if(!player.flags.solaceCheckpointSaved){player.flags.solaceCheckpointSaved=true;saveGame(activeSaveSlot);add("CHECKPOINT REACHED — SOLACE AUTOSAVED","reward");}mercyMenu();} else { completeRoadTurn(); } return; }
+  // The lookout has three player attacks to blow his whistle. Defeating him
+  // before that point prevents reinforcements; once signaled, the gang joins.
+  if(c.name==="GANG LOOKOUT" && !c.reinforcementsArrived){
+    c.signalRounds=(Number(c.signalRounds)||0)+1;
+    if(c.signalRounds>=3 && c.enemies?.some(e=>e.name==="LOOKOUT" && e.hp>0)){
+      c.reinforcementsArrived=true;
+      c.enemies.push({name:"GANG LEADER",hp:35,bolts:9},{name:"GANG MEMBER A",hp:20,bolts:4},{name:"GANG MEMBER B",hp:20,bolts:4});
+      c.maxHp+=75;
+      c.hp=c.enemies.reduce((sum,e)=>sum+e.hp,0);
+      add("The lookout sounds his whistle! Three gang members charge onto the road.","danger");
+    }
+  }
+  if(typeof petCombatRound==="function")petCombatRound(c);
+  // Multi-enemy encounters retaliate only with surviving enemies. Individual
+  // attacks are capped at two per round; a defeated robber cannot strike.
+  const attackers=c.enemies?.length?c.enemies.filter(e=>e.hp>0).slice(0,2):[null];
+  let totalDamage=0;
+  for(const attacker of attackers){
+    // Yardman's slow wrench has a telegraphed heavy swing and a real miss chance.
+    // Keep this local to the Service Road boss; Factory and Seaport combat are unchanged.
+    if(c.source==="serviceBoss" && Math.random()<0.15){
+      add("The Yardman swings wide. The wrench strikes concrete instead of you.","bright");
+      continue;
+    }
+    const heavySwing=c.source==="serviceBoss" && Math.random()<0.20;
+    const raw=heavySwing?13+Math.floor(Math.random()*4):Math.floor(Math.random()*(c.max-c.min+1))+c.min;
+    if(heavySwing)add("The Yardman winds up a brutal overhead swing!","danger");
+    const nightRaw=isDark()?Math.ceil(raw*1.15):raw;
+    const dmg=Math.max(1,nightRaw-armorDefense()-(player.flags?.equippedPet==="Scrap Dog"?1:0));
+    const inflicted=Math.min(dmg,Math.max(0,player.hp));
+    player.hp=Math.max(0,player.hp-inflicted);totalDamage+=inflicted;
+    if(attacker)add(`${attacker.name} attacks for ${inflicted} damage.`,"danger");
+    if(player.hp===0)break;
+  }
+  updateHud();
   const reactions=["They come back at you before you can reset your footing.","The next exchange is fast and ugly.","They hesitate, then commit to another attack."];
-  add(reactions[Math.floor(Math.random()*reactions.length)]); add("RESULT","system"); add(`YOU TAKE ${dmg}   YOUR HP ${player.hp}/${player.maxHp}`,"danger");
+  if(!c.enemies?.length)add(reactions[Math.floor(Math.random()*reactions.length)]);
+  add("RESULT","system"); add(`YOU TAKE ${totalDamage}   YOUR HP ${player.hp}/${player.maxHp}`,"danger");
   if(player.hp<=0){ handlePlayerDeath(); return; }
   add("(A) ATTACK   (U) USE ITEM   (B) BACK OFF","system");
 }
@@ -1240,10 +1422,14 @@ function rerollRoad(count=9){
   const pool=encounterPool();
   // Old saves used direction-specific keys; preserve their history when migrating.
   player.recentEncounters=(player.recentEncounters||[]).map(k=>String(k).replace(/^(mercy|house):/,"early:"));
-  const eligible=[...Array(pool.length).keys()].filter(i=>!pool[i].minLevel || (player.level>=pool[i].minLevel&&player.level<=pool[i].maxLevel));
+  const eligible=[...Array(pool.length).keys()].filter(i=>(pool[i].minLevel==null || player.level>=pool[i].minLevel) && (pool[i].maxLevel==null || player.level<=pool[i].maxLevel));
   const fresh=eligible.filter(i=>!player.recentEncounters.includes(encounterHistoryKey(i)));
   const recent=eligible.filter(i=>!fresh.includes(i));
-  roadEncounterOrder=[...shuffled(fresh),...shuffled(recent)].slice(0,count);
+  // When the pool is exhausted, recycle the least-recently seen events first.
+  // Randomizing the recent group could immediately replay the last encounter.
+  const history=player.recentEncounters||[];
+  const oldestFirst=recent.sort((a,b)=>history.indexOf(encounterHistoryKey(a))-history.indexOf(encounterHistoryKey(b)));
+  roadEncounterOrder=[...shuffled(fresh),...oldestFirst].slice(0,count);
   roadTurn=0;roadTurnCharged=false;player.encounterDone={};
 }
 function currentRoadEncounterIndex(){return Math.max(0,Math.min(roadTurn+(roadGoal==="east"&&player.flags.eastReturning?1:0),roadEncounterOrder.length-1));}
@@ -1389,12 +1575,13 @@ function v49FactoryRoom(){
     add("An old Tomorrow Project terminal glows in the corner. An open passage leads deeper into the factory.");
     player.flags.v49FactoryMet=true;
   }else add("Forge is at his bench. The Tomorrow Project terminal hums in the corner. The passage to the central stairwell stands open.");
-  add("(T) TOMORROW PROJECT TERMINAL   (F) TALK TO FORGE   (W) WORKBENCH   (D) ENTER INNER FACTORY — FREE (0 TURNS)   (E) EXIT FACTORY","system");
+  add("(T) TOMORROW PROJECT TERMINAL   (F) TALK TO FORGE   (W) WORKBENCH   (D) ENTER INNER FACTORY — FREE (0 TURNS)   (E) EXIT FACTORY"+(typeof portReady==="function"&&player.flags.portChargePrepared?"   ROAD TO SEAPORT":""),"system");
 }
 // v49.1: tutorial materials are bench-bound, never added to sellable inventory.
 const CRAFT_RECIPES={
   bandage:{name:'Reinforced Bandage',cloth:2,scrap:1,bolts:0,seconds:30,chance:.9,type:'consumable'},
-  pipe:{name:'Rusted Pipe',cloth:0,scrap:2,bolts:20,seconds:30,chance:.9,type:'weapon'}
+  pipe:{name:'Rusted Pipe',cloth:0,scrap:2,wire:0,bolts:20,seconds:30,chance:.9,type:'weapon'},
+  ironReaper:{name:'Iron Reaper',cloth:3,scrap:8,wire:4,bolts:75,seconds:30,chance:.9,type:'weapon',minLevel:6}
 };
 function v49Terminal(){
   stage='factoryTerminal';
@@ -1407,7 +1594,7 @@ function v49Terminal(){
 function v49TerminalRecord(which){
   if(which===1){
     add('ARCHIVE // TOMORROW PROJECT','place');
-    add('The Relay Station connection has been restored. This factory once supplied equipment for the Tomorrow Project.');
+    add((player.flags.relayQuest==='complete'?'The Relay Station connection has been restored. ':'')+'This factory once supplied equipment for the Tomorrow Project.');
     add('Surviving records are incomplete. Several sections have been deliberately restricted.');
   }else if(which===2){
     add('FACILITY REPORT // FACTORY','place');
@@ -1426,7 +1613,7 @@ function v49Forge(){
   add('FORGE — WORKSHOP','place');
   if(!player.flags.v49TerminalRead){add('FORGE > That terminal in the corner woke up when you arrived. Read it first. Then come see me.','bright');}
   else add('FORGE > The terminal sent word you were coming. I used to build Tomorrow Project equipment. There is more to that archive than it is telling you.','bright');
-  add('FORGE > The big door stays shut until the inner works are safe. Meanwhile, let me show you something useful.','bright');
+  add('FORGE > The inner works still need to be made safe. Meanwhile, let me show you something useful.','bright');
   if(player.flags.v49RecipeBandage){
     add('FORGE > You know how to make reinforced dressings now. Murphy can help you make more with your own supplies.','system');
   }else if(!player.flags.v49Job && !player.flags.v49Kit){
@@ -1455,6 +1642,7 @@ function v49MurphyRecipes(){
   if(!player.flags.v49RecipeBandage){add('NO RECIPES LEARNED. Visit Forge at the Factory for your first lesson.','system');add('(B) BACK','system');return;}
   add('[1] REINFORCED BANDAGE — 2 Cloth, 1 Scrap Metal — 30 sec — 90%','system');
   add('[2] RUSTED PIPE — 2 Scrap Metal, 20 Bolts — 30 sec — 90%','system');
+  if(player.level>=6)add('[3] IRON REAPER — 8 Scrap Metal, 4 Wire, 3 Cloth, 75 Bolts — 30 sec — 90% — LEVEL 6','system');
   add('(B) BACK','system');
 }
 function v49MurphyRecipe(key){
@@ -1466,8 +1654,8 @@ function v49MurphyRecipe(key){
   if(job){const left=Math.max(0,Math.ceil((job.endsAt-Date.now())/1000));
     add(left?`CRAFT IN PROGRESS — ${left} SECONDS REMAINING`:'CRAFT FINISHED — READY TO COLLECT','system');
     add(left?'(C) CHECK TIMER   (B) BACK':'(C) COLLECT RESULT   (B) BACK','system');return;}
-  add(`MATERIALS: Cloth ${recipe.cloth}, Scrap Metal ${recipe.scrap}, Bolts ${recipe.bolts}`,'system');
-  add(`YOU HAVE: Cloth ${findItem('Cloth')?.qty||0}, Scrap Metal ${findItem('Scrap Metal')?.qty||0}, Bolts ${player.bolts}`,'system');
+  add(`MATERIALS: Cloth ${recipe.cloth}, Scrap Metal ${recipe.scrap}, Wire ${recipe.wire||0}, Bolts ${recipe.bolts}`,'system');
+  add(`YOU HAVE: Cloth ${findItem('Cloth')?.qty||0}, Scrap Metal ${findItem('Scrap Metal')?.qty||0}, Wire ${findItem('Wire')?.qty||0}, Bolts ${player.bolts}`,'system');
   add(`TIME: ${recipe.seconds} REAL SECONDS   SUCCESS: 90%`,'system');
   add('(I) INSERT MATERIALS AND START   (B) BACK','system');
 }
@@ -1482,9 +1670,11 @@ function v49MurphyCommand(cmd){
     if(['i','insert','insert materials','start'].includes(cmd)){
       if(job){v49MurphyRecipe(key);return true;}
       if(!player.flags.v49RecipeBandage){add('LEARN THE FIRST RECIPE FROM FORGE.','danger');return true;}
-      if((findItem('Cloth')?.qty||0)<recipe.cloth||(findItem('Scrap Metal')?.qty||0)<recipe.scrap||player.bolts<recipe.bolts){add('NOT ENOUGH MATERIALS OR BOLTS.','danger');v49MurphyRecipe(key);return true;}
+      if(recipe.minLevel&&player.level<recipe.minLevel){add(`RECIPE LOCKED — REACH LEVEL ${recipe.minLevel}.`,'danger');return true;}
+      if((findItem('Cloth')?.qty||0)<recipe.cloth||(findItem('Scrap Metal')?.qty||0)<recipe.scrap||(findItem('Wire')?.qty||0)<(recipe.wire||0)||player.bolts<recipe.bolts){add('NOT ENOUGH MATERIALS OR BOLTS.','danger');v49MurphyRecipe(key);return true;}
       if(recipe.cloth)removeItem('Cloth',recipe.cloth);
       if(recipe.scrap)removeItem('Scrap Metal',recipe.scrap);
+      if(recipe.wire)removeItem('Wire',recipe.wire);
       player.bolts-=recipe.bolts;updateHud();
       player.flags.v49MurphyJob={key,endsAt:Date.now()+recipe.seconds*1000,success:Math.random()<recipe.chance};
       v49Autosave();
@@ -1506,9 +1696,19 @@ function v49MurphyCommand(cmd){
     if(player.flags.v49RecipeBandage&&['1','2','reinforced bandage','rusted pipe'].includes(cmd)){
       v49MurphyRecipe(['1','reinforced bandage'].includes(cmd)?'bandage':'pipe');return true;
     }
+    if(player.flags.v49RecipeBandage&&player.level>=6&&['3','iron reaper'].includes(cmd)){v49MurphyRecipe('ironReaper');return true;}
     v49MurphyRecipes();return true;
   }
   if(['craft','crafting','recipes','workbench','use workbench','crafting recipes'].includes(cmd)){v49MurphyRecipes();return true;}
+  // Workshop shortcuts do not unlock the future Corvette travel system.
+  if(['inspect corvette','inspect corvette photo','corvette photo'].includes(cmd)){
+    add('A faded photograph shows Murphy beside a bright blue Corvette, back when roads were roads.','system');
+    add('MURPHY > One day, maybe. Not until she is roadworthy.','bright');
+    return true;
+  }
+  if(['ask about corvette','ask about cars'].includes(cmd)){
+    add('MURPHY > She needs parts, fuel, and a miracle. Fast travel is not available yet.','bright');return true;
+  }
   return false;
 }
 function v49FactoryCommand(cmd){
@@ -1824,7 +2024,7 @@ function townVisitorChoice(){ return currentTownWanderer ? `   TALK TO ${current
 function showBarActions(){
   player.flags.solaceMenu="bar";
   player.flags.jenInDialogue=false;
-  add(`(B) BUY DRINKS   (G) GAMBLE${player.bolts>=18?"   (R) RENT ROOM — 18 BOLTS":""}   (J) SMALL TALK JEN${townVisitorChoice()}   SELL ITEMS   (T) RETURN TO TOWN`,"system");
+  add(`(B) BUY DRINKS   (G) GAMBLE${player.flags.rustyRoomOwned?"   (R) YOUR ROOM":player.bolts>=500?"   (R) BUY ROOM — 500 BOLTS":""}   (J) SMALL TALK JEN${townVisitorChoice()}   SELL ITEMS   (T) RETURN TO TOWN`,"system");
 }
 function showDrinkMenu(){
   player.flags.solaceMenu="drinks";mercyLocation="jenDrinks";add("DRINKS","bright");
@@ -1840,7 +2040,7 @@ function npcTalk(name){
   if(n==="jen"&&player.flags.jenQuest==="rescued")add("DELIVER RUNNER'S TOKEN — available now","reward");
   if(n==="jen"){
     add("JEN", "place");v48NpcIntro("jen",({active:"Jen keeps glancing toward the east gate. The runner is still missing.",cart:"Jen asks whether you've searched the cart marked on the eastern road.",recovered:"Jen sees the supply crate and rises from behind the bar.",hideout:"Jen has the supplies, but her runner is still out there.",raiders:"Jen waits for news from the abandoned checkpoint.",rescued:"Jen sees the runner's token in your hand and lets out a breath.",done:"Jen smiles. The runner is home. Your drinks still aren't free."})[player.flags.jenQuest]||"Jen leans against the bar and gives you her full attention.",player.flags.jenQuest||"none",true);
-    add(`${player.flags.jenQuest==="recovered"?"DELIVER JEN'S SUPPLY CRATE   ":player.flags.jenQuest==="rescued"?"DELIVER RUNNER'S TOKEN   ":""}ASK ABOUT SOLACE   ASK ABOUT ROAD   ASK RUMORS${(!player.flags.relayUnlocked && player.flags.relayQuest==="ask")?"   ASK ABOUT RELAY STATION":""}   SMALL TALK   ASK ABOUT MISSING SHIPMENT   (B) BACK`, "system"); return;
+    add(`${player.flags.jenQuest==="recovered"?"DELIVER JEN'S SUPPLY CRATE   ":player.flags.jenQuest==="rescued"?"DELIVER RUNNER'S TOKEN   ":""}${player.flags.jenUnpaidTab==="active"?"SETTLE UNPAID TAB   ":""}${player.flags.jenFamiliarFace==="active"?"TELL JEN ABOUT THE FAMILIAR FACE   ":""}ASK ABOUT SOLACE   ASK ABOUT ROAD   ASK ABOUT WORK   ASK RUMORS${(!player.flags.relayUnlocked && player.flags.relayQuest==="ask")?"   ASK ABOUT RELAY STATION":""}   ASK ABOUT UNPAID TAB   A FAMILIAR FACE   SMALL TALK   ASK ABOUT MISSING SHIPMENT   (B) BACK`, "system"); return;
   }
   if(n==="johnny"){
     add("JOHNNY", "place"); v48NpcIntro("johnny","Johnny folds his arms, wearing the expression of a man who could turn this conversation into a sale.");
@@ -1852,7 +2052,7 @@ function npcTalk(name){
   }
   if(n==="wayne"){
     add("WAYNE", "place"); v48NpcIntro("wayne","Wayne looks up like he's already preparing a sarcastic diagnosis.");
-    add("ASK ABOUT LAST PATIENT   ASK ABOUT INJURIES   ASK ABOUT ROAD   ASK ABOUT SOLACE   ASK ABOUT OLD HOUSE   SMALL TALK   (B) BACK", "system"); return;
+    add("ASK ABOUT LAST PATIENT   ASK ABOUT INJURIES   ASK ABOUT WORK   ASK ABOUT ROAD   ASK ABOUT SOLACE   ASK ABOUT OLD HOUSE   SMALL TALK   (B) BACK", "system"); return;
   }
   if(n==="amii"){
     add("AMII", "place"); v48NpcIntro("amii","Amii smiles. Niko thumps his tail. Alex continues conducting a background check with his eyes.");
@@ -1863,7 +2063,8 @@ function npcTalk(name){
     const spot=spots[Math.floor(Math.random()*spots.length)];
     add("TIM", "place"); v48NpcIntro("tim",`You find Tim ${spot}.`); v48NpcIntro("tim_hair","His red hair has gone gray around the temples, but he's still moving like there are six things left to do before dark.");
     add("TIM > Hey. Settling in alright?", "bright");
-    add(`${player.flags.timQuest==="found"&&hasItem("Tim's Old Badge")?"SMALL TALK TIM — RETURN BADGE   ":""}ASK ABOUT SOLACE   ASK ABOUT ROUTE 127   ASK ABOUT WORK   ASK ABOUT TIM${(!player.flags.relayUnlocked && player.flags.relayQuest==="ask")?"   ASK ABOUT RELAY STATION":""}   SMALL TALK   TOWN`, "system"); return;
+    if(player.flags.timQuest==="found"&&hasItem("Tim's Old Badge"))add("RETURN OLD BADGE — available now","reward");
+    add("ASK ABOUT SOLACE   ASK ABOUT WORK   VIEW BOUNTIES   COLLECT BOUNTY   PAY OFF BOUNTY   ASK ABOUT RELAY STATION   NEVER MIND", "system"); return;
   }
 }
 function askAboutRelay(name){
@@ -1966,8 +2167,8 @@ function smallTalk(name){
   const a=lines[name]; add(a[Math.floor(Math.random()*a.length)], "bright");
 }
 // Individual stock is stored with the character, never regenerated by opening the shop.
-const VENDOR_BASE={"Battered Flashlight":20,"Rusted Pipe":12,"Worn Jacket":10,"Tent":12,"Energy Bars":8,"Bandage":12,"Reinforced Jacket":45,"Claw Hammer":50,"Tire Iron":80,"Reinforced Pipe":48,"Tempered Steel Pipe":125,"Padded Jacket":45,"Hardened Scavenger Coat":135,"Devastator's Iron Pipe":320,"Wraith's Reinforced Coat":340};
-const VENDOR_POOL=["Rusted Pipe","Worn Jacket","Reinforced Jacket","Claw Hammer","Tire Iron","Reinforced Pipe","Tempered Steel Pipe","Padded Jacket","Hardened Scavenger Coat","Devastator's Iron Pipe","Wraith's Reinforced Coat"];
+const VENDOR_BASE={"Battered Flashlight":20,"Rusted Pipe":12,"Worn Jacket":10,"Tent":12,"Energy Bars":8,"Bandage":12,"Reinforced Jacket":45,"Claw Hammer":50,"Tire Iron":80,"Reinforced Pipe":48,"Tempered Steel Pipe":125,"Padded Jacket":45,"Hardened Scavenger Coat":135,"Devastator's Iron Pipe":320,"Wraith's Reinforced Coat":340,"Worn Leather Wristband":18,"Lucky Bottle Cap":15,"Reinforced Belt":22,"Scavenger's Charm":55,"Rusted Dog Tags":60,"Road Warrior's Bracelet":65};
+const VENDOR_POOL=["Rusted Pipe","Worn Jacket","Reinforced Jacket","Claw Hammer","Tire Iron","Reinforced Pipe","Tempered Steel Pipe","Padded Jacket","Hardened Scavenger Coat","Devastator's Iron Pipe","Wraith's Reinforced Coat","Worn Leather Wristband","Lucky Bottle Cap","Reinforced Belt","Scavenger's Charm","Rusted Dog Tags","Road Warrior's Bracelet"];
 function refreshVendorStock(){
   const common=VENDOR_POOL.filter(x=>GEAR[x].rarity==="common"),uncommon=VENDOR_POOL.filter(x=>GEAR[x].rarity==="uncommon"),rare=VENDOR_POOL.filter(x=>GEAR[x].rarity==="rare");
   const thirdPool=Math.random()<.05?rare:uncommon;
@@ -1984,6 +2185,12 @@ function ensureVendorStock(){
  if(!Array.isArray(player.vendorSold))player.vendorSold=[];
 }
 function johnnyPrice(item){const base=VENDOR_BASE[item];return player.dailyDeal===item?Math.max(1,Math.round(base*.72)):base;}
+function johnnyMainMenu(){
+  player.flags.solaceMenu="johnnyMain";
+  add("JOHNNY'S TRADING POST","place");
+  add("JOHNNY > Buying, selling, or talking? Pick your poison.","bright");
+  add("VIEW STOCK   SELL ITEMS   TALK   (B) BACK","system");
+}
 function johnnyShop(){
   ensureVendorStock();player.flags.solaceMenu="shop";
   add("JOHNNY'S STOCK — PERSONAL DAILY SELECTION","place");
@@ -1995,8 +2202,8 @@ function johnnyShop(){
   add(["BUY ENERGY BAR","BUY BANDAGE","BUY BATTERED FLASHLIGHT","SMALL TALK",...(player.flags.relayPartsRevealed&&player.flags.relayQuest!=="complete"?["ASK ABOUT RELAY PARTS"]:[]),"BUY TENT","BUY","SELL ITEMS",...(player.packMax<10?["BUY 10-SLOT BACKPACK"]:[]),...(sq?["SELL ALL SCRAP"]:[]),"(B) BACK"].join("   "),"system");
 }
 function showEquipmentShop(){
-  ensureVendorStock();player.flags.solaceMenu="equipment";add("SCRAP & STEEL ARMORY — MARA — WEAPONS & ARMOR","place");
-  for(const item of player.vendorStock){const g=GEAR[item];add(`${gearLabel(item)} — ${g.type==="weapon"?`DMG ${g.min}–${g.max}`:`DEF ${g.def}`} — ${johnnyPrice(item)} BOLTS${player.vendorSold.includes(item)?" — SOLD OUT":""}`,g.rarity);}
+  ensureVendorStock();player.flags.solaceMenu="equipment";add("SCRAP & STEEL ARMORY — MARA — WEAPONS, ARMOR & ACCESSORIES","place");
+  for(const item of player.vendorStock){const g=GEAR[item];add(`${gearLabel(item)} — ${g.type==="weapon"?`DMG ${g.min}–${g.max}`:g.type==="armor"?`DEF ${g.def}`:`ACCESSORY ${g.def?`+${g.def} DEF`:"combat bonus"}`} — ${johnnyPrice(item)} BOLTS${player.vendorSold.includes(item)?" — SOLD OUT":""}`,g.rarity);}
   add([...player.vendorStock.map(x=>`BUY ${x.toUpperCase()}`),"(B) BACK"].join("   "),"system");
 }
 function vendorReturnMenu(){return player.flags.solaceMenu==="equipment"?showEquipmentShop():johnnyShop();}
@@ -2019,7 +2226,34 @@ function showPersonalQuestOffer(key){
  const intro={jenQuest:["LAST CALL","JEN > My runner was bringing a supply cart back from the eastern road. The cart never arrived, and neither did they. Supplies I can replace. People are harder. Will you look for them?"],johnnyQuest:["A DEAL GONE BAD","JOHNNY > A runner lost my ledger on the western road. Names, debts, promises. Bad hands could turn that book into trouble for half of Solace. Bring it back?"],amiiQuest:["THE MISSING DEPOSIT","AMII > A deposit satchel went missing west of town. Those Bolts belong to people who trusted us. I need it found before I have to tell them. Can you help?"],waynePatientQuest:["THE LAST PATIENT","WAYNE > A patient needs medicine I don't have. An old ambulance on the eastern road might still carry it. I'd ask nicely, but we're running out of time. Will you search?" ]}[key];
  add(intro[0],"place");add(intro[1],"bright");add("ACCEPT   DECLINE","system");
 }
+function murphyMainMenu(){
+ player.flags.solaceMenu="murphyMain";
+ add("MURPHY'S WORKSHOP", "place");
+ add("[1] CRAFTING RECIPES   [2] INSPECT CORVETTE   [3] TALK   (B) BACK", "system");
+}
+function murphyTalkMenu(){
+ player.flags.solaceMenu="murphyTalk";
+ add("MURPHY — TALK", "place");
+ add("[1] ASK ABOUT WORK   [2] ASK ABOUT CORVETTE   [3] ASK ABOUT RELAY STATION   [4] BACK", "system");
+}
 function handleSolace(cmd, raw=cmd){
+ if(mercyLocation==="murphy"&&player.flags.solaceMenu==="murphyMain"){
+  if(["1","crafting recipes","recipes"].includes(cmd)){v49MurphyRecipes();return;}
+  if(["2","inspect corvette","inspect corvette photo","corvette photo"].includes(cmd)){add("You step closer to the faded photograph. A bright blue Corvette sits under a sky that looks almost impossibly clean.");add("Murphy glances over and smiles. MURPHY > Blue Corvette. That's what cars were supposed to look like.","bright");murphyMainMenu();return;}
+  if(["3","talk","small talk","small talk murphy"].includes(cmd)){murphyTalkMenu();return;}
+  if(["b","back","return"].includes(cmd)){mercyLocation="town";player.flags.solaceMenu="";mercyMenu();return;}
+ }
+ if(mercyLocation==="murphy"&&player.flags.solaceMenu==="murphyTalk"){
+  if(["1","ask about work","about work"].includes(cmd)){add("MURPHY > Anything mechanical comes through here eventually. I could use a usable serpentine belt; the old one is cracked clean through.","bright");if(player.flags.murphyQuest==="locked")player.flags.murphyQuest="active";murphyTalkMenu();return;}
+  if(["2","ask about corvette","about corvette"].includes(cmd)){add("MURPHY > Blue Corvette. One day I'll get her running. No fast-travel tricks until the car is actually roadworthy.","bright");murphyTalkMenu();return;}
+  if(["3","ask about relay station","about relay station","relay station"].includes(cmd)){askAboutRelay("murphy");return;}
+  if(["4","b","back","return"].includes(cmd)){murphyMainMenu();return;}
+ }
+ if(mercyLocation==="johnny"&&player.flags.solaceMenu==="johnnyMain"){
+  if(cmd==="view stock"||cmd==="stock"){johnnyShop();return;}
+  if(cmd==="talk"||cmd==="small talk"){npcTalk("johnny");return;}
+  if(cmd==="b"||cmd==="back"||cmd==="return"){mercyLocation="town";mercyMenu();return;}
+ }
  if(player.flags.pendingQuestOffer){const key=player.flags.pendingQuestOffer;if(cmd==="accept"){player.flags[key]="active";player.flags.pendingQuestOffer="";add(`NEW QUEST — ${ {jenQuest:"LAST CALL",johnnyQuest:"A DEAL GONE BAD",amiiQuest:"THE MISSING DEPOSIT",waynePatientQuest:"THE LAST PATIENT"}[key] }`,"reward");npcTalk(mercyLocation);return;}if(cmd==="decline"||cmd==="back"||cmd==="b"){player.flags.pendingQuestOffer="";add("Maybe another time. The offer remains available.","system");npcTalk(mercyLocation);return;}showPersonalQuestOffer(key);return;}
 
  if(handleCasinoCommand(cmd))return;
@@ -2057,7 +2291,7 @@ function handleSolace(cmd, raw=cmd){
   if(mercyLocation==="johnny" && player.flags.relayPartsRevealed && (cmd.includes("relay")||cmd.includes("regulator"))){ if(!ensureRelayParts().johnny){ add("JOHNNY > That old thing? Yeah, I've got one under the counter somewhere.","bright"); add("Johnny digs through a crate, produces a dust-covered power regulator, and drops it into your hands."); add("JOHNNY > Take it. Seriously. You've improved my inventory by removing it.","bright"); awardRelayPart("johnny","POWER REGULATOR"); } else add("JOHNNY > Already gave you the only one I had. You're welcome twice, apparently.","bright"); johnnyShop(); return; }
   // B is reserved for Back. Buying drinks uses the numbered local action.
   if(mercyLocation==="jen" && cmd==="g") cmd="gamble";
-  if(mercyLocation==="jen" && cmd==="r") cmd="rent room";
+  if(mercyLocation==="jen" && cmd==="r") cmd="room";
   if(mercyLocation==="jen" && (cmd==="buy drinks"||cmd==="drinks")){showDrinkMenu();return;}
   if(mercyLocation==="jen" && cmd==="gamble"){showGambleMenu();return;}
   if(mercyLocation==="jenGames"){ if(cmd==="b"||cmd==="back"){mercyLocation="jen";showBarActions();return;} if(cmd==="d"||cmd.includes("dice")){mercyLocation="dice";add("PICK 1   PICK 2   PICK 3   PICK 4   PICK 5   PICK 6   (B) BACK","system");return;} add("DICE   (B) BACK","system");return;}
@@ -2087,6 +2321,15 @@ function handleSolace(cmd, raw=cmd){
   if(cmd==="view stash"||cmd==="stash"){add("SECURE STASH","place");if(!player.stash.length)add("EMPTY","system");else player.stash.forEach((i,n)=>add(`[${n+1}] ${i.name}${i.qty>1?` ×${i.qty}`:""}`));showBankActions();return;}
 
   if(cmd.includes("talk to jen")||cmd==="talk jen"){npcTalk("jen");return;} if(cmd.includes("talk to johnny")||cmd==="talk johnny"){npcTalk("johnny");return;} if(cmd.includes("talk to murphy")||cmd==="talk murphy"){npcTalk("murphy");return;} if(cmd.includes("talk to wayne")||cmd==="talk wayne"){npcTalk("wayne");return;} if(cmd.includes("talk to amii")||cmd==="talk amii"){npcTalk("amii");return;} if(cmd.includes("talk to tim")||cmd==="talk tim"){npcTalk("tim");return;}
+  if(mercyLocation==="tim" && ["1","about solace","solace"].includes(cmd)){add("TIM > Solace started as a fuel stop, then a camp. Somebody built a wall and we started calling it home.","bright");npcTalk("tim");return;}
+  if(mercyLocation==="tim" && ["2","work"].includes(cmd)){add("TIM > Two leads: Terrible Billy, and trouble at the old house. Billy has been hitting travelers east of the fork. Bring me proof he will not do it again.","bright");add(`${player.flags.timHouseBounty?`TROUBLE AT THE OLD HOUSE — ${String(player.flags.timHouseBounty).toUpperCase()}`:"ACCEPT TROUBLE AT THE OLD HOUSE"}   ${player.flags.terribleBillyBounty?`TERRIBLE BILLY — ${String(player.flags.terribleBillyBounty).toUpperCase()}`:"ACCEPT TERRIBLE BILLY CONTRACT"}` ,"system");npcTalk("tim");return;}
+  if(mercyLocation==="tim" && (cmd.includes("accept trouble at the old house")||cmd==="trouble at old house")){if(!player.flags.timHouseBounty){player.flags.timHouseBounty="active";add("BOUNTY ACCEPTED — TROUBLE AT THE OLD HOUSE. Find the occupied house west of Solace, defeat the squatter, and bring proof to Tim.","reward");}else add(`TIM > That contract is already ${String(player.flags.timHouseBounty).toUpperCase()}.`,"system");npcTalk("tim");return;}
+  if(mercyLocation==="tim" && (cmd.includes("accept terrible billy")||cmd==="terrible billy"||cmd==="billy contract")){if(!player.flags.terribleBillyBounty){player.flags.terribleBillyBounty="active";add("BOUNTY ACCEPTED — TERRIBLE BILLY. Find him on the road and use HUNT TERRIBLE BILLY while traveling to confront him.","reward");}else add(`TIM > That contract is already ${String(player.flags.terribleBillyBounty).toUpperCase()}.`,"system");npcTalk("tim");return;}
+  if(mercyLocation==="tim" && ["3","bounties","view bounties","about bounties"].includes(cmd)){v52WantedBoard();npcTalk("tim");return;}
+  if(mercyLocation==="tim" && ["4","collect bounty"].includes(cmd)){if(player.flags.timHouseBounty==="proof"){player.flags.timHouseBounty="done";gainXp(100);gainBolts(75);updateHud();add("TIM > That's proof enough. The old house is clear.","bright");add("BOUNTY COMPLETE — TROUBLE AT THE OLD HOUSE. +100 XP, +75 BOLTS.","reward");}else if(player.flags.terribleBillyBounty==="proof"){player.flags.terribleBillyBounty="done";gainXp(140);gainBolts(100);updateHud();add("TIM > Billy won't be hunting travelers again. You did good.","bright");add("BOUNTY COMPLETE — TERRIBLE BILLY. +140 XP, +100 BOLTS.","reward");}else add("TIM > Bring me proof from an active bounty contract. The board is informational; it doesn't pay out by itself.","system");npcTalk("tim");return;}
+  if(mercyLocation==="tim" && ["5","pay off bounty"].includes(cmd)){if(typeof v52PayFine==="function")v52PayFine();else add("Bounty settlement is unavailable.","system");npcTalk("tim");return;}
+  if(mercyLocation==="tim" && ["6","relay station","ask about relay station","about relay station"].includes(cmd)){askAboutRelay("tim");return;}
+  if(mercyLocation==="tim" && ["7","never mind","back"].includes(cmd)){mercyLocation="town";mercyMenu();return;}
   if(cmd==="small talk"||cmd==="smalltalk"){
     const who=["jen","johnny","murphy","wayne","amii","tim"].includes(mercyLocation)?mercyLocation:null;
     if(who){ smallTalk(who); return; }
@@ -2100,6 +2343,26 @@ function handleSolace(cmd, raw=cmd){
   }
   if(cmd.includes("relay")){ const who=["jen","murphy","tim"].includes(mercyLocation)?mercyLocation:null; if(who){askAboutRelay(who);return;} if(player.flags.relayUnlocked){enterRelayStation();return;} add("Ask someone in Solace about the Relay Station.","system"); return; }
   if(cmd.includes("rumor")){add("JEN > Road's been louder than usual. Travelers disappearing east of the old overpass. Murphy thinks it's raiders. Wayne thinks Murphy watches too many old movies.","bright");return;}
+  // Jen's two additional side quests use per-character flags, explicit costs, and journal-visible state.
+  if(mercyLocation==="jen" && (cmd.includes("unpaid tab")||cmd.includes("settle tab"))){
+    if(!f.jenUnpaidTab){f.jenUnpaidTab="active";add("JEN > One of my regulars left a 12-Bolt tab. Help me square the books and I'll pay you for the trouble.","bright");add("QUEST ACCEPTED — UNPAID TAB. Choose SETTLE UNPAID TAB when ready.","reward");}
+    else if(f.jenUnpaidTab==="active"&&(cmd.includes("settle")||cmd.includes("pay"))){if(player.bolts<12){add("You need 12 Bolts to settle the tab.","system");return;}player.bolts-=12;f.jenUnpaidTab="done";gainBolts(20);gainXp(25);updateHud();add("QUEST COMPLETE — UNPAID TAB. The books balance. +25 XP, +8 net Bolts.","reward");}
+    else add(`UNPAID TAB — ${String(f.jenUnpaidTab).toUpperCase()}.`,"system");
+    npcTalk("jen");return;
+  }
+  if(mercyLocation==="jen"&&(cmd.includes("familiar face")||cmd.includes("tell jen about the familiar"))){
+    if(!f.jenFamiliarFace){f.jenFamiliarFace="active";add("JEN > I swear I saw an old friend pass the east gate. Patched green coat, silver ring on the left hand. If you hear anything, come tell me.","bright");add("QUEST ACCEPTED — A FAMILIAR FACE.","reward");}
+    else if(f.jenFamiliarFace==="active"&&cmd.includes("tell")){f.jenFamiliarFace="done";gainXp(30);gainBolts(10);updateHud();add("JEN > That's enough to know they're still out there. Thank you for telling me.","bright");add("QUEST COMPLETE — A FAMILIAR FACE. +30 XP, +10 BOLTS.","reward");}
+    else add(`A FAMILIAR FACE — ${String(f.jenFamiliarFace).toUpperCase()}. Jen waits for you to return with news.`,"system");
+    npcTalk("jen");return;
+  }
+  // Jen's dialogue is handled before generic Tim-oriented topics so her responses never route to the wrong NPC.
+  if(mercyLocation==="jen" && (cmd.includes("about solace")||cmd.includes("about town"))){add("JEN > Solace is a wall, a warm drink, and a dozen people pretending they're not scared. Some nights, that is enough.","bright");return;}
+  if(mercyLocation==="jen" && (cmd.includes("about road")||cmd.includes("route 127"))){add("JEN > East gets rough past the overpass. If you're heading out, tell somebody where you're going. I don't want another empty stool at my bar.","bright");return;}
+  if(mercyLocation==="jen" && cmd.includes("about work")){add("JEN > The tavern keeps people fed, watered, and talking. I could use help finding my missing runner and keeping supplies coming in. Start with the shipment if you haven't already.","bright");return;}
+  if(mercyLocation==="wayne" && cmd.includes("about work")){add("WAYNE > Work? Keep people alive, keep the clinic stocked, and try not to charge more than they can afford. The Last Patient still needs medicine, if you're willing to help.","bright");return;}
+  if(mercyLocation==="wayne" && (cmd.includes("about road")||cmd.includes("route 127"))){add("WAYNE > The road is an injury that never closes. Watch for wreckage, bad footing, and anyone pretending a limp is nothing.","bright");return;}
+  if(mercyLocation==="wayne" && (cmd.includes("about solace")||cmd.includes("about town"))){add("WAYNE > Solace is safer than the road, not safe. Keep your wounds clean and your Bolts where you can find them.","bright");return;}
   if(cmd.includes("about deals")){add("JOHNNY > Deals change. If I have something cheap today, buy it today. Tomorrow I may come to my senses.","bright");return;}
   if(cmd.includes("about supplies")){add("JOHNNY > Food, tools, scrap, whatever survives the road. Bring me something useful and I'll make us both pretend the price was fair.","bright");return;}
   if(mercyLocation==="murphy" && player.flags.relayPartsRevealed && cmd.includes("relay") && cmd.includes("part")){ add("MURPHY > Four failures? Figures. Check the old maintenance yard for an antenna servo. County gear used the same mounts. Johnny hoards old regulators. And those lower utility roads near the fork used shielded couplers.","bright"); npcTalk("murphy"); return;}
@@ -2115,7 +2378,53 @@ function handleSolace(cmd, raw=cmd){
   if(["jen","jenDrinks"].includes(mercyLocation) && (cmd==="beer"||cmd==="buy beer")){ if(player.bolts<3){add("JEN > Three Bolts.","system");return;} player.bolts-=3; player.hp=Math.min(player.maxHp,player.hp+5);updateHud();add("BEER — +5 HP   -3 BOLTS","reward"); if(mercyLocation==="jenDrinks")showDrinkMenu(); return;}
   if(["jen","jenDrinks"].includes(mercyLocation) && (cmd==="shot"||cmd==="buy shot")){ if(player.bolts<5){add("JEN > Five Bolts.","system");return;} player.bolts-=5; player.hp=Math.min(player.maxHp,player.hp+10);updateHud();add("SHOT — +10 HP   -5 BOLTS","reward"); if(mercyLocation==="jenDrinks")showDrinkMenu(); return;}
   if(["jen","jenDrinks"].includes(mercyLocation) && cmd.includes("house special")){ if(player.bolts<8){add("JEN > Eight Bolts.","system");return;} player.bolts-=8; player.hp=Math.min(player.maxHp,player.hp+15);updateHud();add("HOUSE SPECIAL — +15 HP   -8 BOLTS","reward");add("JEN > This stopped being medicine about two drinks ago.","bright"); if(mercyLocation==="jenDrinks")showDrinkMenu(); return;}
-  if(mercyLocation==="jen" && (cmd.includes("rent room")||cmd==="room")){ if(player.bolts<18){add("JEN > Room's eighteen Bolts.","system");return;} player.bolts-=18;player.hp=player.maxHp;player.deathStreak=0;player.flags.rentedRoom=true;updateHud();add("ROOM RENTED — SAFE REST","reward");add("Full HP. Death penalty reset. Expedition turns unchanged; daily turns refill on their normal schedule.","system");return;}
+  if(mercyLocation==="jenRoomChest"){
+    // A stale or edited save location must not grant access to an unpurchased room.
+    if(!player.flags?.rustyRoomOwned){mercyLocation="jen";add("ROOM ACCESS REQUIRES OWNERSHIP","system");return;}
+    if(!Array.isArray(player.rustyRoomChest))player.rustyRoomChest=[];
+    const chest=player.rustyRoomChest;
+    const show=()=>{add('RUSTY LANTERN — ROOM CHEST','place');add(`CHEST ${chest.length}/10 STACKS   PACK ${packSlotsUsed()}/${player.packMax}`,'system');chest.forEach((i,n)=>add(`${n+1}. ${i.name} ×${i.qty}`));if(!chest.length)add('CHEST EMPTY','system');add('DEPOSIT <ITEM NAME> [xQTY]   WITHDRAW <ITEM NAME> [xQTY]   BACK','system');};
+    if(['back','b','return'].includes(cmd)){mercyLocation='jenRoom';add('THE RUSTY LANTERN','place');add(`${player.name||'PLAYER'}'S ROOM`,'place');add('REST   CHEST   LOOK AROUND   RETURN','system');return;}
+    const deposit=cmd.startsWith('deposit '),withdraw=cmd.startsWith('withdraw ');
+    if(deposit||withdraw){
+      const request=cmd.slice(deposit?8:9).trim();
+      const match=request.match(/^(.*?)\s+(?:x|×)(\d+)$/i);
+      const name=(match?match[1]:request).trim().toLowerCase();
+      const qty=match?Number(match[2]):1;
+      const src=deposit?player.pack:chest,dst=deposit?chest:player.pack;
+      if(!name||!Number.isSafeInteger(qty)||qty<1){add('INVALID ITEM OR QUANTITY','system');show();return;}
+      const item=src.find(i=>i.name.toLowerCase()===name);
+      if(!item||!Number.isSafeInteger(item.qty)||item.qty<qty){add('ITEM OR QUANTITY NOT AVAILABLE','system');show();return;}
+      if(deposit&&['quest','key'].includes(item.type)){add('QUEST ITEMS CANNOT BE STORED','system');show();return;}
+      if(deposit&&(item.name===player.weapon||item.name===player.armor)){add('EQUIPPED GEAR CANNOT BE STORED','system');show();return;}
+      const existing=dst.find(i=>i.name===item.name&&i.type===item.type);
+      if(!existing&&(deposit?chest.length>=10:packSlotsUsed()>=player.packMax)){add('NO FREE STORAGE SLOTS','system');show();return;}
+      if(existing){if(!Number.isSafeInteger(existing.qty)||existing.qty<1||!Number.isSafeInteger(existing.qty+qty)){add('INVALID STORAGE QUANTITY','system');show();return;}existing.qty+=qty;}else dst.push({...item,qty});
+      item.qty-=qty;if(item.qty===0)src.splice(src.indexOf(item),1);
+      add(`${deposit?'STORED':'RETRIEVED'} — ${item.name} ×${qty}`,'reward');updateHud();show();return;
+    }
+    show();return;
+  }
+  if(mercyLocation==="jenRoom"){
+    if(["b","back","return","4"].includes(cmd)){mercyLocation="jen";showBarActions();return;}
+    if(["rest","1"].includes(cmd)){
+      const f=player.flags, today=Number(day)||1;
+      if(f.rustyRoomRestDay!==today){f.rustyRoomRestDay=today;f.rustyRoomRestCount=0;}
+      const factors=[1,.75,.5,.25,0],factor=factors[Math.min(f.rustyRoomRestCount,4)];
+      f.rustyRoomRestCount++;
+      const heal=Math.min(player.maxHp-player.hp,Math.ceil(player.maxHp*factor));
+      player.hp+=heal; if(heal>0)player.deathStreak=0;
+      updateHud();add(`ROOM REST — ${Math.round(factor*100)}% EFFECTIVENESS, +${heal} HP`,'reward');
+      add('Rest does not replenish expedition turns.','system');return;
+    }
+    if(["look around","look","3"].includes(cmd)){add('The door locks from inside. A narrow bed and an old lamp make this a safe place to sleep.','system');return;}
+    if(["chest","2"].includes(cmd)){mercyLocation='jenRoomChest';if(!Array.isArray(player.rustyRoomChest))player.rustyRoomChest=[];add('RUSTY LANTERN — ROOM CHEST','place');add('DEPOSIT <ITEM NAME> [xQTY]   WITHDRAW <ITEM NAME> [xQTY]   BACK','system');return;}
+    add('REST   CHEST   LOOK AROUND   RETURN','system');return;
+  }
+  if(mercyLocation==="jen" && ["rent room","buy room","room"].includes(cmd)){
+    if(!player.flags.rustyRoomOwned){if(player.bolts<500){add('JEN > A room of your own costs 500 Bolts.','system');return;}player.bolts-=500;player.flags.rustyRoomOwned=true;updateHud();add('ROOM PURCHASED — 500 BOLTS','reward');}
+    mercyLocation='jenRoom';add('THE RUSTY LANTERN','place');add(`${player.name||'PLAYER'}'S ROOM`,'place');add('REST   CHEST   LOOK AROUND   RETURN','system');return;
+  }
   if(mercyLocation==="jen" && cmd==="gamble"){ mercyLocation="dice"; add("DICE TABLE","place"); add("You walk over to a smoke-hazed table in the back corner. Two wastelanders are throwing battered dice against an overturned ammo tin."); add('One looks up. "Bolts talk. Pick a number."',"bright"); add("PICK 1   PICK 2   PICK 3   PICK 4   PICK 5   PICK 6   LEAVE TABLE","system"); return; }
   if(mercyLocation==="dice"){
     if(cmd==="b"||cmd==="back"||cmd.includes("leave")){mercyLocation="jen";add("You step away from the dice table and return to the bar.");showBarActions();return;}
@@ -2167,8 +2476,8 @@ function handleSolace(cmd, raw=cmd){
   if(cmd==="t"||cmd==="town"||cmd==="solace"||cmd==="return to town"||cmd.includes("main street")){mercyLocation="town";mercyMenu();return;}
   if(cmd==="j" && mercyLocation==="jen"){npcTalk("jen");return;}
   if(cmd==="bar"||cmd==="jen's bar"||cmd==="visit bar"){mercyLocation="jen";add("THE RUSTY LANTERN TAVERN","place");showWanderersAt("jen");if(!player.flags.visited_jen){player.flags.visited_jen=true;add("Warm light leaks through patched windows. The room smells like wood smoke and something almost resembling dinner.");add("Jen is short, warm, and easy to talk to—the kind of person who makes a hard place feel less hard.");add("As she reaches for a glass, you catch a glimpse of a tiny ladybug tattoo near her wrist.");add("JEN > First one's water. You look like you need it more than anything stronger.","bright");if(player.flags.travelerInSolace)add("The wounded woman from the road is sitting near the end of the bar with a fresh dressing on her arm. She catches your eye and smiles. ‘Didn’t think I’d see you again.’","bright");}else{add("JEN > Back again? What can I get you?", "bright");}showBarActions();return;}
-  if(cmd==="trader"||cmd==="trading post"||cmd==="johnny"){mercyLocation="johnny";add("JOHNNY'S TRADING POST","place");showWanderersAt("johnny");if(!player.flags.visited_johnny){player.flags.visited_johnny=true;add("Shelves made from old road signs hold food, tools, ammunition, and objects whose original purpose is no longer obvious.");add("Johnny looks over your pack with the practiced grin of a man already working out three different ways to make a deal.");add("JOHNNY > I'll buy almost anything. Sell almost anything too. And lucky for you, today I happen to be feeling generous.","bright");add("JOHNNY > Generous-ish.","bright");}else{add("JOHNNY > Back for another deal?", "bright");}johnnyShop();return;}
-  if(cmd==="workshop"||cmd==="murphy"){player.flags.v49MurphyMenu="";player.flags.solaceMenu="workshop";mercyLocation="murphy";add("MURPHY'S MOTOR WORKS","place");showWanderersAt("murphy");if(!player.flags.visited_murphy){player.flags.visited_murphy=true;add("The shop looks chaotic until you notice every tool is exactly where Murphy expects it to be.");add("A faded photograph of a bright blue Corvette is pinned above his workbench, remarkably clean compared with everything around it.");add("MURPHY > Let's see what survived the trip with you.","bright");add("He checks your Rusted Pipe and gives an approving little shrug. MURPHY > Ugly. Reliable. I respect that.");}else{add("MURPHY > Back again? What needs fixing?", "bright");}add(`SMALL TALK MURPHY   CRAFTING RECIPES   INSPECT CORVETTE PHOTO${townVisitorChoice()}   (B) BACK`,"system");return;}
+  if(cmd==="trader"||cmd==="trading post"||cmd==="johnny"){mercyLocation="johnny";add("JOHNNY'S TRADING POST","place");showWanderersAt("johnny");if(!player.flags.visited_johnny){player.flags.visited_johnny=true;add("Shelves made from old road signs hold food, tools, ammunition, and objects whose original purpose is no longer obvious.");add("Johnny looks over your pack with the practiced grin of a man already working out three different ways to make a deal.");add("JOHNNY > I'll buy almost anything. Sell almost anything too. And lucky for you, today I happen to be feeling generous.","bright");add("JOHNNY > Generous-ish.","bright");}else{add("JOHNNY > Back for another deal?", "bright");}johnnyMainMenu();return;}
+  if(cmd==="workshop"||cmd==="murphy"){player.flags.v49MurphyMenu="";player.flags.solaceMenu="workshop";mercyLocation="murphy";add("MURPHY'S MOTOR WORKS","place");showWanderersAt("murphy");if(!player.flags.visited_murphy){player.flags.visited_murphy=true;add("The shop looks chaotic until you notice every tool is exactly where Murphy expects it to be.");add("A faded photograph of a bright blue Corvette is pinned above his workbench, remarkably clean compared with everything around it.");add("MURPHY > Let's see what survived the trip with you.","bright");add("He checks your Rusted Pipe and gives an approving little shrug. MURPHY > Ugly. Reliable. I respect that.");}else{add("MURPHY > Back again? What needs fixing?", "bright");}murphyMainMenu();return;}
   if(cmd==="clinic"||cmd==="wayne"){player.flags.solaceMenu="clinic";mercyLocation="wayne";add("LAST CHANCE CLINIC","place");showWanderersAt("wayne");if(!player.flags.visited_wayne){player.flags.visited_wayne=true;add("Clean bandages, boiled instruments, labeled jars. Someone here knows what they're doing.");add("A tiny word has been scratched into the underside of one metal shelf: SEX.","system");add("Wayne notices you noticing it and says absolutely nothing.");add(`WAYNE > You're at ${player.hp}/${player.maxHp} HP. I've seen worse. Usually attached to smarter decisions.`,"bright");}else{add("WAYNE > Try not to bleed on the floor.", "bright");}add("TREAT WOUNDS — 1 BOLT PER 5 HP   BUY BANDAGE — 8 BOLTS   BUY   SELL ITEMS   SMALL TALK WAYNE   TOWN","system");return;}
   if(cmd==="bank"||cmd==="bank stash"||cmd==="amii"||cmd.includes("visit bank")){bankMenu();return;}
   if(cmd.startsWith("post ")){postToBulletinBoard(raw.trim().slice(5));return;}
@@ -2238,7 +2547,7 @@ function showSolaceContext(){
   if(mercyLocation==="relay")return showRelayChoices();
   if(mercyLocation==="gate")return add("(H) HEAD WEST — OLD HOUSE   (B) BACK","system");
   if(mercyLocation==="eastGate")return add("(H) HEAD EAST — FACTORY / SIGNAL-CONDITIONING MODULE   (B) BACK","system");
-  if(mercyLocation==="murphy")return add(`SMALL TALK MURPHY   CRAFTING RECIPES   INSPECT CORVETTE PHOTO${townVisitorChoice()}   (B) BACK`,"system");
+  if(mercyLocation==="murphy")return player.flags.solaceMenu==="murphyTalk"?murphyTalkMenu():murphyMainMenu();
   if(mercyLocation==="wayne")return add("TREAT WOUNDS — 1 BOLT PER 5 HP   BUY BANDAGE — 8 BOLTS   BUY   SELL ITEMS   SMALL TALK WAYNE   TOWN","system");
   if(mercyLocation==="tim")return npcTalk("tim");
   mercyLocation="town";mercyMenu();
@@ -2277,6 +2586,8 @@ function renderCurrentChoices(){
   if(stage==="eastEnd")return showFactory();
   if(stage.startsWith("factoryDungeon"))return factoryRender();
   if(stage==="factoryWorkshop")return v49FactoryRoom();
+  if(["port55Vendor","port55Pets","port55Kaiden","port55Mia","port55Docks","port55Stop"].includes(stage))return port55Resume();
+  if(["portRoad","seaport","portMarket","portClinic","portDocks","portWatch"].includes(stage))return portMenu();
   if(stage==="factoryTerminal")return v49Terminal();
   if(stage==="factoryForge")return v49Forge();
   if(stage==="factoryBench")return v49Workbench();
@@ -2309,6 +2620,7 @@ async function handleCommand(raw){
 async function handleCommandCore(raw) {
   autoFollowOutput=true;
   let cmd = raw.trim().toLowerCase();
+  if(cmd==="claim equipment"||cmd==="claim equipment drop"){v555ClaimEquipmentDrop();return;}
   if(busy) return;
   if(!cmd && !["confirmNewSlot","confirmHandle"].includes(stage)){ add("> [ENTER]","bright"); renderCurrentChoices(); return; }
   if(/^\d+$/.test(cmd) && numberedChoices[cmd] && stage!=="factoryTerminal" && !(stage==="mercy" && mercyLocation==="murphy" && player.flags.v49MurphyMenu) && !["inventory","combatItems","fallen"].includes(stage) && !(stage==="mercy"&&player.flags.v49BankCustom) && !["interfaceSave","v49TitleConfirm"].includes(stage)) cmd=numberedChoices[cmd];
@@ -2325,6 +2637,11 @@ async function handleCommandCore(raw) {
   else if(!(stage==="factoryTerminal" && /^\d+$/.test(cmd)) && !interfaceStages.includes(stage) && cmd.length===1 && currentHotkeys[cmd]) cmd=currentHotkeys[cmd].toLowerCase();
   add(`> ${raw||"[ENTER]"}`, "bright");
 
+  if(['manage pets','pets','pet slot'].includes(cmd) && ['inventory','inventoryItem','interfaceStatus'].includes(stage)){stage='port55Pets';port55Pets();return;}
+  if(typeof port55CasinoCommand==="function"&&port55CasinoCommand(cmd))return;
+  if(cmd==='read chapter one'&&player.flags.chapterOneComplete){port55FinaleText();return;}
+  if(['replay harbor art','view harbor art','harbor art'].includes(cmd)&&player.flags.seaport55?.freed){port55LiberationArt(true);return;}
+  if(portCommand(cmd))return;
   if(factoryCommand(cmd))return;
   if(v49FactoryCommand(cmd))return;
   if(v49MurphyCommand(cmd))return;
@@ -2423,7 +2740,7 @@ async function handleCommandCore(raw) {
   if(QA_BUILD && stage === "testingCode"){ if(cmd==="cancel"){ stage=player.flags.testingReturnStage||(player.turns<=0?"zeroTurns":"between");delete player.flags.testingReturnStage;add("Testing access cancelled.","system"); return; } if(raw.trim().toUpperCase()===TEST_ACCESS_CODE){ testMode=true;stage=player.flags.testingReturnStage||(player.turns<=0?"zeroTurns":"between");delete player.flags.testingReturnStage; updateHud(); add("TEST MODE ACTIVE","reward"); add("Expedition Turn limit disabled. HP, XP, Bolts, loot, quests and combat remain live.","system"); add("Type TEST OFF at any time to restore normal Turn limits.","system"); return; } add("ACCESS DENIED","danger"); return; }
   if(stage === "confirmHandle"){ if(cmd===""||cmd==="y"||cmd==="yes"){player.handle=pendingHandle;pendingHandle="";updateHud();add(`The faded letters read: ${player.handle.toUpperCase()}.`,"bright");add("Still yours. That's something.");stage="standing";await outputQueue;showStandingOptions();} else if(cmd==="n"||cmd==="no"||cmd==="change"){const old=pendingHandle;pendingHandle="";stage="handle";add(`CHANGE HANDLE — current entry: ${old}`,"system");add("Enter a new Handle, or RANDOM for a suggestion.","system");} else add("(Y) YES [ENTER]   (N) CHANGE","system"); return; }
   if(stage === "handle"){ if(cmd==="random"||cmd==="autofill"){ const names=["Drifter","Rook","Rust","Crow","Hollow","Slate","Nomad","Flint"]; const h=names[Math.floor(Math.random()*names.length)]; add(`Suggested Handle: ${h}`,"bright"); add(`Type ${h} to accept, or RANDOM to reroll.`,"system"); } else setHandle(raw); return; }
-  if(stage==="confirmSaveOverwrite"){ if(cmd==="y"||cmd==="yes"){const sl=pendingSaveSlot; stage=returnStage||"between"; pendingSaveSlot=sl; saveGame(sl);} else {pendingSaveSlot=null;stage=returnStage||"between";add("SAVE CANCELLED","system");} return; }
+  if(stage==="confirmSaveOverwrite"){ if(cmd==="y"||cmd==="yes"){const sl=pendingSaveSlot; stage=returnStage||"between"; pendingSaveSlot=sl; saveGame(sl);} else {pendingSaveSlot=null;stage=returnStage||"between";add("SAVE CANCELLED","system");redrawState();} return; }
   if(stage==="fallen"){ if(cmd==="1"||cmd==="get up"||cmd==="get"||cmd==="continue"){stage=player.flags.mercyDiscovered?"mercy":"house";mercyLocation="town";if(stage==="mercy")mercyMenu();else arriveHouse();}else add("[1] GET UP","system");return;}
   if(stage==="combatItems" && /^save(?: game)?(?: current| [123])?$/.test(cmd)){saveGame(Number((cmd.match(/[123]$/)||[])[0])||activeSaveSlot);showCombatItems();return;}
   if(stage==="combatItems" && /^load(?: game)?(?: [123])?$/.test(cmd)){loadGame(Number((cmd.match(/[123]$/)||[])[0])||activeSaveSlot);return;}
@@ -2441,7 +2758,7 @@ async function handleCommandCore(raw) {
     else if(cmd!=="n"&&cmd!=="no"&&cmd!=="cancel"&&cmd!=="b"&&cmd!=="back"){add("(Y) CONFIRM DROP   (N) CANCEL","system");return;}
     stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;
   }
-  if(stage==="inventoryItem"){ const name=inventoryMode&&inventoryMode.item; if((cmd==="e"||cmd==="equip") && name){ const item=findItem(name); if(item && (item.type==="weapon"||item.type==="armor")){ const slot=item.type; const previous=player[slot]; removeItem(name); player[slot]=name; if(previous && previous!==name)addPack(previous,slot); updateHud();add(`EQUIPPED — ${name}. Previous ${slot}: ${previous||"none"}.`,"reward");stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} add("That item cannot be equipped.","system");return;} if(cmd==="b"||cmd==="back"){stage="inventory";showInventory();showInterfaceNav();return;} if(cmd==="u"||cmd==="use"||cmd.startsWith("use ")){useItem(name);stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} if(name==="Battered Flashlight" && (cmd==="d"||cmd.includes("dismantle"))){dismantleItem(name);stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} if(cmd==="d"||cmd==="drop"||cmd.startsWith("drop ")){inventoryMode={item:name};stage="confirmDrop";add(`DROP ${name.toUpperCase()}? This cannot be undone.`,"danger");add("(Y) CONFIRM DROP   (N) CANCEL","system");return;} add(name==="Battered Flashlight"?"Choose (D) DISMANTLE or (B) BACK.":"Choose (U) USE, (D) DROP, or (B) BACK.","system");return; }
+  if(stage==="inventoryItem"){ const name=inventoryMode&&inventoryMode.item; if((cmd==="e"||cmd==="equip") && name){ const item=findItem(name); if(item && (item.type==="weapon"||item.type==="armor"||item.type==="accessory")){ const slot=item.type; const previous=player[slot]; removeItem(name); player[slot]=name; if(slot==="accessory"){const hpDelta=(GEAR[name]?.maxHpBonus||0)-(GEAR[previous]?.maxHpBonus||0);player.maxHp=Math.max(1,player.maxHp+hpDelta);player.hp=Math.min(player.hp,player.maxHp);} if(previous && previous!==name)addPack(previous,slot); updateHud();add(`EQUIPPED — ${name}. Previous ${slot}: ${previous||"none"}.`,"reward");stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} add("That item cannot be equipped.","system");return;} if(cmd==="b"||cmd==="back"){stage="inventory";showInventory();showInterfaceNav();return;} if(cmd==="u"||cmd==="use"||cmd.startsWith("use ")){useItem(name);stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} if(name==="Battered Flashlight" && (cmd==="d"||cmd.includes("dismantle"))){dismantleItem(name);stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} if(cmd==="d"||cmd==="drop"||cmd.startsWith("drop ")){inventoryMode={item:name};stage="confirmDrop";add(`DROP ${name.toUpperCase()}? This cannot be undone.`,"danger");add("(Y) CONFIRM DROP   (N) CANCEL","system");return;} add(name==="Battered Flashlight"?"Choose (D) DISMANTLE or (B) BACK.":"Choose (U) USE, (D) DROP, or (B) BACK.","system");return; }
   if(stage==="v49TitleConfirm"){
     if(cmd==="1"||cmd==="save and return"){
       if(![1,2,3].includes(activeSaveSlot)){add('Choose a manual save slot before returning, or return without saving.','system');showV49TitleConfirm();return;}
@@ -2455,7 +2772,7 @@ async function handleCommandCore(raw) {
     showV49TitleConfirm();return;
   }
   if(stage==="interfaceSave"){
-    if(cmd==="1"||cmd==="save game"){stage=returnStage||"between";saveGame(activeSaveSlot);stage="interfaceSave";showV49SaveMenu();return;}
+    if(cmd==="1"||cmd==="save game"||/^save(?: game)? ?[123]$/.test(cmd)){const sl=/[123]$/.test(cmd)&&cmd!=="1"?Number(cmd.slice(-1)):activeSaveSlot;stage=returnStage||"between";saveGame(sl);if(stage==="confirmSaveOverwrite")return;stage="interfaceSave";showV49SaveMenu();return;}
     if(cmd==="2"||cmd==="load game"){showV49LoadMenu();return;}
     if(cmd==="3"||cmd==="return to title screen"){stage="v49TitleConfirm";showV49TitleConfirm();return;}
     if(cmd==="4"||cmd==="b"||cmd==="back"){stage=returnStage||"between";redrawState();return;}
@@ -2471,6 +2788,7 @@ async function handleCommandCore(raw) {
   if (/^save( game)? ?[123]$/.test(cmd)) { returnStage=stage; saveGame(Number(cmd.match(/[123]$/)[0])); return; }
   if (cmd === "save" || cmd === "save game" || cmd === "save current") { returnStage=stage; saveGame(activeSaveSlot); return; }
   if(QA_BUILD && (cmd === "testing access" || cmd === "testing")){ player.flags.testingReturnStage=stage;stage="testingCode"; add("TESTING ACCESS","place"); add("Enter access code. Type CANCEL to return.","system");add("(B) CANCEL","system"); return; }
+  if(QA_BUILD && testMode && /^test (?:add|refill) (?:[1-9]\d{0,2})$/.test(cmd)){const amount=Number(cmd.split(" ").pop());player.turns=Math.min(TURN_CAP,player.turns+amount);updateHud();add(`QA TURN REFILL — +${amount} REQUESTED; ${player.turns}/${TURN_CAP} STORED.`,"reward");return;}
   if(QA_BUILD && (cmd === "test off" || cmd === "disable test mode")){ testMode=false; updateHud(); add("TEST MODE DISABLED — normal Turn limits restored.","system"); if(player.turns<=0)noTurnsMenu(); return; }
   if (/^load( game)? ?[123]$/.test(cmd)) { loadGame(Number(cmd.match(/[123]$/)[0])); return; }
   if (cmd === "load" || cmd === "load game") { loadGame(activeSaveSlot); return; }
@@ -2488,6 +2806,8 @@ async function handleCommandCore(raw) {
     }
     else if(cmd==="c"||cmd.includes("continue")){advanceRoad();} else add(["(C) CONTINUE","(R) REVERSE DIRECTION",...questRoadMarkers().map(x=>x[1])].join("   "),"system"); return; }
   if(stage==="zeroTurns"){
+    // QA recovery must be processed before the overnight/turn lock, even after a reload.
+    if(QA_BUILD && (cmd==="testing" || cmd==="testing access")){player.flags.testingReturnStage="zeroTurns";stage="testingCode";add("TESTING ACCESS — ENTER ACCESS CODE","place");add("(B) CANCEL","system");return;}
     if(testMode){ add("TEST MODE ACTIVE — Turns are unlimited. Type TEST OFF to restore the real counter.","reward"); stage="between"; showEncounter(); return; }
     if(player.flags.overnightLocked){ add(`OVERNIGHT STATE LOCKED — ${overnightLabel(player.flags.overnight)}`,"bright"); add(`NEXT TURN REFILL: ${refillText()}`,"system"); add(`SAVE CURRENT   STATUS   INVENTORY   MAP${QA_BUILD?"   TESTING":""}`,"system"); return; }
     const choice=cmd==="c"||cmd.includes("camp")?"camp":cmd==="r"||cmd.includes("remain")||cmd.includes("road")?"road":cmd==="j"||cmd.includes("room")?"room":null;
@@ -2519,7 +2839,7 @@ async function handleCommandCore(raw) {
     if(serviceRoadDepth===0){stage="fork";add("You return to the Route 127 fork. No additional intersection charge.","system");renderCurrentChoices();}
     else{add(serviceRoadDepth===1?"SERVICE ROAD — LOWER GRADE":"SERVICE ROAD — WASHOUT","place");add("You retrace one stretch of road. -1 turn.","system");add(serviceRoadChoices(),"system");}
     return;
-  } if(cmd.includes("continue")||cmd.includes("up road")){if(serviceRoadDepth>=3&&player.flags.serviceBossDead){add("The service road ends at the maintenance yard.","system");add(serviceRoadChoices(),"system");return;}if(!testMode && player.turns<=0){noTurnsMenu();return;}spendTurn();player.flags.branchReturning=false; if(serviceRoadDepth<2){serviceRoadDepth=2;add("SERVICE ROAD — WASHOUT","place");v48Intro("service_washout",[["The lane bends around a washed-out culvert. Tire ruts vanish into weeds, then reappear beside an old county equipment fence."]],"You pass the washed-out culvert again.",true);add(serviceRoadChoices(),"system");return;} serviceRoadDepth=3;if(player.flags.serviceBossDead){add(player.flags.relayPartsRevealed&&!ensureRelayParts().yard?"The Yardman is gone. The motor assemblies needed for the Relay are still here. SEARCH MAINTENANCE YARD to recover the antenna servo.":"The maintenance yard is quiet now. The Yardman is gone.");add(serviceRoadChoices(),"system");return;}add("COUNTY MAINTENANCE YARD","place");add("A hulking figure steps from the ruined garage, dragging a heavy wrench across the concrete.");startCombat({name:"THE YARDMAN",level:5,hp:28,min:6,max:10,xp:45,bolts:18,end:"The Yardman drops hard. The maintenance yard finally goes quiet."},"serviceBoss",false);return;} add("(C) CONTINUE UP ROAD   (R) RETURN TO FORK","system");return;}
+  } if(cmd.includes("continue")||cmd.includes("up road")){if(serviceRoadDepth>=3&&player.flags.serviceBossDead){add("The service road ends at the maintenance yard.","system");add(serviceRoadChoices(),"system");return;}if(!testMode && player.turns<=0){noTurnsMenu();return;}spendTurn();player.flags.branchReturning=false; if(serviceRoadDepth<2){serviceRoadDepth=2;add("SERVICE ROAD — WASHOUT","place");v48Intro("service_washout",[["The lane bends around a washed-out culvert. Tire ruts vanish into weeds, then reappear beside an old county equipment fence."]],"You pass the washed-out culvert again.",true);add(serviceRoadChoices(),"system");return;} serviceRoadDepth=3;if(player.flags.serviceBossDead){add(player.flags.relayPartsRevealed&&!ensureRelayParts().yard?"The Yardman is gone. The motor assemblies needed for the Relay are still here. SEARCH MAINTENANCE YARD to recover the antenna servo.":"The maintenance yard is quiet now. The Yardman is gone.");add(serviceRoadChoices(),"system");return;}add("COUNTY MAINTENANCE YARD","place");add("A hulking figure steps from the ruined garage, dragging a heavy wrench across the concrete.");startCombat({name:"THE YARDMAN",level:5,hp:55,min:7,max:12,xp:65,bolts:28,end:"The Yardman drops hard. The maintenance yard finally goes quiet."},"serviceBoss",false);return;} add("(C) CONTINUE UP ROAD   (R) RETURN TO FORK","system");return;}
   if(stage === "combat"){ handleCombat(cmd); return; }
   if(stage === "wandererRoad"){ handleRoadWanderer(cmd); return; }
   if(stage === "mercy" && currentTownWanderer && handleTownWanderer(cmd)) return;
@@ -2531,6 +2851,7 @@ async function handleCommandCore(raw) {
     if(cmd.startsWith("withdraw ")){transferHouseItem(cmd.slice(9),false);showHouseStorage("houseWithdraw");return;}
     showHouseStorage(stage);return;
   }
+  if(stage==="encounter" && cmd.includes("hunt terrible billy")){if(player.flags.terribleBillyBounty!=="active"){add("You need an active Terrible Billy contract from Tim before you can track him.","system");add(encounterChoices(currentEncounter()),"system");return;}if(!testMode&&player.turns<1){noTurnsMenu();return;}spendTurn();add("TERRIBLE BILLY — WANTED RAIDER","danger");add('A scarred raider steps from behind the wreck, one hand on a battered machete. "Tim sent you?"',"system");startCombat({name:"TERRIBLE BILLY",level:5,hp:42,min:7,max:12,xp:70,bolts:35,end:"Terrible Billy drops his weapon and collapses beside the road."},"terribleBilly",false);return;}
   if (stage === "encounter" && cmd.startsWith("inspect ")) {
     const e=currentEncounter(), key=choiceKey(cmd,e);
     if(key){ resolveEncounter(cmd); return; }
@@ -2578,16 +2899,26 @@ async function handleCommandCore(raw) {
   if (stage === "between") { showEncounter(); return; }
   if (stage === "settlement") {
     if(cmd==="p") cmd="approach gate";
+    if(player.flags.solaceGateChallenge && stage==="settlement"){
+      if(cmd.includes("terminal")||cmd.includes("transmission")||cmd==="1"){
+        add("GUARD > The old terminal sent you? Fine. Keep your hands where I can see them.","man");
+        player.flags.solaceGateChallenge=false; player.flags.mercyDiscovered=true; player.flags.mainSolaceQuest="done"; stage="mercy"; mercyLocation="town";
+        add("The buses part just far enough to let you through. Smoke, voices, hammering metal. People.");add("TIM > Welcome to Solace. Don't make us regret the name.","man");
+        if(!player.flags.solaceCheckpointSaved){player.flags.solaceCheckpointSaved=true;saveGame(activeSaveSlot);add("CHECKPOINT REACHED — SOLACE AUTOSAVED","reward");}mercyMenu();return;
+      }
+      if(cmd.includes("trade")||cmd==="2"){add("GUARD > Trade happens inside. Leave the weapons pointed at the dirt and you can talk to Johnny.","man");add("STATE YOUR BUSINESS   (1) TERMINAL   (2) TRADE   (3) RELAY   (4) PASSING THROUGH   (5) FIGHT","system");return;}
+      if(cmd.includes("relay")||cmd==="3"){add("GUARD > Relay Station? Tim can tell you what Solace knows. Don't expect him to trust a stranger just because you know the name.","man");add("STATE YOUR BUSINESS   (1) TERMINAL   (2) TRADE   (3) RELAY   (4) PASSING THROUGH   (5) FIGHT","system");return;}
+      if(cmd.includes("passing")||cmd.includes("just passing")||cmd==="4"){add("GUARD > Nobody just passes through anymore. State your business or turn around.","man");add("STATE YOUR BUSINESS   (1) TERMINAL   (2) TRADE   (3) RELAY   (4) PASSING THROUGH   (5) FIGHT","system");return;}
+      if(cmd.includes("fight")||cmd.includes("pick a fight")||cmd==="5"){
+        player.flags.solaceGateChallenge=false;
+        startCombat({name:"SOLACE GATE GUARD",level:Math.max(2,player.level),hp:28,damage:7,minDamage:5,maxDamage:9,xp:18,bolts:0,end:"The gate guard lowers his weapon and calls for help."},"gateGuards",true,false);return;
+      }
+      add("STATE YOUR BUSINESS   (1) ABANDONED TERMINAL SENT ME   (2) LOOKING TO TRADE   (3) LOOKING FOR THE RELAY STATION   (4) JUST PASSING THROUGH   (5) PICK A FIGHT","system");return;
+    }
     if (cmd.includes("approach") || cmd.includes("gate") || cmd.includes("relay")) {
-      add("You raise your empty hand and tell the guard about the transmission.");
-      add("Silence. Then bolts grind inside the gate.", "bright");
-      add("The buses part just far enough to let you through. Smoke, voices, hammering metal. People.");
-      add("An older man with red hair graying at the temples waits inside the gate. He offers his hand.");
-      add("TIM > Welcome to Solace. Don't make us regret the name.", "man");
-      add("He points down what used to be Main Street.");
-
-      add("TOWN ACTIONS COST 0 TURNS. STARTING A FIGHT COSTS 1 TURN. Type TOWN anytime to see locations.", "system");
-      player.flags.mercyDiscovered=true; player.flags.mainSolaceQuest="done"; stage = "mercy"; mercyLocation="town"; if(!player.flags.solaceCheckpointSaved){player.flags.solaceCheckpointSaved=true;saveGame(activeSaveSlot);add("CHECKPOINT REACHED — SOLACE AUTOSAVED","reward");} mercyMenu();
+      add("A rifle barrel appears above the barricade. GUARD > State your business.","man");
+      player.flags.solaceGateChallenge=true;
+      add("STATE YOUR BUSINESS   (1) ABANDONED TERMINAL SENT ME   (2) LOOKING TO TRADE   (3) LOOKING FOR THE RELAY STATION   (4) JUST PASSING THROUGH   (5) PICK A FIGHT","system");
     } else add("The settlement waits beyond the barricade. Try APPROACH GATE.", "system");
     return;
   }

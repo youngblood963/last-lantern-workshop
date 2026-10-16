@@ -52,11 +52,11 @@ if(typeof window.addEventListener==='function')window.addEventListener('keydown'
 function casinoCheckpoint(){if(activeSaveSlot)saveGame(activeSaveSlot);}
 function casinoMenu(entered=false){
  ensureCasinoState();ensureSteveAnnouncements();stage='mercy';mercyLocation='casino';player.flags.solaceMenu='casino';
- add("JEN'S BACKROOM CASINO",'place casino-heading');
+ add(player.flags.port55Casino?'THE RUSTY ANCHOR — GAMES':"JEN'S BACKROOM CASINO",'place casino-heading');
  v48Intro('casino',[["A filthy curtain conceals a cramped room beneath an old sign: G A M B L _ N G. A dice table, a rock-paper-scissors table and a blackjack table share space with slot machines and a rat racing corner."]],'The familiar tables wait behind the filthy curtain.',entered);
- if(player.level<5)add('Dice and rock-paper-scissors are open. Blackjack, slots and rat racing unlock at Level 5.','system');
+ if(player.level<5)add('Dice, rock-paper-scissors, and blackjack are open. Slots unlock at Level 5; rat racing is available in Seaport.','system');
  else casinoArt('+--------------------------+\n| DICE / RPS / BLACKJACK    |\n| SLOTS / RAT RACING        |\n+--------------------------+');
- casinoChoices('(D) DICE   ROCK PAPER SCISSORS'+(player.level>=5?'   BLACKJACK   SLOTS   RAT RACING':'')+'   (B) BACK');
+ casinoChoices('(D) DICE   ROCK PAPER SCISSORS   BLACKJACK'+(player.level>=5?'   SLOTS':'')+(player.flags.port55Casino?'   RAT RACING':'')+'   (B) BACK');
 }
 function casinoChoices(text){outputQueue=outputQueue.then(()=>{currentHotkeys={};numberedChoices={};usedHotkeys=new Set();addImmediate(hotkeyLine(text),'system');followOutput()});}
 function casinoRound(){return ensureCasinoState().round;}
@@ -90,17 +90,19 @@ function casinoWager(cmd,r){
  if(!Number.isSafeInteger(bet)||bet<=0||bet>player.bolts||!Number.isSafeInteger(player.bolts+bet*300))return false;
 
  if(r.game==='blackjack'&&bet%2!==0)return false;
- r.bet=bet;player.bolts-=bet;r.status='active';updateHud();return true;
+ r.bet=bet;player.bolts-=bet;r.status='active';updateHud();casinoCheckpoint();return true;
 }
 function casinoSettle(r,payout,message){
  if(r.status!=='active')return false;
+ // Refuse invalid/overflowing credits without consuming the round.
+ if(!Number.isSafeInteger(payout)||payout<0||!Number.isSafeInteger(player.bolts)||!Number.isSafeInteger(player.bolts+payout))return false;
  r.status='settled';r.payout=payout;r.message=message;player.bolts+=payout;updateHud();casinoCheckpoint();return true;
 }
 function casinoDiceFace(n){const cells=[[' ',' ',' '],[' ',' ',' '],[' ',' ',' ']];const positions={1:[[1,1]],2:[[0,0],[2,2]],3:[[0,0],[1,1],[2,2]],4:[[0,0],[0,2],[2,0],[2,2]],5:[[0,0],[0,2],[1,1],[2,0],[2,2]],6:[[0,0],[0,2],[1,0],[1,2],[2,0],[2,2]]};for(const [y,x]of positions[n])cells[y][x]='o';return '+-------+\n'+cells.map(row=>'| '+row.join(' ')+' |').join('\n')+'\n+-------+';}
 const RPS_HANDS={rock:'   ___\n _/   \\_\n|  FIST |\n \\_____/',paper:'| | | | |\n| | | | |\n|  PALM  |\n \\______/',scissors:' \\ /\n  V\n / \\\n| FIST |'};
 function casinoRpsOutcome(playerPick,opponent){if(playerPick===opponent)return 'push';return ({rock:'scissors',paper:'rock',scissors:'paper'})[playerPick]===opponent?'win':'loss';}
 function casinoSlotDraw(rng=Math.random){let roll=rng()*100;for(const s of SLOT_SYMBOLS){roll-=s.weight;if(roll<0)return s.name}return 'BLACKGLASS';}
-function casinoSlotPayout(reels,bet){return reels.every(x=>x===reels[0])?SLOT_SYMBOLS.find(s=>s.name===reels[0]).mult*bet:0;}
+function casinoSlotPayout(reels,bet){if(!Array.isArray(reels)||reels.length!==3||!Number.isSafeInteger(bet)||bet<=0)return 0;const symbol=SLOT_SYMBOLS.find(s=>s.name===reels[0]);if(!symbol||!reels.every(x=>x===symbol.name))return 0;const payout=symbol.mult*bet;return Number.isSafeInteger(payout)?payout:0;}
 function casinoDeck(rng=Math.random){const deck=[];for(const suit of ['C','D','H','S'])for(const rank of ['A','2','3','4','5','6','7','8','9','10','J','Q','K'])deck.push({rank,suit});for(let i=deck.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]]}return deck;}
 function casinoCardTotal(cards){let value=0,aces=0;for(const c of cards){if(c.rank==='A'){value+=11;aces++}else value+=['J','Q','K'].includes(c.rank)?10:Number(c.rank)}while(value>21&&aces){value-=10;aces--}return value;}
 function casinoNatural(cards){return cards.length===2&&casinoCardTotal(cards)===21;}
@@ -111,7 +113,22 @@ function casinoResolve(r){
  if(r.game==='blackjack'){casinoBlackjackStart(r);casinoRender();return;}
  if(r.game==='dice'){r.roll=1+Math.floor(Math.random()*6);casinoSettle(r,r.roll===r.pick?r.bet*6:0,`DIE: ${r.roll} — ${r.roll===r.pick?'WIN':'LOSS'}`);casinoAnimate([casinoDiceFace(2),casinoDiceFace(5)],casinoDiceFace(r.roll));}
  if(r.game==='rps'){r.opponent=['rock','paper','scissors'][Math.floor(Math.random()*3)];r.result=casinoRpsOutcome(r.pick,r.opponent);casinoSettle(r,r.result==='win'?r.bet*2:r.result==='push'?r.bet:0,`${r.pick.toUpperCase()} versus ${r.opponent.toUpperCase()} — ${r.result.toUpperCase()}`);casinoAnimate([RPS_HANDS.rock,RPS_HANDS.paper,RPS_HANDS.scissors],`YOU\n${RPS_HANDS[r.pick]}\nOPPONENT\n${RPS_HANDS[r.opponent]}`);}
- if(r.game==='slots'){r.reels=[casinoSlotDraw(),casinoSlotDraw(),casinoSlotDraw()];casinoSettle(r,casinoSlotPayout(r.reels,r.bet),r.reels.join(' / '));casinoAnimate(['[ SCRAP ] [ ? ] [ ? ]','[ ? ] [ BOLTS ] [ ? ]'],r.reels.map(s=>'['+s+']').join(' '));}
+ if(r.game==='slots'){
+  r.reels=[casinoSlotDraw(),casinoSlotDraw(),casinoSlotDraw()];
+  casinoSettle(r,casinoSlotPayout(r.reels,r.bet),r.reels.join(' / '));
+  // Cheeseburger is a once-per-character 5% slot jackpot, never sold or traded.
+  // Multiplayer-wide uniqueness is intentionally not claimed without shared ownership infrastructure.
+  if(!player.flags.cheeseburgerOwned&&Math.random()<0.05){
+   player.flags.cheeseburgerOwned=true;
+   const owned=player.flags.ownedPets||(player.flags.ownedPets=[]);
+   if(!owned.includes('Cheeseburger'))owned.push('Cheeseburger');
+   player.packMax=(Number.isSafeInteger(player.packMax)?player.packMax:10)+6;
+   add("CRAZY STEVE BURSTS THROUGH THE CURTAIN — CHEESEBURGER! THE LEGENDARY SLOT RAT!",'reward');
+   add('CHEESEBURGER joins your companions. +6 backpack slots. This character’s jackpot is permanently claimed.','bright');
+   casinoCheckpoint();
+  }
+  casinoAnimate(['[ SCRAP ] [ ? ] [ ? ]','[ ? ] [ BOLTS ] [ ? ]'],r.reels.map(s=>'['+s+']').join(' '));
+ }
  if(r.game==='rats')casinoResolveRats(r);
  casinoRender();
 }
@@ -125,10 +142,10 @@ function handleCasinoCommand(cmd){
  if(['dice','diceBet','diceAgain'].includes(mercyLocation)){const old=mercyLocation;casinoOpen('dice');if(old==='diceBet')casinoRound().pick=player.flags.dicePick||null;if(old==='diceAgain'){casinoRound().status='settled';casinoRound().bet=0;casinoRound().payout=0;casinoRound().message='Previous dice round already settled.'}mercyLocation='casinoGame';}
  if(mercyLocation==='jenGames')mercyLocation='casino';
  if(mercyLocation==='casino'){
-  if(['b','back','leave','bar'].includes(cmd)){mercyLocation='jen';showBarActions();return true;}
-  if(['town','return to town'].includes(cmd)){mercyLocation='town';mercyMenu();return true;}
+  if(['b','back','leave','bar'].includes(cmd)){if(player.flags.port55Casino){player.flags.port55Casino=false;stage='port55Mia';port55MiaMenu();}else{mercyLocation='jen';showBarActions();}return true;}
+  if(['town','return to town'].includes(cmd)){if(player.flags.port55Casino){player.flags.port55Casino=false;stage='port55Mia';port55MiaMenu();}else{mercyLocation='town';mercyMenu();}return true;}
   const game={dice:'dice','rock paper scissors':'rps','rock-paper-scissors':'rps',rps:'rps',blackjack:'blackjack',slots:'slots','rat racing':'rats',rats:'rats'}[cmd];
-  if(game){if(player.level<5&&!['dice','rps'].includes(game)){add('LOCKED — Reach Level 5.','system');casinoMenu()}else casinoOpen(game)}else casinoMenu();return true;
+  if(game){if((game==='slots'&&player.level<5)||(game==='rats'&&!player.flags.port55Casino)){add(game==='slots'?'LOCKED — Reach Level 5.':'Rat racing is available in Seaport.','system');casinoMenu()}else casinoOpen(game)}else casinoMenu();return true;
  }
  const r=casinoRound();if(!r){casinoMenu();return true;}
  if(r.status==='waiting'&&(r.pick!==null||['slots','blackjack'].includes(r.game))){
@@ -140,10 +157,10 @@ function handleCasinoCommand(cmd){
  }
  if(['b','back','leave','leave table','casino','town','return to town'].includes(cmd)){
   if(r.status==='active'&&r.game==='blackjack')casinoBlackjackStand(r);
-  if(cmd==='town'||cmd==='return to town'){mercyLocation='town';mercyMenu()}else casinoMenu();return true;
+  if(cmd==='town'||cmd==='return to town'){if(player.flags.port55Casino){player.flags.port55Casino=false;stage='port55Mia';port55MiaMenu();}else{mercyLocation='town';mercyMenu()}}else casinoMenu();return true;
  }
  if(r.status==='settled'){if(cmd==='play again'||cmd==='p')casinoOpen(r.game);else casinoRender();return true;}
- if(player.level<5&&!['dice','rps'].includes(r.game)){add('LOCKED — Reach Level 5.','system');casinoMenu();return true;}
+ if((player.level<5&&!['dice','rps','blackjack'].includes(r.game))||(r.game==='rats'&&!player.flags.port55Casino)){add(r.game==='rats'?'Rat racing is available in Seaport.':'LOCKED — Reach Level 5.','system');casinoMenu();return true;}
  if(r.status==='active'&&r.game==='blackjack'){
   if(cmd==='hit'){r.player.push(r.deck.pop());if(casinoCardTotal(r.player)>21)casinoSettle(r,0,'YOU BUST');else casinoCheckpoint();}
   else if(cmd==='stand')casinoBlackjackStand(r);else add('Choose HIT or STAND.','system');casinoRender();return true;

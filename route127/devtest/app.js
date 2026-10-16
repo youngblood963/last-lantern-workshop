@@ -223,6 +223,19 @@ function v49LiveMap(){
  if(player.level<5||!player.flags?.interfaceUnlocked||['title','wake','standing','handle','confirmHandle'].includes(stage)){el.hidden=true;return;}
  el.hidden=false;
  let st=gameplayStageForSave();
+ if(st==='port55Pets')st=returnStage||'between';
+ // Seaport contexts must not fall through to the older Solace/Factory road map.
+ const source=st==='combat'?combatState?.source:null;
+ if(st==='portObstruction'){el.textContent='SEAPORT ROAD  FACTORY ── [ COLLAPSED OVERPASS <YOU> ] ── SEAPORT';return;}
+ if(st==='portRoad'||source==='seaportRoadFight'){
+  const pos=Math.max(0,Math.min(5,Number(player.flags.seaportRoute?.position)||0));
+  const nodes=Array.from({length:6},(_,i)=>i===pos?'<YOU>':i===0?'FACTORY':i===5?'SEAPORT':'o');
+  el.textContent='SEAPORT ROAD  '+nodes.join(' ─ ');return;
+ }
+ if(st==='seaport'||st.startsWith('port55')||['portMarket','portClinic','portDocks','portWatch'].includes(st)||source==='seaportLiberation'||st==='mercy'&&player.flags.port55Casino){
+  const loc={port55Vendor:'PET VENDOR',port55Mia:'THE RUSTY ANCHOR',port55Kaiden:'KAIDEN',port55Docks:'HARBOR DOCKS',portMarket:'MARKET',portClinic:'CLINIC',portDocks:'DOCKS',portWatch:'GATE WATCH'}[st]||(st==='port55Stop'?player.flags.port55CurrentStop:player.flags.port55Casino?'THE RUSTY ANCHOR':'HARBOR STREETS');
+  el.textContent=`SEAPORT  [ ${String(loc||'HARBOR STREETS').toUpperCase()} <YOU> ]`;return;
+ }
  const east=roadGoal==='east'||['eastEnd','factoryWorkshop','factoryTerminal','factoryForge','factoryBench'].includes(st);
  const dir=east?(player.flags.eastReturning?'← WEST':'→ EAST'):(roadGoal==='house'?'← WEST':'→ EAST');
  if(st.startsWith('factoryDungeon')){el.textContent='FACTORY  [ FORGE WORKSHOP ] ── [ CENTRAL STAIRWELL ] ── [ INNER WORKS <YOU> ]';return;}
@@ -2322,7 +2335,7 @@ function handleSolace(cmd, raw=cmd){
   if(cmd.includes("sell") && cmd.includes("scrap")){ const it=findItem("Scrap Metal"); if(!it){add("JOHNNY > You're trying to sell me scrap you don't have. Bold strategy.","system");return;} const qty=cmd.includes("all")?it.qty:1; removeItem("Scrap Metal",qty); player.bolts+=4*qty; updateHud(); add(`+${4*qty} BOLTS`, "reward"); add(`JOHNNY > ${qty} scrap. Fair enough.`); if(mercyLocation==="johnny")johnnyShop(); return; }
   if(cmd.includes("inspect") && (cmd.includes("corvette")||cmd.includes("photo")) || cmd.includes("about corvette")){ add("You step closer to the faded photograph. A bright blue Corvette sits under a sky that looks almost impossibly clean."); add("Murphy glances over and smiles. MURPHY > Blue Corvette. That's what cars were supposed to look like.","bright"); return; }
   if(cmd.includes("upgrade") || cmd.includes("about equipment")){ add("MURPHY > My workbench is open for learned recipes. Use CRAFTING RECIPES to see what you can make.","system"); return; }
-  if(mercyLocation==="wayne" && (cmd.includes("treat") || cmd.includes("heal"))){ const missing=player.maxHp-player.hp; if(missing<=0){add("WAYNE > You're fine. Go injure yourself first if you're determined to give me money.");return;} const units=Math.ceil(missing/5), cost=Math.min(units,player.bolts); if(cost<=0){add("WAYNE > No Bolts? Fine. Don't bleed on anything. We'll work something out later.");return;} const healed=Math.min(missing,cost*5); player.bolts-=cost; player.hp+=healed; if(player.hp>=player.maxHp)player.deathStreak=0; updateHud(); add(`WAYNE patches you up. +${healed} HP   -${cost} BOLTS`,"reward"); if(player.hp>=player.maxHp)add("DEATH PENALTY RESET — fully recovered in Solace.","system"); return; }
+  if(mercyLocation==="wayne" && (cmd.includes("treat") || cmd.includes("heal"))){ const missing=player.maxHp-player.hp; if(missing<=0){add("WAYNE > You're fine. Go injure yourself first if you're determined to give me money.");return;} const units=Math.ceil(missing/5), cost=Math.min(units,player.bolts); if(cost<=0){add("WAYNE > No Bolts? Fine. Don't bleed on anything. We'll work something out later.");return;} const healed=Math.min(missing,cost*5),hadDeathPenalty=player.deathStreak>0; player.bolts-=cost; player.hp+=healed; if(player.hp>=player.maxHp)player.deathStreak=0; updateHud(); add(`WAYNE patches you up. +${healed} HP   -${cost} BOLTS`,"reward"); if(hadDeathPenalty&&player.hp>=player.maxHp)add("DEATH PENALTY RESET — fully recovered in Solace.","system"); return; }
 
   if(cmd.startsWith("deposit")){ const all=cmd.includes("all"),m=cmd.match(/\d+/),amount=all?player.bolts:(m?parseInt(m[0],10):0); if(amount<=0){add("AMII > Tell me how many Bolts you want to deposit.","system");return;} const n=Math.min(amount,player.bolts); if(n<=0){add("AMII > You don't have any carried Bolts to deposit.","system");return;} player.bolts-=n;player.bankBolts+=n;updateHud();add(`${n} BOLTS DEPOSITED — protected inside Solace.`,"reward");return; }
   if(cmd.startsWith("withdraw")){ const m=cmd.match(/\d+/),amount=m?parseInt(m[0],10):0; if(amount<=0){add("AMII > Tell me how many Bolts you want back.","system");return;} const n=Math.min(amount,player.bankBolts);if(n<=0){add("AMII > There's nothing in your account to withdraw.","system");return;}player.bankBolts-=n;player.bolts+=n;updateHud();add(`${n} BOLTS WITHDRAWN.`,"reward");return; }
@@ -2625,6 +2638,7 @@ async function handleCommand(raw){
   if(!busy && !Object.keys(numberedChoices).length && !Object.keys(currentHotkeys).length && !["handle","hello","testingCode","wakeNamed","between"].includes(stage)){
     renderCurrentChoices();await outputQueue;
   }
+  refreshInterfaceShortcutLabels();
 }
 async function handleCommandCore(raw) {
   autoFollowOutput=true;

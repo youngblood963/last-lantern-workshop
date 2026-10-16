@@ -71,6 +71,8 @@ const v53OldVendor=johnnyShop;johnnyShop=function(){v53OldVendor();add('NEXT RES
 const v53OldArmory=showEquipmentShop;showEquipmentShop=function(){v53OldArmory();add('NEXT RESTOCK: '+refillText().slice(0,5),'system');};
 // Quantity selection and a single transaction commit for all sale outlets.
 function v53SaleStart(name,merchant=null){
+ // The displayed stack quantity is menu metadata, not part of the item name.
+ name=String(name).replace(/\s+[×x]\d+$/i,'').trim();
  const item=player.pack.find(i=>i.name.toLowerCase()===name.toLowerCase().trim()),unit=v48SellPrice(item);
  if(!item||unit<=0){add('That item cannot be sold. Equipped, quest and Legendary items are protected.','system');return false;}
  player.flags.v53Sale={name:item.name,type:item.type,available:item.qty,unit,qty:1,merchant,location:mercyLocation,mode:'quantity'};if(!merchant)player.flags.v48Sale={name:item.name,type:item.type,qty:1,total:unit};v53SaleMenu();return true;

@@ -101,6 +101,14 @@ function hotkeyLine(text){
 function renderNumberedChoices(text){
   // Choices may be on a single line, with or without legacy letter labels.
   if(!text)return text;
+  // Explicit numbered menus already own their labels; register them without renumbering.
+  if(/^\[\d+\]\s/.test(text)){
+    for(const match of text.matchAll(/\[(\d+)\]\s+(.+?)(?=\s{2,}\[\d+\]|\s{2,}\(B\)|$)/g)){
+      numberedChoices[match[1]]=choiceCommand(match[2]);
+    }
+    if(/\(B\)\s*BACK/.test(text))currentHotkeys.b="back";
+    return text;
+  }
   if(!/\s{2,}/.test(text) && !/^\([A-Z0-9]\)/.test(text) && !/^(LISTEN|LOG COORDINATES|BUY .+)$/.test(text))return text;
   // Persistent navigation is LETTERS ONLY, never allocate numbered actions.
   if(text.split(/\s{2,}/).every(p=>/^\([SIMQV]\) (STATUS|INVENTORY|MAP|QUESTS|SAVE)$/.test(p.trim())))return text;
@@ -440,11 +448,11 @@ function removeItem(name, qty=1) {
   const item=findItem(name); if(!item) return false;
   item.qty-=qty; if(item.qty<=0) player.pack=player.pack.filter(i=>i!==item); updateHud(); return true;
 }
-function addPack(name, type="material", qty=1) {
+function addPack(name, type="material", qty=1, quietFull=false) {
   if(stage==="fallen")return false;
   const existing=player.pack.find(i=>i.name===name && i.type===type);
   if(existing){ existing.qty+=qty; updateHud(); resultLine(`PACK: + ${name}${qty>1?` ×${qty}`:""}`,"reward"); return true; }
-  if (!["key","quest"].includes(type) && packSlotsUsed() >= player.packMax) { add(`PACK FULL — You leave ${name} behind.`, "system"); return false; }
+  if (!["key","quest"].includes(type) && packSlotsUsed() >= player.packMax) { if(!quietFull)add(`PACK FULL — You leave ${name} behind.`, "system"); return false; }
   player.pack.push({name,qty,type}); updateHud(); resultLine(`PACK: + ${name}${qty>1?` ×${qty}`:""}`, "reward"); return true;
 }
 function showStatus() {
@@ -552,9 +560,10 @@ function useItem(name){
 function showCombatItems(){
   const usable=player.pack.filter(i=>i.name==="Bandage"||i.name==="Energy Bars"||i.name==="Reinforced Bandage");
   inventoryMode={combat:true,items:usable.map(i=>i.name)};returnStage="combat";stage="combatItems";refreshInterfaceShortcutLabels();
-  add("──────────── COMBAT ITEMS ────────────","system"); if(!usable.length){add("NO USABLE COMBAT ITEMS","system");add("(B) BACK","system");return;}
+  add("──────────── COMBAT ITEMS ────────────","system"); if(!usable.length){add("NO USABLE COMBAT ITEMS","system");add("(B) BACK","system");currentHotkeys.b="back";return;}
   usable.forEach((i,n)=>add(`[${n+1}] ${i.name}${i.qty>1?` ×${i.qty}`:""} — ${i.name==="Reinforced Bandage"?"+30 HP":i.name==="Bandage"?"+18 HP":"+10 HP"}`)); add("Choose a NUMBER to use it. (B) BACK","system");
   inventoryMode={combat:true,items:usable.map(i=>i.name)}; returnStage="combat"; stage="combatItems";
+  numberedChoices=Object.fromEntries(usable.map((i,n)=>[String(n+1),i.name]));currentHotkeys.b="back";
 }
 async function showInventoryItem(name){
   const item=findItem(name);
@@ -1304,7 +1313,7 @@ function v555RollEquipmentDrop(){
 function v555AwardEquipmentDrop(){
   const item=v555RollEquipmentDrop();
   if(!item)return false;
-  if(addPack(item,GEAR[item].type)){
+  if(addPack(item,GEAR[item].type,1,true)){
     add(`RANDOM EQUIPMENT DROP — ${gearLabel(item)}`,'reward');
   }else{
     player.flags=player.flags||{};
@@ -1317,10 +1326,10 @@ function v555AwardEquipmentDrop(){
 function v555ClaimEquipmentDrop(){
   const pending=player.flags?.pendingEquipmentDrops;
   if(!Array.isArray(pending)||!pending.length)return false;
-  if(addPack(pending[0],GEAR[pending[0]]?.type||'weapon')){
+  if(addPack(pending[0],GEAR[pending[0]]?.type||'weapon',1,true)){
     const name=pending.shift();add(`CLAIMED EQUIPMENT DROP — ${gearLabel(name)}`,'reward');
     if(!pending.length)delete player.flags.pendingEquipmentDrops;
-  }
+  }else add('EQUIPMENT DROP STILL HELD — FREE A BACKPACK SLOT.','system');
   return true;
 }
 function startCombat(spec, source="encounter", townCost=false, openingAttack=false){
@@ -1331,8 +1340,7 @@ function startCombat(spec, source="encounter", townCost=false, openingAttack=fal
   // Combat entry is a state transition, not a hidden extra attack. Always show the combat menu first.
   outputQueue=outputQueue.then(()=>{
     if(stage==="combat" && combatState){
-      const line=hotkeyLine("ATTACK   USE ITEM   BACK OFF");
-      addImmediate(line,"system");
+      renderCurrentChoices();
       followOutput();
     }
     busy=false; input.disabled=false; input.focus();
@@ -1613,7 +1621,8 @@ function v49Forge(){
   add('FORGE — WORKSHOP','place');
   if(!player.flags.v49TerminalRead){add('FORGE > That terminal in the corner woke up when you arrived. Read it first. Then come see me.','bright');}
   else add('FORGE > The terminal sent word you were coming. I used to build Tomorrow Project equipment. There is more to that archive than it is telling you.','bright');
-  add('FORGE > The inner works still need to be made safe. Meanwhile, let me show you something useful.','bright');
+  if(typeof portForgeDialogue==='function')portForgeDialogue();
+  add(typeof factoryDone==='function'&&factoryDone()===4?'FORGE > The inner works are safe. The eastern road is our next concern.':'FORGE > The inner works still need to be made safe. Meanwhile, let me show you something useful.','bright');
   if(player.flags.v49RecipeBandage){
     add('FORGE > You know how to make reinforced dressings now. Murphy can help you make more with your own supplies.','system');
   }else if(!player.flags.v49Job && !player.flags.v49Kit){
@@ -1684,7 +1693,7 @@ function v49MurphyCommand(cmd){
       if(!job){v49MurphyRecipe(key);return true;}
       if(Date.now()<job.endsAt){v49MurphyRecipe(key);return true;}
       if(job.success){
-        if(!addPack(recipe.name,recipe.type)){add('FINISHED ITEM HELD AT WORKBENCH — FREE A PACK SLOT.','danger');v49MurphyRecipe(key);return true;}
+        if(!addPack(recipe.name,recipe.type,1,true)){add('FINISHED ITEM HELD AT WORKBENCH — FREE A PACK SLOT.','danger');v49MurphyRecipe(key);return true;}
         add(`CRAFT SUCCESS — ${recipe.name.toUpperCase()}!`,'reward');
       }else add('CRAFT FAILED — MATERIALS LOST. MURPHY > Sometimes the metal wins.','system');
       delete player.flags.v49MurphyJob;v49Autosave();v49MurphyRecipe(key);return true;
@@ -1752,7 +1761,7 @@ function v49FactoryCommand(cmd){
       if(!job){v49Workbench();return true;}
       if(Date.now()<job.endsAt){v49Workbench();return true;}
       if(job.success){
-        if(!addPack('Reinforced Bandage','consumable')){add('FINISHED BANDAGE HELD AT BENCH — FREE A PACK SLOT.','danger');v49Workbench();return true;}
+        if(!addPack('Reinforced Bandage','consumable',1,true)){add('FINISHED BANDAGE HELD AT BENCH — FREE A PACK SLOT.','danger');v49Workbench();return true;}
         // Unlock and consume job only AFTER item has been safely delivered.
         player.flags.v49RecipeBandage=true;player.flags.v49CraftCompleted=true;
         add('CRAFT SUCCESS — REINFORCED BANDAGE (+30 HP).','reward');
@@ -2477,7 +2486,7 @@ function handleSolace(cmd, raw=cmd){
   if(cmd==="j" && mercyLocation==="jen"){npcTalk("jen");return;}
   if(cmd==="bar"||cmd==="jen's bar"||cmd==="visit bar"){mercyLocation="jen";add("THE RUSTY LANTERN TAVERN","place");showWanderersAt("jen");if(!player.flags.visited_jen){player.flags.visited_jen=true;add("Warm light leaks through patched windows. The room smells like wood smoke and something almost resembling dinner.");add("Jen is short, warm, and easy to talk to—the kind of person who makes a hard place feel less hard.");add("As she reaches for a glass, you catch a glimpse of a tiny ladybug tattoo near her wrist.");add("JEN > First one's water. You look like you need it more than anything stronger.","bright");if(player.flags.travelerInSolace)add("The wounded woman from the road is sitting near the end of the bar with a fresh dressing on her arm. She catches your eye and smiles. ‘Didn’t think I’d see you again.’","bright");}else{add("JEN > Back again? What can I get you?", "bright");}showBarActions();return;}
   if(cmd==="trader"||cmd==="trading post"||cmd==="johnny"){mercyLocation="johnny";add("JOHNNY'S TRADING POST","place");showWanderersAt("johnny");if(!player.flags.visited_johnny){player.flags.visited_johnny=true;add("Shelves made from old road signs hold food, tools, ammunition, and objects whose original purpose is no longer obvious.");add("Johnny looks over your pack with the practiced grin of a man already working out three different ways to make a deal.");add("JOHNNY > I'll buy almost anything. Sell almost anything too. And lucky for you, today I happen to be feeling generous.","bright");add("JOHNNY > Generous-ish.","bright");}else{add("JOHNNY > Back for another deal?", "bright");}johnnyMainMenu();return;}
-  if(cmd==="workshop"||cmd==="murphy"){player.flags.v49MurphyMenu="";player.flags.solaceMenu="workshop";mercyLocation="murphy";add("MURPHY'S MOTOR WORKS","place");showWanderersAt("murphy");if(!player.flags.visited_murphy){player.flags.visited_murphy=true;add("The shop looks chaotic until you notice every tool is exactly where Murphy expects it to be.");add("A faded photograph of a bright blue Corvette is pinned above his workbench, remarkably clean compared with everything around it.");add("MURPHY > Let's see what survived the trip with you.","bright");add("He checks your Rusted Pipe and gives an approving little shrug. MURPHY > Ugly. Reliable. I respect that.");}else{add("MURPHY > Back again? What needs fixing?", "bright");}murphyMainMenu();return;}
+  if(cmd==="workshop"||cmd==="murphy"){player.flags.v49MurphyMenu="";player.flags.solaceMenu="workshop";mercyLocation="murphy";add("MURPHY'S MOTOR WORKS","place");showWanderersAt("murphy");if(!player.flags.visited_murphy){player.flags.visited_murphy=true;add("The shop looks chaotic until you notice every tool is exactly where Murphy expects it to be.");add("A faded photograph of a bright blue Corvette is pinned above his workbench, remarkably clean compared with everything around it.");add("MURPHY > Let's see what survived the trip with you.","bright");add("He checks your equipment and gives an approving little shrug. MURPHY > Ugly. Reliable. I respect that.");}else{add("MURPHY > Back again? What needs fixing?", "bright");}murphyMainMenu();return;}
   if(cmd==="clinic"||cmd==="wayne"){player.flags.solaceMenu="clinic";mercyLocation="wayne";add("LAST CHANCE CLINIC","place");showWanderersAt("wayne");if(!player.flags.visited_wayne){player.flags.visited_wayne=true;add("Clean bandages, boiled instruments, labeled jars. Someone here knows what they're doing.");add("A tiny word has been scratched into the underside of one metal shelf: SEX.","system");add("Wayne notices you noticing it and says absolutely nothing.");add(`WAYNE > You're at ${player.hp}/${player.maxHp} HP. I've seen worse. Usually attached to smarter decisions.`,"bright");}else{add("WAYNE > Try not to bleed on the floor.", "bright");}add("TREAT WOUNDS — 1 BOLT PER 5 HP   BUY BANDAGE — 8 BOLTS   BUY   SELL ITEMS   SMALL TALK WAYNE   TOWN","system");return;}
   if(cmd==="bank"||cmd==="bank stash"||cmd==="amii"||cmd.includes("visit bank")){bankMenu();return;}
   if(cmd.startsWith("post ")){postToBulletinBoard(raw.trim().slice(5));return;}

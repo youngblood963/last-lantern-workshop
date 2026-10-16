@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Route 127 — Development Shared World Probe</title>
+<style>body{background:#0b100d;color:#d8e8d7;font:16px/1.5 Consolas,monospace;max-width:750px;margin:35px auto;padding:0 18px}h1{color:#e7c86b}input{width:100%;box-sizing:border-box;background:#18251b;color:#fff;border:1px solid #7d947b;padding:12px}button{margin:12px 0;background:#d6b85c;color:#161a13;border:0;padding:12px 18px;font-weight:bold;cursor:pointer}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#172017;padding:16px;border:1px solid #435643}small{color:#aebdab}a{color:#e7c86b}</style></head><body>
+<h1>ROUTE 127 // SHARED WORLD PROBE</h1>
+<p>Development-only, read-only connection check. This does not register characters, change saves, or enable PvP.</p>
+<label for="endpoint">Development Worker URL (your route127-dev-api workers.dev address)</label>
+<input id="endpoint" type="url" placeholder="https://route127-dev-api.YOUR-SUBDOMAIN.workers.dev" autocomplete="off" spellcheck="false">
+<button id="fetch">SCAN WASTELAND</button><button id="clear">CLEAR SAVED URL</button>
+<pre id="output" role="status" aria-live="polite">Awaiting scan.</pre>
+<p><small>Only test characters should be stored in this development database. This page never sends local game saves or credentials. If a CORS error occurs, deploy the accompanying development-only Worker update.</small></p>
+<p><a href="QA_MODE.html">Return to QA Mode</a></p>
+<script src="shared-world-probe.js?v=r2-probe1"></script></body></html>

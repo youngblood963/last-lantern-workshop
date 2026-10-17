@@ -410,7 +410,7 @@ footer{text-align:center;padding:30px 24px;border-top:1px solid var(--line);colo
 .hero-title sup,
 .hero h1 .tm,
 .hero-title .tm{
-  font-size:.18em;
+  font-size:.10em;
   line-height:1;
   vertical-align:super;
   position:relative;

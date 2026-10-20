@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /route127/
+
+Sitemap: https://lastlanternworkshop.com/sitemap.xml

@@ -26,13 +26,11 @@ h1{font-size:clamp(3rem,8vw,6.3rem);line-height:.92;letter-spacing:-.035em;margi
 .buttons{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:32px}
 .btn{display:inline-block;padding:11px 20px;border:1px solid var(--gold-soft);text-decoration:none;text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;background:rgba(198,161,91,.08)}
 .btn:hover{background:rgba(198,161,91,.16);border-color:var(--gold)}.btn-secondary{background:transparent;border-color:#37332c;color:#c8c1b6}
-/* MetalKeep calls to action reuse the Workshop button styling. */
+/* Matching MetalKeep calls to action, scoped to this section. */
 .metalkeep-actions{align-items:center;justify-content:flex-start}
-.metalkeep-actions .btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;flex:0 1 auto;text-align:center}
-.metalkeep-actions .google-play-badge{display:inline-flex;flex:0 0 190px;align-items:center;justify-content:center}
-.metalkeep-actions .google-play-badge img{display:block;width:190px;max-width:100%;height:auto}
+.metalkeep-actions .btn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:280px;max-width:100%;min-width:0;min-height:48px;text-align:center}
 @media(max-width:820px){.metalkeep-actions{justify-content:center}}
-@media(max-width:480px){.metalkeep-actions{flex-direction:column;gap:8px}.metalkeep-actions .google-play-badge{flex-basis:auto}.metalkeep-actions .btn{max-width:100%}}
+@media(max-width:480px){.metalkeep-actions{flex-direction:column}}
 .section{padding:84px 24px}.wrap{width:100%;max-width:var(--max);margin:0 auto}.narrow{max-width:760px}
 .section-heading{text-align:center;margin-bottom:50px}.section-heading h2,.about h2{font-size:clamp(2.3rem,5vw,3.7rem);margin:7px 0 8px}.section-heading p{margin:0;color:var(--muted)}
 .projects{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}

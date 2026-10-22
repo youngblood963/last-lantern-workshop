@@ -7,14 +7,14 @@ function portQuestObjective(){
  if(!f.factoryFinalComponent)return 'Defeat the Factory Foreman and recover the final charge component.';
  if(!f.portChargePrepared)return 'Return to Forge and prepare the dynamite charge.';
  if(!f.portRoadCleared)return 'Travel to the blocked eastern road and USE DYNAMITE at the obstruction.';
- return 'The road is clear. Follow the terminal signal east to Seaport.';
+ return 'Follow Seaport’s distress signal east. Investigate the occupied harbor and its captive residents.';
 }
 function portForgeDialogue(){
  const f=player.flags;
  if(!f.factoryFinalComponent||f.portChargePrepared)return;
  if(factoryDone()!==4)return;
  f.portChargePrepared=true;
- add('FORGE > All the components are here. I have assembled the dynamite charge. The east road is still blocked. Take it to the obstruction.','reward');
+ add('FORGE > The restored terminal is picking up Seaport’s distress signal. Dominion-backed fishermen have closed the harbor and taken residents captive. Solace needs that supply route, and those people need a way out. All the components are here; I have assembled the charge. Clear the collapsed overpass, then find out who is still alive.','reward');
  addPack('Prepared Dynamite Charge','quest');
  add('MAIN QUEST UPDATED — Find the obstruction east of the Factory and USE DYNAMITE.','reward');
  v49Autosave();
@@ -32,7 +32,7 @@ function portClearRoad(){
  f.portRoadCleared=true;
  player.pack=player.pack.filter(i=>i.name!=='Prepared Dynamite Charge');
  add('You set the dynamite beneath the fallen supports and retreat. The blast opens a narrow passage east.','reward');
- add('The mysterious terminal crackles: > SIGNAL RESTORED. CONTINUE EAST. SEAPORT IS THE NEXT DESTINATION.','bright');
+ add('The terminal crackles: > SEAPORT DISTRESS SIGNAL RESUMED. CIVILIANS DETAINED AT HARBOR. Forge marks the freight line east: it leads straight to the occupied docks.','bright');
  f.portTerminalGuidanceSeen=true;
  add('MAIN QUEST UPDATED — Travel east to Seaport.','reward');
  stage='portRoad';portState();updateHud();v49Autosave();portMenu();
@@ -62,14 +62,16 @@ function portMenu(){
   add('SMALL TALK   RETURN TO HARBOR','system');
  }
 }
-function portArrive(){const s=portState();s.position=5;stage='seaport';if(!s.arrived){s.arrived=true;gainXp(190);add('SEAPORT REACHED — DEMO DESTINATION','reward');add('The harbor opens ahead. You have reached the destination of the current Route 127 demo.','bright');}if(typeof port55Arrive==='function')port55Arrive();portMenu();}
+function portArrive(){const s=portState();s.position=5;stage='seaport';if(!s.arrived){s.arrived=true;gainXp(190);add('SEAPORT REACHED — OCCUPIED HARBOR','reward');add('The freight line ends beneath silent cranes. A Dominion tribute mark hangs over the harbor gate; a cry for help carries from the chained docks.','bright');}if(typeof port55Arrive==='function')port55Arrive();portMenu();}
 function portMove(direction){if(!portReady()){stage='portObstruction';portBlockedMenu();return;}const s=portState();if(!spendTurn()){add('NO TURNS LEFT.','danger');portMenu();return;}
  s.position=Math.max(0,Math.min(5,s.position+direction));
  if(s.position===0){stage='factoryWorkshop';add('You return west to Forge’s workshop.','bright');v49FactoryRoom();return;}
  if(s.position===5){portArrive();return;}
- stage='portRoad';add('You travel '+(direction>0?'east toward Seaport.':'west toward the Factory.'),'bright');
+ stage='portRoad';updateHud();add('You travel '+(direction>0?'east toward Seaport.':'west toward the Factory.'),'bright');
  if(direction>0&&!s.seen[s.position]){s.seen[s.position]=true;gainXp(48);}
- if(direction>0&&typeof port55Travel==='function')port55Travel(s);
+ if(typeof port55Travel==='function'&&direction>0)port55Travel(s);
+ const roadAtmosphere={1:'Rusted freight wagons shelter abandoned bedrolls. Someone fled toward the harbor in a hurry.',2:'Spent cartridges litter a makeshift toll barrier. The coast road is being watched.',3:'Salt wind carries the clatter of harbor chains. A faded Dominion tribute notice is nailed to a post.',4:'Floodlights rake the approaches. Beyond the seawall, armed silhouettes patrol the dock gate.'};
+ add(direction>0?roadAtmosphere[s.position]:['','The Factory stacks rise beyond the abandoned freight wagons.','You pass the broken toll barrier, heading west.','The harbor chains fade behind you on the road to Forge.','You leave the harbor floodlights behind and follow the freight line west.'][s.position],'system');
  // Fixed one-time threats: no reload farming, no new enemy or combat framework.
  if(direction>0&&!s.cleared[s.position]&&(s.position===2||s.position===4)){
   if(player.flags?.equippedPet==='Stray Cat'&&Math.random()<.10){s.cleared[s.position]=true;add('Your stray cat senses danger and leads you around the patrol.','reward');portMenu();return;}
@@ -83,7 +85,7 @@ function portCombatRetreat(){const s=portState();s.position=Math.max(0,s.positio
 function portCommand(cmd){
  if(stage==='factoryWorkshop'&&['seaport','road to seaport','travel east','leave east','east road'].includes(cmd)){
   if(!player.flags.portChargePrepared){add('The east road remains blocked. Talk to Forge after recovering the final component.','system');return true;}
-  stage=portReady()?'portRoad':'portObstruction';
+  portState().position=0;stage=portReady()?'portRoad':'portObstruction';
   add('You follow the eastern road toward the collapsed overpass.','bright');portMenu();return true;
  }
  if(stage==='portObstruction'){
@@ -104,7 +106,7 @@ function portCommand(cmd){
  if(stage==='seaport'){
   const dest={'market':'portMarket','clinic':'portClinic','docks':'portDocks','gate watch':'portWatch'}[cmd];
   if(dest){stage=dest;portMenu();return true;}
-  if(['return west','west','leave','back'].includes(cmd)){stage='portRoad';portMove(-1);return true;}
+  if(['return west','west','leave','back'].includes(cmd)){portMove(-1);return true;}
   if(cmd==='demo status'){add('ROUTE 127 — INITIAL DEMO DESTINATION REACHED. Further regions are not yet available.','reward');portMenu();return true;}
   portMenu();return true;
  }

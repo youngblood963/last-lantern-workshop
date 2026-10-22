@@ -78,7 +78,7 @@ function v53SaleStart(name,merchant=null){
  player.flags.v53Sale={name:item.name,type:item.type,available:item.qty,unit,qty:1,merchant,location:mercyLocation,mode:'quantity'};if(!merchant)player.flags.v48Sale={name:item.name,type:item.type,qty:1,total:unit};v53SaleMenu();return true;
 }
 function v53SaleMenu(){const q=player.flags.v53Sale;if(!q)return;
- add(`SELL ${q.name} — ${q.available} AVAILABLE — ${q.unit} BOLTS EACH`,'system');
+ add(`SELL ${q.name} — ${q.available} AVAILABLE — ${q.unit} BOLTS EACH${q.merchant?' — MERCHANT CASH '+v52Inventory(wandererByName(q.merchant)).bolts+' BOLTS':''}`,'system');
  if(q.mode==='custom'){add(`CUSTOM AMOUNT — enter 1–${q.available}, or CANCEL.`,'system');return;}
  if(q.mode==='confirm'){add(`SELL ${q.qty} × ${q.name} FOR ${q.qty*q.unit} BOLTS TOTAL?`,'system');v53Choices(['CONFIRM SALE','CANCEL SALE']);return;}
  v53Choices(['SELL 1',...(q.available>=5?['SELL 5']:[]),'SELL ALL','CUSTOM AMOUNT','CANCEL SALE']);
@@ -91,7 +91,7 @@ function v53SaleCommand(cmd){
   const item=player.pack.find(i=>i.name===q.name&&i.type===q.type),total=q.qty*q.unit;
   const w=q.merchant?wandererByName(q.merchant):null,inv=w?v52Inventory(w):null;
   const present=q.merchant?w&&wandererAlive(w)&&(stage==='wandererRoad'?currentRoadWanderer===w.name:stage==='mercy'&&currentTownWanderer===w.name):stage==='mercy'&&mercyLocation===q.location&&['johnny','jen','wayne','mara'].includes(mercyLocation);
-  if(!present||!item||!Number.isSafeInteger(q.qty)||q.qty<1||item.qty<q.qty||v48SellPrice(item)!==q.unit||!Number.isSafeInteger(total)||!Number.isSafeInteger(player.bolts+total)||inv&&inv.bolts<total){delete player.flags.v53Sale;delete player.flags.v48Sale;delete player.flags.v50Sale;add('Sale changed or funds insufficient. Nothing sold.','system');if(present&&w)v50Trade(w);else if(present)v48SaleMenu();else{delete player.flags.v50Trade;renderCurrentChoices();}return true;}
+  if(!present||!item||!Number.isSafeInteger(q.qty)||q.qty<1||item.qty<q.qty||v48SellPrice(item)!==q.unit||!Number.isSafeInteger(total)||!Number.isSafeInteger(player.bolts+total)||inv&&inv.bolts<total){delete player.flags.v53Sale;delete player.flags.v48Sale;delete player.flags.v50Sale;add(!present?'Merchant is no longer here. Nothing sold.':!item?'You no longer carry that item. Nothing sold.':v48SellPrice(item)!==q.unit?'Item is now equipped, protected or differently priced. Nothing sold.':inv&&inv.bolts<total?`${w.name} has ${inv.bolts} Bolts available; this sale needs ${total}. Sell fewer items or return after restock. Nothing sold.`:'Quantity or balance changed. Nothing sold.','system');if(present&&w)v50Trade(w);else if(present)v48SaleMenu();else{delete player.flags.v50Trade;renderCurrentChoices();}return true;}
   item.qty-=q.qty;if(item.qty===0)player.pack.splice(player.pack.indexOf(item),1);
   if(inv){inv.bolts-=total;const held=inv.items.find(i=>i.name===q.name&&i.type===q.type);if(held)held.qty+=q.qty;else inv.items.push({name:q.name,type:q.type,qty:q.qty,trade:false});}
   delete player.flags.v53Sale;delete player.flags.v48Sale;delete player.flags.v50Sale;gainBolts(total);add(`SOLD ${q.qty} × ${q.name} — ${total} BOLTS TOTAL`,'reward');v48Checkpoint();if(w)v50Trade(w);else v48SaleMenu();return true;

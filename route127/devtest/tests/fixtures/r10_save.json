@@ -1,0 +1,288 @@
+{
+  "version": 38,
+  "combatState": null,
+  "day": 1,
+  "wandererSerial": 0,
+  "savedAt": "2026-10-22T01:25:26.222Z",
+  "stage": "port55Vendor",
+  "roadTurn": 0,
+  "dailyRoadTurns": 0,
+  "roadGoal": "mercy",
+  "roadTripLength": 9,
+  "roadTurnCharged": false,
+  "serviceRoadDepth": 0,
+  "mercyLocation": "town",
+  "roadEncounterOrder": [
+    47,
+    56,
+    20,
+    2,
+    21,
+    16,
+    37,
+    0,
+    40
+  ],
+  "wandererLocations": {
+    "Tess": "jen",
+    "Patch": "mercy",
+    "Hollis": "road",
+    "Rook": "jen",
+    "June": "jen",
+    "Moss": "wayne",
+    "Kettle": "mercy",
+    "Vera": "amii",
+    "Deke": "road",
+    "Ash": "gate",
+    "Bram": "amii",
+    "Lark": "mercy",
+    "Flint": "road",
+    "Sable": "amii",
+    "Cricket": "road",
+    "Rowan": "gate",
+    "Harlow": "mercy",
+    "Bolt": "road",
+    "Crowley": "amii",
+    "Mercer": "gate",
+    "Finch": "jen",
+    "Vale": "wayne",
+    "Bishop": "amii",
+    "Wren": "jen",
+    "Cutter": "gate"
+  },
+  "currentRoadWanderer": null,
+  "currentTownWanderer": null,
+  "townWandererFocus": null,
+  "player": {
+    "handle": "Legacy QA",
+    "level": 8,
+    "hp": 100,
+    "maxHp": 170,
+    "xp": 0,
+    "nextXp": 100,
+    "bolts": 3000,
+    "bankBolts": 0,
+    "turns": 1000000,
+    "maxTurns": 150,
+    "lifetimeTurns": 0,
+    "weapon": "Rusted Pipe",
+    "armor": "Worn Jacket",
+    "accessory": null,
+    "pack": [
+      {
+        "name": "Reinforced Combat Machete",
+        "type": "weapon",
+        "qty": 1
+      },
+      {
+        "name": "Wire",
+        "type": "material",
+        "qty": 3
+      }
+    ],
+    "packMax": 10,
+    "flags": {
+      "seaport55": {
+        "freed": true,
+        "stage": "done"
+      },
+      "ownedPets": [
+        "Scrap Rat",
+        "Scrap Dog"
+      ],
+      "equippedPet": "Scrap Dog",
+      "v49RecipeBandage": true,
+      "v49MurphyJob": {
+        "key": "ironReaper",
+        "endsAt": 1792632386222,
+        "success": true
+      },
+      "worldHour": 8
+    },
+    "wandererState": {
+      "Tess": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Patch": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Hollis": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Rook": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "June": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Moss": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Kettle": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Vera": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Deke": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Ash": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Bram": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Lark": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Flint": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Sable": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Cricket": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Rowan": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Harlow": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Bolt": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Crowley": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Mercer": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Finch": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Vale": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Bishop": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Wren": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      },
+      "Cutter": {
+        "met": false,
+        "dead": false,
+        "lastSeen": -99,
+        "talks": 0,
+        "lastLine": ""
+      }
+    },
+    "recentEncounters": [],
+    "deathStreak": 0,
+    "encounterDone": {},
+    "houseStorage": [],
+    "houseBoxMax": 6,
+    "stash": [],
+    "dailyDeal": "Claw Hammer",
+    "characterId": "local-12345678-1234-4234-8234-123456789012"
+  }
+}

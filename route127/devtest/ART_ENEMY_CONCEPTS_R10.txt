@@ -1,0 +1,32 @@
+ROUTE 127 — LEVEL 5+ COLORED ASCII ENEMY CONCEPTS
+Cosmetic prototypes. Tone tags map to existing r5-tone-* CSS classes.
+
+RAIDER — RED/RUST/METAL
+[rust]        __/\__
+[metal]      _| o  o |_
+[red]       \  ==   /
+[rust]      /|\____/|\
+[metal]     /_| [##] |_\
+[rust]       / /  \ \
+[red]       ROAD RAIDER
+
+FERAL MUTANT — GOLD/GREEN/RED
+[gold]      .-._  _.-.
+[red]      /  X\/X  \
+[metal]    /  /\__/\  \
+[red]      \_/  \/  \_/
+[gold]       /|====|\
+[metal]      /_/    \_\
+[red]       FERAL MUTANT
+
+DOMINION ENFORCER — METAL/RED/GOLD
+[metal]      __[____]__
+[red]       |  +  +  |
+[metal]     _| [____] |_ 
+[red]      /==\ |==| /==\
+[metal]    |[]| |  | |[]|
+[gold]       /__|  |__\
+[red]     DOMINION ENFORCER
+
+Factory boss art is INTEGRATED in final_polish.js. These three road enemy designs
+are conceptual assets only pending combat-hook QA; do not treat as integrated.

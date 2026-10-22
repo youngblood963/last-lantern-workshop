@@ -224,6 +224,7 @@ function v49LiveMap(){
  el.hidden=false;
  let st=gameplayStageForSave();
  if(st==='port55Pets')st=returnStage||'between';
+ if(st==='port55Recruit')st=player.flags.portHireOffer?.origin||'between';
  // Seaport contexts must not fall through to the older Solace/Factory road map.
  const source=st==='combat'?combatState?.source:null;
  if(st==='portObstruction'){el.textContent='SEAPORT ROAD  FACTORY ── [ COLLAPSED OVERPASS <YOU> ] ── SEAPORT';return;}
@@ -233,7 +234,7 @@ function v49LiveMap(){
   el.textContent='SEAPORT ROAD  '+nodes.join(' ─ ');return;
  }
  if(st==='seaport'||st.startsWith('port55')||['portMarket','portClinic','portDocks','portWatch'].includes(st)||source==='seaportLiberation'||st==='mercy'&&player.flags.port55Casino){
-  const loc={port55Vendor:'PET VENDOR',port55Mia:'THE RUSTY ANCHOR',port55Kaiden:'KAIDEN',port55Docks:'HARBOR DOCKS',portMarket:'MARKET',portClinic:'CLINIC',portDocks:'DOCKS',portWatch:'GATE WATCH'}[st]||(st==='port55Stop'?player.flags.port55CurrentStop:player.flags.port55Casino?'THE RUSTY ANCHOR':'HARBOR STREETS');
+  const loc={port55Market:'MARKET AREA',port55Vendor:'PET STORE',port55Mia:'THE RUSTY ANCHOR',port55Kaiden:'KAIDEN',port55Docks:'HARBOR DOCKS',portMarket:'MARKET',portClinic:'CLINIC',portDocks:'DOCKS',portWatch:'GATE WATCH',port55Service:player.flags.portStaffUI?.role}[st]||(st==='port55Stop'?player.flags.port55CurrentStop:player.flags.port55Casino?'THE RUSTY ANCHOR':'HARBOR STREETS');
   el.textContent=`SEAPORT  [ ${String(loc||'HARBOR STREETS').toUpperCase()} <YOU> ]`;return;
  }
  const east=roadGoal==='east'||['eastEnd','factoryWorkshop','factoryTerminal','factoryForge','factoryBench'].includes(st);
@@ -301,7 +302,7 @@ const OVERNIGHT_RISK=Object.freeze({camp:{chance:.08,maxBolts:8,maxItems:1},road
 function overnightLabel(choice){return choice==="camp"?"MAKE CAMP":choice==="room"?"RENTED ROOM":"REMAIN ON ROAD";}
 function overnightRoomAvailable(){const origin=["zeroTurns","overnightConfirm"].includes(stage)?player.flags.turnResumeStage:stage;return origin==="mercy"&&!!player.flags.rentedRoom;}
 function overnightChoices(){return ["(C) MAKE CAMP — CONSUMES 1 TENT / LOW LOSS RISK","(R) REMAIN ON ROAD — HIGHER LOSS RISK",...(overnightRoomAvailable()?["(J) USE RENTED ROOM — NO LOSSES"]:[])].join("   ");}
-function legacyOvernightRng(){let seed=0;for(const ch of `${player.handle}|${player.flags.nextRefillAt}|${player.flags.overnight||"road"}`)seed=(Math.imul(seed,31)+ch.charCodeAt(0))>>>0;return ()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};}
+function legacyOvernightRng(){let seed=0;for(const ch of `${player.characterId||player.handle}|${player.flags.nextRefillAt}|${player.flags.overnight||"road"}`)seed=(Math.imul(seed,31)+ch.charCodeAt(0))>>>0;return ()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};}
 function planOvernight(choice,rng=Math.random){
  const config=OVERNIGHT_RISK[choice]||OVERNIGHT_RISK.road,plan={choice,dueAt:player.flags.nextRefillAt,bolts:0,items:[],applied:false};
  if(rng()>=config.chance)return plan;
@@ -419,11 +420,11 @@ const GEAR={
  ...FACTORY_WEAPON_STATS,
  "Balanced Hunting Knife":{rarity:"rare",type:"weapon",min:14,max:20},
  "Precision Hunting Rifle":{rarity:"rare",type:"weapon",min:16,max:22},
- "Reinforced Combat Machete":{rarity:"rare",type:"weapon",min:12,max:23},
- "Refurbished Service Revolver":{rarity:"rare",type:"weapon",min:11,max:24},
- "Reinforced Relay Vest":{rarity:"rare",type:"armor",def:7},
+ "Tempered Combat Machete":{rarity:"rare",type:"weapon",min:12,max:23},
+ "Specialized Service Revolver":{rarity:"rare",type:"weapon",min:11,max:24},
+ "Advanced Relay Vest":{rarity:"rare",type:"armor",def:7},
  "Padded Tactical Jacket":{rarity:"rare",type:"armor",def:6},
- "Reinforced Leather Armor":{rarity:"rare",type:"armor",def:6},
+ "Tempered Leather Armor":{rarity:"rare",type:"armor",def:6},
  "Salvaged Security Vest":{rarity:"rare",type:"armor",def:8},
  "Insulated Patrol Coat":{rarity:"rare",type:"armor",def:7},
  "Rusted Pipe":{rarity:"common",type:"weapon",min:5,max:10},"Claw Hammer":{rarity:"uncommon",type:"weapon",min:7,max:13},"Tire Iron":{rarity:"rare",type:"weapon",min:13,max:20},"Yardman's Wrench":{rarity:"uncommon",type:"weapon",min:11,max:18},"Heavy Wrench":{rarity:"uncommon",type:"weapon",min:11,max:18},
@@ -431,9 +432,9 @@ const GEAR={
  "Worn Jacket":{rarity:"common",type:"armor",def:2},"Reinforced Jacket":{rarity:"uncommon",type:"armor",def:4},"Padded Jacket":{rarity:"uncommon",type:"armor",def:4},"Reinforced Work Vest":{rarity:"uncommon",type:"armor",def:5},"Hardened Scavenger Coat":{rarity:"rare",type:"armor",def:7},"Highway Warden's Coat":{rarity:"rare",type:"armor",def:8},"Wraith's Reinforced Coat":{rarity:"epic",type:"armor",def:10},
  "Worn Leather Wristband":{rarity:"common",type:"accessory",def:1},
  "Lucky Bottle Cap":{rarity:"common",type:"accessory",min:1,max:1},
- "Reinforced Belt":{rarity:"common",type:"accessory",def:1},
+ "Worn Belt":{rarity:"common",type:"accessory",def:1},
  "Scavenger's Charm":{rarity:"uncommon",type:"accessory",def:1,min:1,max:1},
- "Rusted Dog Tags":{rarity:"uncommon",type:"accessory",def:2},
+ "Reinforced Dog Tags":{rarity:"uncommon",type:"accessory",def:2},
  "Road Warrior's Bracelet":{rarity:"uncommon",type:"accessory",min:1,max:2},
  "Niko's Lucky Vest":{rarity:"common",type:"armor",def:2},
  "Giant Dog Bone":{rarity:"common",type:"consumable"},
@@ -517,8 +518,7 @@ function showQuests(){
 function showEquipmentSummary(){
   const [low,high]=weaponRange();
   add(`WEAPON: ${gearLabel(player.weapon)}`,GEAR[player.weapon]?.rarity||"system");add(`        DMG ${low}–${high}`,"system");add("","system");
-  add(`PET: ${player.flags?.equippedPet||"None"} — MANAGE PETS`,"system");
-  add(`ARMOR: ${gearLabel(player.armor)}`,GEAR[player.armor]?.rarity||"system");add(`       DEF ${armorDefense()}`,"system");add(`ACCESSORY: ${player.accessory?gearLabel(player.accessory):"None"}`,GEAR[player.accessory]?.rarity||"system");
+  add(`ARMOR: ${gearLabel(player.armor)}`,GEAR[player.armor]?.rarity||"system");add(`       DEF ${armorDefense()}`,"system");add(`PET: ${player.flags?.equippedPet||"None"}`,typeof r11PetRarity==='function'?r11PetRarity(player.flags?.equippedPet):"system");add(`ACCESSORY: ${player.accessory?gearLabel(player.accessory):"None"}`,GEAR[player.accessory]?.rarity||"system");
 }
 function showInventory() {
   numberedChoices={};currentHotkeys={b:"back"};refreshInterfaceShortcutLabels();
@@ -528,13 +528,13 @@ function showInventory() {
   showEquipmentSummary();
   const normal=player.pack.filter(i=>!["key","quest"].includes(i.type));
   const keys=player.pack.filter(i=>["key","quest"].includes(i.type));
-  for(let i=0;i<player.packMax;i++){
+  for(let i=0;i<Math.max(player.packMax,normal.length);i++){
     const item=normal[i];
     add(item?`[${i+1}] ${gearLabel(item.name)}${item.qty>1?` ×${item.qty}`:""}  <${item.type.toUpperCase()}>`:`${i+1}. EMPTY`,item&&GEAR[item.name]?GEAR[item.name].rarity:"system");
   }
   if(keys.length){ add("KEY ITEMS", "bright"); keys.forEach(i=>add(`• ${i.name}${i.qty>1?` ×${i.qty}`:""}`)); }
   // Relay parts are durable quest flags, not physical backpack items.
-  if(player.flags.relayPartsRevealed || player.flags.relayQuest==="stabilize" || player.flags.relayQuest==="complete"){
+  if(player.flags.relayQuest!=="complete" && (player.flags.relayPartsRevealed || player.flags.relayQuest==="stabilize")){
     const parts=ensureRelayParts();
     add("RELAY COMPONENTS — QUEST STORAGE (NO PACK SLOTS)","bright");
     for(const [key,label] of [["johnny","Power Regulator"],["yard","Antenna Servo"],["branch","Shielded Feed Coupler"],["east","Signal-Conditioning Module"]])
@@ -652,7 +652,7 @@ function postToBulletinBoard(text){
   if(!text){ add("Write something after POST. Example: POST Road east is rough.","system"); return; }
   if(text.length>BOARD_MAX_CHARS){ add(`BOARD KEEPER > Keep it under ${BOARD_MAX_CHARS} characters. Paper isn't free.`,"danger"); return; }
   if(boardHasProfanity(text)){ add("BOARD KEEPER > Not on Solace's board. Clean it up and try again.","danger"); return; }
-  const posts=getBoardPosts(); posts.push({text,handle:player.handle||"TRAVELER",day,at:new Date().toISOString()});
+  const posts=getBoardPosts(); posts.push({text,handle:player.handle||"TRAVELER",authorId:r7Identity(),day,at:new Date().toISOString()});
   try { localStorage.setItem(BOARD_KEY,JSON.stringify(posts.slice(-BOARD_MAX_POSTS))); add("You pin the note to the board.","reward"); }
   catch(e){ add("The note wouldn't stay put. Local storage is unavailable.","danger"); return; }
   showBulletinBoard();
@@ -783,7 +783,7 @@ function serializablePlayer(){
 function gameplayStageForSave(){
   if(stage==="combatItems")return "combat";
   // UI overlays are not physical locations. Never persist one as the game stage.
-  const overlay=["confirmDrop","inventory","inventoryItem","quests","interfaceStatus","interfaceMap","interfaceSave","v49TitleConfirm","confirmSaveOverwrite","combatItems"];
+  const overlay=["port55Pets","confirmDrop","inventory","inventoryItem","quests","interfaceStatus","interfaceMap","interfaceSave","v49TitleConfirm","confirmSaveOverwrite","combatItems"];
   const candidate=overlay.includes(stage) ? returnStage : stage;
   return candidate && !overlay.includes(candidate) ? candidate : "between";
 }
@@ -819,6 +819,8 @@ function loadGame(slot=activeSaveSlot){
   if(slot!=="auto")activeSaveSlot=slot;else if(data)activeSaveSlot=[1,2,3].includes(data.manualSlot)?data.manualSlot:0;
   if(!data){ add("SAVE GAME 01 is empty.", "system"); return; }
   Object.assign(player,data.player||{});
+  if(typeof r11Migrate==='function')r11Migrate();
+  if(typeof r11RestoreCasinoLedger==='function')r11RestoreCasinoLedger();
   if(player.accessory===undefined)player.accessory=null;
   player.vendorStock=Array.isArray(data.player&&data.player.vendorStock)?[...data.player.vendorStock]:["Rusted Pipe","Worn Jacket","Claw Hammer"];
   player.vendorSold=Array.isArray(data.player&&data.player.vendorSold)?[...data.player.vendorSold]:[];
@@ -850,6 +852,8 @@ function loadGame(slot=activeSaveSlot){
   if(roadGoal==="house" && ["fork","serviceRoad","relayBranch"].includes(stage))roadTurn=roadTripLength-4;
   mercyLocation=data.mercyLocation||"town"; roadEncounterOrder=Array.isArray(data.roadEncounterOrder)?data.roadEncounterOrder:roadEncounterOrder;
   wandererLocations=(data.wandererLocations&&typeof data.wandererLocations==="object")?data.wandererLocations:rollWandererLocations();
+  // Add newly introduced wanderers to legacy saves without resetting existing locations.
+  for(const w of wanderers){if(!Object.prototype.hasOwnProperty.call(wandererLocations,w.name)){const options=wandererSpots;wandererLocations[w.name]=options[Math.floor(Math.random()*options.length)];}}
   // v51: the former road Mara is Tess; migrate existing saves without resetting wanderer progress.
   if(player.wandererState?.Mara){if(!player.wandererState.Tess)player.wandererState.Tess=player.wandererState.Mara;delete player.wandererState.Mara;}
   if(Object.prototype.hasOwnProperty.call(wandererLocations,"Mara")){if(!Object.prototype.hasOwnProperty.call(wandererLocations,"Tess"))wandererLocations.Tess=wandererLocations.Mara;delete wandererLocations.Mara;}
@@ -866,7 +870,7 @@ function loadGame(slot=activeSaveSlot){
   }
   else if(["houseStorage","houseDeposit","houseWithdraw"].includes(stage)){showHouseStorage(stage);}
   else if(stage==="house") arriveHouse();
-  else if(["port55Vendor","port55Pets","port55Kaiden","port55Mia","port55Docks","port55Stop"].includes(stage))port55Resume();
+  else if(["port55Vendor","port55Pets","port55Kaiden","port55Mia","port55Docks","port55Stop","port55Service","port55Recruit"].includes(stage))port55Resume();
   else if(["portRoad","seaport","portMarket","portClinic","portDocks","portWatch"].includes(stage))portMenu();
   else if(stage==="mercy"){if(!(typeof port55CasinoRestore==="function"&&port55CasinoRestore())){add("SOLACE","place");showSolaceContext();}}
   else if(stage==="settlement"){ add("SOLACE GATE", "place"); add("The settlement waits beyond the barricade."); add("(P) APPROACH GATE", "system"); }
@@ -1019,8 +1023,8 @@ async function leaveHouse() {
 
 
 const wanderers = [
-  {name:"Tess", level:3, vibe:"watchful", lines:["TESS > Road's quieter when it shouldn't be.","Tess gives you a short nod and keeps one hand near her coat."]},
-  {name:"Patch", level:2, vibe:"cheerful", lines:["PATCH > Found three good screws today. That's practically a holiday.","Patch grins like the wasteland has personally failed to ruin his mood."]},
+  {name:"Tess", level:5, vibe:"watchful", lines:["TESS > Road's quieter when it shouldn't be.","Tess gives you a short nod and keeps one hand near her coat."]},
+  {name:"Patch", level:5, vibe:"cheerful", lines:["PATCH > Found three good screws today. That's practically a holiday.","Patch grins like the wasteland has personally failed to ruin his mood."]},
   {name:"Hollis", level:2, vibe:"tired", lines:["HOLLIS > If Solace has coffee, don't tell me. I can't afford another disappointment.","Hollis looks exhausted enough to sleep standing up."]},
   {name:"Rook", level:4, vibe:"suspicious", lines:["ROOK > You following me? ...No? Good.","Rook watches you without blinking."]},
   {name:"June", level:2, vibe:"kind", lines:["JUNE > You bleeding? No? Good day, then.","June offers a small wave."]},
@@ -1030,13 +1034,26 @@ const wanderers = [
   {name:"Deke", level:5, vibe:"cocky", lines:["DEKE > Relax. If I wanted your Bolts, we'd already be negotiating.","Deke flashes a grin that does not improve the situation."]},
   {name:"Ash", level:2, vibe:"skittish", lines:["ASH > Just passing through. Same as you.","Ash keeps glancing toward the nearest exit."]},
   {name:"Bram", level:4, vibe:"gruff", lines:["BRAM > Keep your weapon low and we'll get along fine.","Bram grunts. It may have been hello."]},
-  {name:"Lark", level:3, vibe:"curious", lines:["LARK > You hear the relay at night too, or is that just me?","Lark looks at your pack, then at you, filing away details."]}
+  {name:"Lark", level:3, vibe:"curious", lines:["LARK > You hear the relay at night too, or is that just me?","Lark looks at your pack, then at you, filing away details."]},
+  {name:"Flint", level:6, vibe:"methodical", lines:["FLINT > That engine noise? Bad bearing. Don't ask how I know.","Flint cleans a grease-dark wrench before acknowledging you."]},
+  {name:"Sable", level:6, vibe:"cautious", lines:["SABLE > Tracks cross here twice. Someone's circling.","Sable keeps the sun at her back and the brush in sight."]},
+  {name:"Cricket", level:6, vibe:"talkative", lines:["CRICKET > Two roads, three rumors, and not one of 'em good.","Cricket talks fast but misses nothing around you."]},
+  {name:"Rowan", level:7, vibe:"resourceful", lines:["ROWAN > A locked door just means somebody valued what's behind it.","Rowan tests the weight of a scavenged tool in one hand."]},
+  {name:"Harlow", level:7, vibe:"steady", lines:["HARLOW > Keep that wound clean. The road's filthy enough.","Harlow adjusts a faded medic's satchel."]},
+  {name:"Bolt", level:7, vibe:"practical", lines:["BOLT > Most people see junk. I see tomorrow's shelter.","Bolt sorts a fistful of usable fasteners by touch."]},
+  {name:"Crowley", level:8, vibe:"suspicious", lines:["CROWLEY > You buy first. Then we can be friends.","Crowley closes a battered ledger before you can read it."]},
+  {name:"Mercer", level:8, vibe:"shrewd", lines:["MERCER > There's a fair price and a road price. Guess which one's mine.","Mercer eyes your pack like he's already making an offer."]},
+  {name:"Finch", level:8, vibe:"reserved", lines:["FINCH > Quiet keeps you breathing.","Finch scans the ridgeline before answering."]},
+  {name:"Vale", level:9, vibe:"enigmatic", lines:["VALE > The Dominion isn't as sure of itself as it pretends.","Vale folds an old map before you can glimpse its markings."]},
+  {name:"Bishop", level:9, vibe:"disciplined", lines:["BISHOP > Hands where I can see them. Nothing personal.","Bishop stands like someone still waiting for orders."]},
+  {name:"Wren", level:9, vibe:"watchful", lines:["WREN > I survived this long by noticing what others miss.","Wren touches a weathered lookout's whistle but doesn't blow it."]},
+  {name:"Cutter", level:10, vibe:"hardened", lines:["CUTTER > The road takes the careless first.","Cutter's scarred armor carries marks from fights you wouldn't pick."]}
 ];
 const wandererSpots=["road","mercy","jen","johnny","murphy","wayne","amii","gate"];
 let wandererLocations={};
 function rollWandererLocations(previous={}){
   const out={};
-  wanderers.forEach(w=>{ if(!wandererAlive(w)){out[w.name]="dead";return;} const choices=wandererSpots.filter(x=>x!==previous[w.name]); out[w.name]=choices[Math.floor(Math.random()*choices.length)]; });
+  wanderers.forEach(w=>{ if(typeof portIsHired==="function"&&portIsHired(w.name)){out[w.name]="seaport";return;} if(!wandererAlive(w)){out[w.name]="dead";return;} const choices=wandererSpots.filter(x=>x!==previous[w.name]); out[w.name]=choices[Math.floor(Math.random()*choices.length)]; });
   return out;
 }
 function moveWanderers(){ wandererLocations=rollWandererLocations(wandererLocations||{}); }
@@ -1054,14 +1071,14 @@ function showWanderer(w, context="town"){
   add(context==="road" ? "SMALL TALK   INSPECT   FIGHT   MOVE ON" : "SMALL TALK   INSPECT   FIGHT   LEAVE", "system");
 }
 function showWanderersAt(spot){
-  const here=wanderers.filter(w=>wandererAlive(w)&&wandererLocations[w.name]===spot);
+  const here=wanderers.filter(w=>wandererAlive(w)&&!(typeof portIsHired==="function"&&portIsHired(w.name))&&wandererLocations[w.name]===spot);
   currentTownWanderer=null; if(!here.length) return;
   const w=here[Math.floor(Math.random()*here.length)]; currentTownWanderer=w.name;
   add(`${w.name} is here.`);
 }
 function showRoadWanderer(){
-  let pool=wanderers.filter(w=>wandererAlive(w) && wandererSerial-ws(w.name).lastSeen>=6);
-  if(!pool.length) pool=wanderers.filter(w=>wandererAlive(w));
+  let pool=wanderers.filter(w=>wandererAlive(w) && !(typeof portIsHired==="function"&&portIsHired(w.name)) && wandererSerial-ws(w.name).lastSeen>=6);
+  if(!pool.length) pool=wanderers.filter(w=>wandererAlive(w)&&!(typeof portIsHired==="function"&&portIsHired(w.name)));
   const unseen=pool.filter(w=>!ws(w.name).met); if(unseen.length) pool=unseen;
   const w=v50WeightedWanderer(pool); if(!w){stage="between";showEncounter();return;}
   const st=ws(w.name), first=!st.met; st.met=true; st.lastSeen=wandererSerial++; currentRoadWanderer=w.name;
@@ -1319,14 +1336,14 @@ function v555RollEquipmentDrop(){
   // Approved rarity distribution: Common 55%, Uncommon 30%, Rare 13%, Epic 2%.
   const roll=Math.random()*100;
   const rarity=roll<55?'common':roll<85?'uncommon':roll<98?'rare':'epic';
-  const pool=Object.keys(GEAR).filter(name=>GEAR[name]&&GEAR[name].rarity===rarity&&['weapon','armor'].includes(GEAR[name].type));
+  const pool=Object.keys(GEAR).filter(name=>GEAR[name]&&!GEAR[name].questOnly&&GEAR[name].rarity===rarity&&['weapon','armor'].includes(GEAR[name].type));
   if(!pool.length)return null;
   return pool[Math.floor(Math.random()*pool.length)]||null;
 }
 function v555AwardEquipmentDrop(){
   const item=v555RollEquipmentDrop();
   if(!item)return false;
-  if(addPack(item,GEAR[item].type,1,true)){
+  if(addPack(item,GEAR[item].type,1,false)){
     add(`RANDOM EQUIPMENT DROP — ${gearLabel(item)}`,'reward');
   }else{
     player.flags=player.flags||{};
@@ -1339,7 +1356,7 @@ function v555AwardEquipmentDrop(){
 function v555ClaimEquipmentDrop(){
   const pending=player.flags?.pendingEquipmentDrops;
   if(!Array.isArray(pending)||!pending.length)return false;
-  if(addPack(pending[0],GEAR[pending[0]]?.type||'weapon',1,true)){
+  if(addPack(pending[0],GEAR[pending[0]]?.type||'weapon',1,false)){
     const name=pending.shift();add(`CLAIMED EQUIPMENT DROP — ${gearLabel(name)}`,'reward');
     if(!pending.length)delete player.flags.pendingEquipmentDrops;
   }else add('EQUIPMENT DROP STILL HELD — FREE A BACKPACK SLOT.','system');
@@ -1347,7 +1364,7 @@ function v555ClaimEquipmentDrop(){
 }
 function startCombat(spec, source="encounter", townCost=false, openingAttack=false){
   if(townCost){ if(player.turns<=0){add("NO EXPEDITION TURNS REMAIN.","danger");return;} player.turns--; player.lifetimeTurns=(Number(player.lifetimeTurns)||0)+1; updateHud(); }
-  combatState={...spec,hp:spec.hp,maxHp:spec.hp,source,bolts:Math.max(0,Number(spec.bolts)||0),enemies:spec.enemies?spec.enemies.map(e=>({...e})):undefined}; stage="combat";
+  combatState={...spec,hp:spec.hp,maxHp:spec.hp,source,bolts:Math.max(0,Number(spec.bolts)||0),enemies:spec.enemies?spec.enemies.map(e=>({...e,maxHp:e.hp})):undefined}; stage="combat";
   busy=true; input.disabled=true;
   add(`${spec.name} — LVL ${String(spec.level).padStart(2,"0")} — HP ${spec.hp}/${spec.hp}`,"bright");
   // Combat entry is a state transition, not a hidden extra attack. Always show the combat menu first.
@@ -1379,21 +1396,21 @@ function handleCombat(cmd){
     if(target){
       actualDamage=Math.min(dealt,target.hp);
       target.hp-=actualDamage;
-      add(`${target.name}: ${target.hp} HP remaining.`,"bright");
+      add(`TARGET — ${target.name}: ${target.hp}${target.maxHp!=null?'/'+target.maxHp:''} HP remaining.`,"bright");
       if(target.hp===0){target.defeated=true;add(`${target.name} drops ${target.bolts} Bolts.`,"reward");}
     }else actualDamage=0;
     c.hp=c.enemies.reduce((total,e)=>total+Math.max(0,e.hp),0);
-  }else {actualDamage=Math.min(dealt,c.hp);c.hp=Math.max(0,c.hp-dealt);}
+  }else {actualDamage=Math.min(dealt,c.hp);c.hp=Math.max(0,c.hp-dealt);add(`${c.name}: ${c.hp}/${c.maxHp} HP remaining.`,"bright");}
   add(`You swing the ${player.weapon.toLowerCase()} and connect.`);
-  add("RESULT","system"); add(`YOU DEAL ${actualDamage}   ${c.name} HP ${c.hp}/${c.maxHp}`,"reward");
-  if(c.hp<=0){ add(c.end||`${c.name} is finished.`); resultBuffer=[]; if(c.xp) gainXp(isDark()?Math.ceil(c.xp*1.1):c.xp); const victoryBolts=c.enemies?.length?c.enemies.filter(e=>e.defeated||e.hp===0).reduce((sum,e)=>sum+Math.max(0,Number(e.bolts)||0),0):c.bolts; if(victoryBolts) gainBolts(isDark()?Math.ceil(victoryBolts*1.1):victoryBolts); flushResults(); const source=c.source; combatState=null; if(source==="encounter"&&typeof v555AwardEquipmentDrop==="function")v555AwardEquipmentDrop(); if(source==="seaportLiberation"){portLiberationVictory();} else if(source==="seaportRoadFight"){portCombatWin(c);} else if(source==="factoryFight"){factoryCombatWin(c);} else if(source==="jenBoss"){player.flags.jenQuest="rescued";addPack("Runner's Token","quest");add("QUEST UPDATED — LAST CALL: You rescue Jen's runner and recover their token. Return to Jen.","reward");completeRoadTurn();} else if(source==="terribleBilly"){player.flags.terribleBillyBounty="proof";add("BOUNTY PROOF ACQUIRED — TERRIBLE BILLY IS DOWN. Return to Tim in Solace.","reward");completeRoadTurn();} else if(source==="houseBoss"){player.flags.houseQuest="cleared";if(player.flags.timHouseBounty==="active")player.flags.timHouseBounty="proof";stage="house";add("The occupant abandons the house. Beneath his blanket, one floorboard sits loose.");if(player.flags.timHouseBounty==="proof")add("BOUNTY PROOF ACQUIRED — Return to Tim in Solace.","reward");add("QUEST UPDATED — Lift the floorboard to claim the house.","reward");showHouseChoices();} else if(source==="serviceBoss"){player.flags.serviceBossDead=true;player.flags.serviceReward=true;const oldWeapon=player.weapon; player.weapon="Yardman\'s Wrench"; addPack(oldWeapon,"weapon"); updateHud();add("UNCOMMON — YARDMAN\'S WRENCH — DMG 11–18","uncommon");add(`Equipped. ${oldWeapon} moved to your backpack.`,"reward");add("The maintenance yard is quiet now. Beyond it, the road disappears beneath collapsed trees and concrete.");stage="serviceRoad";serviceRoadDepth=3;add(serviceRoadChoices(),"system");} else if(source==="roadWanderer"){v50WandererLoot(c.name);markWandererDead(c.name); currentRoadWanderer=null; completeRoadTurn();} else if(source==="townWanderer"){v50WandererLoot(c.name);markWandererDead(c.name); currentTownWanderer=null; stage="mercy";showCurrentContext();} else if(source==="gateGuards"){player.flags.solaceGateChallenge=false;player.flags.mercyDiscovered=true;player.flags.mainSolaceQuest="done";stage="mercy";mercyLocation="town";add("You force the gate guard to stand down. The gate opens, and Tim steps forward to meet you.","bright");if(!player.flags.solaceCheckpointSaved){player.flags.solaceCheckpointSaved=true;saveGame(activeSaveSlot);add("CHECKPOINT REACHED — SOLACE AUTOSAVED","reward");}mercyMenu();} else { completeRoadTurn(); } return; }
+  add("RESULT","system"); add(`YOU DEAL ${actualDamage}   ${c.enemies?.length?"GROUP TOTAL — ":""}${c.name} HP ${c.hp}/${c.maxHp}`,"reward");
+  if(c.hp<=0){ add(c.end||`${c.name} is finished.`); resultBuffer=[]; if(c.xp) gainXp(isDark()?Math.ceil(c.xp*1.1):c.xp); const victoryBolts=c.enemies?.length?c.enemies.filter(e=>e.defeated||e.hp===0).reduce((sum,e)=>sum+Math.max(0,Number(e.bolts)||0),0):c.bolts; if(victoryBolts) gainBolts(isDark()?Math.ceil(victoryBolts*1.1):victoryBolts); flushResults(); const source=c.source; combatState=null; if(source==="encounter"&&typeof v555AwardEquipmentDrop==="function")v555AwardEquipmentDrop(); if(source==="r11Elephant"){r11SteveVictory();} else if(source==="seaportLiberation"){portLiberationVictory();} else if(source==="seaportRoadFight"){portCombatWin(c);} else if(source==="factoryFight"){factoryCombatWin(c);} else if(source==="jenBoss"){player.flags.jenQuest="rescued";addPack("Runner's Token","quest");add("QUEST UPDATED — LAST CALL: You rescue Jen's runner and recover their token. Return to Jen.","reward");completeRoadTurn();} else if(source==="terribleBilly"){player.flags.terribleBillyBounty="proof";add("BOUNTY PROOF ACQUIRED — TERRIBLE BILLY IS DOWN. Return to Tim in Solace.","reward");completeRoadTurn();} else if(source==="houseBoss"){player.flags.houseQuest="cleared";if(player.flags.timHouseBounty==="active")player.flags.timHouseBounty="proof";stage="house";add("The occupant abandons the house. Beneath his blanket, one floorboard sits loose.");if(player.flags.timHouseBounty==="proof")add("BOUNTY PROOF ACQUIRED — Return to Tim in Solace.","reward");add("QUEST UPDATED — Lift the floorboard to claim the house.","reward");showHouseChoices();} else if(source==="serviceBoss"){player.flags.serviceBossDead=true;player.flags.serviceReward=true;const oldWeapon=player.weapon; player.weapon="Yardman\'s Wrench"; addPack(oldWeapon,"weapon"); updateHud();add("UNCOMMON — YARDMAN\'S WRENCH — DMG 11–18","uncommon");add(`Equipped. ${oldWeapon} moved to your backpack.`,"reward");add("The maintenance yard is quiet now. Beyond it, the road disappears beneath collapsed trees and concrete.");stage="serviceRoad";serviceRoadDepth=3;add(serviceRoadChoices(),"system");} else if(source==="roadWanderer"){v50WandererLoot(c.name);markWandererDead(c.name); currentRoadWanderer=null; completeRoadTurn();} else if(source==="townWanderer"){v50WandererLoot(c.name);markWandererDead(c.name); currentTownWanderer=null; stage="mercy";showCurrentContext();} else if(source==="gateGuards"){player.flags.solaceGateChallenge=false;player.flags.mercyDiscovered=true;player.flags.mainSolaceQuest="done";stage="mercy";mercyLocation="town";add("You force the gate guard to stand down. The gate opens, and Tim steps forward to meet you.","bright");if(!player.flags.solaceCheckpointSaved){player.flags.solaceCheckpointSaved=true;saveGame(activeSaveSlot);add("CHECKPOINT REACHED — SOLACE AUTOSAVED","reward");}mercyMenu();} else { completeRoadTurn(); } return; }
   // The lookout has three player attacks to blow his whistle. Defeating him
   // before that point prevents reinforcements; once signaled, the gang joins.
   if(c.name==="GANG LOOKOUT" && !c.reinforcementsArrived){
     c.signalRounds=(Number(c.signalRounds)||0)+1;
     if(c.signalRounds>=3 && c.enemies?.some(e=>e.name==="LOOKOUT" && e.hp>0)){
       c.reinforcementsArrived=true;
-      c.enemies.push({name:"GANG LEADER",hp:35,bolts:9},{name:"GANG MEMBER A",hp:20,bolts:4},{name:"GANG MEMBER B",hp:20,bolts:4});
+      c.enemies.push({name:"GANG LEADER",hp:35,maxHp:35,bolts:9},{name:"GANG MEMBER A",hp:20,maxHp:20,bolts:4},{name:"GANG MEMBER B",hp:20,maxHp:20,bolts:4});
       c.maxHp+=75;
       c.hp=c.enemies.reduce((sum,e)=>sum+e.hp,0);
       add("The lookout sounds his whistle! Three gang members charge onto the road.","danger");
@@ -1415,7 +1432,7 @@ function handleCombat(cmd){
     const raw=heavySwing?13+Math.floor(Math.random()*4):Math.floor(Math.random()*(c.max-c.min+1))+c.min;
     if(heavySwing)add("The Yardman winds up a brutal overhead swing!","danger");
     const nightRaw=isDark()?Math.ceil(raw*1.15):raw;
-    const dmg=Math.max(1,nightRaw-armorDefense()-(player.flags?.equippedPet==="Scrap Dog"?1:0));
+    const dmg=Math.max(1,nightRaw-armorDefense()-(player.flags?.equippedPet==="Rust Hound"?1:0));
     const inflicted=Math.min(dmg,Math.max(0,player.hp));
     player.hp=Math.max(0,player.hp-inflicted);totalDamage+=inflicted;
     if(attacker)add(`${attacker.name} attacks for ${inflicted} damage.`,"danger");
@@ -1520,16 +1537,20 @@ function showEncounter() {
   if(!roadTurnCharged){ if(!testMode && player.turns<=0){noTurnsMenu();return;} spendTurn(); roadTurnCharged=true; }
   if(isDark()) add("WORSE AFTER DARK — enemies hit harder; road rewards improve.","danger");
   else if(timePhase()==="DUSK") add("LIGHT FADING.","system");
-  add(`ROAD PROGRESS — STEP ${roadGoal==="east"&&player.flags.eastReturning?roadTripLength-roadTurn-1:Math.min(roadTurn+1,roadTripLength)} / ${roadTripLength} toward ${roadGoal==="mercy"?"Solace":roadGoal==="east"?(player.flags.eastReturning?"Solace":"the Factory"):"the old house"}.`,"system");
+  const activeRoad=typeof r6Road==='function'?r6Road():null;
+  if(activeRoad?.active)add(`ROAD PROGRESS — STEP ${activeRoad.dir>0?activeRoad.pos:activeRoad.n-activeRoad.pos} / ${activeRoad.n} heading ${activeRoad.dir>0?'EAST':'WEST'} toward ${activeRoad.leg==='coast'?(activeRoad.dir>0?'Seaport':'the Factory'):(activeRoad.dir>0?'the Factory':'Solace')}.`,'system');
+  else add(`ROAD PROGRESS — STEP ${roadGoal==="east"&&player.flags.eastReturning?roadTripLength-roadTurn-1:Math.min(roadTurn+1,roadTripLength)} / ${roadTripLength} toward ${roadGoal==="mercy"?"Solace":roadGoal==="east"?(player.flags.eastReturning?"Solace":"the Factory"):"the old house"}.`,"system");
   if(!resumeSavedEncounter)showSteveAnnouncement();
   if(!resumeSavedEncounter && questRoadEvent()) return;
-  player.flags.wandererRoadCooldown=player.flags.wandererRoadCooldown||0;
-  if(player.flags.wandererRoadCooldown>0) player.flags.wandererRoadCooldown--;
-  else if(!resumeSavedEncounter && Math.random()<0.30){ player.flags.wandererRoadCooldown=2; showRoadWanderer(); return; }
+  if(typeof r10PrepareEncounter==='function'&&!r10PrepareEncounter())return;
   resumeSavedEncounter=false;
   currentRoadWanderer=null;
   const e = currentEncounter();
   rememberEncounter(roadEncounterOrder[currentRoadEncounterIndex()]);
+  if(activeRoad?.active&&activeRoad.leg==='coast'&&typeof r9CoastRemember==='function')r9CoastRemember(activeRoad.index);
+  if(activeRoad?.active&&activeRoad.leg==='coast'&&typeof R8_COAST_COMBAT!=='undefined'&&R8_COAST_COMBAT.includes(activeRoad.index)){
+    player.flags.r8CoastCombatHistory=[...(player.flags.r8CoastCombatHistory||[]).filter(t=>t!==e.title),e.title].slice(-5);
+  }
   if(!player.encounterDone[roadTurn]) player.encounterDone[roadTurn]=new Set();
   const lvl=(e.combat&&e.combat.level) || encounterLevels[e.title] || (roadGoal==="east"? (e.title==="THE WARDEN"?50:5+(roadTurn%6)):null);
   add(""); add(`ROAD TURN ${dailyRoadTurns} — ${e.title}${lvl?` — LVL ${String(lvl).padStart(2,"0")}`:""}`, "place");
@@ -1592,7 +1613,7 @@ function v49FactoryRoom(){
   add("THE FACTORY — FORGE'S WORKSHOP","place");
   if(!player.flags.v49FactoryMet){
     add("A workshop occupies the surviving ground-floor bay. A monitor snaps awake as you step inside.");
-    add("FORGE > Took you long enough. I've been expecting you.","bright");
+    add("FORGE > That terminal just booted up. Have a look, then come see me.","bright");
     add("An old Tomorrow Project terminal glows in the corner. An open passage leads deeper into the factory.");
     player.flags.v49FactoryMet=true;
   }else add("Forge is at his bench. The Tomorrow Project terminal hums in the corner. The passage to the central stairwell stands open.");
@@ -1633,7 +1654,7 @@ function v49Forge(){
   stage='factoryForge';
   add('FORGE — WORKSHOP','place');
   if(!player.flags.v49TerminalRead){add('FORGE > That terminal in the corner woke up when you arrived. Read it first. Then come see me.','bright');}
-  else add('FORGE > The terminal sent word you were coming. I used to build Tomorrow Project equipment. There is more to that archive than it is telling you.','bright');
+  else add('FORGE > Figured someone was coming when that terminal booted up. Damn thing’s been quiet for years.','bright');
   if(typeof portForgeDialogue==='function')portForgeDialogue();
   add(typeof factoryDone==='function'&&factoryDone()===4?'FORGE > The inner works are safe. The eastern road is our next concern.':'FORGE > The inner works still need to be made safe. Meanwhile, let me show you something useful.','bright');
   if(player.flags.v49RecipeBandage){
@@ -1643,7 +1664,7 @@ function v49Forge(){
     v49Autosave();
     add('FORGE > Here is one practice kit: two Cloth and one Scrap Metal. It stays here on my bench. Insert it and try your hand.','reward');
   }else if(player.flags.v49Kit){add('FORGE > Your practice kit is waiting at the bench.','system');}
-  add('(W) USE WORKBENCH   (T) TERMINAL   (B) BACK','system');
+  add((player.flags.r5ChargeJob?'CHECK DYNAMITE   ':'')+'(W) USE WORKBENCH   (T) TERMINAL   (B) BACK','system');
 }
 function v49Workbench(){
   stage='factoryBench';
@@ -1664,7 +1685,7 @@ function v49MurphyRecipes(){
   if(!player.flags.v49RecipeBandage){add('NO RECIPES LEARNED. Visit Forge at the Factory for your first lesson.','system');add('(B) BACK','system');return;}
   add('[1] REINFORCED BANDAGE — 2 Cloth, 1 Scrap Metal — 30 sec — 90%','system');
   add('[2] RUSTED PIPE — 2 Scrap Metal, 20 Bolts — 30 sec — 90%','system');
-  if(player.level>=6)add('[3] IRON REAPER — 8 Scrap Metal, 4 Wire, 3 Cloth, 75 Bolts — 30 sec — 90% — LEVEL 6','system');
+  if(player.level>=6)add('[3] IRON REAPER — 8 Scrap Metal, 4 Wire, 3 Cloth, 75 Bolts — 120 sec — 90% — LEVEL 6','system');
   add('(B) BACK','system');
 }
 function v49MurphyRecipe(key){
@@ -1677,7 +1698,7 @@ function v49MurphyRecipe(key){
     add(left?`CRAFT IN PROGRESS — ${left} SECONDS REMAINING`:'CRAFT FINISHED — READY TO COLLECT','system');
     add(left?'(C) CHECK TIMER   (B) BACK':'(C) COLLECT RESULT   (B) BACK','system');return;}
   add(`MATERIALS: Cloth ${recipe.cloth}, Scrap Metal ${recipe.scrap}, Wire ${recipe.wire||0}, Bolts ${recipe.bolts}`,'system');
-  add(`YOU HAVE: Cloth ${findItem('Cloth')?.qty||0}, Scrap Metal ${findItem('Scrap Metal')?.qty||0}, Wire ${findItem('Wire')?.qty||0}, Bolts ${player.bolts}`,'system');
+  add(`YOU HAVE: Cloth ${r6MaterialCount('Cloth')}, Scrap Metal ${r6MaterialCount('Scrap Metal')}, Wire ${r6MaterialCount('Wire')}, Bolts ${player.bolts}`,'system');
   add(`TIME: ${recipe.seconds} REAL SECONDS   SUCCESS: 90%`,'system');
   add('(I) INSERT MATERIALS AND START   (B) BACK','system');
 }
@@ -1693,10 +1714,10 @@ function v49MurphyCommand(cmd){
       if(job){v49MurphyRecipe(key);return true;}
       if(!player.flags.v49RecipeBandage){add('LEARN THE FIRST RECIPE FROM FORGE.','danger');return true;}
       if(recipe.minLevel&&player.level<recipe.minLevel){add(`RECIPE LOCKED — REACH LEVEL ${recipe.minLevel}.`,'danger');return true;}
-      if((findItem('Cloth')?.qty||0)<recipe.cloth||(findItem('Scrap Metal')?.qty||0)<recipe.scrap||(findItem('Wire')?.qty||0)<(recipe.wire||0)||player.bolts<recipe.bolts){add('NOT ENOUGH MATERIALS OR BOLTS.','danger');v49MurphyRecipe(key);return true;}
-      if(recipe.cloth)removeItem('Cloth',recipe.cloth);
-      if(recipe.scrap)removeItem('Scrap Metal',recipe.scrap);
-      if(recipe.wire)removeItem('Wire',recipe.wire);
+      if((r6MaterialCount('Cloth'))<recipe.cloth||(r6MaterialCount('Scrap Metal'))<recipe.scrap||(r6MaterialCount('Wire'))<(recipe.wire||0)||player.bolts<recipe.bolts){add('NOT ENOUGH MATERIALS OR BOLTS.','danger');v49MurphyRecipe(key);return true;}
+      if(recipe.cloth)r6ConsumeMaterial('Cloth',recipe.cloth);
+      if(recipe.scrap)r6ConsumeMaterial('Scrap Metal',recipe.scrap);
+      if(recipe.wire)r6ConsumeMaterial('Wire',recipe.wire);
       player.bolts-=recipe.bolts;updateHud();
       player.flags.v49MurphyJob={key,endsAt:Date.now()+recipe.seconds*1000,success:Math.random()<recipe.chance};
       v49Autosave();
@@ -2114,8 +2135,8 @@ function awardRelayPart(key,name){ const rp=ensureRelayParts(); if(rp[key]){add(
 function inspectRelaySystem(key){ player.flags.relayInspected=player.flags.relayInspected||{}; player.flags.relayInspected[key]=true; const n=Object.values(player.flags.relayInspected).filter(Boolean).length; add(`RELAY DIAGNOSTICS — ${n}/4 SYSTEMS INSPECTED`,"system"); if(n>=4) revealRelayParts(); else add("QUEST UPDATED — New Relay clue recorded in QUESTS.","reward"); }
 function revealRelayParts(){ ensureRelayParts(); if(player.flags.relayPartsRevealed)return; player.flags.relayPartsRevealed=true; player.flags.relayBranchDiscovered=true; add("The failures are not one problem. They're four.","bright"); add("RELAY REPAIR — FOUR COMPONENTS REQUIRED","reward"); add("POWER REGULATOR — Johnny may have something this old.","system"); add("ANTENNA SERVO — The county maintenance yard had old motor assemblies.","system"); add("SHIELDED FEED COUPLER — A lower access road branches from the Route 127 fork.","system"); add("SIGNAL-CONDITIONING MODULE — Old communications equipment lies east of Solace.","system"); add("QUEST UPDATED — All four clues recorded in QUESTS. LOWER ACCESS ROAD UNLOCKED.","reward"); }
 const RELAY_REWARD_POOL=Object.freeze([
- "Tempered Steel Pipe","Balanced Hunting Knife","Precision Hunting Rifle","Reinforced Combat Machete","Refurbished Service Revolver",
- "Reinforced Relay Vest","Padded Tactical Jacket","Reinforced Leather Armor","Salvaged Security Vest","Insulated Patrol Coat"
+ "Tempered Steel Pipe","Balanced Hunting Knife","Precision Hunting Rifle","Tempered Combat Machete","Specialized Service Revolver",
+ "Advanced Relay Vest","Padded Tactical Jacket","Tempered Leather Armor","Salvaged Security Vest","Insulated Patrol Coat"
 ]);
 function selectRelayEquipment(rng=Math.random){return RELAY_REWARD_POOL[Math.floor(rng()*RELAY_REWARD_POOL.length)];}
 function claimRelayEquipment(){
@@ -2189,8 +2210,8 @@ function smallTalk(name){
   const a=lines[name]; add(a[Math.floor(Math.random()*a.length)], "bright");
 }
 // Individual stock is stored with the character, never regenerated by opening the shop.
-const VENDOR_BASE={"Battered Flashlight":20,"Rusted Pipe":12,"Worn Jacket":10,"Tent":12,"Energy Bars":8,"Bandage":12,"Reinforced Jacket":45,"Claw Hammer":50,"Tire Iron":80,"Reinforced Pipe":48,"Tempered Steel Pipe":125,"Padded Jacket":45,"Hardened Scavenger Coat":135,"Devastator's Iron Pipe":320,"Wraith's Reinforced Coat":340,"Worn Leather Wristband":18,"Lucky Bottle Cap":15,"Reinforced Belt":22,"Scavenger's Charm":55,"Rusted Dog Tags":60,"Road Warrior's Bracelet":65};
-const VENDOR_POOL=["Rusted Pipe","Worn Jacket","Reinforced Jacket","Claw Hammer","Tire Iron","Reinforced Pipe","Tempered Steel Pipe","Padded Jacket","Hardened Scavenger Coat","Devastator's Iron Pipe","Wraith's Reinforced Coat","Worn Leather Wristband","Lucky Bottle Cap","Reinforced Belt","Scavenger's Charm","Rusted Dog Tags","Road Warrior's Bracelet"];
+const VENDOR_BASE={"Battered Flashlight":20,"Rusted Pipe":12,"Worn Jacket":10,"Tent":12,"Energy Bars":8,"Bandage":12,"Reinforced Jacket":45,"Claw Hammer":50,"Tire Iron":80,"Reinforced Pipe":48,"Tempered Steel Pipe":125,"Padded Jacket":45,"Hardened Scavenger Coat":135,"Devastator's Iron Pipe":320,"Wraith's Reinforced Coat":340,"Worn Leather Wristband":18,"Lucky Bottle Cap":15,"Worn Belt":22,"Scavenger's Charm":55,"Reinforced Dog Tags":60,"Road Warrior's Bracelet":65};
+const VENDOR_POOL=["Rusted Pipe","Worn Jacket","Reinforced Jacket","Claw Hammer","Tire Iron","Reinforced Pipe","Tempered Steel Pipe","Padded Jacket","Hardened Scavenger Coat","Devastator's Iron Pipe","Wraith's Reinforced Coat","Worn Leather Wristband","Lucky Bottle Cap","Worn Belt","Scavenger's Charm","Reinforced Dog Tags","Road Warrior's Bracelet"];
 function refreshVendorStock(){
   const common=VENDOR_POOL.filter(x=>GEAR[x].rarity==="common"),uncommon=VENDOR_POOL.filter(x=>GEAR[x].rarity==="uncommon"),rare=VENDOR_POOL.filter(x=>GEAR[x].rarity==="rare");
   const thirdPool=Math.random()<.05?rare:uncommon;
@@ -2219,9 +2240,9 @@ function johnnyShop(){
   add(`ENERGY BAR — RESTORE 10 HP — ${johnnyPrice("Energy Bars")} BOLTS`,"system");add(`BANDAGE — RESTORE 18 HP — ${johnnyPrice("Bandage")} BOLTS`,"system");
   add(`BATTERED FLASHLIGHT — 20 BOLTS`,"system");
   add(`TENT — ${johnnyPrice("Tent")} BOLTS — one use for overnight camp.`,"system");
-  if(player.packMax<10)add(`10-SLOT BACKPACK — ${V48_BACKPACK_PRICE} BOLTS`,"system");
+  if(player.packMax-(player.flags.r5MuleBonus||0)<10)add(`10-SLOT BACKPACK — ${V48_BACKPACK_PRICE} BOLTS`,"system");
   const scrap=findItem("Scrap Metal"),sq=scrap?scrap.qty:0;add(`SCRAP: ${sq} — ${sq*4} BOLTS. Stock refreshes at daily refill.`,"system");
-  add(["BUY ENERGY BAR","BUY BANDAGE","BUY BATTERED FLASHLIGHT","SMALL TALK",...(player.flags.relayPartsRevealed&&player.flags.relayQuest!=="complete"?["ASK ABOUT RELAY PARTS"]:[]),"BUY TENT","BUY","SELL ITEMS",...(player.packMax<10?["BUY 10-SLOT BACKPACK"]:[]),...(sq?["SELL ALL SCRAP"]:[]),"(B) BACK"].join("   "),"system");
+  add(["BUY ENERGY BAR","BUY BANDAGE","BUY BATTERED FLASHLIGHT","SMALL TALK",...(player.flags.relayPartsRevealed&&player.flags.relayQuest!=="complete"?["ASK ABOUT RELAY PARTS"]:[]),"BUY TENT","BUY","SELL ITEMS",...(player.packMax-(player.flags.r5MuleBonus||0)<10?["BUY 10-SLOT BACKPACK"]:[]),...(sq?["SELL ALL SCRAP"]:[]),"(B) BACK"].join("   "),"system");
 }
 function showEquipmentShop(){
   ensureVendorStock();player.flags.solaceMenu="equipment";add("SCRAP & STEEL ARMORY — MARA — WEAPONS, ARMOR & ACCESSORIES","place");
@@ -2239,7 +2260,7 @@ function buyJohnny(item){
  if(g&&packSlotsUsed()>=player.packMax){add("Your pack is full. Free a slot before buying equipment.","system");vendorReturnMenu();return;}
  
  // Payment only after capacity checks. Gear is carried until explicitly equipped.
- if(!addPack(item,g?g.type:item==="Tent"?"supply":item==="Battered Flashlight"?"tool":"consumable")){vendorReturnMenu();return;}
+ if(!addPack(item,g?g.type:item==="Tent"?"supply":item==="Battered Flashlight"?"tool":"consumable",1,true)){vendorReturnMenu();return;}
  player.bolts-=price;if(g)player.vendorSold.push(item);updateHud();
  add(`PURCHASED — ${gearLabel(item)} — -${price} BOLTS. ${g?"Open INVENTORY to equip.":""}`,g?.rarity||"reward");showPurchaseComplete();
 }
@@ -2319,7 +2340,7 @@ function handleSolace(cmd, raw=cmd){
   if(mercyLocation==="jenGames"){ if(cmd==="b"||cmd==="back"){mercyLocation="jen";showBarActions();return;} if(cmd==="d"||cmd.includes("dice")){mercyLocation="dice";add("PICK 1   PICK 2   PICK 3   PICK 4   PICK 5   PICK 6   (B) BACK","system");return;} add("DICE   (B) BACK","system");return;}
   if(mercyLocation==="jenDrinks"){
     if(cmd==="b"||cmd==="back"){mercyLocation="jen";showBarActions();return;}
-    const drinks={e:["BEER",3,5],beer:["BEER",3,5],o:["SHOT",5,10],shot:["SHOT",5,10],h:["HOUSE SPECIAL",8,15],"house special":["HOUSE SPECIAL",8,15]}; const d=drinks[cmd];
+    const d=R11_DRINKS[cmd];
     if(d){ if(player.bolts<d[1])add("Not enough Bolts.","system"); else if(player.hp>=player.maxHp)add("You're already at full health.","system"); else {player.bolts-=d[1];player.hp=Math.min(player.maxHp,player.hp+d[2]);updateHud();add(`${d[0]} — +${d[2]} HP   -${d[1]} BOLTS`,"reward");} showDrinkMenu(); return; }
     add("That's not an option.","system"); showDrinkMenu(); return;
   }
@@ -2337,8 +2358,8 @@ function handleSolace(cmd, raw=cmd){
   if(cmd.includes("upgrade") || cmd.includes("about equipment")){ add("MURPHY > My workbench is open for learned recipes. Use CRAFTING RECIPES to see what you can make.","system"); return; }
   if(mercyLocation==="wayne" && (cmd.includes("treat") || cmd.includes("heal"))){ const missing=player.maxHp-player.hp; if(missing<=0){add("WAYNE > You're fine. Go injure yourself first if you're determined to give me money.");return;} const units=Math.ceil(missing/5), cost=Math.min(units,player.bolts); if(cost<=0){add("WAYNE > No Bolts? Fine. Don't bleed on anything. We'll work something out later.");return;} const healed=Math.min(missing,cost*5),hadDeathPenalty=player.deathStreak>0; player.bolts-=cost; player.hp+=healed; if(player.hp>=player.maxHp)player.deathStreak=0; updateHud(); add(`WAYNE patches you up. +${healed} HP   -${cost} BOLTS`,"reward"); if(hadDeathPenalty&&player.hp>=player.maxHp)add("DEATH PENALTY RESET — fully recovered in Solace.","system"); return; }
 
-  if(cmd.startsWith("deposit")){ const all=cmd.includes("all"),m=cmd.match(/\d+/),amount=all?player.bolts:(m?parseInt(m[0],10):0); if(amount<=0){add("AMII > Tell me how many Bolts you want to deposit.","system");return;} const n=Math.min(amount,player.bolts); if(n<=0){add("AMII > You don't have any carried Bolts to deposit.","system");return;} player.bolts-=n;player.bankBolts+=n;updateHud();add(`${n} BOLTS DEPOSITED — protected inside Solace.`,"reward");return; }
-  if(cmd.startsWith("withdraw")){ const m=cmd.match(/\d+/),amount=m?parseInt(m[0],10):0; if(amount<=0){add("AMII > Tell me how many Bolts you want back.","system");return;} const n=Math.min(amount,player.bankBolts);if(n<=0){add("AMII > There's nothing in your account to withdraw.","system");return;}player.bankBolts-=n;player.bolts+=n;updateHud();add(`${n} BOLTS WITHDRAWN.`,"reward");return; }
+  if(cmd.startsWith("deposit")){const m=cmd.match(/\d+/);v48BankMoney('deposit',cmd.includes('all')?player.bolts:m?Number(m[0]):0);return;}
+  if(cmd.startsWith("withdraw")){const m=cmd.match(/\d+/);v48BankMoney('withdraw',cmd.includes('all')?player.bankBolts:m?Number(m[0]):0);return;}
   if(cmd.startsWith("stash ")){stashItem(cmd.slice(6));return;} if(cmd.startsWith("retrieve ")){retrieveItem(cmd.slice(9));return;}
   if(cmd==="view stash"||cmd==="stash"){add("SECURE STASH","place");if(!player.stash.length)add("EMPTY","system");else player.stash.forEach((i,n)=>add(`[${n+1}] ${i.name}${i.qty>1?` ×${i.qty}`:""}`));showBankActions();return;}
 
@@ -2400,49 +2421,7 @@ function handleSolace(cmd, raw=cmd){
   if(["jen","jenDrinks"].includes(mercyLocation) && (cmd==="beer"||cmd==="buy beer")){ if(player.bolts<3){add("JEN > Three Bolts.","system");return;} player.bolts-=3; player.hp=Math.min(player.maxHp,player.hp+5);updateHud();add("BEER — +5 HP   -3 BOLTS","reward"); if(mercyLocation==="jenDrinks")showDrinkMenu(); return;}
   if(["jen","jenDrinks"].includes(mercyLocation) && (cmd==="shot"||cmd==="buy shot")){ if(player.bolts<5){add("JEN > Five Bolts.","system");return;} player.bolts-=5; player.hp=Math.min(player.maxHp,player.hp+10);updateHud();add("SHOT — +10 HP   -5 BOLTS","reward"); if(mercyLocation==="jenDrinks")showDrinkMenu(); return;}
   if(["jen","jenDrinks"].includes(mercyLocation) && cmd.includes("house special")){ if(player.bolts<8){add("JEN > Eight Bolts.","system");return;} player.bolts-=8; player.hp=Math.min(player.maxHp,player.hp+15);updateHud();add("HOUSE SPECIAL — +15 HP   -8 BOLTS","reward");add("JEN > This stopped being medicine about two drinks ago.","bright"); if(mercyLocation==="jenDrinks")showDrinkMenu(); return;}
-  if(mercyLocation==="jenRoomChest"){
-    // A stale or edited save location must not grant access to an unpurchased room.
-    if(!player.flags?.rustyRoomOwned){mercyLocation="jen";add("ROOM ACCESS REQUIRES OWNERSHIP","system");return;}
-    if(!Array.isArray(player.rustyRoomChest))player.rustyRoomChest=[];
-    const chest=player.rustyRoomChest;
-    const show=()=>{add('RUSTY LANTERN — ROOM CHEST','place');add(`CHEST ${chest.length}/10 STACKS   PACK ${packSlotsUsed()}/${player.packMax}`,'system');chest.forEach((i,n)=>add(`${n+1}. ${i.name} ×${i.qty}`));if(!chest.length)add('CHEST EMPTY','system');add('DEPOSIT <ITEM NAME> [xQTY]   WITHDRAW <ITEM NAME> [xQTY]   BACK','system');};
-    if(['back','b','return'].includes(cmd)){mercyLocation='jenRoom';add('THE RUSTY LANTERN','place');add(`${player.name||'PLAYER'}'S ROOM`,'place');add('REST   CHEST   LOOK AROUND   RETURN','system');return;}
-    const deposit=cmd.startsWith('deposit '),withdraw=cmd.startsWith('withdraw ');
-    if(deposit||withdraw){
-      const request=cmd.slice(deposit?8:9).trim();
-      const match=request.match(/^(.*?)\s+(?:x|×)(\d+)$/i);
-      const name=(match?match[1]:request).trim().toLowerCase();
-      const qty=match?Number(match[2]):1;
-      const src=deposit?player.pack:chest,dst=deposit?chest:player.pack;
-      if(!name||!Number.isSafeInteger(qty)||qty<1){add('INVALID ITEM OR QUANTITY','system');show();return;}
-      const item=src.find(i=>i.name.toLowerCase()===name);
-      if(!item||!Number.isSafeInteger(item.qty)||item.qty<qty){add('ITEM OR QUANTITY NOT AVAILABLE','system');show();return;}
-      if(deposit&&['quest','key'].includes(item.type)){add('QUEST ITEMS CANNOT BE STORED','system');show();return;}
-      if(deposit&&(item.name===player.weapon||item.name===player.armor)){add('EQUIPPED GEAR CANNOT BE STORED','system');show();return;}
-      const existing=dst.find(i=>i.name===item.name&&i.type===item.type);
-      if(!existing&&(deposit?chest.length>=10:packSlotsUsed()>=player.packMax)){add('NO FREE STORAGE SLOTS','system');show();return;}
-      if(existing){if(!Number.isSafeInteger(existing.qty)||existing.qty<1||!Number.isSafeInteger(existing.qty+qty)){add('INVALID STORAGE QUANTITY','system');show();return;}existing.qty+=qty;}else dst.push({...item,qty});
-      item.qty-=qty;if(item.qty===0)src.splice(src.indexOf(item),1);
-      add(`${deposit?'STORED':'RETRIEVED'} — ${item.name} ×${qty}`,'reward');updateHud();show();return;
-    }
-    show();return;
-  }
-  if(mercyLocation==="jenRoom"){
-    if(["b","back","return","4"].includes(cmd)){mercyLocation="jen";showBarActions();return;}
-    if(["rest","1"].includes(cmd)){
-      const f=player.flags, today=Number(day)||1;
-      if(f.rustyRoomRestDay!==today){f.rustyRoomRestDay=today;f.rustyRoomRestCount=0;}
-      const factors=[1,.75,.5,.25,0],factor=factors[Math.min(f.rustyRoomRestCount,4)];
-      f.rustyRoomRestCount++;
-      const heal=Math.min(player.maxHp-player.hp,Math.ceil(player.maxHp*factor));
-      player.hp+=heal; if(heal>0)player.deathStreak=0;
-      updateHud();add(`ROOM REST — ${Math.round(factor*100)}% EFFECTIVENESS, +${heal} HP`,'reward');
-      add('Rest does not replenish expedition turns.','system');return;
-    }
-    if(["look around","look","3"].includes(cmd)){add('The door locks from inside. A narrow bed and an old lamp make this a safe place to sleep.','system');return;}
-    if(["chest","2"].includes(cmd)){mercyLocation='jenRoomChest';if(!Array.isArray(player.rustyRoomChest))player.rustyRoomChest=[];add('RUSTY LANTERN — ROOM CHEST','place');add('DEPOSIT <ITEM NAME> [xQTY]   WITHDRAW <ITEM NAME> [xQTY]   BACK','system');return;}
-    add('REST   CHEST   LOOK AROUND   RETURN','system');return;
-  }
+  if(['jenRoom','jenRoomChest'].includes(mercyLocation)){handleInnRoom(cmd);return;}
   if(mercyLocation==="jen" && ["rent room","buy room","room"].includes(cmd)){
     if(!player.flags.rustyRoomOwned){if(player.bolts<500){add('JEN > A room of your own costs 500 Bolts.','system');return;}player.bolts-=500;player.flags.rustyRoomOwned=true;updateHud();add('ROOM PURCHASED — 500 BOLTS','reward');}
     mercyLocation='jenRoom';add('THE RUSTY LANTERN','place');add(`${player.name||'PLAYER'}'S ROOM`,'place');add('REST   CHEST   LOOK AROUND   RETURN','system');return;
@@ -2535,7 +2514,7 @@ function refreshInterfaceShortcutLabels(){
 function showInterfaceNav(){if(stage==="interfaceMap"){outputQueue=outputQueue.then(()=>{currentHotkeys.b="back";addImmediate("(B) BACK   (S) STATUS   (I) INVENTORY   (M) MAP   (Q) QUESTS   (V) SAVE","system");followOutput();});return;}if(player.flags.interfaceUnlocked)add(`${localInspectionShortcuts()?"":"(S) STATUS   (I) INVENTORY   "}(M) MAP   (Q) QUESTS   (V) SAVE`,"system");}
 function openInterface(which){
   if(!player.flags.interfaceUnlocked) return false;
-  if(stage!=="inventory"&&stage!=="inventoryItem"&&stage!=="quests"&&stage!=="interfaceStatus"&&stage!=="interfaceMap") returnStage=stage;
+  if(stage!=="port55Pets"&&stage!=="inventory"&&stage!=="inventoryItem"&&stage!=="quests"&&stage!=="interfaceStatus"&&stage!=="interfaceMap") returnStage=stage;
   if(which==="inventory"){stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return true;}
   if(which==="status"){stage="interfaceStatus";showStatus();showInterfaceNav();return true;}
   if(which==="map"){stage="interfaceMap";showMap();showInterfaceNav();return true;}
@@ -2608,7 +2587,7 @@ function renderCurrentChoices(){
   if(stage==="eastEnd")return showFactory();
   if(stage.startsWith("factoryDungeon"))return factoryRender();
   if(stage==="factoryWorkshop")return v49FactoryRoom();
-  if(["port55Vendor","port55Pets","port55Kaiden","port55Mia","port55Docks","port55Stop"].includes(stage))return port55Resume();
+  if(["port55Vendor","port55Pets","port55Kaiden","port55Mia","port55Docks","port55Stop","port55Service","port55Recruit"].includes(stage))return port55Resume();
   if(["portRoad","seaport","portMarket","portClinic","portDocks","portWatch"].includes(stage))return portMenu();
   if(stage==="factoryTerminal")return v49Terminal();
   if(stage==="factoryForge")return v49Forge();
@@ -2646,7 +2625,7 @@ async function handleCommandCore(raw) {
   if(cmd==="claim equipment"||cmd==="claim equipment drop"){v555ClaimEquipmentDrop();return;}
   if(busy) return;
   if(!cmd && !["confirmNewSlot","confirmHandle"].includes(stage)){ add("> [ENTER]","bright"); renderCurrentChoices(); return; }
-  if(/^\d+$/.test(cmd) && numberedChoices[cmd] && stage!=="factoryTerminal" && !(stage==="mercy" && mercyLocation==="murphy" && player.flags.v49MurphyMenu) && !["inventory","combatItems","fallen"].includes(stage) && !(stage==="mercy"&&player.flags.v49BankCustom) && !["interfaceSave","v49TitleConfirm"].includes(stage)) cmd=numberedChoices[cmd];
+  if(/^\d+$/.test(cmd) && !(stage==="port55Service"&&player.flags.portStaffUI?.page==="money") && numberedChoices[cmd] && stage!=="factoryTerminal" && !(stage==="mercy" && mercyLocation==="murphy" && player.flags.v49MurphyMenu) && !["inventory","combatItems","fallen"].includes(stage) && !(stage==="mercy"&&player.flags.v49BankCustom) && !["interfaceSave","v49TitleConfirm"].includes(stage)) cmd=numberedChoices[cmd];
   if(player.flags.interfaceUnlocked && stage!=="combatItems" && !["interfaceSave","v49TitleConfirm"].includes(stage)) {
     const global={i:"inventory",inventory:"inventory",inv:"inventory",s:"status",status:"status",stats:"status",m:"map",map:"map",q:"quests",quest:"quests",quests:"quests",v:"save",save:"save","save current":"save"};
     if(global[cmd] && !(cmd==="i" && (stage==="factoryBench" || (stage==="mercy" && mercyLocation==="murphy" && player.flags.v49MurphyMenu==="recipe"))) && !(stage==="combat"&&cmd==="i") && !((stage==="eastEnd" || ((stage==="serviceRoad" || stage==="relayBranch") && serviceRoadDepth<=2)) && ["i","s"].includes(cmd))){ add(`> ${raw}`,"bright"); openInterface(global[cmd]); return; }
@@ -2664,6 +2643,7 @@ async function handleCommandCore(raw) {
   if(typeof port55CasinoCommand==="function"&&port55CasinoCommand(cmd))return;
   if(cmd==='read chapter one'&&player.flags.chapterOneComplete){port55FinaleText();return;}
   if(['replay harbor art','view harbor art','harbor art'].includes(cmd)&&player.flags.seaport55?.freed){port55LiberationArt(true);return;}
+  if(typeof portRecruitCommand==="function"&&portRecruitCommand(cmd))return;
   if(portCommand(cmd))return;
   if(factoryCommand(cmd))return;
   if(v49FactoryCommand(cmd))return;
@@ -2781,7 +2761,7 @@ async function handleCommandCore(raw) {
     else if(cmd!=="n"&&cmd!=="no"&&cmd!=="cancel"&&cmd!=="b"&&cmd!=="back"){add("(Y) CONFIRM DROP   (N) CANCEL","system");return;}
     stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;
   }
-  if(stage==="inventoryItem"){ const name=inventoryMode&&inventoryMode.item; if((cmd==="e"||cmd==="equip") && name){ const item=findItem(name); if(item && (item.type==="weapon"||item.type==="armor"||item.type==="accessory")){ const slot=item.type; const previous=player[slot]; removeItem(name); player[slot]=name; if(slot==="accessory"){const hpDelta=(GEAR[name]?.maxHpBonus||0)-(GEAR[previous]?.maxHpBonus||0);player.maxHp=Math.max(1,player.maxHp+hpDelta);player.hp=Math.min(player.hp,player.maxHp);} if(previous && previous!==name)addPack(previous,slot); updateHud();add(`EQUIPPED — ${name}. Previous ${slot}: ${previous||"none"}.`,"reward");stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} add("That item cannot be equipped.","system");return;} if(cmd==="b"||cmd==="back"){stage="inventory";showInventory();showInterfaceNav();return;} if(cmd==="u"||cmd==="use"||cmd.startsWith("use ")){useItem(name);stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} if(name==="Battered Flashlight" && (cmd==="d"||cmd.includes("dismantle"))){dismantleItem(name);stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} if(cmd==="d"||cmd==="drop"||cmd.startsWith("drop ")){inventoryMode={item:name};stage="confirmDrop";add(`DROP ${name.toUpperCase()}? This cannot be undone.`,"danger");add("(Y) CONFIRM DROP   (N) CANCEL","system");return;} add(name==="Battered Flashlight"?"Choose (D) DISMANTLE or (B) BACK.":"Choose (U) USE, (D) DROP, or (B) BACK.","system");return; }
+  if(stage==="inventoryItem"){ const name=inventoryMode&&inventoryMode.item; if((cmd==="e"||cmd==="equip") && name){ const item=findItem(name); if(item && (item.type==="weapon"||item.type==="armor"||item.type==="accessory")){ const slot=item.type; const previous=player[slot]; removeItem(name); player[slot]=name; if(slot==="accessory"||slot==="armor"){const hpDelta=(GEAR[name]?.maxHpBonus||0)-(GEAR[previous]?.maxHpBonus||0);player.maxHp=Math.max(1,player.maxHp+hpDelta);player.hp=Math.min(player.hp,player.maxHp);} if(previous && previous!==name)addPack(previous,slot); updateHud();add(`EQUIPPED — ${name}. Previous ${slot}: ${previous||"none"}.`,"reward");stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} add("That item cannot be equipped.","system");return;} if(cmd==="b"||cmd==="back"){stage="inventory";showInventory();showInterfaceNav();return;} if(cmd==="u"||cmd==="use"||cmd.startsWith("use ")){useItem(name);stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} if(name==="Battered Flashlight" && (cmd==="d"||cmd.includes("dismantle"))){dismantleItem(name);stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} if(cmd==="d"||cmd==="drop"||cmd.startsWith("drop ")){inventoryMode={item:name};stage="confirmDrop";add(`DROP ${name.toUpperCase()}? This cannot be undone.`,"danger");add("(Y) CONFIRM DROP   (N) CANCEL","system");return;} add(name==="Battered Flashlight"?"Choose (D) DISMANTLE or (B) BACK.":"Choose (U) USE, (D) DROP, or (B) BACK.","system");return; }
   if(stage==="v49TitleConfirm"){
     if(cmd==="1"||cmd==="save and return"){
       if(![1,2,3].includes(activeSaveSlot)){add('Choose a manual save slot before returning, or return without saving.','system');showV49TitleConfirm();return;}
@@ -2954,3 +2934,51 @@ utilityPanel.addEventListener("click", async e => {
 form.addEventListener("submit", async e => { e.preventDefault(); if(commandProcessing||busy)return; const value=input.value; input.value=""; commandProcessing=true; setInputWaiting(true); try{ await handleCommand(value); await outputQueue; } finally { commandProcessing=false; setInputWaiting(false); input.focus(); followOutput(); } });
 startRefillTimer();
 titleScreen();
+
+// Shared inn mechanics, routed before generic bank commands.
+function handleInnRoom(cmd){
+  if(mercyLocation==="jenRoomChest"){
+    // A stale or edited save location must not grant access to an unpurchased room.
+    if(!player.flags?.rustyRoomOwned){mercyLocation="jen";add("ROOM ACCESS REQUIRES OWNERSHIP","system");return;}
+    if(!Array.isArray(player.rustyRoomChest))player.rustyRoomChest=[];
+    const chest=player.rustyRoomChest;
+    const show=()=>{add('RUSTY LANTERN — ROOM CHEST','place');add(`CHEST ${chest.length}/10 STACKS   PACK ${packSlotsUsed()}/${player.packMax}`,'system');chest.forEach((i,n)=>add(`${n+1}. ${i.name} ×${i.qty}`));if(!chest.length)add('CHEST EMPTY','system');add('DEPOSIT <ITEM NAME> [xQTY]   WITHDRAW <ITEM NAME> [xQTY]   BACK','system');};
+    if(['back','b','return'].includes(cmd)){mercyLocation='jenRoom';add('THE RUSTY LANTERN','place');add(`${player.name||'PLAYER'}'S ROOM`,'place');add('REST   CHEST   LOOK AROUND   RETURN','system');return;}
+    const deposit=cmd.startsWith('deposit '),withdraw=cmd.startsWith('withdraw ');
+    if(deposit||withdraw){
+      const request=cmd.slice(deposit?8:9).trim();
+      const match=request.match(/^(.*?)\s+(?:x|×)(\d+)$/i);
+      const name=(match?match[1]:request).trim().toLowerCase();
+      const qty=match?Number(match[2]):1;
+      const src=deposit?player.pack:chest,dst=deposit?chest:player.pack;
+      if(!name||!Number.isSafeInteger(qty)||qty<1){add('INVALID ITEM OR QUANTITY','system');show();return;}
+      const item=src.find(i=>i.name.toLowerCase()===name);
+      if(!item||!Number.isSafeInteger(item.qty)||item.qty<qty){add('ITEM OR QUANTITY NOT AVAILABLE','system');show();return;}
+      if(deposit&&['quest','key'].includes(item.type)){add('QUEST ITEMS CANNOT BE STORED','system');show();return;}
+      if(deposit&&(item.name===player.weapon||item.name===player.armor)){add('EQUIPPED GEAR CANNOT BE STORED','system');show();return;}
+      const existing=dst.find(i=>i.name===item.name&&i.type===item.type);
+      if((!deposit&&packSlotsUsed()>player.packMax)||(!existing&&(deposit?chest.length>=10:packSlotsUsed()>=player.packMax))){add('NO FREE STORAGE SLOTS','system');show();return;}
+      if(existing){if(!Number.isSafeInteger(existing.qty)||existing.qty<1||!Number.isSafeInteger(existing.qty+qty)){add('INVALID STORAGE QUANTITY','system');show();return;}existing.qty+=qty;}else dst.push({...item,qty});
+      item.qty-=qty;if(item.qty===0)src.splice(src.indexOf(item),1);
+      add(`${deposit?'STORED':'RETRIEVED'} — ${item.name} ×${qty}`,'reward');updateHud();show();return;
+    }
+    show();return;
+  }
+  if(mercyLocation==="jenRoom"){
+    if(["b","back","return","4"].includes(cmd)){mercyLocation="jen";showBarActions();return;}
+    if(["rest","1"].includes(cmd)){
+      const f=player.flags, today=Number(day)||1;
+      if(f.rustyRoomRestDay!==today){f.rustyRoomRestDay=today;f.rustyRoomRestCount=0;}
+      const factors=[1,.75,.5,.25,0],factor=factors[Math.min(f.rustyRoomRestCount,4)];
+      f.rustyRoomRestCount++;
+      const heal=Math.min(player.maxHp-player.hp,Math.ceil(player.maxHp*factor));
+      player.hp+=heal; if(heal>0)player.deathStreak=0;
+      updateHud();add(`ROOM REST — ${Math.round(factor*100)}% EFFECTIVENESS, +${heal} HP`,'reward');
+      add('Rest does not replenish expedition turns.','system');return;
+    }
+    if(["look around","look","3"].includes(cmd)){add('The door locks from inside. A narrow bed and an old lamp make this a safe place to sleep.','system');return;}
+    if(["chest","2"].includes(cmd)){mercyLocation='jenRoomChest';if(!Array.isArray(player.rustyRoomChest))player.rustyRoomChest=[];add('RUSTY LANTERN — ROOM CHEST','place');add('DEPOSIT <ITEM NAME> [xQTY]   WITHDRAW <ITEM NAME> [xQTY]   BACK','system');return;}
+    add('REST   CHEST   LOOK AROUND   RETURN','system');return;
+  }
+
+}

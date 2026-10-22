@@ -34,10 +34,11 @@ function factoryState(){let f=player.flags.factoryDungeon;if(!f||typeof f!=='obj
 function factoryDone(){return factoryState().done.length;}
 function factoryEnter(){factoryState();stage='factoryDungeonHub';add('The sealed door has been removed. Beyond Forge’s workshop, a stairwell descends into the industrial complex.','bright');factoryRender();}
 function factoryHub(){const f=factoryState();f.floor=-1;f.room=-1;stage='factoryDungeonHub';factoryRender();}
+function factoryRoomDescription(){const f=factoryState(),fl=FACTORY_FLOORS[f.floor];if(f.room===fl.rooms.length-1&&f.done.includes(f.floor))return ['The pallet throne stands empty. The Salvage King has been defeated.', 'The production control console is unguarded. Grinder has been defeated.', 'The cabinet marked BATCH 47 stands unattended. The Chemist has been defeated.', 'The control panel is unguarded. The Foreman has been defeated.'][f.floor];return fl.rooms[f.room][1];}
 function factoryRender(){const f=factoryState();numberedChoices={};currentHotkeys={};
  if(stage==='factoryDungeonHub'){add('FACTORY — CENTRAL STAIRWELL','place');add('Three upper levels branch from a concrete stairwell. Below, a reinforced door waits.');add('FACTORY PROGRESS: '+factoryDone()+'/4 COMPLETED','bright');add('[1] LOADING & RECEIVING   [2] PRODUCTION & ASSEMBLY   [3] CHEMICAL PROCESSING','system');add('[4] RESTRICTED BASEMENT   [5] RETURN TO FORGE\'S WORKSHOP','system');numberedChoices=Object.fromEntries([1,2,3,4,5].map(n=>[String(n),String(n)]));return;}
  if(stage==='factoryDungeonFloor'){const fl=FACTORY_FLOORS[f.floor];add('FACTORY — '+fl.name,'place');add('The stairwell is behind you. Choose a room to explore; moving into a room costs 1 turn.','system');fl.rooms.forEach((r,i)=>add(`[${i+1}] ${r[0]}${f.done.includes(f.floor)&&i===fl.rooms.length-1?' [CLEARED]':''}`,'system'));add('[0] RETURN TO CENTRAL STAIRWELL — FREE','system');numberedChoices=Object.fromEntries([0,...fl.rooms.map((_,i)=>i+1)].map(n=>[String(n),String(n)]));return;}
- if(stage==='factoryDungeonRoom'){const fl=FACTORY_FLOORS[f.floor],r=fl.rooms[f.room],key=f.floor+':'+f.room;add('FACTORY — '+r[0].toUpperCase(),'place');add(r[1]);const puzzle=FACTORY_PUZZLES[key];if(puzzle&&!f.puzzles.includes(key)){add('An obstacle interrupts the route. INSPECT for a clue.','system');add('INSPECT   '+puzzle.options+'   RETURN TO FLOOR','system');return;}
+ if(stage==='factoryDungeonRoom'){const fl=FACTORY_FLOORS[f.floor],r=fl.rooms[f.room],key=f.floor+':'+f.room;add('FACTORY — '+r[0].toUpperCase(),'place');add(factoryRoomDescription());const puzzle=FACTORY_PUZZLES[key];if(puzzle&&!f.puzzles.includes(key)){add('An obstacle interrupts the route. INSPECT for a clue.','system');add('INSPECT   '+puzzle.options+'   RETURN TO FLOOR','system');return;}
  const boss=f.room===fl.rooms.length-1;
  if(boss&&!f.done.includes(f.floor)){add('Someone is waiting. There is no peaceful way past.','danger');add('INSPECT   FIGHT   RETURN TO FLOOR','system');return;}
  const dailyKey=day+':'+key, encounter=f.fights[dailyKey];
@@ -71,7 +72,7 @@ function factoryAwardBossWeapon(floor){
  const old=player.weapon;
  if(!GEAR[old]||GEAR[old].max<spec.max){
    player.weapon=name;
-   if(old&&!addPack(old,'weapon')){
+   if(old&&!addPack(old,'weapon',1,true)){
      player.stash=player.stash||[];
      const slot=player.stash.find(i=>i.name===old&&i.type==='weapon');
      if(slot)slot.qty++;else player.stash.push({name:old,type:'weapon',qty:1});
@@ -79,7 +80,7 @@ function factoryAwardBossWeapon(floor){
    }
    add('BOSS WEAPON EQUIPPED — '+gearLabel(name)+' — DMG '+spec.min+'–'+spec.max,'reward');
  }else{
-   if(!addPack(name,'weapon')){
+   if(!addPack(name,'weapon',1,true)){
      player.stash=player.stash||[];
      const slot=player.stash.find(i=>i.name===name&&i.type==='weapon');
      if(slot)slot.qty++;else player.stash.push({name:name,type:'weapon',qty:1});
@@ -89,7 +90,7 @@ function factoryAwardBossWeapon(floor){
  }
  updateHud();
 }
-function factoryCombatWin(c){const f=factoryState(),key=f.floor+':'+f.room;if(c.name===FACTORY_BOSSES[f.floor]?.name){if(!f.done.includes(f.floor)){f.done.push(f.floor);factoryAwardBossWeapon(f.floor);}if(f.floor<3){add('SUPERVISOR AUTHORIZATION '+(f.floor+1)+' RECOVERED','reward');if(factoryDone()===3)add('From below, three heavy locks disengage. The restricted basement is now accessible.','bright');}else{add('The Foreman collapses against the control panel.','bright');if(!f.foremanLore){add('FOREMAN > The Dominion gave the orders. I never met the man... They called him USER4387. Even the Dominion feared him.','bright');f.foremanLore=true;}add('You recover the final component needed for the charge. Return to Forge with it.','reward');player.flags.factoryFinalComponent=true;addPack('Factory Charge Component','quest');} }else f.fights[day+':'+key]=true;stage='factoryDungeonRoom';factoryRender();}
+function factoryCombatWin(c){const f=factoryState(),key=f.floor+':'+f.room;if(c.name===FACTORY_BOSSES[f.floor]?.name){if(!f.done.includes(f.floor)){f.done.push(f.floor);factoryAwardBossWeapon(f.floor);}if(f.floor<3){add('SUPERVISOR AUTHORIZATION '+(f.floor+1)+' RECOVERED','reward');if(factoryDone()===3)add('From below, three heavy locks disengage. The restricted basement is now accessible.','bright');}else{add('The Foreman collapses against the control panel.','bright');if(!f.foremanLore){add('FOREMAN > The Dominion gave the orders. I never met the man... They called him USER4387. Even the Dominion feared him.','bright');f.foremanLore=true;}add('The charge circuit is safe. Search the marked supply rooms for any missing materials, then return to Forge.','reward');} }else f.fights[day+':'+key]=true;stage='factoryDungeonRoom';factoryRender();}
 function factoryCommand(cmd){if(!stage.startsWith('factoryDungeon'))return false;cmd=String(cmd).trim().toLowerCase();
  if(/^(?:save|load)(?: game)?(?: ?[123])?$/.test(cmd)||cmd==='load autosave'||['testing','testing access','test off','disable test mode'].includes(cmd))return false;
  const f=factoryState();
@@ -100,7 +101,7 @@ function factoryCommand(cmd){if(!stage.startsWith('factoryDungeon'))return false
  if(!f.visitedRooms[visitKey]){f.visitedRooms[visitKey]=true;gainXp(22+f.floor*5);}
  stage='factoryDungeonRoom';factoryRender();return true;}factoryRender();return true;}
  if(stage==='factoryDungeonRoom'){if(['return','return to floor','back','b','0'].includes(cmd)){stage='factoryDungeonFloor';factoryRender();return true;}const key=f.floor+':'+f.room,puzzle=FACTORY_PUZZLES[key],boss=f.room===FACTORY_FLOORS[f.floor].rooms.length-1;
- if(cmd==='inspect'){add(puzzle&&!f.puzzles.includes(key)?puzzle.hint:FACTORY_FLOORS[f.floor].rooms[f.room][1],'bright');factoryRender();return true;}
+ if(cmd==='inspect'){add(puzzle&&!f.puzzles.includes(key)?puzzle.hint:factoryRoomDescription(),'bright');factoryRender();return true;}
  if(puzzle&&!f.puzzles.includes(key)){if(cmd===puzzle.answer){if(!spendTurn()){add('NO TURNS LEFT.','danger');return true;}f.puzzles.push(key);add('The mechanism yields. The way is clear.','reward');factoryRender();return true;}add('The obstacle remains. Inspect the mechanism for a clue.','system');factoryRender();return true;}
  if(cmd==='fight'){if(boss){if(f.done.includes(f.floor)){add('This supervisor has already been defeated.','system');factoryRender();return true;}factoryBossStart();return true;}const dailyKey=day+':'+key;if(f.fights[dailyKey]||(day*17+f.floor*31+f.room*13)%6>=3){add('No enemy is present today.','system');factoryRender();return true;}const names=FACTORY_ENEMIES[f.floor],name=names[(day+f.room)%names.length];startCombat({name,level:Math.max(3,f.floor+3),hp:30+f.floor*12,min:5+f.floor*2,max:9+f.floor*3,xp:42+f.floor*12,bolts:3+f.floor*2,end:`${name} collapses among the wreckage.`},'factoryFight');return true;}
  if(cmd==='search'){const dailyKey=day+':'+key;if(f.searched[dailyKey]){add('You have already searched this room today.','system');factoryRender();return true;}if(!spendTurn()){add('NO TURNS LEFT.','danger');return true;}f.searched[dailyKey]=true;const item=FACTORY_FLOORS[f.floor].rooms[f.room][2];if((day+f.room+f.floor)%4===0){add('Nothing usable turns up this time.','system');}else{if(addPack(item,['Bandage','Energy Bars'].includes(item)?'consumable':'material'))add('SALVAGED: '+item.toUpperCase(),'reward');else add('Your backpack is full. You cannot carry the find.','danger');}factoryRender();return true;}

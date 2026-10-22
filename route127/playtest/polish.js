@@ -58,7 +58,7 @@ function v48BankMain(entered=false){
  v48Intro('bank',[["The old municipal records office has been rebuilt into the most secure room in Solace. Plate steel covers the windows and a reinforced cage surrounds the counter."],["Amii looks up and gives you a slightly awkward but friendly wave."],["Two massive junkyard dogs lounge beside the counter. Niko thumps his tail. Alex just watches you."],["AMII > Don't worry. They're friendly.",'bright'],['Alex gives a low rumble.'],['AMII > ...mostly.','bright']],'Amii nods from behind the secure counter.',entered);
  add(`CARRIED BOLTS: ${player.bolts} / BANKED BOLTS: ${player.bankBolts}`,'system');
  add('TALK opens Amii’s conversation topics; existing bank quests remain available through SMALL TALK AMII.','system');
- v48Choices(['DEPOSIT BOLTS','WITHDRAW BOLTS','STASH ITEMS','RETRIEVE ITEMS','VIEW STORAGE','TALK','(B) BACK']);
+ r7BankStatus();v48Choices(['DEPOSIT BOLTS','WITHDRAW BOLTS','STASH ITEMS','RETRIEVE ITEMS','VIEW STORAGE','TALK','CHANGE NAME — 500 BOLTS','(B) BACK']);
 }
 function v48BankPage(page){
  player.flags.solaceMenu='bank48';player.flags.v48BankPage=page;add({deposit:'DEPOSIT BOLTS',withdraw:'WITHDRAW BOLTS',stash:'STASH ITEMS',retrieve:'RETRIEVE ITEMS',storage:'VIEW STORAGE'}[page],'place');
@@ -132,10 +132,11 @@ function applyV48Colors(div,text,cls){
  if(/casino-art|v48-art|title-logo/.test(cls)||/^[─\s]+$/.test(text)||(text.includes(' ── ')&&/^[Xo](?:\s|$)/.test(text)))return;
  const upper=text.toUpperCase(),ranges=[];let base='evo-yellow';
  if(cls.includes('casino-heading'))base='npc-blue';
- for(const m of upper.matchAll(/\b(TIM|MURPHY|JEN|WAYNE|JOHNNY|AMII|CRAZY STEVE|WOMAN'S VOICE|MAN'S VOICE|UNKNOWN)(?=\s*>|(?:'S)?\b)/g)){if(m.index===0||upper.slice(m.index+m[0].length).trimStart().startsWith('>'))ranges.push([m.index,m.index+m[0].length,'npc-blue']);}
+ for(const m of upper.matchAll(/\b(DOCKS CLERK|NESSA|MIA|KAIDEN|FORGE|MARA|TIM|MURPHY|JEN|WAYNE|JOHNNY|AMII|CRAZY STEVE|WOMAN'S VOICE|MAN'S VOICE|UNKNOWN)(?=\s*>|(?:'S)?\b)/g)){if(m.index===0||upper.slice(m.index+m[0].length).trimStart().startsWith('>'))ranges.push([m.index,m.index+m[0].length,'npc-blue']);}
  if(/^YOU HAVE FALLEN|^DEATH\b/.test(upper))base='v48-loss';
  for(const w of wanderers){if(upper.startsWith(w.name.toUpperCase()))ranges.push([0,w.name.length,'wanderer-green']);}
  for(const name of Object.keys(GEAR)){let i=upper.indexOf(name.toUpperCase());if(i>=0){let end=i+name.length,rarity=GEAR[name].rarity,tail=text.slice(end).match(/^ \[(COMMON|UNCOMMON|RARE|EPIC|LEGENDARY)\]/);if(tail)end+=tail[0].length;ranges.push([i,end,rarity==='common'?'v48-white':'rarity-'+rarity]);}}
+ for(const m of upper.matchAll(/\b(THE YARDMAN|YARDMAN|SALVAGE KING|GRINDER|THE CHEMIST|THE FOREMAN|FOREMAN|TERRIBLE BILLY|THE BIG MAN)\b/g))ranges.push([m.index,m.index+m[0].length,'v48-loss']);
  for(const m of text.matchAll(/-\d+\s*HP\b/gi))ranges.push([m.index,m.index+m[0].length,'v48-loss']);
  for(const m of text.matchAll(/(?:YOU TAKE|YOU DEAL)\s+(\d+)/gi)){let start=m.index+m[0].length-m[1].length;ranges.push([start,start+m[1].length,'v48-loss']);}
  for(const m of text.matchAll(/\+\d+(?:\s*(?:HP|XP|BOLTS|SLOTS))?/gi))ranges.push([m.index,m.index+m[0].length,'v48-gain']);

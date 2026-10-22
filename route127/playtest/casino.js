@@ -56,7 +56,7 @@ function casinoMenu(entered=false){
  v48Intro('casino',[["A filthy curtain conceals a cramped room beneath an old sign: G A M B L _ N G. A dice table, a rock-paper-scissors table and a blackjack table share space with slot machines and a rat racing corner."]],'The familiar tables wait behind the filthy curtain.',entered);
  if(player.level<5)add('Dice, rock-paper-scissors, and blackjack are open. Slots unlock at Level 5; rat racing is available in Seaport.','system');
  else casinoArt('+--------------------------+\n| DICE / RPS / BLACKJACK    |\n| SLOTS / RAT RACING        |\n+--------------------------+');
- casinoChoices('(D) DICE   ROCK PAPER SCISSORS   BLACKJACK'+(player.level>=5?'   SLOTS':'')+(player.flags.port55Casino?'   RAT RACING':'')+'   (B) BACK');
+ casinoChoices('(D) DICE   ROCK PAPER SCISSORS   BLACKJACK'+(player.level>=5?'   SLOTS':'')+(player.level>=5?'   RAT RACING':'')+'   (B) BACK');
 }
 function casinoChoices(text){outputQueue=outputQueue.then(()=>{currentHotkeys={};numberedChoices={};usedHotkeys=new Set();addImmediate(hotkeyLine(text),'system');followOutput()});}
 function casinoRound(){return ensureCasinoState().round;}
@@ -160,7 +160,7 @@ function handleCasinoCommand(cmd){
   if(cmd==='town'||cmd==='return to town'){if(player.flags.port55Casino){player.flags.port55Casino=false;stage='port55Mia';port55MiaMenu();}else{mercyLocation='town';mercyMenu()}}else casinoMenu();return true;
  }
  if(r.status==='settled'){if(cmd==='play again'||cmd==='p')casinoOpen(r.game);else casinoRender();return true;}
- if((player.level<5&&!['dice','rps','blackjack'].includes(r.game))||(r.game==='rats'&&!player.flags.port55Casino)){add(r.game==='rats'?'Rat racing is available in Seaport.':'LOCKED — Reach Level 5.','system');casinoMenu();return true;}
+ if((player.level<5&&!['dice','rps','blackjack'].includes(r.game))){add(r.game==='rats'?'Rat racing is available in Seaport.':'LOCKED — Reach Level 5.','system');casinoMenu();return true;}
  if(r.status==='active'&&r.game==='blackjack'){
   if(cmd==='hit'){r.player.push(r.deck.pop());if(casinoCardTotal(r.player)>21)casinoSettle(r,0,'YOU BUST');else casinoCheckpoint();}
   else if(cmd==='stand')casinoBlackjackStand(r);else add('Choose HIT or STAND.','system');casinoRender();return true;

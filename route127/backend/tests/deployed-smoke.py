@@ -7,7 +7,9 @@ origin=sys.argv[1].rstrip('/')
 assert origin.startswith(('https://route127-r12-dev-api.', 'http://127.0.0.1:')), 'Development targets only'
 results=[]
 def call(path, data=None, cookie='', origin_header=None, raw=None, content_type='application/json'):
- headers={}
+ # Identify this opt-in development probe; Cloudflare rejects urllib's default
+ # User-Agent with error 1010 before the request reaches the Worker.
+ headers={'User-Agent':'Route127-Development-Verification/1.0'}
  payload=raw if raw is not None else (json.dumps(data).encode() if data is not None else None)
  if payload is not None:headers.update({'Content-Type':content_type,'Origin':origin if origin_header is None else origin_header})
  if cookie:headers['Cookie']=cookie

@@ -1,0 +1,78 @@
+{
+  "route127/online-game/app.js": {
+    "sha256": "fee3a7ad1b90397f877dbd8ec760857c5f093c63d62cade9a3afd31e2af5e060",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/banking_identity.js": {
+    "sha256": "10ffeedbf9843f9b94d80f675df20fa89f9e91b16a92ce1c84e254293143377a",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/casino.js": {
+    "sha256": "33fb1d1671b4fca878a9eba4a3ea2371adf3dad99a50502a4952d2af94f1a4b6",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/consolidation.js": {
+    "sha256": "6acda09198ede9a28a2241e6d64635cd519eb0340b32e54212c730436d9889eb",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/crime.js": {
+    "sha256": "5db0f6b849c0bfb9243bc21c3687d0ff21c5c6c0aa8f2cfcc323c2da69f03318",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/expansion.js": {
+    "sha256": "536e2c864f8171016cb62225903d723dbaeee291b17e9104bc33494756d25663",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/factory.js": {
+    "sha256": "e2e4a0a59f39181622af2394c0091d1fb034c9e7864c988137e979bb9a9c89f9",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/final_polish.js": {
+    "sha256": "dcb715c14cc55714eb1ad1e64bfd3f6ef344a3867032c259a4c36e146082daf1",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/polish.js": {
+    "sha256": "942587cd6fed917a3a55461c9e49c70eae7ef11b2174b2e4cdb2b7105eea3804",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/r11.js": {
+    "sha256": "bd7f392cf3f04ca89893ee74a21f75a43ed2d5d6270536a610e8612f4a0b5338",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/recruitment.js": {
+    "sha256": "d82ac717f54c1c9b6975426e9e49bf149b17a0efe1ea519be62c4227147b5ecc",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/road_balance.js": {
+    "sha256": "d4b234e13ee97c1dc1209f1a3e292c41ce78d68291e1c715427fb5fe182bf10e",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/seaport.js": {
+    "sha256": "02ca9306d6356b35efd0175564b5f93d6aad9f6915817120548873925a4fbc67",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/seaport_liberation.png": {
+    "sha256": "35ab22bf3fe99e3c6cdf125998c450ee93a56efcdc4c9e331fea7b58a4f5e6dd",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/stabilization.js": {
+    "sha256": "e9407892deb46bf3e7146ce74b4ec1a853ec75320efba7d9dc2865edba7844d5",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/styles.css": {
+    "sha256": "83d1e8024b350c7d4303c38b2fd3647a52451493348b65e6d7428d945fbc087b",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/transmission.png": {
+    "sha256": "e46c600316d6e0d76699497bf4ecc018b7f583081d9456fac6b9444840876e5b",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/v55.js": {
+    "sha256": "2b45895bc609e671ee435a9820db2704e102b910855a4e28b869792cc931ba89",
+    "unchanged_from_R12": true
+  },
+  "route127/online-game/wanderer_fix.js": {
+    "sha256": "f8349652562fcb863a9ed1b8adde801712773aac98d2e069f9a478979a5007af",
+    "unchanged_from_R12": true
+  }
+}

@@ -61,7 +61,9 @@ test('idempotent retries, stale device conflict, request key misuse and rollback
  assert.equal((await call('save',{...request,revision:1,requestId:crypto.randomUUID()},a.cookie)).status,503);
  assert.equal((await call('save',null,a.cookie)).body.revision,1);
 });
-test('CSRF, invalid JSON/schema/size, rate limiting and dev fail-closed',async()=>{
+test('CSRF, invalid JSON/schema/size, rate limiting and dev fail-closed',async(t)=>{
+ // Keep this minute-bucket test independent of the wall-clock minute boundary.
+ const now=Date.now();t.mock.method(Date,'now',()=>now);
  const {call,env}=setup();
  assert.equal((await call('register',{login:'test',password:'password123456789' },'',{Origin:'https://evil.test'})).status,403);
  const a=await register(call);

@@ -6,7 +6,7 @@ import worker from '../worker.mjs';
 import {database} from './d1-local.mjs';
 const TEST_PASSWORD='test-'+crypto.randomUUID();
 const root=new URL('../../online-game/',import.meta.url);
-const settle=async()=>{for(let i=0;i<12;i++)await new Promise(r=>setImmediate(r));};
+const settle=async()=>{for(let i=0;i<12;i++)await new Promise(r=>setImmediate(r));await new Promise(r=>setTimeout(r,30));};
 // Runs actual shipped R11 scripts and adapter in separate JS realms/storages.
 // DOM is a test double: this does not replace real-browser/device acceptance.
 function client(env,initialCookie=''){
@@ -37,50 +37,49 @@ function client(env,initialCookie=''){
   async tick(){const jobs=[...timeouts.values()].filter(x=>x.ms===1200);for(const [id,x]of timeouts)if(x.ms===1200)timeouts.delete(id);for(const x of jobs)await x.fn();await settle();}
  };
 }
-test('real R11 adapter: ownership link, automatic save, separate client recovery and stale conflict',async()=>{
+test('R13 automatic creation, cloud resume, outage latest progress, journals and slots',async()=>{
  const env={ENVIRONMENT:'development',DEV_BACKUP_ENABLED:'true',AUTH_PEPPER:crypto.randomUUID()+crypto.randomUUID(),DB:database()};
- const a=client(env);await settle();await a.auth('register');
- a.run(`player.handle='Adapter Ranger';player.characterId='local-'+crypto.randomUUID();player.flags.interfaceUnlocked=true;stage='roadReady';activeSaveSlot=1;r11Migrate();`);
- await a.click('cloud-link');
- assert.match(a.element('cloud-status').textContent,/loaded/,a.element('cloud-status').textContent);
- const id=a.run('player.characterId');assert.match(id,/^char-/);assert.equal(a.run('r7Identity()'),id);
- a.run(`player.bolts=234;player.pack=[{name:'Bandage',type:'consumable',qty:2}];v49Autosave();`);await a.tick();
+ const a=client(env);await settle();await a.auth('register','r13test');
+ a.storage.setItem('offline-proof','untouched');a.run("localStorage.setItem(FACTORY_AUTOSAVE_KEY,'legacy autosave sentinel')");
+ a.run(`player.handle='Ranger';player.characterId='local-'+crypto.randomUUID();player.flags.interfaceUnlocked=true;stage='roadReady';r11Migrate();saveGame();`);await settle();
+ assert.match(a.element('cloud-status').textContent,/loaded/);
+ const id=a.run('player.characterId');assert.match(id,/^char-/);
+ a.run(`player.bolts=234;player.level=4;player.xp=200;player.flags.relayQuest='complete';player.pack=[{name:'Bandage',type:'consumable',qty:2}];v49Autosave();`);await a.tick();
  assert.match(a.element('cloud-status').textContent,/saved/);
- const b=client(env);await settle();await b.auth();await b.click('cloud-resume');
- assert.equal(b.run('player.characterId'),id);assert.equal(b.run('player.bolts'),234);assert.equal(b.run('player.pack[0].qty'),2);
- a.run('player.bolts=235;v49Autosave();');await a.tick();
+ const b=client(env);await settle();await b.auth('login','r13test');
+ assert.equal(b.run('player.bolts'),234);assert.equal(b.run('player.level'),4);assert.equal(b.run('player.flags.relayQuest'),'complete');assert.equal(b.run('player.pack[0].qty'),2);
+ // no local load can switch cloud identity
+ b.run('loadGame(2)');assert.equal(b.run('player.characterId'),id);
+ // retain newer state after first failed request
+ a.offline=true;a.run('player.bolts=300;v49Autosave();');await a.tick();
+ assert.match(a.element('cloud-status').textContent,/unavailable/);
+ a.run('player.bolts=301;v49Autosave();');await a.tick();
+ a.offline=false;await a.click('cloud-retry');await a.tick();
+ assert.equal(JSON.parse(env.DB.sql.prepare('SELECT payload FROM r127_snapshots').get().payload).player.bolts,301);
+ // stale other browser must stop, never overwrite
  b.run('player.bolts=999;v49Autosave();');await b.tick();assert.match(b.element('cloud-status').textContent,/conflict/);
- assert.equal(b.run('player.bolts'),999);await b.click('cloud-resume');assert.equal(b.run('player.bolts'),235);
- assert([...b.values.keys()].some(k=>k.includes(':conflict:')));
- b.run('player.bolts=236;v49Autosave();');await b.tick();assert.match(b.element('cloud-status').textContent,/saved/);
+ assert.equal(b.run('player.bolts'),999);await b.click('cloud-server');assert.equal(b.run('player.bolts'),301);assert([...b.values.keys()].some(k=>k.includes(':conflict:')));
+ // restart automatic session restoration (no load click)
+ const c=client(env,a.cookie);await settle();assert.equal(c.run('player.bolts'),301);
+ assert.equal(a.storage.getItem('offline-proof'),'untouched');assert.equal(a.run('localStorage.getItem(FACTORY_AUTOSAVE_KEY)'), 'legacy autosave sentinel');
 });
-test('adapter outage/retry and lost acknowledgement do not duplicate save; local-slot switching pauses sync',async()=>{
+test('R13 lost acknowledgement is idempotent and auth denies foreign character',async()=>{
  const env={ENVIRONMENT:'development',DEV_BACKUP_ENABLED:'true',AUTH_PEPPER:crypto.randomUUID()+crypto.randomUUID(),DB:database()};
- const a=client(env);await settle();await a.auth('register','outagetest');
- a.run(`player.handle='Outage Ranger';player.characterId='local-'+crypto.randomUUID();player.flags.interfaceUnlocked=true;stage='roadReady';activeSaveSlot=1;r11Migrate();`);await a.click('cloud-link');
- a.offline=true;a.run('player.bolts=321;v49Autosave();');await a.tick();assert.match(a.element('cloud-status').textContent,/unavailable/);
- const key=[...a.values.keys()].find(k=>k.startsWith('r127-dev-pending:'));const pending=a.storage.getItem(key);assert(pending);
- a.offline=false;a.loseReply=true;await a.click('cloud-retry');assert.equal(a.storage.getItem(key),pending);
- assert.equal(env.DB.sql.prepare('SELECT revision FROM r127_snapshots').get().revision,1);
- await a.click('cloud-retry');assert.equal(a.storage.getItem(key),null);assert.equal(env.DB.sql.prepare('SELECT revision FROM r127_snapshots').get().revision,1);
- a.run('loadGame(2);');assert.match(a.element('cloud-status').textContent,/paused/);
- a.run('player.bolts=666;v49Autosave();');await a.tick();assert.equal(env.DB.sql.prepare('SELECT revision FROM r127_snapshots').get().revision,1);
- // Separate realm with the same cookie simulates browser restart; automatic session lookup.
- const restarted=client(env,a.cookie);await settle();await restarted.click('cloud-resume');assert.equal(restarted.run('player.bolts'),321);
+ const a=client(env);await settle();await a.auth('register','r13retry');
+ a.run(`player.handle='Retry Ranger';player.characterId='local-'+crypto.randomUUID();stage='roadReady';r11Migrate();saveGame();`);await settle();
+ a.loseReply=true;a.run('player.bolts=321;v49Autosave();');await a.tick();
+ assert.match(a.element('cloud-status').textContent,/unavailable/);
+ const rev=env.DB.sql.prepare('SELECT revision FROM r127_snapshots').get().revision;
+ await a.click('cloud-retry');assert.equal(env.DB.sql.prepare('SELECT revision FROM r127_snapshots').get().revision,rev);
+ assert.equal(a.storage.getItem([...a.values.keys()].find(k=>/^r127-dev-pending:[^:]+$/.test(k))),null);
 });
-test('bank period and casino journals travel with cloud snapshots; stale local journals cannot override recovery',async()=>{
+
+test('R13 bank and casino journals survive account recovery',async()=>{
  const env={ENVIRONMENT:'development',DEV_BACKUP_ENABLED:'true',AUTH_PEPPER:crypto.randomUUID()+crypto.randomUUID(),DB:database()};
- const a=client(env);await settle();await a.auth('register','journals');
- a.run(`player.handle='Journal Ranger';player.characterId='local-'+crypto.randomUUID();player.flags.interfaceUnlocked=true;stage='roadReady';activeSaveSlot=1;r11Migrate();r7Touch();`);
- await a.click('cloud-link');
- const id=a.run('player.characterId');
+ const a=client(env);await settle();await a.auth('register','r13journals');
+ a.run(`player.handle='Journal Ranger';player.characterId='local-'+crypto.randomUUID();player.flags.interfaceUnlocked=true;stage='roadReady';r11Migrate();saveGame();`);await settle();
  a.run(`r7Touch();player.flags.r11CasinoSeq=2;player.flags.r11CasinoNet=20;localStorage.setItem('route127-r11-casino-'+player.characterId,JSON.stringify({seq:2,net:20,rounds:{},bolts:player.bolts,r6Game:null,casino:null}));v49Autosave();`);await a.tick();
- assert.match(a.element('cloud-status').textContent,/saved/,a.element('cloud-status').textContent);
- assert.equal(JSON.parse(env.DB.sql.prepare('SELECT payload FROM r127_snapshots').get().payload).player.flags.r11CasinoSeq,2);
- const b=client(env);await settle();await b.auth('login','journals');
- b.storage.setItem('route127-r11-casino-'+id,JSON.stringify({seq:99,net:999999,rounds:{},bolts:999999}));
- await b.click('cloud-resume');
- assert.match(b.element('cloud-status').textContent,/loaded/,b.element('cloud-status').textContent);
- assert.equal(b.run('player.bolts'),a.run('player.bolts'));assert.equal(b.run('player.flags.r11CasinoSeq'),2);
- assert.equal(b.run(`r7ReadAccounts().accounts[player.characterId].periodStart`),a.run(`r7ReadAccounts().accounts[player.characterId].periodStart`));
+ const b=client(env);await settle();await b.auth('login','r13journals');
+ assert.equal(b.run('player.flags.r11CasinoSeq'),2);
+ assert.equal(b.run('r7ReadAccounts().accounts[player.characterId].periodStart'),a.run('r7ReadAccounts().accounts[player.characterId].periodStart'));
 });

@@ -11,7 +11,7 @@
   if(!account||loading||creating||blocked||(!character&&!started)||(!ready&&character)){status('Sign in and load your cloud character before playing.');return;}
   let cmd=String(raw).trim().toLowerCase();
   cmd=numberedChoices[cmd]||cmd;
-  if(/^(load|continue|new|skip|testing|test|save|v)(?:$| )/.test(cmd)||['interfaceSave','v49TitleConfirm'].includes(stage)){
+  if(/^(load|new|skip|testing|test|save|v)(?:$| )/.test(cmd)||(stage==='title'&&/^continue(?:$| )/.test(cmd))||['interfaceSave','v49TitleConfirm'].includes(stage)){
    if(/^(save|v)(?:$| )/.test(cmd))await flush();
    else status('Online play uses one cloud character. Use ?offline=1 for legacy QA saves.');
    return;

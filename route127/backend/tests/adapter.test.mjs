@@ -83,3 +83,15 @@ test('R13 bank and casino journals survive account recovery',async()=>{
  assert.equal(b.run('player.flags.r11CasinoSeq'),2);
  assert.equal(b.run('r7ReadAccounts().accounts[player.characterId].periodStart'),a.run('r7ReadAccounts().accounts[player.characterId].periodStart'));
 });
+
+// R14: CONTINUE is also a real travel command, not only the legacy title option.
+test('online travel continues without enabling legacy title saves',async()=>{
+ const env={ENVIRONMENT:'development',DEV_BACKUP_ENABLED:'true',AUTH_PEPPER:crypto.randomUUID()+crypto.randomUUID(),DB:database()};
+ const a=client(env);await settle();await a.auth('register','r14travel');
+ a.run(`player.handle='Travel Ranger';player.characterId='local-'+crypto.randomUUID();player.flags.interfaceUnlocked=true;stage='roadReady';r11Migrate();saveGame();`);await settle();
+ a.run(`stage='turnComplete';roadGoal='mercy';roadTurn=0;roadTripLength=9;roadTurnCharged=true;player.turns=50;Math.random=()=>.99;`);
+ await a.run("handleCommand('continue')");await settle();
+ assert.equal(a.run('player.turns'),49);assert.equal(a.run('roadTurn'),1);
+ a.run("stage='title'");await a.run("handleCommand('continue')");
+ assert.equal(a.run('stage'),'title');assert.match(a.element('cloud-status').textContent,/one cloud character/);
+});

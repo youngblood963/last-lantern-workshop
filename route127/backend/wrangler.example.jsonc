@@ -1,0 +1,16 @@
+{
+  // Copy to wrangler.jsonc ONLY after inspecting the EXISTING dev deployment.
+  "name": "route127-dev-api",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {"ENVIRONMENT": "development", "DEV_BACKUP_ENABLED": "false"},
+  "d1_databases": [{
+    "binding": "DB", "database_name": "route127-dev",
+    "database_id": "REPLACE_WITH_VERIFIED_EXISTING_DEV_DATABASE_ID",
+    "migrations_dir": "migrations"
+  }],
+  "assets": {"directory": "../online-game", "binding": "ASSETS", "run_worker_first": true}
+}

@@ -1,0 +1,29 @@
+// Route 127 DEV ONLY. Bind DB to route127-dev. Never deploy to route127-api.
+const ORIGIN = 'https://lastlanternworkshop.com';
+const cors = {'Access-Control-Allow-Origin':ORIGIN,'Vary':'Origin','Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type','Cache-Control':'no-store'};
+const reply=(data,status=200)=>Response.json(data,{status,headers:cors});
+async function hash(value){const bytes=new TextEncoder().encode(value);const digest=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+export default {async fetch(request,env){
+ const url=new URL(request.url),origin=request.headers.get('Origin');
+ if(origin && origin!==ORIGIN)return Response.json({error:'Origin not allowed'},{status:403});
+ if(request.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
+ if(request.method==='GET'&&url.pathname==='/players'){
+  try{const {results}=await env.DB.prepare('SELECT id,character_name,level,location,online,last_seen FROM players ORDER BY last_seen DESC LIMIT 100').all();return reply({players:results});}
+  catch(e){return reply({error:'Database unavailable'},500);}
+ }
+ if(request.method==='POST'&&url.pathname==='/register'){
+  if(origin!==ORIGIN)return reply({error:'Browser origin required'},403);
+  let p;try{if(Number(request.headers.get('content-length')||0)>4096)return reply({error:'Too large'},413);p=await request.json();}catch(e){return reply({error:'Invalid JSON'},400);}
+  const id=String(p.id||''),token=String(p.token||''),name=String(p.character_name||'').trim(),level=Number(p.level),location=String(p.location||'').trim();
+  if(!/^sw-[a-f0-9-]{36}$/.test(id)||!/^[-_A-Za-z0-9]{40,128}$/.test(token)||name.length<1||name.length>40||!Number.isInteger(level)||level<1||level>50||location.length<1||location.length>80)return reply({error:'Invalid character data'},400);
+  const proof=await hash(token);
+  try{
+   const current=await env.DB.prepare('SELECT auth_hash FROM players WHERE id=?').bind(id).first();
+   if(current && current.auth_hash!==proof)return reply({error:'Character ownership mismatch'},403);
+   if(current){await env.DB.prepare('UPDATE players SET character_name=?,level=?,location=?,online=1,last_seen=CURRENT_TIMESTAMP WHERE id=?').bind(name,level,location,id).run();}
+   else{await env.DB.prepare('INSERT INTO players(id,character_name,level,location,online,auth_hash) VALUES(?,?,?,?,1,?)').bind(id,name,level,location,proof).run();}
+   return reply({ok:true,id});
+  }catch(e){return reply({error:'Database write failed; verify schema migration'},500);}
+ }
+ return reply({game:'Route 127',environment:'development',status:'online'});
+}};

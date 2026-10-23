@@ -1,0 +1,22 @@
+{
+  "name": "route127-r12-dev-api",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {
+    "ENVIRONMENT": "development",
+    "DEV_BACKUP_ENABLED": "true"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "route127-dev",
+      "database_id": "34ab2666-c124-487f-aed9-bb1809c95919",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

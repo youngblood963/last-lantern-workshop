@@ -1,0 +1,1 @@
+PASS: 61 original offline/online game, Worker implementation, and migration files are byte-identical to the supplied Phase 1 archive. R12 changes are development configuration, test harnesses, secret-file exclusions, documentation and evidence. No gameplay content changes.

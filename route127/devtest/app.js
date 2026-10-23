@@ -52,7 +52,7 @@ const TURN_REFILL_AMOUNT = 50;
 const TURN_CAP = 150;
 const REFILL_MS = 24*60*60*1000;
 const QA_BUILD = typeof window !== "undefined" && window.ROUTE127_QA_BUILD === true;
-const TEST_ACCESS_CODE = "LANTERN127";
+const TEST_ACCESS_CODE = String(globalThis.ROUTE127_QA_ACCESS_CODE || "");
 const player = {
   handle: "", level: 1, hp: 100, maxHp: 100, xp: 0, nextXp: 100,
   bolts: 12, bankBolts: 0, turns: 50, maxTurns: TURN_CAP, lifetimeTurns: 0,
@@ -2740,7 +2740,7 @@ async function handleCommandCore(raw) {
     }
     return;
   }
-  if(QA_BUILD && stage === "testingCode"){ if(cmd==="cancel"){ stage=player.flags.testingReturnStage||(player.turns<=0?"zeroTurns":"between");delete player.flags.testingReturnStage;add("Testing access cancelled.","system"); return; } if(raw.trim().toUpperCase()===TEST_ACCESS_CODE){ testMode=true;stage=player.flags.testingReturnStage||(player.turns<=0?"zeroTurns":"between");delete player.flags.testingReturnStage; updateHud(); add("TEST MODE ACTIVE","reward"); add("Expedition Turn limit disabled. HP, XP, Bolts, loot, quests and combat remain live.","system"); add("Type TEST OFF at any time to restore normal Turn limits.","system"); return; } add("ACCESS DENIED","danger"); return; }
+  if(QA_BUILD && stage === "testingCode"){ if(cmd==="cancel"){ stage=player.flags.testingReturnStage||(player.turns<=0?"zeroTurns":"between");delete player.flags.testingReturnStage;add("Testing access cancelled.","system"); return; } if(TEST_ACCESS_CODE && raw.trim().toUpperCase()===TEST_ACCESS_CODE.toUpperCase()){ testMode=true;stage=player.flags.testingReturnStage||(player.turns<=0?"zeroTurns":"between");delete player.flags.testingReturnStage; updateHud(); add("TEST MODE ACTIVE","reward"); add("Expedition Turn limit disabled. HP, XP, Bolts, loot, quests and combat remain live.","system"); add("Type TEST OFF at any time to restore normal Turn limits.","system"); return; } add("ACCESS DENIED","danger"); return; }
   if(stage === "confirmHandle"){ if(cmd===""||cmd==="y"||cmd==="yes"){player.handle=pendingHandle;pendingHandle="";updateHud();add(`The faded letters read: ${player.handle.toUpperCase()}.`,"bright");add("Still yours. That's something.");stage="standing";await outputQueue;showStandingOptions();} else if(cmd==="n"||cmd==="no"||cmd==="change"){const old=pendingHandle;pendingHandle="";stage="handle";add(`CHANGE HANDLE — current entry: ${old}`,"system");add("Enter a new Handle, or RANDOM for a suggestion.","system");} else add("(Y) YES [ENTER]   (N) CHANGE","system"); return; }
   if(stage === "handle"){ if(cmd==="random"||cmd==="autofill"){ const names=["Drifter","Rook","Rust","Crow","Hollow","Slate","Nomad","Flint"]; const h=names[Math.floor(Math.random()*names.length)]; add(`Suggested Handle: ${h}`,"bright"); add(`Type ${h} to accept, or RANDOM to reroll.`,"system"); } else setHandle(raw); return; }
   if(stage==="confirmSaveOverwrite"){ if(cmd==="y"||cmd==="yes"){const sl=pendingSaveSlot; stage=returnStage||"between"; pendingSaveSlot=sl; saveGame(sl);} else {pendingSaveSlot=null;stage=returnStage||"between";add("SAVE CANCELLED","system");redrawState();} return; }

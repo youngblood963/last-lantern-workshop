@@ -1,0 +1,10 @@
+page.goto: net::ERR_BLOCKED_BY_ADMINISTRATOR at file:///workspace/work/route127/Route127_OnlineBackend_Phase1/offline-r11/index.html
+Call log:
+[2m  - navigating to "file:///workspace/work/route127/Route127_OnlineBackend_Phase1/offline-r11/index.html", waiting until "load"[22m
+
+    at /workspace/work/route127/Route127_OnlineBackend_Phase1/offline-r11/tests/r11_browser.cjs:99:301 {
+  log: [
+    '  - navigating to "file:///workspace/work/route127/Route127_OnlineBackend_Phase1/offline-r11/index.html", waiting until "load"'
+  ],
+  name: 'Error'
+}

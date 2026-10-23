@@ -1,0 +1,109 @@
+{
+  "earlyEast": {
+    "segments": 2700,
+    "triggered": 2125,
+    "combat": 1038,
+    "wanderer": 435,
+    "exploration": 350,
+    "salvage": 188,
+    "environment": 114,
+    "uneventful": 575,
+    "uniqueScenes": 34,
+    "uniqueByCategory": {
+      "combat": 12,
+      "salvage": 7,
+      "exploration": 9,
+      "environment": 6
+    }
+  },
+  "earlyWest": {
+    "segments": 2700,
+    "triggered": 2148,
+    "combat": 1116,
+    "wanderer": 382,
+    "exploration": 328,
+    "salvage": 211,
+    "environment": 111,
+    "uneventful": 552,
+    "uniqueScenes": 34,
+    "uniqueByCategory": {
+      "combat": 12,
+      "exploration": 9,
+      "environment": 6,
+      "salvage": 7
+    }
+  },
+  "eastEast": {
+    "segments": 1800,
+    "triggered": 1209,
+    "combat": 582,
+    "wanderer": 251,
+    "exploration": 171,
+    "salvage": 138,
+    "environment": 67,
+    "uneventful": 291,
+    "uniqueScenes": 30,
+    "uniqueByCategory": {
+      "combat": 8,
+      "salvage": 7,
+      "environment": 6,
+      "exploration": 9
+    }
+  },
+  "eastWest": {
+    "segments": 1800,
+    "triggered": 1175,
+    "combat": 603,
+    "wanderer": 251,
+    "exploration": 149,
+    "salvage": 119,
+    "environment": 53,
+    "uneventful": 325,
+    "uniqueScenes": 30,
+    "uniqueByCategory": {
+      "combat": 8,
+      "environment": 6,
+      "salvage": 7,
+      "exploration": 9
+    }
+  },
+  "coastEast": {
+    "segments": 1500,
+    "triggered": 970,
+    "combat": 474,
+    "wanderer": 201,
+    "exploration": 142,
+    "salvage": 104,
+    "environment": 49,
+    "uneventful": 230,
+    "uniqueScenes": 24,
+    "uniqueByCategory": {
+      "exploration": 4,
+      "salvage": 3,
+      "combat": 8,
+      "environment": 9
+    }
+  },
+  "coastWest": {
+    "segments": 1500,
+    "triggered": 934,
+    "combat": 451,
+    "wanderer": 190,
+    "exploration": 146,
+    "salvage": 99,
+    "environment": 48,
+    "uneventful": 266,
+    "uniqueScenes": 24,
+    "uniqueByCategory": {
+      "exploration": 4,
+      "combat": 8,
+      "salvage": 3,
+      "environment": 9
+    }
+  }
+}
+PASS: 2352 scenario choice/risk/capacity/direction checks; baseline distribution, populated/empty roster, safeguard, saved-redraw and history checks.
+POOLS {"early":{"combat":16,"exploration":9,"salvage":7,"environment":6},"east":{"exploration":9,"salvage":7,"environment":6,"combat":8},"coast":{"combat":8,"exploration":4,"salvage":3,"environment":9}}
+PASS: all 16 mid/coast combat victories, exact donation cost/reward, missing supplies and save snapshot.
+PASS: segment-based safeguard growth/cap/reset before liberation and no selectable quiet cards.
+PASS: real reverse/continue commands, zero-turn blocking, direction output, single progress/completion messages, fixed branch return costs.

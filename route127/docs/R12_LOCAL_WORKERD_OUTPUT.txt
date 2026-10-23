@@ -1,0 +1,30 @@
+PASS: health
+PASS: unauthenticated access denied
+PASS: foreign origin denied
+PASS: malformed JSON denied
+PASS: invalid account denied
+PASS: account registration
+PASS: duplicate registration denied
+PASS: wrong password denied
+PASS: second development account
+PASS: invalid snapshot denied
+PASS: server identity character creation
+PASS: second character denied
+PASS: other account cannot retrieve character
+PASS: persistent save
+PASS: idempotent retry
+PASS: stale revision conflict
+PASS: forged character denied
+PASS: second character account creation
+PASS: other account cannot overwrite character
+PASS: separate session login
+PASS: persistent load across independent sessions
+PASS: logout
+PASS: revoked session denied
+PASS: original session remains valid
+PASS: oversized request denied
+PASS: wrong content type denied
+PASS: authentication throttling
+PASS: logout original session
+PASS: logout second account
+PASS: 30 checks; only generated development accounts/snapshots written. Credentials discarded.

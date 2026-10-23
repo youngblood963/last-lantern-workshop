@@ -1,0 +1,268 @@
+// R6: stable junctions, repeatable road dispatch and isolated Seaport activities.
+const R6_TIMES={common:30,uncommon:60,rare:120,epic:240,legendary:480};
+for(const r of Object.values(CRAFT_RECIPES))r.seconds=R6_TIMES[GEAR[r.name]?.rarity||'common'];
+function r6Materials(r){return Object.entries({cloth:'Cloth',scrap:'Scrap Metal',wire:'Wire'}).filter(([k])=>r[k]).map(([k,n])=>{const have=player.pack.filter(i=>i.name===n&&i.type==='material'&&n!==player.weapon&&n!==player.armor).reduce((s,i)=>s+i.qty,0);return `${n} ${have}/${r[k]}${have<r[k]?' MISSING':''}`;}).concat([`Bolts ${player.bolts}/${r.bolts}${player.bolts<r.bolts?' MISSING':''}`]).join(' | ');}
+function r6RecipeRows(workshop=false){for(const r of Object.values(CRAFT_RECIPES).filter(r=>!r.minLevel||player.level>=r.minLevel)){add(`${r.name} — ${(GEAR[r.name]?.rarity||'common').toUpperCase()} — ${workshop?portCraftSeconds(r):r.seconds}s — ${Math.round(r.chance*100)}% success`,'system bright');add(r6Materials(r),'system');}}
+const r6Bench=v49Workbench;v49Workbench=function(){r6Bench();if(player.flags.v49RecipeBandage&&!player.flags.v49MurphyJob)r6RecipeRows();if(player.flags.v49MurphyJob)add('To discard the ongoing job, type CANCEL CRAFT (materials and Bolts will be lost).','system');};
+const r6Recipes=v49MurphyRecipes;v49MurphyRecipes=function(){r6Recipes();if(player.flags.v49RecipeBandage)r6RecipeRows();};
+const r6StaffRender=portStaffRender;portStaffRender=function(){r6StaffRender();if(stage==='port55Service'&&player.flags.portStaffUI?.page==='craft'&&!player.flags.v49MurphyJob)r6RecipeRows(true);if(player.flags.v49MurphyJob&&player.flags.portStaffUI?.page==='craft')add('CANCEL CRAFT discards this job after confirmation; materials and Bolts will be lost.','system');};
+function r6Road(){return player.flags.r6Road;}
+function r6Crossroads(){if(r6Road())r6Road().active=false;stage='eastEnd';roadGoal='east';roadTripLength=6;roadTurn=6;add('=== FACTORY CROSSROADS ===','place');r5DirectChoices(['ENTER FACTORY','HEAD WEST — SOLACE','HEAD EAST — SEAPORT','INSPECT ROAD']);}
+showFactory=r6Crossroads;
+function r6Begin(leg,dir){const n=leg==='coast'?5:6;player.flags.r6Road={active:true,leg,dir,pos:dir>0?0:n,n,serial:(r6Road()?.serial||0),pending:false};roadGoal='east';roadTripLength=n;player.flags.eastReturning=dir<0;r6RoadMenu();}
+function r6RoadMenu(){stage='r6Road';const q=r6Road();if(!q?.active)return r6Crossroads();add(`ROUTE 127 — ${q.leg==='coast'?'COAST ROAD':'EAST ROAD'}`,'place');add(`Heading ${q.dir>0?'EAST':'WEST'} toward ${q.leg==='coast'?(q.dir>0?'Seaport':'Factory'):(q.dir>0?'Factory':'Solace')}. ${q.dir>0?q.n-q.pos:q.pos} / ${q.n} steps remain.`,'system');r5DirectChoices(['CONTINUE '+(q.dir>0?'EAST':'WEST'),'REVERSE DIRECTION','INSPECT ROAD']);currentHotkeys.c='continue';currentHotkeys.r='reverse direction';}
+const r6Trip=startRoadTrip;startRoadTrip=function(goal,n){if(goal==='east')return r6Begin('west',1);if(r6Road())r6Road().active=false;return r6Trip(goal,n);};
+const r6Complete=completeRoadTurn;completeRoadTurn=function(){if(!r6Road()?.active)return r6Complete();r6Road().pending=false;updateNewQuestRoadProgress();add('──────── TURN COMPLETE ────────','system');r6RoadMenu();};
+const r6Current=currentEncounter;currentEncounter=function(){return r6Road()?.active&&r6Road().pending?eastEncounters[r6Road().index]:r6Current();};
+const r6Index=currentRoadEncounterIndex;currentRoadEncounterIndex=function(){return r6Road()?.active?roadTurn:r6Index();};
+function r6EncounterKind(rng=Math.random){const x=rng();return x<.04?'fire':x<.29?'combat':x<.54?'discovery':x<.70?'salvage':x<.82?'hazard':x<.94?'lore':'quiet';}
+const R6_REPEAT=[
+ {title:'FREIGHT WAGON CACHE',text:'A wagon has spilled its load into a drainage ditch. Fresh footprints circle the useful pieces.',choices:'SALVAGE THE LOOSE WIRE   KEEP WALKING',resolve(cmd){if(cmd.includes('salvage')){addPack('Wire','material');gainXp(4);add('One usable length of Wire recovered.','reward');}else if(!cmd.includes('walk'))return false;return true;}},
+ {title:'THE WASHED-OUT SHOULDER',text:'Rain has eaten beneath the road. A broken guardrail marks the edge.',choices:'TEST THE GROUND   TAKE THE WIDE PATH',resolve(cmd){if(cmd.includes('test')){if(Math.random()<.35){const d=Math.min(5,Math.max(0,player.hp-1));hurt(d);add(`The shoulder slips. ${d} HP lost; you regain the road.`,'danger');}else{addPack('Scrap Metal','material');add('Stable ground and one loose piece of Scrap Metal.','reward');}}else if(!cmd.includes('wide'))return false;return true;}},
+ {title:'A CUP LEFT WARM',text:'Two cups stand beside a cold roadside stove. One has been washed and set out for someone still expected home.',choices:'LEAVE THE CAMP UNDISTURBED   READ THE SCRATCHED MESSAGE',resolve(cmd){if(!/leave|read/.test(cmd))return false;add('BACK BEFORE DARK. Beneath it, a newer hand has written: I WILL WAIT.','bright');return true;}},
+ {title:'A QUIET MILE',text:'Wind moves through the reeds. For once, nothing follows your footsteps.',choices:'KEEP WALKING   LISTEN TO THE WIND',resolve(cmd){if(!/walk|listen/.test(cmd))return false;add('You shoulder your pack and carry on.','system');return true;}}
+];
+const R6_FIRE={title:'RIVER OF FIRE',text:'A ruptured fuel channel burns across the highway. Heat bends the air above blackened ground. A child\'s red mitten hangs from the guardrail; someone has already made it across.',choices:'PICK THROUGH THE CLEAR PATH   SMOTHER AN EDGE WITH CLOTH   TAKE THE SAFE WAY AROUND',resolve(cmd){if(cmd.includes('cloth')){const i=player.pack.find(i=>i.name==='Cloth'&&i.type==='material'&&i.qty>0);if(!i){add('You need 1 carried Cloth. The safe way remains open.','danger');return false;}removeItem('Cloth');addPack('Wire','material');add('Cloth consumed to smother a small edge. You recover 1 Wire from the cooler side.','reward');}else if(cmd.includes('clear path')){const damage=Math.random()<.4?Math.min(8,Math.max(0,player.hp-1)):0;if(damage)hurt(damage);addPack('Scrap Metal','material');add(`You cross the narrow gap: ${damage} HP lost, 1 Scrap Metal recovered.`,'system');}else if(cmd.includes('safe'))add('A concrete drainage ledge carries you around the heat. No damage or salvage.','system');else return false;return true;}};
+R6_REPEAT.forEach(e=>e.exclusive=true);R6_FIRE.exclusive=true;
+const R6_FIRE_INDEX=eastEncounters.push(R6_FIRE)-1;const R6_REPEAT_INDEX=R6_REPEAT.map(e=>eastEncounters.push(e)-1);
+function r6FireArt(){r6Art('RIVER OF FIRE',[['smoke','    ~~~~     ~~~      ~~~~'],['gold','       /\\   /\\  /\\'],['red','  /\\ /  \\_/  \\/  \\ /\\'],['gold',' /  V  FIRE CHANNEL  V  \\'],['metal','###____CHARRED ROAD____###']]);}
+function r6Art(title,rows){if(player.level<5)return;add(title,'system');outputQueue=outputQueue.then(()=>{for(const [tone,s] of rows)addImmediate(s,'system casino-art r5-scene-row r5-tone-'+tone);});}
+// R8: coast encounters use the shared resolver and combat engine, with their own
+// bounded history. Keep the existing 25% combat-category roll and wanderer gate.
+const R8_COAST_COMBAT = [
+ ['FREIGHT CAR AMBUSH','Two scavengers spring from opposite ends of a derailed freight car.', 'FREIGHT CAR SCAVENGERS',7,70,9,15,90,14,['HOOK SCAVENGER','PIPE SCAVENGER']],
+ ['BROKEN TOLL CREW','A shield bearer blocks the toll lane while a partner covers the shoulder.', 'TOLL EXTORTIONISTS',8,82,10,16,105,16,['SHIELD BEARER','TOLL GUNMAN']],
+ ['SALT MARSH HUNTERS','A pair of lean marsh dogs stalk you through reeds beside the causeway.', 'MARSH DOG PACK',7,64,9,14,85,0,['MARSH DOG','SCARRED MARSH DOG']],
+ ['FLOODLIGHT SWEEP','A damaged security drone sweeps a floodlight over an abandoned loading ramp.', 'RAMP SECURITY DRONE',8,88,11,17,110,15,[]],
+ ['DRAINAGE STALKER','Scraping follows your footsteps beneath a broken culvert. A plated crawler climbs into the road.', 'CULVERT CRAWLER',8,80,10,17,100,8,[]],
+ ['CARGO HIJACKERS','A spotter whistles from a cargo stack. A bruiser steps out with a length of anchor chain.', 'CARGO HIJACKERS',8,86,11,17,110,18,['CARGO SPOTTER','CHAIN BRUISER']],
+ ['SEAWALL SNIPER','A glint above the seawall betrays a lone rifle scavenger watching the narrow road.', 'SEAWALL RIFLE SCAVENGER',9,76,12,19,115,17,[]],
+ ['SCRAP CRAB NEST','A cracked shipping drum rolls into the lane. Two armored scavenger crabs crawl from beneath it.', 'SCRAP CRABS',7,68,9,15,90,4,['LARGE SCRAP CRAB','SMALL SCRAP CRAB']]
+].map(([title,text,name,level,hp,min,max,xp,bolts,names])=>eastEncounters.push({
+ title,text,exclusive:true,choices:'FIGHT   BACK AWAY',
+ combat:{name,level,hp,min,max,xp,bolts,action:'FIGHT',
+ ...(names.length?{enemies:names.map((name,i)=>({name,hp:i?hp-Math.ceil(hp/2):Math.ceil(hp/2),bolts:i?bolts-Math.ceil(bolts/2):Math.ceil(bolts/2)}))}:{}),
+ end:'The threat is over. The coast road opens ahead.'},
+ resolve(cmd){if(!['back away','leave'].includes(cmd))return false;add('You skirt the threat and regain the highway.','system');return true;}
+})-1);
+function r8CoastCombat(){
+ const history=player.flags.r8CoastCombatHistory||[];
+ const fresh=R8_COAST_COMBAT.filter(i=>!history.includes(eastEncounters[i].title));
+ const pool=fresh.length?fresh:R8_COAST_COMBAT;
+ return pool[Math.floor(Math.random()*pool.length)];
+}
+// R9: coast-only noncombat scenes. Each visit offers mutually exclusive paths.
+// Small salvage rewards can recur on later visits; no main-story flags are used.
+function r9CoastInjury(n){hurt(Math.min(n,Math.max(0,player.hp-1)));}
+function r9CoastItem(name,type='material'){return addPack(name,type);}
+function r9CoastGive(name){
+ if(!player.pack.some(i=>i.name===name&&i.qty>0)){add('You have no '+name+' to spare. Choose another approach.','system');return false;}
+ removeItem(name);return true;
+}
+const R9_COAST_SCENES=[];
+function r9CoastScene(category,title,text,actions){
+ const choices=[...actions.map(a=>a[0]),'MOVE ON'];
+ const index=eastEncounters.push({category,title,text,exclusive:true,choices:choices.join('   '),resolve(cmd){
+  const n=choices.findIndex(c=>c.toLowerCase()===cmd);if(n<0)return false;
+  if(n===actions.length){add('You leave the scene behind and follow the freight line.','system');return true;}
+  const result=actions[n][1]();return result!==false;
+ }})-1;
+ R9_COAST_SCENES.push(index);
+}
+r9CoastScene('exploration','ABANDONED SUPPLY TRUCK','A delivery truck rests against the guardrail. Its cab is dry; the cargo floor sags above the ditch.',[
+ ['SEARCH THE CAB',()=>{add('A route sheet ends with the same address crossed out six times. One sealed ration remains beneath the seat.');r9CoastItem('Energy Bars','consumable');}],
+ ['INVESTIGATE THE CARGO',()=>{add('The floor shifts under the empty crates. You recover a cable before dropping back to the road.');r9CoastInjury(4);r9CoastItem('Wire');}]
+]);
+r9CoastScene('exploration','SHUTTERED ROADSIDE CAFE','A cafe sign knocks against its frame. The pantry door is swollen shut; chalk still covers the dining-room wall.',[
+ ['PRY OPEN THE PANTRY',()=>{if(Math.random()<.5){add('The shelves have been stripped. A sharp hinge catches your hand.');r9CoastInjury(3);}else{add('A sealed ration survived behind the lowest shelf.');r9CoastItem('Energy Bars','consumable');}}],
+ ['READ THE CHALK WALL',()=>add('Meals owed: seventeen. Meals paid: two. Beneath the tally: NOBODY LEAVES HUNGRY. The last line is written in a different hand: THANK YOU.')]
+]);
+r9CoastScene('exploration','SMOKE BEYOND THE GUARDRAIL','A thin column of smoke rises behind a concrete barrier. No voice answers the wind.',[
+ ['INVESTIGATE THE SMOKE',()=>{add('A repair fire smolders beside an empty bedroll. Its owner left in haste; a useful strip of cloth hangs clear of the coals.');r9CoastItem('Cloth');}],
+ ['OBSERVE FROM A DISTANCE',()=>add('After several minutes you see it: a tin stove feeding itself from a slow leak. The moving silhouette is only a coat on a pole. You give the fumes a wide berth.')]
+]);
+r9CoastScene('exploration','RUINED SIGNAL HUT','A railway hut leans toward the freight line. A cabinet rattles inside; bootprints stop at the doorway.',[
+ ['OPEN THE CABINET',()=>{add('An animal bolts through the rear wall. The cabinet holds a small roll of insulated wire.');r9CoastItem('Wire');}],
+ ['EXAMINE THE BOOTPRINTS',()=>add('The prints overlap in both directions. Someone paced here for hours before writing a departure time on the door. No train came.')]
+]);
+r9CoastScene('salvage','CACHE UNDER THE MILEPOST','Fresh gravel surrounds a loose milepost. A scrap of red cloth marks a narrow opening beneath it.',[
+ ['LIFT THE CACHE LID',()=>{add('Inside a rusted biscuit tin are a few trading Bolts wrapped against the damp.');gainBolts(5);}],
+ ['CHECK THE DRAINAGE SLOT',()=>{add('The tin is out of reach from this side, but a clean dressing is wedged above the waterline.');r9CoastItem('Bandage','consumable');}]
+]);
+r9CoastScene('salvage','OVERTURNED MAINTENANCE CART','A maintenance cart lies across the old rails. Its tool tray and battery cradle are still attached.',[
+ ['STRIP THE BATTERY LEADS',()=>{add('The battery is dead. One cable is still worth carrying.');r9CoastItem('Wire');}],
+ ['SEARCH THE TOOL TRAY',()=>{add('The tools have rusted together. You salvage one sound piece of metal from the tray.');r9CoastItem('Scrap Metal');}]
+]);
+r9CoastScene('salvage','LOCKER IN THE CONCRETE PIPE','A dented locker sits inside a dry drainage pipe. Someone has drawn a warning arrow toward its buckled lid.',[
+ ['FORCE THE LID',()=>{add('The spring latch snaps against your wrist. A sealed dressing lies inside.');r9CoastInjury(4);r9CoastItem('Bandage','consumable');}],
+ ['INSPECT THE WARNING',()=>add('The arrow points to a loaded spring, not an explosive. A penciled note says: IF YOU CAN FIX IT, KEEP IT. You leave the mechanism alone.')]
+]);
+r9CoastScene('hazard','THE SINKING CAUSEWAY','Water pulses through a split in the highway. The direct crossing is short; the raised curb looks sound.',[
+ ['CROSS THE BROKEN SLAB',()=>{if(Math.random()<.5){add('The slab tips. You catch the rail, bruised but above the water.');r9CoastInjury(6);}else add('You cross while the water recedes. The slab holds this time.');}],
+ ['FOLLOW THE RAISED CURB',()=>add('You keep your weight above the cracks and regain the road safely. Below you, the water carries scraps of a vanished garden.')]
+]);
+r9CoastScene('hazard','LEAKING FREIGHT TANK','A sharp chemical smell hangs over a leaking tank. A service pouch dangles beside the valve.',[
+ ['REACH FOR THE SERVICE POUCH',()=>{add('The fumes sting your throat. You take a spare cable and scramble back into clean air.');r9CoastInjury(5);r9CoastItem('Wire');}],
+ ['CIRCLE UPWIND',()=>add('You circle the tank on dry ground. The warning label is almost gone; the dead reeds need no translation.')]
+]);
+r9CoastScene('hazard','FALLING WATCH PLATFORM','A wooden lookout platform creaks above the shoulder. Cloth hangs from its broken ladder.',[
+ ['PULL DOWN THE LOOSE CLOTH',()=>{add('A rotten rung falls with it. You shield your head and gather the cloth.');r9CoastInjury(3);r9CoastItem('Cloth');}],
+ ['PASS UNDER THE CONCRETE EDGE',()=>add('You shelter beneath the concrete abutment until the creaking stops, then pass safely.')]
+]);
+r9CoastScene('lore','THE REPEATING SIGNAL','Three faint notes repeat from a crushed emergency radio beside the rails.',[
+ ['LISTEN TO THE FULL LOOP',()=>add('A recorded voice gives a shelter number, then says to bring a blanket. The battery fades before it says where. There is no live voice on the other end.')],
+ ['EXAMINE THE RADIO',()=>add('The transmit switch is broken clean off. Someone kept the receiver running with a hand-wound coil. You leave its last charge for whoever comes next.')]
+]);
+r9CoastScene('lore','LETTERS BENEATH A STONE','A flat stone holds a bundle of handwritten pages beside an abandoned camp.',[
+ ['READ THE TOP LETTER',()=>add('I waited until the frost. I am leaving the blue cup here so you know I made it this far. There is no signature, only a small drawing of a dog.')],
+ ['LOOK AROUND THE CAMP',()=>add('Two places were cleared for sleeping. Only one has been used recently. A blue cup stands upright where the rain can fill it.')]
+]);
+r9CoastScene('lore','THE ROADSIDE MEASURING WALL','Lines and dates cover the sheltered face of a bridge support. The newest mark is barely waist high.',[
+ ['READ THE DATES',()=>add('The measurements begin years before the road fell silent. The last date has no height beside it, only the words: STILL GROWING, SOMEWHERE.')],
+ ['EXAMINE THE SHELTER',()=>add('A small shoeprint remains in dried plaster. Nearby, an adult hand has pressed a flower into the wall. You leave both untouched.')]
+]);
+r9CoastScene('moral','THE STRANDED HANDCART','A traveler grips a handcart with a slipped wheel. A wrapped bundle of household things rests under their coat.',[
+ ['HELP RESET THE WHEEL',()=>{add('You brace the axle while they lift. Your shoulder aches, but the wheel seats. They thank you and keep moving without offering payment.');r9CoastInjury(2);}],
+ ['OFFER AN ENERGY BAR',()=>{if(!r9CoastGive('Energy Bars'))return false;add('They divide it carefully, saving half for later. For a moment the road is quiet enough to hear someone breathe easier.');}],
+ ['CHECK THE LOAD FROM A DISTANCE',()=>add('No weapons or hidden accomplices: a cooking pot, bedding, and a cracked family photograph. They watch you watching, then turn back to the wheel.')]
+]);
+r9CoastScene('moral','A DRESSING IN THE DUST','A survivor sits beside a wreck, pressing a dirty sleeve against a cut. A sealed satchel rests against their good arm.',[
+ ['OFFER A BANDAGE',()=>{if(!r9CoastGive('Bandage'))return false;add('They replace the filthy sleeve with your dressing. They insist on leaving a few Bolts in your palm.');gainBolts(3);}],
+ ['ASK ABOUT THE SATCHEL',()=>add('Letters, they say. The kind people write when they think nobody will carry them. They grip the strap until you step back.')],
+ ['POINT OUT A SHELTERED SPOT',()=>add('You point to dry ground behind a concrete barrier. They nod and begin the slow work of standing. You cannot carry everyone.')]
+]);
+// Retain legacy array positions for in-progress saves; R10 never selects these quiet cards.
+r9CoastScene('quiet','SALT WIND THROUGH THE REEDS','The freight line runs empty beside a shallow pool. Nothing follows your footsteps.',[
+ ['PAUSE AND LISTEN',()=>add('A loose rail ticks as it cools. Farther off, a bird answers another. For a moment there is no demand to do anything.')],
+ ['WATCH THE WATER',()=>add('Small fish gather in the shadow of a submerged road sign. Life has found uses for the wreckage.')]
+]);
+r9CoastScene('quiet','THE LONG SHADOWS','Clouds thin over a stretch of empty pavement. Your shadow crosses old tire marks.',[
+ ['LOOK BACK ALONG THE ROAD',()=>add('The places you have passed sit small against the horizon. The road gives no sign of what they cost anyone.')],
+ ['KEEP A STEADY PACE',()=>add('Boot after boot, breath after breath. This stretch asks only that you keep going.')]
+]);
+const R9_COAST_POOLS={combat:R8_COAST_COMBAT};
+for(const kind of ['exploration','salvage','hazard','lore','moral','quiet'])R9_COAST_POOLS[kind]=R9_COAST_SCENES.filter(i=>eastEncounters[i].category===kind);
+R9_COAST_POOLS.hazard.push(R6_FIRE_INDEX);
+function r9CoastKind(rng=Math.random){const x=rng();return x<.25?'combat':x<.48?'exploration':x<.62?'salvage':x<.74?'hazard':x<.86?'lore':x<.94?'moral':'quiet';}
+function r9CoastPick(kind){
+ const pool=R9_COAST_POOLS[kind],history=player.flags.r9CoastHistory?.[kind]||[];
+ const recent=kind==='combat'?[...history,...(player.flags.r8CoastCombatHistory||[])]:history;
+ const fresh=pool.filter(i=>!recent.includes(eastEncounters[i].title));
+ const choices=fresh.length?fresh:pool;return choices[Math.floor(Math.random()*choices.length)];
+}
+function r9CoastRemember(index){
+ const kind=Object.keys(R9_COAST_POOLS).find(k=>R9_COAST_POOLS[k].includes(index));if(!kind)return;
+ const history=player.flags.r9CoastHistory||(player.flags.r9CoastHistory={});
+ history[kind]=[...(history[kind]||[]).filter(t=>t!==eastEncounters[index].title),eastEncounters[index].title].slice(-Math.min(kind==='combat'?5:2,R9_COAST_POOLS[kind].length-1));
+}
+function r6Dispatch(){const q=r6Road();q.pending=true;q.serial++;roadTurn=Math.max(0,q.pos-1);player.encounterDone={};roadTurnCharged=true;showEncounter();if(stage==='encounter'&&q.index===R6_FIRE_INDEX)r6FireArt();}
+function r6Move(){const q=r6Road();if(!q?.active||q.pending)return;if(!spendTurn()){add('NO TURNS LEFT — reverse or inspect freely; wait for the daily refill to continue.','danger');r6RoadMenu();return;}q.pos+=q.dir;if(q.leg==='coast')portState().position=q.pos;player.flags.eastReturning=q.dir<0;updateHud();if(q.pos<=0||q.pos>=q.n){q.active=false;if(q.leg==='west'&&q.pos<=0){stage='mercy';mercyLocation='town';player.flags.eastReturning=false;mercyMenu();}else if(q.leg==='coast'&&q.pos>=q.n)portArrive();else r6Crossroads();v49Autosave();return;}if(q.leg==='coast'){const s=portState();s.position=q.pos;if(q.dir>0&&!s.seen[q.pos]){s.seen[q.pos]=true;gainXp(48);}if(q.dir>0&&[2,4].includes(q.pos)&&!s.cleared[q.pos]){q.pending=true;startCombat(q.pos===2?{name:'COAST ROAD SCAVENGER',level:7,hp:72,min:10,max:16,xp:100,bolts:13}:{name:'HARBOR SECURITY DRONE',level:8,hp:92,min:12,max:19,xp:125,bolts:17},'seaportRoadFight');return;}port55Travel(s);}r6Dispatch();}
+portCombatWin=function(){portState().cleared[r6Road()?.pos||portState().position]=true;completeRoadTurn();};portCombatRetreat=function(){add('You break contact and regain the highway.','system');completeRoadTurn();};
+portMove=function(dir){if(!player.flags.portRoadCleared){stage='portObstruction';portBlockedMenu();return;}if(!r6Road()?.active)r6Begin('coast',dir);else{r6Road().dir=dir;r6Move();}};
+const r6Resume=renderCurrentChoices;renderCurrentChoices=function(){if(stage==='r6Road')return r6RoadMenu();if(stage==='r6Room')return r6RoomMenu();if(stage==='r6Casino')return r6CasinoRender();if(stage==='portObstruction')return portBlockedMenu();return r6Resume();};
+// Obstruction effects are cosmetic: route commit precedes animation.
+portBlockedMenu=function(){stage='portObstruction';add('COLLAPSED OVERPASS — BLOCKED HIGHWAY','place');add('A giant boulder pins the fallen spans against the road. Place the prepared charge beneath its sheltered edge.','system');r6Art('THE BOULDER',[['metal','________/########\\________'],['smoke','   _____##########_____'],['metal','==/_____BLOCKED________\\==']]);r5DirectChoices(['PLACE DYNAMITE','RETURN TO CROSSROADS','INSPECT OBSTRUCTION']);};
+portClearRoad=function(){const f=player.flags;if(f.portRoadCleared)return r6Crossroads();if(!f.portChargePrepared||!f.factoryFinalComponent||factoryDone()!==4){add('The prepared charge is not ready. Speak with Forge.','danger');return portBlockedMenu();}f.portRoadCleared=true;f.portTerminalGuidanceSeen=true;player.pack=player.pack.filter(i=>i.name!=='Prepared Dynamite Charge');stage='eastEnd';v49Autosave();add('You place the charge, retreat behind a concrete abutment and fire it. The boulder splits; dust pours over the empty highway.','reward');r6Art('DETONATION',[['gold','      \\  |  /'],['red','   --- BOOOOM ---'],['gold','      / * * \\'],['smoke','  ~~~ DUST ~~~ DUST ~~~']]);r6Blast();r6Art('ROAD OPEN — SEAPORT',[['smoke','    . .    . .'],['metal','___rubble________rubble___'],['gold','======= EAST >>> =========']]);r6Crossroads();};
+function r6Blast(){if(player.level<5||typeof document.createElement!=='function')return;outputQueue=outputQueue.then(()=>{const box=document.createElement('button');box.className='r6-blast';box.textContent='BOOM — dust clears (tap to skip)';box.onclick=()=>box.remove();screen.appendChild(box);setTimeout(()=>box.remove(),1400);});}
+// First-clear reward state is recorded even for a failed rare roll.
+factoryAwardBossWeapon=function(floor){const f=factoryState();f.weaponAwards=f.weaponAwards||{};if(Object.hasOwn(f.weaponAwards,floor))return;const rarity=floor===3?(Math.random()<.10?'epic':'rare'):'rare';const earns=floor===1||floor===3||Math.random()<.05;const pool=Object.keys(GEAR).filter(n=>['weapon','armor'].includes(GEAR[n].type)&&GEAR[n].rarity===rarity);const name=earns?pool[Math.floor(Math.random()*pool.length)]:null;f.weaponAwards[floor]=name||'ordinary roll';if(floor===0||floor===2)addPack(floor===2?'Bandage':'Scrap Metal',floor===2?'consumable':'material');if(name){const i={name,type:GEAR[name].type,qty:1};if(!addPack(name,i.type,1,true)){player.stash=player.stash||[];player.stash.push(i);add('Boss equipment secured in bank storage; pack full.','reward');}add('FIRST-CLEAR REWARD — '+gearLabel(name),'reward');}else{add('Ordinary supplies recovered; no Rare equipment this time.','system');}v49Autosave();};
+// R10 art revision: each Factory supervisor has a unique silhouette (level 5+).
+// Distinct colored ASCII; entirely cosmetic. Boss stats and battle routing unchanged.
+const R10_BOSS_ART=[
+ [ // SALVAGE KING — junk-plate monarch on a scrap throne
+  ['gold','       /\\  /\\  /\\'],
+  ['gold','      /__\\/__\\/__\\'],
+  ['rust','     [== SCRAP ==]'],
+  ['metal','      |  o  o  |'],
+  ['rust','   ___|  /==\\  |___'],
+  ['metal','  /##\\| [====] |/##\\'],
+  ['gold','  |___|\\_====_/|___|'],
+  ['rust','    ||  /|  |\\  ||'],
+  ['metal','   _||_/ |__| \\_||_'],
+  ['gold','    SALVAGE KING']
+ ],
+ [ // GRINDER — industrial power tool, crushing jaws and saw arm
+  ['smoke','    . .     . .'],
+  ['metal','     ___[====]___'],
+  ['red','   _| X  ||  X |_'],
+  ['metal','  /_|____||____|_\\'],
+  ['rust','   [||]  /\\  [||]'],
+  ['red','    \\_==####==_/'],
+  ['metal','   O==|  ||  |==O'],
+  ['gold','      |__||__|'],
+  ['metal','     _/ /  \\ \\_'],
+  ['red','       GRINDER']
+ ],
+ [ // THE CHEMIST — respirator, lab coat, paired vials
+  ['smoke','       .-~~~~-.'],
+  ['metal','      /  .--.  \\'],
+  ['gold','     |  (oo)  |'],
+  ['smoke','     |  [##]  |'],
+  ['metal','    __\\_====_/__'],
+  ['metal','   /  |\\____/|  \\'],
+  ['water','  [V] |  ||  | [V]'],
+  ['gold','   |  |  ||  |  |'],
+  ['metal','      /__||__\\'],
+  ['red','      THE CHEMIST']
+ ]
+];
+factoryBossStart=function(){
+ const f=factoryState(),boss=FACTORY_BOSSES[f.floor];
+ if(f.done.includes(f.floor))return factoryRender();
+ r5LastScene='';
+ if(f.floor===3)r5Scene('boss');
+ else r6Art(boss.name,R10_BOSS_ART[f.floor]);
+ startCombat({...boss,end:boss.name+' falls.'},'factoryFight');
+};
+function r6PetsAllowed(){return portRecruitUnlocked()||port55Owned().length>0;}
+const r6PetMenu=port55Pets;port55Pets=function(){if(!r6PetsAllowed()){add('Pet management is unavailable.','system');return;}r6PetMenu();};
+port55MiaMenu=function(){stage='port55Mia';port55Submenu('The Rusty Anchor — Mia',['SMALL TALK','GAMBLE',player.flags.r6AnchorRoomOwned?'GO TO ROOM':'RENT ROOM — 500 BOLTS','BUY ENERGY BAR — 8 BOLTS','RETURN TO HARBOR']);};
+function r6RoomMenu(){if(!portRecruitUnlocked()||!player.flags.r6AnchorRoomOwned){stage='port55Mia';return port55MiaMenu();}stage='r6Room';add('RUSTY ANCHOR — YOUR ROOM','place');add('Salt air slips through a harbor-facing window. The floorboards creak above Mia’s quiet bar.','system');r5DirectChoices(['REST','CHEST','LOOK AROUND','RETURN TO MIA']);}
+function r6RoomCommand(cmd){if(!portRecruitUnlocked()||!player.flags.r6AnchorRoomOwned)return port55Menu();if(['back','b','return to mia','return'].includes(cmd)&&!player.flags.r6RoomChestOpen){stage='port55Mia';return port55MiaMenu();}const oldChest=player.rustyRoomChest,oldOwned=player.flags.rustyRoomOwned,oldLocation=mercyLocation;player.rustyRoomChest=player.flags.r6AnchorRoomChest||(player.flags.r6AnchorRoomChest=[]);player.flags.rustyRoomOwned=true;mercyLocation=player.flags.r6RoomChestOpen?'jenRoomChest':'jenRoom';try{handleInnRoom(cmd);player.flags.r6AnchorRoomChest=player.rustyRoomChest;player.flags.r6RoomChestOpen=mercyLocation==='jenRoomChest';}finally{player.rustyRoomChest=oldChest;player.flags.rustyRoomOwned=oldOwned;mercyLocation=oldLocation;stage='r6Room';}v49Autosave();if(!player.flags.r6RoomChestOpen)r6RoomMenu();}
+// Native casino variants: stored rounds debit once, settle once; animation never pays.
+const R6_GAMES=['BLACKJACK',"CAPTAIN'S DICE","PIRATE'S POKER",'CRAB RACING','KNIFE THROWING'];
+const R6_CRAB_ODDS=[.30,.25,.20,.15,.10],R6_CRAB_RETURNS=[3,3,4,6,9];
+const R6_CRABS=['Captain Claws','Pinchy Pete','Sir Snaps-a-Lot','Rusty Bucket','Admiral Crabcakes'];
+let r6Meter=null,r6MeterFrame=0,r6KnifeLocked=false;
+function r6CasinoSave(){r6WriteLedger();updateHud();v49Autosave();if(activeSaveSlot)saveGame(activeSaveSlot);}
+const r6CasinoMenu=casinoMenu;casinoMenu=function(entered){if(!player.flags.port55Casino)return r6CasinoMenu(entered);if(!portRecruitUnlocked()){player.flags.port55Casino=false;stage='seaport';return port55Menu();}stage='r6Casino';delete player.flags.r6Game;add('THE RUSTY ANCHOR — MIA’S TABLES','place');r5DirectChoices([...R6_GAMES,'RETURN TO MIA']);};
+function r6Round(){return player.flags.r6Game;}
+function r6Open(game){player.flags.r6Game={game,status:'waiting',bet:0,id:crypto.randomUUID()};stage='r6Casino';r6CasinoSave();r6CasinoRender();}
+function r6Dice(){return 1+Math.floor(Math.random()*6);}
+function r6CaptainRoll(s){s.throws++;const dice=Array.from({length:5-s.held.length},r6Dice);for(const n of [6,5,4]){if(s.held.includes(n))continue;if(s.held.length!==6-n)break;const i=dice.indexOf(n);if(i<0)break;dice.splice(i,1);s.held.push(n);}s.dice=dice;s.score=s.held.length===3?dice.reduce((a,b)=>a+b,0):0;}
+function r6PokerRank(hand){const ranks=hand.map(c=>c%13+2).sort((a,b)=>b-a),counts={};ranks.forEach(n=>counts[n]=(counts[n]||0)+1);const groups=Object.entries(counts).map(([r,n])=>[n,+r]).sort((a,b)=>b[0]-a[0]||b[1]-a[1]);const flush=hand.every(c=>Math.floor(c/13)===Math.floor(hand[0]/13));const unique=[...new Set(ranks)];const high=unique.join()==='14,5,4,3,2'?5:unique.length===5&&unique[0]-unique[4]===4?unique[0]:0;let cat=0,k=ranks;if(high&&flush){cat=8;k=[high];}else if(groups[0][0]===4){cat=7;k=groups.map(g=>g[1]);}else if(groups[0][0]===3&&groups[1][0]===2){cat=6;k=groups.map(g=>g[1]);}else if(flush)cat=5;else if(high){cat=4;k=[high];}else if(groups[0][0]===3){cat=3;k=groups.map(g=>g[1]);}else if(groups[0][0]===2&&groups[1][0]===2){cat=2;k=groups.map(g=>g[1]);}else if(groups[0][0]===2){cat=1;k=groups.map(g=>g[1]);}return [cat,...k,...Array(5-k.length).fill(0)].reduce((s,n)=>s*15+n,0);}
+function r6Card(c){return ['2','3','4','5','6','7','8','9','10','J','Q','K','A'][c%13]+['C','D','H','S'][Math.floor(c/13)];}
+function r6Settle(payout,message){const r=r6Round();if(!r||r.status!=='active'||!Number.isSafeInteger(payout)||payout<0||!Number.isSafeInteger(player.bolts+payout))return false;r.status='settled';r.payout=payout;r.message=message;player.bolts+=payout;r6StopMeter();r6CasinoSave();return true;}
+function r6Score(position){const d=Math.abs(position-.5);return d<=.045?50:d<=.13?25:d<=.25?10:0;}
+function r6MeterPosition(elapsed){const p=((elapsed%1600)+1600)%1600/800;return p<=1?p:2-p;}
+function r6StopMeter(){if(r6MeterFrame&&typeof cancelAnimationFrame==='function')cancelAnimationFrame(r6MeterFrame);r6MeterFrame=0;if(r6Meter){r6Meter.remove();r6Meter=null;}}
+function r6StartMeter(){r6StopMeter();if(!r6Round()||r6Round().status!=='active')return;r6KnifeLocked=false;r6Art('KNIFE TARGET',[['gold','       .-------.'],['red','     /  ( 25 )  \\'],['gold','    |  ( 50 )   |'],['red','     \\__(10)___/']]);const r=r6Round();r.started=performance.now();r6Meter=document.createElement('div');r6Meter.className='r6-knife';const label=document.createElement('div');label.textContent='MIA: centered aim wins. ENTER or THROW.';r6Meter.appendChild(label);const track=document.createElement('div');track.className='r6-meter';const needle=document.createElement('span');needle.className='r6-needle';needle.textContent='▼';track.appendChild(needle);r6Meter.appendChild(track);const button=document.createElement('button');button.textContent='THROW';button.className='r6-throw';button.type='button';button.addEventListener('pointerdown',e=>{e.preventDefault();r6Throw(performance.now());});button.addEventListener('click',e=>{if(e.detail===0)r6Throw(performance.now());});r6Meter.appendChild(button);screen.appendChild(r6Meter);function frame(now){if(!r6Meter||r6Round()!==r||r.status!=='active')return;needle.style.left=(r6MeterPosition(now-r.started)*100)+'%';r6MeterFrame=requestAnimationFrame(frame);}r6MeterFrame=requestAnimationFrame(frame);followOutput();}
+function r6Throw(now){const r=r6Round();if(!r||r.game!=='KNIFE THROWING'||r.status!=='active'||r6KnifeLocked||!r.started||r.scores.length>=5)return;r6KnifeLocked=true;const elapsed=now-r.started,score=elapsed<0||elapsed>10000?0:r6Score(r6MeterPosition(elapsed));r.scores.push(score);r6StopMeter();delete r.started;r6KnifeImpact(score);add(`THROW ${r.scores.length}/5 — ${score} POINTS${score===50?' — BULLSEYE!':''}`,'reward');if(r.scores.length===5){const a=r.scores.reduce((s,n)=>s+n,0),b=r.mia.reduce((s,n)=>s+n,0);r6Settle(a>b?2*r.bet:a===b?r.bet:0,`YOU ${a} / MIA ${b} — margin ${Math.abs(a-b)}. ${a>b?'YOU WIN':a===b?'TIE — STAKES RETURNED':'MIA WINS'}`);}else{r.readyNext=true;r6CasinoSave();}r6CasinoRender();}
+function r6CasinoRender(){if(!portRecruitUnlocked()){stage='seaport';return port55Menu();}stage='r6Casino';const r=r6Round();if(!r)return casinoMenu();add(r.game,'place');if(r.status==='settled'){add(r.message,'reward');add(`WAGER ${r.bet} / RETURN ${r.payout} / NET ${r.payout-r.bet} Bolts`,'system');r5DirectChoices(['PLAY AGAIN','BACK']);return;}if(r.status==='waiting'){if(r.game==='CRAB RACING'){add('Choose CRAB 1–5, then WAGER <whole Bolts>. Posted returns include your stake; expected returns are 75–90% (house edge 10–25%).','system');R6_CRABS.forEach((n,i)=>add(`${i+1}. ${n} — ${Math.round(R6_CRAB_ODDS[i]*100)}% / ${R6_CRAB_RETURNS[i]}× total return`,'bright'));}else add('Both stake equally. Win returns 2× stake; tie returns your stake. WAGER <whole Bolts> to begin.','system');if(r.game==="CAPTAIN'S DICE")add('Five dice, three throws maximum. Hold 6 Ship, then 5 Captain, then 4 Crew automatically in order. Remaining two dice score. Reroll both scoring dice or STAND. No crew = 0. Mia follows the same rules, standing at 8+.','system');if(r.game==="PIRATE'S POKER")add('Five-card draw. DRAW 1 3 5 replaces up to three indexed cards once; STAND keeps all. Rankings high to low: straight flush, four, full house, flush, straight, three, two pair, pair, high card. Mia retains pairs or better and draws up to three unpaired cards.','system');if(r.game==='KNIFE THROWING')add('Five throws each. Center ±4.5% = 50; ±13% = 25; ±25% = 10; outside = 0. Meter crosses in 0.8s. Mia: each throw 20% miss / 35% outer / 30% inner / 15% bullseye. Enter or THROW stops aim at actual input time. Throw within 10 seconds; longer aim counts as a miss. Hidden tab forfeits remaining throws.','system');r5DirectChoices(['WAGER 5','WAGER 10','WAGER 25','BACK']);return;}
+ if(r.game==="CAPTAIN'S DICE"){add(`Throw ${r.p.throws}/3 — held ${r.p.held.join(' / ')||'none'} — remaining ${r.p.dice.join(' ')} — score ${r.p.score}`,'bright');r5DirectChoices(['ROLL','STAND','BACK']);}
+ if(r.game==="PIRATE'S POKER"){add(r.hand.map((c,i)=>`${i+1}:[${r6Card(c)}]`).join(' '),'bright');add('DRAW <up to 3 card numbers>, or STAND.','system');r5DirectChoices(['STAND','BACK']);}
+ if(r.game==='KNIFE THROWING'){add(`YOU ${r.scores.join(' + ')||'0'} / MIA throws ${r.mia.join(' + ')}`,'bright');if(r.readyNext)r5DirectChoices(['NEXT THROW','BACK']);else if(!r.started){r5DirectChoices(['START THROW','BACK']);}else r5DirectChoices(['THROW','BACK']);}
+}
+function r6Wager(bet){const r=r6Round();if(!r||r.status!=='waiting'||!Number.isSafeInteger(bet)||bet<1||bet>player.bolts||bet>Math.floor(Number.MAX_SAFE_INTEGER/9))return false;if(r.game==='CRAB RACING'&&!Number.isInteger(r.pick)){add('Choose CRAB 1–5 first.','danger');return false;}r.status='active';r.bet=bet;player.bolts-=bet;if(r.game==="CAPTAIN'S DICE"){r.p={throws:0,held:[],dice:[],score:0};r.m={throws:0,held:[],dice:[],score:0};while(r.m.throws<3&&r.m.score<8)r6CaptainRoll(r.m);r6CaptainRoll(r.p);}else if(r.game==="PIRATE'S POKER"){r.deck=Array.from({length:52},(_,i)=>i);for(let i=51;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r.deck[i],r.deck[j]]=[r.deck[j],r.deck[i]];}r.hand=r.deck.splice(0,5);r.dealer=r.deck.splice(0,5);}else if(r.game==='KNIFE THROWING'){r.scores=[];r.mia=Array.from({length:5},()=>{const x=Math.random();return x<.05?0:x<.25?10:x<.65?25:50;});r.started=0;}else if(r.game==='CRAB RACING'){r.winner=r6CrabWinner();}r6CasinoSave();if(r.game==='CRAB RACING'){const winner=r.winner;r6Settle(winner===r.pick?R6_CRAB_RETURNS[r.pick]*bet:0,R6_CRABS[winner]+' wins! '+(winner===r.pick?'Your crab wins.':'Mia sweeps up the losing tickets.'));r6Race(winner);}r6CasinoRender();return true;}
+function r6Race(winner){outputQueue=outputQueue.then(()=>{const box=document.createElement('div');box.className='r6-race';screen.appendChild(box);const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;let n=0;function frame(){n++;box.replaceChildren();R6_CRABS.forEach((name,i)=>{const row=document.createElement('pre');row.className='r5-tone-'+['gold','red','sky','metal','gold'][i];const pos=n>=16?(i===winner?16:13-i%3):Math.min(15,Math.floor(n*(i===winner?1:.7)));row.textContent=name+'\n'+'.'.repeat(pos)+'\\(o_o)/'+' '.repeat(Math.max(0,16-pos))+'|';box.appendChild(row);});if(n<16&&!reduced)setTimeout(frame,110);else add('MIA > Sideways gets you there just the same.','system');}if(reduced)n=15;frame();});}
+function r6PokerFinish(indices){const r=r6Round();if(!r||r.status!=='active')return;if(indices.length>3||new Set(indices).size!==indices.length||indices.some(i=>i<0||i>4))return false;indices.forEach(i=>r.hand[i]=r.deck.pop());const counts={};r.dealer.forEach(c=>counts[c%13]=(counts[c%13]||0)+1);if(r6PokerRank(r.dealer)<4*15**5){const draw=r.dealer.map((c,i)=>counts[c%13]===1?i:-1).filter(i=>i>=0).sort((a,b)=>r.dealer[a]%13-r.dealer[b]%13).slice(0,3);draw.forEach(i=>r.dealer[i]=r.deck.pop());}const a=r6PokerRank(r.hand),b=r6PokerRank(r.dealer);r6Settle(a>b?r.bet*2:a===b?r.bet:0,a>b?'YOU WIN':a===b?'TIE — STAKES RETURNED':'MIA WINS');r6CasinoRender();return true;}
+function r6CasinoCommand(cmd){if(!portRecruitUnlocked()){stage='seaport';return port55Menu();}const r=r6Round();if(['back','b','return to mia','leave','town'].includes(cmd)){if(r?.status==='active')r6Settle(0,'Round abandoned — wager forfeited.');r6StopMeter();if(r)delete player.flags.r6Game;if(cmd==='back'||cmd==='b')casinoMenu();else{player.flags.port55Casino=false;stage='port55Mia';port55MiaMenu();}return;}if(!r){const game=R6_GAMES.find(g=>g.toLowerCase()===cmd);if(game==='BLACKJACK'){stage='mercy';casinoOpen('blackjack');return;}if(game)return r6Open(game);return casinoMenu();}if(r.status==='settled'){if(cmd==='play again')r6Open(r.game);else r6CasinoRender();return;}if(r.status==='waiting'){const crab=cmd.match(/^crab ([1-5])$/);if(crab&&r.game==='CRAB RACING'){r.pick=+crab[1]-1;add('Selected '+R6_CRABS[r.pick],'bright');return;}const m=cmd.match(/^wager (\d+)$/);if(m&&!r6Wager(Number(m[1])))add('Invalid or unaffordable wager.','danger');else if(!m)r6CasinoRender();return;}if(r.game==="CAPTAIN'S DICE"){if(cmd==='roll'&&r.p.throws<3)r6CaptainRoll(r.p);if(cmd==='stand'||r.p.throws===3){const a=r.p.score,b=r.m.score;add(`Mia held ${r.m.held.join('/')} with scoring dice ${r.m.dice.join('+')}.`,'system');r6Settle(a>b?2*r.bet:a===b?r.bet:0,`YOUR ${a} / MIA ${b} — ${a>b?'YOU WIN':a===b?'TIE':'MIA WINS'}`);}r6CasinoSave();r6CasinoRender();return;}if(r.game==="PIRATE'S POKER"){if(cmd==='stand')return r6PokerFinish([]);if(/^draw(?: [1-5]){1,3}$/.test(cmd))return r6PokerFinish(cmd.slice(5).split(' ').map(n=>+n-1));add('DRAW up to three different card numbers, or STAND.','system');return;}if(r.game==='KNIFE THROWING'){if(['start throw','next throw'].includes(cmd)&&!r.started||cmd==='next throw'&&r.readyNext){delete r.readyNext;r.started=0;outputQueue=outputQueue.then(()=>r6StartMeter());}else if(cmd==='throw')r6Throw(performance.now());}}
+// Capture timing input before slower text/output queues can introduce aiming latency.
+if(typeof window.addEventListener==='function'){window.addEventListener('keydown',e=>{if(stage==='r6Casino'&&r6Round()?.game==='KNIFE THROWING'&&r6Round()?.status==='active'&&r6Round()?.started&&e.key==='Enter'){e.preventDefault();e.stopImmediatePropagation();if(!e.repeat)r6Throw(performance.now());}},true);document.addEventListener?.('visibilitychange',()=>{const r=r6Round();if(document.hidden&&r?.game==='KNIFE THROWING'&&r.status==='active'){while(r.scores.length<5)r.scores.push(0);r6Settle(0,'Aim interrupted — remaining throws forfeited; wager lost.');r6CasinoRender();}});}
+const r6Core=handleCommandCore;handleCommandCore=async function(raw){const cmd=r5Mapped(raw);if(busy)return;if(!r6PetsAllowed()&&(/^(manage pets|pets|pet slot|equip pet|unequip pet|inspect pet)( |$)/.test(cmd)||stage==='port55Pets')){if(stage==='port55Pets'){stage='inventory';showInventory();}return;}if(stage==='r6Casino'&&!/^(save|load|inventory|status|map|quests)( |$)/.test(cmd)){r6CasinoCommand(cmd);return;}if(stage==='r6Room'&&!/^(save|load|inventory|status|map|quests)( |$)/.test(cmd)){r6RoomCommand(cmd);return;}if(stage==='port55Mia'&&/^(rent room|go to room|room)/.test(cmd)){if(!portRecruitUnlocked())return port55Menu();if(!player.flags.r6AnchorRoomOwned){if(player.bolts<500){add('MIA > A room of your own costs 500 Bolts.','danger');return;}player.bolts-=500;player.flags.r6AnchorRoomOwned=true;}delete player.flags.r6RoomChestOpen;r6CasinoSave();r6RoomMenu();return;}if(stage==='r6Road'&&!/^(save|load|inventory|status|map|quests|i|s|m|q|v)( |$)/.test(cmd)){if(cmd.startsWith('continue')||cmd==='c')r6Move();else if(cmd==='reverse direction'||cmd==='r'){r6Road().dir*=-1;player.flags.eastReturning=r6Road().dir<0;r6RoadMenu();}else if(cmd==='inspect road'){add('The highway runs between '+(r6Road().leg==='coast'?'Factory and Seaport.':'Solace and Factory.'),'system');r6RoadMenu();}return;}if(stage==='eastEnd'){if(['enter factory','e','factory'].includes(cmd))return v49FactoryRoom();if(cmd.startsWith('head west')||['west','r','reverse direction'].includes(cmd))return r6Begin('west',-1);if(cmd.startsWith('head east')||['east','seaport','road to seaport'].includes(cmd)){if(!player.flags.portRoadCleared)return portBlockedMenu();return r6Begin('coast',1);}if(cmd==='inspect road'){add(player.flags.portRoadCleared?'The cleared highway leads east to Seaport; Solace lies west.':'The route east is blocked by a boulder. Forge can prepare a charge.','system');if(player.flags.relayPartsRevealed&&!ensureRelayParts().east)add('A sealed communications module waits in the old gate rack. SEARCH EQUIPMENT RACK.','system');return r6Crossroads();}}if(stage==='portObstruction'){if(['place dynamite','use dynamite','use charge','clear road'].includes(cmd))return portClearRoad();if(['return to crossroads','return to forge','back','b','west'].includes(cmd))return r6Crossroads();}if(stage==='factoryWorkshop'&&['exit factory','road to seaport','7'].includes(cmd)){if(cmd==='exit factory')return r6Crossroads();if(!player.flags.portRoadCleared)return portBlockedMenu();return r6Begin('coast',1);}return r6Core(raw);};
+const r6Load=loadGame;loadGame=function(slot){r6StopMeter();const result=r6Load(slot);r6RestoreLedger();const r=r6Round();if(r?.status==='active'&&r.game==='KNIFE THROWING'){r6Settle(0,'Session interrupted — active timing wager forfeited.');}if(stage==='portRoad'&&!r6Road()?.active){player.flags.r6Road={active:true,leg:'coast',dir:player.flags.eastReturning?-1:1,pos:portState().position,n:5,serial:0,pending:false};stage='r6Road';}if(stage==='r6Road')r6RoadMenu();if(stage==='r6Room')r6RoomMenu();if(stage==='r6Casino')r6CasinoRender();return result;};
+const r6Death=handlePlayerDeath;handlePlayerDeath=function(){const q=r6Road();if(q?.active){roadGoal='east';roadTurn=q.leg==='coast'?q.pos+5:q.pos-1;}r6StopMeter();const result=r6Death();if(stage==='fallen'&&q)q.active=false;return result;};
+function r6MaterialCount(name){return player.pack.filter(i=>i.name===name&&i.type==='material'&&i.name!==player.weapon&&i.name!==player.armor).reduce((s,i)=>s+i.qty,0);}
+function r6ConsumeMaterial(name,qty){if(r6MaterialCount(name)<qty)return false;for(const i of [...player.pack]){if(i.name!==name||i.type!=='material')continue;const use=Math.min(qty,i.qty);i.qty-=use;qty-=use;if(!i.qty)player.pack.splice(player.pack.indexOf(i),1);if(!qty)break;}return true;}
+const r6Map=v49LiveMap;v49LiveMap=function(){if(r6Road()?.active&&player.level>=5){const q=r6Road(),el=document.querySelector('#live-map');if(el){el.textContent=`${q.leg==='coast'?'FACTORY':'SOLACE'} — ${q.pos}/${q.n} — ${q.leg==='coast'?'SEAPORT':'FACTORY'} | ${q.dir>0?'EAST →':'← WEST'}`;return;}}return r6Map();};
+// A round journal prevents restoring an earlier in-round save to reroll or repay.
+// It covers this browser's casino session, not deliberate editing of save files.
+function r6LedgerKey(){return 'route127-r6-casino-'+(player.handle||'player')+'-'+activeSaveSlot+'-'+(r6Round()?.id||'none');}
+function r6WriteLedger(){const r=r6Round();if(!r?.id)return;try{localStorage.setItem(r6LedgerKey(),JSON.stringify({round:r,bolts:player.bolts,seq:player.flags.r11CasinoSeq}));}catch(e){/* normal autosaves still retain the transaction */}}
+function r6RestoreLedger(){const r=r6Round();if(!r?.id)return;try{const l=JSON.parse(localStorage.getItem(r6LedgerKey())||'null');if(l?.round?.id===r.id&&Number.isSafeInteger(l.bolts)&&(l.seq==null||(player.flags.r11CasinoSeq||0)<l.seq)){player.flags.r6Game=l.round;player.bolts=l.bolts;}}catch(e){}}
+// Bind direct choices after their heading/text have rendered, exactly once.
+r5DirectChoices=function(options){outputQueue=outputQueue.then(()=>{for(let i=0;i<options.length;i++)addImmediate(`[${i+1}] ${options[i]}`,'system');numberedChoices=Object.fromEntries(options.map((label,i)=>[String(i+1),label.toLowerCase()]));currentHotkeys={b:'back'};if(stage==='r6Road'){currentHotkeys.c='continue';currentHotkeys.r='reverse direction';}});};
+function r6CrabWinner(rng=Math.random){let x=rng();for(let i=0;i<R6_CRAB_ODDS.length;i++){x-=R6_CRAB_ODDS[i];if(x<0)return i;}return 4;}
+function r6KnifeImpact(score){if(player.level<5)return;outputQueue=outputQueue.then(()=>{const mark=document.createElement('pre');mark.className='system r6-impact r5-tone-'+(score===50?'gold':'red');mark.textContent=score?'-----> | '+score+' |':'----->    MISS';screen.appendChild(mark);});}
+const r6CraftCore=handleCommandCore;handleCommandCore=async function(raw){const cmd=r5Mapped(raw);const crafting=stage==='factoryBench'||stage==='mercy'&&mercyLocation==='murphy'||stage==='port55Service'&&player.flags.portStaffUI?.role==='workshop';if(crafting&&cmd==='cancel craft'&&player.flags.v49MurphyJob){player.flags.r6CancelCraft=true;add('Cancel this craft? Inserted materials and Bolts are already committed and will be lost.','system');v53Choices(['CONFIRM CRAFT CANCELLATION','KEEP CRAFTING']);return;}if(crafting&&player.flags.r6CancelCraft){if(cmd==='confirm craft cancellation'){delete player.flags.v49MurphyJob;delete player.flags.r6CancelCraft;v49Autosave();renderCurrentChoices();return;}if(cmd==='keep crafting'||cmd==='back'||cmd==='b'){delete player.flags.r6CancelCraft;renderCurrentChoices();return;}}return r6CraftCore(raw);};
+const r6LegacyCasino=handleCasinoCommand;handleCasinoCommand=function(cmd){if(player.flags.port55Casino&&mercyLocation==='casinoGame'&&casinoRound()?.game!=='blackjack'){const r=casinoRound();if(r?.status==='active')casinoSettle(r,0,'Old table closed; wager forfeited.');casinoMenu();return true;}return r6LegacyCasino(cmd);};

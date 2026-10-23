@@ -1,0 +1,17 @@
+✔ real R11 adapter: ownership link, automatic save, separate client recovery and stale conflict (377.375154ms)
+✔ adapter outage/retry and lost acknowledgement do not duplicate save; local-slot switching pauses sync (188.326036ms)
+✔ bank period and casino journals travel with cloud snapshots; stale local journals cannot override recovery (282.042302ms)
+✔ registration, login, cookie protection, restart, expiry and logout (491.924613ms)
+✔ one character, immutable server identity, owned snapshot, rename, isolation (196.087092ms)
+✔ idempotent retries, stale device conflict, request key misuse and rollback (100.078158ms)
+✔ CSRF, invalid JSON/schema/size, rate limiting and dev fail-closed (1593.867437ms)
+✔ D1 outage produces recoverable 503 without error/secret disclosure (165.224286ms)
+✔ concurrent character creation and competing device saves have one winner (131.646656ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3541.363447

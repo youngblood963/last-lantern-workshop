@@ -1,0 +1,6 @@
+PASS: actual browser registration and protected session cookie
+PASS: link current character, retain server identity, automatic cloud backup
+PASS: independent browser session login and full cloud recovery
+PASS: cookie session survives page reload
+PASS: online development client mobile width
+PASS: browser logout and no JavaScript errors

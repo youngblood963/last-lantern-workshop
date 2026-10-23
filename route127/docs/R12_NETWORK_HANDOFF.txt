@@ -1,0 +1,8 @@
+October 23, 2026 (America/New_York)
+Observed environment revision: 7
+observations_current: true
+HTTP policy: restricted/enforced
+Application API host allowed: api.cloudflare.com
+New Worker hostname absent from effective allowed hosts.
+Normal HTTPS proxy health recheck: URLError, Tunnel connection failed: 403 Forbidden.
+No live API pass claimed; no proxy/policy bypass attempted.

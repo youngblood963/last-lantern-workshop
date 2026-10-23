@@ -1,0 +1,16 @@
+{
+  "name": "route127-r14-private-playtest",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "vars": {"ENVIRONMENT": "development", "DEV_BACKUP_ENABLED": "true"},
+  "services": [{"binding": "API", "service": "route127-r12-dev-api"}],
+  "assets": {
+    "directory": "../online-game", "binding": "ASSETS",
+    "run_worker_first": true,
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "none"
+  }
+}

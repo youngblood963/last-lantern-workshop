@@ -11,7 +11,7 @@ let busy = false;
 let roadTurn = 0;
 let dailyRoadTurns = 0; // cumulative road movement, resets at the 24-hour refill
 let roadGoal = "mercy";
-let roadTripLength = 9;
+let roadTripLength = 10;
 let mercyLocation = "town";
 let currentRoadWanderer = null;
 let currentTownWanderer = null;
@@ -262,7 +262,7 @@ function updateHud() {
   document.body.classList.toggle("v48-level5",player.level>=5);
   document.querySelector("#hud-level").textContent = String(player.level).padStart(2,"0");
   document.querySelector("#hud-hp").textContent = `${player.hp}/${player.maxHp}`;
-  document.querySelector("#hud-xp").textContent = `${player.xp}/${player.nextXp}`;
+  document.querySelector("#hud-xp").textContent = player.level >= 50 ? "MAX LEVEL" : `${player.xp}/${player.nextXp}`;
   document.querySelector("#hud-bolts").textContent = player.bolts;
   document.querySelector("#hud-turns").textContent = testMode ? "∞ TEST" : `${player.turns}/${player.maxTurns}`;
   document.querySelector("#hud-pack").textContent = `${packSlotsUsed()}/${player.packMax}`; const ht=document.querySelector("#hud-time"); if(ht)ht.textContent=timePhase();
@@ -270,7 +270,7 @@ function updateHud() {
   document.querySelector(".utility-name").childNodes[0].nodeValue = `${player.handle || "---"} `;
   document.querySelector("#side-hp").textContent = `${player.hp} / ${player.maxHp}`;
   const xpBar=document.querySelector("#side-xp");
-  if(xpBar){ xpBar.hidden=player.level<5; if(player.level>=5){ const filled=Math.max(0,Math.min(10,Math.floor(10*player.xp/Math.max(1,player.nextXp)))); xpBar.textContent=`XP [${"#".repeat(filled)}${"-".repeat(10-filled)}]`; } }
+  if(xpBar){ xpBar.hidden=player.level<5; if(player.level>=50){xpBar.textContent="MAX LEVEL";} else if(player.level>=5){ const filled=Math.max(0,Math.min(10,Math.floor(10*player.xp/Math.max(1,player.nextXp)))); xpBar.textContent=`XP [${"#".repeat(filled)}${"-".repeat(10-filled)}]`; } }
   document.querySelector("#side-bolts").textContent = player.bolts;
   const inv=document.querySelector("#side-inv");if(inv){inv.textContent=`${packSlotsUsed()}/${player.packMax}`;inv.classList.toggle("pack-full",packSlotsUsed()>=player.packMax);}
   document.querySelector("#side-turns").textContent = testMode ? "∞ TEST" : `${player.turns} / ${player.maxTurns}`; const st=document.querySelector("#side-time"); if(st)st.textContent=timePhase();
@@ -345,18 +345,38 @@ function startRefillTimer(){ if(refillTimer)clearInterval(refillTimer); refillTi
 function resultLine(text, cls="reward") { if(resultBuffer) resultBuffer.push([text,cls]); else add(text,cls); }
 function flushResults(){ if(!resultBuffer || !resultBuffer.length){ resultBuffer=null; return; } add("RESULT", "system"); for(const [t,c] of resultBuffer) add(t,c); resultBuffer=null; }
 function gainBolts(n) { if(stage==="fallen")return; player.bolts += n; updateHud(); resultLine(`+${n} BOLTS`, "reward"); }
+// Preserve equipment HP bonuses while deriving base HP from the original 100 HP start.
+function syncLevelMaxHp() {
+  const level = Math.max(1, Math.floor(Number(player.level) || 1));
+  const gearHp = (Number(GEAR[player.armor]?.maxHpBonus) || 0) +
+                 (Number(GEAR[player.accessory]?.maxHpBonus) || 0);
+  player.maxHp = 100 + (level - 1) * 10 + gearHp;
+  player.hp = Math.max(0, Math.min(Number(player.hp) || 0, player.maxHp));
+}
+// XP is progress within the current level, not lifetime XP.
+const XP_V2_EARLY = [100,150,225,338,507,761,1142,1713,2570];
+function xpThresholdForLevel(level) {
+  if (level >= 50) return 0;
+  if (level < 10) return XP_V2_EARLY[Math.max(0, level - 1)];
+  return 3855 + (level - 10) * 500;
+}
+function migrateXpProgress() {
+  // Preserve the stored current-level XP verbatim. No level or heal on load.
+  player.nextXp = xpThresholdForLevel(player.level);
+}
 function gainXp(n) {
-  if(stage==="fallen")return;
+  if(stage === "fallen") return;
   player.xp += n;
   resultLine(`+${n} XP`, "reward");
-  while (player.xp >= player.nextXp) {
+  // Preserved over-threshold legacy XP is processed only after a positive award.
+  while (n > 0 && player.level < 50 && player.xp >= player.nextXp) {
     player.xp -= player.nextXp;
     player.level += 1;
-    player.nextXp = Math.round(player.nextXp * 1.5);
-    player.maxHp += 10;
-    player.hp = Math.min(player.maxHp, player.hp + 10);
+    player.nextXp = xpThresholdForLevel(player.level);
+    syncLevelMaxHp();
+    player.hp = player.maxHp;
     add(`LEVEL UP — LEVEL ${String(player.level).padStart(2,"0")}`, "bright");
-    add(`MAX HP +10   NEXT LEVEL: ${player.nextXp} XP`, "reward");
+    add(player.level >= 50 ? "MAX HP +10   MAX LEVEL" : `MAX HP +10   NEXT LEVEL: ${player.nextXp} XP`, "reward");
   }
   ensureSteveAnnouncements();
   updateHud();
@@ -379,13 +399,14 @@ function handlePlayerDeath(){
   if(stage==="fallen") return;
   if(tryNikoSecondChance())return;
   player.deathStreak=(player.deathStreak||0)+1;
-  const inTown=player.flags.mercyDiscovered;
+  const graphRescue=typeof lanternRescuePlan==='function'?lanternRescuePlan():null;
+  const inTown=graphRescue?graphRescue.node!=='house':player.flags.mercyDiscovered;
   const defeatedByGateGuards=!!(combatState&&combatState.source==="gateGuards");
   const jenGateRescue=defeatedByGateGuards&&!player.flags.jenGateRescueUsed;
   if(jenGateRescue)player.flags.jenGateRescueUsed=true;
   // Remaining road segments are the minimum rescue travel cost; recovery adds two.
   const atHouse=stage==="house" || ["houseStorage","houseDeposit","houseWithdraw"].includes(stage) || (combatState&&combatState.source==="houseBoss");
-  const travel=atHouse ? (inTown?roadTripLength:0) : inTown ? (roadGoal==="house"?Math.max(0,roadTripLength-roadTurn):roadGoal==="mercy"?Math.max(0,roadTripLength-roadTurn):roadGoal==="east"?Math.max(0,roadTurn+1):0) : Math.max(0,roadTurn+1);
+  const travel=graphRescue?graphRescue.travel:atHouse ? (inTown?roadTripLength:0) : inTown ? (roadGoal==="house"?Math.max(0,roadTripLength-roadTurn):roadGoal==="mercy"?Math.max(0,roadTripLength-roadTurn):roadGoal==="east"?Math.max(0,roadTurn+1):0) : Math.max(0,roadTurn+1);
   const penalty=travel+2;
   player.turns=Math.max(0,player.turns-penalty);
   dailyRoadTurns+=travel; // rescue travels the route; recovery itself is not a road turn
@@ -394,7 +415,7 @@ function handlePlayerDeath(){
   combatState=null; currentRoadWanderer=null; updateHud();
   add("YOU HAVE FALLEN","danger");
   add("Your vision fades as the wasteland goes silent.");
-  add(inTown?"Hours later, you wake on a cot in Solace.":"Hours later, you wake in the old house.");
+  add(graphRescue?`Hours later, you wake in ${LG_NODES[graphRescue.node].name}.`:inTown?"Hours later, you wake on a cot in Solace.":"Hours later, you wake in the old house.");
   if(jenGateRescue)add("JEN > The gate guards were going to leave you out there. I brought you back myself. Don't make me do that twice.","bright");
   else add("Someone dragged you back from the highway. They didn't do it for free.");
   add(`RESCUE TRAVEL: ${travel} TURNS   RECOVERY: 2 TURNS   TOTAL: ${penalty}`, "system");
@@ -471,7 +492,7 @@ function addPack(name, type="material", qty=1, quietFull=false) {
 }
 function showStatus() {
   add("────────────────────────────────────────", "system");
-  add(`HANDLE ${player.handle || "---"}   LEVEL ${String(player.level).padStart(2,"0")}   HP ${player.hp}/${player.maxHp}   XP ${player.xp}/${player.nextXp}`);
+  add(`HANDLE ${player.handle || "---"}   LEVEL ${String(player.level).padStart(2,"0")}   HP ${player.hp}/${player.maxHp}   XP ${player.level >= 50 ? "MAX LEVEL" : `${player.xp}/${player.nextXp}`}`);
   add(`BOLTS ${player.bolts}   TURNS ${testMode?"∞ TEST":`${player.turns}/${player.maxTurns}`}   PACK ${packSlotsUsed()}/${player.packMax}   TIME ${timePhase()}`);
   add(`NEXT TURN REFILL: ${testMode?"TEST MODE — LIMIT DISABLED":refillText()}`, "system");
   const [dmin,dmax]=weaponRange();
@@ -479,28 +500,28 @@ function showStatus() {
   add("────────────────────────────────────────", "system");
   add("(B) BACK", "system");
 }
-function jenQuestObjective(){return ({active:"Find the missing runner's supply cart on eastern segment 3.",cart:"SEARCH SUPPLY CART at eastern segment 3. Return the crate to Jen.",recovered:"DELIVER JEN'S SUPPLY CRATE to Jen in Solace.",hideout:"Follow the runner's trail east to segment 5, near the abandoned checkpoint.",raiders:"SEARCH RAIDER CHECKPOINT at eastern segment 5 to rescue the runner.",fight:"Rescue the runner at the eastern checkpoint.",rescued:"DELIVER RUNNER'S TOKEN to Jen in Solace."})[player.flags.jenQuest]||"Find Jen in Solace.";}
+function jenQuestObjective(){return ({active:"Find the missing runner's supply cart on Factory road segment 3.",cart:"SEARCH SUPPLY CART at Factory road segment 3. Return the crate to Jen.",recovered:"DELIVER JEN'S SUPPLY CRATE to Jen in Solace.",hideout:"Follow the runner's trail south to segment 5, near the abandoned checkpoint.",raiders:"SEARCH RAIDER CHECKPOINT at Factory road segment 5 to rescue the runner.",fight:"Rescue the runner at the Factory road checkpoint.",rescued:"DELIVER RUNNER'S TOKEN to Jen in Solace."})[player.flags.jenQuest]||"Find Jen in Solace.";}
 function showQuests(){
   add("──────────────── QUEST LOG ────────────────","system");
   add("MAIN QUEST","bright");
   if(player.flags.chapterOneComplete){add('MAIN QUEST: COMPLETE','reward');add('Chapter One — The Road to Seaport','bright');add('Status: Completed','reward');add('Further chapters are in development.','system');add('TYPE: READ CHAPTER ONE to revisit the finale.','system');}
   else if(typeof portQuestObjective==="function")add("THE ROAD TO SEAPORT — "+portQuestObjective(),"system");
   add("ACTIVE SIDE QUESTS","bright"); let active=0;
-  for(const [key,title,description] of [["jenQuest","LAST CALL","Search the eastern road for the supply cart; SEARCH SUPPLY CART; DELIVER JEN'S SUPPLY CRATE, then find the raider checkpoint and DELIVER RUNNER'S TOKEN."],["johnnyQuest","A DEAL GONE BAD","Search the western road for the ledger; SEARCH LEDGER; return to Johnny and DELIVER JOHNNY'S LEDGER."],["amiiQuest","THE MISSING DEPOSIT","Search the western road for the satchel; SEARCH SATCHEL; return to Amii and DELIVER BANK SATCHEL."],["waynePatientQuest","THE LAST PATIENT","Search the eastern road for medicine; SEARCH AMBULANCE; return to Wayne and DELIVER CLINIC MEDICINE."]]){if(player.flags[key]&&player.flags[key]!=="done"){active++;add(`SIDE — ${title} [${player.flags[key].toUpperCase()}]`);add(key==="jenQuest"?jenQuestObjective():description,"system");}}
+  for(const [key,title,description] of [["jenQuest","LAST CALL","Search the south gate road to the Factory for the supply cart; SEARCH SUPPLY CART; DELIVER JEN'S SUPPLY CRATE, then find the raider checkpoint and DELIVER RUNNER'S TOKEN."],["johnnyQuest","A DEAL GONE BAD","Search the road north toward House for the ledger; SEARCH LEDGER; return to Johnny and DELIVER JOHNNY'S LEDGER."],["amiiQuest","THE MISSING DEPOSIT","Search the road north toward House for the satchel; SEARCH SATCHEL; return to Amii and DELIVER BANK SATCHEL."],["waynePatientQuest","THE LAST PATIENT","Search the south gate Factory road for medicine; SEARCH AMBULANCE; return to Wayne and DELIVER CLINIC MEDICINE."]]){if(player.flags[key]&&player.flags[key]!=="done"){active++;add(`SIDE — ${title} [${player.flags[key].toUpperCase()}]`);add(key==="jenQuest"?jenQuestObjective():description,"system");}}
   for(const [key,title,description] of [["jenUnpaidTab","UNPAID TAB","Settle the tavern's outstanding 12-Bolt tab with Jen."],["jenFamiliarFace","A FAMILIAR FACE","Follow up with Jen about the traveler she recognizes."]]){if(player.flags[key]&&player.flags[key]!=="done"){active++;add(`SIDE — ${title} [${player.flags[key].toUpperCase()}]`);add(description,"system");}}
-  if(player.flags.mainSolaceQuest!=="done"){active++;add("MAIN — HEAD TO SOLACE");add("Follow the coordinates logged in the battered GPS and reach Solace.","system");}
-  if(["active","cleared"].includes(player.flags.houseQuest)){active++;add("SIDE — INVESTIGATE THE ABANDONED HOUSE");add(player.flags.houseQuest==="cleared"?"Lift the loose floorboard in the starting house to claim your wooden storage box.":"Return to the starting house west of Solace and investigate the recent occupation.","system");}
+  if(player.flags.mainSolaceQuest!=="done"){active++;add("MAIN — HEAD TO SOLACE");add("Follow the GPS coordinates south to Solace. Find shelter, then ask about the Relay Station to restore contact with the Tomorrow Project.","system");}
+  if(["active","cleared"].includes(player.flags.houseQuest)){active++;add("SIDE — INVESTIGATE THE ABANDONED HOUSE");add(player.flags.houseQuest==="cleared"?"Lift the loose floorboard in the starting house to claim your wooden storage box.":"Return to the starting house north of Solace and investigate the recent occupation.","system");}
   if(player.flags.timHouseBounty && player.flags.timHouseBounty!=="done"){active++;add(`BOUNTY — TROUBLE AT THE OLD HOUSE [${String(player.flags.timHouseBounty).toUpperCase()}]`);add(player.flags.timHouseBounty==="proof"?"Return to Tim with proof that the old-house squatter has been driven out.":"Investigate the occupied old house after Wayne unlocks the house lead, then defeat the squatter.","system");}
   if(player.flags.terribleBillyBounty && player.flags.terribleBillyBounty!=="done"){active++;add(`BOUNTY — TERRIBLE BILLY [${String(player.flags.terribleBillyBounty).toUpperCase()}]`);add(player.flags.terribleBillyBounty==="proof"?"Return to Tim with proof that Terrible Billy has been stopped.":"On the road, use HUNT TERRIBLE BILLY to confront the wanted raider.","system");}
   if(["active","found"].includes(player.flags.timQuest)){active++;add("SIDE — THE OLD BADGE");add(player.flags.timQuest==="found"?"Return Tim's old badge to him in Solace.":"Search Route 127 between Solace and the old house.","system");}
   if(["active","found"].includes(player.flags.murphyQuest)){active++;add("SIDE — ONE GOOD BELT");add(player.flags.murphyQuest==="found"?"Return the usable serpentine belt to Murphy.":"Search near the service-road fork toward the old house.","system");}
-  if(player.flags.relayQuest==="ask"){active++;add("MAIN — RELAY STATION");add("Ask around Solace about the Relay Station.","system");}
-  if(player.flags.relayQuest==="find"){active++;add("MAIN — RELAY STATION");add("Find and investigate the Relay Station in Solace.","system");}
-  if(player.flags.relayQuest==="complete"){add("MAIN OBJECTIVE","bright");add("THE FACTORY","place");add("The Relay Station is operational.");add("Investigate the abandoned factory beyond Solace's eastern road.");add("STATUS: ACTIVE","system");}
+  if(player.flags.relayQuest==="ask"){active++;add("MAIN — RELAY STATION");add("Ask Tim, Jen or Murphy about the Relay Station. The Tomorrow Project needs a reliable line to Solace.","system");}
+  if(player.flags.relayQuest==="find"){active++;add("MAIN — RELAY STATION");add("Investigate the Relay Station by Solace's north wall and find out why the Tomorrow Project cannot hold a connection.","system");}
+  if(player.flags.relayQuest==="complete"){add("MAIN OBJECTIVE","bright");add("THE FACTORY","place");add("The Relay Station is operational.");add("Follow the southern road to the Factory. Its Tomorrow Project terminal holds the last report from Seaport; find Forge in the entrance workshop.");add("STATUS: ACTIVE","system");}
   if(player.flags.relayQuest==="stabilize"){
     active++; add("MAIN — THE RELAY"); const rp=ensureRelayParts(); const count=Object.values(rp).filter(Boolean).length;
-    if(!player.flags.relayPartsRevealed){ add("Inspect all four Relay systems and learn what is failing.","system"); const ri=player.flags.relayInspected||{}; if(ri.console)add("• CONSOLE — Power regulator failed. Johnny hoards old electronics.","system"); if(ri.antenna)add("• ANTENNA — Antenna servo seized. The county maintenance yard had old motor assemblies.","system"); if(ri.cables)add("• CABLES — Shielded feed coupler burned out. A lower utility/access road may still have signal hardware.","system"); if(ri.monitor)add("• MONITOR — Signal-conditioning module is dead. You passed old communications equipment east of Solace.","system"); }
-    else { add(`Recover four components needed to stabilize the Relay. PARTS ${count}/4.`,"system"); add(`${rp.johnny?"✓":"□"} POWER REGULATOR — Johnny may have something this old.`,"system"); add(`${rp.yard?"✓":"□"} ANTENNA SERVO — Search the county maintenance yard.`,"system"); add(`${rp.branch?"✓":"□"} SHIELDED FEED COUPLER — Search the Lower Access Road off the fork.`,"system"); add(`${rp.east?"✓":"□"} SIGNAL-CONDITIONING MODULE — Search old communications equipment east of Solace.`,"system"); if(count>=4)add("Return to the Relay Station and stabilize the connection.","bright"); }
+    if(!player.flags.relayPartsRevealed){ add("Inspect all four Relay systems and learn what is failing.","system"); const ri=player.flags.relayInspected||{}; if(ri.console)add("• CONSOLE — Power regulator failed. Johnny hoards old electronics.","system"); if(ri.antenna)add("• ANTENNA — Antenna servo seized. The Scrap Yard had old motor assemblies.","system"); if(ri.cables)add("• CABLES — Shielded feed coupler burned out. A signal cabinet on Old Service Road may still have hardware.","system"); if(ri.monitor)add("• MONITOR — Signal-conditioning module is dead. You passed old communications equipment at the Factory crossroads.","system"); }
+    else { add(`Recover four components needed to stabilize the Relay. PARTS ${count}/4.`,"system"); add(`${rp.johnny?"✓":"□"} POWER REGULATOR — Johnny may have something this old.`,"system"); add(`${rp.yard?"✓":"□"} ANTENNA SERVO — Search the Scrap Yard.`,"system"); add(`${rp.branch?"✓":"□"} SHIELDED FEED COUPLER — Search the signal cabinet on Old Service Road.`,"system"); add(`${rp.east?"✓":"□"} SIGNAL-CONDITIONING MODULE — Search old communications equipment at the Factory crossroads.`,"system"); if(count>=4)add("Return to the Relay Station and stabilize the connection.","bright"); }
   }
   if(!active)add("NONE","system");
   add("");add("COMPLETED QUESTS","bright"); let completed=0;
@@ -512,7 +533,7 @@ function showQuests(){
   if(player.flags.houseQuest==="done"){completed++;add("SIDE — INVESTIGATE THE ABANDONED HOUSE");add("House claimed. Six-slot wooden storage box unlocked.","system");}
   if(player.flags.timHouseBounty==="done"){completed++;add("BOUNTY — TROUBLE AT THE OLD HOUSE — COMPLETE","reward");add("Returned proof to Tim. Reward: 100 XP · 75 Bolts.","system");}
   if(player.flags.terribleBillyBounty==="done"){completed++;add("BOUNTY — TERRIBLE BILLY — COMPLETE","reward");add("Stopped Terrible Billy and returned proof to Tim. Reward: 140 XP · 100 Bolts.","system");}
-  if(player.flags.relayQuest==="complete"){completed++;add("MAIN — RELAY STATION: CONNECTION STABILIZED","reward");add("The Relay is operational. Contact with the Tomorrow Project established.","system");}
+  if(player.flags.relayQuest==="complete"){completed++;add("MAIN — RELAY STATION: CONNECTION STABILIZED","reward");add("The Relay is operational. The Tomorrow Project can reach Solace again; the Factory's local archive is the next lead.","system");}
   if(!completed)add("NONE","system"); add("────────────────────────────────────────","system");add("(B) BACK","system");
 }
 function showEquipmentSummary(){
@@ -861,6 +882,8 @@ function loadGame(slot=activeSaveSlot){
   if(currentRoadWanderer==="Mara")currentRoadWanderer="Tess";if(currentTownWanderer==="Mara")currentTownWanderer="Tess";if(townWandererFocus==="Mara")townWandererFocus="Tess";if(player.flags.v50Trade==="Mara")player.flags.v50Trade="Tess";if(combatState?.source==="roadWanderer"&&combatState.name==="MARA")combatState.name="TESS";
   if(player.flags.overnightLocked&&!player.flags.overnightPlan)player.flags.overnightPlan=planOvernight(player.flags.overnight||"road",legacyOvernightRng());
   ensureCasinoState();ensureSteveAnnouncements();v48Migrate();
+  syncLevelMaxHp(); // Loading never heals an injured character.
+  migrateXpProgress();
   startRefillTimer();
   if(player.flags.interfaceUnlocked!==false){hud.classList.remove("hidden");utilityPanel.classList.remove("hidden");}else{hud.classList.add("hidden");utilityPanel.classList.add("hidden");} updateHud(); screen.innerHTML="";
   add(`SAVE ${slot} — ${(player.handle||"NO HANDLE")}`, "bright"); add("Save loaded.", "reward");
@@ -956,7 +979,7 @@ async function answerHello(rawResponse="") {
   await typeLine("MAN'S VOICE > Someone answered.", "man", 30);
   await typeLine("WOMAN'S VOICE > Easy. We don't know who's on the other end.", "woman", 28);
   await typeLine("MAN'S VOICE > Fair.", "man", 35);
-  await typeLine("WOMAN'S VOICE > If you can still read this, don't answer. Just listen.", "woman", 28);
+  await typeLine("WOMAN'S VOICE > Hold your reply. This line cannot carry both of us at once. Just listen.", "woman", 28);
   add(""); add("LISTEN", "system"); add("Type LISTEN to continue the transmission.", "system");
   stage = "listen"; input.disabled = false; input.focus(); busy = false;
 }
@@ -975,12 +998,12 @@ async function reveal() {
   screen.lastElementChild?.scrollIntoView({behavior:"smooth",block:"end"});
   await typeLine("SIGNAL ERROR", "system", 35); await typeLine("DISPLAY DRIVER FAILURE", "system", 30); await typeLine("RECOVERING...", "system", 35); add("");
   await typeLine("WOMAN'S VOICE > Signal's degrading. No time for introductions.", "woman", 28);
-  await typeLine("WOMAN'S VOICE > There's a settlement east of your position. If the relay station is alive, get there.", "woman", 24);
+  await typeLine("WOMAN'S VOICE > Solace is south of you. Its walls still stand, and its Relay Station may give us a line that holds.", "woman", 24);
   await typeLine("MAN'S VOICE > Road's bad. Worse after dark.", "man", 28);
   add(""); await typeLine("TRANSMISSION DATA RECEIVED", "bright", 35);
-  await typeLine("DESTINATION: SOLACE", "system", 25); await typeLine("ROUTE: 127 EAST", "system", 25); await typeLine("DISTANCE: 6.2 MI", "system", 30); add("");
-  await typeLine("WOMAN'S VOICE > We're part of the Tomorrow Project. People trying to make the world a little less dead.", "woman", 25);
-  await typeLine("WOMAN'S VOICE > Save the coordinates. We'll try you again.", "woman", 25); add("");
+  await typeLine("DESTINATION: SOLACE", "system", 25); await typeLine("ROUTE: 127 SOUTH", "system", 25); await typeLine("DISTANCE: 6.2 MI", "system", 30); add("");
+  await typeLine("WOMAN'S VOICE > We're the Tomorrow Project. We reconnect settlements so food, medicine and warnings can get through. Solace has gone quiet.", "woman", 25);
+  await typeLine("WOMAN'S VOICE > Save those coordinates. Get behind Solace's walls, then find the Relay. We will keep listening.", "woman", 25); add("");
   await typeLine("SIGNAL LOST", "bright", 45); signal.textContent = "NO SIGNAL";
   add(""); add("LOG COORDINATES", "system"); add("Type LOG COORDINATES when you're ready.", "system");
   stage = "savecoords"; input.disabled = false; input.focus(); busy = false;
@@ -990,7 +1013,7 @@ async function leaveHouse() {
   // then render the departure sequence, and ALWAYS restore player control.
   stage = "roadReady";
   roadGoal = "mercy";
-  roadTripLength = 9;
+  roadTripLength = 10;
   busy = true;
   input.disabled = true;
   hud.classList.remove("hidden");
@@ -1001,10 +1024,10 @@ async function leaveHouse() {
     await typeLine("You pull on the worn jacket, slide the rusted pipe through your pack straps, and step outside.");
     add("");
     await typeLine("ROUTE 127 — MILE 0", "place", 40);
-    await typeLine("The highway cuts east through wet gray country. Weeds split the pavement. Power lines sag between leaning poles, and the shell of a gas station waits a few hundred yards ahead. Beyond it, Route 127 disappears between black hills.");
-    await typeLine("Six-point-two miles to a town that may or may not exist.");
+    await typeLine("The highway runs south through wet gray country. Weeds split the pavement. Power lines sag between leaning poles, and the shell of a gas station waits a few hundred yards ahead. Beyond it, Route 127 disappears between black hills.");
+    await typeLine("Six-point-two miles to walls, clean water, and the only voices that have answered you in days.");
     add("NEW QUEST — HEAD TO SOLACE","bright");
-    add("Follow the coordinates logged in the battered GPS and reach Solace.","system");
+    add("Follow the GPS coordinates south to Solace. Find shelter, then ask about the Relay Station to restore contact with the Tomorrow Project.","system");
 
   } catch (err) {
     console.error("Departure sequence recovered:", err);
@@ -1061,10 +1084,47 @@ function wandererByName(name){ return wanderers.find(w=>w.name.toLowerCase()===S
 function ws(name){ player.wandererState=player.wandererState||{}; return player.wandererState[name]||(player.wandererState[name]={met:false,dead:false,lastSeen:-99,talks:0,lastLine:""}); }
 function wandererAlive(w){ return !ws(w.name).dead; }
 function markWandererDead(name){ const w=wandererByName(name); const key=w?w.name:name; const st=ws(key); st.dead=true; st.met=true; st.replacementDay=day+1+Math.floor(Math.random()*3); wandererLocations[key]="dead"; }
+function storyHasValeEvidence(){
+ const f=player.flags;
+ return f.jenFamiliarFaceSeen===true||player.wandererState?.Vale?.met===true||f.helpedTraveler===true||f.travelerInSolace===true||portIsHired('Vale');
+}
+function storyRecordValeSighting(){
+ const vale=wandererByName('Vale');if(!vale||!wandererAlive(vale))return;
+ const f=player.flags;ws('Vale').met=true;
+ if(f.jenFamiliarFaceSeen)return;
+ f.jenFamiliarFaceSeen=true;
+ add('Vale wears a patched green coat, a silver ring on her left hand, and a weathered map tucked beneath the strap of her pack.');
+ if(f.jenFamiliarFace==='active')add('CLUE FOUND — A FAMILIAR FACE: You have seen Vale. Return to Jen.','reward');
+}
+function storyValeRoadAvailable(){
+ const vale=wandererByName('Vale'),f=player.flags;
+ return !!vale&&wandererAlive(vale)&&!portIsHired('Vale')&&!f.travelerInSolace&&!f.valeRoadResolved;
+}
+function storyRefreshTravelerEncounter(){
+ const e=currentEncounter();if(e?.title!=='THE TRAVELER'||storyValeRoadAvailable())return e;
+ // Legacy saves may already point at an unavailable Vale scene. Replace only
+ // that stale scene with an established discovery, retaining the paid road turn.
+ const region=r10Region(),pool=r10Pool(region),index=pool.findIndex(x=>x.title==='OLD BILLBOARD');
+ if(index<0)return e;
+ if(r6Road()?.active)r6Road().index=index;
+ roadEncounterOrder[currentRoadEncounterIndex()]=index;
+ return currentEncounter();
+}
+function storyValeReunion(){
+ const f=player.flags,vale=wandererByName('Vale');
+ if(!f.travelerInSolace||f.valeReunionSeen||!vale||!wandererAlive(vale)||portIsHired('Vale'))return false;
+ // Commit before queued output: redraws and repeated conversation cannot replay it.
+ f.valeReunionSeen=true;f.jenFamiliarFaceSeen=true;ws('Vale').met=true;wandererLocations.Vale='jen';
+ add('Vale joins you at the bar, her arm cleanly dressed. Jen sets down a cup beside her.');
+ add('VALE > I kept you that seat. Jen says you have been making yourself useful.','bright');
+ add('JEN > She told me what you did out there. I am glad you both made it back.','bright');
+ return true;
+}
 function wandererDialogue(w){ const st=ws(w.name); const pools={Tess:["TESS > Still walking? Good.","TESS > Road east smells like rain and trouble.","TESS > You again. Route's getting crowded."],Patch:["PATCH > Found a washer too. Huge day.","PATCH > If it still turns, somebody can use it."],Ash:["ASH > I'm not staying long.","ASH > You ask a lot of questions.","ASH > Seriously. What do you want?"]}; const pool=pools[w.name]||[`${w.name.toUpperCase()} > Road keeps moving. So do I.`,`${w.name} glances toward the horizon. "Seen worse days."`,`"Still here?" ${w.name} almost smiles.`]; let line=pool[Math.floor(Math.random()*pool.length)]; if(pool.length>1&&line===st.lastLine)line=pool[(pool.indexOf(line)+1)%pool.length]; st.lastLine=line; st.talks++; return line; }
 
 function showWanderer(w, context="town"){
   if(!w) return;
+  if(w.name==="Vale")storyRecordValeSighting();
   if(context==="town") currentTownWanderer=w.name;
   add(`${w.name.toUpperCase()} — WANDERER — LVL ${String(w.level).padStart(2,"0")}`,"bright");
   add(w.lines[Math.floor(Math.random()*w.lines.length)]);
@@ -1075,6 +1135,7 @@ function showWanderersAt(spot){
   currentTownWanderer=null; if(!here.length) return;
   const w=here[Math.floor(Math.random()*here.length)]; currentTownWanderer=w.name;
   add(`${w.name} is here.`);
+  if(w.name==="Vale")storyRecordValeSighting();
 }
 function showRoadWanderer(){
   let pool=wanderers.filter(w=>wandererAlive(w) && !(typeof portIsHired==="function"&&portIsHired(w.name)) && wandererSerial-ws(w.name).lastSeen>=6);
@@ -1102,12 +1163,12 @@ const encounters = [
     resolve(cmd){ if(cmd.includes("box")||cmd.includes("open")){gainBolts(9);addPack("Wire");gainXp(8);} else if(cmd.includes("cable")||cmd.includes("strip")){addPack("Wire","material",2);gainBolts(2);gainXp(8);} else if(cmd.includes("shoulder")){addPack("Scrap Metal");gainXp(8);} else return false; return true;} },
   { exclusive:true, title:"THE STRAY", text:"A thin scavenger steps from behind a burned pickup with a knife held low. He looks more scared than you are. His eyes keep dropping to your pack.", choices:"FIGHT   OFFER RATION   WARN HIM OFF   BACK AWAY",
     resolve(cmd){ if(cmd.includes("fight")){hurt(8);gainXp(22);gainBolts(6);add("One hard swing ends it. He runs. His dropped pouch stays behind.");} else if(cmd.includes("ration")||cmd.includes("offer")){if(!hasItem("Energy Bars")){add("You reach for an energy bar you don't have.","system");return false;} removeItem("Energy Bars");gainXp(18);add("He takes the food, lowers the knife, and mutters: 'Solace gate's east. Avoid the culvert after dark.'");} else if(cmd.includes("warn")){gainXp(12);add("You raise the pipe and don't blink. Eventually, he decides you're not worth it.");} else if(cmd.includes("back")||cmd.includes("away")){add("You give him space. He gives you the road.");} else return false; return true;} },
-  { title:"THE DARK CELLAR", text:"A collapsed roadside house has one thing intact: a cellar door. Cold air breathes through the gap. Below it is absolute darkness. Something metallic scrapes once, then stops.", choices:"", 
+  { title:"THE DARK CELLAR", text:"A collapsed roadside house has one thing intact: a cellar door. Cold air breathes through the gap. Below it is absolute darkness. Something metallic scrapes once, then stops.", choices:"",
     prompt(){ return hasItem("Battered Flashlight") ? "USE FLASHLIGHT   ENTER IN DARK   SEARCH OUTSIDE   MOVE ON" : "ENTER IN DARK   SEARCH OUTSIDE   MOVE ON"; },
     resolve(cmd){ if(cmd.includes("flash")){if(!hasItem("Battered Flashlight")) return false; gainBolts(12);addPack("Electronics");gainXp(18);add("The beam catches a broken shelving unit—and the loose sheet metal making the noise. You search safely.");} else if(cmd.includes("dark")||cmd.includes("enter")){hurt(14);gainBolts(7);gainXp(12);add("You find salvage by touch. You also find a jagged stair edge with your shin.");} else if(cmd.includes("outside")||cmd.includes("search")){gainBolts(3);addPack("Scrap Metal");gainXp(6);add("You stick to daylight and salvage the porch instead.");} else return false; return true;} },
   { title:"OLD BILLBOARD", text:"A billboard has collapsed across the shoulder. Someone painted a lantern inside a broken circle on the back. Beneath it: EAST. A second message has been scratched into the support post: SOLACE LIES.", choices:"STUDY LANTERN   READ SCRATCHING   SEARCH BASE   CONTINUE",
     resolve(cmd){ if(cmd.includes("lantern")||cmd.includes("study")){player.flags.billboard=true;gainXp(12);add("The faded symbol looks familiar. Same one you saw on the old computer that contacted you.");} else if(cmd.includes("scratch")||cmd.includes("read")){gainXp(8);add("Different hand. Older message. You file the warning away.");} else if(cmd.includes("base")||cmd.includes("search")){gainBolts(5);gainXp(5);add("Someone hid a few bolts beneath a loose stone.");} else return false; return true;} },
-  { title:"THE TRAVELER", text:"A woman sits against a mile marker, one sleeve dark with blood. A small pack lies just beyond her reach. She watches you approach without asking for help.", choices:"USE BANDAGE   GIVE RATION   QUESTION HER   TAKE PACK   WALK AWAY",
+  { title:"THE TRAVELER", text:"Vale sits against a mile marker, one sleeve of her patched green coat dark with blood. A silver ring catches the light as she reaches for her pack. She watches you approach without asking for help.", choices:"USE BANDAGE   GIVE RATION   QUESTION HER   TAKE PACK   WALK AWAY",
     resolve(cmd){ if(cmd.includes("bandage")){if(!hasItem("Bandage")){add("You don't have a bandage.","system");return false;} removeItem("Bandage");player.flags.helpedTraveler=true;player.flags.travelerInSolace=true;gainXp(22);add("She tells you the Solace guards trade fair if you don't lie to them. 'Tell Mara that Vale sent you.'");} else if(cmd.includes("ration")||cmd.includes("give")){if(!hasItem("Energy Bars")){add("You don't have an energy bar to spare.","system");return false;} removeItem("Energy Bars");gainXp(15);add("She eats slowly and points east. 'You're close.'");} else if(cmd.includes("question")){gainXp(8);add("She gives you one useful word: Solace. Then closes her eyes.");} else if(cmd.includes("take")||cmd.includes("pack")){gainBolts(14);addPack("Wire");gainXp(8);add("She doesn't stop you. Somehow that makes it worse.","danger");} else if(cmd.includes("walk")||cmd.includes("away")){add("You keep walking. The mile marker disappears behind you.");} else return false; return true;} },
   { title:"RIDGELINE", text:"The road crests a long hill. For the first time you see walls in the distance—sheet metal, old buses, timber, smoke. A settlement. Off the shoulder, a wrecked utility truck still has one closed compartment.", choices:"HEAD FOR LIGHTS   SEARCH TRUCK   WATCH SETTLEMENT   WAIT",
     resolve(cmd){ if(cmd.includes("truck")||cmd.includes("search")){gainBolts(8);addPack("Scrap Metal");gainXp(10);add("You make one last salvage stop before the descent.");} else if(cmd.includes("watch")){gainXp(12);add("You count two guards, one gate, and smoke from at least a dozen chimneys.");} else if(cmd.includes("head")||cmd.includes("light")){add("You tighten your pack straps and start down the hill.");} else if(cmd.includes("wait")){add("You listen for gunfire. None comes. Eventually you move on.");} else return false; return true;} },
@@ -1378,7 +1439,7 @@ function startCombat(spec, source="encounter", townCost=false, openingAttack=fal
 }
 function handleCombat(cmd){
   const c=combatState; if(!c){stage="between";return;}
-  if(cmd==="b"||cmd.includes("back")||cmd.includes("flee")||cmd.includes("run")){ add("You break contact before the fight gets worse."); combatState=null; if(c.source==="gateGuards"){stage="settlement";player.flags.solaceGateChallenge=true;add("The guard raises his weapon again. State your business or turn around.","man");add("STATE YOUR BUSINESS   (1) TERMINAL   (2) TRADE   (3) RELAY   (4) PASSING THROUGH   (5) FIGHT","system");} else if(c.source==="seaportLiberation"){portLiberationRetreat();} else if(c.source==="seaportRoadFight"){portCombatRetreat(c);} else if(c.source==="factoryFight"){factoryCombatRetreat(c); } else if(c.source==="jenBoss"){player.flags.jenQuest="raiders";completeRoadTurn();} else if(c.source==="houseBoss"){add("You retreat onto the porch. The occupant stays inside.");arriveHouse();} else if(c.source==="serviceBoss"){stage="serviceRoad";add("You retreat to the maintenance-yard fence.");add("CONTINUE UP ROAD   RETURN TO FORK","system");} else if(c.source==="roadWanderer"){currentRoadWanderer=null;completeRoadTurn();} else if(c.source==="townWanderer"){stage="mercy"; showCurrentContext();} else {completeRoadTurn();} return; }
+  if(cmd==="b"||cmd.includes("back")||cmd.includes("flee")||cmd.includes("run")){ add("You break contact before the fight gets worse."); combatState=null; if(c.source==="gateGuards"){stage="settlement";player.flags.solaceGateChallenge=true;add("The guard raises his weapon again. He wants an explanation before anyone else gets hurt.","man");add("STATE YOUR BUSINESS   (1) TERMINAL   (2) TRADE   (3) RELAY   (4) PASSING THROUGH   (5) FIGHT","system");} else if(c.source==="seaportLiberation"){portLiberationRetreat();} else if(c.source==="seaportRoadFight"){portCombatRetreat(c);} else if(c.source==="factoryFight"){factoryCombatRetreat(c); } else if(c.source==="jenBoss"){player.flags.jenQuest="raiders";completeRoadTurn();} else if(c.source==="houseBoss"){add("You retreat onto the porch. The occupant stays inside.");arriveHouse();} else if(c.source==="serviceBoss"){stage="serviceRoad";add("You retreat to the maintenance-yard fence.");add("CONTINUE UP ROAD   RETURN TO FORK","system");} else if(c.source==="roadWanderer"){currentRoadWanderer=null;completeRoadTurn();} else if(c.source==="townWanderer"){stage="mercy"; showCurrentContext();} else {completeRoadTurn();} return; }
   if(cmd==="u"||cmd==="i"||cmd.includes("use item")){ showCombatItems(); return; }
   if(cmd.startsWith("use ")){ useItem(cmd.slice(4)); add("(A) ATTACK   (U) USE ITEM   (B) BACK OFF","system"); return; }
   if(cmd==="a"||cmd==="f") cmd="attack"; if(!cmd.includes("attack")&&!cmd.includes("fight")&&!cmd.includes("hit")){add("(A) ATTACK   (U) USE ITEM   (B) BACK OFF","system");return;}
@@ -1403,7 +1464,7 @@ function handleCombat(cmd){
   }else {actualDamage=Math.min(dealt,c.hp);c.hp=Math.max(0,c.hp-dealt);add(`${c.name}: ${c.hp}/${c.maxHp} HP remaining.`,"bright");}
   add(`You swing the ${player.weapon.toLowerCase()} and connect.`);
   add("RESULT","system"); add(`YOU DEAL ${actualDamage}   ${c.enemies?.length?"GROUP TOTAL — ":""}${c.name} HP ${c.hp}/${c.maxHp}`,"reward");
-  if(c.hp<=0){ add(c.end||`${c.name} is finished.`); resultBuffer=[]; if(c.xp) gainXp(isDark()?Math.ceil(c.xp*1.1):c.xp); const victoryBolts=c.enemies?.length?c.enemies.filter(e=>e.defeated||e.hp===0).reduce((sum,e)=>sum+Math.max(0,Number(e.bolts)||0),0):c.bolts; if(victoryBolts) gainBolts(isDark()?Math.ceil(victoryBolts*1.1):victoryBolts); flushResults(); const source=c.source; combatState=null; if(source==="encounter"&&typeof v555AwardEquipmentDrop==="function")v555AwardEquipmentDrop(); if(source==="r11Elephant"){r11SteveVictory();} else if(source==="seaportLiberation"){portLiberationVictory();} else if(source==="seaportRoadFight"){portCombatWin(c);} else if(source==="factoryFight"){factoryCombatWin(c);} else if(source==="jenBoss"){player.flags.jenQuest="rescued";addPack("Runner's Token","quest");add("QUEST UPDATED — LAST CALL: You rescue Jen's runner and recover their token. Return to Jen.","reward");completeRoadTurn();} else if(source==="terribleBilly"){player.flags.terribleBillyBounty="proof";add("BOUNTY PROOF ACQUIRED — TERRIBLE BILLY IS DOWN. Return to Tim in Solace.","reward");completeRoadTurn();} else if(source==="houseBoss"){player.flags.houseQuest="cleared";if(player.flags.timHouseBounty==="active")player.flags.timHouseBounty="proof";stage="house";add("The occupant abandons the house. Beneath his blanket, one floorboard sits loose.");if(player.flags.timHouseBounty==="proof")add("BOUNTY PROOF ACQUIRED — Return to Tim in Solace.","reward");add("QUEST UPDATED — Lift the floorboard to claim the house.","reward");showHouseChoices();} else if(source==="serviceBoss"){player.flags.serviceBossDead=true;player.flags.serviceReward=true;const oldWeapon=player.weapon; player.weapon="Yardman\'s Wrench"; addPack(oldWeapon,"weapon"); updateHud();add("UNCOMMON — YARDMAN\'S WRENCH — DMG 11–18","uncommon");add(`Equipped. ${oldWeapon} moved to your backpack.`,"reward");add("The maintenance yard is quiet now. Beyond it, the road disappears beneath collapsed trees and concrete.");stage="serviceRoad";serviceRoadDepth=3;add(serviceRoadChoices(),"system");} else if(source==="roadWanderer"){v50WandererLoot(c.name);markWandererDead(c.name); currentRoadWanderer=null; completeRoadTurn();} else if(source==="townWanderer"){v50WandererLoot(c.name);markWandererDead(c.name); currentTownWanderer=null; stage="mercy";showCurrentContext();} else if(source==="gateGuards"){player.flags.solaceGateChallenge=false;player.flags.mercyDiscovered=true;player.flags.mainSolaceQuest="done";stage="mercy";mercyLocation="town";add("You force the gate guard to stand down. The gate opens, and Tim steps forward to meet you.","bright");if(!player.flags.solaceCheckpointSaved){player.flags.solaceCheckpointSaved=true;saveGame(activeSaveSlot);add("CHECKPOINT REACHED — SOLACE AUTOSAVED","reward");}mercyMenu();} else { completeRoadTurn(); } return; }
+  if(c.hp<=0){ add(c.end||`${c.name} is finished.`); resultBuffer=[]; if(c.xp) gainXp(isDark()?Math.ceil(c.xp*1.1):c.xp); const victoryBolts=c.enemies?.length?c.enemies.filter(e=>e.defeated||e.hp===0).reduce((sum,e)=>sum+Math.max(0,Number(e.bolts)||0),0):c.bolts; if(victoryBolts) gainBolts(isDark()?Math.ceil(victoryBolts*1.1):victoryBolts); flushResults(); const source=c.source; combatState=null; if(source==="encounter"&&typeof v555AwardEquipmentDrop==="function")v555AwardEquipmentDrop(); if(source==="r11Elephant"){r11SteveVictory();} else if(source==="seaportLiberation"){portLiberationVictory();} else if(source==="seaportRoadFight"){portCombatWin(c);} else if(source==="factoryFight"){factoryCombatWin(c);} else if(source==="jenBoss"){player.flags.jenQuest="rescued";addPack("Runner's Token","quest");add("QUEST UPDATED — LAST CALL: You rescue Jen's runner and recover their token. Return to Jen.","reward");completeRoadTurn();} else if(source==="terribleBilly"){player.flags.terribleBillyBounty="proof";add("BOUNTY PROOF ACQUIRED — TERRIBLE BILLY IS DOWN. Return to Tim in Solace.","reward");completeRoadTurn();} else if(source==="houseBoss"){player.flags.houseQuest="cleared";if(player.flags.timHouseBounty==="active")player.flags.timHouseBounty="proof";stage="house";add("The occupant abandons the house. Beneath his blanket, one floorboard sits loose.");if(player.flags.timHouseBounty==="proof")add("BOUNTY PROOF ACQUIRED — Return to Tim in Solace.","reward");add("QUEST UPDATED — Lift the floorboard to claim the house.","reward");showHouseChoices();} else if(source==="serviceBoss"){player.flags.serviceBossDead=true;player.flags.serviceReward=true;const oldWeapon=player.weapon; player.weapon="Yardman\'s Wrench"; addPack(oldWeapon,"weapon"); updateHud();add("UNCOMMON — YARDMAN\'S WRENCH — DMG 11–18","uncommon");add(`Equipped. ${oldWeapon} moved to your backpack.`,"reward");add("Scrap Yard is quiet now. Beyond it, the road disappears beneath collapsed trees and concrete.");stage="serviceRoad";serviceRoadDepth=3;add(serviceRoadChoices(),"system");} else if(source==="roadWanderer"){v50WandererLoot(c.name);markWandererDead(c.name); currentRoadWanderer=null; completeRoadTurn();} else if(source==="townWanderer"){v50WandererLoot(c.name);markWandererDead(c.name); currentTownWanderer=null; stage="mercy";showCurrentContext();} else if(source==="gateGuards"){player.flags.solaceGateChallenge=false;player.flags.mercyDiscovered=true;player.flags.mainSolaceQuest="done";stage="mercy";mercyLocation="town";add("You force the gate guard to stand down. The gate opens, and Tim steps forward to meet you.","bright");if(!player.flags.solaceCheckpointSaved){player.flags.solaceCheckpointSaved=true;saveGame(activeSaveSlot);add("CHECKPOINT REACHED — SOLACE AUTOSAVED","reward");}mercyMenu();} else { completeRoadTurn(); } return; }
   // The lookout has three player attacks to blow his whistle. Defeating him
   // before that point prevents reinforcements; once signaled, the gang joins.
   if(c.name==="GANG LOOKOUT" && !c.reinforcementsArrived){
@@ -1538,14 +1599,16 @@ function showEncounter() {
   if(isDark()) add("WORSE AFTER DARK — enemies hit harder; road rewards improve.","danger");
   else if(timePhase()==="DUSK") add("LIGHT FADING.","system");
   const activeRoad=typeof r6Road==='function'?r6Road():null;
-  if(activeRoad?.active)add(`ROAD PROGRESS — STEP ${activeRoad.dir>0?activeRoad.pos:activeRoad.n-activeRoad.pos} / ${activeRoad.n} heading ${activeRoad.dir>0?'EAST':'WEST'} toward ${activeRoad.leg==='coast'?(activeRoad.dir>0?'Seaport':'the Factory'):(activeRoad.dir>0?'the Factory':'Solace')}.`,'system');
+  if(typeof lanternState==='function'&&lanternState()?.pending)add(lanternProgressText(),'system');
+  else if(activeRoad?.active)add(`ROAD PROGRESS — STEP ${activeRoad.dir>0?activeRoad.pos:activeRoad.n-activeRoad.pos} / ${activeRoad.n} heading ${activeRoad.dir>0?'EAST':'WEST'} toward ${activeRoad.leg==='coast'?(activeRoad.dir>0?'Seaport':'the Factory'):(activeRoad.dir>0?'the Factory':'Solace')}.`,'system');
   else add(`ROAD PROGRESS — STEP ${roadGoal==="east"&&player.flags.eastReturning?roadTripLength-roadTurn-1:Math.min(roadTurn+1,roadTripLength)} / ${roadTripLength} toward ${roadGoal==="mercy"?"Solace":roadGoal==="east"?(player.flags.eastReturning?"Solace":"the Factory"):"the old house"}.`,"system");
   if(!resumeSavedEncounter)showSteveAnnouncement();
   if(!resumeSavedEncounter && questRoadEvent()) return;
   if(typeof r10PrepareEncounter==='function'&&!r10PrepareEncounter())return;
   resumeSavedEncounter=false;
   currentRoadWanderer=null;
-  const e = currentEncounter();
+  const e = storyRefreshTravelerEncounter();
+  if(e.title==="THE TRAVELER")storyRecordValeSighting();
   rememberEncounter(roadEncounterOrder[currentRoadEncounterIndex()]);
   if(activeRoad?.active&&activeRoad.leg==='coast'&&typeof r9CoastRemember==='function')r9CoastRemember(activeRoad.index);
   if(activeRoad?.active&&activeRoad.leg==='coast'&&typeof R8_COAST_COMBAT!=='undefined'&&R8_COAST_COMBAT.includes(activeRoad.index)){
@@ -1629,34 +1692,34 @@ function v49Terminal(){
   stage='factoryTerminal';
   add('TOMORROW PROJECT // TERMINAL 03','place');
   add('SYSTEM ONLINE — LOCAL ARCHIVE / CONNECTION: PARTIAL','system');
-  add('IDENTITY RECOGNIZED. Your arrival was anticipated.','bright');
+  add("RELAY TRAFFIC DETECTED. Local records available; remote reports may be incomplete.",'bright');
   currentHotkeys={};numberedChoices={};queueChoiceLine('PROJECT RECORDS   FACTORY STATUS   PERSONNEL: FORGE   EXIT TERMINAL');
   player.flags.v49TerminalRead=true;
 }
 function v49TerminalRecord(which){
   if(which===1){
     add('ARCHIVE // TOMORROW PROJECT','place');
-    add((player.flags.relayQuest==='complete'?'The Relay Station connection has been restored. ':'')+'This factory once supplied equipment for the Tomorrow Project.');
-    add('Surviving records are incomplete. Several sections have been deliberately restricted.');
+    add((player.flags.relayQuest==='complete'?'The Relay Station connection has been restored. ':'')+"This factory once supplied communications equipment for the Tomorrow Project, linking settlements along Route 127. Its local archive retained reports when the wider network failed.");
+    add("Later production records are restricted. Shipping ledgers and supervisor notes inside the works may explain who kept the machinery running after the Project lost access.");
   }else if(which===2){
     add('FACILITY REPORT // FACTORY','place');
-    add('Industrial routines continue despite the collapse. Workers have been observed repeating tasks without rest.');
-    add('Some answer to the name NEW DOMINION. Their command structure and conditioning remain unverified.');
-    add('EASTERN ROUTE: SEAPORT. ACCESS OBSTRUCTED. Further records are restricted.');
+    add("LOCAL REPORT: Machinery still runs in the inner works. Workers repeat old routines; supervisors block access to the restricted basement.");
+    add("ARCHIVED ASSESSMENT: The New Dominion demanded tribute along the coast. At the time of this report, its connection to Factory production was suspected, not verified.");
+    add("EASTERN ROUTE: SEAPORT. A boulder beneath the collapsed overpass blocks ground access. The last harbor report is held in this terminal's transmission log.");
   }else{
     add('PERSONNEL // FORGE','place');
     add('FORMER ROLE: Tomorrow Project engineer. CURRENT LOCATION: workshop, ground floor.');
-    add('NOTICE: Forge has been informed of your arrival. Report to him for workshop access.','bright');
+    add("NOTICE: Forge maintains the entrance workshop. Consult him about the local records, the inner works and the blocked road.",'bright');
   }
   currentHotkeys={};numberedChoices={};queueChoiceLine('PROJECT RECORDS   FACTORY STATUS   PERSONNEL: FORGE   EXIT TERMINAL');
 }
 function v49Forge(){
   stage='factoryForge';
   add('FORGE — WORKSHOP','place');
-  if(!player.flags.v49TerminalRead){add('FORGE > That terminal in the corner woke up when you arrived. Read it first. Then come see me.','bright');}
-  else add('FORGE > Figured someone was coming when that terminal booted up. Damn thing’s been quiet for years.','bright');
+  if(!player.flags.v49TerminalRead){add("FORGE > Start with that terminal. It has the harbor report, not just the rumors. Then we can decide what needs doing.",'bright');}
+  else add("FORGE > You have seen the report. I kept this workshop running, but I could not open the coast road alone. Now we have something to work with.",'bright');
   if(typeof portForgeDialogue==='function')portForgeDialogue();
-  add(typeof factoryDone==='function'&&factoryDone()===4?'FORGE > The inner works are safe. The eastern road is our next concern.':'FORGE > The inner works still need to be made safe. Meanwhile, let me show you something useful.','bright');
+  add(typeof factoryDone==='function'&&factoryDone()===4?"FORGE > The supervisors and Foreman are down. That gives us access to the supplies and equipment for the coast-road charge.":"FORGE > The supervisors hold the basement authorizations; the Foreman controls the equipment below. You will need to get past them. First, let me show you how to stay in one piece.",'bright');
   if(player.flags.v49RecipeBandage){
     add('FORGE > You know how to make reinforced dressings now. Murphy can help you make more with your own supplies.','system');
   }else if(!player.flags.v49Job && !player.flags.v49Kit){
@@ -1814,7 +1877,7 @@ function v49FactoryCommand(cmd){
 function updateNewQuestRoadProgress(){
  const f=player.flags;if(!f)return;
  // Events require exploration travel, never free town menu clicks.
- if(f.jenQuest==="active"&&roadGoal==="east"&&!f.eastReturning&&roadTurn>=2){f.jenQuest="cart";add("QUEST UPDATED — LAST CALL: You spot Jen's missing supply cart. Search it at the eastern road marker.","reward");}
+ if(f.jenQuest==="active"&&roadGoal==="east"&&!f.eastReturning&&roadTurn>=2){f.jenQuest="cart";add("QUEST UPDATED — LAST CALL: You spot Jen's missing supply cart. Search it at the Factory road marker.","reward");}
  if(f.jenQuest==="hideout"&&roadGoal==="east"&&!f.eastReturning&&roadTurn>=4){f.jenQuest="raiders";add("QUEST UPDATED — LAST CALL: Raider tracks lead to an abandoned checkpoint. SEARCH RAIDER CHECKPOINT.","reward");}
  if(f.johnnyQuest==="active"&&roadGoal==="house"&&roadTurn>=3){f.johnnyQuest="ledger";add("QUEST UPDATED — A DEAL GONE BAD: A trader's lost ledger lies beside the western road.","reward");}
  if(f.amiiQuest==="active"&&roadGoal==="house"&&roadTurn>=4){f.amiiQuest="deposit";add("QUEST UPDATED — THE MISSING DEPOSIT: You find a locked bank satchel near the old highway.","reward");}
@@ -1822,7 +1885,7 @@ function updateNewQuestRoadProgress(){
 }
 function questRoadMarkers(){
  const f=player.flags,rows=[];
- if(roadGoal==="east"){if(f.jenQuest==="cart"&&roadTurn===2)rows.push(["JEN'S SUPPLY CART — beside the eastern road","SEARCH SUPPLY CART"]);if(f.jenQuest==="raiders"&&roadTurn===4)rows.push(["ABANDONED RAIDER CHECKPOINT — the runner's trail","SEARCH RAIDER CHECKPOINT"]);if(f.waynePatientQuest==="supplies"&&roadTurn===3)rows.push(["ABANDONED AMBULANCE","SEARCH AMBULANCE"]);}
+ if(roadGoal==="east"){if(f.jenQuest==="cart"&&roadTurn===2)rows.push(["JEN'S SUPPLY CART — beside the Factory road","SEARCH SUPPLY CART"]);if(f.jenQuest==="raiders"&&roadTurn===4)rows.push(["ABANDONED RAIDER CHECKPOINT — the runner's trail","SEARCH RAIDER CHECKPOINT"]);if(f.waynePatientQuest==="supplies"&&roadTurn===3)rows.push(["ABANDONED AMBULANCE","SEARCH AMBULANCE"]);}
  const westPos=roadGoal==="house"?roadTripLength-roadTurn-(roadTurnCharged?1:0):roadTurn+(roadTurnCharged?1:0);
  if(roadGoal!=="east"){if(f.johnnyQuest==="ledger"&&westPos===roadTripLength-4)rows.push(["LOST TRADER'S LEDGER","SEARCH LEDGER"]);if(f.amiiQuest==="deposit"&&westPos===roadTripLength-5)rows.push(["LOCKED BANK SATCHEL","SEARCH SATCHEL"]);}
  return rows;
@@ -1854,7 +1917,7 @@ function advanceRoad(){
 function startRoadTrip(goal, length=5){
   if(!testMode && player.turns<=0){ noTurnsMenu(); return; }
   roadGoal=goal; player.flags.eastReturning=false; roadTripLength=length; roadTurn=0; roadTurnCharged=false; rerollRoad(length); stage="between";
-  add(goal==="house" ? "You leave Solace and head west toward the old house." : goal==="east" ? "You pass through Solace's east gate and follow Route 127 into unfamiliar country." : "You leave the house and head east toward Solace.","bright");
+  add(goal==="house" ? "You leave Solace and head west toward the old house." : goal==="east" ? "You pass through Solace's east gate and follow Route 127 into unfamiliar country." : "You leave the house and head south toward Solace.","bright");
   showEncounter();
 }
 function ensureHousing(){
@@ -1866,20 +1929,20 @@ function ensureHousing(){
 function offerHouseQuest(){
   ensureHousing();
   if(player.flags.houseQuest==="locked"){
-    if(player.level<3){add("WAYNE > Travelers saw lights at that old house west of here. Get your road legs first; we'll talk when you're ready.","bright");add("HOUSE LEAD — Speak with Wayne again at Level 3.","system");return;}
+    if(player.level<3){add("WAYNE > Travelers saw lights at that old house north of here. Get your road legs first; we'll talk when you're ready.","bright");add("HOUSE LEAD — Speak with Wayne again at Level 3.","system");return;}
     player.flags.houseQuest="active";
-    add("WAYNE > Funny thing. Couple travelers came through talking about lights moving around that old house west of here. Thought that place was empty. Guess somebody moved in.","bright");
+    add("WAYNE > Travelers saw a light in the house you left north of here. Someone moved in after you headed out. Check before you shelter there again; I do not want to patch you up over a surprise at your own doorway.","bright");
     add("QUEST ADDED — INVESTIGATE THE ABANDONED HOUSE","reward");
     add("Check QUESTS (Q) for this objective. At the house, choose INVESTIGATE OCCUPATION.","system");
-    add("Return to your original starting house west of Solace. Suggested level: 3–5.","system");
-  }else if(player.flags.houseQuest==="active")add("WAYNE > Check that old house west of town. Preferably without giving me more work.","bright");
+    add("Return to your original starting house north of Solace. Suggested level: 3–5.","system");
+  }else if(player.flags.houseQuest==="active")add("WAYNE > Check that old house north of town. Preferably without giving me more work.","bright");
   else if(player.flags.houseQuest==="cleared")add("WAYNE > You've cleared it? Take a proper look around before you leave.","bright");
   else add("WAYNE > Your own roof and a place to stash things. That's practically civilization.","bright");
 }
 function showHouseChoices(){
   ensureHousing();
   const quest=player.flags.houseQuest;
-  queueChoiceLine(`SEARCH BATHROOM CABINET   CHECK FIREPLACE${quest==="active"?"   INVESTIGATE OCCUPATION":quest==="cleared"?"   LIFT FLOORBOARD":""}${player.flags.houseOwned?"   OPEN STORAGE BOX":""}   CHECK PACK   HEAD EAST — SOLACE`);
+  queueChoiceLine(`SEARCH BATHROOM CABINET   CHECK FIREPLACE${quest==="active"?"   INVESTIGATE OCCUPATION":quest==="cleared"?"   LIFT FLOORBOARD":""}${player.flags.houseOwned?"   OPEN STORAGE BOX":""}   CHECK PACK   HEAD SOUTH — SOLACE`);
 }
 function arriveHouse(fromMenu=false){
   ensureHousing();stage="house";
@@ -2002,7 +2065,7 @@ function showCurrentContext(){
   if(stage==="wandererRoad" && currentRoadWanderer){ const w=wandererByName(currentRoadWanderer); add(`ROUTE 127 — ${w.name.toUpperCase()} — LVL ${String(w.level).padStart(2,"0")}`,"bright"); add("SMALL TALK   INSPECT   FIGHT   MOVE ON","system"); return; }
   if(stage==="encounter"){ const e=currentEncounter(); const lvl=(e.combat&&e.combat.level) || encounterLevels[e.title] || (roadGoal==="east"? (e.title==="THE WARDEN"?50:5+(roadTurn%6)):null); add(`${e.title}${lvl?` — LVL ${String(lvl).padStart(2,"0")}`:""}`,"bright"); add(encounterChoices(e),"system"); return; }
   if(stage==="mercy"){ add(`SOLACE — ${mercyLocation.toUpperCase()}`,"bright"); if(mercyLocation==="town")mercyMenu(); else if(mercyLocation==="jen")showBarActions(); else if(mercyLocation==="relay")showRelayChoices(); else add("(T) TOWN","system"); return; }
-  if(stage==="roadReady") add("OLD HOUSE — ROAD heads east toward Solace.","system");
+  if(stage==="roadReady") add("OLD HOUSE — ROAD heads south toward Solace.","system");
   else if(stage==="settlement") add("(P) APPROACH GATE","system");
   else if(stage==="house")showHouseChoices();
 }
@@ -2011,13 +2074,14 @@ function handleRoadWanderer(cmd){
   if(cmd.includes("small talk")||cmd==="talk"){ ws(w.name); add(wandererDialogue(w),"bright"); add("SMALL TALK   INSPECT   FIGHT   MOVE ON","system"); return; }
   if(cmd.includes("inspect")){ v50Inspect(w); add("SMALL TALK   INSPECT   FIGHT   MOVE ON","system"); return; }
   if(cmd.includes("fight")||cmd.includes("attack")){ startCombat({...v50WandererCombat(w),name:w.name.toUpperCase(),level:w.level,xp:10+w.level*4,bolts:Math.floor(w.level/2)+2,end:`${w.name} goes down and does not get back up.`},"roadWanderer",false,true); return; }
-  if(cmd.includes("move")||cmd.includes("leave")||cmd.includes("continue")){ add(`${w.name} falls behind as you continue toward ${roadGoal==="mercy"?"Solace":roadGoal==="east"?(player.flags.eastReturning?"Solace":"the Factory"):"the old house"}.`); currentRoadWanderer=null; completeRoadTurn(); return; }
+  if(cmd.includes("move")||cmd.includes("leave")||cmd.includes("continue")){ add(`${w.name} falls behind as you continue toward ${typeof lanternState==='function'&&lanternState()?.currentEdgeId?lanternDestination():roadGoal==="mercy"?"Solace":roadGoal==="east"?(player.flags.eastReturning?"Solace":"the Factory"):"the old house"}.`); currentRoadWanderer=null; completeRoadTurn(); return; }
   add("SMALL TALK   INSPECT   FIGHT   MOVE ON","system");
 }
 function handleTownWanderer(cmd){
   const w=wandererByName(currentTownWanderer); if(!w)return false;
   const named=cmd.includes(w.name.toLowerCase()) || (townWandererFocus===w.name && ["small talk","inspect","fight","leave"].includes(cmd));
   if(cmd===`talk to ${w.name.toLowerCase()}` || cmd===w.name.toLowerCase()){
+    if(w.name==='Vale')storyRecordValeSighting();
     townWandererFocus=w.name;
     add(w.name.toUpperCase()+" — WANDERER — LVL "+String(w.level).padStart(2,"0"),"place");
     add(w.lines && w.lines[1] ? w.lines[1] : `${w.name} looks ${w.vibe}.`);
@@ -2065,6 +2129,7 @@ function stashItem(name){return v48Stash(name);}
 function retrieveItem(name){return v48Retrieve(name);}
 function townVisitorChoice(){ return currentTownWanderer ? `   TALK TO ${currentTownWanderer.toUpperCase()}` : ""; }
 function showBarActions(){
+  storyValeReunion();
   player.flags.solaceMenu="bar";
   player.flags.jenInDialogue=false;
   add(`(B) BUY DRINKS   (G) GAMBLE${player.flags.rustyRoomOwned?"   (R) YOUR ROOM":player.bolts>=500?"   (R) BUY ROOM — 500 BOLTS":""}   (J) SMALL TALK JEN${townVisitorChoice()}   SELL ITEMS   (T) RETURN TO TOWN`,"system");
@@ -2077,13 +2142,13 @@ function showDrinkMenu(){
 function showGambleMenu(){casinoMenu();}
 function npcTalk(name){
   const n=name.toLowerCase(); mercyLocation=n;player.flags.solaceMenu="dialogue";
-  if(n==="jen") player.flags.jenInDialogue=true;
+  if(n==="jen"){player.flags.jenInDialogue=true;storyValeReunion();}
   const handins={jen:["jenQuest","Jen's Supply Crate"],johnny:["johnnyQuest","Johnny's Ledger"],amii:["amiiQuest","Bank Satchel"],wayne:["waynePatientQuest","Clinic Medicine"]};
   if(handins[n]&&player.flags[handins[n][0]]==="recovered")add(`DELIVER ${handins[n][1].toUpperCase()} — available now`,"reward");
   if(n==="jen"&&player.flags.jenQuest==="rescued")add("DELIVER RUNNER'S TOKEN — available now","reward");
   if(n==="jen"){
-    add("JEN", "place");v48NpcIntro("jen",({active:"Jen keeps glancing toward the east gate. The runner is still missing.",cart:"Jen asks whether you've searched the cart marked on the eastern road.",recovered:"Jen sees the supply crate and rises from behind the bar.",hideout:"Jen has the supplies, but her runner is still out there.",raiders:"Jen waits for news from the abandoned checkpoint.",rescued:"Jen sees the runner's token in your hand and lets out a breath.",done:"Jen smiles. The runner is home. Your drinks still aren't free."})[player.flags.jenQuest]||"Jen leans against the bar and gives you her full attention.",player.flags.jenQuest||"none",true);
-    add(`${player.flags.jenQuest==="recovered"?"DELIVER JEN'S SUPPLY CRATE   ":player.flags.jenQuest==="rescued"?"DELIVER RUNNER'S TOKEN   ":""}${player.flags.jenUnpaidTab==="active"?"SETTLE UNPAID TAB   ":""}${player.flags.jenFamiliarFace==="active"?"TELL JEN ABOUT THE FAMILIAR FACE   ":""}ASK ABOUT SOLACE   ASK ABOUT ROAD   ASK ABOUT WORK   ASK RUMORS${(!player.flags.relayUnlocked && player.flags.relayQuest==="ask")?"   ASK ABOUT RELAY STATION":""}   ASK ABOUT UNPAID TAB   A FAMILIAR FACE   SMALL TALK   ASK ABOUT MISSING SHIPMENT   (B) BACK`, "system"); return;
+    add("JEN", "place");v48NpcIntro("jen",({active:"Jen keeps glancing toward the south gate. The runner is still missing.",cart:"Jen asks whether you've searched the cart marked on the eastern road.",recovered:"Jen sees the supply crate and rises from behind the bar.",hideout:"Jen has the supplies, but her runner is still out there.",raiders:"Jen waits for news from the abandoned checkpoint.",rescued:"Jen sees the runner's token in your hand and lets out a breath.",done:"Jen smiles. The runner is home. Your drinks still aren't free."})[player.flags.jenQuest]||"Jen leans against the bar and gives you her full attention.",player.flags.jenQuest||"none",true);
+    add(`${player.flags.jenQuest==="recovered"?"DELIVER JEN'S SUPPLY CRATE   ":player.flags.jenQuest==="rescued"?"DELIVER RUNNER'S TOKEN   ":""}${player.flags.jenUnpaidTab==="active"?"SETTLE UNPAID TAB   ":""}${player.flags.jenFamiliarFace==="active"&&storyHasValeEvidence()?"TELL JEN ABOUT THE FAMILIAR FACE   ":""}ASK ABOUT SOLACE   ASK ABOUT ROAD   ASK ABOUT WORK   ASK RUMORS${(!player.flags.relayUnlocked && player.flags.relayQuest==="ask")?"   ASK ABOUT RELAY STATION":""}   ASK ABOUT UNPAID TAB   A FAMILIAR FACE   SMALL TALK   ASK ABOUT MISSING SHIPMENT   (B) BACK`, "system"); return;
   }
   if(n==="johnny"){
     add("JOHNNY", "place"); v48NpcIntro("johnny","Johnny folds his arms, wearing the expression of a man who could turn this conversation into a sale.");
@@ -2113,9 +2178,9 @@ function npcTalk(name){
 function askAboutRelay(name){
   const n=name.toLowerCase();
   const replies={
-    tim:"TIM > Relay station? Yeah. Old communications building behind the north wall. Hasn't worked right in years. I'll have the gate unchained for you.",
-    murphy:"MURPHY > The relay? Old comms shack. Half the hardware in there predates me, which is saying something. Tim keeps the access chained. I'll tell him you're looking for it.",
-    jen:"JEN > I know the place. North side, past the old water tower. Nobody goes in much. I'll tell the gate guard to let you through.",
+    tim:"TIM > North wall, behind the water tower. Without that Relay, warnings reach us on foot or not at all. If those voices can help us get it working, I will have the gate unchained.",
+    murphy:"MURPHY > North-wall comms shack. The transmitter has power, but the old hardware will not hold a signal. Tim keeps it chained so nobody strips the last useful parts. I will tell him you want to repair it.",
+    jen:"JEN > North side, past the water tower. Before it failed, people could tell us they were coming. Now I keep setting places for travelers who never arrive. I will tell the guard to let you through.",
     wayne:"WAYNE > Relay station? I treat people, not antennas. Ask Tim. Or Murphy if you want a three-hour answer involving voltage.",
     johnny:"JOHNNY > I know where it is. I also know nobody has bought anything useful out of it in years. Tim can get you inside.",
     amii:"AMII > I've heard people call it that. I think it's near the north wall? Sorry. I mostly know where the bank is. Very confidently."
@@ -2133,7 +2198,7 @@ function ensureRelayParts(){ if(!player.flags.relayParts||typeof player.flags.re
 function relayPartCount(){ return Object.values(ensureRelayParts()).filter(Boolean).length; }
 function awardRelayPart(key,name){ const rp=ensureRelayParts(); if(rp[key]){add("You've already recovered what the Relay needs from here.","system");return false;} rp[key]=true; add(`RELAY COMPONENT RECOVERED — ${name}`,"reward"); add(`PARTS RECOVERED — ${relayPartCount()}/4`,"system"); if(relayPartCount()>=4){ add("All four components are accounted for. Return to the Relay Station.","bright"); } return true; }
 function inspectRelaySystem(key){ player.flags.relayInspected=player.flags.relayInspected||{}; player.flags.relayInspected[key]=true; const n=Object.values(player.flags.relayInspected).filter(Boolean).length; add(`RELAY DIAGNOSTICS — ${n}/4 SYSTEMS INSPECTED`,"system"); if(n>=4) revealRelayParts(); else add("QUEST UPDATED — New Relay clue recorded in QUESTS.","reward"); }
-function revealRelayParts(){ ensureRelayParts(); if(player.flags.relayPartsRevealed)return; player.flags.relayPartsRevealed=true; player.flags.relayBranchDiscovered=true; add("The failures are not one problem. They're four.","bright"); add("RELAY REPAIR — FOUR COMPONENTS REQUIRED","reward"); add("POWER REGULATOR — Johnny may have something this old.","system"); add("ANTENNA SERVO — The county maintenance yard had old motor assemblies.","system"); add("SHIELDED FEED COUPLER — A lower access road branches from the Route 127 fork.","system"); add("SIGNAL-CONDITIONING MODULE — Old communications equipment lies east of Solace.","system"); add("QUEST UPDATED — All four clues recorded in QUESTS. LOWER ACCESS ROAD UNLOCKED.","reward"); }
+function revealRelayParts(){ ensureRelayParts(); if(player.flags.relayPartsRevealed)return; player.flags.relayPartsRevealed=true; player.flags.relayBranchDiscovered=true; add("The failures are not one problem. They're four.","bright"); add("RELAY REPAIR — FOUR COMPONENTS REQUIRED","reward"); add("POWER REGULATOR — Johnny may have something this old.","system"); add("ANTENNA SERVO — Scrap Yard holds the county motor assemblies; the Yardman guards them.","system"); add("SHIELDED FEED COUPLER — A signal cabinet stands on Old Service Road, west of Works Junction.","system"); add("SIGNAL-CONDITIONING MODULE — Old communications equipment waits at the Factory crossroads, south of Solace.","system"); add("QUEST UPDATED — All four clues recorded in QUESTS. LOWER ACCESS ROAD UNLOCKED.","reward"); }
 const RELAY_REWARD_POOL=Object.freeze([
  "Tempered Steel Pipe","Balanced Hunting Knife","Precision Hunting Rifle","Tempered Combat Machete","Specialized Service Revolver",
  "Advanced Relay Vest","Padded Tactical Jacket","Tempered Leather Armor","Salvaged Security Vest","Insulated Patrol Coat"
@@ -2183,12 +2248,12 @@ function enterRelayStation(){
     add("Static tears across the screen.","system");
     outputQueue=outputQueue.then(()=>flashRelayStatic());
     add("WOMAN'S VOICE > I don't have much time. We're losing the signal again.","woman");
-    add("WOMAN'S VOICE > Something here is destabilizing the connection. I need you to find—","woman");
+    add("WOMAN'S VOICE > The Relay's own hardware is failing. Check the monitor, console, antenna controls and cables. We need this line to find out what happened east of—","woman");
     add("SIGNAL LOSS","bright");
-    add("WOMAN'S VOICE > —stabilize it. Then we can talk.","woman");
+    add("WOMAN'S VOICE > —Solace. Stabilize the connection. Then we can talk.","woman");
     add("NO SIGNAL","system");
     add("QUEST UPDATED — RELAY STATION","reward");
-    add("Find a way to stabilize the Relay connection.","system");
+    add("Inspect all four Relay systems. Their faults should tell you which replacement parts to recover.","system");
   }
   showRelayChoices();
 }
@@ -2258,7 +2323,7 @@ function buyJohnny(item){
  const g=GEAR[item],stackable=!g;
  if(stackable&&packSlotsUsed()>=player.packMax&&!hasItem(item)){add("Your pack is full.","system");vendorReturnMenu();return;}
  if(g&&packSlotsUsed()>=player.packMax){add("Your pack is full. Free a slot before buying equipment.","system");vendorReturnMenu();return;}
- 
+
  // Payment only after capacity checks. Gear is carried until explicitly equipped.
  if(!addPack(item,g?g.type:item==="Tent"?"supply":item==="Battered Flashlight"?"tool":"consumable",1,true)){vendorReturnMenu();return;}
  player.bolts-=price;if(g)player.vendorSold.push(item);updateHud();
@@ -2266,7 +2331,7 @@ function buyJohnny(item){
 }
 function showPurchaseComplete(){player.flags.solaceMenu="purchaseComplete";add("PURCHASE COMPLETE","reward");add("CONTINUE SHOPPING   RETURN TO TOWN","system");}
 function showPersonalQuestOffer(key){
- const intro={jenQuest:["LAST CALL","JEN > My runner was bringing a supply cart back from the eastern road. The cart never arrived, and neither did they. Supplies I can replace. People are harder. Will you look for them?"],johnnyQuest:["A DEAL GONE BAD","JOHNNY > A runner lost my ledger on the western road. Names, debts, promises. Bad hands could turn that book into trouble for half of Solace. Bring it back?"],amiiQuest:["THE MISSING DEPOSIT","AMII > A deposit satchel went missing west of town. Those Bolts belong to people who trusted us. I need it found before I have to tell them. Can you help?"],waynePatientQuest:["THE LAST PATIENT","WAYNE > A patient needs medicine I don't have. An old ambulance on the eastern road might still carry it. I'd ask nicely, but we're running out of time. Will you search?" ]}[key];
+ const intro={jenQuest:["LAST CALL","JEN > My runner was bringing a supply cart back from the Factory road. The cart never arrived, and neither did they. Supplies I can replace. People are harder. Will you look for them?"],johnnyQuest:["A DEAL GONE BAD","JOHNNY > A runner lost my ledger on the road north toward House. Names, debts, promises. Bad hands could turn that book into trouble for half of Solace. Bring it back?"],amiiQuest:["THE MISSING DEPOSIT","AMII > A deposit satchel went missing north of town. Those Bolts belong to people who trusted us. I need it found before I have to tell them. Can you help?"],waynePatientQuest:["THE LAST PATIENT","WAYNE > A patient needs medicine I don't have. An old ambulance on the south gate road toward Factory might still carry it. I'd ask nicely, but we're running out of time. Will you search?" ]}[key];
  add(intro[0],"place");add(intro[1],"bright");add("ACCEPT   DECLINE","system");
 }
 function murphyMainMenu(){
@@ -2288,7 +2353,7 @@ function handleSolace(cmd, raw=cmd){
  }
  if(mercyLocation==="murphy"&&player.flags.solaceMenu==="murphyTalk"){
   if(["1","ask about work","about work"].includes(cmd)){add("MURPHY > Anything mechanical comes through here eventually. I could use a usable serpentine belt; the old one is cracked clean through.","bright");if(player.flags.murphyQuest==="locked")player.flags.murphyQuest="active";murphyTalkMenu();return;}
-  if(["2","ask about corvette","about corvette"].includes(cmd)){add("MURPHY > Blue Corvette. One day I'll get her running. No fast-travel tricks until the car is actually roadworthy.","bright");murphyTalkMenu();return;}
+  if(["2","ask about corvette","about corvette"].includes(cmd)){add("MURPHY > Blue Corvette. One day I will get her running. Right now she is a photograph, a pile of parts, and an unreasonable amount of hope.","bright");murphyTalkMenu();return;}
   if(["3","ask about relay station","about relay station","relay station"].includes(cmd)){askAboutRelay("murphy");return;}
   if(["4","b","back","return"].includes(cmd)){murphyMainMenu();return;}
  }
@@ -2316,7 +2381,7 @@ function handleSolace(cmd, raw=cmd){
    else add(`${q.title} — ${f[q.key].toUpperCase()}. Check QUESTS for your next objective.`,"system");
    return;
   }
-  if(q.key==="jenQuest"&&f.jenQuest==="recovered"&&mercyLocation==="jen"&&cmd.includes("deliver jen's supply crate")){removeItem("Jen's Supply Crate");f.jenQuest="hideout";gainXp(50);add("JEN > Thank you. But the runner never came home. Tracks led farther east, toward an abandoned checkpoint. Can you find them?", "bright");add("QUEST UPDATED — LAST CALL: Investigate the eastern road again.","reward");return;}
+  if(q.key==="jenQuest"&&f.jenQuest==="recovered"&&mercyLocation==="jen"&&cmd.includes("deliver jen's supply crate")){removeItem("Jen's Supply Crate");f.jenQuest="hideout";gainXp(50);add("JEN > You found the cart, but my runner is still missing. Those tracks you found point farther east, toward the abandoned checkpoint. Please check it. I would rather lose every crate than leave them there.", "bright");add("QUEST UPDATED — LAST CALL: Investigate the eastern road again.","reward");return;}
   if(q.key==="jenQuest"&&f.jenQuest==="rescued"&&mercyLocation==="jen"&&cmd.includes("deliver runner's token")){if(packSlotsUsed()>=player.packMax){add("Free a pack slot for Jen's rare reward.","system");return;}removeItem("Runner's Token");f.jenQuest="done";gainXp(180);gainBolts(35);addPack("Bluefang Hunting Knife","weapon");add("QUEST COMPLETE — LAST CALL. Jen rewards you with the RARE BLUEFANG HUNTING KNIFE.","rare");return;}
   if((cmd===`return ${q.item.toLowerCase()}`||cmd.includes(`deliver ${q.item.toLowerCase()}`))&&mercyLocation===q.npc&&f[q.key]==="recovered"&&hasItem(q.item)){
    if(q.reward&&packSlotsUsed()>=player.packMax){add("Make space in your pack before claiming this equipment reward.","system");return;}
@@ -2366,7 +2431,7 @@ function handleSolace(cmd, raw=cmd){
   if(cmd.includes("talk to jen")||cmd==="talk jen"){npcTalk("jen");return;} if(cmd.includes("talk to johnny")||cmd==="talk johnny"){npcTalk("johnny");return;} if(cmd.includes("talk to murphy")||cmd==="talk murphy"){npcTalk("murphy");return;} if(cmd.includes("talk to wayne")||cmd==="talk wayne"){npcTalk("wayne");return;} if(cmd.includes("talk to amii")||cmd==="talk amii"){npcTalk("amii");return;} if(cmd.includes("talk to tim")||cmd==="talk tim"){npcTalk("tim");return;}
   if(mercyLocation==="tim" && ["1","about solace","solace"].includes(cmd)){add("TIM > Solace started as a fuel stop, then a camp. Somebody built a wall and we started calling it home.","bright");npcTalk("tim");return;}
   if(mercyLocation==="tim" && ["2","work"].includes(cmd)){add("TIM > Two leads: Terrible Billy, and trouble at the old house. Billy has been hitting travelers east of the fork. Bring me proof he will not do it again.","bright");add(`${player.flags.timHouseBounty?`TROUBLE AT THE OLD HOUSE — ${String(player.flags.timHouseBounty).toUpperCase()}`:"ACCEPT TROUBLE AT THE OLD HOUSE"}   ${player.flags.terribleBillyBounty?`TERRIBLE BILLY — ${String(player.flags.terribleBillyBounty).toUpperCase()}`:"ACCEPT TERRIBLE BILLY CONTRACT"}` ,"system");npcTalk("tim");return;}
-  if(mercyLocation==="tim" && (cmd.includes("accept trouble at the old house")||cmd==="trouble at old house")){if(!player.flags.timHouseBounty){player.flags.timHouseBounty="active";add("BOUNTY ACCEPTED — TROUBLE AT THE OLD HOUSE. Find the occupied house west of Solace, defeat the squatter, and bring proof to Tim.","reward");}else add(`TIM > That contract is already ${String(player.flags.timHouseBounty).toUpperCase()}.`,"system");npcTalk("tim");return;}
+  if(mercyLocation==="tim" && (cmd.includes("accept trouble at the old house")||cmd==="trouble at old house")){if(!player.flags.timHouseBounty){player.flags.timHouseBounty="active";add("BOUNTY ACCEPTED — TROUBLE AT THE OLD HOUSE. Find the occupied house north of Solace, defeat the squatter, and bring proof to Tim.","reward");}else add(`TIM > That contract is already ${String(player.flags.timHouseBounty).toUpperCase()}.`,"system");npcTalk("tim");return;}
   if(mercyLocation==="tim" && (cmd.includes("accept terrible billy")||cmd==="terrible billy"||cmd==="billy contract")){if(!player.flags.terribleBillyBounty){player.flags.terribleBillyBounty="active";add("BOUNTY ACCEPTED — TERRIBLE BILLY. Find him on the road and use HUNT TERRIBLE BILLY while traveling to confront him.","reward");}else add(`TIM > That contract is already ${String(player.flags.terribleBillyBounty).toUpperCase()}.`,"system");npcTalk("tim");return;}
   if(mercyLocation==="tim" && ["3","bounties","view bounties","about bounties"].includes(cmd)){v52WantedBoard();npcTalk("tim");return;}
   if(mercyLocation==="tim" && ["4","collect bounty"].includes(cmd)){if(player.flags.timHouseBounty==="proof"){player.flags.timHouseBounty="done";gainXp(100);gainBolts(75);updateHud();add("TIM > That's proof enough. The old house is clear.","bright");add("BOUNTY COMPLETE — TROUBLE AT THE OLD HOUSE. +100 XP, +75 BOLTS.","reward");}else if(player.flags.terribleBillyBounty==="proof"){player.flags.terribleBillyBounty="done";gainXp(140);gainBolts(100);updateHud();add("TIM > Billy won't be hunting travelers again. You did good.","bright");add("BOUNTY COMPLETE — TERRIBLE BILLY. +140 XP, +100 BOLTS.","reward");}else add("TIM > Bring me proof from an active bounty contract. The board is informational; it doesn't pay out by itself.","system");npcTalk("tim");return;}
@@ -2385,30 +2450,35 @@ function handleSolace(cmd, raw=cmd){
     else if(claimRelayEquipment())saveGame(activeSaveSlot);showRelayChoices();return;
   }
   if(cmd.includes("relay")){ const who=["jen","murphy","tim"].includes(mercyLocation)?mercyLocation:null; if(who){askAboutRelay(who);return;} if(player.flags.relayUnlocked){enterRelayStation();return;} add("Ask someone in Solace about the Relay Station.","system"); return; }
-  if(cmd.includes("rumor")){add("JEN > Road's been louder than usual. Travelers disappearing east of the old overpass. Murphy thinks it's raiders. Wayne thinks Murphy watches too many old movies.","bright");return;}
+  if(cmd.includes("rumor")){add("JEN > Travelers brought stories of tribute collectors south of the Factory. Stories travel faster than proof. Murphy blamed raiders; Wayne said guessing would not patch anyone up.","bright");return;}
   // Jen's two additional side quests use per-character flags, explicit costs, and journal-visible state.
   if(mercyLocation==="jen" && (cmd.includes("unpaid tab")||cmd.includes("settle tab"))){
-    if(!f.jenUnpaidTab){f.jenUnpaidTab="active";add("JEN > One of my regulars left a 12-Bolt tab. Help me square the books and I'll pay you for the trouble.","bright");add("QUEST ACCEPTED — UNPAID TAB. Choose SETTLE UNPAID TAB when ready.","reward");}
+    if(!f.jenUnpaidTab){f.jenUnpaidTab="active";add("JEN > One regular left a 12-Bolt tab. Cover it and I can close that account against my relief fund. There is a twenty-Bolt allowance for settling it, including your trouble.","bright");add("QUEST ACCEPTED — UNPAID TAB. Choose SETTLE UNPAID TAB when ready.","reward");}
     else if(f.jenUnpaidTab==="active"&&(cmd.includes("settle")||cmd.includes("pay"))){if(player.bolts<12){add("You need 12 Bolts to settle the tab.","system");return;}player.bolts-=12;f.jenUnpaidTab="done";gainBolts(20);gainXp(25);updateHud();add("QUEST COMPLETE — UNPAID TAB. The books balance. +25 XP, +8 net Bolts.","reward");}
     else add(`UNPAID TAB — ${String(f.jenUnpaidTab).toUpperCase()}.`,"system");
     npcTalk("jen");return;
   }
   if(mercyLocation==="jen"&&(cmd.includes("familiar face")||cmd.includes("tell jen about the familiar"))){
-    if(!f.jenFamiliarFace){f.jenFamiliarFace="active";add("JEN > I swear I saw an old friend pass the east gate. Patched green coat, silver ring on the left hand. If you hear anything, come tell me.","bright");add("QUEST ACCEPTED — A FAMILIAR FACE.","reward");}
-    else if(f.jenFamiliarFace==="active"&&cmd.includes("tell")){f.jenFamiliarFace="done";gainXp(30);gainBolts(10);updateHud();add("JEN > That's enough to know they're still out there. Thank you for telling me.","bright");add("QUEST COMPLETE — A FAMILIAR FACE. +30 XP, +10 BOLTS.","reward");}
+    if(!f.jenFamiliarFace){f.jenFamiliarFace="active";add("JEN > My old friend Vale passed the south gate. Patched green coat, silver ring on her left hand, always carrying that map. If you see her, tell me how she is doing.","bright");add("QUEST ACCEPTED — A FAMILIAR FACE.","reward");}
+    else if(f.jenFamiliarFace==="active"&&cmd.includes("tell")){
+      if(!storyHasValeEvidence()){add("JEN > You have not seen Vale yet. Look for the green coat and silver ring; I need news, not a guess.","bright");npcTalk("jen");return;}
+      f.jenFamiliarFace="done";gainXp(30);gainBolts(10);updateHud();
+      add(player.wandererState?.Vale?.dead?"JEN > Vale did not make it? I needed to know. Thank you for telling me the truth.":"JEN > That is Vale, all right. Thank you for bringing me news of her.","bright");
+      add("QUEST COMPLETE — A FAMILIAR FACE. +30 XP, +10 BOLTS.","reward");
+    }
     else add(`A FAMILIAR FACE — ${String(f.jenFamiliarFace).toUpperCase()}. Jen waits for you to return with news.`,"system");
     npcTalk("jen");return;
   }
   // Jen's dialogue is handled before generic Tim-oriented topics so her responses never route to the wrong NPC.
   if(mercyLocation==="jen" && (cmd.includes("about solace")||cmd.includes("about town"))){add("JEN > Solace is a wall, a warm drink, and a dozen people pretending they're not scared. Some nights, that is enough.","bright");return;}
   if(mercyLocation==="jen" && (cmd.includes("about road")||cmd.includes("route 127"))){add("JEN > East gets rough past the overpass. If you're heading out, tell somebody where you're going. I don't want another empty stool at my bar.","bright");return;}
-  if(mercyLocation==="jen" && cmd.includes("about work")){add("JEN > The tavern keeps people fed, watered, and talking. I could use help finding my missing runner and keeping supplies coming in. Start with the shipment if you haven't already.","bright");return;}
-  if(mercyLocation==="wayne" && cmd.includes("about work")){add("WAYNE > Work? Keep people alive, keep the clinic stocked, and try not to charge more than they can afford. The Last Patient still needs medicine, if you're willing to help.","bright");return;}
+  if(mercyLocation==="jen" && cmd.includes("about work")){add("JEN > I keep people fed and give them somewhere to come back to. Ask about the shipment if that job is still open. When you finish a job, there is always somebody else here who needs a hand.","bright");return;}
+  if(mercyLocation==="wayne" && cmd.includes("about work")){add("WAYNE > Keep people alive, keep the clinic stocked. In that order. Ask about The Last Patient to check that job; otherwise, keep an eye out for clean medical supplies.","bright");return;}
   if(mercyLocation==="wayne" && (cmd.includes("about road")||cmd.includes("route 127"))){add("WAYNE > The road is an injury that never closes. Watch for wreckage, bad footing, and anyone pretending a limp is nothing.","bright");return;}
   if(mercyLocation==="wayne" && (cmd.includes("about solace")||cmd.includes("about town"))){add("WAYNE > Solace is safer than the road, not safe. Keep your wounds clean and your Bolts where you can find them.","bright");return;}
   if(cmd.includes("about deals")){add("JOHNNY > Deals change. If I have something cheap today, buy it today. Tomorrow I may come to my senses.","bright");return;}
   if(cmd.includes("about supplies")){add("JOHNNY > Food, tools, scrap, whatever survives the road. Bring me something useful and I'll make us both pretend the price was fair.","bright");return;}
-  if(mercyLocation==="murphy" && player.flags.relayPartsRevealed && cmd.includes("relay") && cmd.includes("part")){ add("MURPHY > Four failures? Figures. Check the old maintenance yard for an antenna servo. County gear used the same mounts. Johnny hoards old regulators. And those lower utility roads near the fork used shielded couplers.","bright"); npcTalk("murphy"); return;}
+  if(mercyLocation==="murphy" && player.flags.relayPartsRevealed && cmd.includes("relay") && cmd.includes("part")){ add("MURPHY > Four failures? Figures. Check the Scrap Yard for an antenna servo. County gear used the same mounts. Johnny hoards old regulators. And those lower utility roads near the fork used shielded couplers.","bright"); npcTalk("murphy"); return;}
   if(cmd.includes("about workshop")){add("MURPHY > Anything mechanical comes through here eventually. Sometimes it even leaves better than it arrived.","bright");return;}
   if(cmd.includes("about cars")){add("MURPHY > Before all this? Cars were freedom. Now they're shelter, parts, or trouble. Still love 'em.","bright");return;}
   if(cmd.includes("about injuries")){add("WAYNE > Clean it, close it, don't be stupid twice. That's most field medicine.","bright");return;}
@@ -2417,7 +2487,7 @@ function handleSolace(cmd, raw=cmd){
   if(cmd.includes("about work")){add("TIM > There'll be work. Route 127 keeps inventing new problems. Check the board and talk to people.","bright");return;}
   if(cmd.includes("about tim")){add("TIM > Not much to tell. I was here when Solace needed somebody to keep track of things. Apparently I forgot to stop.","bright");return;}
   if(cmd.includes("about mercy")||cmd.includes("about solace")){add("TIM > Started as a fuel stop. Then a camp. Then somebody built a wall and suddenly we had opinions about zoning.","bright");return;}
-  if(cmd.includes("about road")||cmd.includes("route 127")){add("TIM > Route 127 keeps going east. So do the problems. Get some rest before you decide you need to meet them.","bright");return;}
+  if(cmd.includes("about road")||cmd.includes("route 127")){add("TIM > The southern road reaches the Factory. Beyond that is the coast, if the overpass is passable. Traders used to bring food back that way. Find out what you can, but come back alive.","bright");return;}
   if(["jen","jenDrinks"].includes(mercyLocation) && (cmd==="beer"||cmd==="buy beer")){ if(player.bolts<3){add("JEN > Three Bolts.","system");return;} player.bolts-=3; player.hp=Math.min(player.maxHp,player.hp+5);updateHud();add("BEER — +5 HP   -3 BOLTS","reward"); if(mercyLocation==="jenDrinks")showDrinkMenu(); return;}
   if(["jen","jenDrinks"].includes(mercyLocation) && (cmd==="shot"||cmd==="buy shot")){ if(player.bolts<5){add("JEN > Five Bolts.","system");return;} player.bolts-=5; player.hp=Math.min(player.maxHp,player.hp+10);updateHud();add("SHOT — +10 HP   -5 BOLTS","reward"); if(mercyLocation==="jenDrinks")showDrinkMenu(); return;}
   if(["jen","jenDrinks"].includes(mercyLocation) && cmd.includes("house special")){ if(player.bolts<8){add("JEN > Eight Bolts.","system");return;} player.bolts-=8; player.hp=Math.min(player.maxHp,player.hp+15);updateHud();add("HOUSE SPECIAL — +15 HP   -8 BOLTS","reward");add("JEN > This stopped being medicine about two drinks ago.","bright"); if(mercyLocation==="jenDrinks")showDrinkMenu(); return;}
@@ -2447,24 +2517,24 @@ function handleSolace(cmd, raw=cmd){
     add("RELAY STATION — CONNECTION STABILIZED","reward");
     add("You fit the four salvaged components into their housings. One by one, the dead meters wake.");
     add("A steady green line crosses the monitor. For the first time, the station holds its signal.");
-    add("WOMAN'S VOICE > You did it. We can finally talk.","woman");
-    add("UNKNOWN > You actually did it. The connection is holding.","woman");
-    add("SECOND VOICE > We can finally talk. You have already seen the factory east of Solace.","woman");
-    add("UNKNOWN > There is something beyond that locked fence. We need you to investigate when the way opens.","woman");
-    player.flags.factoryQuest="upcoming";
+    add("WOMAN'S VOICE > You did it. Solace can hear us again.","woman");
+    add("UNKNOWN > We have lost contact with Seaport. Its harbor kept supplies moving between settlements. Without it, Solace is living on what it has left.","woman");
+    add("SECOND VOICE > The Factory south of Solace once supplied our equipment. Its terminal kept a local copy of Seaport's last transmission, beyond what this Relay can recover.","woman");
+    add("UNKNOWN > Find Forge in the entrance workshop. He was one of our engineers. Read the terminal with him and find out what cut Seaport off before the same thing reaches Solace.","woman");
+    syncFactoryQuest();
     saveGame(activeSaveSlot);
     add("MAIN QUEST COMPLETE — THE RELAY STATION","reward");
     add("MAIN OBJECTIVE — THE FACTORY / STATUS: ACTIVE","system");
-    add("The factory interior is accessible through Forge’s workshop. The monitor stays online.","system");
+    add("NEXT: Follow Solace's southern road to the Factory and enter Forge's workshop. The Relay stays online if you need to contact us again.","system");
     showRelayChoices();return;
   }
-  if(mercyLocation==="relay" && player.flags.relayQuest==="complete" && (cmd==="t"||cmd.includes("talk")||cmd.includes("contact")||cmd.includes("monitor")||cmd.includes("project")||cmd.includes("factory"))){add("TOMORROW PROJECT — CONNECTION ACTIVE","place");add("UNKNOWN > The Relay is holding. Keep your eyes open out there.","woman");add("SECOND VOICE > The factory interior is open, but what lies deeper inside matters. We will be here when you return.","woman");add("The monitor remains on. You can contact the group again.","system");showRelayChoices();return;}
+  if(mercyLocation==="relay" && player.flags.relayQuest==="complete" && (cmd==="t"||cmd.includes("talk")||cmd.includes("contact")||cmd.includes("monitor")||cmd.includes("project")||cmd.includes("factory"))){add("TOMORROW PROJECT — CONNECTION ACTIVE","place");add("UNKNOWN > The Relay is holding. Solace can send warnings again; keep that line open as you follow the Seaport lead.","woman");add("SECOND VOICE > Forge and the Factory's terminal are your next sources. We can carry messages, but we cannot see what you find there. Check their latest information before heading farther east.","woman");add("The monitor remains on. You can contact the group again.","system");showRelayChoices();return;}
   if(mercyLocation==="relay" && player.flags.relayQuest==="complete" && cmd.includes("inspect")){add("All four repaired systems are operating normally. The monitor remains online.","system");showRelayChoices();return;}
   if(mercyLocation==="relay" && cmd.includes("inspect")){
-    if(cmd.includes("monitor")){add("The monitor is dead again. A faint ozone smell hangs around the vents. A signal-conditioning board behind the display is scorched beyond repair.");add("You remember the pre-collapse communications equipment along Route 127 east of Solace.","bright");inspectRelaySystem("monitor");showRelayChoices();return;}
+    if(cmd.includes("monitor")){add("The monitor is dead again. A faint ozone smell hangs around the vents. A signal-conditioning board behind the display is scorched beyond repair.");add("You remember the pre-collapse communications equipment at the Factory crossroads south of Solace.","bright");inspectRelaySystem("monitor");showRelayChoices();return;}
     if(cmd.includes("console")){add("The main console has power in fits and starts. The old POWER REGULATOR is cooked; SIGNAL STABILITY never rises above the bottom quarter.");add("Johnny keeps shelves of obsolete electronics. If anyone in Solace has one, he might.","bright");inspectRelaySystem("console");showRelayChoices();return;}
-    if(cmd.includes("antenna")){add("A bank of antenna controls is frozen halfway through calibration. The ANTENNA SERVO has seized solid.");add("You passed old motor assemblies at the county maintenance yard off the service road.","bright");inspectRelaySystem("antenna");showRelayChoices();return;}
-    if(cmd.includes("cable")){add("Most of the cable is brittle but intact, but the SHIELDED FEED COUPLER has burned through at the wall.");add("A faded service diagram marks a lower utility access road near the Route 127 fork.","bright");inspectRelaySystem("cables");showRelayChoices();return;}
+    if(cmd.includes("antenna")){add("A bank of antenna controls is frozen halfway through calibration. The ANTENNA SERVO has seized solid.");add("You passed old motor assemblies at the Scrap Yard beyond Works Junction.","bright");inspectRelaySystem("antenna");showRelayChoices();return;}
+    if(cmd.includes("cable")){add("Most of the cable is brittle but intact, but the SHIELDED FEED COUPLER has burned through at the wall.");add("A faded service diagram marks the signal cabinet on Old Service Road, west of Works Junction.","bright");inspectRelaySystem("cables");showRelayChoices();return;}
   }
   if(cmd==="gate"||cmd==="west gate"||cmd==="leave solace"||cmd==="solace gate"){mercyLocation="gate";add("SOLACE — WEST GATE","place");v48Intro("westgate",[["Route 127 runs west toward the old house and the service-road fork."]],"The west gate opens onto the familiar road.",true);add("HEAD WEST — OLD HOUSE   (B) BACK","system");return;}
   if(cmd==="g") cmd="east gate";
@@ -2476,7 +2546,7 @@ function handleSolace(cmd, raw=cmd){
   if(cmd==="b"||cmd==="back"){ if(mercyLocation==="jen" && player.flags.jenInDialogue){showBarActions();return;} if(mercyLocation==="jenTalk"){mercyLocation="jen";showBarActions();return;} if(["jenDrinks","jenGames"].includes(mercyLocation)){mercyLocation="jen";showBarActions();return;} if(["jen","murphy","johnny","wayne","amii","relay","gate","eastGate"].includes(mercyLocation)){player.flags.v49MurphyMenu="";mercyLocation="town";mercyMenu();return;} }
   if(cmd==="t"||cmd==="town"||cmd==="solace"||cmd==="return to town"||cmd.includes("main street")){mercyLocation="town";mercyMenu();return;}
   if(cmd==="j" && mercyLocation==="jen"){npcTalk("jen");return;}
-  if(cmd==="bar"||cmd==="jen's bar"||cmd==="visit bar"){mercyLocation="jen";add("THE RUSTY LANTERN TAVERN","place");showWanderersAt("jen");if(!player.flags.visited_jen){player.flags.visited_jen=true;add("Warm light leaks through patched windows. The room smells like wood smoke and something almost resembling dinner.");add("Jen is short, warm, and easy to talk to—the kind of person who makes a hard place feel less hard.");add("As she reaches for a glass, you catch a glimpse of a tiny ladybug tattoo near her wrist.");add("JEN > First one's water. You look like you need it more than anything stronger.","bright");if(player.flags.travelerInSolace)add("The wounded woman from the road is sitting near the end of the bar with a fresh dressing on her arm. She catches your eye and smiles. ‘Didn’t think I’d see you again.’","bright");}else{add("JEN > Back again? What can I get you?", "bright");}showBarActions();return;}
+  if(cmd==="bar"||cmd==="jen's bar"||cmd==="visit bar"){mercyLocation="jen";add("THE RUSTY LANTERN TAVERN","place");showWanderersAt("jen");if(!player.flags.visited_jen){player.flags.visited_jen=true;add("Warm light leaks through patched windows. The room smells like wood smoke and something almost resembling dinner.");add("Jen is short, warm, and easy to talk to—the kind of person who makes a hard place feel less hard.");add("As she reaches for a glass, you catch a glimpse of a tiny ladybug tattoo near her wrist.");add("JEN > First one's water. You look like you need it more than anything stronger.","bright");}else{add("JEN > Back again? What can I get you?", "bright");}showBarActions();return;}
   if(cmd==="trader"||cmd==="trading post"||cmd==="johnny"){mercyLocation="johnny";add("JOHNNY'S TRADING POST","place");showWanderersAt("johnny");if(!player.flags.visited_johnny){player.flags.visited_johnny=true;add("Shelves made from old road signs hold food, tools, ammunition, and objects whose original purpose is no longer obvious.");add("Johnny looks over your pack with the practiced grin of a man already working out three different ways to make a deal.");add("JOHNNY > I'll buy almost anything. Sell almost anything too. And lucky for you, today I happen to be feeling generous.","bright");add("JOHNNY > Generous-ish.","bright");}else{add("JOHNNY > Back for another deal?", "bright");}johnnyMainMenu();return;}
   if(cmd==="workshop"||cmd==="murphy"){player.flags.v49MurphyMenu="";player.flags.solaceMenu="workshop";mercyLocation="murphy";add("MURPHY'S MOTOR WORKS","place");showWanderersAt("murphy");if(!player.flags.visited_murphy){player.flags.visited_murphy=true;add("The shop looks chaotic until you notice every tool is exactly where Murphy expects it to be.");add("A faded photograph of a bright blue Corvette is pinned above his workbench, remarkably clean compared with everything around it.");add("MURPHY > Let's see what survived the trip with you.","bright");add("He checks your equipment and gives an approving little shrug. MURPHY > Ugly. Reliable. I respect that.");}else{add("MURPHY > Back again? What needs fixing?", "bright");}murphyMainMenu();return;}
   if(cmd==="clinic"||cmd==="wayne"){player.flags.solaceMenu="clinic";mercyLocation="wayne";add("LAST CHANCE CLINIC","place");showWanderersAt("wayne");if(!player.flags.visited_wayne){player.flags.visited_wayne=true;add("Clean bandages, boiled instruments, labeled jars. Someone here knows what they're doing.");add("A tiny word has been scratched into the underside of one metal shelf: SEX.","system");add("Wayne notices you noticing it and says absolutely nothing.");add(`WAYNE > You're at ${player.hp}/${player.maxHp} HP. I've seen worse. Usually attached to smarter decisions.`,"bright");}else{add("WAYNE > Try not to bleed on the floor.", "bright");}add("TREAT WOUNDS — 1 BOLT PER 5 HP   BUY BANDAGE — 8 BOLTS   BUY   SELL ITEMS   SMALL TALK WAYNE   TOWN","system");return;}
@@ -2842,7 +2912,7 @@ async function handleCommandCore(raw) {
     if(serviceRoadDepth===0){stage="fork";add("You return to the Route 127 fork. No additional intersection charge.","system");renderCurrentChoices();}
     else{add(serviceRoadDepth===1?"SERVICE ROAD — LOWER GRADE":"SERVICE ROAD — WASHOUT","place");add("You retrace one stretch of road. -1 turn.","system");add(serviceRoadChoices(),"system");}
     return;
-  } if(cmd.includes("continue")||cmd.includes("up road")){if(serviceRoadDepth>=3&&player.flags.serviceBossDead){add("The service road ends at the maintenance yard.","system");add(serviceRoadChoices(),"system");return;}if(!testMode && player.turns<=0){noTurnsMenu();return;}spendTurn();player.flags.branchReturning=false; if(serviceRoadDepth<2){serviceRoadDepth=2;add("SERVICE ROAD — WASHOUT","place");v48Intro("service_washout",[["The lane bends around a washed-out culvert. Tire ruts vanish into weeds, then reappear beside an old county equipment fence."]],"You pass the washed-out culvert again.",true);add(serviceRoadChoices(),"system");return;} serviceRoadDepth=3;if(player.flags.serviceBossDead){add(player.flags.relayPartsRevealed&&!ensureRelayParts().yard?"The Yardman is gone. The motor assemblies needed for the Relay are still here. SEARCH MAINTENANCE YARD to recover the antenna servo.":"The maintenance yard is quiet now. The Yardman is gone.");add(serviceRoadChoices(),"system");return;}add("COUNTY MAINTENANCE YARD","place");add("A hulking figure steps from the ruined garage, dragging a heavy wrench across the concrete.");startCombat({name:"THE YARDMAN",level:5,hp:55,min:7,max:12,xp:65,bolts:28,end:"The Yardman drops hard. The maintenance yard finally goes quiet."},"serviceBoss",false);return;} add("(C) CONTINUE UP ROAD   (R) RETURN TO FORK","system");return;}
+  } if(cmd.includes("continue")||cmd.includes("up road")){if(serviceRoadDepth>=3&&player.flags.serviceBossDead){add("The enclosure ends at the Scrap Yard fence.","system");add(serviceRoadChoices(),"system");return;}if(!testMode && player.turns<=0){noTurnsMenu();return;}spendTurn();player.flags.branchReturning=false; if(serviceRoadDepth<2){serviceRoadDepth=2;add("SERVICE ROAD — WASHOUT","place");v48Intro("service_washout",[["The lane bends around a washed-out culvert. Tire ruts vanish into weeds, then reappear beside an old county equipment fence."]],"You pass the washed-out culvert again.",true);add(serviceRoadChoices(),"system");return;} serviceRoadDepth=3;if(player.flags.serviceBossDead){add(player.flags.relayPartsRevealed&&!ensureRelayParts().yard?"The Yardman is gone. The motor assemblies needed for the Relay are still here. SEARCH MAINTENANCE YARD to recover the antenna servo.":"Scrap Yard is quiet now. The Yardman is gone.");add(serviceRoadChoices(),"system");return;}add("COUNTY MAINTENANCE YARD","place");add("A hulking figure steps from the ruined garage, dragging a heavy wrench across the concrete.");startCombat({name:"THE YARDMAN",level:5,hp:55,min:7,max:12,xp:65,bolts:28,end:"The Yardman drops hard. The maintenance yard finally goes quiet."},"serviceBoss",false);return;} add("(C) CONTINUE UP ROAD   (R) RETURN TO FORK","system");return;}
   if(stage === "combat"){ handleCombat(cmd); return; }
   if(stage === "wandererRoad"){ handleRoadWanderer(cmd); return; }
   if(stage === "mercy" && currentTownWanderer && handleTownWanderer(cmd)) return;
@@ -2881,7 +2951,7 @@ async function handleCommandCore(raw) {
     add("Thick plastic. Tiny green screen. Buttons that require actual force.");
     add("This thing looks like it was built in the 1970s.","system");
     add("You don't remember GPS existing in the 1970s. Probably not important.","system");
-    add("COORDINATES LOGGED — SOLACE / ROUTE 127 EAST / 6.2 MI","bright"); player.flags.interfaceUnlocked=true; hud.classList.remove("hidden"); utilityPanel.classList.remove("hidden"); updateHud(); add("INTERFACE ONLINE — (S) STATUS / (I) INVENTORY / (M) MAP / (Q) QUESTS / (V) SAVE","system");
+    add("COORDINATES LOGGED — SOLACE / ROUTE 127 SOUTH / 6.2 MI","bright"); player.flags.interfaceUnlocked=true; hud.classList.remove("hidden"); utilityPanel.classList.remove("hidden"); updateHud(); add("INTERFACE ONLINE — (S) STATUS / (I) INVENTORY / (M) MAP / (Q) QUESTS / (V) SAVE","system");
     add("The MAP interface now reads from the battered GPS.","system"); await leaveHouse();
   } else add("Type LOG COORDINATES when you are ready.","system"); return; }
   if (stage === "house") {

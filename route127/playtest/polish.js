@@ -1,21 +1,21 @@
 // v48: targeted presentation and inventory/banking polish; no crafting/workshops.
-const V48_BACKPACK_PRICE=75;
-const V48_LOOT_PRICES={'Scrap Metal':4,Wire:3,Cloth:2,Fuel:4,Electronics:5,Chemicals:4,'Battered Flashlight':5,'Energy Bars':2,Bandage:3,Tent:3};
+const V48_BACKPACK_PRICE=450;
+const V48_LOOT_PRICES={'Old World Pocket Compass':30,'Scrap Metal':4,Wire:3,Rope:3,Cloth:2,Fuel:4,Electronics:5,Chemicals:4,'Battered Flashlight':5,'Energy Bars':2,'Wild Honey':6,'Pre-War Silver Coin':25,'Old Family Pocket Watch':20,'Family Photograph':10,'Rust Parade Medal':10,'Art Lantern':10,'Raw Wolf Meat':3,'Raw Rabbit Meat':2,'Animal Bones':2,'Raw Rat Meat':2,'Raw Bird Meat':2,'Raw Venison':3,'Raw Boar Meat':3,'Raw Chicken Meat':2,'Raw Snake Meat':2,'Large Animal Bones':3,'Small Animal Bones':1,'Fresh Carrot':2,'Fresh Potato':2,'Fresh Apple':2,'Preserved Vegetables':5,Bandage:3,Tent:3};
 function v48Visits(){return player.flags.v48Visits||(player.flags.v48Visits={});}
 function v48Intro(key,lines,returnText='',entered=false){const visits=v48Visits();if(!visits[key]){visits[key]=true;for(const [text,cls]of lines)add(text,cls||'')}else if(entered&&returnText)add(returnText);}
 function v48NpcIntro(key,text,state='',updated=false){const visits=v48Visits(),id='npc_'+key;let first=!visits[id],changed=visits[id]!==state;if(first||changed&&updated){visits[id]=state||'visited';add(text)} }
 function v48Migrate(){
  const v=v48Visits();if(player.flags.visited_amii)v.bank=true;if(player.flags.relayVisited)v.relay=true;if(player.flags.factoryAutosaveAtExterior)v.factory=true;
  if(player.flags.casino&&player.flags.casino.nextId>1)v.casino=true;
- if(player.flags.relayQuest==='complete'&&player.flags.factoryQuest!=='done')player.flags.factoryQuest='upcoming';
+ syncFactoryQuest();
 }
 function v48Choices(labels){outputQueue=outputQueue.then(()=>{currentHotkeys={};numberedChoices={};usedHotkeys=new Set();for(const text of labels)addImmediate(hotkeyLine(text),'system');followOutput()});}
 function v48Checkpoint(){if(activeSaveSlot)saveGame(activeSaveSlot);}
 function v48Ordinary(item){return !!item&&Number.isSafeInteger(item.qty)&&item.qty>0&&!['key','quest'].includes(item.type)&&item.name!==player.weapon&&item.name!==player.armor&&item.name!==player.accessory;}
 function v48SellPrice(item){
- if(!v48Ordinary(item))return 0;const gear=GEAR[item.name];
+ if(!v48Ordinary(item)||(typeof protectedUniqueEquipment==='function'&&protectedUniqueEquipment(item.name)))return 0;if(item.type==='valuable')return V48_LOOT_PRICES[item.name]||0;const gear=GEAR[item.name];
  if(gear){if(gear.rarity==='legendary'||!['common','uncommon','rare','epic'].includes(gear.rarity))return 0;const defaults={common:{weapon:12,armor:10,accessory:18},uncommon:{weapon:50,armor:45,accessory:60},rare:{weapon:125,armor:135,accessory:125},epic:{weapon:320,armor:340,accessory:320}};const base=VENDOR_BASE[item.name]||defaults[gear.rarity][gear.type];return Number.isFinite(base)&&base>0?Math.max(1,Math.floor(base*.25)):0;}
- return ['material','consumable','tool','supply'].includes(item.type)?V48_LOOT_PRICES[item.name]||0:0;
+ return ['material','consumable','tool','supply','valuable'].includes(item.type)?V48_LOOT_PRICES[item.name]||0:0;
 }
 function v48SaleMenu(){
  player.flags.v48Shop='sell';add('SELL CARRIED ITEMS','place');
@@ -39,20 +39,20 @@ function v48BuyBackpack(){
 }
 function v48BankCapacity(){return Number.isSafeInteger(player.stashMax)&&player.stashMax>=0?player.stashMax:Infinity;}
 function v48Stash(name){
- const item=player.pack.find(i=>i.name.toLowerCase()===name.toLowerCase().trim());if(!v48Ordinary(item)){add('Equipped and quest items cannot be deposited.','system');return false;}
- const existing=player.stash.find(i=>i.name===item.name&&i.type===item.type);
+ const item=r18NamedStack(player.pack,name);if(!v48Ordinary(item)){add('Equipped and quest items cannot be deposited.','system');return false;}
+ const existing=player.stash.find(i=>i.name===item.name&&i.type===item.type&&!!i.stolen===!!item.stolen);
  if(!existing&&player.stash.length>=v48BankCapacity()){add(`COULD NOT FIT — ${item.name}`,'system');return false;}
  if(existing&&!Number.isSafeInteger(existing.qty+item.qty)){add('Invalid storage quantity. Nothing moved.','system');return false;}
  if(existing)existing.qty+=item.qty;else player.stash.push({...item});player.pack.splice(player.pack.indexOf(item),1);updateHud();add(`DEPOSITED ITEM — ${item.name} ×${item.qty}`,'reward');return true;
 }
 function v48Retrieve(name){
- const item=player.stash.find(i=>i.name.toLowerCase()===name.toLowerCase().trim());if(!item||!Number.isSafeInteger(item.qty)||item.qty<=0){add('No valid stored item with that exact name.','system');return false;}
- const existing=player.pack.find(i=>i.name===item.name&&i.type===item.type);
+ const item=r18NamedStack(player.stash,name);if(!item||!Number.isSafeInteger(item.qty)||item.qty<=0){add('No valid stored item with that exact name.','system');return false;}
+ const existing=player.pack.find(i=>i.name===item.name&&i.type===item.type&&!!i.stolen===!!item.stolen);
  if(!existing&&!['key','quest'].includes(item.type)&&packSlotsUsed()>=player.packMax){add('Your backpack is full. Nothing moved.','system');return false;}
  if(existing&&!Number.isSafeInteger(existing.qty+item.qty)){add('Invalid quantity. Nothing moved.','system');return false;}
  if(existing)existing.qty+=item.qty;else player.pack.push({...item});player.stash.splice(player.stash.indexOf(item),1);updateHud();add(`RETRIEVED ITEM — ${item.name} ×${item.qty}`,'reward');return true;
 }
-function v48BulkStash(){let moved=0,missed=0;for(const item of [...player.pack].filter(v48Ordinary)){if(v48Stash(item.name))moved++;else missed++}add(`DEPOSIT ALL ITEMS — ${moved} STACKS MOVED; ${missed} COULD NOT FIT. Equipped and quest items remain protected.`,'system');return moved;}
+function v48BulkStash(){let moved=0,missed=0;for(const item of [...player.pack].filter(v48Ordinary)){if(v48Stash(r18ItemLabel(item)))moved++;else missed++}add(`DEPOSIT ALL ITEMS — ${moved} STACKS MOVED; ${missed} COULD NOT FIT. Equipped and quest items remain protected.`,'system');return moved;}
 function v48BankMain(entered=false){
  mercyLocation='amii';player.flags.solaceMenu='bank48';player.flags.v48BankPage='main';add("SOLACE SAVINGS & LOAN",'place');if(entered)showWanderersAt('amii');
  v48Intro('bank',[["The old municipal records office has been rebuilt into the most secure room in Solace. Plate steel covers the windows and a reinforced cage surrounds the counter."],["Amii looks up and gives you a slightly awkward but friendly wave."],["Two massive junkyard dogs lounge beside the counter. Niko thumps his tail. Alex just watches you."],["AMII > Don't worry. They're friendly.",'bright'],['Alex gives a low rumble.'],['AMII > ...mostly.','bright']],'Amii nods from behind the secure counter.',entered);
@@ -66,7 +66,7 @@ function v48BankPage(page){
  add(`BANK STORAGE: ${player.stash.length} / ${v48BankCapacity()===Infinity?'UNLIMITED':v48BankCapacity()} ITEM TYPES`,'system');
  if(page==='storage'){if(!player.stash.length)add('EMPTY','system');for(const i of player.stash)add(`${gearLabel(i.name)} ×${i.qty}`,GEAR[i.name]?.rarity||'system');v48Choices(['(B) BACK']);return;}
  const items=page==='stash'?player.pack.filter(v48Ordinary):player.stash;for(const i of items)add(`${gearLabel(i.name)} ×${i.qty}`,GEAR[i.name]?.rarity||'system');
- v48Choices([...(page==='stash'?['DEPOSIT ALL ITEMS']:[]),...items.map(i=>(page==='stash'?'STASH ':'RETRIEVE ')+i.name.toUpperCase()),'(B) BACK']);
+ v48Choices([...(page==='stash'?['DEPOSIT ALL ITEMS']:[]),...items.map(i=>(page==='stash'?'STASH ':'RETRIEVE ')+r18ItemLabel(i).toUpperCase()),'(B) BACK']);
 }
 function v48BankMoney(action,amount){const source=action==='deposit'?'bolts':'bankBolts',target=action==='deposit'?'bankBolts':'bolts',n=Math.min(amount,player[source]);if(!Number.isSafeInteger(amount)||amount<=0||!Number.isSafeInteger(n)||n<=0||!Number.isSafeInteger(player[target]+n)){add('Invalid amount or no available Bolts.','system');return false;}player[source]-=n;player[target]+=n;updateHud();add(`${action.toUpperCase()} — ${n} BOLTS`,'reward');v48Checkpoint();return true;}
 function v48RenderContext(){
@@ -75,8 +75,8 @@ function v48RenderContext(){
 }
 function handleV48Command(cmd){
  if(stage!=='mercy')return false;
- if(player.flags.relayQuest==='complete'&&/relay/.test(cmd)&&['murphy','tim','jen','wayne','johnny','amii'].includes(mercyLocation)&&cmd!=='claim relay reward'){add(`${mercyLocation.toUpperCase()} > The Relay is operational. The Factory is the next objective; its interior is not open yet.`,'bright');return true;}
- if(mercyLocation==='murphy'&&cmd==='ask about relay parts'&&player.flags.relayQuest!=='complete'){add('MURPHY > Johnny has a conductor. Search the maintenance yard, Lower Access Road and the equipment rack by the Factory gate for the other parts.','bright');return true;}
+ if(player.flags.relayQuest==='complete'&&/relay/.test(cmd)&&['murphy','tim','jen','wayne','johnny','amii'].includes(mercyLocation)&&cmd!=='claim relay reward'){add(`${mercyLocation.toUpperCase()} > The Relay is holding. Forge works at the Factory entrance; ask him and check the terminal for the latest word from the coast.`,'bright');return true;}
+ if(mercyLocation==='murphy'&&cmd==='ask about relay parts'&&player.flags.relayQuest!=='complete'){add("MURPHY > Johnny has a Power Regulator. Search Scrap Yard for the Antenna Servo, Old Service Road signal cabinet for the Shielded Feed Coupler, and the Factory gate rack for the Signal-Conditioning Module.",'bright');return true;}
  if(cmd.startsWith('sell ')&&!['johnny','wayne','jen'].includes(mercyLocation)){add('Visit a vendor to sell carried items.','system');return true;}
  const vendor=['johnny','wayne','jen'].includes(mercyLocation);
  if(vendor&&player.flags.v48Shop==='sell'){

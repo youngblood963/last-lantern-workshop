@@ -296,3 +296,34 @@ body.early-no-nav #live-map {display:none!important;}
 .r11-card.red{color:#f07676}.r11-card.back{color:#b58aff}.r11-dice{display:flex;gap:6px;flex-wrap:wrap}
 .r11-die{white-space:pre;font:12px/1.15 monospace;color:#66c8df;border:1px solid #708a9b;padding:4px}.r11-die.held{color:#f0c86c}
 @media(max-width:420px){.r11-card{font-size:11px;padding:4px}.r11-die{font-size:10px}.r11-cards{gap:4px}}
+
+/* Responsive map shares one SVG viewBox with its exact JPG background. */
+.lantern-map{margin:1rem 0;width:100%;max-width:1100px}.lantern-map svg{display:block;width:100%;height:auto;border:1px solid #626b76;border-radius:8px}.lantern-map text{font-family:monospace}
+
+/* R15: allow grid/flex items to shrink to the viewport instead of their text width. */
+html, body { width:100%; min-width:0; }
+body { grid-template-columns:minmax(0,1fr); }
+.terminal-shell { min-width:0; max-width:100%; justify-self:center; }
+.game-layout, .screen, .utility-panel, .command-form, #command, #cloud-dev { min-width:0; max-width:100%; }
+.line, .terminal-header, .utility-name, .utility-stat, #cloud-status { overflow-wrap:anywhere; }
+#command { width:0; font-size:16px; }
+#cloud-dev { width:min(920px,100%); justify-self:center; overflow-wrap:anywhere; }
+#cloud-auth { display:flex; flex-wrap:wrap; gap:10px; align-items:end; }
+#cloud-auth label { display:flex; flex:1 1 220px; flex-direction:column; min-width:0; }
+#cloud-auth input { width:100%; min-width:0; font:inherit; font-size:16px; }
+#cloud-dev button { max-width:100%; white-space:normal; overflow-wrap:anywhere; min-height:44px; }
+@media(max-width:700px) {
+ .utility-panel { grid-template-columns:repeat(4,minmax(0,1fr)); }
+ .utility-panel button { min-width:0; white-space:normal; overflow-wrap:anywhere; }
+ .terminal-header { flex-wrap:wrap; gap:6px; padding:10px 12px; }
+ .screen { overflow-x:auto; }
+}
+
+/* R17: keep ordinary terminal text and touch controls within mobile screens. */
+@media (max-width:700px){
+ .terminal-shell,.game-layout,.screen,.command-form { min-width:0; max-width:100%; }
+ .screen .line:not(.r5-scene-row):not(.port552-ansi) { overflow-wrap:anywhere; }
+ .utility-panel { grid-template-columns:repeat(4,minmax(0,1fr)); }
+ .utility-panel button { min-width:0; min-height:44px; white-space:normal; overflow-wrap:anywhere; }
+ #command { min-width:0; }
+}

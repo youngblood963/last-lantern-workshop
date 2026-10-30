@@ -6,17 +6,17 @@ function portQuestObjective(){
  if(f.seaportRoute?.arrived)return typeof port55Objective==='function'?port55Objective():'Seaport reached.';
  if(!f.factoryFinalComponent)return 'Defeat the Factory Foreman and recover the final charge component.';
  if(!f.portChargePrepared)return 'Return to Forge and prepare the dynamite charge.';
- if(!f.portRoadCleared)return 'Travel to the blocked eastern road and USE DYNAMITE at the obstruction.';
- return 'Follow Seaport’s distress signal east. Investigate the occupied harbor and its captive residents.';
+ if(!f.portRoadCleared)return 'Travel to the Boulder Junction and USE DYNAMITE at the obstruction.';
+ return "Follow the last recorded distress report south to Seaport. Find out who controls the harbor and whether its residents can be freed.";
 }
 function portForgeDialogue(){
  const f=player.flags;
  if(!f.factoryFinalComponent||f.portChargePrepared)return;
  if(factoryDone()!==4)return;
  f.portChargePrepared=true;
- add('FORGE > The restored terminal is picking up Seaport’s distress signal. Dominion-backed fishermen have closed the harbor and taken residents captive. Solace needs that supply route, and those people need a way out. All the components are here; I have assembled the charge. Clear the collapsed overpass, then find out who is still alive.','reward');
+ add("FORGE > The terminal preserved Seaport’s last report: armed boats, tribute collectors, captives at the docks. Solace needs that supply route, and those people need a way out. The charge is assembled. Clear the boulder beneath the collapsed overpass and find out what happened.",'reward');
  addPack('Prepared Dynamite Charge','quest');
- add('MAIN QUEST UPDATED — Find the obstruction east of the Factory and USE DYNAMITE.','reward');
+ add('MAIN QUEST UPDATED — Find the obstruction south of the Factory and USE DYNAMITE.','reward');
  v49Autosave();
 }
 function portBlockedMenu(){
@@ -32,9 +32,9 @@ function portClearRoad(){
  f.portRoadCleared=true;
  player.pack=player.pack.filter(i=>i.name!=='Prepared Dynamite Charge');
  add('You set the dynamite beneath the fallen supports and retreat. The blast opens a narrow passage east.','reward');
- add('The terminal crackles: > SEAPORT DISTRESS SIGNAL RESUMED. CIVILIANS DETAINED AT HARBOR. Forge marks the freight line east: it leads straight to the occupied docks.','bright');
+ add("The terminal repeats its stored report: CIVILIANS DETAINED AT HARBOR. Forge marks the freight line south. The road is open; the report still needs an answer.",'bright');
  f.portTerminalGuidanceSeen=true;
- add('MAIN QUEST UPDATED — Travel east to Seaport.','reward');
+ add('MAIN QUEST UPDATED — Travel south to Seaport.','reward');
  stage='portRoad';portState();updateHud();v49Autosave();portMenu();
 }
 function portMenu(){
@@ -52,7 +52,7 @@ function portMenu(){
   add('SEAPORT — MARKET','place');add('A trader sorts recovered supplies. Trade routes remain fragile.','system');
   add('BROWSE WARES   SMALL TALK   RETURN TO HARBOR','system');
  }else if(stage==='portClinic'){
-  add('SEAPORT — CLINIC','place');add('A medic offers basic treatment for 15 Bolts.','system');
+  add('SEAPORT — CLINIC','place');add('Treatment requires your assigned medic; the staffed clinic rate applies.','system');
   add('HEAL   SMALL TALK   RETURN TO HARBOR','system');
  }else if(stage==='portDocks'){
   add('SEAPORT — DOCKS','place');add('A line of silent cranes overlooks the water. Beyond the harbor, the route is not yet available.','system');
@@ -62,7 +62,7 @@ function portMenu(){
   add('SMALL TALK   RETURN TO HARBOR','system');
  }
 }
-function portArrive(){const s=portState();s.position=5;stage='seaport';if(!s.arrived){s.arrived=true;gainXp(190);add('SEAPORT REACHED — OCCUPIED HARBOR','reward');add('The freight line ends beneath silent cranes. A Dominion tribute mark hangs over the harbor gate; a cry for help carries from the chained docks.','bright');}if(typeof port55Arrive==='function')port55Arrive();portMenu();}
+function portArrive(){const s=portState();s.position=5;stage='seaport';if(!s.arrived){s.arrived=true;gainXp(190);add('SEAPORT REACHED — OCCUPIED HARBOR','reward');add("The freight line ends beneath silent cranes. The New Dominion mark hangs over a tribute board. Behind the chained dock gate, two residents call out when they see you. The terminal report was no empty echo.",'bright');}if(typeof port55Arrive==='function')port55Arrive();portMenu();}
 function portMove(direction){if(!portReady()){stage='portObstruction';portBlockedMenu();return;}const s=portState();if(!spendTurn()){add('NO TURNS LEFT.','danger');portMenu();return;}
  s.position=Math.max(0,Math.min(5,s.position+direction));
  if(s.position===0){stage='factoryWorkshop';add('You return west to Forge’s workshop.','bright');v49FactoryRoom();return;}
@@ -112,9 +112,8 @@ function portCommand(cmd){
  }
  if(['return to harbor','back','return','harbor','town'].includes(cmd)){stage='seaport';portMenu();return true;}
  if(stage==='portClinic'&&cmd==='heal'){
-  if(player.hp>=player.maxHp)add('You do not need treatment.','system');
-  else if(player.bolts<15)add('Treatment costs 15 Bolts.','danger');
-  else{player.bolts-=15;player.hp=Math.min(player.maxHp,player.hp+45);updateHud();add('TREATMENT COMPLETE — +45 HP (15 BOLTS)','reward');}
+  if(!portRecruitUnlocked()||!portStaffRating('clinic')){add('Assign a medic at the Seaport clinic before treatment.','system');stage='seaport';port55Menu();return true;}
+  Economy.treat(portStaffRating('clinic'));
  }else if(stage==='portMarket'&&cmd==='browse wares')add('The market has limited supplies today. The trader is not accepting new orders.','system');
  else if(cmd==='small talk')add('The locals speak of rough roads and the difficulty of keeping the harbor supplied.','bright');
  else if(cmd==='inspect')add('The docks are weathered but maintained. Nothing beyond the demo route is accessible.','system');

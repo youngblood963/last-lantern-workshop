@@ -1,7 +1,7 @@
 // R7: local-compatible banking and identity. No network writes or cloud authority.
 const R7_ACCOUNTS_KEY='route127-local-accounts-v1';
 const R7_DAY_MS=86400000;
-const R7_LOCAL_ID=/^local-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+const R7_LOCAL_ID=/^(?:local|char)-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 let r7PageLock=Promise.resolve();
 function r7Identity(){
  if(!player.handle)return null;
@@ -139,10 +139,11 @@ function r7NameAvailable(name,db){
 }
 function r7NameStart(){
  if(!r7BankContext())return false;
+ const next=Number(player.flags.r18IdentityNextDay)||0;if((Number(day)||1)<next){add('Name changes are unavailable until day '+next+'. Banking and normal bounty clearance remain available.','system');return false;}
  player.flags.r7NameOrigin={stage,mercyLocation,staffUI:player.flags.portStaffUI?{...player.flags.portStaffUI}:null};
  stage='r7Name';delete player.flags.r7ProposedName;
  add(mercyLocation==='amii'?"AMII > Sure, I can change your name. But it's not strictly legal. Five hundred Bolts. Cash. No questions. And a new name won't erase what you've done.":"BANKER > Harbor records wash clean easier than reputations. Five hundred Bolts, cash. Your record stays with you.",'system');
- add(`Current name: ${player.handle}. Cost: 500 carried Bolts. Local-only identity; no global uniqueness is claimed.`,'system');
+ add(`Current name: ${player.handle}. Cost: 500 carried Bolts. A name-change attempt has a 15% chance of interruption and an Identity Fraud bounty. No fee is taken on failure. Local-only identity; no global uniqueness is claimed.`,'system');
  add('Enter a proposed name (3–20 characters), or CANCEL.','system');numberedChoices={};currentHotkeys={};return true;
 }
 function r7NameReturn(){
@@ -159,14 +160,16 @@ function r7NameCommand(raw){
   if(action!=='confirm name change'){add('CONFIRM NAME CHANGE or CANCEL NAME CHANGE.','system');return;}
   try{
    const error=r7NameError(proposed);if(error)throw Error(error);
+   if((Number(day)||1)<(Number(player.flags.r18IdentityNextDay)||0))throw Error('Name-change attempts are on cooldown.');
    const ok=r7Commit((r,db,wallet)=>{
     if(wallet<500)throw Error('You need 500 carried Bolts.');
     if(!r7NameAvailable(proposed,db))throw Error('That name belongs to another known local character.');
+    if(Math.random()<.15){const interrupted=new Error('Identity change interrupted.');interrupted.code='R18_IDENTITY_INTERRUPTED';throw interrupted;}
     r.nameHistory.push({name:r.name,at:Date.now()});r.name=proposed;
     return {wallet:wallet-500};
    });
    if(ok){add('NAME CHANGED — '+proposed+'. 500 Bolts paid. Your permanent character ID and criminal record remain.','system');r7NameReturn();}
-  }catch(e){add('Name unchanged; no rename fee charged. '+e.message,'danger');}
+  }catch(e){if(e.code==='R18_IDENTITY_INTERRUPTED'){player.flags.r18IdentityNextDay=(Number(day)||1)+1;v52Record('Identity Fraud',player.flags.r7NameOrigin?.stage==='port55Service'?'Seaport banker':'Amii','Interrupted attempted identity change',50);if(player.flags.r7NameOrigin?.stage==='port55Service'){const c=v52Crime();if(c.history.length)c.history[c.history.length-1].location='Seaport — Bank';if(c.active.length)c.active[c.active.length-1].location='Seaport — Bank';}add('Name unchanged; no rename fee charged. You can try again on the next game day.','danger');r7NameReturn();}else add('Name unchanged; no rename fee charged. '+e.message,'danger');}
   return;
  }
  const value=String(raw).trim(),error=r7NameError(value);

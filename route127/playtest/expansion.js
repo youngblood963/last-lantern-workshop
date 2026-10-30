@@ -1,9 +1,23 @@
 // v50 focused expansion. Saved legacy identifiers and equipment definitions stay authoritative.
 const V50_ROLES=['Guard','Mechanic','Cook','Guard','Medic','Scavenger','Cook','Trader','Guard','Scavenger','Mechanic','Trader','Mechanic','Scavenger','Trader','Scavenger','Medic','Mechanic','Trader','Trader','Guard','Scavenger','Guard','Scavenger','Guard'];
 const V50_CLUES={Medic:'Clean dressings and carefully labeled jars hang from their satchel.',Mechanic:'Grease stains their cuffs; tools are sorted by size.',Trader:'A handwritten price book peeks from a neatly tied bundle.',Guard:'They watch hands and exits, standing with practiced discipline.',Scavenger:'Their patched pack holds sorted salvage and a coil of wire.',Cook:'A soot-black pot and bundles of dried food hang from their pack.'};
-wanderers.forEach((w,i)=>{w.occupation=V50_ROLES[i];w.level=[3,2,1,4,2,3,6,5,9,7,8,10,6,6,6,7,7,7,8,8,8,9,9,9,10][i];});
+wanderers.forEach((w,i)=>{const level=[3,2,1,4,2,3,6,5,9,7,8,10,6,6,6,7,7,7,8,8,8,9,9,9,10][i];if(V50_ROLES[i])w.occupation=V50_ROLES[i];if(Number.isInteger(level))w.level=level;});
+// Definition levels are separate from mutable, character-specific saved profiles.
+function v50ValidWandererLevel(level){return Number.isInteger(level)&&level>=1&&level<=50;}
+function v50EnsureWandererLevel(w,legacyLevel){
+ if(!w)throw Error('Missing wanderer definition');
+ if(!v50ValidWandererLevel(w.definitionLevel)&&v50ValidWandererLevel(w.level))w.definitionLevel=w.level;
+ const profile=ws(w.name).profile;
+ const level=v50ValidWandererLevel(profile?.level)?profile.level:
+  v50ValidWandererLevel(w.definitionLevel)?w.definitionLevel:
+  v50ValidWandererLevel(legacyLevel)?legacyLevel:null;
+ if(level===null)throw Error('No valid level in wanderer definition: '+w.name);
+ if(!v50ValidWandererLevel(w.definitionLevel))w.definitionLevel=level;
+ if(profile)profile.level=level;
+ w.level=level;return level;
+}
 function v50Profile(w){
- const st=ws(w.name);if(st.profile){w.level=st.profile.level;return st.profile;}
+ const st=ws(w.name);v50EnsureWandererLevel(w);if(st.profile)return st.profile;
  const level=w.level,row=level<=2?[95,5]:level<=4?[80,19]:level<=6?[65,30]:level<=8?[45,45]:[25,55],r=Math.random()*100;
  const rarity=r<row[0]?'common':r<row[0]+row[1]?'uncommon':'rare';
  // Quest-exclusive rewards never enter random equipment generation.
@@ -17,23 +31,23 @@ function v50Profile(w){
 function v50WeightedWanderer(pool){
  // Keep named wanderers and their saved profiles stable; change only encounter likelihood.
  // Early characters mostly meet approachable wanderers, while advanced characters
- // encounter the full level 1–10 cast more often. No wanderer is permanently excluded.
+ // encounter the fixed level 1–20 cast more often. No wanderer is permanently excluded.
  if(!pool.length)return null;
- const target=Math.max(1,Math.min(10,Number(player.level)||1));
+ const target=Math.max(1,Math.min(20,Number(player.level)||1));
  const weights=pool.map(w=>Math.max(.08,Math.pow(.72,Math.abs(w.level-target))));
  let roll=Math.random()*weights.reduce((a,b)=>a+b,0);
  return pool.find((w,i)=>(roll-=weights[i])<0)||pool[pool.length-1];
 }
 function v50Threat(level){const d=level-player.level;return d<=-3?['Trivial','green']:d<0?['Easy','green']:d===0?['Even','yellow']:d<=2?['Challenging','orange']:d<=4?['Dangerous','red']:['Deadly','purple'];}
-function v50Inspect(w){const p=v50Profile(w),[threat,color]=v50Threat(p.level);add(`${w.name} — LEVEL ${p.level} — ${threat.toUpperCase()} (relative threat; no guarantee)`,'system');outputQueue=outputQueue.then(()=>{if(player.level>=5){const last=screen.lastElementChild;if(last){last.dataset.threat=color;last.style.color={green:'#22c55e',yellow:'#facc15',orange:'#fb923c',red:'#ef4444',purple:'#a855f7'}[color];}}});add(`VISIBLE WEAPON: ${gearLabel(p.weapon)}; ARMOR: ${p.armor?gearLabel(p.armor):'None visible'}`);add(`${V50_CLUES[p.occupation]} ${w.name} looks ${w.vibe}.`);}
+function v50Inspect(w){if(w?.name==='Vale')storyRecordValeSighting();const p=v50Profile(w),[threat,color]=v50Threat(p.level);add(`${w.name} — LEVEL ${p.level} — ${threat.toUpperCase()} (relative threat; no guarantee)`,'system');outputQueue=outputQueue.then(()=>{if(player.level>=5){const last=screen.lastElementChild;if(last){last.dataset.threat=color;last.style.color={green:'#22c55e',yellow:'#facc15',orange:'#fb923c',red:'#ef4444',purple:'#a855f7'}[color];}}});add(`VISIBLE WEAPON: ${gearLabel(p.weapon)}; ARMOR: ${p.armor?gearLabel(p.armor):'None visible'}`);add(`${V50_CLUES[p.occupation]} ${w.name} looks ${w.vibe}.`);}
 function v50WandererCombat(w){const p=v50Profile(w),g=GEAR[p.weapon];return {hp:12+p.level*4,min:g.min,max:g.max,armorDef:GEAR[p.armor]?.def||0};}
 function v50WandererLoot(name){const w=wandererByName(name);if(!w)return;const p=v50Profile(w);if(!p.lootRolled){p.lootRolled=true;if(Math.random()<.45)p.pendingLoot=p.weapon;}if(p.pendingLoot){if(addPack(p.pendingLoot,'weapon')){add(`RECOVERED VISIBLE WEAPON — ${gearLabel(p.pendingLoot)}`,'reward');p.pendingLoot=null;}else add('Their weapon remains at the scene. Free a pack slot; type CLAIM WANDERER LOOT followed by their name.','system');}}
 function v50Trade(w){const p=v50Profile(w);if(p.hostile){add(`${w.name} keeps a hand on their weapon. They are not offering trade.`);return;}player.flags.v50Trade=w.name;add(`${w.name.toUpperCase()} — ${p.occupation.toUpperCase()} TRADE`,'place');p.stock.forEach(i=>add(`${i.name} — ${i.price} BOLTS — ${i.qty} remaining`));add([...p.stock.filter(i=>i.qty>0).map(i=>'BUY '+i.name.toUpperCase()),'SELL ITEMS','LEAVE TRADE'].join('   '),'system');}
 function v50TradeCommand(cmd){const w=wandererByName(player.flags.v50Trade);if(!w)return false;const p=v50Profile(w);if(p.hostile){delete player.flags.v50Trade;return false;}if(['leave trade','back','b','leave','move on','town'].includes(cmd)){delete player.flags.v50Trade;delete player.flags.v50Sale;delete player.flags.v48Shop;return false;}
- if(cmd==='sell items'){add('TRADE — SELL ONE CARRIED ITEM','place');const items=player.pack.filter(i=>v48SellPrice(i)>0);add([...items.map(i=>`SELL ${i.name.toUpperCase()} — ${v48SellPrice(i)} BOLTS EACH`),'LEAVE TRADE'].join('   '),'system');return true;}
+ if(cmd==='sell items'){add('TRADE — SELL ONE CARRIED ITEM','place');const items=player.pack.filter(i=>v48SellPrice(i)>0);add([...items.map(i=>`SELL ${r18ItemLabel(i).toUpperCase()} — ${v48SellPrice(i)} BOLTS EACH`),'LEAVE TRADE'].join('   '),'system');return true;}
  if(cmd.startsWith('sell ')){const name=cmd.slice(5).split(' —')[0],i=player.pack.find(i=>i.name.toLowerCase()===name),price=i&&v48SellPrice(i);if(!price){add('That item cannot be sold.','system');return true;}player.flags.v50Sale={name:i.name,price};add(`SELL ONE ${i.name} FOR ${price} BOLTS?`,'system');add('CONFIRM SALE   CANCEL SALE','system');return true;}
  if(cmd==='confirm sale'||cmd==='cancel sale'){const sale=player.flags.v50Sale;delete player.flags.v50Sale;if(cmd==='confirm sale'&&sale){const i=findItem(sale.name);if(i&&v48SellPrice(i)===sale.price){removeItem(sale.name);gainBolts(sale.price);}}v50Trade(w);return true;}
- if(cmd.startsWith('buy ')){const i=p.stock.find(i=>i.name.toLowerCase()===cmd.slice(4).toLowerCase());if(!i||i.qty<=0){add('Not available.','system');return true;}if(player.bolts<i.price){add('Insufficient Bolts.','system');return true;}const type=['Energy Bars','Bandage'].includes(i.name)?'consumable':i.name==='Tent'?'supply':i.name==='Battered Flashlight'?'tool':'material';if(!addPack(i.name,type,1,true))return true;player.bolts-=i.price;i.qty--;updateHud();v50Trade(w);return true;}v50Trade(w);return true;
+ if(cmd.startsWith('buy ')){const i=p.stock.find(i=>i.name.toLowerCase()===cmd.slice(4).toLowerCase());if(!i||i.qty<=0){add('Not available.','system');return true;}if(player.bolts<i.price){add('Insufficient Bolts.','system');return true;}const type=['Energy Bars','Bandage'].includes(i.name)?'consumable':i.name==='Tent'?'supply':i.name==='Battered Flashlight'?'tool':'material';if(!addPack(i.name,type,1,true,!!i.stolen))return true;player.bolts-=i.price;i.qty--;updateHud();v50Trade(w);return true;}v50Trade(w);return true;
 }
 function v50Armory(){mercyLocation='mara';currentTownWanderer=null;townWandererFocus=null;player.flags.solaceMenu='equipment';add('MARA — SCRAP & STEEL ARMORY','place');add('An older woman with scarred hands checks a blade against the light. MARA > Buy something that keeps you alive. Keep the speeches short.');showEquipmentShop();add('SMALL TALK   SELL ITEMS   TOWN','system');}
 const v50OldNpcTalk=npcTalk;
@@ -48,7 +62,7 @@ handleSolace=function(cmd,raw=cmd){
  if(mercyLocation==='mara'){
   if(cmd==='small talk'){smallTalk('mara');return;}
   if(cmd==='continue shopping'||cmd==='buy'||cmd==='browse equipment'){showEquipmentShop();return;}
-  if(cmd.startsWith('buy ')){ensureVendorStock();const item=player.vendorStock.find(n=>n.toLowerCase()===cmd.slice(4));if(item)buyJohnny(item);else add('Not in stock.','system');return;}
+  if(cmd.startsWith('buy ')){regionalEquipmentBuy('solace',cmd.slice(4));showEquipmentShop();return;}
   if(cmd==='sell items'){v48SaleMenu();return;}
   if(cmd.startsWith('sell ')){v48Sell(cmd.slice(5).split(' ×')[0]);return;}
   if(cmd==='confirm sale'){if(player.flags.v48Sale)v48Sell(player.flags.v48Sale.name,true);return;}

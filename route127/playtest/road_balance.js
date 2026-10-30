@@ -1,69 +1,62 @@
 // R10: one weighted selector for eligible random road encounters in either direction.
 // Fixed junctions, quest encounters, branch landmarks and first-clear bosses remain scripted.
-const R10_TRIGGER_CHANCE=.80;
 const R10_WEIGHTS={combat:.50,wanderer:.20,exploration:.15,salvage:.10,environment:.05};
-const R10_EARLY_TITLES={
- exploration:['COUNTY WORK TRUCK','THE GAS STATION','ABANDONED SEDAN','BROKEN MOTEL','DRAINAGE CULVERT','THE TIPPED DELIVERY TRUCK','PRINTS IN THE MUD','SCRATCHING IN THE SHED','THE SAGGING FARMHOUSE'],
- salvage:['WASHOUT SALVAGE','MAINTENANCE BOX','THE DITCH BACKPACK','STONES UNDER THE OAK','THE LOCKED TOOL CHEST','TORN BACKPACK','BROKEN RADIO'],
- environment:['OLD BILLBOARD','THE TRAVELER','COLD ROAD CAMP','THE EMPTY BUS SHELTER','THE SPRAINED RUNNER','DUST OVER THE SCHOOLYARD']
-};
-const R10_POOLS={early:{},east:{},coast:{
- combat:R8_COAST_COMBAT,
- exploration:R9_COAST_SCENES.filter(i=>eastEncounters[i].category==='exploration'),
- salvage:R9_COAST_SCENES.filter(i=>eastEncounters[i].category==='salvage'),
- environment:[...R9_COAST_SCENES.filter(i=>['hazard','lore','moral'].includes(eastEncounters[i].category)),R6_FIRE_INDEX]
-}};
-// Retain established early-road threats, including their food/trade/avoid choices.
-R10_POOLS.early.combat=encounters.map((e,i)=>e.combat||combatSpecs[e.title]?i:-1).filter(i=>i>=0);
-for(const [kind,titles] of Object.entries(R10_EARLY_TITLES)){
- R10_POOLS.early[kind]=titles.map(t=>encounters.findIndex(e=>e.title===t));
- if(R10_POOLS.early[kind].some(i=>i<0))throw Error('Missing curated road scene: '+kind);
- // Geographic neutral early discoveries also fit the road out of Solace.
- R10_POOLS.east[kind]=R10_POOLS.early[kind].map(i=>eastEncounters.push(encounters[i])-1);
-}
-// Mid-road versions reuse established enemy types and the existing multi-enemy engine.
-R10_POOLS.east.combat=['HIGHWAY ROBBERS','THE CRAWLER','THE WRECKERS','GANG LOOKOUT','SECURITY DRONE','SOMETHING IN THE DRAIN','FERAL DOG','LONE SCAVENGER'].map((title,j)=>{
- const original=encounters.find(e=>e.title===title),base=combatSpecs[title];
- const hp=44+j%3*7,bolts=8+j%4;
- const pair=j===0||j===2||j===6;
- const names=j===6?['FERAL DOG','SCARRED HOUND']:j===2?['WRECKER WITH PIPE','WRECKER WITH CHAIN']:['TIRE IRON ROBBER','SPEAR ROBBER'];
- const spec={...base,action:'FIGHT',level:5+j%3,hp,min:6+j%3,max:11+j%3,xp:40+j*3,bolts,
- ...(pair?{enemies:names.map((name,k)=>({name,hp:k?Math.floor(hp/2):Math.ceil(hp/2),bolts:k?Math.floor(bolts/2):Math.ceil(bolts/2)}))}:{enemies:undefined})};
- // Keep lookout reinforcement behavior compatible with its existing combat handler.
- if(title==='GANG LOOKOUT')spec.enemies=[{name:'LOOKOUT',hp,bolts}];
- return eastEncounters.push({title:'EAST ROAD — '+title,text:original.text,combat:spec,exclusive:true,choices:'FIGHT   BACK AWAY',resolve(cmd){if(!['back away','leave'].includes(cmd))return false;add('You take the far shoulder and leave the threat behind.','system');return true;}})-1;
-});
+// Keep old array entries stable for in-progress saves; never select these for new events.
+const R10_RETIRED_TITLES=new Set(['SOMETHING IN THE DRAIN','THE WASH LINE','THE CRACKED AQUEDUCT','THE COLD FOUNDRY','DOG AT THE DEN','PRINTS IN THE MUD','TORN BACKPACK']);
+function r10CanonicalTitle(title){return String(title||'').replace(/^EAST ROAD — /,'');}
+function r10Retired(title){return R10_RETIRED_TITLES.has(r10CanonicalTitle(title));}
+const {R10_EARLY_TITLES, R10_POOLS, r18ShoesEarly, r18ShoulderEarly, r18WheelEarly, r18HoneyEarly, r18Ridge, r18ScrapClaim, r18RoachEarly, r18CinderIndex, r18PantryEarly, r18OrchardIndex, r18WellIndex, r18FreezerIndex, r18GreenhouseIndex, r18CraneNestIndex, r18SiloIndex, r18GardenIndex, r18TarPoolIndex, r18ReapersIndex, r18HuntersIndex, r18ChainGangIndex, r18HarvestIndex, r18EnforcerIndex, r18ChoirIndex, r18BoneHuntersIndex, r18FurnaceIndex, r18ParadeIndex, r18WardenIndex, r18PeteIndex, r18GnomesIndex, r18WaxIndex, r18RoadEaterIndex, r18WallIndex, r18ArmoryIndex, r18BoneCollectorIndex, r18BlackSnowIndex, r18EnidIndex, r18LibraryIndex, r18ChapelIndex, r18BomberIndex, r18PicnicIndex, r18PaperStormIndex, r18MarthaIndex, r18OilIndex, r18TunnelIndex, r18MaskMarketIndex, r18ScrapDuelIndex, r18MazeIndex, r18ClaraIndex, r18AshIndex, r18HoundIndex} = RoadScenarioRegistry.pools();
 function r10Region(){return r6Road()?.active?(r6Road().leg==='coast'?'coast':'east'):'early';}
-function r10Pool(region){return region==='early'?encounters:eastEncounters;}
+function r10Pool(region){return typeof RoadScenarioRegistry!=='undefined'?RoadScenarioRegistry.pool(region):(region==='early'?encounters:eastEncounters);}
 function r10EligibleWanderers(){return wanderers.filter(w=>wandererAlive(w)&&!portIsHired(w.name));}
-function r10WandererChance(){
- if(!portRecruitUnlocked()||!r10EligibleWanderers().some(portRecruitEligible))return .20;
- return Math.min(.50,.20+Math.max(0,(player.flags.r10RecruitDrySegments||0)-10)*.03);
-}
-function r10Category(availableWanderers,rng=Math.random){
- const w=availableWanderers?r10WandererChance():0;
- const roll=rng();if(roll<w)return 'wanderer';
- const x=(roll-w)/(1-w); // redistribute only the remaining categories
- return x<.625?'combat':x<.8125?'exploration':x<.9375?'salvage':'environment';
-}
-function r10Pick(region,kind){
- const objects=r10Pool(region);
- let candidates=R10_POOLS[region][kind];
- if(region==='early')candidates=candidates.filter(i=>{
-  const e=objects[i],spec=e.combat||combatSpecs[e.title];
-  return (!spec||spec.level<=Math.max(3,player.level+1))&&(!e.minLevel||player.level>=e.minLevel)&&(!e.maxLevel||player.level<=e.maxLevel);
+// Select only candidates whose story and level restrictions are satisfied.
+function r10Candidates(region,kind){
+ const objects=r10Pool(region),pool=R10_POOLS[region]?.[kind]||[];
+ return pool.filter(i=>{
+  const e=objects[i];if(!e||r10Retired(e.title))return false;
+  if(e.title==='THE LIMPING HOUND'&&player.flags.r18HoundAdopted)return false;
+  if(e.title==='THE TRAVELER'&&!storyValeRoadAvailable())return false;
+  if(e.title==='THE DARK CELLAR'&&player.flags.r18CellarResolved)return false;
+  if(e.title==='THE TIPPED DELIVERY TRUCK'&&player.flags.r18DeliveryResolved)return false;
+  if(e.title==='THE WELDED BUS'&&player.flags.r18PickensResolved)return false;
+  if(e.title==='THE QUICKSAND CUT'&&player.flags.r18QuicksandOutcome&&player.flags.r18QuicksandOutcome!=='abandoned'&&player.flags.r18QuicksandSatchel)return false;
+  if(e.title==='THE SALT MINERS'&&player.flags.r18SaltWorkersFreed)return false;
+  if(e.title==='THE BURNT LIBRARY'&&player.flags.r18LibraryResolved)return false;
+  if(e.title==='THE SILENT PICNIC'&&player.flags.r18PicnicClaimed)return false;
+  if(e.title==='CEMETERY OF TIRES'&&player.flags.r18MazeClaimed&&!(player.flags.wo3Corvette?.active&&(Number(player.flags.wo3Corvette.tiresRecovered)||0)<4))return false;
+  if(e.title==='THE OIL DERRICK'&&player.flags.r18OilOutcome)return false;
+  if(e.title==='BROKEN MOTEL'&&player.flags.r18CalebRescued)return false;
+  if(r10CanonicalTitle(e.title)==='SECURITY DRONE'&&player.flags.r18DroneDisabled)return false;
+  if(e.title==='THE STRAY'&&player.flags.r18StrayReunionDone)return false;
+  if(e.title==='THE SPRAINED RUNNER'&&player.flags.r18RunnerReunionDone)return false;
+  if(e.minLevel&&player.level<e.minLevel)return false;
+  if(e.maxLevel&&player.level>e.maxLevel)return false;
+  const spec=e.combat||combatSpecs[e.title];
+  if((typeof RoadScenarioRegistry!=='undefined'&&RoadScenarioRegistry.ready?RoadScenarioRegistry.usesEarlyLevelGate(e):region==='early')&&spec&&spec.level>Math.max(3,player.level+1))return false;
+  return true;
  });
- // Early discovery content is valid above its tutorial range as a repeat road scene.
- if(!candidates.length)candidates=R10_POOLS[region][kind];
- const history=player.flags.r10RoadHistory?.[region+':'+kind]||[];
- const fresh=candidates.filter(i=>!history.includes(objects[i].title));
+}
+// Renormalize the original weights over categories with eligible candidates.
+function r10Category(available,rng=Math.random){
+ const kinds=Object.keys(R10_WEIGHTS).filter(k=>available[k]);
+ const total=kinds.reduce((sum,k)=>sum+R10_WEIGHTS[k],0);
+ if(!total)return null;
+ let roll=rng()*total;
+ for(const k of kinds){roll-=R10_WEIGHTS[k];if(roll<0)return k;}
+ return kinds[kinds.length-1];
+}
+function r10Pick(region,kind,rng=Math.random){
+ const objects=r10Pool(region),candidates=r10Candidates(region,kind);
+ if(typeof RoadScenarioRegistry!=='undefined'&&RoadScenarioRegistry.wo3Installed){const priority=RoadScenarioRegistry.wo3Pick(region,kind,candidates,rng);if(priority!==undefined)return priority;}
+ const history=player.flags.r10UnifiedHistory||[];
+ const fresh=candidates.filter(i=>!history.some(t=>r10CanonicalTitle(t)===r10CanonicalTitle(objects[i].title)));
  const pool=fresh.length?fresh:candidates;
- return pool[Math.floor(Math.random()*pool.length)];
+ return pool.length?pool[Math.floor(rng()*pool.length)]:null;
 }
 function r10Remember(region,kind,index){
- const histories=player.flags.r10RoadHistory||(player.flags.r10RoadHistory={}),key=region+':'+kind;
- const title=r10Pool(region)[index].title;
- histories[key]=[...(histories[key]||[]).filter(t=>t!==title),title].slice(-Math.min(kind==='combat'?5:3,R10_POOLS[region][kind].length-1));
+ const title=r10Pool(region)[index]?.title;if(!title)return;
+ const canonical=r10CanonicalTitle(title);
+ player.flags.r10UnifiedHistory=[...(player.flags.r10UnifiedHistory||[]).filter(t=>r10CanonicalTitle(t)!==canonical),canonical].slice(-10);
 }
 function r10PrepareEncounter(){
  // Loading an in-progress encounter must retain its original scene and costs.
@@ -71,18 +64,20 @@ function r10PrepareEncounter(){
  const eligible=r10EligibleWanderers();
  if(portRecruitUnlocked()&&eligible.some(portRecruitEligible))player.flags.r10RecruitDrySegments=Math.min(100,(player.flags.r10RecruitDrySegments||0)+1);
  else player.flags.r10RecruitDrySegments=0;
- if(Math.random()>=R10_TRIGGER_CHANCE){
-  player.flags.r10LastRoadCategory='uneventful';
-  add('You cover this segment without incident.','system');completeRoadTurn();return false;
- }
- const kind=r10Category(eligible.length>0);player.flags.r10LastRoadCategory=kind;
+ // Every ordinary road segment selects an encounter; no empty travel roll.
+ const region=r10Region(),available={wanderer:eligible.length>0};
+ for(const k of ['combat','exploration','salvage','environment'])available[k]=r10Candidates(region,k).length>0;
+ const kind=r10Category(available);player.flags.r10LastRoadCategory=kind;
+ if(!kind){add('No eligible road encounter is available. You return to the road menu.','system');completeRoadTurn();return false;}
  if(kind==='wanderer'){
   showRoadWanderer();
   if(portRecruitUnlocked()&&portRecruitEligible(wandererByName(currentRoadWanderer)))player.flags.r10RecruitDrySegments=0;
   return false;
  }
- const region=r10Region(),index=r10Pick(region,kind),q=r6Road();
+ const index=r10Pick(region,kind),q=r6Road();
  if(q?.active)q.index=index;
  roadEncounterOrder[currentRoadEncounterIndex()]=index;
  r10Remember(region,kind,index);return true;
 }
+
+RoadScenarioRegistry.finishPools();

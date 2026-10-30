@@ -16,7 +16,7 @@ const ROUTE127_ART={
 const GraphicalUI={
  element:null,home:null,lastPlace:'',preferred:null,modeKey:'route127-display-mode',optionsOpen:false,navOpen:false,rendering:false,
  preference(){if(this.preferred)return this.preferred;try{return localStorage.getItem(this.modeKey)==='classic'?'classic':'graphics';}catch{return 'graphics';}},
- eligible(){const g=typeof lanternState==='function'?lanternState():null;if(!g||!player.handle||['title','wake','wakeNamed','standing','handle','confirmHandle','hello','listen','savecoords','confirmNewSlot','selectNewOverwrite','confirmNewOverwrite'].includes(stage))return false;return !!(g.currentEdgeId||g.discoveredEdges?.length||g.nodeId!=='house'||player.flags.mercyDiscovered);},
+ eligible(){const g=typeof lanternState==='function'?lanternState():null;if(!g||['title','wake','wakeNamed','standing','handle','confirmHandle','hello','listen','savecoords','confirmNewSlot','selectNewOverwrite','confirmNewOverwrite'].includes(stage))return false;return !!(g.currentEdgeId||g.discoveredEdges?.length||g.nodeId!=='house'||player.flags.mercyDiscovered);},
  active(){return this.eligible()&&this.preference()==='graphics';},
  setMode(mode){if(!['classic','graphics'].includes(mode))return false;this.preferred=mode;try{localStorage.setItem(this.modeKey,mode);}catch{}this.optionsOpen=false;this.navOpen=false;this.sync();return true;},
  context(){const overlays=new Set(['inventory','inventoryItem','confirmDrop','quests','interfaceStatus','interfaceMap','interfaceSave','combatItems','r5Loot','r18HorseTravel','corvetteRescue']);let place=overlays.has(stage)?returnStage:stage;const g=typeof lanternState==='function'?lanternState():null,c=combatState;
@@ -46,11 +46,11 @@ const GraphicalUI={
   const header=this.node('header','gfx-header metal');const brand=this.node('div','gfx-brand');brand.appendChild(this.node('strong','gfx-wordmark','ROUTE 127'));brand.appendChild(this.node('span','gfx-tagline','BOLTS • SURVIVE • EXPLORE • REBUILD'));header.appendChild(brand);header.appendChild(this.node('p','gfx-motto','SOME ROADS\nNEVER DIE'));const stats=this.node('div','gfx-stats');header.appendChild(stats);frame.appendChild(header);
   const bar=this.node('div','gfx-mobile-bar');const toggle=this.button('☰ MENU',()=>{this.navOpen=!this.navOpen;this.sync();},'gfx-menu-toggle');toggle.setAttribute('aria-controls','gfx-navigation');bar.appendChild(toggle);const where=this.node('span','gfx-current-location');bar.appendChild(where);frame.appendChild(bar);
   const layout=this.node('div','gfx-layout'),nav=this.node('nav','gfx-nav metal');nav.id='gfx-navigation';nav.setAttribute('aria-label','Player navigation');layout.appendChild(nav);const main=this.node('div','gfx-main');const figure=this.node('figure','gfx-art metal'),img=this.node('img','gfx-image');img.alt='';img.decoding='async';img.addEventListener('load',()=>{if(!img.getAttribute('src'))return;img.hidden=false;figure.classList.remove('gfx-neutral');figure.classList.remove('gfx-art-failed');figure.dataset.loadState='loaded';});img.addEventListener('error',()=>{if(!img.getAttribute('src'))return;img.hidden=true;figure.classList.add('gfx-neutral');figure.classList.add('gfx-art-failed');figure.dataset.loadState='error';});const caption=this.node('figcaption','gfx-art-caption');figure.appendChild(img);figure.appendChild(caption);const artError=this.node('div','gfx-art-error','Location artwork could not be loaded. ');artError.appendChild(this.button('Retry artwork',()=>{if(!img.getAttribute('src'))return;img.hidden=false;figure.dataset.loadState='loading';const source=img.getAttribute('src');img.removeAttribute('src');img.src=source;},'gfx-art-retry'));figure.appendChild(artError);main.appendChild(figure);const enemies=this.node('section','gfx-combat metal');enemies.setAttribute('aria-label','Combat status');main.appendChild(enemies);const narrative=this.node('section','gfx-narrative metal');narrative.setAttribute('aria-label','Game narrative and dialogue');main.appendChild(narrative);const choices=this.node('div','gfx-choices');choices.setAttribute('aria-label','Available game actions');main.appendChild(choices);const settings=this.node('section','gfx-settings metal');settings.hidden=true;settings.setAttribute('aria-label','Display options');main.appendChild(settings);layout.appendChild(main);frame.appendChild(layout);shell.insertBefore(frame,this.home);
-  const classic=this.button('FULL GRAPHICS',()=>this.setMode('graphics'),'gfx-classic-switch');classic.hidden=true;shell.appendChild(classic);
+  const classic=this.button('FULL GRAPHICS',()=>this.setMode(this.preference()==='classic'?'graphics':'classic'),'gfx-classic-switch');classic.hidden=true;shell.appendChild(classic);
   this.element={frame,header,stats,nav,main,figure,img,caption,enemies,narrative,choices,settings,classic,where,toggle};this.sync();
  },
  meter(label,value,max,kind){const row=this.node('div','gfx-stat '+kind);row.appendChild(this.node('span','gfx-stat-label',label));const meter=this.node('span','gfx-meter');meter.setAttribute('role','meter');meter.setAttribute('aria-label',label);meter.setAttribute('aria-valuemin','0');meter.setAttribute('aria-valuemax',String(max));meter.setAttribute('aria-valuenow',String(value));const fill=this.node('i');fill.style.width=Math.max(0,Math.min(100,value/Math.max(1,max)*100))+'%';meter.appendChild(fill);meter.appendChild(this.node('b','',value+' / '+max));row.appendChild(meter);return row;},
- sync(){if(!this.element||this.rendering)return;this.rendering=true;try{const m=this.model(),e=this.element;e.frame.hidden=!m.active;e.classic.hidden=!m.eligible||m.active;document.body.classList.toggle('full-graphics',m.active);if(!m.active){if(screen.parentNode!==this.home)this.home.insertBefore(screen,this.home.firstChild);this.home.hidden=false;return;}if(screen.parentNode!==e.narrative)e.narrative.appendChild(screen);this.home.hidden=true;e.frame.dataset.layout=m.layout;e.frame.dataset.checkpoint=m.location==='solace'?'solace':'';e.frame.classList.toggle('nav-open',this.navOpen);e.toggle.setAttribute('aria-expanded',String(this.navOpen));e.where.textContent=m.title;e.caption.textContent=m.title;
+ sync(){if(!this.element||this.rendering)return;this.rendering=true;try{const m=this.model(),e=this.element;e.frame.hidden=!m.active;e.classic.hidden=m.active;e.classic.textContent=this.preference()==='classic'?'DISPLAY: CLASSIC BBS — SWITCH TO GRAPHICS':'DISPLAY: GRAPHICS — SWITCH TO CLASSIC BBS';document.body.classList.toggle('full-graphics',m.active);if(!m.active){if(screen.parentNode!==this.home)this.home.insertBefore(screen,this.home.firstChild);this.home.hidden=false;return;}if(screen.parentNode!==e.narrative)e.narrative.appendChild(screen);this.home.hidden=true;e.frame.dataset.layout=m.layout;e.frame.dataset.checkpoint=m.location==='solace'?'solace':'';e.frame.classList.toggle('nav-open',this.navOpen);e.toggle.setAttribute('aria-expanded',String(this.navOpen));e.where.textContent=m.title;e.caption.textContent=m.title;
   const source=m.art?(ROUTE127_ASSET_BASE?new URL(m.art,ROUTE127_ASSET_BASE).href:m.art):'';if(e.img.getAttribute('src')!==source){if(source){e.img.hidden=false;e.figure.dataset.loadState='loading';e.figure.classList.remove('gfx-art-failed');e.img.src=source;e.img.alt=m.title+' — approved environment artwork';}else{e.img.hidden=true;e.img.removeAttribute('src');e.img.alt='';e.figure.classList.remove('gfx-art-failed');e.figure.dataset.loadState='none';}}e.figure.classList.toggle('gfx-neutral',!m.art||e.img.hidden);e.figure.hidden=['map','inventory','character','journal','crafting'].includes(m.layout);e.enemies.hidden=!m.enemies.length;
   e.stats.replaceChildren(this.node('strong','gfx-level','LV '+m.level),this.meter('HP',m.hp,m.maxHp,'hp'),this.meter('TURNS',m.turns,m.maxTurns,'turns'),this.meter('XP',m.xp,m.nextXp,'xp'),this.node('span','gfx-economy',m.bolts+' BOLTS · PACK '+m.pack+'/'+m.capacity+' · '+m.time));
   e.enemies.replaceChildren();for(const enemy of m.enemies){const row=this.node('div','gfx-enemy');row.appendChild(this.node('strong','',enemy.name));row.appendChild(this.meter('HP',enemy.hp,enemy.maxHp,'hp'));e.enemies.appendChild(row);}for(const status of this.statuses())e.enemies.appendChild(this.node('p','gfx-effect',status));
@@ -82,3 +82,69 @@ lanternAppendChoices=function(labels){
 };
 const wo15WagerMenu=casinoWagerMenu;
 casinoWagerMenu=function(){for(const label of ['[10] 10 BOLTS','[20] 20 BOLTS','[50] 50 BOLTS','[C] CUSTOM','[A] ALL IN','[B] BACK'])registerChoiceOutput(label);return wo15WagerMenu();};
+
+// WO16: presentation-only map overlay. No travel, menu, or save-state changes.
+const Route127MapOverlay={
+ dialog:null,previousFocus:null,
+ open(){
+  if(busy||!player.flags.interfaceUnlocked)return false;
+  if(this.dialog?.open)return true;
+  const g=lanternState();if(!g)return false;
+  this.previousFocus=document.activeElement;
+  const dialog=document.createElement('dialog');dialog.className='route127-map-overlay';
+  dialog.setAttribute('aria-label','Lantern Highway world map');
+  const header=document.createElement('header');
+  const title=document.createElement('strong');title.textContent='LANTERN HIGHWAY — WORLD MAP';header.appendChild(title);
+  const close=document.createElement('button');close.type='button';close.textContent='X';close.setAttribute('aria-label','Close map');close.addEventListener('click',()=>this.close());header.appendChild(close);dialog.appendChild(header);
+  const body=document.createElement('div');body.className='route127-map-body';dialog.appendChild(body);
+  const position=document.createElement('p');position.textContent=g.currentEdgeId?lanternProgressText():'YOU ARE HERE — '+LG_NODES[g.nodeId].name;body.appendChild(position);
+  const v=LANTERN_MAP_VISUAL,W=v.width,H=v.height,figure=document.createElement('figure');figure.className='lantern-map';figure.setAttribute('aria-label','Approved Lantern Highway map with current position');const p=lanternMarker();const paths=LANTERN_WORLD_GRAPH.edges.filter(e=>e.id===g.currentEdgeId).map(e=>`<polyline data-active-road="${e.id}" points="${v.edges[e.id].map(q=>q.join(',')).join(' ')}" fill="none" stroke="${lanternAllowed(e)?'#37bdae':'#ef7777'}" stroke-width="2" ${v.approximateEdges[e.id]?'stroke-dasharray="5 6"':''} opacity=".65"><title>${LG_NODES[e.a].name} to ${LG_NODES[e.b].name}: ${e.distanceTurns} turns</title></polyline>`).join('');const dots=LANTERN_WORLD_GRAPH.nodes.map((n,index)=>{const q=v.nodes[n.id],number=index+1;return `<g class="canonical-map-node" data-map-node="${n.id}" data-node-number="${number}" role="img" aria-label="Node ${number}: ${n.name}"><circle cx="${q[0]}" cy="${q[1]}" r="16" fill="#10181f" stroke="#10181f" stroke-width="3"/><circle cx="${q[0]}" cy="${q[1]}" r="13" fill="#10181f" stroke="${g.discoveredNodes.includes(n.id)?'#ffd487':'#aebdc7'}" stroke-width="2"/><text x="${q[0]}" y="${q[1]+4}" text-anchor="middle" fill="#f6e8c7" font-size="12" font-family="monospace" font-weight="bold">${number}</text><title>Node ${number}: ${n.name}${n.futureInterior?' — exterior only':''}</title></g>`;}).join('');figure.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="You are here: ${g.currentEdgeId?lanternProgressText():LG_NODES[g.nodeId].name}"><image href="${v.image||LANTERN_WORLD_GRAPH.image}" width="${W}" height="${H}"/>${paths}${dots}${r18StationMapMarker()}${lanternVisualSiteMarker(player.flags.r18Ash,'ASH CEMETERY')}<circle id="lantern-player-marker" cx="${p[0]*W}" cy="${p[1]*H}" r="20" fill="none" stroke="#ffbd4a" stroke-width="3"/><text x="${p[0]*W+15}" y="${p[1]*H-16}" fill="#ffcf70" stroke="#10151c" stroke-width="5" paint-order="stroke" font-size="20" font-weight="bold">YOU ARE HERE</text></svg>`;body.appendChild(figure);
+  const legend=document.createElement('p');legend.textContent='Amber: your position. Teal: current road. Close with X or Escape.';body.appendChild(legend);
+  dialog.addEventListener('cancel',event=>{event.preventDefault();this.close();});
+  document.body.appendChild(dialog);this.dialog=dialog;dialog.showModal();close.focus();return true;
+ },
+ close(){if(!this.dialog)return;this.dialog.close();this.dialog.remove();this.dialog=null;if(this.previousFocus?.isConnected)this.previousFocus.focus();}
+};
+const wo16OpenInterface=openInterface;
+openInterface=function(which,...args){if(which==='map')return Route127MapOverlay.open();return wo16OpenInterface(which,...args);};
+const wo16MapCommand=handleCommand;
+handleCommand=async function(raw){
+ const cmd=String(raw).trim().toLowerCase();
+ if(Route127MapOverlay.dialog?.open){if(['x','escape','back','b','exit'].includes(cmd))Route127MapOverlay.close();return;}
+ return wo16MapCommand(raw);
+};
+// Keep global gameplay shortcuts from firing while the modal has focus.
+addEventListener('keydown',event=>{if(!Route127MapOverlay.dialog?.open)return;
+ if(event.key==='Escape'||event.key.toLowerCase()==='x'){event.preventDefault();event.stopImmediatePropagation();Route127MapOverlay.close();}
+ else if(event.key!=='Tab'&&event.key!=='Enter'&&event.key!==' '){event.stopImmediatePropagation();}
+},true);
+
+// Skip the story, but retain mandatory naming and local character identity.
+skipIntroForTesting=function(){
+ resetPlayer();
+ player.flags.wo16SkipNaming=true;
+ player.flags.interfaceUnlocked=false;
+ activeSaveSlot=0;pendingHandle='';numberedChoices={};currentHotkeys={};
+ screen.innerHTML='';stage='handle';signal.textContent='SIGNAL LOGGED';
+ hud.classList.add('hidden');utilityPanel.classList.add('hidden');
+ add('INTRO SKIPPED — CREATE YOUR TRAVELER','place');
+ add('Enter your name before starting. Up to 16 characters; type RANDOM for a suggestion.','system');
+ input.placeholder='Enter your name';updateHud();GraphicalUI.schedule();
+};
+const wo16NamingCommand=handleCommand;
+handleCommand=async function(raw){
+ const cmd=String(raw).trim().toLowerCase();
+ if(player.flags.wo16SkipNaming&&stage==='confirmHandle'&&!busy&&['','y','yes'].includes(cmd)){
+  if(!pendingHandle){stage='handle';add('Enter your name before starting.','system');return;}
+  player.handle=pendingHandle;
+  try{if(!r7Identity())throw Error('Character identity was not created.');}
+  catch(error){player.handle='';add('Unable to create your character ID. '+error.message,'danger');return;}
+  pendingHandle='';delete player.flags.wo16SkipNaming;
+  player.flags.interfaceUnlocked=true;numberedChoices={};currentHotkeys={};
+  input.placeholder='Command';hud.classList.remove('hidden');utilityPanel.classList.remove('hidden');
+  add('TRAVELER CONFIRMED — '+player.handle,'bright');
+  add('The Solace coordinates are already logged.','system');
+  arriveHouse();updateHud();GraphicalUI.schedule();return;
+ }
+ return wo16NamingCommand(raw);
+};

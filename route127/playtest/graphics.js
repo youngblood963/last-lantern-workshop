@@ -58,7 +58,7 @@ const GraphicalUI={
   e.settings.hidden=!this.optionsOpen;e.settings.replaceChildren();if(this.optionsOpen){e.settings.appendChild(this.node('h2','','DISPLAY OPTIONS'));e.settings.appendChild(this.button('CLASSIC BBS',()=>this.setMode('classic')));e.settings.appendChild(this.button('CLOSE OPTIONS',()=>{this.optionsOpen=false;this.sync();}));}
   e.choices.replaceChildren();e.choices.style.setProperty('--gfx-choice-rows',String(Math.max(1,Math.ceil(m.choices.length/2))));for(const [i,c]of m.choices.entries()){const b=this.button('',()=>this.dispatch(c),'gfx-choice');b.disabled=!!busy;b.appendChild(this.node('span','gfx-choice-key',c.key.toUpperCase()));b.appendChild(this.node('span','gfx-choice-label',c.label));b.appendChild(this.node('span','gfx-choice-arrow','›'));e.choices.appendChild(b);}
  }finally{this.rendering=false;}},
- schedule(){if(this.scheduled)return;this.scheduled=true;outputQueue=outputQueue.then(()=>{this.scheduled=false;this.sync();});}
+ schedule(){if(this.scheduled)return;this.scheduled=true;outputQueue=outputQueue.then(()=>{this.scheduled=false;this.sync();if(this.active())screen.scrollTop=screen.scrollHeight;});}
 };
 // Hooks observe output and settled transitions; they never regenerate a gameplay menu.
 const wo14Add=add;add=function(text='',cls=''){if(String(cls).includes('place'))GraphicalUI.lastPlace=String(text);const result=wo14Add(text,cls);GraphicalUI.schedule();return result;};

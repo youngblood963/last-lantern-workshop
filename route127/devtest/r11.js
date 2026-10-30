@@ -1,5 +1,5 @@
 // R11 scoped playtest fixes. Persistent additions live in existing player.flags.
-const R11_DRINKS={e:['BEER',3,5],beer:['BEER',3,5],o:['SHOT',5,10],shot:['SHOT',5,10],h:['HOUSE SPECIAL',8,15],'house special':['HOUSE SPECIAL',8,15]};
+const R11_DRINKS={e:['BEER',5,5],beer:['BEER',5,5],o:['SHOT',9,10],shot:['SHOT',9,10],h:['HOUSE SPECIAL',15,15],'house special':['HOUSE SPECIAL',15,15]};
 const R11_BOARD="Crazy Steve's Sandwich Board";
 const R11_TIMES={common:30,uncommon:120,rare:1800,epic:28800,legendary:43200};
 const R11_ALIASES={'Reinforced Belt':'Worn Belt','Rusted Dog Tags':'Reinforced Dog Tags','Scrap Dog':'Rust Hound','Reinforced Combat Machete':'Tempered Combat Machete','Refurbished Service Revolver':'Specialized Service Revolver','Reinforced Relay Vest':'Advanced Relay Vest','Reinforced Leather Armor':'Tempered Leather Armor'};
@@ -19,7 +19,7 @@ Object.assign(GEAR,{
 PORT55_PETS['Rust Hound'].rarity='uncommon';PORT55_PETS.Ferret.rarity='rare';PORT55_PETS['Pack Mule'].rarity='epic';
 function r11PetRarity(name){return PORT55_PETS[name]?.rarity||(name==='Cheeseburger'?'legendary':'system');}
 const R11_LEVELS={Hollis:2,June:2,Ash:2,Moss:3,Vera:3,Lark:3,Rook:4,Kettle:4,Bram:4,Deke:5,Patch:5,Tess:5,Flint:6,Sable:6,Cricket:6,Rowan:7,Harlow:7,Bolt:7,Crowley:8,Mercer:8,Finch:8,Vale:9,Bishop:9,Wren:9,Cutter:10};
-wanderers.forEach(w=>w.level=R11_LEVELS[w.name]||w.level);
+wanderers.forEach(w=>{if(v50ValidWandererLevel(R11_LEVELS[w.name]))w.level=R11_LEVELS[w.name];v50EnsureWandererLevel(w,R11_LEVELS[w.name]);});
 function r11Migrate(){
  const f=player.flags||(player.flags={});
  const name=n=>R11_ALIASES[n]||n;
@@ -27,8 +27,10 @@ function r11Migrate(){
  for(const key of ['weapon','armor','accessory'])player[key]=name(player[key]);
  for(const arr of [player.pack,player.stash,player.houseStorage,player.rustyRoomChest,f.r6AnchorRoomChest,f.r5LootQueue,f.port55PendingRewards])for(const item of arr||[])if(item&&typeof item==='object')item.name=name(item.name);
  for(const key of ['ownedPets'])if(Array.isArray(f[key]))f[key]=[...new Set(f[key].map(name))];f.equippedPet=name(f.equippedPet);
- for(const w of wanderers){const st=ws(w.name);if(st.profile){st.profile.level=R11_LEVELS[w.name];st.profile.weapon=name(st.profile.weapon);st.profile.armor=name(st.profile.armor);}if(st.inventory)for(const i of st.inventory.items||[])i.name=name(i.name);}
- if(!f.r11Learned){f.r11Learned={};if(f.v49RecipeBandage){f.r11Learned.bandage=true;f.r11Learned.pipe=true;if(player.level>=6)f.r11Learned.ironReaper=true;}}
+ // Register unlocked quest definitions before recovering their saved profiles.
+ if(typeof portRecruitUnlocked==='function')portRecruitUnlocked();
+ for(const w of wanderers){const st=ws(w.name);v50EnsureWandererLevel(w,R11_LEVELS[w.name]);if(st.profile){st.profile.weapon=name(st.profile.weapon);st.profile.armor=name(st.profile.armor);}if(st.inventory)for(const i of st.inventory.items||[])i.name=name(i.name);}
+ if(!f.r11Learned){f.r11Learned={};if(f.v49RecipeBandage){f.r11Learned.bandage=true;f.r11Learned.pipe=true;}}
  // R10 pets already persist in flags. Do not grant unsaved past purchases.
  if(!f.r11Migrated){r11CasinoBaseline();f.r11Migrated=true;}
  r11ValidateBoard();
@@ -54,48 +56,81 @@ applyLevelEvolution=function(div,text,cls=''){
 // Common/Uncommon gear uses the existing protected transaction, immediately for one item.
 const r11SaleStart=v53SaleStart;
 v53SaleStart=function(name,merchant=null){
- const clean=String(name).replace(/\s+[×x]\d+$/i,'').trim(),item=player.pack.find(i=>i.name.toLowerCase()===clean.toLowerCase());
+ const clean=String(name).replace(/\s+[×x]\d+$/i,'').trim(),item=r18NamedStack(player.pack,clean);
  const cheap=item&&['weapon','armor'].includes(item.type)&&['common','uncommon'].includes(GEAR[item.name]?.rarity);
  if(!cheap)return r11SaleStart(name,merchant);
  const unit=v48SellPrice(item);if(!unit)return r11SaleStart(name,merchant);
- player.flags.v53Sale={name:item.name,type:item.type,available:item.qty,unit,qty:1,merchant,location:mercyLocation,mode:'confirm'};
+ player.flags.v53Sale={name:item.name,type:item.type,stolen:!!item.stolen,available:item.qty,unit,qty:1,merchant,location:mercyLocation,mode:'confirm'};
  return v53SaleCommand('confirm sale');
 };
 const r11Store=portStaffServiceCommand;
 portStaffServiceCommand=function(cmd){
  const ui=player.flags.portStaffUI;
  if(portRecruitUnlocked()&&ui?.role==='general store'&&portStaffRating('general store')&&cmd.startsWith('sell ')){
-  const item=player.pack.find(i=>i.name.toLowerCase()===cmd.slice(5));
-  if(item&&['weapon','armor'].includes(item.type)&&['common','uncommon'].includes(GEAR[item.name]?.rarity)&&v48SellPrice(item)>0){ui.item=item.name;ui.price=portStoreSellPrice(item);ui.page='saleConfirm';return r11Store('confirm store sale');}
+  const item=r18NamedStack(player.pack,cmd.slice(5));
+  if(item&&['weapon','armor'].includes(item.type)&&['common','uncommon'].includes(GEAR[item.name]?.rarity)&&v48SellPrice(item)>0){ui.item=item.name;ui.stolen=!!item.stolen;ui.price=portStoreSellPrice(item);ui.page='saleConfirm';return r11Store('confirm store sale');}
  }
  if(portRecruitUnlocked()&&ui?.role==='workshop'&&cmd==='crafting'){r11CraftMenu('seaport');return true;}
  if(ui?.role==='workshop'&&cmd.startsWith('craft ')){r11CraftMenu('seaport');r11CraftCommand(cmd);return true;}
  return r11Store(cmd);
 };
-// Exactly one first-clear equipment reward; higher rarity replaces the base item.
+// First-clear boss equipment: the existing Foreman Epic chance is 10%.
 factoryAwardBossWeapon=function(floor){
  const f=factoryState();f.weaponAwards??={};if(Object.hasOwn(f.weaponAwards,floor))return;
- const high=Math.random()<(floor===3?.10:.20);
- const names=[['Reinforced Salvage Maul',"King's Breaker"],['Modified Rotary Cutter',"Grinder's Cutter"],['Modified Chemical Sprayer',"Chemist's Injector"],['Advanced Foreman Hammer',"Foreman's Verdict"]];
- const name=names[floor][high?1:0];f.weaponAwards[floor]=name;
- if(!addPack(name,'weapon',1,true)){(player.stash||(player.stash=[])).push({name,type:'weapon',qty:1});add('Boss equipment secured in bank storage; pack full.','system');}
- add('FIRST-CLEAR EQUIPMENT — '+gearLabel(name),GEAR[name].rarity);r11Blueprint('boss');r11Quiet(()=>v49Autosave());
+ const awards=[];
+ const give=name=>{
+  const g=GEAR[name];if(!g)return false;
+  if(!addPack(name,g.type,1,true)){(player.stash||(player.stash=[])).push({name,type:g.type,qty:1});add('Boss equipment secured in bank storage; pack full.','system');}
+  awards.push(name);add('FIRST-CLEAR EQUIPMENT — '+gearLabel(name),g.rarity);return true;
+ };
+ const rollGear=rarity=>{
+  const pool=Object.keys(GEAR).filter(n=>GEAR[n].rarity===rarity&&!GEAR[n].questOnly&&['weapon','armor'].includes(GEAR[n].type));
+  if(!pool.length){add('Boss reward unavailable; contact the developer.','danger');return false;}
+  return give(pool[Math.floor(Math.random()*pool.length)]);
+ };
+ // Preserve the established normal miniboss rewards; the Rare roll is additional.
+ if(floor===0||floor===2){
+  give(floor===0?'Reinforced Salvage Maul':'Modified Chemical Sprayer');
+  if(Math.random()<.05)rollGear('rare');
+ }else if(floor===1){rollGear('rare');}
+ else if(floor===3){rollGear('rare');if(Math.random()<.10)rollGear('epic');}
+ else return;
+ f.weaponAwards[floor]=awards;
+ r11Blueprint('boss');r11Quiet(()=>v49Autosave());
 };
 // Crafting uses absolute deadlines; existing jobs retain their original deadline/result.
 Object.assign(R6_TIMES,R11_TIMES);
+// Bone equipment stays out of ordinary named-gear pools until its blueprint is found.
+if(!GEAR['Bone Tomahawk'])Object.defineProperty(GEAR,'Bone Tomahawk',{value:{type:'weapon',rarity:'uncommon',min:9,max:15,subtype:'hatchet'},enumerable:false});
+if(!GEAR['Bone Armor'])Object.defineProperty(GEAR,'Bone Armor',{value:{type:'armor',rarity:'rare',def:6},enumerable:false});
+// Rare crafting material is non-enumerable so equipment and vendor pools stay unchanged.
+if(!GEAR['Tempered Steel'])Object.defineProperty(GEAR,'Tempered Steel',{value:{type:'material',rarity:'rare'},enumerable:false});
+// Recipe display metadata is separate from the existing level-qualified catalog items.
+if(!GEAR.Widowmaker)Object.defineProperty(GEAR,'Widowmaker',{value:{type:'weapon',rarity:'epic',subtype:'rifle'},enumerable:false});
 Object.assign(CRAFT_RECIPES,{
+ relayVest:{name:'Advanced Relay Vest',cloth:4,scrap:4,wire:3,parts:1,bolts:80,type:'armor',chance:.90,minLevel:6},
+ mineTent:{name:'Mine-Protected Tent',rarity:'uncommon',cloth:0,scrap:2,wire:1,explosives:1,basicTent:1,bolts:0,type:'supply',chance:.90},
+ wastelandStew:{name:'Wasteland Stew',rarity:'uncommon',food:['meat','fruit','vegetable'],bolts:0,type:'consumable',chance:1},
+ preservedMeat:{name:'Preserved Meat',rarity:'uncommon',food:['meat'],bolts:0,type:'consumable',chance:1},
+ preservedVegetables:{name:'Preserved Vegetables',rarity:'uncommon',food:['vegetable'],bolts:0,type:'consumable',chance:1},
+ boneTomahawk:{name:'Bone Tomahawk',cloth:0,scrap:2,wire:1,smallBones:3,bolts:30,type:'weapon',chance:.90,minLevel:3},
+ boneArmor:{name:'Bone Armor',cloth:2,scrap:4,wire:1,bones:4,bolts:75,type:'armor',chance:.90,minLevel:6},
+ temperedPipe:{name:'Tempered Steel Pipe',cloth:0,scrap:2,wire:1,parts:0,tempered:2,bolts:40,type:'weapon',chance:.90,minLevel:4},
+ widowmaker:{name:'Widowmaker',cloth:3,scrap:8,wire:4,parts:1,bolts:150,type:'weapon',chance:.90,minLevel:6,catalogId:'weapon-epic-widowmaker'},
  reinforcedPipe:{name:'Reinforced Pipe',cloth:1,scrap:4,wire:1,bolts:30,type:'weapon',chance:.90},
  keeperCoat:{name:'Lantern Keeper’s Coat',cloth:8,scrap:6,wire:4,parts:1,bolts:150,type:'armor',chance:.90,minLevel:8}
 });
-for(const recipe of Object.values(CRAFT_RECIPES))recipe.seconds=R11_TIMES[GEAR[recipe.name]?.rarity||'common'];
+// Approved library recipe rarity/time; existing saved jobs keep their absolute deadline.
+if(CRAFT_RECIPES.bandage)CRAFT_RECIPES.bandage.rarity='rare';
+for(const recipe of Object.values(CRAFT_RECIPES))recipe.seconds=R11_TIMES[recipe.rarity||GEAR[recipe.name]?.rarity||'common'];
 function r11Learned(key){r11Migrate();return !!player.flags.r11Learned[key]||(player.flags.v49RecipeBandage&&['bandage','pipe'].includes(key));}
 function r11Blueprint(source){
  const rates={combat:.02,exploration:.015,salvage:.025,boss:.10};
  if(!rates[source]||Math.random()>=rates[source])return false;
- const pool=['reinforcedPipe','ironReaper','keeperCoat'].filter(k=>!r11Learned(k));if(!pool.length)return false;
+ const pool=['reinforcedPipe','ironReaper','keeperCoat','boneTomahawk','boneArmor'].filter(k=>!r11Learned(k));if(!pool.length)return false;
  const key=pool[Math.floor(Math.random()*pool.length)];player.flags.r11Learned[key]=true;add('BLUEPRINT LEARNED — '+CRAFT_RECIPES[key].name,'reward');return true;
 }
-const r11Drop=v555AwardEquipmentDrop;v555AwardEquipmentDrop=function(){r11Drop();r11Blueprint('combat');};
+const r11Drop=v555AwardEquipmentDrop;v555AwardEquipmentDrop=function(...args){r11Drop(...args);r11Blueprint('combat');};
 const r11Resolve=resolveEncounter;resolveEncounter=function(cmd){
  const oldStage=stage,title=currentEncounter()?.title,oldDone=player.encounterDone?.[roadTurn];
  r11Resolve(cmd);
@@ -104,35 +139,48 @@ const r11Resolve=resolveEncounter;resolveEncounter=function(cmd){
   if(player.flags.r11LastBlueprintScene!==key){player.flags.r11LastBlueprintScene=key;r11Blueprint(player.flags.r10LastRoadCategory==='salvage'?'salvage':'exploration');}
  }
 };
+function r18FoodEligible(kind){return (player.pack||[]).filter(i=>i.qty>0&&!i.protected&&!i.unique&&i.type===(kind==='meat'?'material':'consumable')&&R18_FOOD_GROUPS[kind]?.includes(i.name));}
+function r18FoodCraftMenu(){const q=player.flags.r18FoodDraft,r=q&&CRAFT_RECIPES[q.key];if(!r?.food){delete player.flags.r18FoodDraft;return r11CraftMenu();}add('CHOOSE INGREDIENTS — '+r.name.toUpperCase(),'place');for(const kind of r.food)add(kind.toUpperCase()+': '+(q.selected[kind]||'not selected'),'system');const options=[];for(const kind of r.food)for(const name of [...new Set(r18FoodEligible(kind).map(i=>i.name))])options.push('SELECT '+kind.toUpperCase()+' — '+name.toUpperCase());options.push('CONFIRM INGREDIENTS','CANCEL INGREDIENTS');r5DirectChoices(options);}
+function r18FoodCraftCommand(cmd){const q=player.flags.r18FoodDraft,r=q&&CRAFT_RECIPES[q.key];if(!r?.food){delete player.flags.r18FoodDraft;return r11CraftMenu();}if(['cancel ingredients','back','b'].includes(cmd)){delete player.flags.r18FoodDraft;return r11CraftMenu();}const match=cmd.match(/^select (meat|fruit|vegetable) — (.+)$/);if(match&&r.food.includes(match[1])){const item=r18FoodEligible(match[1]).find(i=>i.name.toLowerCase()===match[2]);if(item)q.selected[match[1]]=item.name;else add('That ingredient is no longer available.','system');return r18FoodCraftMenu();}if(cmd!=='confirm ingredients')return r18FoodCraftMenu();if(player.flags.v49MurphyJob||!player.flags.v49RecipeBandage||!r11Learned(q.key)){add('The recipe or workshop job changed; nothing was spent.','danger');delete player.flags.r18FoodDraft;return r11CraftMenu();}const picks=r.food.map(kind=>r18FoodEligible(kind).find(i=>i.name===q.selected[kind]));if(picks.some(i=>!i)){add('Select one available ingredient for each category. Nothing was spent.','danger');return r18FoodCraftMenu();}const counts=new Map();for(const item of picks)counts.set(item,(counts.get(item)||0)+1);if([...counts].some(([item,n])=>item.qty<n)){add('The available quantity changed. Nothing was spent.','danger');return r18FoodCraftMenu();}for(const [item,n] of counts){item.qty-=n;if(!item.qty)player.pack.splice(player.pack.indexOf(item),1);}const key=q.key;if(key==='wastelandStew')player.flags.r18LastStewMeat=q.selected.meat;delete player.flags.r18FoodDraft;player.flags.v49MurphyJob={key,endsAt:Date.now()+r.seconds*1000,success:Math.random()<r.chance};r11Quiet(()=>v49Autosave());updateHud();add('Ingredients committed. '+r.name+' is underway.','reward');return r11CraftMenu();}
 function r11CraftMenu(where=player.flags.r11Bench||'murphy'){
  if(where==='seaport'&&(!portRecruitUnlocked()||!portStaffRating('workshop')))return;
  player.flags.r11Bench=where;stage='r11Craft';add((where==='seaport'?'SEAPORT WORKSHOP':where==='forge'?"FORGE'S WORKBENCH":"MURPHY'S WORKBENCH")+' — CRAFTING','place');
  const job=player.flags.v49MurphyJob;
+ if(job&&player.flags.r18FoodDraft)delete player.flags.r18FoodDraft;
  if(job){add(CRAFT_RECIPES[job.key].name+' — '+(Date.now()>=job.endsAt?'READY TO COLLECT':Math.ceil((job.endsAt-Date.now())/1000)+' seconds remaining'),'system');r5DirectChoices(['COLLECT CRAFT','BACK']);return;}
  if(!player.flags.v49RecipeBandage){add('Learn introductory crafting from Forge before using found blueprints.','system');r5DirectChoices(['BACK']);return;}
+ if(player.flags.r18FoodDraft)return r18FoodCraftMenu();
  const keys=Object.keys(CRAFT_RECIPES).filter(k=>r11Learned(k));
- for(const k of keys){const r=CRAFT_RECIPES[k];add(`${r.name} — ${r.seconds}s — ${Math.round(r.chance*100)}% — ${r.cloth||0} Cloth, ${r.scrap||0} Scrap Metal, ${r.wire||0} Wire${r.parts?', '+r.parts+' Uncommon Electrical Parts':''}, ${r.bolts} Bolts${r.minLevel?' — level '+r.minLevel:''}`,GEAR[r.name]?.rarity||'system');}
+ add(`LEARNED: ${keys.length}   UNDISCOVERED: ${Object.keys(CRAFT_RECIPES).length-keys.length}`,'system');
+ for(const k of keys){const r=CRAFT_RECIPES[k],m={Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0,'Tempered Steel':r.tempered||0,'Small Animal Bones':r.smallBones||0,'Animal Bones':r.bones||0,'Explosive Components':r.explosives||0,'Animal Hide':r.hide||0,...(r.materials||{})};const missing=Object.entries(m).some(([n,q])=>r6MaterialCount(n)<q)||Object.entries(r.questInputs||{}).some(([n,q])=>CorvetteRestoration.count(n)<q)||!!r.food?.some(k=>!r18FoodEligible(k).length)||!!(r.basicTent&&!r18ExactTent('Tent'))||player.bolts<r.bolts||(r.minLevel&&player.level<r.minLevel);add(`${r.name} — ${(r.rarity||GEAR[r.name]?.rarity||'common').toUpperCase()} — ${r.seconds}s — ${Math.round(r.chance*100)}% — ${r.food?'Choose: '+r.food.join(', '):[...(r.basicTent?['Tent '+(r18ExactTent('Tent')?'1/1':'0/1')]:[]),...Object.entries(m).filter(([,q])=>q).map(([n,q])=>`${n} ${r6MaterialCount(n)}/${q}`),...Object.entries(r.questInputs||{}).map(([n,q])=>`${n} ${CorvetteRestoration.count(n)}/${q}`)].join(', ')} — Bolts ${player.bolts}/${r.bolts} — ${missing?'UNAVAILABLE':'READY'}`,r.rarity||GEAR[r.name]?.rarity||'system');}
  r5DirectChoices([...keys.filter(k=>!CRAFT_RECIPES[k].minLevel||player.level>=CRAFT_RECIPES[k].minLevel).map(k=>'CRAFT '+CRAFT_RECIPES[k].name.toUpperCase()),'BACK']);
 }
 function r11CraftCommand(cmd){
  const where=player.flags.r11Bench;
  if(where==='seaport'&&(!portRecruitUnlocked()||!portStaffRating('workshop'))){stage='seaport';port55Menu();return;}
+ if(player.flags.r18FoodDraft&&!player.flags.v49MurphyJob)return r18FoodCraftCommand(cmd);
+ if(player.flags.r18FoodDraft&&player.flags.v49MurphyJob)delete player.flags.r18FoodDraft;
  if(['back','b'].includes(cmd)){if(where==='seaport'){stage='port55Service';player.flags.portStaffUI={role:'workshop',page:'main'};portStaffRender();}else if(where==='forge')v49FactoryRoom();else{stage='mercy';mercyLocation='murphy';npcTalk('murphy');}return;}
  const job=player.flags.v49MurphyJob;
  if(cmd==='collect craft'&&job){
   if(Date.now()<job.endsAt){add('The work is still in progress.','system');return r11CraftMenu();}
   const r=CRAFT_RECIPES[job.key];if(!job.success){delete player.flags.v49MurphyJob;add('Craft failed; materials were consumed.','system');}
-  else if(addPack(r.name,r.type,1,true)){delete player.flags.v49MurphyJob;add('CRAFT COMPLETE — '+gearLabel(r.name),'reward');}
+  else if(addPack(job.outputName||r.name,r.type,1,true)){const name=job.outputName||r.name;delete player.flags.v49MurphyJob;add('CRAFT COMPLETE — '+gearLabel(name),'reward');}
   else add('Finished item held at the workbench. Free a pack slot.','system');
   r11Quiet(()=>v49Autosave());return r11CraftMenu();
  }
  if(!cmd.startsWith('craft ')||job)return r11CraftMenu();
  const key=Object.keys(CRAFT_RECIPES).find(k=>CRAFT_RECIPES[k].name.toLowerCase()===cmd.slice(6));
  const r=CRAFT_RECIPES[key];if(!player.flags.v49RecipeBandage||!r||!r11Learned(key)||r.minLevel&&player.level<r.minLevel){add('That blueprint is not available to craft.','system');return;}
- const mats={Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0};
- if(player.bolts<r.bolts||Object.entries(mats).some(([n,q])=>r6MaterialCount(n)<q)){add('Not enough materials or Bolts.','danger');return;}
+ if(r.questInputs&&(CorvetteRestoration.state().delivered.windshield||CorvetteRestoration.count('Restored Corvette Windshield'))){add('The windshield is already restored.','system');return;}
+ if(r.food){player.flags.r18FoodDraft={key,selected:{}};return r18FoodCraftMenu();}
+ const mats={Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0,'Tempered Steel':r.tempered||0,'Small Animal Bones':r.smallBones||0,'Animal Bones':r.bones||0,'Explosive Components':r.explosives||0,'Animal Hide':r.hide||0,...(r.materials||{})};
+ if(Object.entries(r.questInputs||{}).some(([n,q])=>CorvetteRestoration.count(n)<q)||player.bolts<r.bolts||Object.entries(mats).some(([n,q])=>r6MaterialCount(n)<q)||(r.basicTent&&!r18ExactTent('Tent'))){add('Not enough materials or Bolts.','danger');return;}
+ const def=r.catalogId?EQUIPMENT_CATALOG.find(x=>x.id===r.catalogId):null;if(r.catalogId&&!def){add('The equipment definition is unavailable. No materials were spent.','danger');return;}
  for(const [n,q]of Object.entries(mats))if(q)r6ConsumeMaterial(n,q);
- player.bolts-=r.bolts;player.flags.v49MurphyJob={key,endsAt:Date.now()+r.seconds*1000,success:Math.random()<r.chance};
+ for(const [n,q]of Object.entries(r.questInputs||{}))CorvetteRestoration.take(n,q);
+ if(r.basicTent)r18ConsumeExactTent('Tent');
+ player.bolts-=r.bolts;player.flags.v49MurphyJob={key,endsAt:Date.now()+r.seconds*1000,success:Math.random()<r.chance,...(def?{outputName:catalogInstanceName(def,Math.max(def.minLevel,Math.min(def.maxLevel,Math.floor(Number(player.level)||1))))}:{})};
  r11Quiet(()=>v49Autosave());updateHud();r11CraftMenu();
 }
 const r11Bench=v49Workbench;v49Workbench=function(){if(!player.flags.v49RecipeBandage)return r11Bench();r11CraftMenu('forge');};
@@ -258,9 +306,9 @@ const r11SolaceBoard=showBulletinBoard;showBulletinBoard=function(){r11SolaceBoa
 function r11PortBoard(){stage='r11Board';add('SEAPORT — DOCK BULLETIN BOARD','place');
  add('SHIPPING: Register cargo before unloading. Unmarked crates will be held at the quay.');add('DOCKWORKERS: Check mooring ropes after every squall.');add('MISSING CARGO: Report altered freight manifests to the docks clerk.');add('HARBOR HAZARD: The western freight spur has unstable decking.');add('LOCAL NOTICE: Mia wants her cups back. Kaiden wants everyone to stop blaming the gulls.');r11SharedBoard();r5DirectChoices(['POST A MESSAGE','VIEW BOUNTIES','RETURN TO DOCKS']);
 }
-const r11Docks=r5Docks;r5Docks=function(){if(!portRecruitUnlocked())return r11Docks();stage='port55Docks';add('SEAPORT — HARBOR DOCKS','place');add('A clerk checks water-stained manifests beside the freed quay.','bright');r5DirectChoices(['DOCK BULLETIN BOARD','TALK TO DOCKS CLERK',...(player.flags.port55PendingRewards?.length?['CLAIM PENDING REWARD']:[]),'RETURN TO SEAPORT']);};
-port55MiaMenu=function(){stage='port55Mia';port55Submenu('The Rusty Anchor — Mia',['SMALL TALK','BUY DRINKS','GAMBLE',player.flags.r6AnchorRoomOwned?'GO TO ROOM':'RENT ROOM — 500 BOLTS',...(portRecruitUnlocked()?['ASK ABOUT HOUSE RULES']:[]),'RETURN TO HARBOR']);};
-function r11Drinks(){stage='r11Drinks';add('MIA — DRINKS','place');r5DirectChoices(['BEER — 3 BOLTS / +5 HP','SHOT — 5 BOLTS / +10 HP','HOUSE SPECIAL — 8 BOLTS / +15 HP','BACK']);}
+const r11Docks=r5Docks;r5Docks=function(){if(!portRecruitUnlocked())return r11Docks();stage='port55Docks';add('SEAPORT — HARBOR DOCKS','place');add('A clerk checks water-stained manifests beside the freed quay.','bright');r5DirectChoices(['DOCK BULLETIN BOARD','TALK TO DOCKS CLERK',...(r18CourierEligible('docks')?['DELIVER SEAPORT PARCEL']:[]),...(player.flags.port55PendingRewards?.length?['CLAIM PENDING REWARD']:[]),'RETURN TO SEAPORT']);};
+port55MiaMenu=function(){stage='port55Mia';port55Submenu('The Rusty Anchor — Mia',['SMALL TALK','BUY DRINKS','GAMBLE',player.flags.r6AnchorRoomOwned?'GO TO ROOM':'RENT ROOM — 2000 BOLTS',...(portRecruitUnlocked()?['ASK ABOUT HOUSE RULES']:[]),'RETURN TO HARBOR']);};
+function r11Drinks(){stage='r11Drinks';add('MIA — DRINKS','place');r5DirectChoices(['BEER — 5 BOLTS / 5% MAX HP (MIN 5)','SHOT — 9 BOLTS / 9% MAX HP (MIN 10)','HOUSE SPECIAL — 15 BOLTS / 15% MAX HP (MIN 15)','BACK']);}
 const R11_QUESTS={shipment:{name:'The Last Shipment',xp:120,bolts:75,giver:'Docks Clerk'},houseRules:{name:'House Rules',xp:100,bolts:100,giver:'Mia'},lights:{name:'Keeping the Lights On',xp:150,bolts:0,giver:'Kaiden'}};
 function r11QuestState(){return player.flags.r11Quests||(player.flags.r11Quests={});}
 function r11QuestMenu(key){
@@ -300,7 +348,9 @@ function r11ValidateBoard(){
  const row=r11LegendDB().board,owner=row&&row.owner===player.characterId;
  if(owner)player.flags.r11BoardToken=row.token;
  const arrays=[...new Set([player.pack,player.stash,player.houseStorage,player.rustyRoomChest,player.flags.r6AnchorRoomChest,player.flags.r5LootQueue].filter(Boolean))];
- if(!owner){if(player.armor===R11_BOARD){player.armor='Worn Jacket';player.maxHp=Math.max(1,player.maxHp-20);player.hp=Math.min(player.hp,player.maxHp);}for(const arr of arrays)for(let i=arr.length-1;i>=0;i--)if(arr[i].name===R11_BOARD)arr.splice(i,1);return;}
+ // Preserve saved equipment if the local ownership database is unavailable or changed.
+ // Claiming remains controlled by r11ClaimBoard and the existing ownership record.
+ if(!owner)return;
  let found=player.armor===R11_BOARD;
  for(const arr of arrays)for(let i=arr.length-1;i>=0;i--)if(arr[i].name===R11_BOARD){if(found)arr.splice(i,1);else{arr[i].qty=1;found=true;}}
  if(!found){const item={name:R11_BOARD,type:'armor',qty:1};if(packSlotsUsed()<player.packMax)player.pack.push(item);else(player.stash||(player.stash=[])).push(item);}
@@ -314,14 +364,7 @@ async function r11ClaimBoard(){
  // Synchronous localStorage commit is safe within one tab; cross-tab guarantees require Web Locks.
  return claim();
 }
-function r11SteveScene(branchReturn=null){
- player.flags.r11SteveReturn=branchReturn;stage='r11Steve';add("CRAZY STEVE'S PINK ELEPHANTS",'place');add('Crazy Steve staggers across the road in an old wooden sandwich board. He points wildly at something the size of a wheelbarrow.');add("CRAZY STEVE > YOU SEE 'EM?! TELL ME YOU SEE 'EM! THE PINK ELEPHANTS! THEY'RE EVERYWHERE!",'bright');r5DirectChoices(['ASK ABOUT THE ELEPHANTS','FIGHT THE ELEPHANTS','LEAVE STEVE ALONE']);
-}
-function r11SteveFinish(){const back=player.flags.r11SteveReturn;delete player.flags.r11SteveReturn;if(back){stage=back.stage;serviceRoadDepth=back.depth;renderCurrentChoices();}else completeRoadTurn();}
-function r11Elephant(){startCombat({name:'PINK ELEPHANT',level:1,hp:1,min:0,max:1,xp:1,bolts:0,end:'The pink elephant pops like a soap bubble. Steve applauds, then checks behind you.'},'r11Elephant');r6Art('PINK ELEPHANT',[['pink','    __     __'],['pink','  /    \\__/  \\'],['pink',' (  o       o )~~'],['pink','  \\___/\\____/'],['pink','    ||    ||']]);}
-function r11SteveVictory(){stage='r11SteveReward';outputQueue=outputQueue.then(async()=>{try{const won=await r11ClaimBoard();add(won?'CRAZY STEVE > THANK YOU! Take the board! It attracts them!':"CRAZY STEVE > I already gave the board away! They said there could only be one. THE ELEPHANTS KNOW.",'bright');if(won)add('LEGENDARY — '+R11_BOARD+' — DEF 15 / MAX HP +20', 'legendary');r11SteveFinish();r11Quiet(()=>v49Autosave());}catch(e){add('Steve cannot secure the reward right now. CLAIM STEVE REWARD to retry.','danger');}});}
-function r11SteveRoll(){return Math.random()<.01;}
-const r11Prepare=r10PrepareEncounter;r10PrepareEncounter=function(){if(!resumeSavedEncounter&&r11SteveRoll()){player.flags.r10LastRoadCategory='special';r11SteveScene();return false;}return r11Prepare();};
+const {r11SteveScene, r11SteveFinish, r11Elephant, r11SteveVictory, r11SteveRoll, r11Prepare} = RoadScenarioRegistry.steve();
 const r11Retreat=handleCombat;handleCombat=function(cmd){if(combatState?.source==='r11Elephant'&&/^(?:b|back|flee|run)/.test(cmd)){combatState=null;add('Steve takes cover behind his sign.','system');r11SteveFinish();return;}return r11Retreat(cmd);};
 const r11Choices=renderCurrentChoices;renderCurrentChoices=function(){if(stage==='r11Gambler')return r11GamblerMenu();if(stage==='r11Craft')return r11CraftMenu();if(stage==='r11Drinks')return r11Drinks();if(stage==='r11Board')return r11PortBoard();if(stage==='r11Quest')return r11QuestMenu(player.flags.r11QuestFocus);if(stage==='r11Steve')return r11SteveScene(player.flags.r11SteveReturn);if(stage==='r11SteveReward')return add('CLAIM STEVE REWARD','system');return r11Choices();};
 const r11Core=handleCommandCore;
@@ -334,7 +377,7 @@ handleCommandCore=async function(raw){
  if(stage==='r11SteveReward'&&cmd==='claim steve reward')return r11SteveVictory();
  if(stage==='r11Drinks'){
   if(['back','b'].includes(cmd))return port55MiaMenu();const d=R11_DRINKS[cmd.split(' — ')[0]];
-  if(d){if(player.bolts<d[1])add('MIA > Bring the Bolts first, sweetheart.','bright');else if(player.hp>=player.maxHp)add("MIA > You're already at full health.",'bright');else{player.bolts-=d[1];player.hp=Math.min(player.maxHp,player.hp+d[2]);updateHud();add(`${d[0]} — +${d[2]} HP / -${d[1]} BOLTS`,'reward');r11Quiet(()=>v49Autosave());}}return r11Drinks();
+  if(d)Economy.drink(d);return r11Drinks();
  }
  if(stage==='r11Quest'){
   if(['back','b'].includes(cmd))return r11QuestReturn();const key=player.flags.r11QuestFocus;if(!portRecruitUnlocked())return port55Menu();
@@ -351,18 +394,21 @@ handleCommandCore=async function(raw){
   if(cmd.startsWith('post ')){postToBulletinBoard(String(raw).trim().slice(5));return r11PortBoard();}return;
  }
  if(portRecruitUnlocked()){
+  if(stage==='port55Docks'&&cmd==='deliver seaport parcel'&&r18CourierEligible('docks')){r18CourierDeliver('docks');return r5Docks();}
   if(stage==='port55Docks'&&cmd==='dock bulletin board')return r11PortBoard();
   if(stage==='port55Docks'&&cmd==='talk to docks clerk')return r11QuestMenu('shipment');
   if(stage==='port55Mia'&&cmd==='ask about house rules')return r11QuestMenu('houseRules');
+  if(stage==='port55Kaiden'&&['pay fine','clear bounty','offer bribe','confirm bribe','cancel bribe'].includes(cmd)){if(player.flags.port55CurrentStop!==port55PatrolName()){delete player.flags.r18BribePending;stage='seaport';add('Kaiden has continued his patrol.','system');return port55Menu();}if(cmd==='pay fine'||cmd==='clear bounty')r18LegalFine('Kaiden');else if(cmd==='offer bribe')r18BribeOffer('Kaiden');else if(cmd==='confirm bribe')r18BribeConfirm('Kaiden');else r18BribeCancel();return r18KaidenChoices();}
   if(stage==='port55Kaiden'&&cmd==='ask about keeping the lights on')return r11QuestMenu('lights');
   if(stage==='r6Road'&&r11RoadQuest(cmd))return;
   if(stage==='port55Mia'&&cmd==='buy drinks')return r11Drinks();
   if(stage==='port55Mia'&&/^(?:rent room|room)/.test(cmd)&&!player.flags.r6AnchorRoomOwned&&player.bolts<500){add("MIA > You trying to rip me off? That room costs 500 Bolts, sweetheart. Come back when you've got the money.",'bright');return port55MiaMenu();}
  }
  const before=player.lifetimeTurns||0;await r11Core(raw);
- if(stage==='port55Kaiden'&&portRecruitUnlocked())r5DirectChoices(['SMALL TALK','ASK ABOUT KEEPING THE LIGHTS ON','RETURN TO HARBOR']);
+ if(stage==='port55Kaiden'&&portRecruitUnlocked())r18KaidenChoices();
  if(['serviceRoad','relayBranch'].includes(stage)&&(player.lifetimeTurns||0)>before&&r11SteveRoll())r11SteveScene({stage,depth:serviceRoadDepth});
 };
+function r18KaidenChoices(){const c=v52Crime(),pending=player.flags.r18BribePending?.lawman==='Kaiden';r5DirectChoices(['SMALL TALK','ASK ABOUT KEEPING THE LIGHTS ON',...(c.bounty>0?['PAY FINE','OFFER BRIBE']:[]),...(pending?['CONFIRM BRIBE','CANCEL BRIBE']:[]),'RETURN TO HARBOR']);}
 // Pet purchases/equips are checkpointed; rendering alone never creates a purchase.
 const r11PetCmd=port55Command;port55Command=function(cmd){const before=JSON.stringify([port55Owned(),player.flags.equippedPet]);const result=r11PetCmd(cmd);if(before!==JSON.stringify([port55Owned(),player.flags.equippedPet]))r11Quiet(()=>v49Autosave());return result;};
 const r11Vendor=port55Vendor;port55Vendor=function(){r11Vendor();for(const [name,p]of Object.entries(PORT55_PETS))if(Number.isFinite(p.price))add(name+' — '+p.rarity.toUpperCase(),p.rarity);};

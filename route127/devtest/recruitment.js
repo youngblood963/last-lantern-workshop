@@ -1,18 +1,23 @@
 // Seaport rebuilding. All ownership belongs to this player's existing save.
 const PORT_STAFF_ROLES={clinic:{name:'Clinic',job:'Medic',skill:'medicine'},'general store':{name:'General Store',job:'Trader',skill:'trading'},workshop:{name:'Workshop',job:'Mechanic',skill:'mechanics'},bank:{name:'Bank',job:'Banker',skill:'banking'}};
-function portRecruitUnlocked(){return player.flags.seaport55?.freed===true;}
+function r18EnsureEli(){if(!player.flags.r18EliRescued||player.flags.seaport55?.freed!==true)return;let w=wandererByName('Eli Mercer');if(!w){w={name:'Eli Mercer',level:6,definitionLevel:6,occupation:'Mechanic',vibe:'practical',lines:['ELI > I can keep a machine running if you give me the parts.','Eli checks the tools in his battered county bag.']};wanderers.push(w);}if(!Number.isInteger(w.definitionLevel))w.definitionLevel=6;if(typeof v50EnsureWandererLevel==='function')v50EnsureWandererLevel(w);const st=ws(w.name);if(!st.seaportAptitudes)st.seaportAptitudes={medicine:2,trading:2,mechanics:5,banking:2};if(!Object.prototype.hasOwnProperty.call(wandererLocations,w.name))wandererLocations[w.name]='road';}
+function r18QuestNpcAllowed(name){const f=player.flags;if(f.seaport55?.freed!==true)return false;if(name==='Eli Mercer')return !!f.r18EliRescued;if(name==='Enid')return !!f.r18EnidLanternPromised;if(name==='Owen Mercer')return f.r18OilOutcome==='rescued';return true;}
+function r18EnsureQuestNpc(name,lines,aptitudes){if(!r18QuestNpcAllowed(name))return;let w=wandererByName(name);if(!w){w={name,level:6,definitionLevel:6,occupation:'Mechanic',vibe:'practical',lines};wanderers.push(w);}if(!Number.isInteger(w.definitionLevel))w.definitionLevel=6;if(typeof v50EnsureWandererLevel==='function')v50EnsureWandererLevel(w);const st=ws(name);if(!st.seaportAptitudes)st.seaportAptitudes={...aptitudes};if(!Object.prototype.hasOwnProperty.call(wandererLocations,name))wandererLocations[name]='road';}
+function r18EnsureOtherRescues(){r18EnsureQuestNpc('Enid',['ENID > A little metal and patience can build more than you think.','Enid checks the tools in her bag.'],{medicine:2,trading:3,mechanics:5,banking:2});r18EnsureQuestNpc('Owen Mercer',['OWEN > I know my way around a broken pump.','Owen checks the fasteners on his repair kit.'],{medicine:2,trading:2,mechanics:4,banking:3});}
+const r18OldWandererAlive=wandererAlive;wandererAlive=function(w){if(w&&['Eli Mercer','Enid','Owen Mercer'].includes(w.name)&&!r18QuestNpcAllowed(w.name))return false;return r18OldWandererAlive(w);};
+function portRecruitUnlocked(){const unlocked=player.flags.seaport55?.freed===true;if(unlocked){r18EnsureEli();r18EnsureOtherRescues();}return unlocked;}
 function portStaffState(){return player.flags.seaportStaff||(player.flags.seaportStaff={hired:[],assignments:{}});}
 function portIsHired(name){return !!player.flags.seaportStaff?.hired.includes(name);}
-function portRecruitEligible(w){return !!w&&!ws(w.name).dead&&!portIsHired(w.name);}
+function portRecruitEligible(w){return !!w&&wandererAlive(w)&&!portIsHired(w.name);}
 function portAptitudes(w){
- const st=ws(w.name);if(!st.seaportAptitudes){
+ if(!Number.isInteger(w.definitionLevel))w.definitionLevel=6;if(typeof v50EnsureWandererLevel==='function')v50EnsureWandererLevel(w);const st=ws(w.name);if(!st.seaportAptitudes){
   // Stable identities, independent of menu redraws/random encounters; persist once.
   const rows=[[2,4,2,5],[2,2,5,3],[3,3,2,4],[2,4,3,2],[5,2,2,3],[2,3,4,2],[3,2,5,1],[2,5,2,4],[1,3,4,2],[3,2,2,5],[2,3,5,2],[4,5,2,3],[2,3,5,2],[2,4,3,3],[2,5,2,4],[3,4,4,2],[5,2,2,3],[2,3,5,2],[2,5,2,4],[2,5,2,3],[3,2,2,5],[2,3,3,4],[2,2,3,5],[3,3,2,4],[3,2,4,3]];
   const row=rows[wanderers.findIndex(x=>x.name===w.name)]||[3,3,3,3];
   st.seaportAptitudes=Object.fromEntries(['medicine','trading','mechanics','banking'].map((k,i)=>[k,row[i]]));
  }return st.seaportAptitudes;
 }
-function portHireCost(w){return 60+v50Profile(w).level*10;}
+function portHireCost(w){if(w?.name==='Enid'&&player.flags.r18EnidLanternPromised)return 0;return 60+v50Profile(w).level*10;}
 function portStaffAssignment(name){return Object.keys(portStaffState().assignments).find(k=>portStaffState().assignments[k]===name);}
 function portStaffRating(role){const name=portStaffState().assignments[role],w=wandererByName(name);return w&&portIsHired(name)?portAptitudes(w)[PORT_STAFF_ROLES[role].skill]:0;}
 function portStaffSave(){updateHud();v49Autosave();}
@@ -36,7 +41,11 @@ function portStaffRender(){
  if(ui.page==='replace'){portStaffChoices(`REPLACE ${assigned||'VACANCY'} WITH ${ui.candidate}?`,['CONFIRM ASSIGNMENT','CANCEL ASSIGNMENT']);return;}
  if(!rating){portStaffChoices('STAFFING',[...(role==='workshop'?['TOMORROW PROJECT TERMINAL']:[]),'ASSIGN STAFF','RETURN TO HARBOR']);return;}
  if(ui.page==='saleConfirm'){portStaffChoices(`SELL 1 ${ui.item} — ${ui.price} BOLTS?`,['CONFIRM STORE SALE','CANCEL STORE SALE']);return;}
- if(ui.page==='sell'){const items=player.pack.filter(i=>v48SellPrice(i)>0);portStaffChoices('SELL ONE ITEM — EQUIPPED, QUEST AND LEGENDARY ITEMS PROTECTED',[...items.map(i=>'SELL '+i.name.toUpperCase()),'BACK']);return;}
+ if(ui.page==='sell'){const items=player.pack.filter(i=>v48SellPrice(i)>0);portStaffChoices('SELL ONE ITEM — EQUIPPED, QUEST AND LEGENDARY ITEMS PROTECTED',[...items.map(i=>'SELL '+r18ItemLabel(i).toUpperCase()),'BACK']);return;}
+ if(ui.page==='equipment'){
+  const stock=regionalEquipmentStock('seaport');for(const slot of stock.slots)add(regionalEquipmentText(slot,'seaport'),GEAR[slot.name]?.rarity||'system');
+  portStaffChoices('EQUIPMENT — PRICE PER ITEM',[...stock.slots.filter(x=>!x.sold).map(x=>'BUY '+x.name.toUpperCase()),'BACK']);return;
+ }
  if(ui.page==='buy'){portStaffChoices('SUPPLIES — PRICE PER ITEM',[...Object.keys(portStoreStock()).filter(n=>portStoreStock()[n]>0).map(n=>`BUY ${n.toUpperCase()} — ${portStorePrice(n)} BOLTS (${portStoreStock()[n]} LEFT)`),'BACK']);return;}
  if(ui.page==='stash'||ui.page==='retrieve'){
   const items=ui.page==='stash'?player.pack.filter(v48Ordinary):player.stash;
@@ -52,20 +61,20 @@ function portStaffRender(){
   portStaffChoices('EXISTING CRAFT RECIPES',[...keys.map(k=>'CRAFT '+CRAFT_RECIPES[k].name.toUpperCase()),'BACK']);return;
  }
  let options;
- if(role==='clinic'){add(`Treatment: ${5+(rating-1)*.25} HP per Bolt; pay only for needed treatment. Full recovery clears the death penalty.`,'bright');options=['TREAT WOUNDS','BUY BANDAGE — '+portClinicBandagePrice()+' BOLTS'];}
- if(role==='general store'){add(`Trade discount/bonus: ${(rating-1)*2}%. Stock refreshes on the existing daily refill clock.`,'bright');options=['BUY SUPPLIES','SELL ITEMS'];}
+ if(role==='clinic'){add(`Treatment: ${Economy.medicalRate(rating)} HP per Bolt; pay only for needed treatment. Full recovery clears the death penalty.`,'bright');options=['TREAT WOUNDS','BUY BANDAGE — '+portClinicBandagePrice()+' BOLTS'];}
+ if(role==='general store'){add(`Trade discount/bonus: ${(rating-1)*2}%. Stock refreshes on the existing daily refill clock.`,'bright');options=['BUY SUPPLIES','BUY EQUIPMENT','SELL ITEMS'];}
  if(role==='workshop'){add(`Crafting time reduction: ${(rating-1)*2}%. Existing recipe gates, materials and success chances apply. Use Inventory to equip or change your gear.`,'bright');options=['TOMORROW PROJECT TERMINAL','CRAFTING','MANAGE EQUIPMENT'];}
  if(role==='bank'){r7BankStatus();add(`CARRIED ${player.bolts} / BANKED ${player.bankBolts}. Shared Solace/Seaport account and storage. No transfer fees.`,'bright');options=['DEPOSIT BOLTS','WITHDRAW BOLTS','STASH ITEMS','RETRIEVE ITEMS','CHANGE NAME — 500 BOLTS'];}
  portStaffChoices('SERVICES',[...options,'INSPECT STAFF '+assigned.toUpperCase(),'ASSIGN STAFF','UNASSIGN STAFF','RETURN TO HARBOR']);
 }
 function portStoreStock(){
  const state=portStaffState(),period=Number(player.flags.nextRefillAt)||0;
- if(!state.stock||state.stockPeriod!==period){state.stockPeriod=period;state.stock={'Energy Bars':8,Bandage:6,Tent:3,'Scrap Metal':8,Wire:6,Cloth:6};}
+ if(!state.stock||state.stockPeriod!==period){state.stockPeriod=period;state.stock={'Energy Bars':8,Bandage:6,Tent:3,'Scrap Metal':8,Wire:6,Cloth:6,'Emergency Trauma Kit':1};}
  return state.stock;
 }
 function portStorePrice(n){const base=VENDOR_BASE[n]||Math.max(1,(V48_LOOT_PRICES[n]||2)*2);return Math.max(1,Math.round(base*(1-(portStaffRating('general store')-1)*.02)));}
 function portStoreSellPrice(item){return Math.floor(v48SellPrice(item)*(1+(portStaffRating('general store')-1)*.02));}
-function portClinicBandagePrice(){return 12-(portStaffRating('clinic')-1);}
+function portClinicBandagePrice(){return 18-(portStaffRating('clinic')-1)*2;}
 function portBankFee(){return 0;}
 function portCraftSeconds(recipe){return Math.ceil(recipe.seconds*(1-(portStaffRating('workshop')-1)*.02));}
 function portStaffServiceCommand(cmd){
@@ -92,16 +101,16 @@ function portStaffServiceCommand(cmd){
  if(!portStaffRating(role)){portStaffRender();return true;}
  if(role==='clinic'){
   if(cmd==='treat wounds'){
-   const missing=player.maxHp-player.hp,rate=5+(portStaffRating(role)-1)*.25,cost=Math.min(Math.ceil(missing/rate),player.bolts);
-   if(cost>0){const penalty=player.deathStreak>0;player.bolts-=cost;player.hp=Math.min(player.maxHp,player.hp+Math.floor(cost*rate));if(player.hp===player.maxHp)player.deathStreak=0;add(`TREATMENT — ${cost} BOLTS; HP ${player.hp}/${player.maxHp}`,'reward');if(penalty&&player.hp===player.maxHp)add('DEATH PENALTY RESET — fully recovered in Seaport.','system');portStaffSave();}else add(missing<=0?'You are already healthy.':'Not enough Bolts.','system');
+   Economy.treat(portStaffRating(role));
   }else if(cmd==='buy bandage'){const price=portClinicBandagePrice();if(player.bolts>=price&&addPack('Bandage','consumable',1,true)){player.bolts-=price;portStaffSave();}else add('Insufficient Bolts or backpack space.','system');}
  }else if(role==='general store'){
-  if(cmd==='buy supplies')ui.page='buy';else if(cmd==='sell items')ui.page='sell';
+  if(cmd==='buy supplies')ui.page='buy';else if(cmd==='buy equipment')ui.page='equipment';else if(cmd==='sell items')ui.page='sell';
+  else if(cmd.startsWith('buy ')&&ui.page==='equipment'){regionalEquipmentBuy('seaport',cmd.slice(4));}
   else if(cmd.startsWith('buy ')){const n=Object.keys(portStoreStock()).find(n=>n.toLowerCase()===cmd.slice(4)),price=n&&portStorePrice(n);if(n&&portStoreStock()[n]>0&&player.bolts>=price&&addPack(n,v52ItemType(n),1,true)){player.bolts-=price;portStoreStock()[n]--;portStaffSave();}else add('Unavailable stock, insufficient Bolts, or backpack full.','system');}
-  else if(cmd.startsWith('sell ')){const i=player.pack.find(i=>i.name.toLowerCase()===cmd.slice(5));if(i&&v48SellPrice(i)>0){ui.item=i.name;ui.price=portStoreSellPrice(i);ui.page='saleConfirm';}}
+  else if(cmd.startsWith('sell ')){const i=r18NamedStack(player.pack,cmd.slice(5));if(i&&v48SellPrice(i)>0){ui.item=i.name;ui.stolen=!!i.stolen;ui.price=portStoreSellPrice(i);ui.page='saleConfirm';}}
   else if(cmd==='cancel store sale')ui.page='sell';
   else if(cmd==='confirm store sale'&&ui.page==='saleConfirm'){
-   const i=player.pack.find(i=>i.name===ui.item);if(i&&v48SellPrice(i)>0&&portStoreSellPrice(i)===ui.price&&Number.isSafeInteger(player.bolts+ui.price)){i.qty--;if(i.qty===0)player.pack.splice(player.pack.indexOf(i),1);player.bolts+=ui.price;add(`SOLD 1 ${ui.item} — ${ui.price} BOLTS`,'reward');ui.page='sell';delete ui.item;delete ui.price;portStaffSave();}else{add('Sale changed. Nothing sold.','system');ui.page='sell';}
+   const i=player.pack.find(i=>i.name===ui.item&&!!i.stolen===!!ui.stolen);if(i&&v48SellPrice(i)>0&&portStoreSellPrice(i)===ui.price&&Number.isSafeInteger(player.bolts+ui.price)){if(i.stolen&&r18SaleDetected(i,'Seaport store')){ui.page='sell';delete ui.item;delete ui.price;portStaffSave();portStaffRender();return true;}i.qty--;if(i.qty===0)player.pack.splice(player.pack.indexOf(i),1);player.bolts+=ui.price;add(`SOLD 1 ${ui.item} — ${ui.price} BOLTS`,'reward');ui.page='sell';delete ui.item;delete ui.price;portStaffSave();}else{add('Sale changed. Nothing sold.','system');ui.page='sell';}
   }
  }else if(role==='bank'){
   if(cmd==='deposit bolts'||cmd==='withdraw bolts'){ui.page='money';ui.action=cmd.split(' ')[0];}

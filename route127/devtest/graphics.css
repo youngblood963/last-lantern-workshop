@@ -212,3 +212,43 @@ body.full-graphics{display:block;padding:8px;background:#080a09;color:#ddd3bc;ov
  .full-graphics .terminal-shell:has(.gfx-frame){padding-bottom:12px}
  .full-graphics .terminal-shell:has(.gfx-frame) .command-form{margin:4px 12px 0}
 }
+
+/* WO15 viewport fit: reserve the command row; scroll only inside panels. */
+body.full-graphics{height:100vh;height:100dvh;min-height:0;overflow:hidden;box-sizing:border-box}
+.full-graphics .terminal-shell:has(.gfx-frame){height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box}
+.full-graphics .terminal-shell .gfx-frame{height:auto;min-height:0;flex:1 1 0;display:flex;flex-direction:column;overflow:hidden;padding-bottom:0}
+.gfx-frame .gfx-header,.gfx-frame .gfx-mobile-bar{flex:0 0 auto}
+.gfx-frame .gfx-layout{flex:1 1 0;min-height:0;overflow:hidden;align-items:stretch}
+.gfx-frame .gfx-nav{min-height:0;overflow:auto}
+.gfx-frame .gfx-main{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.gfx-frame .gfx-art{flex:1 1 0;min-height:0;width:100%}
+.gfx-frame .gfx-art .gfx-image{width:100%;min-width:0;height:100%;min-height:0;max-height:100%;aspect-ratio:auto;object-fit:contain;object-position:center;background:transparent}
+.gfx-frame .gfx-art.gfx-neutral{min-height:0}
+.gfx-frame .gfx-narrative{flex:0 1 auto;min-height:0;overflow:auto}
+.full-graphics .gfx-frame #screen{height:clamp(52px,11dvh,100px);max-height:none;min-height:0;overflow:auto}
+.gfx-frame .gfx-choices{flex:0 1 auto;min-height:0;max-height:30%;overflow:auto;grid-auto-rows:minmax(42px,auto)}
+.gfx-frame .gfx-combat{flex:0 1 auto;min-height:0;max-height:20%;overflow:auto}
+.gfx-frame .gfx-art[hidden]~.gfx-narrative{flex:1 1 0;min-height:0}
+.full-graphics .gfx-frame .gfx-art[hidden]~.gfx-narrative #screen{height:100%;max-height:none}
+.full-graphics .terminal-shell:has(.gfx-frame) .command-form{flex:0 0 auto;min-height:0}
+@media(max-width:760px){
+ .gfx-frame .gfx-layout{display:flex;flex-direction:column}
+ .gfx-frame.nav-open .gfx-nav{flex:0 1 auto;max-height:30%;overflow:auto}
+ .gfx-frame .gfx-main{flex:1 1 0;height:auto}
+ .gfx-frame .gfx-choices{max-height:30%}
+ .gfx-frame .gfx-art-caption{font-size:16px;padding:4px 8px;bottom:5px;left:5px;max-width:calc(100% - 10px)}
+}
+@media(max-height:650px){
+ .gfx-frame{padding:6px}
+ .gfx-frame .gfx-header{margin-bottom:3px}
+ .gfx-frame .gfx-stats{padding:2px;gap:1px 4px}
+ .gfx-frame .gfx-meter{height:15px}
+ .gfx-frame .gfx-nav-button{min-height:44px;padding:5px;font-size:14px}
+ .gfx-frame .gfx-main{gap:4px;padding:3px}
+ .gfx-frame .gfx-narrative{padding:3px 6px}
+ .gfx-frame .gfx-choice{min-height:36px}
+ .gfx-frame .gfx-choice-key{min-height:26px;font-size:20px}
+ .gfx-frame .gfx-choices{grid-auto-rows:minmax(36px,auto)}
+ .full-graphics .terminal-shell:has(.gfx-frame){padding-bottom:5px}
+ .full-graphics .terminal-shell:has(.gfx-frame) .command-form{padding:3px 6px;margin-top:3px}
+}

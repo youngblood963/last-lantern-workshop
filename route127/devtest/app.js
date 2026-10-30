@@ -83,6 +83,15 @@ function choiceCommand(label){
   const clean=String(label).replace(/^\([A-Z0-9]\)\s*/i,"").trim();
   return clean.split(/\s+[—–]\s+/)[0].replace(/\s*\[ENTER\]/gi,"").trim().toLowerCase();
 }
+// Presentation provenance: record only output from the existing choice renderer.
+// No story text is deleted or classified by a new regular expression.
+const presentationChoiceLines=new Set();
+function registerChoiceOutput(text){
+  presentationChoiceLines.add(text);
+  if(presentationChoiceLines.size>256)presentationChoiceLines.delete(presentationChoiceLines.values().next().value);
+  return text;
+}
+function choiceOutputClass(text,cls){return cls.includes("system")&&presentationChoiceLines.has(text)?cls+" ui-choice-output":cls;}
 function hotkeyLine(text){
   const parts=String(text??"").split(/\s{2,}/).map(x=>x.trim()).filter(Boolean);
   const line=parts.map(part=>{
@@ -96,7 +105,7 @@ function hotkeyLine(text){
     numberedChoices[String(index)]=command;
     return `[${index}] ${part.replace(/^\([A-Z0-9]\)\s*/i,"")}`;
   }).join("   ");
-  refreshInterfaceShortcutLabels();return line;
+  refreshInterfaceShortcutLabels();return registerChoiceOutput(line);
 }
 function renderNumberedChoices(text){
   // Choices may be on a single line, with or without legacy letter labels.
@@ -107,7 +116,7 @@ function renderNumberedChoices(text){
       numberedChoices[match[1]]=choiceCommand(match[2]);
     }
     if(/\(B\)\s*BACK/.test(text))currentHotkeys.b="back";
-    return text;
+    return registerChoiceOutput(text);
   }
   if(!/\s{2,}/.test(text) && !/^\([A-Z0-9]\)/.test(text) && !/^(LISTEN|LOG COORDINATES|BUY .+)$/.test(text))return text;
   // Persistent navigation is LETTERS ONLY, never allocate numbered actions.
@@ -178,7 +187,7 @@ function add(text = "", cls = "") {
   if(cls.includes("place") || (!cls.includes("system") && text)) { currentHotkeys={}; numberedChoices={}; usedHotkeys=new Set(); }
   if(cls.includes("system")) text=renderNumberedChoices(text);
   const div = document.createElement("div");
-  div.className = `line ${cls}`;
+  div.className = `line ${choiceOutputClass(text,cls)}`;
   const finalText = text;
   // One authoritative gameplay-output path: enqueue once, render once.
   outputQueue = outputQueue.then(async()=>{
@@ -196,7 +205,7 @@ function add(text = "", cls = "") {
 function addImmediate(text = "", cls = "") {
   ({text,cls}=normalizeQuestNotice(text,cls));
   const div=document.createElement("div");
-  div.className=`line ${cls}`;
+  div.className=`line ${choiceOutputClass(text,cls)}`;
   div.textContent=text;
   screen.appendChild(div);
   applyLevelEvolution(div,text,cls);
@@ -2759,7 +2768,7 @@ function refreshInterfaceShortcutLabels(){
     if(button.dataset)button.dataset.command=cmd==="inventory"&&combat?"use item":cmd;
   });
 }
-function showInterfaceNav(){if(stage==="interfaceMap"){outputQueue=outputQueue.then(()=>{currentHotkeys.b="back";addImmediate("(B) BACK   (S) STATUS   (I) INVENTORY   (M) MAP   (Q) QUESTS   (V) SAVE","system");followOutput();});return;}if(player.flags.interfaceUnlocked)add(`${localInspectionShortcuts()?"":"(S) STATUS   (I) INVENTORY   "}(M) MAP   (Q) QUESTS   (V) SAVE`,"system");}
+function showInterfaceNav(){if(stage==="interfaceMap"){outputQueue=outputQueue.then(()=>{currentHotkeys.b="back";addImmediate("(B) BACK   (S) STATUS   (I) INVENTORY   (M) MAP   (Q) QUESTS   (V) SAVE","system ui-choice-output");followOutput();});return;}if(player.flags.interfaceUnlocked)add(`${localInspectionShortcuts()?"":"(S) STATUS   (I) INVENTORY   "}(M) MAP   (Q) QUESTS   (V) SAVE`,"system ui-choice-output");}
 function openInterface(which){
   if(which==='inventory'&&typeof combatState!=='undefined'&&combatState?.r18Bare){add('No inventory use during a bare-knuckle match.','system');return false;}
   if(!player.flags.interfaceUnlocked) return false;

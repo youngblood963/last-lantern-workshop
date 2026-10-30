@@ -167,24 +167,48 @@ body.full-graphics{display:block;padding:8px;background:#080a09;color:#ddd3bc;ov
  .full-graphics:has(.gfx-frame) .command-form{margin-left:0}
 }
 
-/* WO15 artwork sizing repair: menus must not compress location art. */
-.gfx-frame .gfx-art{
- flex:0 0 auto;
- width:100%;
- min-height:0;
-}
+/* WO15 final layout repair: full-width artwork and compact responsive menus. */
+.gfx-frame .gfx-art{flex:0 0 auto;width:100%;min-height:0;overflow:hidden}
 .gfx-frame .gfx-art .gfx-image{
- display:block;
- flex:none;
- width:100%;
- min-width:100%;
- max-width:100%;
- height:auto;
- min-height:0;
- max-height:none;
- aspect-ratio:16/9;
- object-fit:contain;
- object-position:center;
+ display:block;width:100%;min-width:100%;max-width:100%;
+ height:auto;min-height:0;max-height:none;aspect-ratio:16/9;
+ object-fit:cover;object-position:center;
 }
-/* Text-only scenes keep their existing neutral header size. */
 .gfx-frame .gfx-art.gfx-neutral{min-height:110px}
+.gfx-frame .gfx-choices{
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ grid-auto-flow:row;grid-template-rows:none;gap:6px 10px;
+}
+@media(min-width:761px){
+ .gfx-frame{height:auto;min-height:calc(100dvh - 76px)}
+ .gfx-frame .gfx-layout{flex:1 0 auto;align-items:stretch}
+ .gfx-frame .gfx-main{overflow:visible}
+}
+@media(min-width:761px) and (max-width:1100px){
+ .gfx-frame .gfx-choices{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:760px){
+ .gfx-frame .gfx-choices{grid-template-columns:minmax(0,1fr)}
+ .gfx-frame .gfx-art .gfx-image{aspect-ratio:16/9;max-height:none;object-fit:cover}
+}
+
+/* Continuous illustrated surface includes the command form below the frame. */
+.full-graphics .terminal-shell:has(.gfx-frame){
+ background:#090a09 url('assets/ui/industrial-backing.png') center/100% 100% no-repeat;
+ padding-bottom:clamp(10px,1.2vw,20px);
+ border-radius:8px;
+}
+.full-graphics .terminal-shell .gfx-frame{background:transparent}
+.full-graphics .terminal-shell:has(.gfx-frame) .command-form{
+ margin:4px clamp(10px,1.2vw,20px) 0 calc(13% + 16px);
+ padding:6px 10px;background:rgba(5,7,5,.62);
+ border:1px solid #806044;border-radius:4px;
+ box-shadow:inset 0 0 8px #0008;
+}
+.full-graphics .terminal-shell:has(.gfx-frame) #command{
+ background:rgba(3,5,3,.75);color:#e8e1d5;
+}
+@media(max-width:760px){
+ .full-graphics .terminal-shell:has(.gfx-frame){padding-bottom:12px}
+ .full-graphics .terminal-shell:has(.gfx-frame) .command-form{margin:4px 12px 0}
+}

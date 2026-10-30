@@ -279,6 +279,7 @@ function r5Mapped(raw){let c=String(raw).trim().toLowerCase();return /^\d+$/.tes
 const r5OldCore=handleCommandCore;handleCommandCore=async function(raw){
  if(busy)return;let cmd=r5Mapped(raw);r5Migrate();
  if(r5Credits){if(r5Credits.final)r5CloseCredits();else r5CreditsThanks();return;}
+ if(QA_BUILD&&['testing','testing access'].includes(cmd)){player.flags.testingReturnStage=stage;stage='testingCode';add('DEVELOPMENT QA ACCESS — ENTER ACCESS CODE','place');currentHotkeys={b:'back'};numberedChoices={};return;}
  if(cmd==='credits'){if(!r5StartCredits(true))add('Credits unlock after the Seaport Workshop terminal completes Chapter One.','system');return;}
  if(stage==='r5Loot'&&!/^(save|load)(?: |$)/.test(cmd)){r5LootCommand(cmd);return;}
  if(stage==='factoryRusty'&&!/^(save|load)(?: |$)/.test(cmd)){r5RustyCommand(cmd);return;}

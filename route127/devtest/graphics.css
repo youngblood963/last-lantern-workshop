@@ -262,3 +262,34 @@ body.full-graphics .gfx-frame{box-sizing:border-box;max-height:100%;min-height:0
 body.full-graphics .gfx-frame .gfx-main{box-sizing:border-box;min-height:0;max-height:100%}
 body.full-graphics .gfx-frame .gfx-settings{flex:0 1 auto;min-height:0;overflow:auto}
 @media(max-width:760px){body.full-graphics{padding:0}}
+
+/* WO15 artwork fill: preserve the viewport layout; fill the existing art panel.
+   Cover preserves image proportions and crops excess edges instead of letterboxing. */
+body.full-graphics .gfx-frame .gfx-art .gfx-image{
+ object-fit:cover;
+ object-position:center;
+}
+
+/* WO15 panel scrollbars: transparent track and muted rust thumb. */
+body.full-graphics .gfx-frame,
+body.full-graphics .gfx-frame *{
+ scrollbar-width:thin;
+ scrollbar-color:#79553b transparent;
+}
+body.full-graphics .gfx-frame ::-webkit-scrollbar{
+ width:8px;
+ height:8px;
+}
+body.full-graphics .gfx-frame ::-webkit-scrollbar-track,
+body.full-graphics .gfx-frame ::-webkit-scrollbar-corner{
+ background:transparent;
+}
+body.full-graphics .gfx-frame ::-webkit-scrollbar-thumb{
+ background-color:#79553b;
+ border:2px solid transparent;
+ background-clip:padding-box;
+ border-radius:6px;
+}
+body.full-graphics .gfx-frame ::-webkit-scrollbar-thumb:hover{
+ background-color:#ad7b50;
+}

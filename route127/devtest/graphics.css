@@ -166,3 +166,25 @@ body.full-graphics{display:block;padding:8px;background:#080a09;color:#ddd3bc;ov
  .gfx-frame .gfx-choice{min-height:44px}
  .full-graphics:has(.gfx-frame) .command-form{margin-left:0}
 }
+
+/* WO15 artwork sizing repair: menus must not compress location art. */
+.gfx-frame .gfx-art{
+ flex:0 0 auto;
+ width:100%;
+ min-height:0;
+}
+.gfx-frame .gfx-art .gfx-image{
+ display:block;
+ flex:none;
+ width:100%;
+ min-width:100%;
+ max-width:100%;
+ height:auto;
+ min-height:0;
+ max-height:none;
+ aspect-ratio:16/9;
+ object-fit:contain;
+ object-position:center;
+}
+/* Text-only scenes keep their existing neutral header size. */
+.gfx-frame .gfx-art.gfx-neutral{min-height:110px}

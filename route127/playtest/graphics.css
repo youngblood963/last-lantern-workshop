@@ -123,7 +123,7 @@ body.full-graphics{padding:6px;background:#080706}
 .gfx-frame .gfx-nav{padding:6px 0;align-self:stretch}
 .gfx-frame .gfx-nav-button{min-height:72px;font:20px/1.2 Georgia,serif;gap:10px}
 .gfx-frame .gfx-main{border-width:12px;gap:7px;padding-bottom:6px}
-.gfx-frame .gfx-image{width:100%;height:clamp(200px,calc(100dvh - 390px),570px);max-height:none;aspect-ratio:auto;object-fit:cover;object-position:center}
+.gfx-frame .gfx-image{width:100%;height:clamp(160px,calc(100dvh - 520px),570px);max-height:none;aspect-ratio:auto;object-fit:cover;object-position:center}
 .gfx-frame .gfx-art-caption{font:16px/1.2 Georgia,serif;letter-spacing:1px;bottom:10px;left:10px;padding:5px 10px}
 .full-graphics .gfx-frame #screen{height:96px;max-height:25dvh;font:17px/1.5 'Courier New',monospace;white-space:normal}
 .full-graphics .gfx-frame #screen .line{margin-bottom:7px}

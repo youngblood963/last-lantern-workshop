@@ -74,3 +74,51 @@ body.full-graphics .gfx-frame .gfx-current-location{padding:6px 12px;font-size:1
  body.full-graphics .gfx-frame .gfx-nav{gap:5px;padding:5px}
  body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button{min-height:43px;padding:6px;font-size:14px}
 }
+
+/* Approved illustrated button face. Nine-slice keeps corner rivets round. */
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button,
+body.full-graphics .gfx-frame .gfx-art-caption,
+body.full-graphics .gfx-frame .gfx-current-location{
+ border:12px solid transparent;
+ border-image:url('assets/ui/iron-button-plate.webp') 150 fill stretch;
+ background:none;border-radius:0;box-shadow:0 3px 5px #0009;
+ color:#e3d5b8;font-family:Impact,'Arial Narrow',sans-serif;letter-spacing:1.5px;text-shadow:0 1px 0 #fff3,1px 2px 2px #000;
+}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button{
+ padding:4px 2px;gap:6px;min-height:66px;font-size:clamp(13px,1.2vw,20px);
+}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button svg{
+ width:23px;height:27px;flex:0 0 23px;padding:0 5px 0 0;
+ border:0;border-right:1px solid #a58d69;border-radius:0;background:none;box-shadow:none;
+ stroke:#cfbea0;stroke-width:2;filter:drop-shadow(1px 2px 1px #000);
+}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button span{flex:1;text-align:left}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button::before,
+body.full-graphics .gfx-frame .gfx-art-caption::before,
+body.full-graphics .gfx-frame .gfx-art-caption::after{display:none}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button::after{
+ display:block;content:'';position:absolute;inset:-3px;width:auto;height:auto;
+ border:1px solid #da973c;border-radius:2px;background:none;box-shadow:0 0 5px #d18a2655;
+ opacity:0;pointer-events:none;
+}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button:hover,
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button:focus-visible{
+ border-color:transparent;background:none;color:#ffe4b2;outline:none;filter:brightness(1.16);
+}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button:hover::after,
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button:focus-visible::after{opacity:1}
+body.full-graphics .gfx-frame .gfx-art-caption{padding:3px 12px;font-size:clamp(18px,2vw,29px);text-align:center}
+body.full-graphics .gfx-frame .gfx-current-location{padding:2px 8px;font-size:16px;text-align:center}
+@media(max-width:760px){
+ body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button{
+  border-width:8px;min-height:66px;padding:3px 0;gap:3px;
+  font-size:clamp(9px,2.4vw,12px);letter-spacing:0;
+ }
+ body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button svg{width:20px;height:20px;flex:0 0 20px;border:0;padding:0}
+ body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button span{flex:0 0 auto;text-align:center}
+ body.full-graphics .gfx-frame .gfx-art-caption{border-width:10px;padding:2px 8px;font-size:17px}
+ body.full-graphics .gfx-frame .gfx-current-location{border-width:9px;font-size:14px}
+}
+@media(max-height:650px) and (min-width:761px){
+ body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button{border-width:10px;min-height:48px;padding:2px;font-size:13px}
+}

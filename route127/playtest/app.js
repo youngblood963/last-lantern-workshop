@@ -1468,6 +1468,12 @@ function v555ClaimEquipmentDrop(){
   }else add('EQUIPMENT DROP STILL HELD — FREE A BACKPACK SLOT.','system');
   return true;
 }
+// Relay progression reaches Scrap Yard with starting equipment at level 1–2.
+// Update old saved fights too, preserving current enemy HP and reward state.
+function tuneRelayYardman(c){
+ if(c?.source==='serviceBoss'&&c.name==='THE YARDMAN')Object.assign(c,{level:2,min:5,max:8});
+ return c;
+}
 function startCombat(spec, source="encounter", townCost=false, openingAttack=false){
   if(townCost){ if(player.turns<=0){add("NO EXPEDITION TURNS REMAIN.","danger");return;} player.turns--; player.lifetimeTurns=(Number(player.lifetimeTurns)||0)+1; updateHud(); }
   combatState={...spec,hp:spec.hp,maxHp:spec.hp,source,bolts:Math.max(0,Number(spec.bolts)||0),enemies:spec.enemies?spec.enemies.map(e=>({...e,maxHp:e.hp})):undefined}; stage="combat";
@@ -1484,6 +1490,7 @@ function startCombat(spec, source="encounter", townCost=false, openingAttack=fal
   });
 }
 function renderCombatMenu(){
+ tuneRelayYardman(combatState);
  if(combatState?.wo4Sniper){r5DirectChoices(["ATTACK","FIND COVER","RETURN FIRE","FLANK SNIPER","USE ITEM","BACK OFF"]);return;}
  if(combatState?.wo3Drone){r5DirectChoices(["ATTACK",...(!combatState.wo3LightShot?["SHOOT FLOODLIGHT"]:[]),"TAKE CONTAINER COVER","USE ITEM","BACK OFF"]);return;}
  if(combatState?.wo3Crawler){r5DirectChoices(["ATTACK",...(combatState.armorDef>0?["EXPOSE UNDERSIDE"]:[]),"USE ITEM","BACK OFF"]);return;}
@@ -1497,6 +1504,7 @@ function renderCombatMenu(){
  add(combatState?.r18Bare?'(A) ATTACK   (B) BACK OFF':trapped?'(A) ATTACK   (U) USE ITEM':'(A) ATTACK   (U) USE ITEM   (B) BACK OFF','system');
 }
 function handleCombat(cmd){
+ tuneRelayYardman(combatState);
   const c=combatState; if(!c){stage="between";return;}
   if(c.wo3Reward&&RoadScenarioRegistry.wo3Tactic(cmd,c))return;
   if(c.wo4Reward&&RoadScenarioRegistry.wo4Tactic(cmd,c))return;
@@ -1568,6 +1576,7 @@ function scaledEnemyDamage(raw,defense,level){
  return Math.max(1,Math.round(Math.max(0,raw-defense)*factor));
 }
 function combatRetaliation(c){
+  tuneRelayYardman(c);
   if(c.r18Enforcer&&!c.r18EnforcerStim&&c.hp>0&&c.hp<=c.maxHp*.4){c.r18EnforcerStim=true;const heal=Math.max(1,Math.ceil(c.maxHp*.2));c.hp=Math.min(c.maxHp,c.hp+heal);add(`${c.name} uses a stimulant and recovers ${heal} HP.`,"danger");}
   if(c.r18ScrapTrap&&!c.r18ScrapTrapChecked){c.r18ScrapTrapChecked=true;if(Math.random()<.4){roadHurt(3);add("The claimant's tripwire catches your boot and leaves you off balance.","danger");if(stage==="fallen")return;c.r18ScrapStagger=true;}}
   // Each surviving opponent can retaliate; defeated enemies do not strike.
@@ -1583,7 +1592,7 @@ function combatRetaliation(c){
     }
     const heavySwing=c.source==="serviceBoss" && Math.random()<0.20;
     const low=Number.isFinite(attacker?.r18Min)?attacker.r18Min:c.min,high=Number.isFinite(attacker?.r18Max)?attacker.r18Max:c.max;
-    let raw=heavySwing?13+Math.floor(Math.random()*4):Math.floor(Math.random()*(high-low+1))+low;
+    let raw=heavySwing?9+Math.floor(Math.random()*3):Math.floor(Math.random()*(high-low+1))+low;
     if(c.wo4Sniper){if(c.wo4Suppressed){c.wo4Suppressed=false;add('Your fire disrupts the sniper’s shot.','bright');continue;}if(c.wo4Closed)raw=Math.max(1,Math.floor(raw*.55));else if(c.wo4SniperCover)raw=Math.max(1,Math.floor(raw*.5));else raw=Math.ceil(raw*1.15);}
     if(c.wo3Drone){c.wo3DroneTurns=(Number(c.wo3DroneTurns)||0)+1;if(c.wo3LightShot){if(c.wo3DroneTurns%2===0){add('The blinded drone sweeps wide and misses.','bright');continue;}raw=Math.max(1,Math.floor(raw*.75));}if(c.wo3Cover){raw=Math.max(1,Math.floor(raw*.5));c.wo3Cover=false;add('The container shields you from part of the volley.','bright');}}
     if(c.r18WardenId&&!c.r18WardenBatonUsed&&Math.random()<.15){c.r18WardenBatonUsed=true;c.r18ScrapStagger=true;add('The Warden lands a stun-baton strike. You will lose your next attack recovering.','danger');}
@@ -3126,7 +3135,7 @@ async function handleCommandCore(raw) {
     if(serviceRoadDepth===0){stage="fork";add("You return to the Route 127 fork. No additional intersection charge.","system");renderCurrentChoices();}
     else{add(serviceRoadDepth===1?"SERVICE ROAD — LOWER GRADE":"SERVICE ROAD — WASHOUT","place");add("You retrace one stretch of road. -1 turn.","system");add(serviceRoadChoices(),"system");}
     return;
-  } if(cmd.includes("continue")||cmd.includes("up road")){if(serviceRoadDepth>=3&&player.flags.serviceBossDead){add("The enclosure ends at the Scrap Yard fence.","system");add(serviceRoadChoices(),"system");return;}if(!testMode && player.turns<=0){noTurnsMenu();return;}spendTurn();player.flags.branchReturning=false; if(serviceRoadDepth<2){serviceRoadDepth=2;add("SERVICE ROAD — WASHOUT","place");v48Intro("service_washout",[["The lane bends around a washed-out culvert. Tire ruts vanish into weeds, then reappear beside an old county equipment fence."]],"You pass the washed-out culvert again.",true);add(serviceRoadChoices(),"system");return;} serviceRoadDepth=3;if(player.flags.serviceBossDead){add(player.flags.relayPartsRevealed&&!ensureRelayParts().yard?"The Yardman is gone. The motor assemblies needed for the Relay are still here. SEARCH MAINTENANCE YARD to recover the antenna servo.":"Scrap Yard is quiet now. The Yardman is gone.");add(serviceRoadChoices(),"system");return;}add("COUNTY MAINTENANCE YARD","place");add("A hulking figure steps from the ruined garage, dragging a heavy wrench across the concrete.");startCombat({name:"THE YARDMAN",level:5,hp:55,min:7,max:12,xp:65,bolts:28,end:"The Yardman drops hard. The maintenance yard finally goes quiet."},"serviceBoss",false);return;} add("(C) CONTINUE UP ROAD   (R) RETURN TO FORK","system");return;}
+  } if(cmd.includes("continue")||cmd.includes("up road")){if(serviceRoadDepth>=3&&player.flags.serviceBossDead){add("The enclosure ends at the Scrap Yard fence.","system");add(serviceRoadChoices(),"system");return;}if(!testMode && player.turns<=0){noTurnsMenu();return;}spendTurn();player.flags.branchReturning=false; if(serviceRoadDepth<2){serviceRoadDepth=2;add("SERVICE ROAD — WASHOUT","place");v48Intro("service_washout",[["The lane bends around a washed-out culvert. Tire ruts vanish into weeds, then reappear beside an old county equipment fence."]],"You pass the washed-out culvert again.",true);add(serviceRoadChoices(),"system");return;} serviceRoadDepth=3;if(player.flags.serviceBossDead){add(player.flags.relayPartsRevealed&&!ensureRelayParts().yard?"The Yardman is gone. The motor assemblies needed for the Relay are still here. SEARCH MAINTENANCE YARD to recover the antenna servo.":"Scrap Yard is quiet now. The Yardman is gone.");add(serviceRoadChoices(),"system");return;}add("COUNTY MAINTENANCE YARD","place");add("A hulking figure steps from the ruined garage, dragging a heavy wrench across the concrete.");startCombat({name:"THE YARDMAN",level:2,hp:55,min:5,max:8,xp:65,bolts:28,end:"The Yardman drops hard. The maintenance yard finally goes quiet."},"serviceBoss",false);return;} add("(C) CONTINUE UP ROAD   (R) RETURN TO FORK","system");return;}
   if(stage === "combat"){ handleCombat(cmd); return; }
   if(stage === "wandererRoad"){ handleRoadWanderer(cmd); return; }
   if(stage === "mercy" && currentTownWanderer && handleTownWanderer(cmd)) return;
@@ -3267,3 +3276,4 @@ function handleInnRoom(cmd){
   }
 
 }
+

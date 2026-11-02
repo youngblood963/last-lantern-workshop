@@ -1,0 +1,30 @@
+/* No command row or reserved command-row space in graphical mode. */
+body.graphical-input-mode .command-form,
+body.graphical-input-mode #v53-board-counter{display:none!important}
+body.graphical-input-mode #screen .ui-choice-output{display:none}
+.entry-legacy-actions[hidden]{display:none!important}
+.entry-legacy-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.entry-legacy-actions button{min-height:44px}
+.gfx-frame .entry-action{min-height:42px;font:15px/1.3 'Segoe UI',Arial,sans-serif}
+.traveler-entry-dialog{width:min(540px,94vw);height:auto;max-height:88dvh;overflow:auto;padding:22px}
+.traveler-entry-dialog .traveler-header{justify-content:space-between}
+.traveler-entry-dialog h2{margin:0;font:25px/1.3 'Route 127 Stencil',Impact,sans-serif;color:#e4d2b0}
+.traveler-entry-dialog .entry-form{display:flex;flex-direction:column;gap:12px}
+.traveler-entry-dialog label{display:flex;flex-direction:column;gap:7px;font-size:15px;color:#dbc9ab}
+.traveler-entry-dialog input,.traveler-entry-dialog select{box-sizing:border-box;width:100%;min-height:48px;padding:10px 12px;border:1px solid #9b744b;background:#090d0a;color:#f0e7d5;font:18px/1.4 'Segoe UI',Arial,sans-serif;border-radius:3px}
+.traveler-entry-dialog input:focus,.traveler-entry-dialog select:focus{outline:2px solid #d6a25b;outline-offset:2px}
+.traveler-entry-dialog .entry-feedback{margin:0;color:#edbc87;font-size:14px;line-height:1.5;white-space:pre-wrap}
+.traveler-entry-dialog .traveler-actions{margin-top:4px}
+.traveler-entry-dialog .traveler-actions button{min-height:44px}
+
+/* Smaller location plate, restored to the lower-left corner of the artwork. */
+body.full-graphics .gfx-frame .gfx-art-caption{
+ top:auto;bottom:8px;left:8px;border-width:9px;padding:2px 8px;
+ max-width:calc(100% - 16px);font-size:clamp(15px,1.35vw,21px);line-height:1.15;
+}
+@media(max-width:760px){
+ body.full-graphics .gfx-frame .gfx-art-caption{
+  top:auto;bottom:6px;left:6px;border-width:8px;padding:1px 6px;font-size:14px;
+  max-width:calc(100% - 12px);
+ }
+}

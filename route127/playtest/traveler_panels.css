@@ -8,3 +8,69 @@
 .traveler-art::before{content:"";display:block;height:100%;aspect-ratio:627 / 836;background-image:url('assets/ui/traveler-art.webp');background-repeat:no-repeat;background-size:300% 100%}
 .traveler-art-inventory::before{background-position:left center}.traveler-art-status::before{background-position:center center}.traveler-art-quests::before{background-position:right center}
 .traveler-options-body{display:block}.traveler-options-body .traveler-detail{height:100%;box-sizing:border-box;padding:22px;display:flex;flex-direction:column;gap:12px;max-width:650px;margin:auto}.traveler-main-objective{padding:12px;border:1px solid #624a34;color:#d1b184;font-size:13px;margin:0;background:#1c1b13}
+
+/* WO18: permanent navigation plates and matching location-name plates. */
+body.full-graphics .gfx-frame .gfx-nav{
+ display:flex;flex-direction:column;gap:9px;padding:9px 7px;
+ background:rgba(8,10,9,.38);overflow:auto;
+}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button,
+body.full-graphics .gfx-frame .gfx-art-caption,
+body.full-graphics .gfx-frame .gfx-current-location{
+ position:relative;border:2px solid #7a5940;border-radius:4px;
+ background:#11130f url('assets/ui/scratched-metal.svg') center/640px 128px;
+ box-shadow:inset 0 0 0 1px #090a08,inset 0 0 14px #000b,0 2px 4px #0009;
+ color:#e9deca;font-family:Impact,'Arial Narrow','Segoe UI',sans-serif;
+ font-weight:400;letter-spacing:1.3px;text-transform:uppercase;text-shadow:1px 2px 1px #000;
+}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button{
+ flex:0 0 auto;display:flex;align-items:center;gap:8px;min-height:58px;
+ padding:10px 9px;text-align:left;font-size:clamp(14px,1.3vw,21px);line-height:1.2;
+}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button::before,
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button::after,
+body.full-graphics .gfx-frame .gfx-art-caption::before,
+body.full-graphics .gfx-frame .gfx-art-caption::after{
+ content:'';position:absolute;width:4px;height:4px;border:1px solid #89725a;border-radius:50%;
+ background:#28291e;box-shadow:0 1px 2px #000;pointer-events:none;
+}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button::before,
+body.full-graphics .gfx-frame .gfx-art-caption::before{left:3px;top:3px}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button::after,
+body.full-graphics .gfx-frame .gfx-art-caption::after{right:3px;bottom:3px}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button:hover,
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button:focus-visible{
+ border-color:#d5a166;color:#ffe3b5;outline:2px solid #c98a45;outline-offset:1px;
+ background-color:#29241a;filter:brightness(1.15);
+}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button span{white-space:normal;overflow-wrap:normal}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button svg{
+ width:26px;height:26px;flex:0 0 26px;padding:3px;
+ border:1px solid #63503a;border-radius:3px;color:#cbb595;stroke:currentColor;
+ background:#080b08a6;box-shadow:inset 0 1px 3px #000;
+}
+body.full-graphics .gfx-frame .gfx-art-caption{
+ position:absolute;left:12px;top:12px;bottom:auto;width:fit-content;max-width:calc(100% - 24px);
+ margin:0;padding:10px 18px;font-size:clamp(19px,2.1vw,30px);line-height:1.2;
+ overflow-wrap:anywhere;
+}
+body.full-graphics .gfx-frame .gfx-art.gfx-art-failed .gfx-art-caption{position:relative;top:0;left:0;margin:8px}
+body.full-graphics .gfx-frame .gfx-current-location{padding:6px 12px;font-size:16px;line-height:1.2}
+@media(max-width:760px){
+ body.full-graphics .gfx-frame .gfx-menu-toggle{display:none}
+ body.full-graphics .gfx-frame .gfx-mobile-bar{margin-bottom:5px}
+ body.full-graphics .gfx-frame .gfx-nav{
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;
+  flex:0 0 auto;max-height:none;padding:5px;margin-bottom:5px;
+ }
+ body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button{
+  min-height:62px;padding:6px 3px;flex-direction:column;justify-content:center;gap:4px;
+  text-align:center;font:12px/1.15 'Arial Narrow','Segoe UI',sans-serif;letter-spacing:0;
+ }
+ body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button svg{width:23px;height:23px;flex:0 0 23px}
+ body.full-graphics .gfx-frame .gfx-art-caption{top:6px;left:6px;max-width:calc(100% - 12px);padding:7px 12px;font-size:18px}
+}
+@media(max-height:650px) and (min-width:761px){
+ body.full-graphics .gfx-frame .gfx-nav{gap:5px;padding:5px}
+ body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button{min-height:43px;padding:6px;font-size:14px}
+}

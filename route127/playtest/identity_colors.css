@@ -1,0 +1,8 @@
+/* Stable semantic colors in graphical mode, at every character level. */
+body.full-graphics #screen .line{color:#ddd8c9}
+body.full-graphics .route-color-uncommon,body.full-graphics .route-color-wanderer,
+body.full-graphics .traveler-overlay .uncommon strong{color:#65c77b!important}
+body.full-graphics .route-color-rare,body.full-graphics .route-color-npc,
+body.full-graphics .traveler-overlay .rare strong{color:#78afff!important}
+body.full-graphics .route-color-epic{color:#b68cdd!important}
+body.full-graphics .route-color-legendary{color:#e39a51!important}

@@ -122,3 +122,37 @@ body.full-graphics .gfx-frame .gfx-current-location{padding:2px 8px;font-size:16
 @media(max-height:650px) and (min-width:761px){
  body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button{border-width:10px;min-height:48px;padding:2px;font-size:13px}
 }
+
+/* Bundled SIL OFL stencil face: consistent lettering on every device. */
+@font-face{
+ font-family:'Route 127 Stencil';
+ src:url('assets/fonts/SairaStencilOne-Regular.woff') format('woff');
+ font-weight:400;font-style:normal;font-display:swap;
+}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button,
+body.full-graphics .gfx-frame .gfx-art-caption,
+body.full-graphics .gfx-frame .gfx-current-location{
+ font-family:'Route 127 Stencil',Impact,'Arial Narrow',sans-serif;
+ font-weight:400;font-synthesis:none;letter-spacing:.7px;
+ color:#deceb0;text-shadow:0 1px 0 #fff2,1px 2px 1px #000,0 -1px 1px #2b1e12;
+}
+body.full-graphics .gfx-frame .gfx-layout{grid-template-columns:minmax(150px,13%) minmax(0,1fr)}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button{font-size:clamp(12px,1.05vw,18px)}
+body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button>span,
+body.full-graphics .gfx-frame .iron-title-text{
+ -webkit-mask-image:url('assets/ui/stencil-wear.svg');
+ mask-image:url('assets/ui/stencil-wear.svg');
+ -webkit-mask-size:120px 32px;mask-size:120px 32px;
+ -webkit-mask-repeat:repeat;mask-repeat:repeat;
+}
+body.full-graphics .gfx-frame .iron-title-text{display:inline-block}
+@media(max-width:760px){
+ body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button{
+  font-family:'Route 127 Stencil',Impact,'Arial Narrow',sans-serif;
+  font-size:clamp(9px,2.25vw,12px);letter-spacing:0;
+ }
+ body.full-graphics .gfx-frame .gfx-nav .gfx-nav-button>span{
+  transform:scaleX(.78);transform-origin:center;
+  -webkit-mask-image:none;mask-image:none;
+ }
+}

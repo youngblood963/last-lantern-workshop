@@ -9,8 +9,7 @@ const TravelerPanels={
  open(which){
   if(busy||this.dialog||!player.flags.interfaceUnlocked)return false;
   if(combatState?.r18Bare&&which==='inventory'){add('No inventory use during a bare-knuckle match.','system');return false;}
-  // Ordinary combat retains its existing combat-item flow and retaliation rules.
-  if(combatState)return wo17OpenInterface(which);
+  // Keep graphical panels during combat; captured fight state resumes on close.
   const focus=document.activeElement,scroll=screen.scrollTop,layout=GraphicalUI.layout(),content=document.createDocumentFragment();
   while(screen.firstChild)content.appendChild(screen.firstChild);
   this.snapshot={stage,returnStage,inventoryMode,numberedChoices,currentHotkeys,usedHotkeys,reservedChoiceKeys,content,focus,scroll,layout};
@@ -193,3 +192,4 @@ GraphicalUI.layout=function(){return TravelerPanels.dialog?TravelerPanels.snapsh
 
 // Override the legacy purchase binding after registry installation.
 v48BuyBackpack=buyTravelerBackpack;
+

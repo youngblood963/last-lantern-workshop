@@ -32,11 +32,14 @@ function v48Sell(name,confirmed=false){
  if(!confirmed&&['rare','epic'].includes(GEAR[item.name]?.rarity)){player.flags.v48Sale={name:item.name,type:item.type,qty:quantity,total:unit*quantity};v48SaleMenu();return false;}
  const total=unit*quantity;delete player.flags.v48Sale;item.qty-=quantity;if(item.qty===0)player.pack.splice(player.pack.indexOf(item),1);player.bolts+=total;updateHud();add(`SOLD — ${item.name} ×${quantity} / +${total} BOLTS`,'reward');v48Checkpoint();return true;
 }
-function v48BuyBackpack(){
- if(player.packMax>=10){add('Your backpack already holds at least 10 slots. No purchase needed.','system');return false;}
- if(!Number.isSafeInteger(player.bolts)||player.bolts<V48_BACKPACK_PRICE){add(`INSUFFICIENT BOLTS — 10-slot backpack costs ${V48_BACKPACK_PRICE}.`,'system');return false;}
- const addedSlots=10-player.packMax;player.bolts-=V48_BACKPACK_PRICE;player.packMax=10;updateHud();add(`10-SLOT BACKPACK PURCHASED — +${addedSlots} SLOTS / -${V48_BACKPACK_PRICE} BOLTS`,'reward');v48Checkpoint();showPurchaseComplete();return true;
+function buyTravelerBackpack(){
+ r5Migrate();
+ if(player.flags.backpackUpgrade){add('Your 16-slot backpack is already equipped. No purchase needed.','system');return false;}
+ if(!Number.isSafeInteger(player.bolts)||player.bolts<V48_BACKPACK_PRICE){add(`INSUFFICIENT BOLTS — 16-slot backpack costs ${V48_BACKPACK_PRICE}.`,'system');return false;}
+ player.bolts-=V48_BACKPACK_PRICE;player.packMax+=4;player.flags.backpackUpgrade=true;
+ updateHud();add(`16-SLOT BACKPACK PURCHASED — +4 SLOTS / -${V48_BACKPACK_PRICE} BOLTS. Companion bonuses retained.`,'reward');v48Checkpoint();showPurchaseComplete();return true;
 }
+function v48BuyBackpack(){return buyTravelerBackpack();}
 function v48BankCapacity(){return Number.isSafeInteger(player.stashMax)&&player.stashMax>=0?player.stashMax:Infinity;}
 function v48Stash(name){
  const item=r18NamedStack(player.pack,name);if(!v48Ordinary(item)){add('Equipped and quest items cannot be deposited.','system');return false;}
@@ -89,7 +92,7 @@ function handleV48Command(cmd){
  if(vendor&&cmd.startsWith('sell ')){v48Sell(cmd==='sell all scrap'?'Scrap Metal':cmd.slice(5).split(' ×')[0].trim());if(!player.flags.v48Sale)v48SaleMenu();return true;}
  if(vendor&&cmd==='buy'){if(mercyLocation==='johnny')johnnyShop();else if(mercyLocation==='jen')showDrinkMenu();else add('BUY BANDAGE   SELL ITEMS   (B) BACK','system');return true;}
  if(cmd.includes('sell')){add('Choose SELL ITEMS or type SELL followed by an exact listed item name.','system');return true;}
- if(mercyLocation==='johnny'&&/^buy (?:10-slot )?backpack$/.test(cmd)){v48BuyBackpack();return true;}
+ if(mercyLocation==='johnny'&&/^buy (?:(?:16|10)-slot )?backpack$/.test(cmd)){v48BuyBackpack();return true;}
  if(['bank','bank stash','amii','visit bank'].includes(cmd)){delete player.flags.v48Shop;v48BankMain(true);return true;}
  const bankWords=/^(?:deposit|withdraw|stash|retrieve|view storage|view stash)/.test(cmd);
  if(bankWords&&mercyLocation!=='amii'){add("Visit Amii's bank for transactions.",'system');return true;}
@@ -157,3 +160,4 @@ function renderV48Blackjack(r,hidden){
  if(player.level<5){add('PLAYER: '+r.player.map(c=>c.rank+c.suit).join(' '),'system');add('DEALER: '+(hidden?r.dealer[0].rank+r.dealer[0].suit+' [HIDDEN]':r.dealer.map(c=>c.rank+c.suit).join(' ')),'system');return;}
  const epoch=casinoAnimationEpoch;outputQueue=outputQueue.then(()=>{if(epoch!==casinoAnimationEpoch)return;for(const [label,cards]of [['PLAYER',r.player],['DEALER',r.dealer]]){const group=document.createElement('div');group.textContent='';group.className='v48-card-hand';const title=document.createElement('div');title.className='v48-card-label';title.textContent=label;group.append(title);cards.forEach((c,i)=>{const face=document.createElement('div');face.textContent='';face.className='v48-card';if(hidden&&label==='DEALER'&&i>0){face.className+=' v48-card-back';face.textContent='??'}else{const rank=document.createElement('span');rank.textContent=c.rank;const suit=document.createElement('span');suit.textContent={H:'♥',D:'♦',C:'♣',S:'♠'}[c.suit];suit.className=['H','D'].includes(c.suit)?'v48-suit-red':'v48-suit-black';face.append(rank,suit)}group.append(face)});screen.appendChild(group)}followOutput()});
 }
+

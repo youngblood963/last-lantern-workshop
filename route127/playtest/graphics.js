@@ -127,7 +127,8 @@ skipIntroForTesting=function(){
  activeSaveSlot=0;pendingHandle='';numberedChoices={};currentHotkeys={};
  screen.innerHTML='';stage='handle';signal.textContent='SIGNAL LOGGED';
  hud.classList.add('hidden');utilityPanel.classList.add('hidden');
- add('INTRO SKIPPED — CREATE YOUR TRAVELER','place');
+ add('ROUTE 127 — CREATE YOUR TRAVELER','place');
+ add('You stand on the highway outside the old house. Solace lies to the south.','system');
  add('Enter your name before starting. Up to 16 characters; type RANDOM for a suggestion.','system');
  input.placeholder='Enter your name';updateHud();GraphicalUI.schedule();
 };
@@ -144,7 +145,11 @@ handleCommand=async function(raw){
   input.placeholder='Command';hud.classList.remove('hidden');utilityPanel.classList.remove('hidden');
   add('TRAVELER CONFIRMED — '+player.handle,'bright');
   add('The Solace coordinates are already logged.','system');
-  arriveHouse();updateHud();GraphicalUI.schedule();return;
+  lanternMigrate();
+  GraphicalUI.setMode('graphics');
+  lanternChoose('house--solace-upper-junction');
+  updateHud();GraphicalUI.schedule();return;
  }
  return wo16NamingCommand(raw);
 };
+

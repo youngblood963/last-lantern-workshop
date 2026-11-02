@@ -2,6 +2,14 @@
 const R5_RELAY=[['johnny','Power Regulator'],['yard','Antenna Servo'],['branch','Shielded Feed Coupler'],['east','Signal-Conditioning Module']];
 function r5Migrate(){
  const f=player.flags;if(!f)return;
+ // One-time conversion of the old 8/10-slot packs; companion slots are additive.
+ if(!f.backpackCapacityVersion){
+  const bonus=(Number(f.r5MuleBonus)||0)+(f.cheeseburgerOwned?6:0);
+  const base=Math.max(0,(Number(player.packMax)||8)-bonus);
+  f.backpackUpgrade=base===10;
+  player.packMax=(base===10?16:Math.max(12,base))+bonus;
+  f.backpackCapacityVersion=1;
+ }
  // Old saves can have tutorial completion without the recipe bit.
  if(f.v49CraftCompleted)f.v49RecipeBandage=true;
  const rp=ensureRelayParts();
@@ -297,3 +305,4 @@ const r5OldCommand=handleCommand;handleCommand=async function(raw){await r5OldCo
 const {R5_DISCOVERIES, r18ScrapDuel, r18MaskMarket, r18Oil, r18Chapel, r18Armory, r18Furnace, r18Quicksand, r18ScrapDuelScene, r18ScrapDuelMenu, r18MaskMarketScene, r18MaskMarketPrice, r18OilRescue, r18ChapelScene, r18ChapelSpendAir, r18ChapelReward, r18ArmoryReward, r18FurnaceScene} = RoadScenarioRegistry.discoveries();
 const r5OldRetrieve=v48Retrieve;v48Retrieve=function(name){r5Capacity();if(packSlotsUsed()>player.packMax){add('OVER CAPACITY — nothing withdrawn. Sell or store excess first.','danger');return false;}return r5OldRetrieve(name);};
 const r5OldHouseTransfer=transferHouseItem;transferHouseItem=function(name,deposit){r5Capacity();if(!deposit&&packSlotsUsed()>player.packMax){add('OVER CAPACITY — nothing withdrawn. Sell or store excess first.','danger');return false;}return r5OldHouseTransfer(name,deposit);};
+

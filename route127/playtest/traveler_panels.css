@@ -156,3 +156,6 @@ body.full-graphics .gfx-frame .iron-title-text{display:inline-block}
   -webkit-mask-image:none;mask-image:none;
  }
 }
+
+
+@media(max-width:680px){.traveler-body{grid-auto-rows:max-content}.traveler-character-art{min-height:max-content;overflow:visible}.traveler-equipment{display:block}.traveler-character-art .traveler-art{height:100px}.traveler-overlay{overflow:hidden}.traveler-body>.traveler-detail{min-height:240px}}

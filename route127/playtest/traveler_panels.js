@@ -135,7 +135,11 @@ const TravelerPanels={
     else{const parts=t.split(' — ');this.questEntries.push({title:parts.length>1?parts[0]:t,details:[parts.length>1?parts.slice(1).join(' — '):t]});}
    }
    // Existing quest helper supplies the state-specific runner objective.
-   const jen=this.questEntries.find(e=>e.title==='Last Call');if(jen&&this.page==='active')jen.details.push(jenQuestObjective());}
+   const jen=this.questEntries.find(e=>e.title==='Last Call');if(jen&&this.page==='active')jen.details.push(jenQuestObjective());
+   if(this.page==='active'&&player.flags.relayPartsRevealed&&player.flags.relayQuest!=='complete'){
+    this.questEntries=this.questEntries.filter(e=>! /^(NEEDED|RECOVERED)$/.test(e.title));
+    this.questEntries.unshift({title:'The Relay — Parts and directions',details:PlaythroughRepairs.relayDirections()});
+   }}
   finally{this.working=false;this.closeButton.disabled=false;}
  },
  journal(){

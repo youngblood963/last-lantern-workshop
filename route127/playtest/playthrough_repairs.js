@@ -3,7 +3,7 @@
 const PlaythroughRepairs={
  version:1,
  materialBids:{'Scrap Metal':4,Wire:4,Cloth:3,Rope:4,Fuel:6,Electronics:9,Chemicals:6,'Tempered Steel':16,'Uncommon Electrical Parts':12,'Explosive Components':8,'Small Animal Bones':2,'Animal Bones':3,'Large Animal Bones':4,'Animal Hide':4,'Animal Fat':2,Glass:2,Water:1,Glue:5},
- cleanLabel(value){return String(value).replace(/(?:\s*[-–—|:]\s*|\s*\[\s*|\s*\(\s*|\s+)forge[ _-]*(?:common|uncommon|rare|epic|legendary)[ _-]*\d+\s*[\])]?/gi,'').trim();},
+ cleanLabel(value){return String(value).replace(/(?:\s*[-–—|:]\s*|\s*\[\s*|\s*\(\s*|\s+)forge[ _-]*(?:common|uncommon|rare|epic|legendary)[ _-]*\d+\s*[\])]?/gi,'').replace(/\s*\(L\d+\s+(?:COMMON|UNCOMMON|RARE|EPIC|LEGENDARY)\)/gi,'').replace(/\s+L\d+\s+(?:COMMON|UNCOMMON|RARE|EPIC|LEGENDARY)(?=\s*\[|$)/gi,'').trim();},
  relayClues(){
   const f=player.flags;if(!f.relayPartsRevealed||f.relayQuest==='complete')return;
   const parts=ensureRelayParts();

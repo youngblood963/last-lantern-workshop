@@ -375,7 +375,8 @@
         ]
       ],
       "primaryRegion": "NORTH",
-      "transitionRegion": "CENTRAL"
+      "transitionRegion": "CENTRAL",
+      "name": "Old House Road"
     },
     {
       "id": "house--east-ridge",
@@ -406,7 +407,8 @@
         ]
       ],
       "primaryRegion": "NORTH",
-      "transitionRegion": "CENTRAL"
+      "transitionRegion": "CENTRAL",
+      "name": "Old House Road"
     },
     {
       "id": "west-ridge--northern-ridge",
@@ -445,7 +447,8 @@
         ]
       ],
       "primaryRegion": "NORTH",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Northern Ridge Road"
     },
     {
       "id": "east-ridge--northern-ridge",
@@ -484,7 +487,8 @@
         ]
       ],
       "primaryRegion": "NORTH",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Northern Ridge Road"
     },
     {
       "id": "west-ridge--abandoned-motel",
@@ -511,7 +515,8 @@
         ]
       ],
       "primaryRegion": "WEST",
-      "transitionRegion": "NORTH"
+      "transitionRegion": "NORTH",
+      "name": "Motel Road"
     },
     {
       "id": "east-ridge--scavenger-camp",
@@ -538,7 +543,8 @@
         ]
       ],
       "primaryRegion": "WEST",
-      "transitionRegion": "NORTH"
+      "transitionRegion": "NORTH",
+      "name": "Scavenger Camp Road"
     },
     {
       "id": "abandoned-motel--old-service-junction",
@@ -561,7 +567,8 @@
         ]
       ],
       "primaryRegion": "WEST",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Motel Road"
     },
     {
       "id": "scavenger-camp--trade-junction",
@@ -592,7 +599,8 @@
         ]
       ],
       "primaryRegion": "WEST",
-      "transitionRegion": "CENTRAL"
+      "transitionRegion": "CENTRAL",
+      "name": "Scavenger Camp Road"
     },
     {
       "id": "trade-junction--solace",
@@ -620,7 +628,8 @@
       ],
       "solaceGate": "east",
       "primaryRegion": "CENTRAL",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Trade Route Road"
     },
     {
       "id": "solace--works-junction",
@@ -642,7 +651,8 @@
       "offset": 0,
       "solaceGate": "south",
       "primaryRegion": "INDUSTRIAL",
-      "transitionRegion": "CENTRAL"
+      "transitionRegion": "CENTRAL",
+      "name": "Route 127"
     },
     {
       "id": "works-junction--factory",
@@ -663,7 +673,8 @@
       "plot": "factory",
       "offset": 3,
       "primaryRegion": "INDUSTRIAL",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Route 127"
     },
     {
       "id": "old-service-junction--old-service-road",
@@ -690,7 +701,8 @@
         ]
       ],
       "primaryRegion": "WEST",
-      "transitionRegion": "CENTRAL"
+      "transitionRegion": "CENTRAL",
+      "name": "Signal Cabinet Road"
     },
     {
       "id": "old-service-road--works-junction",
@@ -721,7 +733,8 @@
         ]
       ],
       "primaryRegion": "INDUSTRIAL",
-      "transitionRegion": "WEST"
+      "transitionRegion": "WEST",
+      "name": "Signal Cabinet Road"
     },
     {
       "id": "old-service-junction--iron-pit-arena",
@@ -748,7 +761,8 @@
         ]
       ],
       "primaryRegion": "WEST",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Iron Pit Road"
     },
     {
       "id": "iron-pit-arena--arena-lower-junction",
@@ -775,7 +789,8 @@
         ]
       ],
       "primaryRegion": "WEST",
-      "transitionRegion": "LOWLANDS"
+      "transitionRegion": "LOWLANDS",
+      "name": "Iron Pit Road"
     },
     {
       "id": "arena-lower-junction--arena-east-junction",
@@ -802,7 +817,8 @@
         ]
       ],
       "primaryRegion": "CENTRAL",
-      "transitionRegion": "WEST"
+      "transitionRegion": "WEST",
+      "name": "Iron Pit Road"
     },
     {
       "id": "arena-east-junction--works-junction",
@@ -825,7 +841,8 @@
         ]
       ],
       "primaryRegion": "INDUSTRIAL",
-      "transitionRegion": "CENTRAL"
+      "transitionRegion": "CENTRAL",
+      "name": "Iron Pit Road"
     },
     {
       "id": "iron-pit-arena--lowlands",
@@ -852,7 +869,8 @@
         ]
       ],
       "primaryRegion": "LOWLANDS",
-      "transitionRegion": "WEST"
+      "transitionRegion": "WEST",
+      "name": "Iron Pit Road"
     },
     {
       "id": "arena-lower-junction--factory-west",
@@ -875,7 +893,8 @@
         ]
       ],
       "primaryRegion": "INDUSTRIAL",
-      "transitionRegion": "LOWLANDS"
+      "transitionRegion": "LOWLANDS",
+      "name": "Factory Road"
     },
     {
       "id": "works-junction--scrap-yard",
@@ -911,7 +930,8 @@
       ],
       "wo5a": "coordinate correction",
       "primaryRegion": "INDUSTRIAL",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Scrap Yard Road"
     },
     {
       "id": "scrap-yard--industrial-road",
@@ -939,7 +959,8 @@
       ],
       "wo5a": "coordinate correction",
       "primaryRegion": "INDUSTRIAL",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Fresh Mart Road"
     },
     {
       "id": "industrial-road--industrial-junction",
@@ -979,7 +1000,8 @@
       ],
       "wo5a": "coordinate correction",
       "primaryRegion": "INDUSTRIAL",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Fresh Mart Road"
     },
     {
       "id": "trade-junction--trade-route",
@@ -1010,7 +1032,8 @@
         ]
       ],
       "primaryRegion": "CENTRAL",
-      "transitionRegion": "EAST"
+      "transitionRegion": "EAST",
+      "name": "Mercy Hospital Road"
     },
     {
       "id": "trade-route--industrial-junction",
@@ -1037,7 +1060,8 @@
         ]
       ],
       "primaryRegion": "EAST",
-      "transitionRegion": "INDUSTRIAL"
+      "transitionRegion": "INDUSTRIAL",
+      "name": "Mercy Hospital Road"
     },
     {
       "id": "industrial-junction--east-coast-junction",
@@ -1064,7 +1088,8 @@
         ]
       ],
       "primaryRegion": "EAST",
-      "transitionRegion": "INDUSTRIAL"
+      "transitionRegion": "INDUSTRIAL",
+      "name": "Watchtower Road"
     },
     {
       "id": "industrial-road--factory-east",
@@ -1100,7 +1125,8 @@
       ],
       "wo5a": "coordinate correction",
       "primaryRegion": "INDUSTRIAL",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Factory Road"
     },
     {
       "id": "factory-east--factory",
@@ -1127,7 +1153,8 @@
         ]
       ],
       "primaryRegion": "INDUSTRIAL",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Factory Road"
     },
     {
       "id": "factory-west--factory",
@@ -1154,7 +1181,8 @@
         ]
       ],
       "primaryRegion": "INDUSTRIAL",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Factory Road"
     },
     {
       "id": "factory-east--east-coast-junction",
@@ -1181,7 +1209,8 @@
         ]
       ],
       "primaryRegion": "EAST",
-      "transitionRegion": "INDUSTRIAL"
+      "transitionRegion": "INDUSTRIAL",
+      "name": "Watchtower Road"
     },
     {
       "id": "east-coast-junction--watchtower-ruins",
@@ -1208,7 +1237,8 @@
         ]
       ],
       "primaryRegion": "EAST",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Watchtower Road"
     },
     {
       "id": "watchtower-ruins--east-coast-lower",
@@ -1235,7 +1265,8 @@
         ]
       ],
       "primaryRegion": "EAST",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Watchtower Road"
     },
     {
       "id": "factory-east--east-coast-lower",
@@ -1262,7 +1293,8 @@
         ]
       ],
       "primaryRegion": "EAST",
-      "transitionRegion": "INDUSTRIAL"
+      "transitionRegion": "INDUSTRIAL",
+      "name": "Watchtower Road"
     },
     {
       "id": "east-coast-lower--east-harbor-approach",
@@ -1285,7 +1317,8 @@
         ]
       ],
       "primaryRegion": "SEAPORT",
-      "transitionRegion": "EAST"
+      "transitionRegion": "EAST",
+      "name": "Seaport Approach Road"
     },
     {
       "id": "factory-west--west-coast-junction",
@@ -1312,7 +1345,8 @@
         ]
       ],
       "primaryRegion": "LOWLANDS",
-      "transitionRegion": "INDUSTRIAL"
+      "transitionRegion": "INDUSTRIAL",
+      "name": "Broken Bridge Road"
     },
     {
       "id": "lowlands--broken-bridge",
@@ -1335,7 +1369,8 @@
         ]
       ],
       "primaryRegion": "LOWLANDS",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Broken Bridge Road"
     },
     {
       "id": "broken-bridge--west-coast-junction",
@@ -1362,7 +1397,8 @@
         ]
       ],
       "primaryRegion": "LOWLANDS",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Broken Bridge Road"
     },
     {
       "id": "lowlands--factory-west",
@@ -1397,7 +1433,8 @@
         ]
       ],
       "primaryRegion": "LOWLANDS",
-      "transitionRegion": "INDUSTRIAL"
+      "transitionRegion": "INDUSTRIAL",
+      "name": "Factory Road"
     },
     {
       "id": "west-coast-junction--west-harbor-approach",
@@ -1420,7 +1457,8 @@
         ]
       ],
       "primaryRegion": "SEAPORT",
-      "transitionRegion": "LOWLANDS"
+      "transitionRegion": "LOWLANDS",
+      "name": "Seaport Approach Road"
     },
     {
       "id": "west-harbor-approach--boulder-junction",
@@ -1444,7 +1482,8 @@
       ],
       "artAdjustment": "Shared harbor approach; decorative side entrance is not city access.",
       "primaryRegion": "SEAPORT",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Seaport Approach Road"
     },
     {
       "id": "east-harbor-approach--boulder-junction",
@@ -1468,7 +1507,8 @@
       ],
       "artAdjustment": "Shared harbor approach; decorative side entrance is not city access.",
       "primaryRegion": "SEAPORT",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Seaport Approach Road"
     },
     {
       "id": "factory--boulder-junction",
@@ -1493,7 +1533,8 @@
       "plot": "coast",
       "offset": 0,
       "primaryRegion": "SEAPORT",
-      "transitionRegion": "INDUSTRIAL"
+      "transitionRegion": "INDUSTRIAL",
+      "name": "Route 127"
     },
     {
       "id": "boulder-junction--seaport",
@@ -1523,7 +1564,8 @@
       "offset": 3,
       "requires": "portRoadCleared",
       "primaryRegion": "SEAPORT",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Route 127"
     },
     {
       "id": "old-service-junction--motel-interior-junction",
@@ -1547,7 +1589,8 @@
       ],
       "wo5": "split",
       "primaryRegion": "WEST",
-      "transitionRegion": "CENTRAL"
+      "transitionRegion": "CENTRAL",
+      "name": "Motel Road"
     },
     {
       "id": "motel-interior-junction--solace",
@@ -1576,7 +1619,8 @@
       "solaceGate": "west",
       "wo5": "split",
       "primaryRegion": "CENTRAL",
-      "transitionRegion": "WEST"
+      "transitionRegion": "WEST",
+      "name": "Motel Road"
     },
     {
       "id": "motel-interior-junction--abandoned-motel",
@@ -1617,7 +1661,8 @@
       "wo5": "added",
       "artAdjustment": "Motel east access/forecourt leads to the same existing motel destination marker.",
       "primaryRegion": "WEST",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Motel Road"
     },
     {
       "id": "old-service-road--motel-interior-junction",
@@ -1645,7 +1690,8 @@
       ],
       "wo5": "added",
       "primaryRegion": "WEST",
-      "transitionRegion": "CENTRAL"
+      "transitionRegion": "CENTRAL",
+      "name": "Signal Cabinet Road"
     },
     {
       "id": "works-junction--east-highway-junction",
@@ -1682,7 +1728,8 @@
       "wo5": "added",
       "artAdjustment": "Uses the existing short main-highway approach from Works Junction to the illustrated eastbound secondary road.",
       "primaryRegion": "INDUSTRIAL",
-      "transitionRegion": "CENTRAL"
+      "transitionRegion": "CENTRAL",
+      "name": "Scrap Yard Road"
     },
     {
       "id": "east-highway-junction--trade-route",
@@ -1714,7 +1761,8 @@
       ],
       "wo5": "added",
       "primaryRegion": "CENTRAL",
-      "transitionRegion": "EAST"
+      "transitionRegion": "EAST",
+      "name": "Mercy Hospital Road"
     },
     {
       "id": "trade-junction--east-highway-junction",
@@ -1742,7 +1790,8 @@
       ],
       "wo5": "added",
       "primaryRegion": "CENTRAL",
-      "transitionRegion": "INDUSTRIAL"
+      "transitionRegion": "INDUSTRIAL",
+      "name": "Trade Route Road"
     },
     {
       "id": "house--solace-upper-junction",
@@ -1764,7 +1813,8 @@
       "plot": "house",
       "offset": 0,
       "primaryRegion": "CENTRAL",
-      "transitionRegion": "NORTH"
+      "transitionRegion": "NORTH",
+      "name": "Route 127"
     },
     {
       "id": "solace-upper-junction--solace",
@@ -1787,7 +1837,8 @@
       "offset": 6,
       "solaceGate": "north",
       "primaryRegion": "CENTRAL",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Route 127"
     },
     {
       "id": "motel-interior-junction--solace-upper-junction",
@@ -1831,7 +1882,8 @@
       ],
       "wo5a": "added",
       "primaryRegion": "CENTRAL",
-      "transitionRegion": "WEST"
+      "transitionRegion": "WEST",
+      "name": "Motel Road"
     },
     {
       "id": "solace-upper-junction--trade-junction",
@@ -1871,7 +1923,8 @@
       ],
       "wo5a": "added",
       "primaryRegion": "CENTRAL",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Trade Route Road"
     },
     {
       "id": "west-ridge--east-ridge",
@@ -1939,7 +1992,8 @@
       ],
       "wo5a": "added",
       "primaryRegion": "NORTH",
-      "transitionRegion": null
+      "transitionRegion": null,
+      "name": "Northern Ridge Road"
     }
   ],
   "notes": [

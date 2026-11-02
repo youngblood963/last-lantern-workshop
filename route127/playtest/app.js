@@ -1058,7 +1058,7 @@ function loadGame(slot=activeSaveSlot){
   else if(["port55Vendor","port55Pets","port55Kaiden","port55Mia","port55Docks","port55Stop","port55Service","port55Recruit"].includes(stage))port55Resume();
   else if(["portRoad","seaport","portMarket","portClinic","portDocks","portWatch"].includes(stage))portMenu();
   else if(stage==="mercy"){if(!(typeof port55CasinoRestore==="function"&&port55CasinoRestore())){add("SOLACE","place");showSolaceContext();}}
-  else if(stage==="settlement"){ add("SOLACE GATE", "place"); add("The settlement waits beyond the barricade."); add("(P) APPROACH GATE", "system"); }
+  else if(stage==="settlement"){ add("SOLACE GATE", "place"); if(player.flags.solaceGateChallenge)showSolaceGateBusiness();else {add("The settlement waits beyond the barricade.");add("(P) APPROACH GATE", "system");} }
   else if(stage==="wandererRoad" && currentRoadWanderer){
     const w=wandererByName(currentRoadWanderer);
     if(w){add(`ROAD TURN ${dailyRoadTurns} — WANDERER`,"place");showWanderer(w,"road");}
@@ -1500,7 +1500,7 @@ function handleCombat(cmd){
   if(c.wo3Reward&&RoadScenarioRegistry.wo3Tactic(cmd,c))return;
   if(c.wo4Reward&&RoadScenarioRegistry.wo4Tactic(cmd,c))return;
   if(["b","back","back off","flee","run","retreat"].includes(cmd) && (c.r18NoRetreat||(c.name==="GANG LOOKOUT"&&c.reinforcementsArrived))){add(c.name==="GANG LOOKOUT"?"The gang has surrounded you. There is no way to retreat until the fight ends.":"You are surrounded. There is no way to retreat until the fight ends.","danger");renderCombatMenu();return;}
-  if(["b","back","back off","flee","run","retreat"].includes(cmd)){ if(c.r18BoneHunters&&!c.r18BoneKnowledge&&player.hp>1&&Math.random()<.25){const damage=scaledEnemyDamage(2,armorDefense(),c.level);add("A hunter catches you during the retreat.","danger");hurt(damage);if(stage==="fallen"||!combatState)return;} add("You break contact before the fight gets worse."); combatState=null; if(c.source==="gateGuards"){stage="settlement";player.flags.solaceGateChallenge=true;add("The guard raises his weapon again. He wants an explanation before anyone else gets hurt.","man");add("STATE YOUR BUSINESS   (1) TERMINAL   (2) TRADE   (3) RELAY   (4) PASSING THROUGH   (5) FIGHT","system");} else if(c.source==="wo4HospitalEntrance"){RoadScenarioRegistry.wo4HospitalMenu();} else if(c.source==="seaportLiberation"){portLiberationRetreat();} else if(c.source==="seaportRoadFight"){portCombatRetreat(c);} else if(c.source==="factoryFight"){factoryCombatRetreat(c); } else if(c.source==="r18DepotFight"){r18DepotCombatRetreat();} else if(c.source==="r18StationFight"){r18StationCombatRetreat();} else if(c.source==="r18TournamentFight"){r18TournamentRetreat(c);} else if(c.source==="r18AshFight"){r18AshRetreat();} else if(c.source==="r18RedFight"){r18RedRetreat();} else if(c.source==="jenBoss"){player.flags.jenQuest="raiders";completeRoadTurn();} else if(c.source==="houseBoss"){add("You retreat onto the porch. The occupant stays inside.");arriveHouse();} else if(c.source==="serviceBoss"){stage="serviceRoad";add("You retreat to the maintenance-yard fence.");add("CONTINUE UP ROAD   RETURN TO FORK","system");} else if(c.source==="roadWanderer"){currentRoadWanderer=null;completeRoadTurn();} else if(c.source==="townWanderer"){stage="mercy"; showCurrentContext();} else {completeRoadTurn();} return; }
+  if(["b","back","back off","flee","run","retreat"].includes(cmd)){ if(c.r18BoneHunters&&!c.r18BoneKnowledge&&player.hp>1&&Math.random()<.25){const damage=scaledEnemyDamage(2,armorDefense(),c.level);add("A hunter catches you during the retreat.","danger");hurt(damage);if(stage==="fallen"||!combatState)return;} add("You break contact before the fight gets worse."); combatState=null; if(c.source==="gateGuards"){stage="settlement";player.flags.solaceGateChallenge=true;add("The guard raises his weapon again. He wants an explanation before anyone else gets hurt.","man");showSolaceGateBusiness();} else if(c.source==="wo4HospitalEntrance"){RoadScenarioRegistry.wo4HospitalMenu();} else if(c.source==="seaportLiberation"){portLiberationRetreat();} else if(c.source==="seaportRoadFight"){portCombatRetreat(c);} else if(c.source==="factoryFight"){factoryCombatRetreat(c); } else if(c.source==="r18DepotFight"){r18DepotCombatRetreat();} else if(c.source==="r18StationFight"){r18StationCombatRetreat();} else if(c.source==="r18TournamentFight"){r18TournamentRetreat(c);} else if(c.source==="r18AshFight"){r18AshRetreat();} else if(c.source==="r18RedFight"){r18RedRetreat();} else if(c.source==="jenBoss"){player.flags.jenQuest="raiders";completeRoadTurn();} else if(c.source==="houseBoss"){add("You retreat onto the porch. The occupant stays inside.");arriveHouse();} else if(c.source==="serviceBoss"){stage="serviceRoad";add("You retreat to the maintenance-yard fence.");add("CONTINUE UP ROAD   RETURN TO FORK","system");} else if(c.source==="roadWanderer"){currentRoadWanderer=null;completeRoadTurn();} else if(c.source==="townWanderer"){stage="mercy"; showCurrentContext();} else {completeRoadTurn();} return; }
   if(c.r18Bare&&(cmd==="u"||cmd==="i"||cmd.includes("use item")||cmd.startsWith("use "))){add("No items or healing during a bare-knuckle match.","system");renderCombatMenu();return;}
   if(cmd==="u"||cmd==="i"||cmd.includes("use item")){ showCombatItems(); return; }
   if(cmd.startsWith("use ")){ if(useItem(cmd.slice(4)))renderCombatMenu();else add("(A) ATTACK   (U) USE ITEM   (B) BACK OFF","system"); return; }
@@ -2253,7 +2253,7 @@ function showCurrentContext(){
   if(stage==="encounter"){ const e=currentEncounter(); const lvl=(e.combat&&e.combat.level) || encounterLevels[e.title] || (roadGoal==="east"? (e.title==="THE WARDEN"?Math.min(50,player.level+2):5+(roadTurn%6)):null); add(`${e.displayName||e.title}${lvl?` — LVL ${String(lvl).padStart(2,"0")}`:""}`,"bright"); add(encounterChoices(e),"system"); return; }
   if(stage==="mercy"){ add(`SOLACE — ${mercyLocation.toUpperCase()}`,"bright"); if(mercyLocation==="town")mercyMenu(); else if(mercyLocation==="jen")showBarActions(); else if(mercyLocation==="relay")showRelayChoices(); else add("(T) TOWN","system"); return; }
   if(stage==="roadReady") add("OLD HOUSE — ROAD heads south toward Solace.","system");
-  else if(stage==="settlement") add("(P) APPROACH GATE","system");
+  else if(stage==="settlement"){if(player.flags.solaceGateChallenge)showSolaceGateBusiness();else add("(P) APPROACH GATE","system");}
   else if(stage==="house")showHouseChoices();
 }
 function handleRoadWanderer(cmd){
@@ -2745,6 +2745,11 @@ function handleSolace(cmd, raw=cmd){
   add("Solace is busy around you.","system");
   if(mercyLocation==="town") mercyMenu(); else { add("(T) RETURN TO TOWN","system"); }
 }
+// A dialogue heading is not an action. Keep answers stable after redraw/load/retreat.
+function showSolaceGateBusiness(){
+ add("GUARD > State your business.","man");
+ add("ABANDONED TERMINAL SENT ME   LOOKING TO TRADE   LOOKING FOR THE RELAY STATION   JUST PASSING THROUGH   PICK A FIGHT","system");
+}
 function showStandingOptions(){
   const opts=[];
   if(!player.flags.houseBandage) opts.push("CHECK CABINET");
@@ -2846,7 +2851,7 @@ function renderCurrentChoices(){
   if(stage==="interfaceSave")return showV49SaveMenu();
   if(stage==="v49TitleConfirm")return showV49TitleConfirm();
   if(stage==="roadReady")return add("(R) ROAD — BEGIN JOURNEY","system");
-  if(stage==="settlement")return add("(P) APPROACH GATE","system");
+  if(stage==="settlement")return player.flags.solaceGateChallenge?showSolaceGateBusiness():add("(P) APPROACH GATE","system");
   if(stage==="house")return showHouseChoices();
   if(["houseStorage","houseDeposit","houseWithdraw"].includes(stage))return showHouseStorage(stage);
   if(stage==="eastEnd")return showFactory();
@@ -3187,19 +3192,19 @@ async function handleCommandCore(raw) {
         add("The buses part just far enough to let you through. Smoke, voices, hammering metal. People.");add("TIM > Welcome to Solace. Don't make us regret the name.","man");
         if(!player.flags.solaceCheckpointSaved){player.flags.solaceCheckpointSaved=true;saveGame(activeSaveSlot);add("CHECKPOINT REACHED — SOLACE AUTOSAVED","reward");}mercyMenu();return;
       }
-      if(cmd.includes("trade")||cmd==="2"){add("GUARD > Trade happens inside. Leave the weapons pointed at the dirt and you can talk to Johnny.","man");add("STATE YOUR BUSINESS   (1) TERMINAL   (2) TRADE   (3) RELAY   (4) PASSING THROUGH   (5) FIGHT","system");return;}
-      if(cmd.includes("relay")||cmd==="3"){add("GUARD > Relay Station? Tim can tell you what Solace knows. Don't expect him to trust a stranger just because you know the name.","man");add("STATE YOUR BUSINESS   (1) TERMINAL   (2) TRADE   (3) RELAY   (4) PASSING THROUGH   (5) FIGHT","system");return;}
-      if(cmd.includes("passing")||cmd.includes("just passing")||cmd==="4"){add("GUARD > Nobody just passes through anymore. State your business or turn around.","man");add("STATE YOUR BUSINESS   (1) TERMINAL   (2) TRADE   (3) RELAY   (4) PASSING THROUGH   (5) FIGHT","system");return;}
+      if(cmd.includes("trade")||cmd==="2"){add("GUARD > Trade happens inside. Leave the weapons pointed at the dirt and you can talk to Johnny.","man");showSolaceGateBusiness();return;}
+      if(cmd.includes("relay")||cmd==="3"){add("GUARD > Relay Station? Tim can tell you what Solace knows. Don't expect him to trust a stranger just because you know the name.","man");showSolaceGateBusiness();return;}
+      if(cmd.includes("passing")||cmd.includes("just passing")||cmd==="4"){add("GUARD > Nobody just passes through anymore. State your business or turn around.","man");showSolaceGateBusiness();return;}
       if(cmd.includes("fight")||cmd.includes("pick a fight")||cmd==="5"){
         player.flags.solaceGateChallenge=false;
         startCombat({name:"SOLACE GATE GUARD",level:Math.max(2,player.level),hp:28,damage:7,minDamage:5,maxDamage:9,min:5,max:9,xp:18,bolts:0,end:"The gate guard lowers his weapon and calls for help."},"gateGuards",true,false);return;
       }
-      add("STATE YOUR BUSINESS   (1) ABANDONED TERMINAL SENT ME   (2) LOOKING TO TRADE   (3) LOOKING FOR THE RELAY STATION   (4) JUST PASSING THROUGH   (5) PICK A FIGHT","system");return;
+      showSolaceGateBusiness();return;
     }
     if (cmd.includes("approach") || cmd.includes("gate") || cmd.includes("relay")) {
       add("A rifle barrel appears above the barricade. GUARD > State your business.","man");
       player.flags.solaceGateChallenge=true;
-      add("STATE YOUR BUSINESS   (1) ABANDONED TERMINAL SENT ME   (2) LOOKING TO TRADE   (3) LOOKING FOR THE RELAY STATION   (4) JUST PASSING THROUGH   (5) PICK A FIGHT","system");
+      showSolaceGateBusiness();
     } else add("The settlement waits beyond the barricade. Try APPROACH GATE.", "system");
     return;
   }

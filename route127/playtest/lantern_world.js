@@ -121,9 +121,9 @@ const lgLoad=loadGame;loadGame=function(slot=activeSaveSlot){
  const reader=getSaveData;getSaveData=function(which){return which===slot?data:reader(which);};
  try{lgLoad(slot);}finally{getSaveData=reader;}
  const g=lanternMigrate(data);lanternProject();
- if(data.stage==='lanternGate')lanternGateMenu(g.selectedGate||g.approachGate);
- else if(['lanternRoad','lanternNode'].includes(data.stage)){g.currentEdgeId?lanternRoadMenu():lanternNodeMenu();}
- else if(g.currentEdgeId&&!g.pending&&['turnComplete','r6Road','between','questRoadComplete'].includes(data.stage))lanternRoadMenu();
+ // Modern graph stages are rendered once by the base loader. Only legacy
+ // between-segment snapshots need a graph-menu replacement here.
+ if(g.currentEdgeId&&!g.pending&&['turnComplete','r6Road','between','questRoadComplete'].includes(data.stage))lanternRoadMenu();
 };
 function lanternEncounterChoices(){const options=encounterChoices(currentEncounter()).split(/\s{2,}/).filter(Boolean).map(choiceCommand);options.push(...questRoadMarkers().map(row=>row[1].toLowerCase()));r5DirectChoices([...new Set(options)]);if(options.includes('back away'))outputQueue=outputQueue.then(()=>{currentHotkeys.b='back away';});}
 const lgRender=renderCurrentChoices;renderCurrentChoices=function(){if(stage==='encounter'&&lanternState()?.pending)return lanternEncounterChoices();if(stage==='lanternRoad')return lanternRoadMenu();if(stage==='lanternNode')return lanternNodeMenu();if(stage==='lanternGate')return lanternGateMenu(lanternState().selectedGate);return lgRender();};
@@ -140,7 +140,8 @@ const lgCore=handleCommandCore;handleCommandCore=async function(raw){const cmd=r
  if(g&&['factoryRusty','r11Craft'].includes(stage)&&['i','s'].includes(cmd))return openInterface(cmd==='i'?'inventory':'status');
  if(g&&stage==='interfaceMap'&&['classic map','graphic map'].includes(cmd)){g.mapMode=cmd.startsWith('classic')?'classic':'graphic';showMap();return;}
  if(g&&stage==='fallen'&&['1','get up','get','continue'].includes(cmd)){if(g.nodeId==='factory')return v49FactoryRoom();if(g.nodeId==='seaport'){stage='seaport';return portMenu();}}
- if(g&&stage==='roadReady'&&/^(r|road|go|south|begin journey)$/.test(cmd)){if(!lanternChoose('house--solace-upper-junction'))return;return lanternStep();}
+ // Finish the queued road menu before the first encounter registers its choices.
+ if(g&&stage==='roadReady'&&/^(r|road|go|south|begin journey)$/.test(cmd)){if(!lanternChoose('house--solace-upper-junction'))return;await outputQueue;return lanternStep();}
  if(g&&stage==='house'&&/^(explore roads — north of solace|explore roads|head east.*|head south.*|leave house|road)$/.test(cmd))return lanternNodeMenu();
  if(g&&stage==='mercy'&&g.nodeId==='solace'){
   const gates={'e':'west','g':'east','west gate':'west','east gate':'east','north gate':'north','south gate':'south','gate':'west'};if(gates[cmd])return lanternGateMenu(gates[cmd]);

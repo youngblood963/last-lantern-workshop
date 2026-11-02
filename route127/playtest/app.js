@@ -1069,6 +1069,7 @@ function loadGame(slot=activeSaveSlot){
     stage="between";resumeSavedEncounter=!!roadTurnCharged;showEncounter();
   }
   else if(stage==="roadReady"){add("THE OLD HOUSE","place");renderCurrentChoices();}
+  else if(["lanternRoad","lanternNode","lanternGate"].includes(stage)){renderCurrentChoices();}
   else { add(`LOCATION RESTORED — ${stage.toUpperCase()}`, "system"); redrawState(); }
 
 }

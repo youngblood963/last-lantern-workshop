@@ -11,7 +11,16 @@ const ROUTE127_ART={
  'abandoned-motel':{file:'abandoned_motel.png',title:'Abandoned Motel'},'scavenger-camp':{file:'scavenger_camp.png',title:'Scavenger Camp'},
  'watchtower-ruins':{file:'watchtower_ruins.png',title:'Watchtower Ruins'},'fresh-mart':{file:'fresh_mart.png',title:'Fresh Mart'},
  'st-mercy-hospital':{file:'st_mercy_hospital.png',title:'St. Mercy Hospital'},'iron-pit-arena':{file:'iron_pit_arena.png',title:'Iron Pit Arena'},
- 'broken-bridge':{file:'broken_bridge_preview.png',title:'Broken Bridge — exterior preview'}
+ 'broken-bridge':{file:'broken_bridge_preview.png',title:'Broken Bridge — exterior preview'},
+ 'solace-bank':{file:'solace_amii_bank.png',title:'Solace Savings & Loan'},
+ 'solace-murphy':{file:'solace_murphy_garage.png',title:"Murphy's Motor Works"},
+ 'solace-tim':{file:'solace_tim.png',title:'Tim — Solace Lawman'},
+ 'solace-johnny':{file:'solace_johnny_shop.png',title:"Johnny's Trading Post"},
+ 'house-interior':{file:'abandoned_house_interior.png',title:'Abandoned House'},
+ 'solace-wayne':{file:'solace_wayne_clinic.png',title:'Last Chance Clinic'},
+ 'solace-mara':{file:'solace_mara_armory.png',title:'Scrap & Steel Armory'},
+ 'solace-relay':{file:'solace_relay_station.png',title:'Relay Station'},
+ 'solace-gate':{file:'solace_town_gate.png',title:'Solace Town Gate'}
 };
 // WO24 shared image paths; dedicated art still wins in model().
 function route127RegionalArt(g){return '../assets/regions/'+route127CurrentRegion(g).toLowerCase()+'.png';}
@@ -25,7 +34,16 @@ const GraphicalUI={
   if(/^r18Ash/.test(place)||c?.source==='r18AshFight')return 'ash-cemetery';
   if(/^stationNine|^r18Station/.test(place)||['stationNineSecurity','r18StationFight'].includes(c?.source))return 'station-nine';
   if(place==='wo6FreshMart')return 'fresh-mart';if(place==='wo4Hospital'||c?.source==='wo4HospitalEntrance')return 'st-mercy-hospital';
-  if(place==='mercy'||place==='settlement'||c?.source==='gateGuards'||c?.source==='jenBoss')return 'solace';
+  // Dedicated Solace interiors use the current town sublocation; the base Solace art remains the fallback.
+  if(place==='house'||(place==='roadReady'&&g?.nodeId==='house'))return 'house-interior';
+  if(place==='settlement'||c?.source==='gateGuards')return 'solace-gate';
+  if(place==='mercy'){
+   const interiors={amii:'solace-bank',murphy:'solace-murphy',johnny:'solace-johnny',wayne:'solace-wayne',mara:'solace-mara',relay:'solace-relay',gate:'solace-gate',eastGate:'solace-gate'};
+   if(interiors[mercyLocation])return interiors[mercyLocation];
+   if(mercyLocation==='town'&&this.lastPlace==='TIM'&&this.choices().some(q=>/VIEW BOUNTIES/i.test(q.command)))return 'solace-tim';
+   return 'solace';
+  }
+  if(c?.source==='jenBoss')return 'solace';
   if(/^port|^seaport/.test(place)||/^seaport/.test(c?.source||''))return 'seaport';
   if(/^factory/.test(place)||c?.source==='factoryFight')return 'factory';
   if(place==='serviceRoad'&&serviceRoadDepth>=3||c?.source==='serviceBoss')return 'scrap-yard';
@@ -47,7 +65,14 @@ const GraphicalUI={
   const frame=this.node('section','gfx-frame');frame.setAttribute('aria-label','Route 127 graphical interface');frame.hidden=true;
   const header=this.node('header','gfx-header metal');const brand=this.node('div','gfx-brand');brand.appendChild(this.node('strong','gfx-wordmark','ROUTE 127'));brand.appendChild(this.node('span','gfx-tagline','BOLTS • SURVIVE • EXPLORE • REBUILD'));header.appendChild(brand);header.appendChild(this.node('p','gfx-motto','SOME ROADS\nNEVER DIE'));const stats=this.node('div','gfx-stats');header.appendChild(stats);frame.appendChild(header);
   const bar=this.node('div','gfx-mobile-bar');const toggle=this.button('☰ MENU',()=>{this.navOpen=!this.navOpen;this.sync();},'gfx-menu-toggle');toggle.setAttribute('aria-controls','gfx-navigation');bar.appendChild(toggle);const where=this.node('span','gfx-current-location');bar.appendChild(where);frame.appendChild(bar);
-  const layout=this.node('div','gfx-layout'),nav=this.node('nav','gfx-nav metal');nav.id='gfx-navigation';nav.setAttribute('aria-label','Player navigation');layout.appendChild(nav);const main=this.node('div','gfx-main');const figure=this.node('figure','gfx-art metal'),img=this.node('img','gfx-image');img.alt='';img.decoding='async';img.addEventListener('load',()=>{if(!img.getAttribute('src'))return;img.hidden=false;figure.classList.remove('gfx-neutral');figure.classList.remove('gfx-art-failed');figure.dataset.loadState='loaded';});img.addEventListener('error',()=>{if(!img.getAttribute('src'))return;img.hidden=true;figure.classList.add('gfx-neutral');figure.classList.add('gfx-art-failed');figure.dataset.loadState='error';});const caption=this.node('figcaption','gfx-art-caption');figure.appendChild(img);figure.appendChild(caption);const artError=this.node('div','gfx-art-error','Location artwork could not be loaded. ');artError.appendChild(this.button('Retry artwork',()=>{if(!img.getAttribute('src'))return;img.hidden=false;figure.dataset.loadState='loading';const source=img.getAttribute('src');img.removeAttribute('src');img.src=source;},'gfx-art-retry'));figure.appendChild(artError);main.appendChild(figure);const enemies=this.node('section','gfx-combat metal');enemies.setAttribute('aria-label','Combat status');main.appendChild(enemies);const narrative=this.node('section','gfx-narrative metal');narrative.setAttribute('aria-label','Game narrative and dialogue');main.appendChild(narrative);const choices=this.node('div','gfx-choices');choices.setAttribute('aria-label','Available game actions');main.appendChild(choices);const settings=this.node('section','gfx-settings metal');settings.hidden=true;settings.setAttribute('aria-label','Display options');main.appendChild(settings);layout.appendChild(main);frame.appendChild(layout);shell.insertBefore(frame,this.home);
+  const layout=this.node('div','gfx-layout'),nav=this.node('nav','gfx-nav metal');nav.id='gfx-navigation';nav.setAttribute('aria-label','Player navigation');layout.appendChild(nav);const main=this.node('div','gfx-main');const figure=this.node('figure','gfx-art metal'),img=this.node('img','gfx-image');img.alt='';img.decoding='async';img.addEventListener('load',()=>{if(!img.getAttribute('src'))return;img.hidden=false;figure.classList.remove('gfx-neutral');figure.classList.remove('gfx-art-failed');figure.dataset.loadState='loaded';});img.addEventListener('error',()=>{if(!img.getAttribute('src'))return;
+   // Missing approved artwork must never leave a blank game panel while image files are being installed.
+   const source=img.getAttribute('src')||'';
+   if(/\/assets\/locations\/solace_(?:amii_bank|murphy_garage|tim|johnny_shop|wayne_clinic|mara_armory|relay_station|town_gate)\.png$|\/assets\/locations\/abandoned_house_interior\.png$/.test(source)){
+    const fallback=new URL('assets/locations/solace.png',ROUTE127_ASSET_BASE||document.baseURI).href;
+    if(source!==fallback){img.src=fallback;return;}
+   }
+   img.hidden=true;figure.classList.add('gfx-neutral');figure.classList.add('gfx-art-failed');figure.dataset.loadState='error';});const caption=this.node('figcaption','gfx-art-caption');figure.appendChild(img);figure.appendChild(caption);const artError=this.node('div','gfx-art-error','Location artwork could not be loaded. ');artError.appendChild(this.button('Retry artwork',()=>{if(!img.getAttribute('src'))return;img.hidden=false;figure.dataset.loadState='loading';const source=img.getAttribute('src');img.removeAttribute('src');img.src=source;},'gfx-art-retry'));figure.appendChild(artError);main.appendChild(figure);const enemies=this.node('section','gfx-combat metal');enemies.setAttribute('aria-label','Combat status');main.appendChild(enemies);const narrative=this.node('section','gfx-narrative metal');narrative.setAttribute('aria-label','Game narrative and dialogue');main.appendChild(narrative);const choices=this.node('div','gfx-choices');choices.setAttribute('aria-label','Available game actions');main.appendChild(choices);const settings=this.node('section','gfx-settings metal');settings.hidden=true;settings.setAttribute('aria-label','Display options');main.appendChild(settings);layout.appendChild(main);frame.appendChild(layout);shell.insertBefore(frame,this.home);
   const classic=this.button('FULL GRAPHICS',()=>this.setMode(this.preference()==='classic'?'graphics':'classic'),'gfx-classic-switch');classic.hidden=true;shell.appendChild(classic);
   this.element={frame,header,stats,nav,main,figure,img,caption,enemies,narrative,choices,settings,classic,where,toggle};this.sync();
  },

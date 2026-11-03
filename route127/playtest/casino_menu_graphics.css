@@ -1,0 +1,24 @@
+/* Route 127: full-width casino illustration and ordinary buttons BELOW art. */
+body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-art{display:block;overflow:hidden;}
+body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-image{
+  display:block;width:100%;height:auto;max-height:none;aspect-ratio:1672 / 941;
+  object-fit:contain;object-position:center;
+}
+body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-narrative{display:none;}
+body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-choices{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;
+}
+body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-choice{
+  min-width:0;min-height:52px;
+}
+body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-choice-label{
+  overflow-wrap:normal;word-break:normal;
+}
+@media(max-width:680px){
+ body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-choices{
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;
+ }
+}
+@media(max-width:360px){
+ body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-choices{grid-template-columns:minmax(0,1fr);}
+}

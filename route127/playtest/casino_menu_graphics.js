@@ -138,6 +138,9 @@
    const label=doubleWin?' — DOUBLES BONUS!':win?' — WIN!':' — LOSS';
    casinoSettle(r,pay,`DICE ${a} + ${b} = ${total}${label}`);
    casinoRender();
+   // Dispatch a dedicated visual refresh on the actual roll, even when
+   // queued output does not cause a GraphicalUI render immediately.
+   if(GraphicalUI.preference()==='graphics')GraphicalUI.sync();
  };
  const oldHandler=handleCasinoCommand;
  handleCasinoCommand=function(cmd){
@@ -164,114 +167,135 @@
    }
    return model;
  };
+ // True 3D cubes: all six faces exist at once; a roll rotates the actual
+ // cubes and comes to rest with the selected outcome facing the player.
+ // No fake changing digits, no dependency on the BBS animation queue.
  const style=document.createElement('style');
  style.textContent=`
- body.full-graphics .gfx-frame[data-layout="casino-dice"] .gfx-main{display:flex;flex-direction:column;min-height:0;height:100%;overflow:hidden;gap:7px}
- body.full-graphics .gfx-frame[data-layout="casino-dice"] .gfx-art{display:flex;flex:1 1 0;min-height:145px;max-height:calc(100% - 165px);overflow:hidden;background:#160f0b!important;border:1px solid #6d4c33}
+ body.full-graphics .gfx-frame[data-layout="casino-dice"] .gfx-main{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;gap:7px}
+ body.full-graphics .gfx-frame[data-layout="casino-dice"] .gfx-art{display:flex;position:relative;flex:1 1 0;min-height:120px;max-height:calc(100% - 165px);overflow:hidden;background:#110e0b!important;border:1px solid #725037}
  body.full-graphics .gfx-frame[data-layout="casino-dice"] .gfx-art-caption,
  body.full-graphics .gfx-frame[data-layout="casino-dice"] .gfx-art-error,
  body.full-graphics .gfx-frame[data-layout="casino-dice"] .gfx-image{display:none!important}
- body.full-graphics .gfx-frame[data-layout="casino-dice"] .gfx-narrative{flex:0 0 auto;max-height:82px;overflow:auto;font-size:13px}
- body.full-graphics .gfx-frame[data-layout="casino-dice"] .gfx-choices{flex:0 0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;min-height:51px;max-height:120px;overflow-y:auto}
+ body.full-graphics .gfx-frame[data-layout="casino-dice"] .gfx-narrative{flex:0 0 auto;max-height:80px;overflow:auto;font-size:13px}
+ body.full-graphics .gfx-frame[data-layout="casino-dice"] .gfx-choices{flex:0 0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;min-height:51px;max-height:124px;overflow-y:auto}
  body.full-graphics .gfx-frame[data-layout="casino-dice"] .gfx-choice{min-height:43px;min-width:0;padding:3px 7px}
  body.full-graphics .gfx-frame[data-layout="casino-dice"] .gfx-choice-label{font-size:clamp(12px,1vw,16px);white-space:normal}
- .hl-table{position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(6px,2%,15px);color:#f5dda7;text-shadow:0 2px 4px #000;padding:12px;background:radial-gradient(ellipse at 50% 57%,#456149 0%,#283c31 45%,#15231e 77%,#0b100e 100%)}
- .hl-table:before{content:'';position:absolute;inset:5%;border:10px ridge #61442a;border-radius:36% 36% 29% 29% / 24% 24% 22% 22%;box-shadow:0 0 0 10px #23170f,0 0 18px #000b,inset 0 0 40px #08140cbb;pointer-events:none}
- .hl-table:after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(105deg,#ffffff07 0 1px,transparent 1px 17px),linear-gradient(180deg,#8d572033,transparent 39%,#0006);pointer-events:none}
- .hl-heading,.hl-choice,.hl-total,.hl-dice{position:relative;z-index:1}
- .hl-heading{font:700 clamp(18px,2.7vw,35px)/1.1 Georgia,serif;letter-spacing:.12em;text-align:center;color:#e5bd80}
- .hl-choice{font:600 clamp(12px,1.3vw,17px)/1.3 system-ui,sans-serif;letter-spacing:.05em;text-align:center;color:#ecd5a9}
- .hl-dice{display:flex;justify-content:center;align-items:center;gap:clamp(20px,3vw,40px);width:100%;height:clamp(82px,18vh,165px)}
- .hl-die{--rot:0deg;width:clamp(60px,9vw,112px);aspect-ratio:1;background:linear-gradient(145deg,#fcf0d8,#bfae91);border:3px solid #6c5342;border-radius:14px;box-shadow:7px 13px 12px #0009,inset -5px -5px 6px #6a503b33;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:11px;gap:4px;transform:rotate(var(--rot))}
- .hl-pip{border-radius:100%;background:#292321;box-shadow:inset 1px 1px 3px #0009;opacity:0}
- .hl-die[data-face="1"] .hl-pip:nth-child(5),.hl-die[data-face="2"] .hl-pip:nth-child(1),.hl-die[data-face="2"] .hl-pip:nth-child(9),.hl-die[data-face="3"] .hl-pip:nth-child(1),.hl-die[data-face="3"] .hl-pip:nth-child(5),.hl-die[data-face="3"] .hl-pip:nth-child(9),.hl-die[data-face="4"] .hl-pip:nth-child(1),.hl-die[data-face="4"] .hl-pip:nth-child(3),.hl-die[data-face="4"] .hl-pip:nth-child(7),.hl-die[data-face="4"] .hl-pip:nth-child(9),.hl-die[data-face="5"] .hl-pip:nth-child(1),.hl-die[data-face="5"] .hl-pip:nth-child(3),.hl-die[data-face="5"] .hl-pip:nth-child(5),.hl-die[data-face="5"] .hl-pip:nth-child(7),.hl-die[data-face="5"] .hl-pip:nth-child(9),.hl-die[data-face="6"] .hl-pip:nth-child(1),.hl-die[data-face="6"] .hl-pip:nth-child(3),.hl-die[data-face="6"] .hl-pip:nth-child(4),.hl-die[data-face="6"] .hl-pip:nth-child(6),.hl-die[data-face="6"] .hl-pip:nth-child(7),.hl-die[data-face="6"] .hl-pip:nth-child(9){opacity:1}
- .hl-die.hl-rolling{animation:hlroll .9s ease-out both}
- .hl-die.hl-rolling:nth-child(2){animation-delay:.1s;animation-duration:1.1s}
- @keyframes hlroll{0%{transform:translateY(-30px) rotate(-105deg) scale(.86);filter:blur(2px)}30%{transform:translateY(17px) rotate(85deg)}60%{transform:translateY(-12px) rotate(235deg)}85%{transform:translateY(5px) rotate(355deg)}100%{transform:translateY(0) rotate(360deg)}}
- .hl-total{min-height:30px;font:700 clamp(16px,2vw,26px)/1.25 Georgia,serif;text-align:center;color:#f9dc93}
- .hl-table.hl-double .hl-total{color:#ffe58a;text-shadow:0 0 14px #f7c434}
- @media(max-width:680px){body.full-graphics .gfx-frame[data-layout="casino-dice"] .gfx-choices{grid-template-columns:repeat(2,minmax(0,1fr))}.hl-table:before{border-width:6px}.hl-heading{letter-spacing:.04em}.hl-die{padding:8px}}
- @media(prefers-reduced-motion:reduce){.hl-die.hl-rolling{animation:none}}
+ .hl3-table{position:absolute;inset:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(4px,1.7%,12px);color:#f5dda7;text-shadow:0 2px 4px #000;padding:10px;background:radial-gradient(ellipse at 50% 57%,#47634c 0%,#293e33 43%,#17281f 75%,#0b100e 100%)}
+ .hl3-table:before{content:'';position:absolute;inset:5%;border:9px ridge #61442a;border-radius:36% 36% 29% 29% / 24% 24% 22% 22%;box-shadow:0 0 0 9px #23170f,0 0 18px #000b,inset 0 0 40px #08140cbb;pointer-events:none}
+ .hl3-table:after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(105deg,#ffffff06 0 1px,transparent 1px 17px),linear-gradient(180deg,#8d572022,transparent 39%,#0005);pointer-events:none}
+ .hl3-heading,.hl3-choice,.hl3-total,.hl3-dice{position:relative;z-index:1}
+ .hl3-heading{font:700 clamp(16px,2.4vw,32px)/1.08 Georgia,serif;letter-spacing:.10em;text-align:center;color:#e5bd80}
+ .hl3-choice{font:600 clamp(11px,1.25vw,16px)/1.3 system-ui,sans-serif;letter-spacing:.03em;text-align:center;color:#ecd5a9}
+ .hl3-dice{display:flex;justify-content:center;align-items:center;gap:clamp(20px,4vw,58px);height:clamp(80px,17vh,174px);width:100%;perspective:900px;perspective-origin:50% 30%;isolation:isolate}
+ .hl3-stage{--sz:clamp(55px,8vw,104px);width:var(--sz);height:var(--sz);position:relative;transform-style:preserve-3d;flex:none;filter:drop-shadow(8px 13px 8px #0008)}
+ .hl3-cube{height:100%;width:100%;position:relative;transform-style:preserve-3d;transform:rotateX(0deg) rotateY(0deg);will-change:transform}
+ .hl3-face{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px;padding:11%;box-sizing:border-box;border:2px solid #695345;border-radius:12%;background:linear-gradient(145deg,#fff8e6 0%,#dfceab 56%,#a48c6d 100%);backface-visibility:hidden;box-shadow:inset -5px -5px 8px #503b283b,inset 2px 2px 4px #fff7df8c}
+ .hl3-pip{border-radius:100%;background:#261c19;box-shadow:inset 1px 1px 2px #0009;opacity:0}
+ .hl3-face[data-number="1"] .hl3-pip:nth-child(5),
+ .hl3-face[data-number="2"] .hl3-pip:nth-child(1),.hl3-face[data-number="2"] .hl3-pip:nth-child(9),
+ .hl3-face[data-number="3"] .hl3-pip:nth-child(1),.hl3-face[data-number="3"] .hl3-pip:nth-child(5),.hl3-face[data-number="3"] .hl3-pip:nth-child(9),
+ .hl3-face[data-number="4"] .hl3-pip:nth-child(1),.hl3-face[data-number="4"] .hl3-pip:nth-child(3),.hl3-face[data-number="4"] .hl3-pip:nth-child(7),.hl3-face[data-number="4"] .hl3-pip:nth-child(9),
+ .hl3-face[data-number="5"] .hl3-pip:nth-child(1),.hl3-face[data-number="5"] .hl3-pip:nth-child(3),.hl3-face[data-number="5"] .hl3-pip:nth-child(5),.hl3-face[data-number="5"] .hl3-pip:nth-child(7),.hl3-face[data-number="5"] .hl3-pip:nth-child(9),
+ .hl3-face[data-number="6"] .hl3-pip:nth-child(1),.hl3-face[data-number="6"] .hl3-pip:nth-child(3),.hl3-face[data-number="6"] .hl3-pip:nth-child(4),.hl3-face[data-number="6"] .hl3-pip:nth-child(6),.hl3-face[data-number="6"] .hl3-pip:nth-child(7),.hl3-face[data-number="6"] .hl3-pip:nth-child(9){opacity:1}
+ .hl3-face[data-number="1"]{transform:translateZ(calc(var(--sz) / 2))}
+ .hl3-face[data-number="2"]{transform:rotateY(180deg) translateZ(calc(var(--sz) / 2))}
+ .hl3-face[data-number="3"]{transform:rotateY(90deg) translateZ(calc(var(--sz) / 2))}
+ .hl3-face[data-number="4"]{transform:rotateY(-90deg) translateZ(calc(var(--sz) / 2))}
+ .hl3-face[data-number="5"]{transform:rotateX(90deg) translateZ(calc(var(--sz) / 2))}
+ .hl3-face[data-number="6"]{transform:rotateX(-90deg) translateZ(calc(var(--sz) / 2))}
+ .hl3-total{min-height:29px;font:700 clamp(15px,2vw,25px)/1.2 Georgia,serif;text-align:center;color:#f9dc93}
+ .hl3-table.hl3-double .hl3-total{color:#ffe58a;text-shadow:0 0 14px #f7c434}
+ @media(max-width:680px){body.full-graphics .gfx-frame[data-layout="casino-dice"] .gfx-choices{grid-template-columns:repeat(2,minmax(0,1fr))}.hl3-table:before{border-width:6px}.hl3-heading{letter-spacing:.025em}}
  `;
  document.head.appendChild(style);
- function die(face){const el=document.createElement('div');el.className='hl-die';el.dataset.face=String(face);for(let i=0;i<9;i++){const pip=document.createElement('span');pip.className='hl-pip';el.appendChild(pip);}return el;}
- // Keep the last visible outcome on the felt until the next wager resolves.
- // The prior version set both dice back to 1/1 on every waiting state.
- let shownRoundKey=null, rollTimer=null, settleTimer=null, rollSequence=0;
- let rememberedFaces=null, rememberedMessage='';
- const facePair=(pair)=>Array.isArray(pair)&&pair.length===2&&pair.every(v=>Number.isInteger(v)&&v>=1&&v<=6);
- function setFaces(dice,faces){dice.forEach((d,i)=>{d.dataset.face=String(faces[i]);});}
- function cancelVisualRoll(){rollSequence++;if(rollTimer!==null)clearInterval(rollTimer);if(settleTimer!==null)clearTimeout(settleTimer);rollTimer=null;settleTimer=null;}
- const origSync=GraphicalUI.sync;
+ const orientation={1:[0,0],2:[0,180],3:[0,-90],4:[0,90],5:[-90,0],6:[90,0]};
+ function exactAngle(face){const [x,y]=orientation[face]||orientation[1];return `rotateX(${x}deg) rotateY(${y}deg)`;}
+ function buildCube(){
+   const stageEl=document.createElement('div');stageEl.className='hl3-stage';
+   const cube=document.createElement('div');cube.className='hl3-cube';
+   for(let f=1;f<=6;f++){
+     const face=document.createElement('div');face.className='hl3-face';face.dataset.number=String(f);
+     for(let i=0;i<9;i++){const pip=document.createElement('span');pip.className='hl3-pip';face.appendChild(pip);}
+     cube.appendChild(face);
+   }
+   stageEl.appendChild(cube);return stageEl;
+ }
+ let rememberedFaces=null, shownKey=null, animToken=0, diceAnimations=[];
+ function stopAnimations(){animToken++;diceAnimations.forEach(a=>{try{a.cancel()}catch{}});diceAnimations=[];}
+ function showFaces(cubes,faces){cubes.forEach((cube,i)=>{cube.style.transform=exactAngle(faces[i]);cube.setAttribute('aria-label',`Die ${i+1}: ${faces[i]}`);});}
+ function createScene(figure){
+   const scene=document.createElement('div');scene.className='hl3-table';
+   const heading=document.createElement('div');heading.className='hl3-heading';heading.textContent='WASTELAND HIGH / LOW';
+   const choice=document.createElement('div');choice.className='hl3-choice';
+   const dice=document.createElement('div');dice.className='hl3-dice';dice.append(buildCube(),buildCube());
+   const result=document.createElement('div');result.className='hl3-total';result.setAttribute('aria-live','polite');
+   scene.append(heading,choice,dice,result);figure.appendChild(scene);
+   return scene;
+ }
+ function playRoll(scene,r,key){
+   const cubes=[...scene.querySelectorAll('.hl3-cube')];
+   if(cubes.length!==2||!r.dicePair)return;
+   stopAnimations();const token=animToken;
+   shownKey=key;
+   const result=scene.querySelector('.hl3-total');result.textContent='ROLLING…';
+   scene.classList.remove('hl3-double');
+   const faces=[...r.dicePair],reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+   if(reduced||typeof cubes[0].animate!=='function'){
+     showFaces(cubes,faces);scene.classList.toggle('hl3-double',!!r.diceDouble);result.textContent=r.message||'ROUND COMPLETE';return;
+   }
+   let remaining=2;
+   cubes.forEach((cube,i)=>{
+     const [x,y]=orientation[faces[i]];
+     // The cube really rotates in 3D; the final face, not a text overlay,
+     // faces the camera. Each die spins/bounces independently.
+     const keyframes=[
+       {transform:'translate3d(-15px,-34px,0) rotateX(0deg) rotateY(0deg) rotateZ(0deg)',offset:0},
+       {transform:'translate3d(10px,8px,14px) rotateX(260deg) rotateY(380deg) rotateZ(70deg)',offset:.34},
+       {transform:'translate3d(-6px,-18px,8px) rotateX(490deg) rotateY(615deg) rotateZ(0deg)',offset:.65},
+       {transform:`translate3d(3px,3px,0) rotateX(${720+x}deg) rotateY(${720+y}deg) rotateZ(0deg)`,offset:.9},
+       {transform:exactAngle(faces[i]),offset:1}
+     ];
+     cube.style.transform=exactAngle(1);
+     const animation=cube.animate(keyframes,{duration:1050+i*230,iterations:1,easing:'ease-out',fill:'forwards'});
+     diceAnimations.push(animation);
+     animation.finished.then(()=>{
+       if(token!==animToken)return;
+       // Explicit inline terminal orientation, so changing screens cannot
+       // cause the final image to snap back to 1/1.
+       cube.style.transform=exactAngle(faces[i]);
+       cube.setAttribute('aria-label',`Die ${i+1}: ${faces[i]}`);
+       animation.cancel();
+       if(--remaining===0){diceAnimations=[];scene.classList.toggle('hl3-double',!!r.diceDouble);result.textContent=r.message||'ROUND COMPLETE';}
+     }).catch(()=>{});
+   });
+ }
+ const previousSync=GraphicalUI.sync;
  GraphicalUI.sync=function(){
-   origSync.call(this);
-   const el=this.element;
-   if(!el)return;
-   let scene=el.figure.querySelector('.hl-table');
+   previousSync.call(this);
+   const ui=this.element;if(!ui||!ui.figure)return;
+   let scene=ui.figure.querySelector('.hl3-table');
    if(!gfx()||!atDice()){
      if(scene)scene.remove();
-     cancelVisualRoll();
-     shownRoundKey=null;
-     return;
+     if(diceAnimations.length)stopAnimations();
+     shownKey=null;return;
    }
-   if(!scene){
-     scene=document.createElement('div');scene.className='hl-table';scene.setAttribute('role','group');scene.setAttribute('aria-label','Two dice on a weathered green-felt wasteland casino table');
-     const heading=document.createElement('div');heading.className='hl-heading';heading.textContent='WASTELAND HIGH / LOW';
-     const choice=document.createElement('div');choice.className='hl-choice';
-     const dice=document.createElement('div');dice.className='hl-dice';dice.append(die(1),die(1));
-     const total=document.createElement('div');total.className='hl-total';total.setAttribute('aria-live','polite');
-     scene.append(heading,choice,dice,total);el.figure.appendChild(scene);
-     if(facePair(rememberedFaces))setFaces([...scene.querySelectorAll('.hl-die')],rememberedFaces);
-   }
+   if(!scene){scene=createScene(ui.figure);if(rememberedFaces)showFaces([...scene.querySelectorAll('.hl3-cube')],rememberedFaces);}
    const r=casinoRound();if(!r||r.game!=='dice')return;
-   const choice=scene.querySelector('.hl-choice'),total=scene.querySelector('.hl-total');
+   const total=scene.querySelector('.hl3-total'),choice=scene.querySelector('.hl3-choice');
    choice.textContent=valid.has(r.pick)?'YOUR BET: '+(r.pick==='seven'?'LUCKY SEVEN':r.pick.toUpperCase()):'CHOOSE LOW • LUCKY SEVEN • HIGH';
-   const dice=[...scene.querySelectorAll('.hl-die')];
-   const settled=r.status==='settled'&&facePair(r.dicePair);
-   const roundKey=settled?String(r.id)+'/'+r.dicePair.join('-')+'/'+String(r.bet):null;
+   const settled=r.status==='settled'&&Array.isArray(r.dicePair)&&r.dicePair.length===2;
+   const key=settled?`${r.id}:${r.bet}:${r.dicePair.join('-')}`:null;
    if(settled){
-     rememberedFaces=[...r.dicePair];rememberedMessage=r.message||`DICE ${r.dicePair[0]} + ${r.dicePair[1]}`;
-     if(shownRoundKey!==roundKey){
-       shownRoundKey=roundKey;
-       cancelVisualRoll();
-       const token=rollSequence;
-       scene.classList.toggle('hl-double',false);
-       dice.forEach(d=>d.classList.add('hl-rolling'));
-       total.textContent='ROLLING...';
-       // A moving pair of dice must actually change their pips, not merely
-       // rotate two permanent ones.  Results are already settled by casino.js.
-       const flicker=()=>{
-         if(token!==rollSequence||!scene.isConnected)return;
-         setFaces(dice,[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)]);
-       };
-       flicker();
-       rollTimer=setInterval(flicker,90);
-       settleTimer=setTimeout(()=>{
-         if(token!==rollSequence||!scene.isConnected)return;
-         clearInterval(rollTimer);rollTimer=null;settleTimer=null;
-         dice.forEach(d=>d.classList.remove('hl-rolling'));
-         setFaces(dice,rememberedFaces);
-         scene.classList.toggle('hl-double',!!r.diceDouble);
-         total.textContent=rememberedMessage;
-       },1200);
-     }else if(rollTimer===null&&settleTimer===null){
-       dice.forEach(d=>d.classList.remove('hl-rolling'));
-       setFaces(dice,r.dicePair);
-       scene.classList.toggle('hl-double',!!r.diceDouble);
-       total.textContent=r.message||'ROUND COMPLETE';
-     }
+     rememberedFaces=[...r.dicePair];
+     if(key!==shownKey)playRoll(scene,r,key);
+     else if(!diceAnimations.length){showFaces([...scene.querySelectorAll('.hl3-cube')],r.dicePair);total.textContent=r.message||'ROUND COMPLETE';scene.classList.toggle('hl3-double',!!r.diceDouble);}
    }else if(r.status==='waiting'){
-     // A new round starts with the last real faces, NOT two placeholder ones.
-     // Do not cancel a display just because a delayed render occurs.
-     cancelVisualRoll();
-     shownRoundKey=null;
-     dice.forEach(d=>d.classList.remove('hl-rolling'));
-     if(facePair(rememberedFaces))setFaces(dice,rememberedFaces);
-     else setFaces(dice,[1,1]);
-     scene.classList.toggle('hl-double',false);
+     if(diceAnimations.length)stopAnimations();
+     shownKey=null;
+     if(rememberedFaces)showFaces([...scene.querySelectorAll('.hl3-cube')],rememberedFaces);
      total.textContent=valid.has(r.pick)?'PLACE YOUR WAGER TO ROLL':'CHOOSE LOW, SEVEN OR HIGH TO START';
-   }else{
-     total.textContent=r.message||'READY';
+     scene.classList.remove('hl3-double');
    }
  };
  GraphicalUI.schedule();

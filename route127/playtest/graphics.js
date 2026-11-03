@@ -38,9 +38,8 @@ const GraphicalUI={
   if(place==='house'||(place==='roadReady'&&g?.nodeId==='house'))return 'house-interior';
   if(place==='settlement'||c?.source==='gateGuards')return 'solace-gate';
   if(place==='mercy'){
-   const interiors={amii:'solace-bank',murphy:'solace-murphy',johnny:'solace-johnny',wayne:'solace-wayne',mara:'solace-mara',relay:'solace-relay',gate:'solace-gate',eastGate:'solace-gate'};
+   const interiors={amii:'solace-bank',murphy:'solace-murphy',johnny:'solace-johnny',wayne:'solace-wayne',mara:'solace-mara',relay:'solace-relay',tim:'solace-tim',gate:'solace-gate',eastGate:'solace-gate'};
    if(interiors[mercyLocation])return interiors[mercyLocation];
-   if(mercyLocation==='town'&&this.lastPlace==='TIM'&&this.choices().some(q=>/VIEW BOUNTIES/i.test(q.command)))return 'solace-tim';
    return 'solace';
   }
   if(c?.source==='jenBoss')return 'solace';

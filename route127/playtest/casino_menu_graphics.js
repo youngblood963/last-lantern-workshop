@@ -195,7 +195,13 @@
  `;
  document.head.appendChild(style);
  function die(face){const el=document.createElement('div');el.className='hl-die';el.dataset.face=String(face);for(let i=0;i<9;i++){const pip=document.createElement('span');pip.className='hl-pip';el.appendChild(pip);}return el;}
- let lastRound=null;
+ // Keep the last visible outcome on the felt until the next wager resolves.
+ // The prior version set both dice back to 1/1 on every waiting state.
+ let shownRoundKey=null, rollTimer=null, settleTimer=null, rollSequence=0;
+ let rememberedFaces=null, rememberedMessage='';
+ const facePair=(pair)=>Array.isArray(pair)&&pair.length===2&&pair.every(v=>Number.isInteger(v)&&v>=1&&v<=6);
+ function setFaces(dice,faces){dice.forEach((d,i)=>{d.dataset.face=String(faces[i]);});}
+ function cancelVisualRoll(){rollSequence++;if(rollTimer!==null)clearInterval(rollTimer);if(settleTimer!==null)clearTimeout(settleTimer);rollTimer=null;settleTimer=null;}
  const origSync=GraphicalUI.sync;
  GraphicalUI.sync=function(){
    origSync.call(this);
@@ -204,45 +210,66 @@
    let scene=el.figure.querySelector('.hl-table');
    if(!gfx()||!atDice()){
      if(scene)scene.remove();
-     lastRound=null;
+     cancelVisualRoll();
+     shownRoundKey=null;
      return;
    }
    if(!scene){
-     scene=document.createElement('div');scene.className='hl-table';scene.setAttribute('role','img');scene.setAttribute('aria-label','Two dice on a weathered green-felt wasteland casino table');
+     scene=document.createElement('div');scene.className='hl-table';scene.setAttribute('role','group');scene.setAttribute('aria-label','Two dice on a weathered green-felt wasteland casino table');
      const heading=document.createElement('div');heading.className='hl-heading';heading.textContent='WASTELAND HIGH / LOW';
      const choice=document.createElement('div');choice.className='hl-choice';
      const dice=document.createElement('div');dice.className='hl-dice';dice.append(die(1),die(1));
-     const total=document.createElement('div');total.className='hl-total';
+     const total=document.createElement('div');total.className='hl-total';total.setAttribute('aria-live','polite');
      scene.append(heading,choice,dice,total);el.figure.appendChild(scene);
+     if(facePair(rememberedFaces))setFaces([...scene.querySelectorAll('.hl-die')],rememberedFaces);
    }
    const r=casinoRound();if(!r||r.game!=='dice')return;
    const choice=scene.querySelector('.hl-choice'),total=scene.querySelector('.hl-total');
    choice.textContent=valid.has(r.pick)?'YOUR BET: '+(r.pick==='seven'?'LUCKY SEVEN':r.pick.toUpperCase()):'CHOOSE LOW • LUCKY SEVEN • HIGH';
-   scene.classList.toggle('hl-double',!!r.diceDouble);
    const dice=[...scene.querySelectorAll('.hl-die')];
-   if(r.status==='settled'&&Array.isArray(r.dicePair)&&r.dicePair.length===2){
-     if(lastRound!==r.id){
-       lastRound=r.id;
-       dice.forEach(d=>{d.dataset.face=String(1+Math.floor(Math.random()*6));d.classList.remove('hl-rolling');void d.offsetWidth;d.classList.add('hl-rolling');});
+   const settled=r.status==='settled'&&facePair(r.dicePair);
+   const roundKey=settled?String(r.id)+'/'+r.dicePair.join('-')+'/'+String(r.bet):null;
+   if(settled){
+     rememberedFaces=[...r.dicePair];rememberedMessage=r.message||`DICE ${r.dicePair[0]} + ${r.dicePair[1]}`;
+     if(shownRoundKey!==roundKey){
+       shownRoundKey=roundKey;
+       cancelVisualRoll();
+       const token=rollSequence;
+       scene.classList.toggle('hl-double',false);
+       dice.forEach(d=>d.classList.add('hl-rolling'));
        total.textContent='ROLLING...';
-       const id=r.id,fig=el.figure;
-       setTimeout(()=>{
-         if(!atDice()||casinoRound()?.id!==id||!fig.contains(scene))return;
-         dice.forEach((d,i)=>{d.classList.remove('hl-rolling');d.dataset.face=String(r.dicePair[i]);});
-         total.textContent=r.message||'ROUND COMPLETE';
-       },1250);
-     }else if(total.textContent!=='ROLLING...'){
-       // A later re-render must still show the real settled faces, never 1/1.
-       dice.forEach((d,i)=>{d.classList.remove('hl-rolling');d.dataset.face=String(r.dicePair[i]);});
+       // A moving pair of dice must actually change their pips, not merely
+       // rotate two permanent ones.  Results are already settled by casino.js.
+       const flicker=()=>{
+         if(token!==rollSequence||!scene.isConnected)return;
+         setFaces(dice,[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)]);
+       };
+       flicker();
+       rollTimer=setInterval(flicker,90);
+       settleTimer=setTimeout(()=>{
+         if(token!==rollSequence||!scene.isConnected)return;
+         clearInterval(rollTimer);rollTimer=null;settleTimer=null;
+         dice.forEach(d=>d.classList.remove('hl-rolling'));
+         setFaces(dice,rememberedFaces);
+         scene.classList.toggle('hl-double',!!r.diceDouble);
+         total.textContent=rememberedMessage;
+       },1200);
+     }else if(rollTimer===null&&settleTimer===null){
+       dice.forEach(d=>d.classList.remove('hl-rolling'));
+       setFaces(dice,r.dicePair);
+       scene.classList.toggle('hl-double',!!r.diceDouble);
        total.textContent=r.message||'ROUND COMPLETE';
      }
    }else if(r.status==='waiting'){
-     // A waiting wager is NOT a completed roll. The same round ID is used
-     // when the bet settles, so marking it as shown here suppresses the
-     // only animation and leaves both dice on their placeholder 1 faces.
-     lastRound=null;
-     dice.forEach(d=>{d.classList.remove('hl-rolling');d.dataset.face='1';});
-     total.textContent=r.pick===null?'PICK YOUR SIDE':'PLACE YOUR WAGER';
+     // A new round starts with the last real faces, NOT two placeholder ones.
+     // Do not cancel a display just because a delayed render occurs.
+     cancelVisualRoll();
+     shownRoundKey=null;
+     dice.forEach(d=>d.classList.remove('hl-rolling'));
+     if(facePair(rememberedFaces))setFaces(dice,rememberedFaces);
+     else setFaces(dice,[1,1]);
+     scene.classList.toggle('hl-double',false);
+     total.textContent=valid.has(r.pick)?'PLACE YOUR WAGER TO ROLL':'CHOOSE LOW, SEVEN OR HIGH TO START';
    }else{
      total.textContent=r.message||'READY';
    }

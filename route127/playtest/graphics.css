@@ -263,10 +263,22 @@ body.full-graphics .gfx-frame .gfx-main{box-sizing:border-box;min-height:0;max-h
 body.full-graphics .gfx-frame .gfx-settings{flex:0 1 auto;min-height:0;overflow:auto}
 @media(max-width:760px){body.full-graphics{padding:0}}
 
-/* WO25: Never crop approved cinematic artwork. Keep the full source image
-   within the existing art viewport; intentional letterboxing is acceptable.
-   Do not change figure sizing or steal space from narrative/action controls. */
+/* WO25: Existing Solace overview, Rusty Lantern and Casino keep their
+   previously approved cover layout. Only the nine new uploaded images get
+   a non-cropping contain presentation; preserve all control panel heights. */
 body.full-graphics .gfx-frame .gfx-art .gfx-image{
+ object-fit:cover;
+ object-position:center;
+}
+body.full-graphics .gfx-frame .gfx-art .gfx-image[src$="/solace_amii_bank.png"],
+body.full-graphics .gfx-frame .gfx-art .gfx-image[src$="/solace_murphy_garage.png"],
+body.full-graphics .gfx-frame .gfx-art .gfx-image[src$="/solace_tim.png"],
+body.full-graphics .gfx-frame .gfx-art .gfx-image[src$="/solace_johnny_shop.png"],
+body.full-graphics .gfx-frame .gfx-art .gfx-image[src$="/abandoned_house_interior.png"],
+body.full-graphics .gfx-frame .gfx-art .gfx-image[src$="/solace_wayne_clinic.png"],
+body.full-graphics .gfx-frame .gfx-art .gfx-image[src$="/solace_mara_armory.png"],
+body.full-graphics .gfx-frame .gfx-art .gfx-image[src$="/solace_relay_station.png"],
+body.full-graphics .gfx-frame .gfx-art .gfx-image[src$="/solace_town_gate.png"]{
  object-fit:contain;
  object-position:center center;
 }

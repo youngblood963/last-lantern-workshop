@@ -13,6 +13,24 @@ const ROUTE127_ART={
  'st-mercy-hospital':{file:'st_mercy_hospital.png',title:'St. Mercy Hospital'},'iron-pit-arena':{file:'iron_pit_arena.png',title:'Iron Pit Arena'},
  'broken-bridge':{file:'broken_bridge_preview.png',title:'Broken Bridge — exterior preview'}
 };
+// WO23: road geography comes from the world graph, never encounter metadata.
+// Nodes without a unique adjacent region use CENTRAL as a generic view until
+// an explicit node-region map is approved. Dedicated location art wins below.
+function route127RegionalArt(g){
+ const regions=new Set(['NORTH','WEST','CENTRAL','INDUSTRIAL','LOWLANDS','EAST','SEAPORT']);
+ let region=null;
+ if(g?.currentEdgeId){
+  const edge=LG_EDGES[g.currentEdgeId];
+  region=edge?.primaryRegion;
+  // Legacy split roads retain their IDs in old saves; use the first live segment.
+  if(!region){const split=LANTERN_WORLD_GRAPH.roadCompletion?.splits?.[g.currentEdgeId];region=LG_EDGES[split?.first]?.primaryRegion;}
+ }else if(g?.nodeId){
+  const adjacent=new Set(LANTERN_WORLD_GRAPH.edges.filter(e=>e.a===g.nodeId||e.b===g.nodeId).map(e=>e.primaryRegion).filter(r=>regions.has(r)));
+  if(adjacent.size===1)region=[...adjacent][0];
+ }
+ if(!regions.has(region))region='CENTRAL';
+ return '../assets/regions/'+region.toLowerCase()+'.png';
+}
 const GraphicalUI={
  element:null,home:null,lastPlace:'',preferred:null,modeKey:'route127-display-mode',optionsOpen:false,navOpen:false,rendering:false,
  preference(){if(this.preferred)return this.preferred;try{return localStorage.getItem(this.modeKey)==='classic'?'classic':'graphics';}catch{return 'graphics';}},
@@ -33,7 +51,7 @@ const GraphicalUI={
  choices(){const rows=[],used=new Set();for(const [key,value]of Object.entries(numberedChoices||{})){if(!value)continue;const command=String(value);rows.push({key,command,label:command});used.add(command);}
   for(const [key,value]of Object.entries(currentHotkeys||{})){const command=String(value);if(!command||used.has(command))continue;rows.push({key,command,label:command});used.add(command);}return rows;},
  layout(){if(combatState)return 'combat';if(['inventory','inventoryItem','confirmDrop','r5Loot'].includes(stage))return 'inventory';if(stage==='interfaceMap')return 'map';if(stage==='interfaceStatus')return 'character';if(stage==='quests')return 'journal';if(/Craft|craft|Bench|Forge|Recipes/.test(stage))return 'crafting';if(stage==='mercy'&&mercyLocation!=='town'||/^r11Talk|^r18Fence|^port55Talk/.test(stage))return 'dialogue';if(stage==='mercy'||/^port|^seaport/.test(stage))return 'town';return 'highway';},
- model(){const id=this.context(),art=ROUTE127_ART[id],g=typeof lanternState==='function'?lanternState():null;return {active:this.active(),eligible:this.eligible(),layout:this.layout(),location:id,title:art?.title||(g?.currentEdgeId?'Lantern Highway':LG_NODES[g?.nodeId]?.name||'Route 127'),art:art?'assets/locations/'+art.file:null,choices:this.choices(),hp:Number(player.hp)||0,maxHp:Number(player.maxHp)||1,level:Number(player.level)||1,xp:Number(player.xp)||0,nextXp:Number(player.nextXp)||1,bolts:Number(player.bolts)||0,turns:Number(player.turns)||0,maxTurns:Number(player.maxTurns)||150,pack:packSlotsUsed(),capacity:player.packMax,time:timePhase(),enemies:combatState?(combatState.enemies?.length?combatState.enemies:[combatState]).map(e=>({name:e.name,hp:e.hp,maxHp:e.maxHp||e.hp})):[]};},
+ model(){const id=this.context(),art=ROUTE127_ART[id],g=typeof lanternState==='function'?lanternState():null;return {active:this.active(),eligible:this.eligible(),layout:this.layout(),location:id,title:art?.title||(g?.currentEdgeId?(lanternEdge()?.name||'Route 127'):LG_NODES[g?.nodeId]?.name||'Route 127'),art:art?'assets/locations/'+art.file:route127RegionalArt(g),choices:this.choices(),hp:Number(player.hp)||0,maxHp:Number(player.maxHp)||1,level:Number(player.level)||1,xp:Number(player.xp)||0,nextXp:Number(player.nextXp)||1,bolts:Number(player.bolts)||0,turns:Number(player.turns)||0,maxTurns:Number(player.maxTurns)||150,pack:packSlotsUsed(),capacity:player.packMax,time:timePhase(),enemies:combatState?(combatState.enemies?.length?combatState.enemies:[combatState]).map(e=>({name:e.name,hp:e.hp,maxHp:e.maxHp||e.hp})):[]};},
  preview(){const g=typeof lanternState==='function'?lanternState():null;if(!g||g.currentEdgeId)return '';if(g.nodeId==='northern-ridge')return 'Grand City rises above the northern approach: lamps glow behind repaired walls, and smoke curls from roofs where people are building a life again. The city interior remains beyond this preview.';if(g.nodeId==='broken-bridge')return 'The ruined span ends above the dark water. Weathered roads lead back into the wasteland; the territory across the broken crossing remains inaccessible.';return '';},
  statuses(){const c=combatState;if(!c)return [];const rows=[];for(const [key,label]of [['r18RatBleed','Bite bleeding'],['r18PowderBleed','Shrapnel bleeding'],['r18RatGuardBreak','Guard weakened']])if(c[key]>0)rows.push(label+': '+c[key]+' exchanges');if(c.wo3Cover)rows.push('Container cover ready');if(c.wo3LightShot)rows.push('Drone floodlight disabled');if(c.r18PowderGrenadePending)rows.push('Grenade readied');return rows;},
  nav(model){const result=[];if(player.flags.interfaceUnlocked){result.push(['map','Map','map'],['inventory','Backpack','pack'],['status','Character','person']);const craft=model.choices.find(c=>/^(crafting recipes|use workbench|crafting|recipes)$/.test(c.command));if(craft)result.push([craft.key,'Crafting','tool']);result.push(['quests','Journal','book']);}return result;},
@@ -127,7 +145,8 @@ skipIntroForTesting=function(){
  activeSaveSlot=0;pendingHandle='';numberedChoices={};currentHotkeys={};
  screen.innerHTML='';stage='handle';signal.textContent='SIGNAL LOGGED';
  hud.classList.add('hidden');utilityPanel.classList.add('hidden');
- add('INTRO SKIPPED — CREATE YOUR TRAVELER','place');
+ add('ROUTE 127 — CREATE YOUR TRAVELER','place');
+ add('You stand on the highway outside the old house. Solace lies to the south.','system');
  add('Enter your name before starting. Up to 16 characters; type RANDOM for a suggestion.','system');
  input.placeholder='Enter your name';updateHud();GraphicalUI.schedule();
 };
@@ -144,7 +163,10 @@ handleCommand=async function(raw){
   input.placeholder='Command';hud.classList.remove('hidden');utilityPanel.classList.remove('hidden');
   add('TRAVELER CONFIRMED — '+player.handle,'bright');
   add('The Solace coordinates are already logged.','system');
-  arriveHouse();updateHud();GraphicalUI.schedule();return;
+  lanternMigrate();
+  GraphicalUI.setMode('graphics');
+  lanternChoose('house--solace-upper-junction');
+  updateHud();GraphicalUI.schedule();return;
  }
  return wo16NamingCommand(raw);
 };

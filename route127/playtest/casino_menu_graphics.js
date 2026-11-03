@@ -301,3 +301,189 @@
  };
  GraphicalUI.schedule();
 })();
+
+
+/* BLACKJACK GRAPHICS — presentation-only felt board and live dealt cards.
+ * The same wasteland_dice_board.png is shared with Wasteland High/Low.
+ * Card deck, wager, hit/stand, payout, checkpoints and BBS stay in casino.js.
+ * No image hotspots and no replacement game buttons. */
+(function(){
+ 'use strict';
+ if(typeof GraphicalUI==='undefined'||typeof casinoRound!=='function')return;
+ const isBlackjack=()=>stage==='mercy'&&mercyLocation==='casinoGame'&&casinoRound()?.game==='blackjack';
+ const isGraphical=()=>GraphicalUI.preference()==='graphics';
+ const prevModel=GraphicalUI.model;
+ GraphicalUI.model=function(){
+   const model=prevModel.call(this);
+   if(isGraphical()&&isBlackjack()){
+     model.layout='casino-blackjack';
+     model.art='';
+     model.title='Rusty Lantern — Blackjack';
+   }
+   return model;
+ };
+ const style=document.createElement('style');
+ style.dataset.route127Blackjack='v1';
+ style.textContent=`
+ body.full-graphics .gfx-frame[data-layout="casino-blackjack"] .gfx-main{
+   display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;gap:7px
+ }
+ body.full-graphics .gfx-frame[data-layout="casino-blackjack"] .gfx-art{
+   display:flex;position:relative;flex:1 1 0;min-height:140px;
+   max-height:calc(100% - 165px);overflow:hidden;
+   background:#112016!important;border:1px solid #725037
+ }
+ body.full-graphics .gfx-frame[data-layout="casino-blackjack"] .gfx-art-caption,
+ body.full-graphics .gfx-frame[data-layout="casino-blackjack"] .gfx-art-error,
+ body.full-graphics .gfx-frame[data-layout="casino-blackjack"] .gfx-image{display:none!important}
+ body.full-graphics .gfx-frame[data-layout="casino-blackjack"] .gfx-narrative{
+   flex:0 0 auto;max-height:80px;overflow:auto;font-size:13px
+ }
+ body.full-graphics .gfx-frame[data-layout="casino-blackjack"] .gfx-choices{
+   flex:0 0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+   gap:6px;min-height:51px;max-height:124px;overflow-y:auto
+ }
+ body.full-graphics .gfx-frame[data-layout="casino-blackjack"] .gfx-choice{
+   min-width:0;min-height:43px;padding:3px 7px
+ }
+ body.full-graphics .gfx-frame[data-layout="casino-blackjack"] .gfx-choice-label{
+   font-size:clamp(12px,1vw,16px);white-space:normal
+ }
+ .r127-bj-table{
+   position:absolute;inset:0;display:flex;flex-direction:column;
+   justify-content:space-evenly;align-items:stretch;overflow:hidden;
+   color:#f7e5be;box-sizing:border-box;padding:clamp(8px,2.5%,22px) 5%;
+   background:#112016 url('assets/locations/wasteland_dice_board.png') center/100% 100% no-repeat;
+   text-shadow:0 2px 3px #000;
+ }
+ .r127-bj-seat{
+   position:relative;z-index:1;flex:1 1 0;min-height:0;
+   display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px
+ }
+ .r127-bj-label{
+   font:bold clamp(11px,1.25vw,17px)/1.2 Georgia,serif;
+   letter-spacing:.09em;text-transform:uppercase;
+   text-align:center;background:#080c09a8;border:1px solid #aa81585e;
+   border-radius:5px;padding:3px 12px
+ }
+ .r127-bj-hand{
+   display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;
+   gap:clamp(3px,1.6vw,12px);max-width:100%;min-height:0
+ }
+ .r127-bj-card{
+   --card-h:clamp(58px,13vh,124px);
+   width:calc(var(--card-h) * .68);height:var(--card-h);flex:none;
+   background:#f5eddb;color:#202022;border:2px solid #e1cba0;
+   box-shadow:2px 5px 8px #0008,inset 0 0 0 2px #b4a78c;
+   border-radius:7px;position:relative;box-sizing:border-box;
+   display:flex;align-items:center;justify-content:center;
+   font:bold clamp(20px,3.6vw,38px)/1 Georgia,serif;
+   text-shadow:none;transform-origin:50% 50%;
+ }
+ .r127-bj-card.is-red{color:#a32726}
+ .r127-bj-card .r127-bj-corner{
+   position:absolute;top:4px;left:5px;font:bold clamp(12px,1.8vw,19px)/1.0 Georgia,serif;
+   display:flex;flex-direction:column;align-items:center;gap:1px
+ }
+ .r127-bj-card .r127-bj-corner-bottom{
+   top:auto;left:auto;bottom:4px;right:5px;transform:rotate(180deg)
+ }
+ .r127-bj-card.is-back{
+   color:#ebc990;background:repeating-linear-gradient(45deg,#4f2418 0 7px,#82452c 7px 11px);
+   border:3px solid #e9cc96;box-shadow:2px 5px 8px #0008,inset 0 0 0 3px #3e2119
+ }
+ .r127-bj-card.is-back:before{
+   content:'✦';display:grid;place-items:center;
+   width:58%;height:66%;border:2px solid #d6aa6b;
+   border-radius:4px;background:#3c1e18bb;font-size:clamp(17px,3vw,32px)
+ }
+ .r127-bj-card.is-dealt{animation:r127-bj-deal .45s cubic-bezier(.19,.85,.3,1.04) both}
+ @keyframes r127-bj-deal{
+   from{transform:translateY(-26px) rotate(-13deg) scale(.83);opacity:.35}
+   to{transform:translateY(0) rotate(0) scale(1);opacity:1}
+ }
+ .r127-bj-idle{font:italic clamp(12px,1.5vw,18px)/1.3 Georgia,serif;color:#e0cba6}
+ @media(max-width:680px){
+   body.full-graphics .gfx-frame[data-layout="casino-blackjack"] .gfx-choices{
+     grid-template-columns:repeat(2,minmax(0,1fr))
+   }
+   .r127-bj-card{--card-h:clamp(42px,11vh,76px);border-width:1px}
+   .r127-bj-table{padding:5px 3%}
+   .r127-bj-label{font-size:11px;padding:2px 7px}
+ }
+ @media(prefers-reduced-motion:reduce){.r127-bj-card.is-dealt{animation:none}}
+ `;
+ document.head.appendChild(style);
+ let lastRound=null;
+ let lastCards=new Set();
+ const ranks=new Set(['A','2','3','4','5','6','7','8','9','10','J','Q','K']);
+ const suits={H:'♥',D:'♦',C:'♣',S:'♠'};
+ function safeCard(card){return card&&ranks.has(card.rank)&&Object.prototype.hasOwnProperty.call(suits,card.suit);}
+ function makeSeat(label){
+   const seat=document.createElement('section');seat.className='r127-bj-seat';
+   const name=document.createElement('div');name.className='r127-bj-label';name.textContent=label;
+   const hand=document.createElement('div');hand.className='r127-bj-hand';
+   seat.append(name,hand);return seat;
+ }
+ function makeScene(figure){
+   const table=document.createElement('div');table.className='r127-bj-table';
+   table.setAttribute('aria-label','Blackjack cards on the Rusty Lantern felt table');
+   const dealer=makeSeat('Dealer'),person=makeSeat('Your Hand');
+   dealer.classList.add('r127-bj-dealer');person.classList.add('r127-bj-player');
+   table.append(dealer,person);figure.appendChild(table);
+   return table;
+ }
+ function makeCard(card,faceDown,deal){
+   const el=document.createElement('div');el.className='r127-bj-card';
+   if(deal)el.classList.add('is-dealt');
+   if(faceDown){el.classList.add('is-back');el.setAttribute('aria-label','Face-down dealer card');return el;}
+   if(!safeCard(card)){el.textContent='?';el.setAttribute('aria-label','Unknown card');return el;}
+   if(card.suit==='H'||card.suit==='D')el.classList.add('is-red');
+   const center=document.createElement('span');center.textContent=suits[card.suit];
+   const corner=document.createElement('span');corner.className='r127-bj-corner';
+   const cornerBottom=document.createElement('span');cornerBottom.className='r127-bj-corner r127-bj-corner-bottom';
+   for(const target of [corner,cornerBottom]){
+     const rank=document.createElement('span');rank.textContent=card.rank;
+     const suit=document.createElement('span');suit.textContent=suits[card.suit];
+     target.append(rank,suit);
+   }
+   el.append(center,corner,cornerBottom);
+   el.setAttribute('aria-label',`${card.rank} of ${{H:'hearts',D:'diamonds',C:'clubs',S:'spades'}[card.suit]}`);
+   return el;
+ }
+ function drawHand(target,cards,hideHole,seatName,roundId){
+   const hand=target.querySelector('.r127-bj-hand');
+   const items=Array.isArray(cards)?cards:[];
+   const nodes=items.map((card,i)=>{
+     const hidden=hideHole&&i>0;
+     const fingerprint=`${roundId}:${seatName}:${i}:${hidden?'hidden':safeCard(card)?card.rank+card.suit:'unknown'}`;
+     const fresh=!lastCards.has(fingerprint);
+     lastCards.add(fingerprint);
+     return makeCard(card,hidden,fresh);
+   });
+   if(!nodes.length){const idle=document.createElement('div');idle.className='r127-bj-idle';idle.textContent='Place a wager to deal';nodes.push(idle);}
+   hand.replaceChildren(...nodes);
+ }
+ const priorSync=GraphicalUI.sync;
+ GraphicalUI.sync=function(){
+   priorSync.call(this);
+   const ui=this.element;
+   if(!ui?.figure)return;
+   let scene=ui.figure.querySelector('.r127-bj-table');
+   if(!isGraphical()||!isBlackjack()){
+     if(scene)scene.remove();lastRound=null;lastCards.clear();return;
+   }
+   if(!scene)scene=makeScene(ui.figure);
+   const round=casinoRound();if(!round||round.game!=='blackjack')return;
+   if(lastRound!==round.id){lastRound=round.id;lastCards.clear();}
+   const dealt=Array.isArray(round.player)&&Array.isArray(round.dealer);
+   const dealer=scene.querySelector('.r127-bj-dealer');
+   const person=scene.querySelector('.r127-bj-player');
+   const hidden=round.status!=='settled';
+   drawHand(dealer,dealt?round.dealer:[],hidden,'dealer',round.id);
+   drawHand(person,dealt?round.player:[],false,'player',round.id);
+   dealer.querySelector('.r127-bj-label').textContent=hidden?'DEALER — ?':`DEALER — ${casinoCardTotal(round.dealer||[])}`;
+   person.querySelector('.r127-bj-label').textContent=dealt?`YOUR HAND — ${casinoCardTotal(round.player)}`:'YOUR HAND';
+ };
+ GraphicalUI.schedule();
+})();

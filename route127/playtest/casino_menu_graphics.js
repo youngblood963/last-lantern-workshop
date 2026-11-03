@@ -501,3 +501,135 @@
   };
  GraphicalUI.schedule();
 })();
+
+
+/* RUSTY LANTERN ROCK / PAPER / SCISSORS — graphical hands only.
+ * Reuses the existing casino round state, wager flow, commands and payouts.
+ * Visual gestures are SVG with depth/shading and CSS 3D perspective motion.
+ * No image hotspots, fake control panels or gameplay logic overrides. */
+(function(){
+ 'use strict';
+ if(typeof GraphicalUI==='undefined'||typeof casinoRound!=='function')return;
+ const gfx=()=>GraphicalUI.preference()==='graphics';
+ const atRps=()=>stage==='mercy'&&mercyLocation==='casinoGame'&&casinoRound()?.game==='rps';
+ const previousModel=GraphicalUI.model;
+ GraphicalUI.model=function(){
+   const m=previousModel.call(this);
+   if(gfx()&&atRps()){
+     m.layout='casino-rps';m.art='';m.title='Rusty Lantern — Rock Paper Scissors';
+   }
+   return m;
+ };
+ const css=document.createElement('style');
+ css.dataset.route127Rps='v1';
+ css.textContent=`
+ body.full-graphics .gfx-frame[data-layout="casino-rps"] .gfx-main{display:flex;flex-direction:column;min-height:0;height:100%;overflow:hidden;gap:7px}
+ body.full-graphics .gfx-frame[data-layout="casino-rps"] .gfx-art{display:flex;position:relative;flex:1 1 0;min-height:120px;max-height:calc(100% - 165px);overflow:hidden;background:#1b100c!important;border:1px solid #725037}
+ body.full-graphics .gfx-frame[data-layout="casino-rps"] .gfx-art-caption,
+ body.full-graphics .gfx-frame[data-layout="casino-rps"] .gfx-art-error,
+ body.full-graphics .gfx-frame[data-layout="casino-rps"] .gfx-image{display:none!important}
+ body.full-graphics .gfx-frame[data-layout="casino-rps"] .gfx-narrative{flex:0 0 auto;max-height:80px;overflow:auto;font-size:13px}
+ body.full-graphics .gfx-frame[data-layout="casino-rps"] .gfx-choices{flex:0 0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;min-height:51px;max-height:124px;overflow-y:auto}
+ body.full-graphics .gfx-frame[data-layout="casino-rps"] .gfx-choice{min-height:43px;min-width:0;padding:3px 7px}
+ body.full-graphics .gfx-frame[data-layout="casino-rps"] .gfx-choice-label{font-size:clamp(12px,1vw,16px);white-space:normal}
+ .r127-rps-stage{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:#1b100c url('assets/locations/rps_casino_floor.png') center/100% 100% no-repeat;perspective:750px;transform-style:preserve-3d;isolation:isolate}
+ .r127-rps-hand{position:absolute;z-index:2;width:clamp(102px,28%,270px);height:80%;top:10%;transform-style:preserve-3d;will-change:transform;filter:drop-shadow(7px 12px 5px #0009)}
+ .r127-rps-hand svg{display:block;width:100%;height:100%;overflow:visible}
+ .r127-rps-hand.is-player{left:19%;top:26%;transform:translate3d(-8%,5%,28px) rotate(-24deg) rotateY(-19deg) rotateX(9deg)}
+ .r127-rps-hand.is-opponent{right:19%;top:-13%;transform:translate3d(8%,5%,28px) rotate(162deg) rotateY(19deg) rotateX(9deg)}
+ .r127-rps-hand.is-player.is-throwing{animation:r127-rps-bounce-left 1.05s cubic-bezier(.4,0,.55,1) both}
+ .r127-rps-hand.is-opponent.is-throwing{animation:r127-rps-bounce-right 1.05s cubic-bezier(.4,0,.55,1) both}
+ @keyframes r127-rps-bounce-left{0%,100%{transform:translate3d(-8%,5%,28px) rotate(-24deg) rotateY(-19deg) rotateX(9deg)}17%,52%,82%{transform:translate3d(-2%,-15%,72px) rotate(-18deg) rotateY(-35deg) rotateX(22deg)}35%,69%{transform:translate3d(6%,10%,20px) rotate(-29deg) rotateY(-9deg) rotateX(-10deg)}}
+ @keyframes r127-rps-bounce-right{0%,100%{transform:translate3d(8%,5%,28px) rotate(162deg) rotateY(19deg) rotateX(9deg)}17%,52%,82%{transform:translate3d(2%,-15%,72px) rotate(156deg) rotateY(35deg) rotateX(22deg)}35%,69%{transform:translate3d(-6%,10%,20px) rotate(167deg) rotateY(9deg) rotateX(-10deg)}}
+ .r127-rps-hand svg .r127-rps-skin{fill:url(#r127-rps-leather);stroke:#231b15;stroke-width:3.4;stroke-linejoin:round;stroke-linecap:round}
+ .r127-rps-hand svg .r127-rps-shade{fill:none;stroke:#ae8561;stroke-opacity:.47;stroke-width:3.2;stroke-linecap:round}
+ .r127-rps-hand svg .r127-rps-seam{fill:none;stroke:#161616;stroke-width:3;stroke-linecap:round}
+ .r127-rps-hand svg .r127-rps-nail{fill:#b69b7b;stroke:#38291f;stroke-width:1.7}
+ .r127-rps-hand.is-opponent svg{filter:sepia(.35) brightness(.8)}
+ .r127-rps-hand svg .r127-rps-strap{fill:#29251f;stroke:#110e0b;stroke-width:4}
+ .r127-rps-hand svg .r127-rps-buckle{fill:none;stroke:#9c7951;stroke-width:3}
+ @media(max-width:560px){.r127-rps-hand{width:35%;height:78%}.r127-rps-hand.is-player{left:14%;top:29%}.r127-rps-hand.is-opponent{right:14%;top:-16%}}
+ @media(prefers-reduced-motion:reduce){.r127-rps-hand.is-throwing{animation:none!important}}
+ `;
+ document.head.appendChild(css);
+ // Vector hands have rounded, layered outlines and lighting rather than a flat emoji;
+ // the left and right hands are independent DOM objects and always reflect real choices.
+ const base=`<defs>
+   <linearGradient id="r127-rps-leather" x1=".12" y1=".1" x2=".9" y2=".96"><stop offset="0" stop-color="#e0b58b"/><stop offset=".24" stop-color="#ba855b"/><stop offset=".54" stop-color="#8c5d3b"/><stop offset=".82" stop-color="#5e3d28"/><stop offset="1" stop-color="#392417"/></linearGradient>
+   <linearGradient id="r127-rps-cuff" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#514534"/><stop offset="1" stop-color="#171716"/></linearGradient>
+ </defs>`;
+ const wrist=`<path d="M 59 135 Q 53 168 54 217 L 126 217 Q 126 168 120 134 Z" fill="url(#r127-rps-cuff)" stroke="#15110e" stroke-width="4"/>
+   <path class="r127-rps-strap" d="M 53 177 L 128 177 L 128 190 L 53 190 Z"/>
+   <path class="r127-rps-buckle" d="M 82 176 L 103 176 L 103 191 L 82 191 Z"/>`;
+ const gestures={
+ rock:`<path class="r127-rps-skin" d="M 60 150 Q 43 137 39 112 L 37 91 Q 37 79 47 77 Q 54 76 61 82 L 61 73 Q 62 63 71 63 Q 79 63 82 73 Q 85 61 94 63 Q 102 65 103 76 Q 108 66 117 70 Q 125 74 123 88 L 125 118 Q 120 149 113 162 L 63 163 Z"/>
+ <path class="r127-rps-skin" d="M 38 108 Q 30 97 38 87 Q 45 78 53 86 L 83 108 Q 95 115 88 126 Q 83 136 71 131 Z"/>
+ <path class="r127-rps-shade" d="M 61 83 L 64 96 M 81 76 L 84 98 M 102 76 L 104 97 M 110 123 Q 93 141 66 135"/>`,
+ paper:`<path class="r127-rps-skin" d="M 52 153 Q 44 135 44 115 L 32 77 Q 28 65 36 61 Q 44 57 49 70 L 61 95 L 58 31 Q 57 19 66 18 Q 76 18 76 31 L 79 87 L 82 17 Q 82 6 92 6 Q 102 6 101 19 L 100 89 L 111 27 Q 113 17 122 21 Q 130 25 126 38 L 116 98 L 131 54 Q 135 43 144 47 Q 153 52 148 64 L 131 121 Q 130 151 119 166 L 61 167 Z"/>
+ <path class="r127-rps-shade" d="M 66 107 L 70 143 M 87 102 L 90 148 M 110 107 L 110 143 M 58 136 Q 88 150 120 136"/>
+ <path class="r127-rps-nail" d="M 65 22 Q 69 19 73 23 L 72 32 L 64 32 Z M 88 11 Q 92 9 96 12 L 96 22 L 87 22 Z M 116 26 Q 120 24 124 28 L 122 38 L 114 36 Z"/>`,
+ scissors:`<path class="r127-rps-skin" d="M 61 158 Q 48 140 49 117 L 48 86 Q 48 72 59 70 Q 72 70 74 87 L 80 103 L 61 41 Q 56 27 66 23 Q 76 18 83 33 L 98 85 L 118 31 Q 124 16 135 22 Q 145 27 139 42 L 116 108 Q 139 100 145 112 Q 151 124 136 132 L 116 152 L 114 169 L 64 169 Z"/>
+ <path class="r127-rps-skin" d="M 51 109 Q 39 101 35 111 Q 31 121 41 128 L 72 150 Q 84 156 91 144 Q 96 136 82 127 Z"/>
+ <path class="r127-rps-shade" d="M 69 36 L 86 96 M 130 34 L 110 94 M 71 113 Q 92 123 110 114 M 66 147 L 108 154"/>
+ <path class="r127-rps-nail" d="M 65 27 Q 70 25 74 28 L 78 39 L 69 42 Z M 128 26 Q 133 24 137 30 L 133 43 L 125 40 Z"/>`
+ };
+ function handMarkup(gesture){return `<svg viewBox="0 0 180 225" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">${base}${wrist}${gestures[gesture]||gestures.rock}</svg>`;}
+ let lastKey='',revealTimer=null;
+ function sceneFor(figure){
+   const stageEl=document.createElement('div');stageEl.className='r127-rps-stage';
+   stageEl.setAttribute('role','img');stageEl.setAttribute('aria-label','Two hands facing each other over the casino floor');
+   for(const [role,label]of [['player','Your hand'],['opponent','Opponent hand']]){
+     const h=document.createElement('div');h.className=`r127-rps-hand is-${role}`;h.dataset.gesture='rock';h.setAttribute('aria-label',label);
+     h.innerHTML=handMarkup('rock');stageEl.appendChild(h);
+   }
+   figure.appendChild(stageEl);return stageEl;
+ }
+ function setHands(scene,playerGesture,enemyGesture){
+   for(const [role,gesture]of [['player',playerGesture],['opponent',enemyGesture]]){
+     const el=scene.querySelector(`.r127-rps-hand.is-${role}`);if(!el)continue;
+     if(el.dataset.gesture!==gesture){el.innerHTML=handMarkup(gesture);el.dataset.gesture=gesture;}
+   }
+   scene.setAttribute('aria-label',`You played ${playerGesture}. Opponent played ${enemyGesture}.`);
+ }
+ function clearThrow(){if(revealTimer!==null){clearTimeout(revealTimer);revealTimer=null;}}
+ function throwHands(scene,round){
+   clearThrow();setHands(scene,'rock','rock');
+   const two=[...scene.querySelectorAll('.r127-rps-hand')];
+   for(const el of two){el.classList.remove('is-throwing');void el.offsetWidth;el.classList.add('is-throwing');}
+   const choice=round.pick,opponent=round.opponent,id=round.id;
+   revealTimer=setTimeout(()=>{
+     revealTimer=null;
+     if(!scene.isConnected||!atRps()||casinoRound()?.id!==id)return;
+     setHands(scene,choice,opponent);
+     for(const el of two)el.classList.remove('is-throwing');
+   },1070);
+ }
+ const priorSync=GraphicalUI.sync;
+ GraphicalUI.sync=function(){
+   priorSync.call(this);
+   const figure=this.element?.figure;if(!figure)return;
+   let scene=figure.querySelector('.r127-rps-stage');
+   if(!gfx()||!atRps()){
+     if(scene)scene.remove();clearThrow();lastKey='';return;
+   }
+   if(!scene)scene=sceneFor(figure);
+   const round=casinoRound();
+   if(!round)return;
+   const key=`${round.id}:${round.status}:${round.pick||''}:${round.opponent||''}`;
+   if(key===lastKey)return;
+   lastKey=key;
+   if(round.status==='settled'&&['rock','paper','scissors'].includes(round.pick)&&['rock','paper','scissors'].includes(round.opponent))throwHands(scene,round);
+   else{clearThrow();setHands(scene,'rock','rock');for(const el of scene.querySelectorAll('.r127-rps-hand'))el.classList.remove('is-throwing');}
+ };
+ // Resolve is synchronous; render happens through the existing output queue.
+ // Force one model refresh when the underlying RPS outcome is known.
+ const priorResolve=casinoResolve;
+ casinoResolve=function(round){
+   const result=priorResolve(round);
+   if(round?.game==='rps'&&gfx())GraphicalUI.sync();
+   return result;
+ };
+ const priorOpen=casinoOpen;
+ casinoOpen=function(game){const result=priorOpen(game);if(game==='rps'&&gfx())GraphicalUI.sync();return result;};
+ GraphicalUI.schedule();
+})();

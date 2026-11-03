@@ -36,6 +36,9 @@ const GraphicalUI={
   if(place==='wo6FreshMart')return 'fresh-mart';if(place==='wo4Hospital'||c?.source==='wo4HospitalEntrance')return 'st-mercy-hospital';
   // Dedicated Solace interiors use the current town sublocation; the base Solace art remains the fallback.
   if(place==='house'||(place==='roadReady'&&g?.nodeId==='house'))return 'house-interior';
+  // The world-map gate menu has its own stage and does not use mercyLocation.
+  // All four Solace compass gates share the owner's approved gate artwork.
+  if(place==='lanternGate'&&g?.nodeId==='solace'&&['north','south','east','west'].includes(g.selectedGate))return 'solace-gate';
   if(place==='settlement'||c?.source==='gateGuards')return 'solace-gate';
   if(place==='mercy'){
    const interiors={amii:'solace-bank',murphy:'solace-murphy',johnny:'solace-johnny',wayne:'solace-wayne',mara:'solace-mara',relay:'solace-relay',tim:'solace-tim',gate:'solace-gate',eastGate:'solace-gate'};

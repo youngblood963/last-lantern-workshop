@@ -53,7 +53,7 @@
       .dw-scene{position:relative;overflow:hidden;isolation:isolate;aspect-ratio:16/9;background:linear-gradient(115deg,#38352d,#171d21);border:2px solid #635340}
       .dw-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
       .dw-location{position:absolute;bottom:6%;left:4%;z-index:3;max-width:50%;background:#100e0cc9;border:1px solid #8e704c;padding:5px 9px;font:700 .75rem Georgia,serif;text-shadow:0 1px 2px black}
-      .dw-person{position:absolute;bottom:0;right:var(--dw-road-person-right,15%);height:88%;max-width:56%;object-fit:contain;object-position:bottom center;filter:drop-shadow(0 5px 5px #0008);z-index:2}
+      .dw-person{position:absolute;bottom:0;right:var(--dw-road-person-right,15%);height:110%;max-width:56%;object-fit:contain;object-position:bottom center;filter:drop-shadow(0 5px 5px #0008);z-index:2}
       .dw-frame{position:absolute;right:3%;bottom:4%;height:28%;aspect-ratio:3/4;max-width:18%;border:2px ridge #a08051;box-shadow:0 4px 12px #000c;background:#201913;z-index:3;overflow:hidden}
       .dw-frame .dw-person{height:calc(100% - 18px);width:100%;max-width:none;right:0;bottom:18px;object-fit:contain}
       .dw-name{position:absolute;bottom:0;left:0;right:0;background:#18130f;text-align:center;font:700 .56rem Georgia,serif;padding:3px 2px;white-space:nowrap}

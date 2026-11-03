@@ -1,7 +1,7 @@
 /* Route 127 — Devtest-only live encounter art.
  * Uses existing encounter identity/state: never rolls, spawns, modifies choices,
  * progression, recruitment, storage, or saves. Classic BBS remains untouched.
- * Approved batch 1 art only; unknown wanderers simply retain normal backgrounds.
+ * Approved batches 1–3 art only; unknown wanderers simply retain normal backgrounds.
  */
 (() => {
   'use strict';
@@ -15,7 +15,10 @@
     Kettle:'kettle.png', Vera:'vera.png', Deke:'deke.png', Ash:'ash.png',
     Bram:'bram.png', Lark:'lark.png', Flint:'flint.png', Sable:'sable.png',
     Cricket:'cricket.png', Rowan:'rowan.png', Harlow:'harlow.png',
-    Bolt:'bolt.png', Crowley:'crowley.png', Mercer:'mercer.png'
+    Bolt:'bolt.png', Crowley:'crowley.png', Mercer:'mercer.png',
+    Finch:'finch.png', Vale:'vale.png', Bishop:'bishop.png', Wren:'wren.png', Cutter:'cutter.png',
+    'Iona Pike':'iona_pike.png', 'Cal Voss':'cal_voss.png', 'Ada Quill':'ada_quill.png',
+    'Merritt Shaw':'merritt_shaw.png', 'Sabine Reed':'sabine_reed.png'
   });
   const root = new URL('../devtest/assets/wanderers/', location.href);
   const style = document.createElement('style');

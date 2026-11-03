@@ -12,7 +12,7 @@
     {name:'Solace',file:'solace.png'},
     {name:'Seaport',file:'seaport.png'}
   ];
-  // Owner-approved batch 1 art, aligned with the original ten wanderer registry names.
+  // Owner-approved first twenty wanderer portraits.
   const PORTRAITS = [
     {name:'Tess',file:'tess.png'},
     {name:'Patch',file:'patch.png'},
@@ -23,7 +23,17 @@
     {name:'Kettle',file:'kettle.png'},
     {name:'Vera',file:'vera.png'},
     {name:'Deke',file:'deke.png'},
-    {name:'Ash',file:'ash.png'}
+    {name:'Ash',file:'ash.png'},
+    {name:'Bram',file:'bram.png'},
+    {name:'Lark',file:'lark.png'},
+    {name:'Flint',file:'flint.png'},
+    {name:'Sable',file:'sable.png'},
+    {name:'Cricket',file:'cricket.png'},
+    {name:'Rowan',file:'rowan.png'},
+    {name:'Harlow',file:'harlow.png'},
+    {name:'Bolt',file:'bolt.png'},
+    {name:'Crowley',file:'crowley.png'},
+    {name:'Mercer',file:'mercer.png'}
   ];
   const playtestRoot = new URL('../playtest/', document.baseURI);
   const devtestRoot = new URL('../devtest/', document.baseURI);
@@ -94,7 +104,7 @@
     const road=scene('ROAD ENCOUNTER — full transparent figure');
     const town=scene('TOWN ENCOUNTER — small bottom-right portrait');
     dialog.appendChild(grid);
-    dialog.appendChild(el('p','dw-note','Preview only: browse the ten approved wanderer portraits over existing regional and town backgrounds. No encounters, turns, recruitment, saves, or gameplay state are changed.'));
+    dialog.appendChild(el('p','dw-note','Preview only: browse the twenty approved wanderer portraits over existing regional and town backgrounds. No encounters, turns, recruitment, saves, or gameplay state are changed.'));
 
     function placePortrait(canvas,w,framed){
       canvas.querySelectorAll('.dw-person,.dw-frame,.dw-missing').forEach(node=>node.remove());

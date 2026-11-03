@@ -12,9 +12,19 @@
     {name:'Solace',file:'solace.png'},
     {name:'Seaport',file:'seaport.png'}
   ];
-  // Portrait manifest: add assets/wanderers/eli_mercer.png to Devtest when approved.
-  // The preview deliberately identifies missing art rather than inventing a portrait.
-  const PORTRAITS = [{name:'Eli Mercer',file:'eli_mercer.png'}];
+  // Owner-approved batch 1 art, aligned with the original ten wanderer registry names.
+  const PORTRAITS = [
+    {name:'Tess',file:'tess.png'},
+    {name:'Patch',file:'patch.png'},
+    {name:'Hollis',file:'hollis.png'},
+    {name:'Rook',file:'rook.png'},
+    {name:'June',file:'june.png'},
+    {name:'Moss',file:'moss.png'},
+    {name:'Kettle',file:'kettle.png'},
+    {name:'Vera',file:'vera.png'},
+    {name:'Deke',file:'deke.png'},
+    {name:'Ash',file:'ash.png'}
+  ];
   const playtestRoot = new URL('../playtest/', document.baseURI);
   const devtestRoot = new URL('../devtest/', document.baseURI);
   const regionUrl = region => new URL('../assets/regions/'+region.toLowerCase()+'.png', playtestRoot).href;
@@ -84,7 +94,7 @@
     const road=scene('ROAD ENCOUNTER — full transparent figure');
     const town=scene('TOWN ENCOUNTER — small bottom-right portrait');
     dialog.appendChild(grid);
-    dialog.appendChild(el('p','dw-note','Preview only: does not spawn a wanderer, consume turns, roll encounters, recruit anyone, or change saved data. The game determines encounters normally. Portrait art can be added later at devtest/assets/wanderers/eli_mercer.png.'));
+    dialog.appendChild(el('p','dw-note','Preview only: browse the ten approved wanderer portraits over existing regional and town backgrounds. No encounters, turns, recruitment, saves, or gameplay state are changed.'));
 
     function placePortrait(canvas,w,framed){
       canvas.querySelectorAll('.dw-person,.dw-frame,.dw-missing').forEach(node=>node.remove());

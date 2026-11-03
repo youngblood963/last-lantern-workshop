@@ -208,6 +208,7 @@
  .hl3-table.hl3-double .hl3-total{color:#ffe58a;text-shadow:0 0 14px #f7c434}
  @media(max-width:680px){body.full-graphics .gfx-frame[data-layout="casino-dice"] .gfx-choices{grid-template-columns:repeat(2,minmax(0,1fr))}.hl3-table:before{border-width:6px}.hl3-heading{letter-spacing:.025em}}
  `;
+ style.textContent += '\n /* Plain illustrated felt board, with ONLY the existing working 3D dice above it.\n    Fit the full artwork inside the current figure; no hotspots or fake controls. */\n body.full-graphics .gfx-frame[data-layout="casino-dice"] .hl3-table{\n   background: #102218 url(\'assets/locations/wasteland_dice_board.png\') center center / 100% 100% no-repeat;\n   padding:0;\n   gap:0;\n }\n body.full-graphics .gfx-frame[data-layout="casino-dice"] .hl3-table::before,\n body.full-graphics .gfx-frame[data-layout="casino-dice"] .hl3-table::after{display:none}\n body.full-graphics .gfx-frame[data-layout="casino-dice"] .hl3-heading,\n body.full-graphics .gfx-frame[data-layout="casino-dice"] .hl3-choice,\n body.full-graphics .gfx-frame[data-layout="casino-dice"] .hl3-total{display:none}\n body.full-graphics .gfx-frame[data-layout="casino-dice"] .hl3-dice{\n   flex:1 1 auto;\n   width:100%;\n   height:100%;\n   min-height:0;\n   display:flex;\n   align-items:center;\n   justify-content:center;\n }\n';
  document.head.appendChild(style);
  const orientation={1:[0,0],2:[0,180],3:[0,-90],4:[0,90],5:[-90,0],6:[90,0]};
  function exactAngle(face){const [x,y]=orientation[face]||orientation[1];return `rotateX(${x}deg) rotateY(${y}deg)`;}

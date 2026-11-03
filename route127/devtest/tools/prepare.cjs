@@ -13,6 +13,7 @@ const gate='<script>\nif(globalThis.ROUTE127_ENV?.name!=="DEVTEST"){document.wri
 // The bootstrap is the only executable external dependency before this gate.
 let inserted=false;
 output=output.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,tag=>{if(tag.includes('../devtest/runtime/environment.js'))return tag;if(!inserted){inserted=true;return gate;}return '';});
+output=output.replace('<link rel="stylesheet" href="graphics.css?v=wo25-nine-only">','<link rel="stylesheet" href="graphics.css?v=wo25-nine-only">\n  <link rel="stylesheet" href="../devtest/runtime/casino_narrative.css?v=1">');
 output=output.replace(/[ \t]+$/gm,'');
 output=output.replace(gate,gate+'\n<script src="../devtest/runtime/dev_options.js?v=7"></script>');
 const manifest={environment:'DEVTEST',source:'route127/playtest/index.html',sourceSHA256:crypto.createHash('sha256').update(input).digest('hex'),base:'../playtest/',scripts:[...input.matchAll(/<script src="([^"]+)"/g)].map(m=>m[1]),policy:'Normal gameplay; no backend; no QA activation; private write namespace; existing local data read-only until saved as Devtest fork.'};

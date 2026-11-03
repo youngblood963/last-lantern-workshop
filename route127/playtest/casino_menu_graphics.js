@@ -231,11 +231,20 @@
          dice.forEach((d,i)=>{d.classList.remove('hl-rolling');d.dataset.face=String(r.dicePair[i]);});
          total.textContent=r.message||'ROUND COMPLETE';
        },1250);
+     }else if(total.textContent!=='ROLLING...'){
+       // A later re-render must still show the real settled faces, never 1/1.
+       dice.forEach((d,i)=>{d.classList.remove('hl-rolling');d.dataset.face=String(r.dicePair[i]);});
+       total.textContent=r.message||'ROUND COMPLETE';
      }
-   }else{
-     lastRound=r.id;
+   }else if(r.status==='waiting'){
+     // A waiting wager is NOT a completed roll. The same round ID is used
+     // when the bet settles, so marking it as shown here suppresses the
+     // only animation and leaves both dice on their placeholder 1 faces.
+     lastRound=null;
      dice.forEach(d=>{d.classList.remove('hl-rolling');d.dataset.face='1';});
-     total.textContent=r.status==='waiting'?(r.pick===null?'PICK YOUR SIDE':'PLACE YOUR WAGER'):(r.message||'READY');
+     total.textContent=r.pick===null?'PICK YOUR SIDE':'PLACE YOUR WAGER';
+   }else{
+     total.textContent=r.message||'READY';
    }
  };
  GraphicalUI.schedule();

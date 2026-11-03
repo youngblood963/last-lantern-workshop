@@ -1,56 +1,76 @@
-/* Casino menu fit repair — scoped to graphical casino menu only.
-   Reserve real room for the six existing buttons instead of allowing the
-   image to push them into a tiny strip. Does not affect gameplay/map. */
+/* Route 127 casino menu: fit the complete artwork and six real menu buttons.
+   Scoped to graphical casino-menu only; no map or game-rule changes. */
 body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-main {
-  min-height: 0;
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  height:100%;
+  overflow:hidden;
 }
 body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-art {
-  flex: 1 1 0;
-  min-height: 0;
-  max-height: calc(100% - 126px);
-  overflow: hidden;
+  display:flex;
+  flex:1 1 0;
+  width:100%;
+  min-height:0;
+  max-height:none;
+  margin:0;
+  overflow:hidden;
+  align-items:center;
+  justify-content:center;
 }
 body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-art .gfx-image {
-  display: block;
-  width: 100%;
-  height: 100%;
-  max-height: 100%;
-  min-height: 0;
-  aspect-ratio: auto;
-  object-fit: contain;
-  object-position: center;
+  display:block;
+  flex:0 1 auto;
+  width:100%;
+  height:100%;
+  min-width:0;
+  min-height:0;
+  max-width:100%;
+  max-height:100%;
+  aspect-ratio:auto;
+  object-fit:contain !important;
+  object-position:center center;
 }
+/* Casino art includes its own signage; keep the standard caption from
+   masking the lower rat-racing track. */
+body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-art-caption {display:none;}
+body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-narrative {display:none;}
 body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-choices {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(48px, auto));
-  grid-auto-rows: minmax(48px, auto);
-  gap: 8px;
-  flex: 0 0 auto;
-  min-height: 104px;
-  max-height: none;
-  overflow: visible;
+  display:grid;
+  flex:0 0 auto;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-rows:repeat(2,minmax(44px,auto));
+  grid-auto-flow:row;
+  grid-auto-rows:minmax(44px,auto);
+  gap:6px;
+  min-height:94px;
+  max-height:none;
+  padding:3px 0;
+  overflow:visible;
 }
 body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-choice {
-  min-width: 0;
-  min-height: 48px;
-  padding: 5px 8px;
+  min-height:44px;
+  min-width:0;
+  padding:3px 6px 3px 0;
+  gap:6px;
+}
+body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-choice-key {
+  min-height:35px;
+  flex-basis:30px;
+  font-size:17px;
 }
 body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-choice-label {
-  font-size: clamp(12px, 1.2vw, 16px);
-  line-height: 1.1;
-  white-space: normal;
-  word-break: normal;
-  overflow-wrap: break-word;
+  font-size:clamp(12px,1vw,16px);
+  line-height:1.15;
+  white-space:normal;
+  overflow-wrap:break-word;
 }
-@media (max-width: 680px) {
-  body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-choices {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: repeat(3, minmax(44px, auto));
-    min-height: 144px;
-    gap: 6px;
-  }
-  body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-art {
-    max-height: calc(100% - 164px);
+body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-choice-arrow {font-size:17px;}
+@media (max-width:680px){
+  body.full-graphics .gfx-frame[data-layout="casino-menu"] .gfx-choices{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-rows:repeat(3,minmax(42px,auto));
+    grid-auto-rows:minmax(42px,auto);
+    min-height:132px;
   }
 }

@@ -485,5 +485,19 @@
    dealer.querySelector('.r127-bj-label').textContent=hidden?'DEALER — ?':`DEALER — ${casinoCardTotal(round.dealer||[])}`;
    person.querySelector('.r127-bj-label').textContent=dealt?`YOUR HAND — ${casinoCardTotal(round.player)}`:'YOUR HAND';
  };
+  // The blackjack state may change after an output-queue repaint. Explicitly
+  // refresh on entry and subsequent deal/hit/stand, not only on text output.
+  const previousCasinoOpen=casinoOpen;
+  casinoOpen=function(game){
+    const result=previousCasinoOpen(game);
+    if(game==='blackjack'&&isGraphical())GraphicalUI.sync();
+    return result;
+  };
+  const previousCasinoRender=casinoRender;
+  casinoRender=function(){
+    const result=previousCasinoRender();
+    if(isGraphical()&&isBlackjack())GraphicalUI.schedule();
+    return result;
+  };
  GraphicalUI.schedule();
 })();

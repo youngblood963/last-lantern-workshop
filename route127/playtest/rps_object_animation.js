@@ -7,7 +7,7 @@
   if (typeof GraphicalUI === 'undefined' || typeof casinoRound !== 'function') return;
 
   const choices = ['rock', 'paper', 'scissors'];
-  const images = Object.fromEntries(choices.map(c => [c, 'assets/locations/rps_' + c + '.png']));
+  const images = Object.fromEntries(choices.map(c => [c, 'assets/locations/rps_' + c + '_real.png']));
   const isRps = () => stage === 'mercy' && mercyLocation === 'casinoGame' && casinoRound()?.game === 'rps';
   const isGraphics = () => GraphicalUI.preference() === 'graphics';
   let lastRound = '', activeTimer = null, finishTimer = null;

@@ -14,7 +14,7 @@ const gate='<script>\nif(globalThis.ROUTE127_ENV?.name!=="DEVTEST"){document.wri
 let inserted=false;
 output=output.replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,tag=>{if(tag.includes('../devtest/runtime/environment.js'))return tag;if(!inserted){inserted=true;return gate;}return '';});
 output=output.replace(/[ \t]+$/gm,'');
-output=output.replace(gate,gate+'\n<script src="../devtest/runtime/dev_options.js?v=4"></script>');
+output=output.replace(gate,gate+'\n<script src="../devtest/runtime/dev_options.js?v=5"></script>');
 const manifest={environment:'DEVTEST',source:'route127/playtest/index.html',sourceSHA256:crypto.createHash('sha256').update(input).digest('hex'),base:'../playtest/',scripts:[...input.matchAll(/<script src="([^"]+)"/g)].map(m=>m[1]),policy:'Normal gameplay; no backend; no QA activation; private write namespace; existing local data read-only until saved as Devtest fork.'};
 for(const ref of [...input.matchAll(/(?:src|href)="([^"#]+)"/g)].map(m=>m[1])){
  if(/^(?:[a-z]+:|\/\/)/i.test(ref))continue;

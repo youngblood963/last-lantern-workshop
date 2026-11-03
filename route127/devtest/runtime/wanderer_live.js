@@ -12,7 +12,10 @@
   const art = Object.freeze({
     Tess:'tess.png', Patch:'patch.png', Hollis:'hollis.png',
     Rook:'rook.png', June:'june.png', Moss:'moss.png',
-    Kettle:'kettle.png', Vera:'vera.png', Deke:'deke.png', Ash:'ash.png'
+    Kettle:'kettle.png', Vera:'vera.png', Deke:'deke.png', Ash:'ash.png',
+    Bram:'bram.png', Lark:'lark.png', Flint:'flint.png', Sable:'sable.png',
+    Cricket:'cricket.png', Rowan:'rowan.png', Harlow:'harlow.png',
+    Bolt:'bolt.png', Crowley:'crowley.png', Mercer:'mercer.png'
   });
   const root = new URL('../devtest/assets/wanderers/', location.href);
   const style = document.createElement('style');

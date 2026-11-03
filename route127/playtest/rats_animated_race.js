@@ -24,7 +24,7 @@
    return m;
  };
  const style=document.createElement('style');
- style.dataset.route127RatRace='v1';
+ style.dataset.route127RatRace='polish-v2';
  style.textContent=`
  body.full-graphics .gfx-frame[data-layout="casino-rat-race"] .gfx-main{
    display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;gap:6px}
@@ -55,10 +55,30 @@
  .r127-race-finish{position:absolute;z-index:2;left:79.9%;top:1.5%;width:15.4%;height:13%;
    object-fit:fill;filter:drop-shadow(1px 2px 1px #000a);pointer-events:none}
  .r127-race-rat.is-winner{filter:drop-shadow(0 0 6px #ffbe42) drop-shadow(3px 5px 3px #0009)}
- .r127-race-track.is-running .r127-race-rat{animation:r127-rat-gallop .23s ease-in-out infinite alternate}
- @keyframes r127-rat-gallop{0%{transform:translate(-50%,-65%) scale(var(--rat-scale,1)) translateY(0)}
-   100%{transform:translate(-50%,-65%) scale(var(--rat-scale,1)) translateY(-3px)}}
- @media(prefers-reduced-motion:reduce){.r127-race-track.is-running .r127-race-rat{animation:none}}
+ /* Independent running cadence, slight forward lunge, and ground contact. */
+ .r127-race-track.is-running .r127-race-rat{
+   animation:r127-rat-gallop var(--gallop-time,.24s) ease-in-out infinite alternate}
+ @keyframes r127-rat-gallop{
+   0%{transform:translate(-50%,-65%) scale(var(--rat-scale,1)) scaleX(.975) rotate(-1.7deg)}
+   50%{transform:translate(-50%,-65%) scale(var(--rat-scale,1)) scaleX(1.035) translateY(-4px) rotate(1.8deg)}
+   100%{transform:translate(-50%,-65%) scale(var(--rat-scale,1)) scaleX(.98) translateY(-1px) rotate(-1deg)}}
+ .r127-race-shadow{position:absolute;z-index:1;pointer-events:none;
+   width:10%;height:2.5%;border-radius:50%;opacity:.6;
+   background:radial-gradient(ellipse,#130c08cc 0%,#130c0833 55%,transparent 75%);
+   transform:translate(-50%,-50%) scale(var(--rat-scale,1))}
+ .r127-race-dust{position:absolute;z-index:2;pointer-events:none;
+   width:8%;height:10%;opacity:0;transform:translate(-50%,-55%) scale(var(--rat-scale,1));
+   background:radial-gradient(ellipse at 60% 60%,#ce986d99 0%,#a77c5855 35%,transparent 69%);
+   filter:blur(2px)}
+ .r127-race-track.is-running .r127-race-dust{animation:r127-rat-dust var(--dust-time,.48s) ease-out infinite}
+ .r127-race-track.is-running .r127-race-shadow{animation:r127-rat-shadow var(--gallop-time,.24s) ease-in-out infinite alternate}
+ @keyframes r127-rat-dust{0%{opacity:.5;transform:translate(-50%,-35%) scale(var(--rat-scale,1)) scale(.55)}
+   100%{opacity:0;transform:translate(-92%,-65%) scale(var(--rat-scale,1)) scale(1.25)}}
+ @keyframes r127-rat-shadow{0%{opacity:.78}100%{opacity:.35}}
+ @media(prefers-reduced-motion:reduce){.r127-race-track.is-running .r127-race-rat,
+   .r127-race-track.is-running .r127-race-dust,
+   .r127-race-track.is-running .r127-race-shadow{animation:none!important}}
+
  `;
  document.head.appendChild(style);
  let lastKey='',raf=0,runToken=0;
@@ -74,6 +94,15 @@
    const y=startY[i]+(finishY[i]-startY[i])*t;
    img.style.left=(x*100).toFixed(3)+'%';img.style.top=(y*100).toFixed(3)+'%';
    img.style.setProperty('--rat-scale',(1-.23*t).toFixed(3));
+   // Dust follows the hind paws; shadows remain grounded under the animal.
+   const dust=scene.querySelector('.r127-race-dust[data-lane="'+i+'"]');
+   const shadow=scene.querySelector('.r127-race-shadow[data-lane="'+i+'"]');
+   if(dust){dust.style.left=((x-.027*(1-.23*t))*100).toFixed(3)+'%';
+     dust.style.top=((y+.028)*100).toFixed(3)+'%';
+     dust.style.setProperty('--rat-scale',(1-.23*t).toFixed(3));}
+   if(shadow){shadow.style.left=(x*100).toFixed(3)+'%';
+     shadow.style.top=((y+.045)*100).toFixed(3)+'%';
+     shadow.style.setProperty('--rat-scale',(1-.23*t).toFixed(3));}
  }
  function stopAnimation(){runToken++;if(raf){cancelAnimationFrame(raf);raf=0;}scene?.classList.remove('is-running');}
  function create(figure){
@@ -83,8 +112,14 @@
    const finish=document.createElement('img');finish.src=asset('finish_lettering.png');finish.alt='';
    finish.className='r127-race-finish';track.append(finish);
    for(let i=0;i<4;i++){
+     const shadow=document.createElement('div');shadow.className='r127-race-shadow';
+     shadow.dataset.lane=String(i);shadow.setAttribute('aria-hidden','true');track.append(shadow);
+     const dust=document.createElement('div');dust.className='r127-race-dust';
+     dust.dataset.lane=String(i);dust.setAttribute('aria-hidden','true');track.append(dust);
      const rat=document.createElement('img');rat.className='r127-race-rat';rat.dataset.lane=String(i);
      rat.src=asset('rat_'+(i+1)+'.png');rat.alt='';rat.draggable=false;
+     rat.style.setProperty('--gallop-time',[.22,.25,.235,.21][i]+'s');
+     dust.style.setProperty('--dust-time',[.43,.5,.47,.41][i]+'s');
      rat.setAttribute('aria-hidden','true');track.append(rat);
    }
    viewport.append(track);figure.append(viewport);scene=track;
@@ -108,6 +143,7 @@
    // Each lane has different bursts/surges; only the actual winner crosses the line.
    const targets=[.75,.77,.76,.78];targets[winner]=1;
    const phases=[.6,2.4,4.1,5.7];
+   const previousProgress=[0,0,0,0];
    scene.classList.add('is-running');scene.querySelectorAll('.r127-race-rat').forEach(x=>x.classList.remove('is-winner'));
    function tick(now){
      if(token!==runToken||!scene?.isConnected||!atRace())return;
@@ -115,7 +151,10 @@
      const eased=t<.9?t*1.04:.936+(t-.9)*.64;
      for(let i=0;i<4;i++){
        const surge=(Math.sin(t*16+phases[i])*Math.sin(Math.PI*t)*.055);
-       let progress=Math.min(targets[i],Math.max(0,eased*targets[i]+surge));
+       // Advance continuously: a surge may slow a rat, never reverse it.
+       const candidate=Math.min(targets[i],Math.max(0,eased*targets[i]+surge));
+       const progress=Math.max(previousProgress[i],candidate);
+       previousProgress[i]=progress;
        position(i,progress);
      }
      if(t<1){raf=requestAnimationFrame(tick);return;}

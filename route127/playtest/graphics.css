@@ -305,3 +305,9 @@ dialog.route127-map-overlay[open]{display:flex;flex-direction:column;}
 .route127-map-body .lantern-map{margin:8px auto!important;width:100%!important;max-width:none!important;height:calc(100dvh - 160px);min-height:240px;}
 .route127-map-body .lantern-map svg{display:block;width:100%!important;height:100%!important;object-fit:contain;}
 .gfx-classic-switch{position:relative;z-index:2;cursor:pointer;}
+
+/* WO24: long road labels stay within existing button height and grid width.
+ * Full direction/road/destination/cost remain available in title and aria-label. */
+.gfx-frame .gfx-road-choice{min-width:0;max-width:100%;overflow:hidden}
+.gfx-frame .gfx-road-choice .gfx-choice-label{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(10px,.8vw,13px)}
+.gfx-frame .gfx-road-choice .gfx-choice-arrow{display:none}

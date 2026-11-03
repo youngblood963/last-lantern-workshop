@@ -13,24 +13,8 @@ const ROUTE127_ART={
  'st-mercy-hospital':{file:'st_mercy_hospital.png',title:'St. Mercy Hospital'},'iron-pit-arena':{file:'iron_pit_arena.png',title:'Iron Pit Arena'},
  'broken-bridge':{file:'broken_bridge_preview.png',title:'Broken Bridge — exterior preview'}
 };
-// WO23: road geography comes from the world graph, never encounter metadata.
-// Nodes without a unique adjacent region use CENTRAL as a generic view until
-// an explicit node-region map is approved. Dedicated location art wins below.
-function route127RegionalArt(g){
- const regions=new Set(['NORTH','WEST','CENTRAL','INDUSTRIAL','LOWLANDS','EAST','SEAPORT']);
- let region=null;
- if(g?.currentEdgeId){
-  const edge=LG_EDGES[g.currentEdgeId];
-  region=edge?.primaryRegion;
-  // Legacy split roads retain their IDs in old saves; use the first live segment.
-  if(!region){const split=LANTERN_WORLD_GRAPH.roadCompletion?.splits?.[g.currentEdgeId];region=LG_EDGES[split?.first]?.primaryRegion;}
- }else if(g?.nodeId){
-  const adjacent=new Set(LANTERN_WORLD_GRAPH.edges.filter(e=>e.a===g.nodeId||e.b===g.nodeId).map(e=>e.primaryRegion).filter(r=>regions.has(r)));
-  if(adjacent.size===1)region=[...adjacent][0];
- }
- if(!regions.has(region))region='CENTRAL';
- return '../assets/regions/'+region.toLowerCase()+'.png';
-}
+// WO24 shared image paths; dedicated art still wins in model().
+function route127RegionalArt(g){return '../assets/regions/'+route127CurrentRegion(g).toLowerCase()+'.png';}
 const GraphicalUI={
  element:null,home:null,lastPlace:'',preferred:null,modeKey:'route127-display-mode',optionsOpen:false,navOpen:false,rendering:false,
  preference(){if(this.preferred)return this.preferred;try{return localStorage.getItem(this.modeKey)==='classic'?'classic':'graphics';}catch{return 'graphics';}},
@@ -48,8 +32,8 @@ const GraphicalUI={
   if(g?.currentEdgeId)return null;
   return ROUTE127_ART[g?.nodeId]?g.nodeId:null;
  },
- choices(){const rows=[],used=new Set();for(const [key,value]of Object.entries(numberedChoices||{})){if(!value)continue;const command=String(value);rows.push({key,command,label:command});used.add(command);}
-  for(const [key,value]of Object.entries(currentHotkeys||{})){const command=String(value);if(!command||used.has(command))continue;rows.push({key,command,label:command});used.add(command);}return rows;},
+ choices(){const rows=[],used=new Set();for(const [key,value]of Object.entries(numberedChoices||{})){if(!value)continue;const command=String(value);rows.push({key,command,label:route127RoadChoiceLabel(command)});used.add(command);}
+  for(const [key,value]of Object.entries(currentHotkeys||{})){const command=String(value);if(!command||used.has(command))continue;rows.push({key,command,label:route127RoadChoiceLabel(command)});used.add(command);}return rows;},
  layout(){if(combatState)return 'combat';if(['inventory','inventoryItem','confirmDrop','r5Loot'].includes(stage))return 'inventory';if(stage==='interfaceMap')return 'map';if(stage==='interfaceStatus')return 'character';if(stage==='quests')return 'journal';if(/Craft|craft|Bench|Forge|Recipes/.test(stage))return 'crafting';if(stage==='mercy'&&mercyLocation!=='town'||/^r11Talk|^r18Fence|^port55Talk/.test(stage))return 'dialogue';if(stage==='mercy'||/^port|^seaport/.test(stage))return 'town';return 'highway';},
  model(){const id=this.context(),art=ROUTE127_ART[id],g=typeof lanternState==='function'?lanternState():null;return {active:this.active(),eligible:this.eligible(),layout:this.layout(),location:id,title:art?.title||(g?.currentEdgeId?(lanternEdge()?.name||'Route 127'):LG_NODES[g?.nodeId]?.name||'Route 127'),art:art?'assets/locations/'+art.file:route127RegionalArt(g),choices:this.choices(),hp:Number(player.hp)||0,maxHp:Number(player.maxHp)||1,level:Number(player.level)||1,xp:Number(player.xp)||0,nextXp:Number(player.nextXp)||1,bolts:Number(player.bolts)||0,turns:Number(player.turns)||0,maxTurns:Number(player.maxTurns)||150,pack:packSlotsUsed(),capacity:player.packMax,time:timePhase(),enemies:combatState?(combatState.enemies?.length?combatState.enemies:[combatState]).map(e=>({name:e.name,hp:e.hp,maxHp:e.maxHp||e.hp})):[]};},
  preview(){const g=typeof lanternState==='function'?lanternState():null;if(!g||g.currentEdgeId)return '';if(g.nodeId==='northern-ridge')return 'Grand City rises above the northern approach: lamps glow behind repaired walls, and smoke curls from roofs where people are building a life again. The city interior remains beyond this preview.';if(g.nodeId==='broken-bridge')return 'The ruined span ends above the dark water. Weathered roads lead back into the wasteland; the territory across the broken crossing remains inaccessible.';return '';},
@@ -74,7 +58,7 @@ const GraphicalUI={
   e.enemies.replaceChildren();for(const enemy of m.enemies){const row=this.node('div','gfx-enemy');row.appendChild(this.node('strong','',enemy.name));row.appendChild(this.meter('HP',enemy.hp,enemy.maxHp,'hp'));e.enemies.appendChild(row);}for(const status of this.statuses())e.enemies.appendChild(this.node('p','gfx-effect',status));
   e.nav.replaceChildren();for(const [command,label,icon]of this.nav(m)){const b=this.button('',async()=>{if(busy)return;this.navOpen=false;await handleCommand(command);this.sync();},'gfx-nav-button');b.appendChild(this.icon(icon));b.appendChild(this.node('span','',label));e.nav.appendChild(b);}const opts=this.button('',()=>{this.optionsOpen=!this.optionsOpen;this.sync();},'gfx-nav-button');opts.setAttribute('aria-expanded',String(this.optionsOpen));opts.appendChild(this.icon('gear'));opts.appendChild(this.node('span','','Options'));e.nav.appendChild(opts);
   e.settings.hidden=!this.optionsOpen;e.settings.replaceChildren();if(this.optionsOpen){e.settings.appendChild(this.node('h2','','DISPLAY OPTIONS'));e.settings.appendChild(this.button('CLASSIC BBS',()=>this.setMode('classic')));e.settings.appendChild(this.button('CLOSE OPTIONS',()=>{this.optionsOpen=false;this.sync();}));}
-  e.choices.replaceChildren();e.choices.style.setProperty('--gfx-choice-rows',String(Math.max(1,Math.ceil(m.choices.length/2))));for(const [i,c]of m.choices.entries()){const b=this.button('',()=>this.dispatch(c),'gfx-choice');b.disabled=!!busy;b.appendChild(this.node('span','gfx-choice-key',c.key.toUpperCase()));b.appendChild(this.node('span','gfx-choice-label',c.label));b.appendChild(this.node('span','gfx-choice-arrow','›'));e.choices.appendChild(b);}
+  e.choices.replaceChildren();e.choices.style.setProperty('--gfx-choice-rows',String(Math.max(1,Math.ceil(m.choices.length/2))));for(const [i,c]of m.choices.entries()){const b=this.button('',()=>this.dispatch(c),'gfx-choice');b.disabled=!!busy;if(c.label!==c.command){b.classList.add('gfx-road-choice');b.setAttribute('title',c.label);b.setAttribute('aria-label',c.key+' '+c.label);}b.appendChild(this.node('span','gfx-choice-key',c.key.toUpperCase()));b.appendChild(this.node('span','gfx-choice-label',c.label));b.appendChild(this.node('span','gfx-choice-arrow','›'));e.choices.appendChild(b);}
  }finally{this.rendering=false;}},
  schedule(){if(this.scheduled)return;this.scheduled=true;outputQueue=outputQueue.then(()=>{this.scheduled=false;this.sync();});}
 };
@@ -92,7 +76,7 @@ const wo14NodeMenu=lanternNodeMenu;lanternNodeMenu=function(...args){const resul
 // Explicit menu producers which bypass renderNumberedChoices. Register their
 // exact output at the source boundary; do not infer menus from arbitrary text.
 const wo15DirectChoices=r5DirectChoices;
-r5DirectChoices=function(options){options.forEach((label,i)=>registerChoiceOutput(`[${i+1}] ${label}`));return wo15DirectChoices(options);};
+r5DirectChoices=function(options){options.forEach((label,i)=>registerChoiceOutput(`[${i+1}] ${route127RoadChoiceLabel(label)}`));return wo15DirectChoices(options);};
 const wo15AppendChoices=lanternAppendChoices;
 lanternAppendChoices=function(labels){
  outputQueue=outputQueue.then(()=>{let n=Object.keys(numberedChoices).length+1;for(const label of labels)registerChoiceOutput(`[${n++}] ${label}`);});

@@ -36,6 +36,7 @@ PlaythroughRepairs.relayDirections=function(){
 PlaythroughRepairs.relayClues=function(){if(!player.flags.relayPartsRevealed||player.flags.relayQuest==='complete')return;for(const text of this.relayDirections())add(text,'system');};
 // Presentation labels are separate from original executable menu commands.
 function routeChoiceLabel(command,label){
+ const road=route127RoadChoiceLabel(command);if(road!==command)return road;
  if(/(?:visit|examine) fresh mart/i.test(command))return 'Fresh Mart Road — Fresh Mart';
  if(command==='visit ash cemetery')return 'Cemetery Road — Ash Cemetery';
  if(command==='follow dirt path to station nine')return 'Station Nine Road — Station Nine';

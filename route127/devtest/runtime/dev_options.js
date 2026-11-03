@@ -12,7 +12,7 @@
     {name:'Solace',file:'solace.png'},
     {name:'Seaport',file:'seaport.png'}
   ];
-  // Owner-approved first thirty wanderer portraits.
+  // Owner-approved first forty wanderer portraits.
   const PORTRAITS = [
     {name:'Tess',file:'tess.png'},
     {name:'Patch',file:'patch.png'},
@@ -43,7 +43,17 @@
     {name:'Cal Voss',file:'cal_voss.png'},
     {name:'Ada Quill',file:'ada_quill.png'},
     {name:'Merritt Shaw',file:'merritt_shaw.png'},
-    {name:'Sabine Reed',file:'sabine_reed.png'}
+    {name:'Sabine Reed',file:'sabine_reed.png'},
+    {name:'Orla Finch',file:'orla_finch.png'},
+    {name:'Bex Calder',file:'bex_calder.png'},
+    {name:'Nolan Rusk',file:'nolan_rusk.png'},
+    {name:'Maeve Kline',file:'maeve_kline.png'},
+    {name:'Galen Ward',file:'galen_ward.png'},
+    {name:'Cora Bell',file:'cora_bell.png'},
+    {name:'Dorian Hale',file:'dorian_hale.png'},
+    {name:'Petra Sol',file:'petra_sol.png'},
+    {name:'Soren Beck',file:'soren_beck.png'},
+    {name:'Leda Marsh',file:'leda_marsh.png'}
   ];
   const playtestRoot = new URL('../playtest/', document.baseURI);
   const devtestRoot = new URL('../devtest/', document.baseURI);

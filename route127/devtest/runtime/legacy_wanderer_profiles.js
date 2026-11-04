@@ -70,7 +70,7 @@
   },
   {
     "name": "Hollis",
-    "displayName": "Hollis Mercer",
+    "displayName": "Hollis Greer",
     "occupation": "Cook",
     "aptitudes": {
       "medicine": 3,
@@ -97,7 +97,7 @@
   },
   {
     "name": "Rook",
-    "displayName": "Rook Mercer",
+    "displayName": "Rook Vance",
     "occupation": "Guard",
     "aptitudes": {
       "medicine": 2,
@@ -125,7 +125,7 @@
   },
   {
     "name": "June",
-    "displayName": "June Mercer",
+    "displayName": "June Whitcomb",
     "occupation": "Medic",
     "aptitudes": {
       "medicine": 5,
@@ -514,7 +514,7 @@
   },
   {
     "name": "Bolt",
-    "displayName": "Bolt Mercer",
+    "displayName": "Bolt Ferris",
     "occupation": "Mechanic",
     "aptitudes": {
       "medicine": 2,
@@ -604,7 +604,7 @@
   },
   {
     "name": "Finch",
-    "displayName": "Finch Vale",
+    "displayName": "Finch Rainer",
     "occupation": "Guard",
     "aptitudes": {
       "medicine": 3,
@@ -697,7 +697,7 @@
   },
   {
     "name": "Wren",
-    "displayName": "Wren Calder",
+    "displayName": "Wren Hartwell",
     "occupation": "Scavenger",
     "aptitudes": {
       "medicine": 3,

@@ -57,5 +57,48 @@ v52Pickpocket=function(w,inTown){
  if(gained){gainXp(5+2*v50Profile(w).level);add('PICKPOCKET SUCCESS — XP EARNED','reward');}
  return result;
 };
+
+const priorSteal=v52Pickpocket;
+v52Pickpocket=function(w,inTown){
+ const flags=player.flags,st=ws(w.name);
+ const g=typeof lanternState==='function'?lanternState():null;
+ const encounter=inTown?'town:'+w.name+':'+(Number(day)||1):
+  'road:'+w.name+':'+(g?.sceneId||g?.moveSerial||roadTurn);
+ const warnings=flags.devTheftWarnings||(flags.devTheftWarnings={});
+ const cooldown=(Number(flags.r18CrimeCooldowns?.pickpocket)||0)-(Number(day)||1);
+ if(cooldown>0&&warnings[w.name]&&(Number(day)||1)<warnings[w.name]){
+  add(w.name+' catches you trying again. They draw their weapon!','danger');
+  if(inTown){
+   startCombat({...v50WandererCombat(w),name:w.name.toUpperCase(),level:w.level,
+    xp:10+w.level*4,bolts:Math.floor(w.level/2)+2,end:w.name+' falls.'},'townWanderer',true,true);
+  }else handleRoadWanderer('fight');
+  return;
+ }
+ if(cooldown>0){add('STEALING COOLDOWN ACTIVE — '+cooldown+' IN-GAME DAY'+(cooldown===1?'':'S')+' REMAINING','system');return;}
+ if(st.devStealEncounter===encounter){
+  add('You have already attempted to steal from '+w.name+' during this encounter.','system');return;
+ }
+ st.devStealEncounter=encounter;
+ const before=Number(flags.r18CrimeCooldowns?.pickpocket)||0;
+ const result=priorSteal.apply(this,arguments);
+ const after=Number(flags.r18CrimeCooldowns?.pickpocket)||0;
+ if(after>before&&after>(Number(day)||1)){
+  warnings[w.name]=after;
+  add('STEALING COOLDOWN: 3 IN-GAME DAYS','danger');
+ }
+ return result;
+};
+const oldLoot=v50WandererLoot;
+v50WandererLoot=function(name){
+ const w=wandererByName(name);
+ if(w){
+  const inv=v52Inventory(w);
+  if(!inv.devLootCapped){
+   inv.devLootCapped=true;
+   inv.bolts=Math.min(inv.bolts,Math.max(10,Math.round(wealth(v50Profile(w).level)*.12)));
+  }
+ }
+ return oldLoot.apply(this,arguments);
+};
 globalThis.DevtestWandererTrade={wealth};
 })();

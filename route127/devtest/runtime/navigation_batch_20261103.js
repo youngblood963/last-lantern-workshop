@@ -74,6 +74,20 @@ const oldDirectChoices=r5DirectChoices;
 r5DirectChoices=function(options){
  if(stage==='lanternRoad'&&lanternEdge()){
   options=options.filter(x=>String(x).toLowerCase()!=='return to junction');
+  // A road menu can be queued just before lanternStep opens an encounter.
+  // Never let that obsolete queued road menu replace the encounter actions.
+  const labels=[...options];
+  outputQueue=outputQueue.then(()=>{
+   if(stage!=='lanternRoad'||lanternState()?.pending)return;
+   const items=labels.map((label,i)=>String(label));
+   numberedChoices=Object.fromEntries(items.map((label,i)=>[String(i+1),label.toLowerCase()]));
+   currentHotkeys={b:'back'};
+   for(let i=0;i<items.length;i++){
+    const display=typeof route127RoadChoiceLabel==='function'?route127RoadChoiceLabel(items[i]):items[i];
+    addImmediate('['+(i+1)+'] '+display,'system');
+   }
+  });
+  return;
  }
  return oldDirectChoices.call(this,options);
 };

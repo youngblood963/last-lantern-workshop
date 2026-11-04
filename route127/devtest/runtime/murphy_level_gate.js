@@ -39,7 +39,7 @@ function start(){
  if(!eligible())return false;
  const f=flags(),h=f.murphyRideLevel10Hold;
  if(h&&!f.murphyRideLevel10Restored){
-  if(h.quest)f.wo3Corvette=structuredClone(h.quest);
+  if(h.quest)f.wo3Corvette=JSON.parse(JSON.stringify(h.quest));
   if(Array.isArray(h.parts)){
    for(const item of h.parts){
     const existing=player.pack.find(i=>i.name===item.name&&i.type===item.type&&!!i.stolen===!!item.stolen);

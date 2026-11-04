@@ -17,7 +17,7 @@
       "mechanics": 2,
       "banking": 5
     },
-    "connection": "Lantern Highway; Station Nine",
+    "connection": "Route 127; Station Nine",
     "personality": "A watchful former route sentry who counts the quiet stretches between patrols.",
     "introduction": "Tess scans the abandoned mile markers, keeping one hand near a patched field notebook.",
     "dialogue": [
@@ -105,7 +105,7 @@
       "mechanics": 3,
       "banking": 2
     },
-    "connection": "Industrial Corridor; Lantern Highway",
+    "connection": "Industrial Corridor; Route 127",
     "personality": "A guarded sentry who trusts evidence more than promises.",
     "introduction": "Rook checks a trail of bootprints beneath a derelict road sign.",
     "dialogue": [
@@ -250,7 +250,7 @@
       "mechanics": 4,
       "banking": 2
     },
-    "connection": "Iron Pit; Lantern Highway",
+    "connection": "Iron Pit; Route 127",
     "personality": "A cocky guard who hides careful judgment behind jokes.",
     "introduction": "Deke leans beside a battered road barricade, smiling without relaxing.",
     "dialogue": [
@@ -584,7 +584,7 @@
       "mechanics": 2,
       "banking": 3
     },
-    "connection": "Seaport docks; Lantern Highway",
+    "connection": "Seaport docks; Route 127",
     "personality": "A shrewd trader who knows the difference between need and profit.",
     "introduction": "Mercer studies a caravan's packs before naming a price.",
     "dialogue": [

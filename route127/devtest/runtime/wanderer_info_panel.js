@@ -49,28 +49,37 @@
       const style=make('style');style.id='r127-wanderer-info-css';
       style.textContent=`
       .r127-winfo{box-sizing:border-box;border:2px solid #9a7850;background:#191611;color:#eadcc1;
-        width:min(900px,95vw);max-height:90vh;overflow:auto;padding:16px;
-        box-shadow:0 18px 65px #000e;font:14px/1.5 Georgia,serif;}
+        width:min(790px,94vw);height:min(82dvh,490px);max-height:90dvh;overflow:hidden;padding:10px 12px;
+        box-shadow:0 18px 65px #000e;font:12px/1.3 Georgia,serif;display:flex;flex-direction:column}
+      .r127-winfo:not([open]){display:none}
       .r127-winfo::backdrop{background:#050505d9}
       .r127-winfo *{box-sizing:border-box}
-      .r127-winfo-header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;
-        border-bottom:1px solid #6d5133;padding-bottom:9px;margin-bottom:12px}
-      .r127-winfo h2{margin:0;color:#e8c58d;font:700 clamp(20px,3vw,28px) Georgia,serif}
-      .r127-winfo-sub{color:#d3bc94;letter-spacing:.06em}
+      .r127-winfo-header{display:flex;flex:0 0 auto;align-items:center;justify-content:space-between;gap:12px;
+        border-bottom:1px solid #6d5133;padding-bottom:5px;margin-bottom:7px}
+      .r127-winfo h2{margin:0;color:#e8c58d;font:700 clamp(18px,2.5vw,23px) Georgia,serif}
+      .r127-winfo-sub{color:#d3bc94;letter-spacing:.04em;font-size:11px}
       .r127-winfo-close{background:#31261c;color:#f3dfc0;border:1px solid #b79567;
-        padding:7px 15px;cursor:pointer;font:700 14px Georgia,serif}
-      .r127-winfo-body{display:grid;grid-template-columns:minmax(180px, .9fr) minmax(0,1.3fr);gap:20px}
-      .r127-winfo-portrait{display:block;width:100%;height:min(65vh,490px);object-fit:contain;
-        object-position:top center;background:radial-gradient(ellipse at center,#4a3d2a 0%,#1b1713 67%);border:1px solid #6e563c}
-      .r127-winfo h3{font:700 15px Georgia,serif;color:#efc992;letter-spacing:.08em;
-        margin:14px 0 6px;border-bottom:1px solid #584633;padding-bottom:3px}
-      .r127-info-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:5px 0}
-      .r127-info-label{color:#c3b299}.r127-info-value{color:#f3e6ce;text-align:right;overflow-wrap:anywhere}
-      .r127-info-stars{color:#f1bd63;letter-spacing:.04em;font-family:Arial,sans-serif}
-      .r127-winfo p{margin:7px 0;color:#dfd0b8}
-      .r127-winfo-note{font-size:12px;color:#ad9c87!important}
-      @media(max-width:620px){.r127-winfo{padding:10px}.r127-winfo-body{grid-template-columns:1fr}
-      .r127-winfo-portrait{height:250px}.r127-winfo-header{align-items:center}}
+        padding:4px 11px;cursor:pointer;font:700 12px Georgia,serif;flex-shrink:0}
+      .r127-winfo-body{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.2fr);gap:12px;
+        flex:1 1 auto;min-height:0}
+      .r127-winfo-portrait-column{min-height:0;display:flex}
+      .r127-winfo-portrait{display:block;width:100%;height:100%;min-height:0;object-fit:contain;
+        object-position:center center;background:radial-gradient(ellipse at center,#4a3d2a 0%,#1b1713 67%);
+        border:1px solid #6e563c}
+      .r127-winfo-details{min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;
+        scrollbar-color:#846744 #1c1712;padding-right:3px}
+      .r127-winfo h3{font:700 12px Georgia,serif;color:#efc992;letter-spacing:.06em;
+        margin:7px 0 3px;border-bottom:1px solid #584633;padding-bottom:2px}
+      .r127-winfo section:first-child h3{margin-top:0}
+      .r127-info-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:2px 0}
+      .r127-info-label{color:#c3b299;flex:0 0 auto}
+      .r127-info-value{color:#f3e6ce;text-align:right;overflow-wrap:anywhere}
+      .r127-info-stars{color:#f1bd63;letter-spacing:0;font-family:Arial,sans-serif;white-space:nowrap}
+      .r127-winfo p{margin:4px 0;color:#dfd0b8}
+      .r127-winfo-note{font-size:10px;color:#ad9c87!important}
+      @media(max-width:620px){.r127-winfo{width:95vw;height:90dvh;padding:8px}
+      .r127-winfo-body{grid-template-columns:1fr;grid-template-rows:minmax(120px,38%) minmax(0,1fr);gap:6px}
+      .r127-winfo-portrait-column{min-height:0}.r127-winfo-header{margin-bottom:5px}}
       `;
       document.head.appendChild(style);
     }
@@ -83,14 +92,12 @@
     close.addEventListener('click',()=>d.close());
     header.append(titleWrap,close);
     const body=make('div','r127-winfo-body');
-    const portraitColumn=make('div');
+    const portraitColumn=make('div','r127-winfo-portrait-column');
     const portrait=make('img','r127-winfo-portrait');portrait.alt=display;portrait.src=src;
     portraitColumn.appendChild(portrait);
-    const details=make('div');
+    const details=make('div','r127-winfo-details');
     const overview=make('section');
     overview.appendChild(make('h3','','CHARACTER'));
-    addRow(overview,'Level',level);
-    addRow(overview,'Occupation',occupation);
     if(def?.personality||w?.vibe)addRow(overview,'Personality',def?.personality||w.vibe);
     if(def?.connection)addRow(overview,'Connections',def.connection);
     details.appendChild(overview);
@@ -110,7 +117,6 @@
     if(def?.dialogue?.[0])story.appendChild(make('p','',def.dialogue[0]));
     details.appendChild(story);
     const belongings=make('section');belongings.appendChild(make('h3','','BELONGINGS'));
-    addRow(belongings,'Bolts carried','Not tracked for individual wanderers');
     if(profile?.weapon)addRow(belongings,'Visible weapon',typeof gearLabel==='function'?gearLabel(profile.weapon):profile.weapon);
     if(profile?.armor)addRow(belongings,'Visible armor',typeof gearLabel==='function'?gearLabel(profile.armor):profile.armor);
     if(profile?.stock?.length){
@@ -120,10 +126,8 @@
     }else addRow(belongings,'Trade inventory',profile?'None recorded':'Not yet encountered');
     addRow(belongings,'Confirmed recoverable loot',profile?.pendingLoot||'None recorded');
     belongings.appendChild(make('p','r127-winfo-note',
-      'Trade stock is not guaranteed loot. Other drops are only determined by existing encounter rules.'));
+      'Trade stock is not guaranteed loot.'));
     details.appendChild(belongings);
-    portraitColumn.appendChild(make('p','r127-winfo-note',
-      'Information only — this view does not change the encounter.'));
     body.append(portraitColumn,details);d.append(header,body);
     d.addEventListener('close',()=>d.remove(),{once:true});
     document.body.appendChild(d);d.showModal();close.focus();

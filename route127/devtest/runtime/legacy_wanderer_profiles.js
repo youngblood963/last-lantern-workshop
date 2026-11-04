@@ -32,7 +32,12 @@
         "label": "OFFER TESS A USEFUL ROLE IN SEAPORT",
         "response": "Tess accepts the offer and heads for Seaport."
       }
-    ]
+    ],
+    "conditional": {
+      "flag": "station",
+      "before": "Station Nine is quiet. Until the relay works, I trust the mile markers more than rumors.",
+      "after": "Station Nine is sending again. That gives people on the highway another chance to be found."
+    }
   },
   {
     "name": "Patch",
@@ -145,7 +150,12 @@
         "qty": 1,
         "response": "June accepts the supplies and agrees to join the Seaport workforce."
       }
-    ]
+    ],
+    "conditional": {
+      "flag": "hospital",
+      "before": "St. Mercy still needs clean hands and clear paths before it can help anyone.",
+      "after": "You helped clear St. Mercy. That is a real chance to put its supplies back to work."
+    }
   },
   {
     "name": "Moss",
@@ -312,7 +322,12 @@
         "qty": 1,
         "response": "Bram accepts the supplies and agrees to join the Seaport workforce."
       }
-    ]
+    ],
+    "conditional": {
+      "flag": "station",
+      "before": "Without a working signal, the old station is just another tower collecting rust.",
+      "after": "You got Station Nine talking again. Now keep the cables dry and the fittings tight."
+    }
   },
   {
     "name": "Lark",
@@ -339,7 +354,12 @@
         "label": "OFFER LARK A USEFUL ROLE IN SEAPORT",
         "response": "Lark accepts the offer and heads for Seaport."
       }
-    ]
+    ],
+    "conditional": {
+      "flag": "station",
+      "before": "I still catch a whisper of the relay when the night is quiet.",
+      "after": "So the Station Nine signal really is back. I knew I wasn't imagining it."
+    }
   },
   {
     "name": "Flint",
@@ -368,7 +388,12 @@
         "qty": 1,
         "response": "Flint accepts the supplies and agrees to join the Seaport workforce."
       }
-    ]
+    ],
+    "conditional": {
+      "flag": "factory",
+      "before": "The Factory's machines won't tell you what's broken until you get close enough to listen.",
+      "after": "The Factory's finally cleared. Maybe now someone can hear the machinery without gunfire."
+    }
   },
   {
     "name": "Sable",
@@ -480,7 +505,12 @@
         "qty": 1,
         "response": "Harlow accepts the supplies and agrees to join the Seaport workforce."
       }
-    ]
+    ],
+    "conditional": {
+      "flag": "hospital",
+      "before": "The wards at St. Mercy deserve more than hurried scavenging.",
+      "after": "St. Mercy is clear. Now the hard part is keeping the dressings clean and the people alive."
+    }
   },
   {
     "name": "Bolt",
@@ -509,7 +539,12 @@
         "qty": 1,
         "response": "Bolt accepts the supplies and agrees to join the Seaport workforce."
       }
-    ]
+    ],
+    "conditional": {
+      "flag": "factory",
+      "before": "Factory scrap is valuable, but getting to it can cost more than it's worth.",
+      "after": "The Factory's cleared? Then we can turn its leftovers into roofs instead of graves."
+    }
   },
   {
     "name": "Crowley",
@@ -592,7 +627,12 @@
         "label": "OFFER FINCH A USEFUL ROLE IN SEAPORT",
         "response": "Finch accepts the offer and heads for Seaport."
       }
-    ]
+    ],
+    "conditional": {
+      "flag": "seaport",
+      "before": "Seaport's gates won't be safe until the people inside can choose who's guarding them.",
+      "after": "You liberated Seaport. A town that chooses its own guards is worth standing for."
+    }
   },
   {
     "name": "Vale",
@@ -648,7 +688,12 @@
         "bolts": true,
         "response": "Bishop accepts the agreed hiring fee and heads for Seaport."
       }
-    ]
+    ],
+    "conditional": {
+      "flag": "seaport",
+      "before": "An order means nothing if the people giving it don't answer for what it costs.",
+      "after": "Seaport is free. I'll follow a watch schedule written by its people."
+    }
   },
   {
     "name": "Wren",
@@ -703,7 +748,12 @@
         "bolts": true,
         "response": "Cutter accepts the agreed hiring fee and heads for Seaport."
       }
-    ]
+    ],
+    "conditional": {
+      "flag": "factory",
+      "before": "The Factory is no place for someone who mistakes speed for courage.",
+      "after": "You lived through the Factory. Maybe your caution is worth something after all."
+    }
   }
 ];
  const expansion=WandererWorldExpansion;

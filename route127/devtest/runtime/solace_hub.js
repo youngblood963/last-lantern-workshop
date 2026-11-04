@@ -18,7 +18,10 @@ const present=()=>typeof wanderers!=='undefined'&&typeof wandererLocations!=='un
    (typeof wandererAlive!=='function'||wandererAlive(w))&&
    !(typeof portIsHired==='function'&&portIsHired(w.name)))
  :[];
-// The legacy town encounter exposes ONE wanderer, even if several NPCs are assigned to Solace.\nlet visibleWanderer=null;\nconst featured=()=>{const people=present();if(!people.length){visibleWanderer=null;return null;}if(visibleWanderer&&people.some(w=>w.name===visibleWanderer))return people.find(w=>w.name===visibleWanderer);visibleWanderer=people[Math.floor(Math.random()*people.length)].name;return people.find(w=>w.name===visibleWanderer);};\nconst canHub=()=>stage==='mercy'&&mercyLocation==='town'&&VIEWS.has(player.flags.solaceMenu);
+// The legacy town encounter exposes ONE wanderer, even if several NPCs are assigned to Solace.
+let visibleWanderer=null;
+const featured=()=>{const people=present();if(!people.length){visibleWanderer=null;return null;}if(visibleWanderer&&people.some(w=>w.name===visibleWanderer))return people.find(w=>w.name===visibleWanderer);visibleWanderer=people[Math.floor(Math.random()*people.length)].name;return people.find(w=>w.name===visibleWanderer);};
+const canHub=()=>stage==='mercy'&&mercyLocation==='town'&&VIEWS.has(player.flags.solaceMenu);
 function hub(){
  player.flags.solaceMenu='town';mercyLocation='town';townWandererFocus=null;
  const g=typeof lanternMigrate==='function'?lanternMigrate():null;
@@ -74,8 +77,13 @@ handleCommandCore=async function(raw){
   if(cmd==='shops')return submenu('hubShops');
   if(cmd==='gates')return submenu('hubGates');
   // Direct, named wanderer interactions; no redundant selection submenu.
-  const nearby=present().find(w=>cmd==='talk to '+w.name.toLowerCase());
-  if(nearby){currentTownWanderer=nearby.name;return previousCore.call(this,'talk to '+nearby.name.toLowerCase());}
+  const nearby=featured();
+  if(nearby&&cmd==='talk to '+nearby.name.toLowerCase()){
+   currentTownWanderer=nearby.name;
+   townWandererFocus=nearby.name;
+   showWanderer(nearby,'town');
+   return typeof v53WandererMenu==='function'?v53WandererMenu(nearby,false):undefined;
+  }
   if(cmd==='talk to wanderer')return submenu('hubWanderers'); // legacy command compatibility
   if(cmd==='find tim')return typeof v53TimMenu==='function'?v53TimMenu():previousCore.call(this,'find tim');
   if(cmd==='relay station'&&player.flags.relayUnlocked)return previousCore.call(this,'relay station');

@@ -1,7 +1,7 @@
 /* Route 127 — Devtest-only live encounter art.
  * Uses existing encounter identity/state: never rolls, spawns, modifies choices,
  * progression, recruitment, storage, or saves. Classic BBS remains untouched.
- * Approved batches 1–4 art only; unknown wanderers simply retain normal backgrounds.
+ * Approved batches 1–5 art only; unknown wanderers simply retain normal backgrounds.
  */
 (() => {
   'use strict';
@@ -28,7 +28,17 @@
     'Dorian Hale':'dorian_hale.png',
     'Petra Sol':'petra_sol.png',
     'Soren Beck':'soren_beck.png',
-    'Leda Marsh':'leda_marsh.png'
+    'Leda Marsh':'leda_marsh.png',
+    'Ansel Crow':'ansel_crow.png',
+    'Freya Dunn':'freya_dunn.png',
+    'Otis Weller':'otis_weller.png',
+    'Veda Knox':'veda_knox.png',
+    'Silvie Hart':'silvie_hart.png',
+    'Tobin Flint':'tobin_flint.png',
+    'Elara Moss':'elara_moss.png',
+    'Hector Vale':'hector_vale.png',
+    'Nadia Rill':'nadia_rill.png',
+    'Rhea Tarrant':'rhea_tarrant.png'
   });
   const root = new URL('../devtest/assets/wanderers/', location.href);
   const shortName = name => { const parts=name.trim().split(/\s+/); return parts.length>1 ? parts[0]+' '+parts.at(-1)[0]+'.' : name; };

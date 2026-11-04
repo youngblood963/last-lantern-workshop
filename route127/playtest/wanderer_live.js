@@ -39,16 +39,16 @@
       position:absolute; bottom:4%; right:3%; height:28%;
       aspect-ratio:3/4; max-width:18%; z-index:4;
       border:2px ridge #a08051; background:#201913;
-      box-shadow:0 4px 12px #000c; overflow:hidden; pointer-events:none;
+      box-shadow:0 4px 12px #000c; overflow:visible; pointer-events:none;
     }
     .r127-live-wanderer-town img {
       position:absolute; inset:0 0 18px; height:calc(100% - 18px);
       width:100%; object-fit:contain; object-position:center bottom;
     }
     .r127-live-wanderer-label {
-      position:absolute; bottom:0; left:0; right:0;
-      text-align:center; white-space:nowrap; padding:3px 2px;
-      background:#18130f; color:#f3e0b8; font:700 .56rem Georgia,serif;
+      position:absolute; bottom:0; left:auto; right:calc(100% + 5px);
+      text-align:center; white-space:nowrap; padding:4px 6px; z-index:5;
+      border:1px solid #a08051; background:#18130f; color:#f3e0b8; font:700 .6rem Georgia,serif;
     }
   `;
   document.head.appendChild(style);

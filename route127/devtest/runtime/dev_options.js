@@ -164,8 +164,8 @@
         holder.appendChild(el('div','dw-name',shortName(w.name)));
         holder.title='Open '+w.name+' portrait';holder.tabIndex=0;holder.setAttribute('role','button');
         holder.setAttribute('aria-label','Open full portrait of '+w.name);
-        holder.addEventListener('click',()=>expandPortrait(w));
-        holder.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();expandPortrait(w);}});
+        holder.addEventListener('click',()=>{if(globalThis.Route127WandererInfo)globalThis.Route127WandererInfo.open(w.name,portraitUrl(w));else expandPortrait(w);});
+        holder.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();if(globalThis.Route127WandererInfo)globalThis.Route127WandererInfo.open(w.name,portraitUrl(w));else expandPortrait(w);}});
         canvas.appendChild(holder);
       }
       img.src=portraitUrl(w);

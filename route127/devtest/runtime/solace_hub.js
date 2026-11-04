@@ -25,7 +25,7 @@ function hub(){
  if(g?.nodeId==='solace'){g.solaceAdmitted=true;g.lastSettlement='solace';}
  add('SOLACE — MAIN STREET','place');
  v53Choices(['SHOPS',...(player.flags.relayUnlocked?['RELAY STATION']:[]),
-   'FIND TIM','GATES','TALK TO WANDERER','BULLETIN BOARD',
+   'FIND TIM','GATES',...present().map(w=>'TALK TO '+w.name.toUpperCase()),'BULLETIN BOARD',
    ...(player.flags.r18Courier?.phase==='service'?['POST OFFICE']:[])]);
 }
 function submenu(which){
@@ -73,7 +73,10 @@ handleCommandCore=async function(raw){
  if(view==='town'){
   if(cmd==='shops')return submenu('hubShops');
   if(cmd==='gates')return submenu('hubGates');
-  if(cmd==='talk to wanderer')return submenu('hubWanderers');
+  // Direct, named wanderer interactions; no redundant selection submenu.
+  const nearby=present().find(w=>cmd==='talk to '+w.name.toLowerCase());
+  if(nearby){currentTownWanderer=nearby.name;return previousCore.call(this,'talk to '+nearby.name.toLowerCase());}
+  if(cmd==='talk to wanderer')return submenu('hubWanderers'); // legacy command compatibility
   if(cmd==='find tim')return typeof v53TimMenu==='function'?v53TimMenu():previousCore.call(this,'find tim');
   if(cmd==='relay station'&&player.flags.relayUnlocked)return previousCore.call(this,'relay station');
   if(cmd==='bulletin board')return previousCore.call(this,'bulletin board');

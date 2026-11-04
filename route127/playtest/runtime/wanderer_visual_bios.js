@@ -1,7 +1,7 @@
 /* Devtest-only portrait-matched bios; descriptions do not alter dialogue or gameplay. */
 (()=>{
 'use strict';
-if(!/(?:^|\/)route127\/(?:playtest|devtest)\/(?:index\.html)?$/.test(location.pathname)||!/^\/route127\/(?:devtest|playtest)\/(?:index\.html)?$/.test(location.pathname))return;
+if(!/(?:^|\/)route127\/(?:playtest|devtest)\/(?:index\.html)?$/.test(location.pathname)||!/(?:^|\/)route127\/(?:playtest|devtest)\/(?:index\.html)?$/.test(location.pathname))return;
 const bios=Object.freeze({
   "Iona Pike": "A meticulous field medic, Iona keeps her medical supplies clean and her attention on every injury. Her work traces back to St. Mercy Hospital and Wayne's clinic.",
   "Cal Voss": "Cal's worn road gear and mechanic's kit belong to someone who measures repairs instead of guessing. The Scrap Yard and Murphy's workshop are familiar territory to this methodical fixer.",

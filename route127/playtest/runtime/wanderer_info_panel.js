@@ -5,7 +5,7 @@
 (() => {
   'use strict';
   if(!/(?:^|\/)route127\/(?:playtest|devtest)\/(?:index\.html)?$/.test(location.pathname) ||
-     !/^\/route127\/(?:devtest|playtest)\/(?:index\.html)?$/.test(location.pathname)) return;
+     !/(?:^|\/)route127\/(?:playtest|devtest)\/(?:index\.html)?$/.test(location.pathname)) return;
   const make=(tag,cls,txt)=>{
     const e=document.createElement(tag);
     if(cls)e.className=cls;

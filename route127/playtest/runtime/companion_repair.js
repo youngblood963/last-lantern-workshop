@@ -4,7 +4,7 @@
 (() => {
   'use strict';
   if(!/(?:^|\/)route127\/(?:playtest|devtest)\/(?:index\.html)?$/.test(location.pathname) ||
-      !/^\/route127\/(?:devtest|playtest)\/(?:index\.html)?$/.test(location.pathname) ||
+      !/(?:^|\/)route127\/(?:playtest|devtest)\/(?:index\.html)?$/.test(location.pathname) ||
       typeof TravelerPanels === 'undefined') return;
   const panel=TravelerPanels;
   const legacyHandoff=panel.handoff;

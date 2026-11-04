@@ -11,4 +11,13 @@ resolveEncounter=function(cmd){
  }
  return original.apply(this,arguments);
 };
+
+const oldCombat=startCombat;
+startCombat=function(spec,source,...rest){
+ if(spec?.r18WardenId){
+  const level=Math.min(50,Math.max(12,(Number(player.level)||1)+8));
+  spec={...spec,level,hp:Math.max(90,Math.floor(baseHpForLevel(level)*.62)),armorDef:Math.max(3,spec.armorDef||0)};
+ }
+ return oldCombat.call(this,spec,source,...rest);
+};
 })();

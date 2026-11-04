@@ -120,7 +120,7 @@
     }else skillSection.appendChild(make('p','','Not yet assessed.'));
     details.appendChild(skillSection);
     const story=make('section');story.appendChild(make('h3','','BACKGROUND'));
-    story.appendChild(make('p','',def?.introduction||w?.lines?.[1]||'No additional background recorded.'));
+    story.appendChild(make('p','',globalThis.Route127VisualBios?.[name]||def?.introduction||w?.lines?.[1]||'No additional background recorded.'));
     if(def?.dialogue?.[0])story.appendChild(make('p','',def.dialogue[0]));
     details.appendChild(story);
     const belongings=make('section');belongings.appendChild(make('h3','','BELONGINGS'));

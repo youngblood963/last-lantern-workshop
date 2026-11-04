@@ -34,6 +34,33 @@ function route127Compass(from,to){
  const i=(Math.round(Math.atan2(x,-y)/(Math.PI/4))+8)%8;
  return [['↑','N'],['↗','NE'],['→','E'],['↘','SE'],['↓','S'],['↙','SW'],['←','W'],['↖','NW']][i].join(' ');
 }
+/* WO26: display-only landmark hints. Never change road topology or reveal hidden sites. */
+function route127NearestLandmark(from,to,g){
+ const start=LG_NODES[to];
+ if(!start)return null;
+ const known=new Set(g?.discoveredNodes||[]);
+ // Direct destinations always remain visible as existing travel choices.
+ if(start.kind==='settlement'||start.kind==='site'||start.kind==='exterior')return start.name;
+ const queue=[{id:to,turns:0}], best=new Map([[to,0]]);
+ let closest=null;
+ while(queue.length){
+  queue.sort((a,b)=>a.turns-b.turns);
+  const current=queue.shift();if(current.turns!==best.get(current.id))continue;
+  const node=LG_NODES[current.id];
+  if(current.id!==to&&known.has(current.id)&&node&&!node.futureInterior&&
+     (node.kind==='settlement'||node.kind==='site'||node.kind==='exterior')){
+   closest=node.name;break;
+  }
+  for(const e of lanternConnections(current.id)){
+   if(e.requires&&!lanternAllowed(e))continue;
+   const next=lanternOther(e,current.id);
+   if(next===from)continue; // A landmark behind the player is not 'ahead'.
+   const cost=current.turns+e.distanceTurns;
+   if(cost<(best.get(next)??Infinity)){best.set(next,cost);queue.push({id:next,turns:cost});}
+  }
+ }
+ return closest;
+}
 function route127RoadChoiceLabel(command){
  const g=lanternState();if(!g)return command;
  const cmd=String(command).toLowerCase();let edge,from,to,cost;
@@ -49,5 +76,6 @@ function route127RoadChoiceLabel(command){
  }
  if(!edge||!to)return command;const compass=route127Compass(from,to);if(!compass)return command;
  const action=cmd==='reverse direction'?'Reverse: ':cmd==='return to junction'?'Return: ':'';
- return `${compass} — ${action}${edge.name} → ${LG_NODES[to].name} (${cost} turns)`;
+ const landmark=route127NearestLandmark(from,to,g);const destination=LG_NODES[to].name;const hint=landmark&&landmark!==destination?` (toward ${landmark})`:'';
+ return `${compass} — ${action}${edge.name} → ${destination}${hint} (${cost} turns)`;
 }

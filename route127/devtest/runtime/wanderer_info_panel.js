@@ -50,8 +50,8 @@
       style.textContent=`
       .r127-winfo{box-sizing:border-box;border:2px solid #9a7850;background:#191611;color:#eadcc1;
         width:min(790px,94vw);height:min(82dvh,490px);max-height:90dvh;overflow:hidden;padding:8px 10px;
-        border:12px solid transparent;border-image:url('assets/ui/rust-frame.svg') 24 stretch;
-        background:#0b0e0c url('assets/ui/scratched-metal.svg') center/640px 128px;
+        border:2px solid #765036;border-radius:8px;
+        background:#090a09 url('../playtest/assets/ui/industrial-backing.png') center/100% 100% no-repeat;
         box-shadow:0 18px 65px #000e;font:12px/1.3 Georgia,serif;display:flex;flex-direction:column}
       .r127-winfo:not([open]){display:none}
       .r127-winfo::backdrop{background:#050505d9}
@@ -84,7 +84,7 @@
       .r127-info-stars{color:#f1bd63;letter-spacing:0;font-family:Arial,sans-serif;white-space:nowrap}
       .r127-winfo p{margin:4px 0;color:#dfd0b8}
       .r127-winfo-note{font-size:10px;color:#ad9c87!important}
-      @media(max-width:620px){.r127-winfo{width:95vw;height:90dvh;padding:6px;border-width:8px}
+      @media(max-width:620px){.r127-winfo{width:95vw;height:90dvh;padding:6px;border-width:2px}
       .r127-winfo-body{grid-template-columns:1fr;grid-template-rows:minmax(120px,38%) minmax(0,1fr);gap:6px}
       .r127-winfo-portrait-column{min-height:0}.r127-winfo-header{margin-bottom:5px}}
       `;

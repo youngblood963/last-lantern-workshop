@@ -32,10 +32,12 @@ add=function(value='',cls=''){
   const s=String(value);
   if(inTown()&&cls.includes('system')){
     // Keep original command handlers; streamline only their offered choices.
-    if(at('johnny')&&s.includes('BUY ENERGY BAR')&&s.includes('SELL ALL SCRAP')){
+    if(at('johnny')&&s.includes('BUY ENERGY BAR')&&s.includes('BUY TENT')){
       const parts=s.split(/\s{2,}/).filter(x=>!['SMALL TALK','BUY','SELL ITEMS','SELL ALL SCRAP'].includes(x.trim().toUpperCase()));
       return originalAdd(parts.join('   '),cls);
     }
+    if(at('mara')&&s.includes('BUY ')&&s.includes('(B) BACK'))return originalAdd(s.replace('(B) BACK','SELL ITEMS   (B) BACK'),cls);
+    if(at('mara')&&s.includes('SMALL TALK')&&s.includes('SELL ITEMS')&&s.includes('TOWN'))return;
     if(at('johnny')&&s.includes('ASK ABOUT LOST LEDGER')&&s.includes('ASK ABOUT DEALS'))
       return originalAdd(['ASK ABOUT LOST LEDGER','ASK ABOUT ROAD',...(player.flags.relayPartsRevealed&&player.flags.relayQuest!=='complete'?['ASK ABOUT RELAY PARTS']:[]),'(B) BACK'].join('   '),cls);
     if(at('wayne')&&s.includes('ASK ABOUT LAST PATIENT')&&s.includes('ASK ABOUT INJURIES'))
@@ -63,12 +65,13 @@ npcTalk=function(name,...args){if(['johnny','wayne','amii','tim'].includes(name)
 const previousArmory=v50Armory;
 v50Armory=function(...args){section='armory';return previousArmory.apply(this,args);};
 const previousEquip=showEquipmentShop;
-showEquipmentShop=function(...args){section='armory';previousEquip.apply(this,args);v53Choices(['SELL ITEMS','BACK']);};
+showEquipmentShop=function(...args){section='armory';return previousEquip.apply(this,args);};
 const oldBar=mercyMenu;
 mercyMenu=function(...args){section='';return oldBar.apply(this,args);};
 // In DEVTEST the action router owns submenu navigation, not the legacy handlers.
 const previousCore=handleCommandCore;
 handleCommandCore=async function(raw){
+ if(stage==='r11Craft'&&player.flags.r11Bench==='murphy'&&['b','back'].includes(String(r5Mapped(raw)).toLowerCase())){stage='mercy';mercyLocation='murphy';return murphyRoot();}
  if(!inTown()||busy)return previousCore.apply(this,arguments);
  const typed=String(raw??'').trim().toLowerCase();
  const cmd=String(numberedChoices[typed]||currentHotkeys[typed]||typed).trim().toLowerCase();

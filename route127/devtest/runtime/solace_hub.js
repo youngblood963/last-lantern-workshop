@@ -11,8 +11,7 @@ const IN_SHOP={
  "murphy's motor works":'workshop',
  'last chance clinic':'clinic',
  'solace savings & loan':'bank',
- 'armory':'armory',
- 'post office':'post office'
+ 'armory':'armory'
 };
 const present=()=>typeof wanderers!=='undefined'&&typeof wandererLocations!=='undefined'
  ?wanderers.filter(w=>wandererLocations[w.name]==='mercy'&&
@@ -26,7 +25,8 @@ function hub(){
  if(g?.nodeId==='solace'){g.solaceAdmitted=true;g.lastSettlement='solace';}
  add('SOLACE — MAIN STREET','place');
  v53Choices(['SHOPS',...(player.flags.relayUnlocked?['RELAY STATION']:[]),
-   'FIND TIM','GATES','TALK TO WANDERER','BULLETIN BOARD']);
+   'FIND TIM','GATES','TALK TO WANDERER','BULLETIN BOARD',
+   ...(player.flags.r18Courier?.phase==='service'?['POST OFFICE']:[])]);
 }
 function submenu(which){
  player.flags.solaceMenu=which;mercyLocation='town';
@@ -34,8 +34,7 @@ function submenu(which){
   add('SOLACE — SHOPS','place');
   v53Choices(['THE RUSTY LANTERN',"JOHNNY'S TRADING POST",
    "MURPHY'S MOTOR WORKS",'LAST CHANCE CLINIC','SOLACE SAVINGS & LOAN',
-   'ARMORY',...(player.flags.r18Courier?.phase==='service'?['POST OFFICE']:[]),
-   'BACK TO SOLACE']);
+   'ARMORY','BACK TO SOLACE']);
  }else if(which==='hubGates'){
   add('SOLACE — GATES','place');
   v53Choices(['NORTH GATE','SOUTH GATE','EAST GATE','WEST GATE','BACK TO SOLACE']);
@@ -78,11 +77,11 @@ handleCommandCore=async function(raw){
   if(cmd==='find tim')return typeof v53TimMenu==='function'?v53TimMenu():previousCore.call(this,'find tim');
   if(cmd==='relay station'&&player.flags.relayUnlocked)return previousCore.call(this,'relay station');
   if(cmd==='bulletin board')return previousCore.call(this,'bulletin board');
+  if(cmd==='post office'&&player.flags.r18Courier?.phase==='service')return previousCore.call(this,'post office');
  }else if(view==='hubShops'){
   const map={...IN_SHOP,'the rusty lantern':'bar'};
   if(cmd==='the rusty lantern')return previousCore.call(this,'bar');
-  if(map[cmd]&&(cmd!=='post office'||player.flags.r18Courier?.phase==='service'))
-   return previousCore.call(this,map[cmd]);
+  if(map[cmd]&&cmd!=='post office')return previousCore.call(this,map[cmd]);
  }else if(view==='hubGates'){
   const gate=/^(north|south|east|west) gate$/.exec(cmd);
   if(gate){

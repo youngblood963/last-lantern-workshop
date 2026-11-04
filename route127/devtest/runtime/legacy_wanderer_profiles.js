@@ -762,6 +762,8 @@
    if(!originalNames.has(d.name)||expansion.byName.has(d.name))throw Error('Legacy wanderer profile conflict: '+d.name);
    const w=wandererByName(d.name);
    if(w.occupation!==d.occupation)throw Error('Legacy occupation drift: '+d.name);
+   // Keep the established first line; upgrade the brief scene description in Devtest only.
+   if(Array.isArray(w.lines)&&w.lines.length>1)w.lines[1]=d.introduction;
    expansion.byName.set(d.name,d);
  }
  globalThis.Route127LegacyProfiles=Object.freeze({profiles:Object.freeze(profiles),byName:Object.freeze(Object.fromEntries(profiles.map(d=>[d.name,d])))});

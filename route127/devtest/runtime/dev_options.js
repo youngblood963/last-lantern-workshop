@@ -60,6 +60,7 @@
   const regionUrl = region => new URL('../assets/regions/'+region.toLowerCase()+'.png', playtestRoot).href;
   const townUrl = town => new URL('assets/locations/'+town.file, playtestRoot).href;
   const portraitUrl = w => new URL('assets/wanderers/'+w.file, devtestRoot).href;
+  const shortName = name => { const parts=name.trim().split(/\s+/); return parts.length>1 ? parts[0]+' '+parts.at(-1)[0]+'.' : name; };
   const el = (tag,cls,text) => {
     const node=document.createElement(tag);
     if(cls)node.className=cls;
@@ -84,9 +85,15 @@
       .dw-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
       .dw-location{position:absolute;bottom:6%;left:4%;z-index:3;max-width:50%;background:#100e0cc9;border:1px solid #8e704c;padding:5px 9px;font:700 .75rem Georgia,serif;text-shadow:0 1px 2px black}
       .dw-person{position:absolute;bottom:0;right:var(--dw-road-person-right,15%);height:95%;max-width:56%;object-fit:contain;object-position:bottom center;filter:drop-shadow(0 5px 5px #0008);z-index:2}
-      .dw-frame{position:absolute;right:3%;bottom:4%;height:28%;aspect-ratio:3/4;max-width:18%;border:2px ridge #a08051;box-shadow:0 4px 12px #000c;background:#201913;z-index:3;overflow:visible}
+      .dw-frame{position:absolute;right:3%;bottom:4%;height:28%;aspect-ratio:3/4;max-width:18%;border:2px ridge #a08051;box-shadow:0 4px 12px #000c;background:#201913;z-index:3;overflow:hidden;cursor:zoom-in}
       .dw-frame .dw-person{height:calc(100% - 18px);width:100%;max-width:none;right:0;bottom:18px;object-fit:contain}
-      .dw-name{position:absolute;bottom:0;left:auto;right:calc(100% + 5px);background:#18130f;border:1px solid #a08051;color:#f3e0b8;text-align:center;font:700 .6rem Georgia,serif;padding:4px 6px;white-space:nowrap;max-width:none;z-index:4}
+      .dw-name{position:absolute;bottom:0;left:0;right:0;background:#18130f;color:#f3e0b8;text-align:center;font:700 clamp(5px,.48rem,8px) Georgia,serif;padding:3px 1px;white-space:nowrap;overflow:hidden;z-index:4}
+      .dw-frame:focus-visible{outline:2px solid #edc48a;outline-offset:2px}
+      .dw-expanded{border:1px solid #a08051;background:#18130f;color:#f3e0b8;padding:12px;max-width:min(480px,90vw);max-height:90vh;text-align:center;box-shadow:0 12px 60px #000d}
+      .dw-expanded::backdrop{background:#000d}
+      .dw-expanded h3{font:700 1.25rem Georgia,serif;margin:0 0 8px}
+      .dw-expanded img{display:block;max-height:70vh;max-width:100%;object-fit:contain;margin:auto}
+      .dw-expanded button{margin-top:8px;background:#31271f;color:#f4e1c5;border:1px solid #9d8060;padding:6px 16px;cursor:pointer}
       .dw-missing{position:absolute;z-index:2;right:10%;bottom:12%;width:36%;text-align:center;background:#211912d9;color:#f3d09b;border:1px dashed #bea179;padding:12px 3px;font-size:.75rem}
       .dw-frame .dw-missing{right:5%;bottom:24px;width:90%;padding:3px 1px;font-size:.52rem}
       .dw-note{font-size:.84rem;line-height:1.5;color:#cfc0aa;margin:12px 0 0}
@@ -124,8 +131,17 @@
     const road=scene('ROAD ENCOUNTER — full transparent figure');
     const town=scene('TOWN ENCOUNTER — small bottom-right portrait');
     dialog.appendChild(grid);
-    dialog.appendChild(el('p','dw-note','Preview only: browse the twenty approved wanderer portraits over existing regional and town backgrounds. No encounters, turns, recruitment, saves, or gameplay state are changed.'));
+    dialog.appendChild(el('p','dw-note','Preview only: browse the forty approved wanderer portraits over existing regional and town backgrounds. No encounters, turns, recruitment, saves, or gameplay state are changed.'));
 
+    function expandPortrait(w){
+      const expanded=el('dialog','dw-expanded');
+      expanded.appendChild(el('h3','',w.name));
+      const image=el('img');image.alt=w.name;image.src=portraitUrl(w);expanded.appendChild(image);
+      const button=el('button','','Close');button.type='button';
+      button.addEventListener('click',()=>expanded.close());expanded.appendChild(button);
+      expanded.addEventListener('close',()=>expanded.remove(),{once:true});
+      document.body.appendChild(expanded);expanded.showModal();button.focus();
+    }
     function placePortrait(canvas,w,framed){
       canvas.querySelectorAll('.dw-person,.dw-frame,.dw-missing').forEach(node=>node.remove());
       const holder=framed?el('div','dw-frame'):canvas;
@@ -134,7 +150,14 @@
       img.addEventListener('load',()=>{missing.remove();img.hidden=false;});
       img.addEventListener('error',()=>{img.hidden=true;if(!missing.isConnected)holder.appendChild(missing);});
       img.hidden=true;holder.appendChild(missing);holder.appendChild(img);
-      if(framed){holder.appendChild(el('div','dw-name',w.name));canvas.appendChild(holder);}
+      if(framed){
+        holder.appendChild(el('div','dw-name',shortName(w.name)));
+        holder.title='Open '+w.name+' portrait';holder.tabIndex=0;holder.setAttribute('role','button');
+        holder.setAttribute('aria-label','Open full portrait of '+w.name);
+        holder.addEventListener('click',()=>expandPortrait(w));
+        holder.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();expandPortrait(w);}});
+        canvas.appendChild(holder);
+      }
       img.src=portraitUrl(w);
     }
     function update(){

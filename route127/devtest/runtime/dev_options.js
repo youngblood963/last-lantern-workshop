@@ -84,9 +84,9 @@
       .dw-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
       .dw-location{position:absolute;bottom:6%;left:4%;z-index:3;max-width:50%;background:#100e0cc9;border:1px solid #8e704c;padding:5px 9px;font:700 .75rem Georgia,serif;text-shadow:0 1px 2px black}
       .dw-person{position:absolute;bottom:0;right:var(--dw-road-person-right,15%);height:95%;max-width:56%;object-fit:contain;object-position:bottom center;filter:drop-shadow(0 5px 5px #0008);z-index:2}
-      .dw-frame{position:absolute;right:3%;bottom:4%;height:28%;aspect-ratio:3/4;max-width:18%;border:2px ridge #a08051;box-shadow:0 4px 12px #000c;background:#201913;z-index:3;overflow:hidden}
+      .dw-frame{position:absolute;right:3%;bottom:4%;height:28%;aspect-ratio:3/4;max-width:18%;border:2px ridge #a08051;box-shadow:0 4px 12px #000c;background:#201913;z-index:3;overflow:visible}
       .dw-frame .dw-person{height:calc(100% - 18px);width:100%;max-width:none;right:0;bottom:18px;object-fit:contain}
-      .dw-name{position:absolute;bottom:0;left:0;right:0;background:#18130f;text-align:center;font:700 .56rem Georgia,serif;padding:3px 2px;white-space:nowrap}
+      .dw-name{position:absolute;bottom:0;left:auto;right:calc(100% + 5px);background:#18130f;border:1px solid #a08051;color:#f3e0b8;text-align:center;font:700 .6rem Georgia,serif;padding:4px 6px;white-space:nowrap;max-width:none;z-index:4}
       .dw-missing{position:absolute;z-index:2;right:10%;bottom:12%;width:36%;text-align:center;background:#211912d9;color:#f3d09b;border:1px dashed #bea179;padding:12px 3px;font-size:.75rem}
       .dw-frame .dw-missing{right:5%;bottom:24px;width:90%;padding:3px 1px;font-size:.52rem}
       .dw-note{font-size:.84rem;line-height:1.5;color:#cfc0aa;margin:12px 0 0}

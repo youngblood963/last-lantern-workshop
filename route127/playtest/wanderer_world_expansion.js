@@ -100,7 +100,7 @@ const WANDERER_WORLD_DESIGNS=[
   "personality": "formal, restrained",
   "introduction": "Merritt Shaw checks the straps of a worn guard coat beneath a charcoal sketch of the Solace gates.",
   "dialogue": [
-   "Tim can settle trouble in Solace. On the Lantern Highway, you still have to notice trouble before it reaches you.",
+   "Tim can settle trouble in Solace. On the Route 127, you still have to notice trouble before it reaches you.",
    "I count the approaches to Solace before I count the people at them. A guard should know which way to step aside.",
    "A one-time fee buys my time, not permission to bully your customers in Seaport."
   ],
@@ -130,7 +130,7 @@ const WANDERER_WORLD_DESIGNS=[
   "dialogue": [
    "Jen has a bar to keep moving. I like people who can listen while their hands are busy.",
    "In a Seaport kitchen I would count the portions first. Hungry people should not have to win an argument for the last one.",
-   "I missed a meal on the Lantern Highway. Spare one Energy Bars ration and I will put my hands to work in Seaport."
+   "I missed a meal on the Route 127. Spare one Energy Bars ration and I will put my hands to work in Seaport."
   ],
   "options": [
    {
@@ -247,7 +247,7 @@ const WANDERER_WORLD_DESIGNS=[
   "personality": "practical, suspicious of fine print",
   "introduction": "Maeve Kline checks a page of tidy sums beside a salvaged bank envelope. SOLACE is written across its flap.",
   "dialogue": [
-   "Amii's bank is a better place for stored Bolts than a loose pocket on the Lantern Highway.",
+   "Amii's bank is a better place for stored Bolts than a loose pocket on the Route 127.",
    "If Seaport wants a banker, I can count. If it wants a person who calls every subtraction a service, it can keep looking.",
    "Pay my usual fee, or bring two Wire so I can repair the clasp on my records case. Either gets me to Seaport."
   ],
@@ -277,12 +277,12 @@ const WANDERER_WORLD_DESIGNS=[
    "banking": 4
   },
   "method": "conversation",
-  "connection": "Boulder Junction; Lantern Highway",
+  "connection": "Boulder Junction; Route 127",
   "personality": "patient, protective",
   "introduction": "Galen Ward studies both approaches to Boulder Junction from a safe stretch of shoulder, drawing routes in the dust.",
   "dialogue": [
    "Boulder Junction is a place to think before moving. A route on a map does not mean the road is open.",
-   "On the Lantern Highway I watch the person at the back of a group. That is usually the person everyone else forgets.",
+   "On the Route 127 I watch the person at the back of a group. That is usually the person everyone else forgets.",
    "Tell me your Seaport workforce is there to keep people supplied, not to collect another toll. I will join for that."
   ],
   "options": [
@@ -367,11 +367,11 @@ const WANDERER_WORLD_DESIGNS=[
    "banking": 2
   },
   "method": "favor",
-  "connection": "Crazy Steve; Lantern Highway",
+  "connection": "Crazy Steve; Route 127",
   "personality": "wry, unusually patient",
   "introduction": "Petra Sol braces a pack against a milepost, trying to settle a twisted shoulder strap without spilling its salvage.",
   "dialogue": [
-   "Crazy Steve makes me check what I think I saw on the Lantern Highway. Then I check the ground under my feet again.",
+   "Crazy Steve makes me check what I think I saw on the Route 127. Then I check the ground under my feet again.",
    "If Steve's pink elephants turn up in a story, I listen before laughing. The road has made fools of louder people than me.",
    "Hold this pack steady while I untwist the strap. A little help is enough reason to take your Seaport offer."
   ],
@@ -397,7 +397,7 @@ const WANDERER_WORLD_DESIGNS=[
   "method": "bolts",
   "connection": "New Dominion; Solace",
   "personality": "blunt, disciplined",
-  "introduction": "Soren Beck keeps an unmarked guard coat folded over one arm and watches the Lantern Highway without turning his head.",
+  "introduction": "Soren Beck keeps an unmarked guard coat folded over one arm and watches the Route 127 without turning his head.",
   "dialogue": [
    "The New Dominion has enough people mistaking orders for reasons. I would rather hear what a job actually needs.",
    "Tim has a name in Solace. If I take your Seaport job, I want people to know my name before they know my weapon.",
@@ -612,7 +612,7 @@ const WANDERER_WORLD_DESIGNS=[
   "introduction": "Tobin Flint stands beside a coiled mooring line, checking a torn sleeve against the light from the coast.",
   "dialogue": [
    "Dockside Pirates do not become harmless because they can talk about a fair share. Keep your own count near Seaport.",
-   "I would rather stand at a Seaport doorway than make another traveler nervous on the Lantern Highway.",
+   "I would rather stand at a Seaport doorway than make another traveler nervous on the Route 127.",
    "Pay the usual hiring fee, or give me two Cloth to mend this coat. I will take either arrangement."
   ],
   "options": [
@@ -735,18 +735,18 @@ const WANDERER_WORLD_DESIGNS=[
    "banking": 5
   },
   "method": "favor",
-  "connection": "Lantern Highway; Seaport liberation",
+  "connection": "Route 127; Seaport liberation",
   "personality": "quiet, watchful, generous with time",
-  "introduction": "Rhea Tarrant stands facing the Lantern Highway while retightening a loose strap on a heavy travel pack.",
+  "introduction": "Rhea Tarrant stands facing the Route 127 while retightening a loose strap on a heavy travel pack.",
   "dialogue": [
-   "On the Lantern Highway, helping someone does not always mean drawing a weapon. Sometimes it means keeping an eye on the road while their hands are busy.",
+   "On the Route 127, helping someone does not always mean drawing a weapon. Sometimes it means keeping an eye on the road while their hands are busy.",
    "Seaport needs people who can finish a task without making every other person feel watched. A guard can learn that too.",
    "Watch the approach while I secure this pack. Do that small kindness and I will join your Seaport workforce."
   ],
   "options": [
    {
     "id": "conversation",
-    "label": "WATCH THE LANTERN HIGHWAY WHILE RHEA SECURES HER PACK",
+    "label": "WATCH THE ROUTE 127 WHILE RHEA SECURES HER PACK",
     "response": "You watch the road while Rhea secures her pack. She thanks you and agrees to join Seaport."
    }
   ],

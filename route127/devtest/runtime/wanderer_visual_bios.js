@@ -3,7 +3,7 @@
 'use strict';
 if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||!/^\/route127\/devtest\/(?:index\.html)?$/.test(location.pathname))return;
 const bios=Object.freeze({
-  "Iona Pike": "A red-haired field medic in a weathered teal jacket and scarf, Iona keeps her medical supplies close and her attention on every injury. Her work traces back to St. Mercy Hospital and Wayne's clinic.",
+  "Iona Pike": "A meticulous field medic, Iona keeps her medical supplies clean and her attention on every injury. Her work traces back to St. Mercy Hospital and Wayne's clinic.",
   "Cal Voss": "Cal's worn road gear and mechanic's kit belong to someone who measures repairs instead of guessing. The Scrap Yard and Murphy's workshop are familiar territory to this methodical fixer.",
   "Ada Quill": "A young Black boy with a trader's sharp eye, Ada is determined to be taken seriously despite his age. He studies Johnny's Trading Post and keeps careful records for the Seaport General Store he hopes to help run.",
   "Merritt Shaw": "An older, free-spirited woman with a lifetime of guard experience, Merritt looks nothing like a rigid uniformed soldier. Her easygoing appearance hides the instincts of someone who knows how to watch Solace's approaches.",

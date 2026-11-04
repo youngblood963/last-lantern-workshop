@@ -12,7 +12,7 @@
     {name:'Solace',file:'solace.png'},
     {name:'Seaport',file:'seaport.png'}
   ];
-  // Owner-approved first forty wanderer portraits.
+  // Owner-approved first fifty wanderer portraits.
   const PORTRAITS = [
     {name:'Tess',file:'tess.png'},
     {name:'Patch',file:'patch.png'},
@@ -53,7 +53,17 @@
     {name:'Dorian Hale',file:'dorian_hale.png'},
     {name:'Petra Sol',file:'petra_sol.png'},
     {name:'Soren Beck',file:'soren_beck.png'},
-    {name:'Leda Marsh',file:'leda_marsh.png'}
+    {name:'Leda Marsh',file:'leda_marsh.png'},
+    {name:'Ansel Crow',file:'ansel_crow.png'},
+    {name:'Freya Dunn',file:'freya_dunn.png'},
+    {name:'Otis Weller',file:'otis_weller.png'},
+    {name:'Veda Knox',file:'veda_knox.png'},
+    {name:'Silvie Hart',file:'silvie_hart.png'},
+    {name:'Tobin Flint',file:'tobin_flint.png'},
+    {name:'Elara Moss',file:'elara_moss.png'},
+    {name:'Hector Vale',file:'hector_vale.png'},
+    {name:'Nadia Rill',file:'nadia_rill.png'},
+    {name:'Rhea Tarrant',file:'rhea_tarrant.png'}
   ];
   const playtestRoot = new URL('../playtest/', document.baseURI);
   const devtestRoot = new URL('../devtest/', document.baseURI);
@@ -131,7 +141,7 @@
     const road=scene('ROAD ENCOUNTER — full transparent figure');
     const town=scene('TOWN ENCOUNTER — small bottom-right portrait');
     dialog.appendChild(grid);
-    dialog.appendChild(el('p','dw-note','Preview only: browse the forty approved wanderer portraits over existing regional and town backgrounds. No encounters, turns, recruitment, saves, or gameplay state are changed.'));
+    dialog.appendChild(el('p','dw-note','Preview only: browse the fifty approved wanderer portraits over existing regional and town backgrounds. No encounters, turns, recruitment, saves, or gameplay state are changed.'));
 
     function expandPortrait(w){
       const expanded=el('dialog','dw-expanded');

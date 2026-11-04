@@ -156,4 +156,17 @@ handleCombat=function(...args){
  }
  return result;
 };
+// The inherited R11 crafting screen uses its own stage rather than mercy.
+// Keep its actual recipe/timer/transaction logic, but retain location artwork.
+if(typeof GraphicalUI!=='undefined'){
+ const priorCraftContext=GraphicalUI.context;
+ GraphicalUI.context=function(...args){
+  if(stage==='r11Craft'){
+   if(player.flags.r11Bench==='murphy')return 'solace-murphy';
+   if(player.flags.r11Bench==='forge')return 'factory';
+   if(player.flags.r11Bench==='seaport')return 'seaport';
+  }
+  return priorCraftContext.apply(this,args);
+ };
+}
 })();

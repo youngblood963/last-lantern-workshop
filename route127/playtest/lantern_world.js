@@ -1,4 +1,4 @@
-/* Lantern Highway development branch. Graph state lives in existing character flags.
+/* Route 127 development branch. Graph state lives in existing character flags.
  * No account/backend schema changes; legacy travel fields are projections only. */
 const LG_NODES=Object.fromEntries(LANTERN_WORLD_GRAPH.nodes.map(n=>[n.id,n]));
 const LG_EDGES=Object.fromEntries([...(LANTERN_WORLD_GRAPH.legacyEdges||[]),...LANTERN_WORLD_GRAPH.edges].map(e=>[e.id,e]));

@@ -1,7 +1,7 @@
 {
   "environment": "DEVTEST",
   "source": "route127/playtest/index.html",
-  "sourceSHA256": "ea626be3ad97b9c816c9ed3bb5f6a740e3d4b7a90b2eab08f7d66dc5cfa4c959",
+  "sourceSHA256": "5d9c8794b3e35cd1b604112b4295ff97040cbe80cc354bd8eb5c60cf7e57bcdd",
   "base": "../playtest/",
   "scripts": [
     "scenario_registry.js?v=wo18",
@@ -52,7 +52,23 @@
     "slots_animated_reels.js?v=slots-animated-1",
     "rats_animated_race.js?v=rats-race-2",
     "rat_racing_bet_names.js?v=rat-names-1",
-    "rusty_lantern_bar_graphics.js?v=bar-art-3"
+    "rusty_lantern_bar_graphics.js?v=bar-art-3",
+    "wanderer_live.js?v=portraits50",
+    "legacy_wanderer_profiles.js?v=1",
+    "wanderer_level_stars.js?v=1",
+    "runtime/wanderer_visual_bios.js?v=wo27",
+    "runtime/wanderer_info_panel.js?v=wo27",
+    "runtime/companion_repair.js?v=wo27",
+    "runtime/tim_badge_turnin.js?v=wo27",
+    "runtime/murphy_level_gate.js?v=wo27",
+    "runtime/courier_handoff_rewards.js?v=wo27",
+    "runtime/quest_item_tabs.js?v=wo27",
+    "runtime/journal_cleanup.js?v=wo27",
+    "runtime/solace_hub.js?v=wo27",
+    "runtime/navigation_batch_20261103.js?v=wo27",
+    "runtime/jen_work_menu.js?v=wo27",
+    "runtime/solace_interiors_batch.js?v=wo27",
+    "runtime/save_recovery.js?v=wo27"
   ],
   "policy": "Normal gameplay; no backend; no QA activation; private write namespace; existing local data read-only until saved as Devtest fork."
 }

@@ -152,8 +152,8 @@
       label.textContent = shortName(encounterInfo.name);
       frame.title='Open '+encounterInfo.name+' portrait';frame.tabIndex=0;
       frame.setAttribute('role','button');frame.setAttribute('aria-label','Open full portrait of '+encounterInfo.name);
-      frame.addEventListener('click',()=>expandPortrait(encounterInfo.name,file));
-      frame.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();expandPortrait(encounterInfo.name,file);}});
+      frame.addEventListener('click',()=>{if(globalThis.Route127WandererInfo)globalThis.Route127WandererInfo.open(encounterInfo.name,new URL(file,root).href);else expandPortrait(encounterInfo.name,file);});
+      frame.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();if(globalThis.Route127WandererInfo)globalThis.Route127WandererInfo.open(encounterInfo.name,new URL(file,root).href);else expandPortrait(encounterInfo.name,file);}});
       frame.append(img,label);
       figure.appendChild(frame);
     }

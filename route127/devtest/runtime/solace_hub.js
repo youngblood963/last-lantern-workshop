@@ -18,14 +18,14 @@ const present=()=>typeof wanderers!=='undefined'&&typeof wandererLocations!=='un
    (typeof wandererAlive!=='function'||wandererAlive(w))&&
    !(typeof portIsHired==='function'&&portIsHired(w.name)))
  :[];
-const canHub=()=>stage==='mercy'&&mercyLocation==='town'&&VIEWS.has(player.flags.solaceMenu);
+// The legacy town encounter exposes ONE wanderer, even if several NPCs are assigned to Solace.\nlet visibleWanderer=null;\nconst featured=()=>{const people=present();if(!people.length){visibleWanderer=null;return null;}if(visibleWanderer&&people.some(w=>w.name===visibleWanderer))return people.find(w=>w.name===visibleWanderer);visibleWanderer=people[Math.floor(Math.random()*people.length)].name;return people.find(w=>w.name===visibleWanderer);};\nconst canHub=()=>stage==='mercy'&&mercyLocation==='town'&&VIEWS.has(player.flags.solaceMenu);
 function hub(){
  player.flags.solaceMenu='town';mercyLocation='town';townWandererFocus=null;
  const g=typeof lanternMigrate==='function'?lanternMigrate():null;
  if(g?.nodeId==='solace'){g.solaceAdmitted=true;g.lastSettlement='solace';}
  add('SOLACE — MAIN STREET','place');
  v53Choices(['SHOPS',...(player.flags.relayUnlocked?['RELAY STATION']:[]),
-   'FIND TIM','GATES',...present().map(w=>'TALK TO '+w.name.toUpperCase()),'BULLETIN BOARD',
+   'FIND TIM','GATES',...(featured()?['TALK TO '+featured().name.toUpperCase()]:[]),'BULLETIN BOARD',
    ...(player.flags.r18Courier?.phase==='service'?['POST OFFICE']:[])]);
 }
 function submenu(which){

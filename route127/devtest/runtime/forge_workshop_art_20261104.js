@@ -20,7 +20,7 @@
   if(model.location==='boulder-junction-art'){
    const cleared=!!player?.flags?.portRoadCleared;
    model.title=cleared?'Boulder Junction — Road Cleared':'Boulder Junction — Road Blocked';
-   model.art='../devtest/assets/locations/seaport_boulder_'+(cleared?'cleared':'blocked')+'.png';
+   model.art='../devtest/assets/locations/seaport_boulder_'+(cleared?'cleared':'blocked')+'.png?v=wo34-art-refresh';
   }
   // Seaport occupation ends only after the prisoners are freed, not merely when the fighters fall.
   const g=typeof lanternState==='function'?lanternState():null;
@@ -75,6 +75,12 @@
   if(currentStage==='port55Vendor'&&!!player.flags?.seaport55?.freed){
    model.art='../devtest/assets/locations/seaport_nessa_pet_shop.png';
    model.title="Nessa's Pet Shop";
+  }
+  // Mia's tavern is an interior: use its dedicated scene, not the generic Seaport image.
+  // The casino submenu is hosted under the legacy 'mercy' stage.
+  if(currentStage==='port55Mia'||(currentStage==='mercy'&&player.flags?.port55Casino)){
+   model.art='../devtest/assets/locations/rusty_anchor.png?v=wo34-art-refresh';
+   model.title='The Rusty Anchor';
   }
   // Kaiden's approved dialogue portrait appears only during his post-liberation conversation.
   // Patrol routing and dialogue stay in the original game code.

@@ -291,4 +291,39 @@ port55StopMenu=function(...a){
  ];
  port55Submenu('Town Streets',options);
 };
+
+// The patrol includes Docks, but the dedicated Harbor Docks menu did
+// not include Kaiden at all. Route through the existing Kaiden dialogue,
+// preserving its current patrol-location validation.
+const priorPortDocks=port55Command;
+function docksMenu(){
+ if(typeof port55PatrolTick==='function')port55PatrolTick();
+ const present=player.flags?.seaport55?.freed&&port55PatrolName()==='Docks';
+ port55Submenu('Harbor Docks',[
+  ...(!player.flags?.seaport55?.freed?['FREE RESIDENTS']:[]),
+  ...(present?['TALK KAIDEN']:[]),
+  'RETURN TO HARBOR'
+ ]);
+}
+port55Command=function(value){
+ const cmd=String(value||'').trim().toLowerCase();
+ if(stage==='port55Docks'&&cmd==='talk kaiden'){
+  if(port55PatrolName()==='Docks'){
+   player.flags.port55CurrentStop='Docks';
+   stage='port55Kaiden';
+   port55Submenu('Kaiden — Harbor Docks',['SMALL TALK','RETURN TO HARBOR']);
+  }else docksMenu();
+  return true;
+ }
+ const before=stage;
+ const result=priorPortDocks.apply(this,arguments);
+ if(stage==='port55Docks'&&before!==stage)docksMenu();
+ if(before==='seaport'&&stage==='port55Docks')docksMenu();
+ return result;
+};
+const priorDocksResume=port55Resume;
+port55Resume=function(...a){
+ if(stage==='port55Docks')return docksMenu();
+ return priorDocksResume.apply(this,a);
+};
 })();

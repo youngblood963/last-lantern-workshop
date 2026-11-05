@@ -198,16 +198,8 @@
     if(!encounter()||typeof RouteIdentity==='undefined')return rows;
     return rows.map(row=>({...row,label:RouteIdentity.display(row.label)}));
   };
-  const nameStyle=document.createElement('style');
-  nameStyle.id='r127-wanderer-name-heading';
-  nameStyle.textContent=`
-    body.full-graphics:has(.r127-live-wanderer-road) .gfx-current-location,
-    body.full-graphics:has(.r127-live-wanderer-road) .gfx-art-caption,
-    body.full-graphics:has(.r127-live-wanderer-town) .gfx-current-location,
-    body.full-graphics:has(.r127-live-wanderer-town) .gfx-art-caption
-    {color:#65c77b!important}
-  `;
-  document.head.appendChild(nameStyle);
+  // Keep location plates in their standard color even when a wanderer
+  // portrait is present. The portrait's own name badge stays green.
 
   const original = GraphicalUI.sync;
   GraphicalUI.sync = function(...args) {

@@ -114,7 +114,11 @@
         player.flags?.seaport55?.freed){
       const guests=wanderers.filter(w=>wandererLocations[w.name]==='seaport'&&
         wandererAlive(w)&&!portIsHired(w.name));
-      const name=stage==='port55Guest'?player.flags?.port55VisitingName:guests[0]?.name;
+      // Portrait and interaction menu share WO29's one incidental visitor.
+       // Do not display a stale/hired portrait when the frequency roll is empty.
+       const density=globalThis.Route127WandererDensity;
+       const name=stage==='port55Guest'?player.flags?.port55VisitingName:
+        density?density.seaportName():guests[0]?.name;
       if(name&&guests.some(w=>w.name===name))return {name,kind:'town'};
     }
     return null;

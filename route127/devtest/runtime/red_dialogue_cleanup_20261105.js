@@ -114,7 +114,7 @@
   const model=priorModel.apply(this,args);
   if(stage==='r18Red'){
    model.title='The Rusty Anchor — Red';
-   model.art='../devtest/assets/locations/rusty_anchor.png?v=wo34-art-refresh';
+   model.art='../devtest/assets/locations/rusty_anchor_red.png?v=wo44-red-portrait';
   }
   return model;
  };

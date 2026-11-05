@@ -64,6 +64,84 @@ body.full-graphics .gfx-frame .gfx-art > img.gfx-image:is(
  max-height:100%!important;
 }
 
+/* WO38 — Apply the successful DEVTEST cinematic edge-fill to Solace interiors.
+ * These approved images live in PLAYTEST assets, shared by DEVTEST's <base>.
+ * Keep foreground art uncropped and use the same subtle dark edge treatment.
+ * Rusty Lantern is already handled by its existing dedicated presentation.
+ */
+body.full-graphics .gfx-frame .gfx-art:has(> img.gfx-image[src*="solace_amii_bank.png"]){
+ background-image:linear-gradient(90deg,rgba(9,7,6,.85),rgba(9,7,6,.67) 28%,rgba(9,7,6,.67) 72%,rgba(9,7,6,.85)),url('../../playtest/assets/locations/solace_amii_bank.png')!important;
+ background-size:cover!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+}
+body.full-graphics .gfx-frame .gfx-art:has(> img.gfx-image[src*="solace_johnny_shop.png"]){
+ background-image:linear-gradient(90deg,rgba(9,7,6,.85),rgba(9,7,6,.67) 28%,rgba(9,7,6,.67) 72%,rgba(9,7,6,.85)),url('../../playtest/assets/locations/solace_johnny_shop.png')!important;
+ background-size:cover!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+}
+body.full-graphics .gfx-frame .gfx-art:has(> img.gfx-image[src*="solace_mara_armory.png"]){
+ background-image:linear-gradient(90deg,rgba(9,7,6,.85),rgba(9,7,6,.67) 28%,rgba(9,7,6,.67) 72%,rgba(9,7,6,.85)),url('../../playtest/assets/locations/solace_mara_armory.png')!important;
+ background-size:cover!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+}
+body.full-graphics .gfx-frame .gfx-art:has(> img.gfx-image[src*="solace_murphy_garage.png"]){
+ background-image:linear-gradient(90deg,rgba(9,7,6,.85),rgba(9,7,6,.67) 28%,rgba(9,7,6,.67) 72%,rgba(9,7,6,.85)),url('../../playtest/assets/locations/solace_murphy_garage.png')!important;
+ background-size:cover!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+}
+body.full-graphics .gfx-frame .gfx-art:has(> img.gfx-image[src*="solace_relay_station.png"]){
+ background-image:linear-gradient(90deg,rgba(9,7,6,.85),rgba(9,7,6,.67) 28%,rgba(9,7,6,.67) 72%,rgba(9,7,6,.85)),url('../../playtest/assets/locations/solace_relay_station.png')!important;
+ background-size:cover!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+}
+body.full-graphics .gfx-frame .gfx-art:has(> img.gfx-image[src*="solace_tim.png"]){
+ background-image:linear-gradient(90deg,rgba(9,7,6,.85),rgba(9,7,6,.67) 28%,rgba(9,7,6,.67) 72%,rgba(9,7,6,.85)),url('../../playtest/assets/locations/solace_tim.png')!important;
+ background-size:cover!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+}
+body.full-graphics .gfx-frame .gfx-art:has(> img.gfx-image[src*="solace_town_gate.png"]){
+ background-image:linear-gradient(90deg,rgba(9,7,6,.85),rgba(9,7,6,.67) 28%,rgba(9,7,6,.67) 72%,rgba(9,7,6,.85)),url('../../playtest/assets/locations/solace_town_gate.png')!important;
+ background-size:cover!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+}
+body.full-graphics .gfx-frame .gfx-art:has(> img.gfx-image[src*="solace_wayne_clinic.png"]){
+ background-image:linear-gradient(90deg,rgba(9,7,6,.85),rgba(9,7,6,.67) 28%,rgba(9,7,6,.67) 72%,rgba(9,7,6,.85)),url('../../playtest/assets/locations/solace_wayne_clinic.png')!important;
+ background-size:cover!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+}
+body.full-graphics .gfx-frame .gfx-art:has(> img.gfx-image[src*="abandoned_house_interior.png"]){
+ background-image:linear-gradient(90deg,rgba(9,7,6,.85),rgba(9,7,6,.67) 28%,rgba(9,7,6,.67) 72%,rgba(9,7,6,.85)),url('../../playtest/assets/locations/abandoned_house_interior.png')!important;
+ background-size:cover!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+}
+body.full-graphics .gfx-frame .gfx-art > img.gfx-image:is(
+ [src*="solace_amii_bank.png"],
+ [src*="solace_johnny_shop.png"],
+ [src*="solace_mara_armory.png"],
+ [src*="solace_murphy_garage.png"],
+ [src*="solace_relay_station.png"],
+ [src*="solace_tim.png"],
+ [src*="solace_town_gate.png"],
+ [src*="solace_wayne_clinic.png"],
+ [src*="abandoned_house_interior.png"]
+){
+ object-fit:contain!important;
+ object-position:center!important;
+ background:transparent!important;
+ width:100%!important;
+ height:100%!important;
+ max-height:100%!important;
+}
+
 /* DEVTEST: neutral menu buttons; first item is not a selected action.
    Preserve orange for keyboard numbers, focus and hover only. */
 body.full-graphics .gfx-frame .gfx-choice:first-child .gfx-choice-label{

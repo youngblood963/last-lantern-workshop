@@ -45,6 +45,16 @@
     model.title='Seaport';
    }
   }
+  // Staffed businesses: replace individual venue art as each approved background arrives.
+  // Until then, keep the existing town scene rather than show a broken image.
+  if(currentStage==='port55Service'&&!!player.flags?.seaport55?.freed){
+   const role=player.flags?.portStaffUI?.role;
+   const names={'clinic':'Clinic','general store':'General Store','workshop':'Workshop','bank':'Bank'};
+   if(names[role]){
+    model.title='Seaport — '+names[role];
+    // Shop image mapping will be enabled when the actual approved PNGs are uploaded.
+   }
+  }
   // Nessa's waterside pet shop is a dedicated scene, independent of Seaport's other venues.
   if(currentStage==='port55Vendor'&&!!player.flags?.seaport55?.freed){
    model.art='../devtest/assets/locations/seaport_nessa_pet_shop.png';
@@ -184,4 +194,56 @@
   }
   return priorCommand.apply(this,arguments);
  };
+})();
+
+/* DEVTEST: visually composite the assigned wanderer into the open-floor Seaport
+ * businesses. Read existing staffing assignments; no game or save mutations.
+ * Uses exactly the same portrait files as live roadside wanderer encounters. */
+(function(){
+ 'use strict';
+ if(!location.pathname.includes('/route127/devtest/')||typeof GraphicalUI==='undefined')return;
+ const roles=new Set(['clinic','general store','workshop','bank']);
+ const root=new URL('../devtest/assets/wanderers/',location.href);
+ const style=document.createElement('style');
+ style.id='r127-devtest-staffed-shop-composition';
+ style.textContent=`
+  body.full-graphics .gfx-art{position:relative;isolation:isolate}
+  .r127-shop-worker{
+   position:absolute;bottom:0;right:40%;height:87%;width:auto;
+   max-width:62%;object-fit:contain;object-position:bottom center;
+   z-index:3;pointer-events:none;
+   filter:drop-shadow(3px 8px 6px #0009)
+  }
+  @media(max-width:640px){.r127-shop-worker{height:80%;right:36%;max-width:62%}}
+ `;
+ document.head.appendChild(style);
+ let lastKey='';
+ function syncStaff(){
+  const figure=GraphicalUI.element?.figure;
+  if(!figure)return;
+  const ui=player?.flags?.portStaffUI;
+  const role=stage==='port55Service'?ui?.role:null;
+  const active=GraphicalUI.active()&&!figure.hidden&&roles.has(role)&&player.flags?.seaport55?.freed;
+  const name=active?player.flags?.seaportStaff?.assignments?.[role]:null;
+  const file=name&&globalThis.Route127WandererPortraitFiles?.[name];
+  const key=file?role+':'+name+':'+file:'';
+  const existing=figure.querySelector('.r127-shop-worker');
+  if(key===lastKey&&existing)return;
+  existing?.remove();lastKey='';
+  if(!file)return; // Unstaffed shop stays empty; unknown portrait remains safely hidden.
+  const img=document.createElement('img');
+  img.className='r127-shop-worker';img.alt=name+' — assigned shopkeeper';
+  img.decoding='async';img.draggable=false;
+  img.addEventListener('error',()=>{if(img.isConnected){img.remove();lastKey='';}});
+  img.src=new URL(file,root).href;
+  figure.appendChild(img);
+  lastKey=key;
+ }
+ const previousSync=GraphicalUI.sync;
+ GraphicalUI.sync=function(...args){
+  const result=previousSync.apply(this,args);
+  if(!this.rendering)syncStaff();
+  return result;
+ };
+ addEventListener('DOMContentLoaded',()=>GraphicalUI.sync(),{once:true});
 })();

@@ -265,16 +265,53 @@
  'use strict';
  if(!location.pathname.includes('/route127/devtest/')||typeof PORT_STAFF_ROLES==='undefined')return;
  PORT_STAFF_ROLES.armory={name:'Armory',job:'Armorer',skill:'trading'};
+ // Market Area is the Armory's only entrance. The existing main Seaport
+ // menu builds its options from PORT_STAFF_ROLES, so hide the Armory only
+ // during that one synchronous render (keep it registered for all staffing).
  const previousMenu=port55Menu;
  port55Menu=function(...args){
-  const out=previousMenu.apply(this,args);
-  if(player.flags?.seaport55?.freed){
-   const assigned=player.flags?.seaportStaff?.assignments?.armory;
-   if(typeof lanternAppendChoices==='function')
-    lanternAppendChoices(['ARMORY — '+(assigned?assigned.toUpperCase():'NEED TO HIRE')]);
+  const armory=PORT_STAFF_ROLES.armory;
+  try{
+   delete PORT_STAFF_ROLES.armory;
+   return previousMenu.apply(this,args);
+  }finally{
+   PORT_STAFF_ROLES.armory=armory;
   }
-  return out;
  };
+ // Use the existing market stop stage as the parent of staffed storefronts.
+ // Never add a second Return to Seaport option beside Back.
+ const previousStopMenu=port55StopMenu;
+ port55StopMenu=function(...args){
+  if(player.flags?.port55CurrentStop!=='Market Area')
+   return previousStopMenu.apply(this,args);
+  const shops=Object.entries(PORT_STAFF_ROLES).map(([role,def])=>
+   def.name.toUpperCase()+' — '+
+   (portStaffState().assignments[role]||'NEED TO HIRE').toUpperCase());
+  const patrolHere=player.flags?.seaport55?.freed&&
+   typeof port55PatrolName==='function'&&port55PatrolName()==='Market Area';
+  port55Submenu('Market Area',[
+   ...shops,...(patrolHere?['TALK KAIDEN']:[]),'BACK'
+  ]);
+ };
+ const previousPortCommand=port55Command;
+ port55Command=function(cmd){
+  if(stage==='port55Stop'&&player.flags?.port55CurrentStop==='Market Area'){
+   if(['back','b','return','exit','return to harbor','return to seaport'].includes(cmd)){
+    stage='seaport';port55Menu();return true;
+   }
+   const role=Object.keys(PORT_STAFF_ROLES).find(k=>
+    cmd===k||cmd.startsWith(k+' —'));
+   if(role){portStaffOpen(role);return true;}
+  }
+  return previousPortCommand.apply(this,arguments);
+ };
+ function returnToMarket(){
+  delete player.flags.portStaffUI;
+  player.flags.port55CurrentStop='Market Area';
+  stage='port55Stop';
+  port55StopMenu();
+  return true;
+ }
  // Armory receives the existing Seaport weapons/armor stock, now sold by
  // the trader assigned to the Armory rather than General Store.
  const basePrice=regionalEquipmentPrice;
@@ -289,8 +326,12 @@
  portStaffChoices=function(title,choices){
   // Equipment is exclusively at the Armory; keep all the General Store's
   // other services and trade bonuses untouched.
-  if(stage==='port55Service'&&player.flags?.portStaffUI?.role==='general store'&&title==='SERVICES')
-   choices=choices.filter(x=>x!=='BUY EQUIPMENT');
+  if(stage==='port55Service'){
+   if(player.flags?.portStaffUI?.role==='general store'&&title==='SERVICES')
+    choices=choices.filter(x=>x!=='BUY EQUIPMENT');
+   // All storefronts exit to their immediate parent, Market Area.
+   choices=choices.map(x=>x==='RETURN TO HARBOR'?'BACK TO MARKET':x);
+  }
   return previousChoices.call(this,title,choices);
  };
  const previousRender=portStaffRender;
@@ -331,6 +372,8 @@
  portStaffServiceCommand=function(cmd){
   const ui=player.flags?.portStaffUI,role=ui?.role;
   if(stage!=='port55Service')return previousService.apply(this,arguments);
+  if(['back to market','return to harbor','return to seaport','exit'].includes(cmd)||
+     (['back','b'].includes(cmd)&&ui?.page==='main'))return returnToMarket();
   if(role==='general store'&&cmd==='buy equipment'){
    add('Weapons and armor are sold at the Seaport Armory.','system');
    portStaffRender();return true;

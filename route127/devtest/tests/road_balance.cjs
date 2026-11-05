@@ -1,12 +1,9 @@
 // Headless integration audit: load every shipped script in index.html order.
-const fs=require('fs'),vm=require('vm'),assert=require('assert');
+const fs=require('fs'),assert=require('assert');
 const path=require('path');process.chdir(path.join(__dirname,'..'));
-const el=()=>({classList:{add(){},remove(){},toggle(){},contains(){return false}},style:{},dataset:{},childNodes:[{}],children:[],appendChild(){},append(){},remove(){},addEventListener(){},setAttribute(){},getAttribute(){return null},querySelector(){return el()},querySelectorAll(){return []},focus(){},scrollIntoView(){},innerHTML:'',textContent:'',value:''});
-const document={querySelector:()=>el(),querySelectorAll:()=>[],getElementById:()=>el(),createElement:()=>el(),addEventListener(){},body:el(),documentElement:el(),hidden:false};
-const ctx=vm.createContext({document,console,Math:Object.create(Math),Date,Set,Map,JSON,Promise,URLSearchParams,location:{search:'',href:'http://localhost/index.html'},localStorage:{getItem(){return null},setItem(){},removeItem(){}},setTimeout(){},clearTimeout(){},setInterval(){},clearInterval(){},performance:{now:()=>0},requestAnimationFrame(){},window:{addEventListener(){},matchMedia:()=>({matches:false})},navigator:{},confirm:()=>true});
-const run=s=>vm.runInContext(s,ctx);
-for(const [,file] of fs.readFileSync('index.html','utf8').matchAll(/<script src="([^?]+)\?/g)){try{run(fs.readFileSync(file,'utf8'))}catch(e){throw new Error(file+': '+e.stack)}}
-run(`r11SteveRoll=()=>false;let qaLog=[];add=(s)=>qaLog.push(String(s));addImmediate=()=>{};updateHud=()=>{};r5Scene=()=>{};r5DirectChoices=()=>{};v49Autosave=()=>{};updateNewQuestRoadProgress=()=>{};showSteveAnnouncement=()=>{};questRoadEvent=()=>false;isDark=()=>false;timePhase=()=> 'DAY';renderRoadMarkerActions=()=>[];testMode=false;player.flags.portRoadCleared=true;player.turns=1000000;portArrive=()=>{portState().position=5;stage='seaport';};arriveSettlement=()=>{stage='settlement';};arriveHouse=()=>{stage='house';};mercyMenu=()=>{stage='mercy';};player.flags.seaportRoute={position:0,cleared:{2:true,4:true},seen:{},arrived:true};let seed=127;const seeded=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};Math.random=seeded;`);
+const {run}=require('./helpers/devtest.cjs')();
+// r11SteveRoll is now a const registry export; do not overwrite runtime bindings.
+run(`let qaLog=[];add=(s)=>qaLog.push(String(s));addImmediate=()=>{};updateHud=()=>{};r5Scene=()=>{};r5DirectChoices=()=>{};v49Autosave=()=>{};updateNewQuestRoadProgress=()=>{};showSteveAnnouncement=()=>{};questRoadEvent=()=>false;isDark=()=>false;timePhase=()=> 'DAY';renderRoadMarkerActions=()=>[];testMode=false;player.flags.portRoadCleared=true;player.turns=1000000;portArrive=()=>{portState().position=5;stage='seaport';};arriveSettlement=()=>{stage='settlement';};arriveHouse=()=>{stage='house';};mercyMenu=()=>{stage='mercy';};player.flags.seaportRoute={position:0,cleared:{2:true,4:true},seen:{},arrived:true};let seed=127;const seeded=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};Math.random=seeded;`);
 const stats={};
 function settle(){
  const kind=run('player.flags.r10LastRoadCategory');

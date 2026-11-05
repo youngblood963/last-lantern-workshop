@@ -173,6 +173,38 @@
     shownKey = key;
   }
 
+  // The portrait plate was updated earlier, but the main graphical encounter
+  // heading and command captions still came from short gameplay identity keys.
+  // Present the canonical full name there too, without touching save keys.
+  const oldModel=GraphicalUI.model;
+  GraphicalUI.model=function(...args){
+    const model=oldModel.apply(this,args);
+    const active=encounter();
+    const full=active&&(typeof RouteIdentity!=='undefined'
+      ?RouteIdentity.wanderer?.[active.name]:null);
+    if(full){
+      model.title=full+' — WANDERER';
+      model.wandererHeading=true;
+    }
+    return model;
+  };
+  const oldChoices=GraphicalUI.choices;
+  GraphicalUI.choices=function(...args){
+    const rows=oldChoices.apply(this,args);
+    if(!encounter()||typeof RouteIdentity==='undefined')return rows;
+    return rows.map(row=>({...row,label:RouteIdentity.display(row.label)}));
+  };
+  const nameStyle=document.createElement('style');
+  nameStyle.id='r127-wanderer-name-heading';
+  nameStyle.textContent=`
+    body.full-graphics:has(.r127-live-wanderer-road) .gfx-current-location,
+    body.full-graphics:has(.r127-live-wanderer-road) .gfx-art-caption,
+    body.full-graphics:has(.r127-live-wanderer-town) .gfx-current-location,
+    body.full-graphics:has(.r127-live-wanderer-town) .gfx-art-caption
+    {color:#65c77b!important}
+  `;
+  document.head.appendChild(nameStyle);
+
   const original = GraphicalUI.sync;
   GraphicalUI.sync = function(...args) {
     const result = original.apply(this,args);

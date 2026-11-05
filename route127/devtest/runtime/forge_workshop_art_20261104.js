@@ -49,7 +49,7 @@
   // Until then, keep the existing town scene rather than show a broken image.
   if(currentStage==='port55Service'&&!!player.flags?.seaport55?.freed){
    const role=player.flags?.portStaffUI?.role;
-   const names={'clinic':'Clinic','general store':'General Store','workshop':'Workshop','bank':'Bank'};
+   const names={'clinic':'Clinic','general store':'General Store','workshop':'Workshop','bank':'Bank','armory':'Armory'};
    if(names[role]){
     model.title='Seaport — '+names[role];
     // Shop image mapping will be enabled when the actual approved PNGs are uploaded.
@@ -202,7 +202,7 @@
 (function(){
  'use strict';
  if(!location.pathname.includes('/route127/devtest/')||typeof GraphicalUI==='undefined')return;
- const roles=new Set(['clinic','general store','workshop','bank']);
+ const roles=new Set(['clinic','general store','workshop','bank','armory']);
  const root=new URL('../devtest/assets/wanderers/',location.href);
  const style=document.createElement('style');
  style.id='r127-devtest-staffed-shop-composition';

@@ -188,10 +188,10 @@
  const baseCore=handleCommandCore;
  handleCommandCore=async function(raw){
   const value=String(raw||'').trim();
-  const mapped=/^\\d+$/.test(value)?numberedChoices[value]:null;
+  const mapped=/^\d+$/.test(value)?numberedChoices[value]:null;
   const cmd=String(mapped||value).trim().toLowerCase();
   if(!busy&&liberated()&&stage==='port55Kaiden'&&
-    !/^(?:save|load|inventory|status|quests|map|testing|test off)(?:\\s|$)/i.test(cmd)){
+    !/^(?:save|load|inventory|status|quests|map|testing|test off)(?:\s|$)/i.test(cmd)){
    return port55Command(cmd);
   }
   // The first click entering Kaiden may still route through r11's legacy

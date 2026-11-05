@@ -6,7 +6,7 @@ const ROUTE127_ASSET_BASE=typeof document.currentScript?.src==='string'&&documen
 const ROUTE127_ART={
  'northern-ridge':{file:'grand_city_preview.png',title:'Grand City — Northern Ridge preview'},
  'solace':{file:'solace.png',title:'Solace'},'seaport':{file:'seaport.png',title:'Seaport'},
- 'factory':{file:'factory.png',title:'Factory'},'scrap-yard':{file:'scrapyard_dark.png',title:'Scrap Yard'},
+ 'factory-workshop':{file:'forge_workshop.png',title:"Forge's Workshop"},'factory':{file:'factory.png',title:'Factory'},'scrap-yard':{file:'scrapyard_dark.png',title:'Scrap Yard'},
  'ash-cemetery':{file:'riverdale_cemetery.png',title:'Ash Cemetery'},'station-nine':{file:'station_nine.png',title:'Station Nine'},
  'abandoned-motel':{file:'abandoned_motel.png',title:'Abandoned Motel'},'scavenger-camp':{file:'scavenger_camp.png',title:'Scavenger Camp'},
  'watchtower-ruins':{file:'watchtower_ruins.png',title:'Watchtower Ruins'},'fresh-mart':{file:'fresh_mart.png',title:'Fresh Mart'},
@@ -27,7 +27,8 @@ const GraphicalUI={
   if(place==='wo6FreshMart')return 'fresh-mart';if(place==='wo4Hospital'||c?.source==='wo4HospitalEntrance')return 'st-mercy-hospital';
   if(place==='mercy'||place==='settlement'||c?.source==='gateGuards'||c?.source==='jenBoss')return 'solace';
   if(/^port|^seaport/.test(place)||/^seaport/.test(c?.source||''))return 'seaport';
-  if(/^factory/.test(place)||c?.source==='factoryFight')return 'factory';
+  if(['factoryWorkshop','factoryTerminal','factoryForge','factoryBench'].includes(place))return 'factory-workshop';
+   if(/^factory/.test(place)||c?.source==='factoryFight')return 'factory';
   if(place==='serviceRoad'&&serviceRoadDepth>=3||c?.source==='serviceBoss')return 'scrap-yard';
   if(g?.currentEdgeId)return null;
   return ROUTE127_ART[g?.nodeId]?g.nodeId:null;

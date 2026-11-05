@@ -570,3 +570,139 @@
   };
  }
 })();
+
+/* DEVTEST liberated Seaport visiting wanderers.
+ * Global wanderers can drift into Seaport after liberation, even if they are
+ * not hired. Town Streets hosts the visitor; existing road roster and save
+ * locations remain authoritative. No duplicate wanderers or new save fields. */
+(function(){
+ 'use strict';
+ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
+ const liberated=()=>player.flags?.seaport55?.freed===true;
+ const eligible=w=>w&&!portIsHired(w.name)&&wandererAlive(w);
+ function enable(){
+  if(liberated()&&!wandererSpots.includes('seaport'))wandererSpots.push('seaport');
+ }
+ function visitors(){
+  if(!liberated())return [];
+  return wanderers.filter(w=>eligible(w)&&wandererLocations[w.name]==='seaport');
+ }
+ function visitor(){return visitors()[0]||null;}
+ function initialVisitor(){
+  if(!liberated()||visitors().length)return;
+  // Select one living, unhired traveler without relocating a saved encounter.
+  const pool=wanderers.filter(w=>eligible(w)&&
+   ![currentRoadWanderer,currentTownWanderer].includes(w.name));
+  if(pool.length){
+   const w=pool[Math.floor(Math.random()*pool.length)];
+   wandererLocations[w.name]='seaport';
+  }
+ }
+ const origMove=moveWanderers;
+ moveWanderers=function(...args){enable();return origMove.apply(this,args);};
+ const origFree=port55Free;
+ port55Free=function(...args){
+  const result=origFree.apply(this,args);
+  if(liberated()){enable();initialVisitor();}
+  return result;
+ };
+ const origArrive=portArrive;
+ portArrive=function(...args){
+  enable(); // Do not reset an existing visitor on returning to town.
+  if(liberated())initialVisitor();
+  return origArrive.apply(this,args);
+ };
+ const origMenu=port55Menu;
+ port55Menu=function(...args){
+  enable();
+  const result=origMenu.apply(this,args);
+  if(liberated()&&visitor())
+   add('A traveler has been seen in the Town Streets.','system');
+  return result;
+ };
+ const origStopMenu=port55StopMenu;
+ port55StopMenu=function(...args){
+  if(stage==='port55Stop'&&player.flags?.port55CurrentStop==='Town Streets'&&liberated()){
+   const person=visitor();
+   const patrol=port55PatrolName()==='Town Streets';
+   const options=[
+    ...(person?['TALK TO WANDERER — '+person.name.toUpperCase()]:[]),
+    ...(patrol?['TALK KAIDEN']:[]),'RETURN TO HARBOR'];
+   port55Submenu('Town Streets',options);
+   if(person)add((typeof RouteIdentity!=='undefined'?RouteIdentity.wanderer?.[person.name]:null)||person.name+
+    ' is visiting the fish market.','bright');
+   return;
+  }
+  return origStopMenu.apply(this,args);
+ };
+ function guestMenu(){
+  const name=player.flags?.port55VisitingName,w=name&&wandererByName(name);
+  if(!liberated()||!eligible(w)||wandererLocations[w.name]!=='seaport'){
+   delete player.flags.port55VisitingName;
+   stage='port55Stop';player.flags.port55CurrentStop='Town Streets';
+   return port55StopMenu();
+  }
+  currentTownWanderer=w.name;townWandererFocus=w.name;
+  port55Submenu('Visiting Wanderer — '+((typeof RouteIdentity!=='undefined'?
+    RouteIdentity.wanderer?.[w.name]:null)||w.name),
+    ['SMALL TALK','INSPECT WANDERER','RECRUIT','BACK TO TOWN STREETS']);
+ }
+ const origCommand=port55Command;
+ port55Command=function(cmd){
+  if(stage==='port55Stop'&&player.flags?.port55CurrentStop==='Town Streets'&&
+     cmd.startsWith('talk to wanderer')){
+   const w=visitor();if(!w){port55StopMenu();return true;}
+   player.flags.port55VisitingName=w.name;
+   stage='port55Guest';guestMenu();return true;
+  }
+  if(stage==='port55Guest'){
+   const w=wandererByName(player.flags?.port55VisitingName);
+   if(['back','b','exit','return','back to town streets'].includes(cmd)){
+    stage='port55Stop';player.flags.port55CurrentStop='Town Streets';
+    delete player.flags.port55VisitingName;
+    currentTownWanderer=null;townWandererFocus=null;
+    port55StopMenu();return true;
+   }
+   if(!w||!eligible(w)){guestMenu();return true;}
+   if(cmd==='small talk'||cmd==='talk'){
+    add(wandererDialogue(w),'bright');guestMenu();return true;
+   }
+   if(cmd==='inspect wanderer'||cmd==='inspect'){
+    const file=globalThis.Route127WandererPortraitFiles?.[w.name];
+    if(file&&globalThis.Route127WandererInfo?.open)
+     globalThis.Route127WandererInfo.open(w.name,
+       new URL('assets/wanderers/'+file,new URL('/route127/devtest/',location.origin)).href);
+    else portInspectAptitudes(w);
+    return true;
+   }
+   if(cmd==='recruit'){
+    player.flags.portHireOffer={name:w.name,origin:'port55Guest'};
+    stage='port55Recruit';portHireMenu();return true;
+   }
+   guestMenu();return true;
+  }
+  return origCommand.apply(this,arguments);
+ };
+ const origRecruit=portRecruitCommand;
+ portRecruitCommand=function(cmd){
+  const offer=player.flags?.portHireOffer;
+  if(stage==='port55Recruit'&&offer?.origin==='port55Guest'){
+   if(['cancel hire','back','b','cancel','exit'].includes(cmd)){
+    delete player.flags.portHireOffer;stage='port55Guest';guestMenu();return true;
+   }
+   const hiredBefore=portIsHired(offer.name);
+   const result=origRecruit.apply(this,arguments);
+   if(!hiredBefore&&portIsHired(offer.name)){
+    delete player.flags.port55VisitingName;
+    currentTownWanderer=null;townWandererFocus=null;
+    stage='port55Stop';player.flags.port55CurrentStop='Town Streets';
+    port55StopMenu();
+   }else if(stage==='port55Guest')guestMenu();
+   return result;
+  }
+  return origRecruit.apply(this,arguments);
+ };
+ // Restore old saves at the Seaport stage without making residents appear
+ // while occupied, and without requiring a new game.
+ addEventListener('DOMContentLoaded',()=>{if(liberated())enable();},{once:true});
+})();

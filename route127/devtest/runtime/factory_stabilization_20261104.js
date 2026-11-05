@@ -83,17 +83,45 @@ handleCommandCore=async function(raw){
 // Register the first real conversation with Forge as the transition milestone.
 // On old saves already inside the dungeon, infer that conversation only when
 // the player also read the terminal and progressed into the dungeon.
-const oldForge=v49Forge;
-v49Forge=function(...args){
- const was=!!player.flags.devForgeTalked;
- const result=oldForge.apply(this,args);
- player.flags.devForgeTalked=true;
- if(!was&&player.flags.relayQuest==='complete'){
+// Short, state-specific Forge conversation. The future randomized-parts
+// instructions are enabled only when that actual quest system is installed;
+// until then they must not send current playtesters chasing nonexistent loot.
+v49Forge=function(){
+ const f=player.flags,first=!f.devForgeTalked,progress=f.factoryDungeon?.done||[];
+ const partsEnabled=!!f.factoryPartsEnabled;
+ stage='factoryForge';
+ add('FORGE — WORKSHOP','place');
+ // Keep the established charge preparation and bandage lesson side effects.
+ if(typeof portForgeDialogue==='function')portForgeDialogue();
+ if(f.portRoadCleared) add('FORGE > Road\'s open. Keep moving. Seaport needs help.','bright');
+ else if(f.portChargePrepared) add('FORGE > Charge is ready. Take it to the collapsed overpass and clear the road.','bright');
+ else if(partsEnabled){
+  const found=f.factoryDynamiteParts||{};
+  const count=Number(!!found.caps)+Number(!!found.compound)+Number(!!found.detonator);
+  if(first){
+   add('FORGE > We need three things to break that road open. Two are scattered through the Factory. Search the rooms; somebody left them behind.','bright');
+   add('FORGE > The third is locked in the basement. Beat the supervisors on all three floors to get inside. The Foreman has what we need.','bright');
+  }else if(count===3&&progress.length===4) add('FORGE > Everything\'s here. Let\'s put that charge together.','bright');
+  else add('FORGE > Two parts are hidden upstairs. Three supervisors hold the basement keys. The Foreman holds the last part. Check your journal.','bright');
+ }else if(progress.length===4){
+  add('FORGE > All four supervisors are down. The charge equipment is secured. Let\'s finish this.','bright');
+ }else if(first){
+  add('FORGE > The coast road is blocked. Three supervisors control the basement locks; defeat them to reach the Foreman and his blasting equipment.','bright');
+  add('FORGE > Search the rooms for supplies while you\'re in there. The journal will track your progress.','bright');
+ }else add('FORGE > Clear the three upper floors to open the basement. Defeat the Foreman, then come back here.','bright');
+ if(!f.v49RecipeBandage&&!f.v49Job&&!f.v49Kit){
+  f.v49Kit={cloth:2,scrap:1};
+  add('FORGE > Practice kit\'s on the bench. Try a reinforced bandage when you get a moment.','system');
+ }else if(f.v49Kit&&!f.v49RecipeBandage){
+  if(first)add('FORGE > Your practice kit is waiting at the workbench.','system');
+ }
+ add('(W) USE WORKBENCH   (T) TERMINAL   (B) BACK','system');
+ f.devForgeTalked=true;
+ if(first&&f.relayQuest==='complete'){
   add('MAIN OBJECTIVE COMPLETE — TALK TO FORGE','reward');
-  add('MAIN QUEST UPDATED — EXPLORE THE FACTORY AND RECOVER THE CHARGE COMPONENT','reward');
+  add('MAIN QUEST UPDATED — EXPLORE THE FACTORY','reward');
  }
  if(typeof v49Autosave==='function')v49Autosave();
- return result;
 };
 if(!player.flags.devForgeTalked&&player.flags.v49TerminalRead&&
   (String(stage).startsWith('factoryDungeon')||(player.flags.factoryDungeon?.done||[]).length)){

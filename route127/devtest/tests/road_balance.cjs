@@ -14,7 +14,10 @@ function settle(){
    assert.equal(run('stage'),'combat');run("handleCombat('flee')");
   }else run('completeRoadTurn()'); // every individual choice tested separately below
  }
- assert(['turnComplete','r6Road'].includes(run('stage')));
+ // Map consolidation can legitimately return the live graph road state.
+ const currentStage=run('stage');
+ assert(['turnComplete','r6Road','lanternRoad'].includes(currentStage),'unexpected road stage: '+currentStage);
+ if(currentStage==='lanternRoad')assert(run("typeof lanternState==='function'&&!!lanternState()"),'graph road state missing');
 }
 for(const region of ['early','east','coast'])for(const dir of [1,-1]){
  const name=region+(dir>0?'East':'West'),counts={combat:0,wanderer:0,exploration:0,salvage:0,environment:0,uneventful:0};
@@ -64,7 +67,7 @@ for(const region of ['early','east','coast'])for(const dir of [1,-1])for(const k
    const before=run('player.turns');run('qaLog=[];');run(`resolveEncounter(${JSON.stringify(option.toLowerCase().replace(/^\([a-z]\)\s*/,''))});`);assert(!run(`qaLog.some(s=>/not an option/i.test(s))`)||run(`qaLog.some(s=>/full|nothing traded/i.test(s))`),region+': rejected '+option);
    if(run('stage')==='combat')run("handleCombat('flee')");
    assert.equal(run('player.turns'),before,'choice charged turn');
-   assert(['encounter','turnComplete','r6Road'].includes(run('stage')),region+': '+option+' '+run('stage'));
+   assert(['encounter','turnComplete','r6Road','lanternRoad'].includes(run('stage')),region+': '+option+' '+run('stage'));
    if(run('stage')==='encounter')run('completeRoadTurn()');
    choiceChecks++;
   }

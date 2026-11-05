@@ -768,3 +768,58 @@
  }
  globalThis.Route127LegacyProfiles=Object.freeze({profiles:Object.freeze(profiles),byName:Object.freeze(Object.fromEntries(profiles.map(d=>[d.name,d])))});
 })();
+
+/* DEVTEST: transparent wanderer recruitment pricing.
+ * Show the exact terms BEFORE selecting an offer, and again at confirmation.
+ * Graphical button labels are display-only: their underlying commands remain
+ * identical, preserving the existing recruitment/transaction handlers. */
+(function(){
+ 'use strict';
+ if(!location.pathname.includes('/route127/devtest/')||
+    typeof WandererWorldExpansion==='undefined')return;
+ function offer(){
+  if(stage!=='port55Recruit')return null;
+  const name=player.flags?.portHireOffer?.name;
+  const w=name&&wandererByName(name);
+  const design=w&&WandererWorldExpansion.definition(w);
+  return w?{w,design,selected:player.flags.portHireOffer?.worldOption}:null;
+ }
+ function terms(o,w){
+  if(o?.bolts)return (60+10*v50Profile(w).level)+' BOLTS ONCE';
+  if(o?.item)return o.qty+' '+o.item.toUpperCase()+' ONCE';
+  return o?'NO BOLTS':'';
+ }
+ const priorChoices=portStaffChoices;
+ portStaffChoices=function(title,choices){
+  const info=offer();
+  if(info){
+   const {w,design,selected}=info;
+   const choice=design?.options?.find(o=>o.id===selected);
+   if(choice) add('HIRING COST — '+terms(choice,w)+'; charged only when you confirm.','system');
+   else if(design?.options?.length) {
+    const all=design.options.map(o=>terms(o,w));
+    add('HIRING OPTIONS — '+[...new Set(all)].join(' / ')+'. Select an offer to review before confirming.','system');
+   }else add('HIRING COST — '+portHireCost(w)+' BOLTS ONCE; confirm to pay.','system');
+  }
+  return priorChoices.call(this,title,choices);
+ };
+ if(typeof GraphicalUI!=='undefined'){
+  const priorGraphicChoices=GraphicalUI.choices;
+  GraphicalUI.choices=function(...args){
+   const rows=priorGraphicChoices.apply(this,args);
+   const info=offer();
+   if(!info)return rows;
+   const {w,design,selected}=info;
+   return rows.map(row=>{
+    const command=String(row.command||'').toLowerCase();
+    const option=design?.options?.find(o=>o.label.toLowerCase()===command);
+    if(option)return {...row,label:row.label+' — '+terms(option,w)};
+    if(command==='confirm hire'){
+     const chosen=design?.options?.find(o=>o.id===selected);
+     return {...row,label:row.label+' — '+(chosen?terms(chosen,w):portHireCost(w)+' BOLTS ONCE')};
+    }
+    return row;
+   });
+  };
+ }
+})();

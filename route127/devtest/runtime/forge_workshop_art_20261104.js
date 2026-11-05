@@ -347,6 +347,10 @@
   // other services and trade bonuses untouched.
   if(stage==='port55Service'){
    if(title==='SERVICES'){
+    // The hired worker's full portrait/stats are available in the roster.
+    // Do not duplicate an old text-only INSPECT STAFF command in each shop.
+    if(GraphicalUI.active())
+     choices=choices.filter(x=>!x.startsWith('INSPECT STAFF '));
     if(player.flags?.portStaffUI?.role==='general store')
      choices=choices.filter(x=>x!=='BUY EQUIPMENT');
     // Backpack is already available in the permanent graphical sidebar.
@@ -461,7 +465,7 @@
    .r127-roster-item{display:flex;justify-content:space-between;align-items:center;gap:10px;
     border:1px solid #72553c;background:#15110ee0;padding:8px}
    .r127-roster-person{flex:1;text-align:left;min-width:0}
-   .r127-roster-person strong{display:block;color:#e7c28d;font-size:14px}
+   .r127-roster-person strong{display:block;color:#65da7e;font-size:14px}
    .r127-roster-person span{display:block;color:#cdbba0;font-size:12px}
    .r127-roster-picker button{border:1px solid #9d8060;background:#352719;color:#f5e0be;
     font:700 12px Georgia,serif;padding:8px 10px;cursor:pointer}

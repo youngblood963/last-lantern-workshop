@@ -17,7 +17,7 @@ function visit(city){
  const s=state(),key=String(day)+':'+turn(),old=s[city];
  if(old&&old.key===key)return old;
  let candidate=null;
- if(turn()-(Number(s.lastIncidentalTurn)??-100)>=TOWN_GAP&&Math.random()<TOWN_CHANCE){
+ if(turn()-(Number.isFinite(s.lastIncidentalTurn)?s.lastIncidentalTurn:-100)>=TOWN_GAP&&Math.random()<TOWN_CHANCE){
   const pool=wanderers.filter(w=>available(w)&&(city==='solace'?townSpots.has(wandererLocations[w.name]):wandererLocations[w.name]==='seaport'));
   if(pool.length){candidate=pool[Math.floor(Math.random()*pool.length)].name;s.lastIncidentalTurn=turn();}
  }
@@ -44,14 +44,13 @@ showWanderersAt=showTown;
 const originalEligible=r10EligibleWanderers;
 r10EligibleWanderers=function(...args){
  const s=state();
- if(turn()-(Number(s.lastRoadTurn)??-100)<ROAD_GAP)return [];
+ if(turn()-(Number.isFinite(s.lastRoadTurn)?s.lastRoadTurn:-100)<ROAD_GAP)return [];
  return originalEligible.apply(this,args);
 };
 const originalRoad=showRoadWanderer;
 showRoadWanderer=function(...args){
- const prior=currentRoadWanderer;
  const result=originalRoad.apply(this,args);
- if(stage==='wandererRoad'&&currentRoadWanderer&&currentRoadWanderer!==prior){
+ if(stage==='wandererRoad'&&currentRoadWanderer){
   state().lastRoadTurn=turn();
   state().lastIncidentalTurn=turn();
  }

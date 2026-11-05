@@ -33,13 +33,15 @@
    // Harbor Docks use the separate existing liberation image; main Seaport keeps its sunset town artwork.
    const atDocks=currentStage==='port55Docks'||
     (currentStage==='port55Stop'&&player.flags?.port55CurrentStop==='Docks');
+   const atMarket=currentStage==='port55Market'||currentStage==='portMarket'||
+    (currentStage==='port55Stop'&&player.flags?.port55CurrentStop==='Market Area');
    if(!liberated){
     model.art='../devtest/assets/locations/seaport_occupied.png';
     model.title='Seaport — Occupied Harbor';
    }else if(atDocks){
     model.art='../devtest/seaport_liberation.png';
     model.title='Seaport — Harbor Docks';
-   }else if(currentStage==='port55Stop'&&player.flags?.port55CurrentStop==='Market Area'){
+   }else if(atMarket){
      // Dedicated Seaport outdoor market, using the existing location-art selector.
      model.art='../devtest/assets/locations/seaport_market_area.png';
      model.title='Seaport — Market Area';

@@ -653,7 +653,11 @@
  const origStopMenu=port55StopMenu;
  port55StopMenu=function(...args){
   if(stage==='port55Stop'&&player.flags?.port55CurrentStop==='Town Streets'&&liberated()){
+   // One selected visitor for the menu and portrait, not a fresh roll.
+   initialVisitor();
    const person=visitor();
+   currentTownWanderer=person?.name||null;
+   townWandererFocus=null;
    const patrol=port55PatrolName()==='Town Streets';
    const options=[
     ...(person?['TALK TO WANDERER — '+person.name.toUpperCase()]:[]),
@@ -757,7 +761,11 @@
     delete player.flags.portHireOffer;stage='port55Guest';guestMenu();return true;
    }
    const hiredBefore=portIsHired(offer.name);
-   const result=origRecruit.apply(this,arguments);
+   // Native recruit flow normally returns to Solace; keep this guest in Seaport.
+   player.flags.devSeaportGuestHire=true;
+   let result;
+   try{result=origRecruit.apply(this,arguments);}
+   finally{delete player.flags.devSeaportGuestHire;}
    if(!hiredBefore&&portIsHired(offer.name)){
     delete player.flags.port55VisitingName;
     currentTownWanderer=null;townWandererFocus=null;
@@ -793,8 +801,9 @@
  // Only redirect its terminal menu back to Seaport (not Solace).
  const previousShowContext=showCurrentContext;
  showCurrentContext=function(...args){
-  if(stage==='mercy'&&player.flags?.devSeaportGuestFight){
+  if(stage==='mercy'&&(player.flags?.devSeaportGuestFight||player.flags?.devSeaportGuestHire)){
    delete player.flags.devSeaportGuestFight;
+   delete player.flags.devSeaportGuestHire;
    delete player.flags.port55VisitingName;
    stage='port55Stop';player.flags.port55CurrentStop='Town Streets';
    currentTownWanderer=null;townWandererFocus=null;pendingTownFight=null;

@@ -449,7 +449,8 @@
    const style=document.createElement('style');style.id='r127-roster-picker-css';
    style.textContent=`
    .r127-roster-picker{box-sizing:border-box;width:min(670px,94vw);max-height:85dvh;
-    border:2px solid #99724d;border-radius:8px;color:#f1ddbd;background:#14110eeF;
+    border:2px solid #99724d;border-radius:8px;color:#f1ddbd;
+    background:#100e0c url('/route127/playtest/assets/ui/industrial-backing.png') center/100% 100% no-repeat;
     box-shadow:0 16px 55px #000e;padding:15px;font:13px/1.4 Georgia,serif}
    .r127-roster-picker::backdrop{background:#000c}
    .r127-roster-picker *{box-sizing:border-box}
@@ -458,7 +459,7 @@
    .r127-roster-head h2{font:700 20px Georgia,serif;color:#edc48a;margin:0}
    .r127-roster-list{max-height:62dvh;overflow-y:auto;display:grid;gap:7px}
    .r127-roster-item{display:flex;justify-content:space-between;align-items:center;gap:10px;
-    border:1px solid #72553c;background:#241c16;padding:8px}
+    border:1px solid #72553c;background:#15110ee0;padding:8px}
    .r127-roster-person{flex:1;text-align:left;min-width:0}
    .r127-roster-person strong{display:block;color:#e7c28d;font-size:14px}
    .r127-roster-person span{display:block;color:#cdbba0;font-size:12px}

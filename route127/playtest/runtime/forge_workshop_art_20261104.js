@@ -427,7 +427,7 @@
  * ASSIGN <name> -> CONFIRM ASSIGNMENT transaction. No save changes. */
 (function(){
  'use strict';
- if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||
+ if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||
     !location.pathname.includes('/route127/playtest/'))return;
 
  const earlierRender=portStaffRender;
@@ -547,7 +547,7 @@
  * graphical sidebar), and heal stale sessions that already used that route. */
 (function(){
  'use strict';
- if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
+ if(globalThis.ROUTE127_ENV?.name==='DEVTEST')return;
  const oldService=portStaffServiceCommand;
  portStaffServiceCommand=function(cmd){
   if(stage==='port55Service'&&player.flags?.portStaffUI?.role==='workshop'&&
@@ -573,7 +573,7 @@
 
 /* DEVTEST: keep exactly one top-level Seaport road exit in graphics. */
 (function(){
- if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
+ if(globalThis.ROUTE127_ENV?.name==='DEVTEST')return;
  const prior=GraphicalUI.choices;
  GraphicalUI.choices=function(...args){
   const rows=prior.apply(this,args);
@@ -591,7 +591,7 @@
  * locations remain authoritative. No duplicate wanderers or new save fields. */
 (function(){
  'use strict';
- if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
+ if(globalThis.ROUTE127_ENV?.name==='DEVTEST')return;
  const liberated=()=>player.flags?.seaport55?.freed===true;
  const eligible=w=>w&&!portIsHired(w.name)&&wandererAlive(w);
  function enable(){
@@ -743,7 +743,7 @@
  */
 (function(){
  'use strict';
- if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
+ if(globalThis.ROUTE127_ENV?.name==='DEVTEST')return;
  const market=()=>stage==='port55Stop'&&player.flags?.port55CurrentStop==='Market Area';
  const full=name=>(typeof RouteIdentity!=='undefined'?RouteIdentity.wanderer?.[name]:null)||name;
  const roleKey=cmd=>Object.keys(PORT_STAFF_ROLES).find(role=>

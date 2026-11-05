@@ -18,7 +18,12 @@ function visit(city){
  if(old&&old.key===key)return old;
  let candidate=null;
  if(turn()-(Number.isFinite(s.lastIncidentalTurn)?s.lastIncidentalTurn:-100)>=TOWN_GAP&&Math.random()<TOWN_CHANCE){
-  const pool=wanderers.filter(w=>available(w)&&(city==='solace'?townSpots.has(wandererLocations[w.name]):(wandererLocations[w.name]==='seaport'||(!wanderers.some(v=>available(v)&&wandererLocations[v.name]==='seaport')&&![currentRoadWanderer,currentTownWanderer].includes(w.name))));
+  const pool=city==='solace'
+   ?wanderers.filter(w=>available(w)&&townSpots.has(wandererLocations[w.name]))
+   :wanderers.filter(w=>available(w)&&wandererLocations[w.name]==='seaport');
+  if(city==='seaport'&&!pool.length){
+   pool.push(...wanderers.filter(w=>available(w)&&![currentRoadWanderer,currentTownWanderer].includes(w.name)));
+  }
   if(pool.length){candidate=pool[Math.floor(Math.random()*pool.length)].name;s.lastIncidentalTurn=turn();}
  }
  return s[city]={key,name:candidate};

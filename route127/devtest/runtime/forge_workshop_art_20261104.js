@@ -346,8 +346,15 @@
   // Equipment is exclusively at the Armory; keep all the General Store's
   // other services and trade bonuses untouched.
   if(stage==='port55Service'){
-   if(player.flags?.portStaffUI?.role==='general store'&&title==='SERVICES')
-    choices=choices.filter(x=>x!=='BUY EQUIPMENT');
+   if(title==='SERVICES'){
+    if(player.flags?.portStaffUI?.role==='general store')
+     choices=choices.filter(x=>x!=='BUY EQUIPMENT');
+    // Backpack is already available in the permanent graphical sidebar.
+    // Launching the legacy equipment interface from the Workshop can lose
+    // its return-stage choices and strand the player on closing the panel.
+    if(player.flags?.portStaffUI?.role==='workshop')
+     choices=choices.filter(x=>!['MANAGE EQUIPMENT','INSPECT EQUIPMENT'].includes(x));
+   }
    // All storefronts exit to their immediate parent, Market Area.
    choices=choices.map(x=>x==='RETURN TO HARBOR'?'BACK TO MARKET':x);
   }
@@ -525,4 +532,33 @@
   }
   return earlierCommand.apply(this,arguments);
  };
+})();
+
+/* DEVTEST: Workshop equipment softlock repair.
+ * Remove the redundant legacy inventory route (Backpack remains on the
+ * graphical sidebar), and heal stale sessions that already used that route. */
+(function(){
+ 'use strict';
+ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
+ const oldService=portStaffServiceCommand;
+ portStaffServiceCommand=function(cmd){
+  if(stage==='port55Service'&&player.flags?.portStaffUI?.role==='workshop'&&
+     ['manage equipment','inspect equipment'].includes(String(cmd).toLowerCase())){
+   player.flags.portStaffUI.page='main';
+   portStaffRender();return true;
+  }
+  return oldService.apply(this,arguments);
+ };
+ if(typeof TravelerPanels!=='undefined'&&typeof TravelerPanels.close==='function'){
+  const priorClose=TravelerPanels.close;
+  TravelerPanels.close=function(...args){
+   const outcome=priorClose.apply(this,args);
+   if(!this.dialog&&stage==='port55Service'&&player.flags?.portStaffUI?.role==='workshop'&&
+      !Object.keys(numberedChoices||{}).length){
+    player.flags.portStaffUI.page='main';
+    portStaffRender();
+   }
+   return outcome;
+  };
+ }
 })();

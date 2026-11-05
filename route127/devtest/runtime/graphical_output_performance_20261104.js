@@ -12,6 +12,26 @@ const previousAdd=add;
 const previousTypeLine=typeLine;
 const previousQueueChoiceLine=queueChoiceLine;
 const MAX_VISIBLE_LINES=160;
+/* WO42 — The instant graphical writer bypasses the original typewriter
+ * renderer, which normally calls followOutput(). Restore that behavior here.
+ * Explicitly anchor newest output after menu actions; unlike smooth scrolling,
+ * immediate updates do not queue animations or delay command handling.
+ */
+function showLatestOutput(){
+ if(!graphical()||!screen||TravelerPanels.dialog)return;
+ screen.scrollTop=screen.scrollHeight;
+ // Some layout updates (font/color spans, panel resize) settle next frame.
+ // A single coalesced frame keeps the latest reply visible after reflow.
+ if(!showLatestOutput.pending){
+  showLatestOutput.pending=true;
+  requestAnimationFrame(()=>{
+   showLatestOutput.pending=false;
+   if(graphical()&&!TravelerPanels.dialog&&screen.isConnected)
+    screen.scrollTop=screen.scrollHeight;
+  });
+ }
+}
+
 function instantRow(rawText='',rawCls=''){
  const normalized=normalizeQuestNotice(String(rawText??''),String(rawCls??''));
  let text=normalized.text,cls=normalized.cls;
@@ -35,6 +55,7 @@ function instantRow(rawText='',rawCls=''){
  // Prune only the in-graphics historical log. Never discard item-inspection
  // output while a modal is active, since the modal reads those rows as details.
  if(!TravelerPanels.dialog)while(screen.childElementCount>MAX_VISIBLE_LINES)screen.firstElementChild.remove();
+ showLatestOutput();
  GraphicalUI.schedule();
  return div;
 }
@@ -55,7 +76,7 @@ queueChoiceLine=function(text){
   const line=renderNumberedChoices(text);
   const div=document.createElement('div');
   div.className='line '+choiceOutputClass(line,'system');
-  div.textContent=line;screen.appendChild(div);GraphicalUI.schedule();
+  div.textContent=line;screen.appendChild(div);showLatestOutput();GraphicalUI.schedule();
  });
 };
 // The old text/map strip belongs to Classic BBS and is hidden below the

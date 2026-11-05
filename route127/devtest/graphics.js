@@ -11,7 +11,8 @@ const ROUTE127_ART={
  'abandoned-motel':{file:'abandoned_motel.png',title:'Abandoned Motel'},'scavenger-camp':{file:'scavenger_camp.png',title:'Scavenger Camp'},
  'watchtower-ruins':{file:'watchtower_ruins.png',title:'Watchtower Ruins'},'fresh-mart':{file:'fresh_mart.png',title:'Fresh Mart'},
  'st-mercy-hospital':{file:'st_mercy_hospital.png',title:'St. Mercy Hospital'},'iron-pit-arena':{file:'iron_pit_arena.png',title:'Iron Pit Arena'},
- 'broken-bridge':{file:'broken_bridge_preview.png',title:'Broken Bridge — exterior preview'}
+ 'broken-bridge':{file:'broken_bridge_preview.png',title:'Broken Bridge — exterior preview'},
+ 'rusty-anchor':{file:'rusty_anchor.png',title:'The Rusty Anchor'}
 };
 // WO24 shared image paths; dedicated art still wins in model().
 function route127RegionalArt(g){return '../assets/regions/'+route127CurrentRegion(g).toLowerCase()+'.png';}
@@ -25,6 +26,7 @@ const GraphicalUI={
   if(/^r18Ash/.test(place)||c?.source==='r18AshFight')return 'ash-cemetery';
   if(/^stationNine|^r18Station/.test(place)||['stationNineSecurity','r18StationFight'].includes(c?.source))return 'station-nine';
   if(place==='wo6FreshMart')return 'fresh-mart';if(place==='wo4Hospital'||c?.source==='wo4HospitalEntrance')return 'st-mercy-hospital';
+  if(place==='port55Mia'||(place==='mercy'&&player.flags?.port55Casino))return 'rusty-anchor';
   if(place==='mercy'||place==='settlement'||c?.source==='gateGuards'||c?.source==='jenBoss')return 'solace';
   if(/^port|^seaport/.test(place)||/^seaport/.test(c?.source||''))return 'seaport';
   if(['factoryWorkshop','factoryTerminal','factoryForge','factoryBench'].includes(place))return 'factory-workshop';

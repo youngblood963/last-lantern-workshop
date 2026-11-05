@@ -410,3 +410,119 @@
   return previousService.apply(this,arguments);
  };
 })();
+
+/* DEVTEST staff roster picker: one clean action in the assignment menu.
+ * Reuses the existing portrait-and-aptitude dossier and the existing
+ * ASSIGN <name> -> CONFIRM ASSIGNMENT transaction. No save changes. */
+(function(){
+ 'use strict';
+ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||
+    !location.pathname.includes('/route127/devtest/'))return;
+
+ const earlierRender=portStaffRender;
+ portStaffRender=function(...args){
+  const ui=player.flags?.portStaffUI;
+  if(stage==='port55Service'&&ui?.page==='assign'&&GraphicalUI.active()){
+   const role=ui.role,def=PORT_STAFF_ROLES[role];
+   if(def){
+    add('SEAPORT — '+def.name.toUpperCase(),'place');
+    add('Browse your hired wanderers to compare portraits, experience and aptitudes. Choose Assign to confirm a worker.','system');
+    portStaffChoices('ASSIGN A WANDERER',['INSPECT WANDERERS','BACK']);
+    return;
+   }
+  }
+  return earlierRender.apply(this,args);
+ };
+
+ function picker(){
+  const role=player.flags?.portStaffUI?.role;
+  if(stage!=='port55Service'||player.flags?.portStaffUI?.page!=='assign'||!PORT_STAFF_ROLES[role])return;
+  document.querySelector('.r127-roster-picker')?.close();
+  if(!document.getElementById('r127-roster-picker-css')){
+   const style=document.createElement('style');style.id='r127-roster-picker-css';
+   style.textContent=`
+   .r127-roster-picker{box-sizing:border-box;width:min(670px,94vw);max-height:85dvh;
+    border:2px solid #99724d;border-radius:8px;color:#f1ddbd;background:#14110eeF;
+    box-shadow:0 16px 55px #000e;padding:15px;font:13px/1.4 Georgia,serif}
+   .r127-roster-picker::backdrop{background:#000c}
+   .r127-roster-picker *{box-sizing:border-box}
+   .r127-roster-head{display:flex;justify-content:space-between;align-items:center;gap:12px;
+    border-bottom:1px solid #79583e;padding-bottom:10px;margin-bottom:10px}
+   .r127-roster-head h2{font:700 20px Georgia,serif;color:#edc48a;margin:0}
+   .r127-roster-list{max-height:62dvh;overflow-y:auto;display:grid;gap:7px}
+   .r127-roster-item{display:flex;justify-content:space-between;align-items:center;gap:10px;
+    border:1px solid #72553c;background:#241c16;padding:8px}
+   .r127-roster-person{flex:1;text-align:left;min-width:0}
+   .r127-roster-person strong{display:block;color:#e7c28d;font-size:14px}
+   .r127-roster-person span{display:block;color:#cdbba0;font-size:12px}
+   .r127-roster-picker button{border:1px solid #9d8060;background:#352719;color:#f5e0be;
+    font:700 12px Georgia,serif;padding:8px 10px;cursor:pointer}
+   .r127-roster-picker button:disabled{opacity:.46;cursor:not-allowed}
+   .r127-roster-empty{padding:15px;color:#e6cfb0}
+   @media(max-width:470px){.r127-roster-item{flex-wrap:wrap}.r127-roster-person{flex-basis:100%}}
+   `;
+   document.head.appendChild(style);
+  }
+  const d=document.createElement('dialog');d.className='r127-roster-picker';
+  d.setAttribute('aria-label','Hired wanderers for '+PORT_STAFF_ROLES[role].name);
+  const head=document.createElement('div');head.className='r127-roster-head';
+  const title=document.createElement('h2');title.textContent='HIRED WANDERERS — '+PORT_STAFF_ROLES[role].name.toUpperCase();
+  const close=document.createElement('button');close.type='button';close.textContent='X — Close';
+  close.addEventListener('click',()=>d.close());head.append(title,close);d.append(head);
+  const list=document.createElement('div');list.className='r127-roster-list';
+  const hired=[...portStaffState().hired];
+  for(const name of hired){
+   const w=wandererByName(name);if(!w)continue;
+   const assigned=portStaffAssignment(name);
+   const eligible=!assigned||assigned===role;
+   const skill=PORT_STAFF_ROLES[role].skill;
+   const rating=portAptitudes(w)[skill];
+   const item=document.createElement('div');item.className='r127-roster-item';
+   const person=document.createElement('button');person.type='button';person.className='r127-roster-person';
+   const label=document.createElement('strong');
+   label.textContent=(typeof WandererWorldExpansion!=='undefined'?
+       WandererWorldExpansion.definition(name)?.displayName:null)||name;
+   const details=document.createElement('span');
+   details.textContent=(w.occupation||'Wanderer')+' · '+skill.toUpperCase()+' '+rating+'/5'+
+    (assigned?' · '+(assigned===role?'Currently here':'Assigned: '+PORT_STAFF_ROLES[assigned]?.name):' · Available');
+   person.append(label,details);person.title='View portrait and full stats';
+   person.addEventListener('click',()=>{
+    const file=globalThis.Route127WandererPortraitFiles?.[name];
+    if(file&&globalThis.Route127WandererInfo?.open){
+     globalThis.Route127WandererInfo.open(name,
+      new URL('assets/wanderers/'+file,new URL('/route127/devtest/',location.origin)).href);
+    }else{
+     const note=document.createElement('p');note.textContent='Portrait is not available for '+name+'.';
+     item.appendChild(note);
+    }
+   });
+   const assign=document.createElement('button');assign.type='button';
+   assign.textContent=assigned===role?'REASSIGN':'ASSIGN';
+   assign.disabled=!eligible;
+   assign.title=eligible?'Choose this wanderer':'Already working at another business';
+   assign.addEventListener('click',()=>{
+    d.close();
+    // Same confirmation transaction as the original numbered menu.
+    portStaffServiceCommand('assign '+name.toLowerCase());
+    if(typeof GraphicalUI!=='undefined')GraphicalUI.schedule();
+   });
+   item.append(person,assign);list.appendChild(item);
+  }
+  if(!list.children.length){
+   const empty=document.createElement('p');empty.className='r127-roster-empty';
+   empty.textContent='No hired wanderers yet. Recruit people on the road first.';
+   list.appendChild(empty);
+  }
+  d.appendChild(list);
+  d.addEventListener('close',()=>d.remove(),{once:true});
+  document.body.appendChild(d);d.showModal();close.focus();
+ }
+ const earlierCommand=portStaffServiceCommand;
+ portStaffServiceCommand=function(cmd){
+  if(stage==='port55Service'&&player.flags?.portStaffUI?.page==='assign'&&
+     cmd==='inspect wanderers'&&GraphicalUI.active()){
+   picker();return true;
+  }
+  return earlierCommand.apply(this,arguments);
+ };
+})();

@@ -30,15 +30,14 @@
    ['portMarket','portClinic','portDocks','portWatch'].includes(currentStage);
   if(model.location==='seaport'&&(atSeaport||inSeaportMenu)){
    const liberated=!!player.flags?.seaport55?.freed;
-   // Only the Harbor Docks use the existing sunset waterfront after liberation.
-   // A neutral scene remains elsewhere until dedicated liberated-town art is approved.
+   // Harbor Docks use the separate existing liberation image; main Seaport keeps its sunset town artwork.
    const atDocks=currentStage==='port55Docks'||
     (currentStage==='port55Stop'&&player.flags?.port55CurrentStop==='Docks');
    if(!liberated){
     model.art='../devtest/assets/locations/seaport_occupied.png';
     model.title='Seaport — Occupied Harbor';
    }else if(atDocks){
-    model.art='assets/locations/seaport.png';
+    model.art='../devtest/seaport_liberation.png';
     model.title='Seaport — Harbor Docks';
    }else{
     // Temporary nonblank fallback until approved Town Streets / Market artwork is added.

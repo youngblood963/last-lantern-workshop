@@ -106,6 +106,14 @@
       .dw-expanded button{margin-top:8px;background:#31271f;color:#f4e1c5;border:1px solid #9d8060;padding:6px 16px;cursor:pointer}
       .dw-missing{position:absolute;z-index:2;right:10%;bottom:12%;width:36%;text-align:center;background:#211912d9;color:#f3d09b;border:1px dashed #bea179;padding:12px 3px;font-size:.75rem}
       .dw-frame .dw-missing{right:5%;bottom:24px;width:90%;padding:3px 1px;font-size:.52rem}
+      .dw-shop{margin-top:16px;padding-top:12px;border-top:1px solid #72583d}
+      .dw-shop .dw-scene{max-width:950px;margin:auto}
+      .dw-shop .dw-person{right:var(--dw-shop-right,40%);height:var(--dw-shop-size,76%);max-width:75%;filter:drop-shadow(4px 8px 7px #0009)}
+      .dw-shop-inputs{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:end;margin:10px 0}
+      .dw-shop-inputs label{display:grid;gap:4px;font-size:.82rem}
+      .dw-shop-inputs input[type=file]{max-width:250px}
+      .dw-shop-inputs input[type=range]{width:125px;accent-color:#ba7739}
+      .dw-shop .dw-location{display:none}
       .dw-note{font-size:.84rem;line-height:1.5;color:#cfc0aa;margin:12px 0 0}
       @media(max-width:760px){.dw-grid{grid-template-columns:1fr}.dw-preview{width:95vw}.dw-scene{aspect-ratio:16/9}}
     `;
@@ -141,7 +149,40 @@
     const road=scene('ROAD ENCOUNTER — full transparent figure');
     const town=scene('TOWN ENCOUNTER — small bottom-right portrait');
     dialog.appendChild(grid);
-    dialog.appendChild(el('p','dw-note','Preview only: browse the fifty approved wanderer portraits over existing regional and town backgrounds. No encounters, turns, recruitment, saves, or gameplay state are changed.'));
+    // Shop composition proof-of-concept: local background selection, no repo upload
+    // and no changes to player-assigned wanderers or their saved shop state.
+    const shopSection=el('section','dw-shop');
+    shopSection.appendChild(el('h2','','GENERAL STORE — COMPOSITION TEST'));
+    const shopControls=el('div','dw-shop-inputs');
+    const fileLabel=el('label','','Shop background (PNG/JPG on this device)');
+    const backgroundFile=el('input');backgroundFile.type='file';backgroundFile.accept='image/png,image/jpeg,image/webp';
+    fileLabel.appendChild(backgroundFile);
+    function slider(label,min,max,value){
+      const wrap=el('label','',label);
+      const input=el('input');input.type='range';input.min=min;input.max=max;input.value=value;
+      wrap.appendChild(input);shopControls.appendChild(wrap);return input;
+    }
+    const horizontal=slider('Character position',0,90,40);
+    const scale=slider('Character size',25,130,76);
+    shopControls.prepend(fileLabel);shopSection.appendChild(shopControls);
+    const shopFigure=el('figure','dw-figure'),shopCaption=el('figcaption','','Temporary shop + selected wanderer');
+    const shopCanvas=el('div','dw-scene'),shopBackground=el('img','dw-bg');
+    shopBackground.alt='Shop background selected locally';shopCanvas.appendChild(shopBackground);
+    shopFigure.append(shopCaption,shopCanvas);shopSection.appendChild(shopFigure);dialog.appendChild(shopSection);
+    let shopUrl=null;
+    backgroundFile.addEventListener('change',()=>{
+      if(shopUrl){URL.revokeObjectURL(shopUrl);shopUrl=null;}
+      const file=backgroundFile.files?.[0];
+      if(file){shopUrl=URL.createObjectURL(file);shopBackground.src=shopUrl;}
+      else shopBackground.removeAttribute('src');
+    });
+    function positionShop(){
+      shopCanvas.style.setProperty('--dw-shop-right',horizontal.value+'%');
+      shopCanvas.style.setProperty('--dw-shop-size',scale.value+'%');
+    }
+    horizontal.addEventListener('input',positionShop);
+    scale.addEventListener('input',positionShop);
+    dialog.appendChild(el('p','dw-note','Preview only. Choose the empty General Store image from your device, select any of 50 wanderers, and adjust character position/size. Nothing is saved to your character, repository, or server.'));
 
     function expandPortrait(w){
       const expanded=el('dialog','dw-expanded');
@@ -179,9 +220,13 @@
       road.bg.src=regionUrl(regionSelect.value);road.locationPlate.textContent=regionSelect.value+' REGION';
       town.bg.src=townUrl(location);town.locationPlate.textContent=location.name;
       placePortrait(road.canvas,wanderer,false);placePortrait(town.canvas,wanderer,true);
+      placePortrait(shopCanvas,wanderer,false);positionShop();
     }
     for(const select of [personSelect,regionSelect,townSelect])select.addEventListener('change',update);
-    dialog.addEventListener('close',()=>dialog.remove(),{once:true});
+    dialog.addEventListener('close',()=>{
+      if(shopUrl)URL.revokeObjectURL(shopUrl);
+      dialog.remove();
+    },{once:true});
     document.body.appendChild(dialog);update();dialog.showModal();close.focus();
   }
 

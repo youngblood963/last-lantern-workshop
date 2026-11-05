@@ -101,12 +101,28 @@ GraphicalUI.model=function(...a){
 const oldChoices=GraphicalUI.choices;
 GraphicalUI.choices=function(...a){
  let rows=oldChoices.apply(this,a);if(!this.active())return rows;
- const stop=stage==='port55Docks'||stage==='port55Stop'&&['Docks','Market Area'].includes(player.flags?.port55CurrentStop);
- if(stop&&rows.some(r=>/^(return to seaport|return to harbor)$/i.test(r.command)))
-  rows=rows.filter(r=>!['back','b'].includes(String(r.command).toLowerCase()));
- const g=typeof lanternState==='function'?lanternState():null;
- if(stage==='lanternNode'&&g?.nodeId==='seaport'&&rows.some(r=>/seaport/i.test(r.command)&&/reverse|south/i.test(r.command)))
-  rows=rows.filter(r=>!['back','b'].includes(String(r.command).toLowerCase()));
+ const stop=stage==='port55Docks'||(stage==='port55Stop'&&['Docks','Market Area'].includes(player.flags?.port55CurrentStop));
+ const seaportRoad=stage==='lanternNode'&&typeof lanternState==='function'&&lanternState()?.nodeId==='seaport';
+ // Remove either numbered BACK or the B hotkey. Previous pass checked
+ // only the command and required a specific return label; these menus
+ // may publish BACK as a numbered choice instead.
+ if(stop){
+  const hasExit=rows.some(r=>/^(return to (?:seaport|harbor)|back)$/i.test(String(r.command||'')));
+  if(hasExit){
+   let keptExit=false;
+   rows=rows.filter(r=>{
+    const command=String(r.command||'').toLowerCase().trim();
+    if(command==='back'||command==='b'){
+     // If no explicit RETURN exists, relabel this one valid exit.
+     if(!rows.some(x=>/^return to (seaport|harbor)$/i.test(String(x.command||'')))&&!keptExit){keptExit=true;return true;}
+     return false;
+    }
+    return true;
+   }).map(r=>(['back','b'].includes(String(r.command).toLowerCase())?{...r,label:'RETURN TO SEAPORT'}:r));
+  }
+ }
+ if(seaportRoad&&rows.some(r=>/^(take road to|south|reverse)/i.test(String(r.command||''))))
+  rows=rows.filter(r=>!['back','b'].includes(String(r.command||'').toLowerCase().trim()));
  return rows;
 };
 // The graphical pet shop provides descriptions, then confirmation, while
@@ -169,30 +185,31 @@ port55Command=function(cmd){
 // graphical menus, and color its actual rarity without changing any item IDs.
 if(typeof RouteIdentity!=='undefined'){
  const nativePaint=RouteIdentity.paint;
- RouteIdentity.paint=function(node,raw){
-  if(!graphics())return nativePaint.call(this,node,raw);
-  const source=String(raw??'');
-  const entries=Object.getOwnPropertyNames(GEAR).filter(n=>/\(L\d{1,2} (?:COMMON|UNCOMMON|RARE|EPIC|LEGENDARY)\)/.test(n)&&source.toLowerCase().includes(n.toLowerCase()));
-  if(!entries.length)return nativePaint.call(this,node,raw);
-  let formatted=source;const matches=[];
-  for(const name of entries.sort((a,b)=>b.length-a.length)){
-   const rarity=GEAR[name]?.rarity,display=name.replace(/\s*\(L\d{1,2} (?:COMMON|UNCOMMON|RARE|EPIC|LEGENDARY)\)/,'');
-   formatted=formatted.replace(name,display);matches.push({display,rarity});
-  }
-  nativePaint.call(this,node,formatted);
-  for(const {display,rarity} of matches){
-   const walker=document.createTreeWalker(node,NodeFilter.SHOW_TEXT);
-   const texts=[];while(walker.nextNode())texts.push(walker.currentNode);
-   for(const textNode of texts){
-    const at=textNode.textContent.toLowerCase().indexOf(display.toLowerCase());
-    if(at<0||textNode.parentElement?.closest('.route-color-'+rarity))continue;
-    const rawText=textNode.textContent,frag=document.createDocumentFragment();
-    frag.append(document.createTextNode(rawText.slice(0,at)));
-    const span=document.createElement('span');span.className='route-color-'+rarity;span.textContent=rawText.slice(at,at+display.length);
-    frag.append(span,document.createTextNode(rawText.slice(at+display.length)));
-    textNode.replaceWith(frag);
+ const nativeRanges=RouteIdentity.ranges;
+ const namedGear=typeof EQUIPMENT_CATALOG!=='undefined'?EQUIPMENT_CATALOG.filter(g=>g.name&&g.rarity):[];
+ // The catalog is the authoritative source of item rarity. A qualified
+ // save key such as Highway Reaper (L06 RARE) is not a player-facing label.
+ RouteIdentity.ranges=function(value){
+  const str=String(value),ranges=nativeRanges.call(this,str);
+  const upper=str.toUpperCase();
+  for(const gear of namedGear){
+   const needle=gear.name.toUpperCase();let start=0,at;
+   while((at=upper.indexOf(needle,start))>=0){
+    const before=upper[at-1]||' ',after=upper[at+needle.length]||' ';
+    if(!/[A-Z0-9]/.test(before)&&!/[A-Z0-9]/.test(after))
+     ranges.push({start:at,end:at+needle.length,kind:gear.rarity});
+    start=at+needle.length;
    }
   }
+  // The first range wins in the original paint() implementation.
+  return ranges.sort((a,b)=>a.start-b.start||(b.end-b.start)-(a.end-a.start));
+ };
+ RouteIdentity.paint=function(node,raw){
+  if(!graphics())return nativePaint.call(this,node,raw);
+  // Strip display-only level suffixes; internal item names and transactions
+  // remain untouched. Catalog-based rarity styling still works after cleanup.
+  const readable=String(raw??'').replace(/\s*\(L\d{1,2}\s+(?:COMMON|UNCOMMON|RARE|EPIC|LEGENDARY)\)/gi,'');
+  return nativePaint.call(this,node,readable);
  };
 }
 // Clearing the previous sublocation's graphical transcript avoids yesterday's

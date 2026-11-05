@@ -142,3 +142,23 @@
   return originalCommand.apply(this,arguments);
  };
 })();
+
+/* DEVTEST Nessa menu: Corvette's queued appended choices can displace the
+ * vendor's numbered pet purchases in graphical mode. Build one atomic menu. */
+(function(){
+ if(!location.pathname.includes('/route127/devtest/'))return;
+ if(typeof port55Vendor!=='function'||typeof port55Submenu!=='function'||typeof PORT55_PETS==='undefined')return;
+ port55Vendor=function(){
+  add('NESSA > These strays choose their people. Choose a pet to buy or inspect one by name.','bright');
+  const pets=Object.entries(PORT55_PETS)
+   .filter(([,def])=>!def.rescueOnly)
+   .map(([name,def])=>name+' — '+def.rarity.toUpperCase()+' — '+def.price+' BOLTS'+
+     ((player.flags.ownedPets||[]).includes(name)?' — OWNED':''));
+  const quest=(typeof portRecruitUnlocked==='function'&&portRecruitUnlocked())
+   ?['ASK NESSA ABOUT SILAS','INSPECT NESSA LOCKET',
+     ...((typeof CorvetteRestoration!=='undefined'&&CorvetteRestoration.state().engineQuest)?['STEAL NESSAS LOCKET']:[])]
+   :[];
+  port55Submenu('Pet Vendor — Nessa',[...pets,...quest,'BACK']);
+  currentHotkeys.b='back';
+ };
+})();

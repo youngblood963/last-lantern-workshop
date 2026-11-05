@@ -1,7 +1,7 @@
-/* DEVTEST — keep navigation exits last when building menus.
+/* DEVTEST — game-wide return-last policy for shared menu constructors.
  * Menu ordering is decided before numeric bindings are created, so the
  * displayed button order and keyboard numbers always agree.
- * Mia's formerly late-appended Red option is now composed with the menu.
+ * Mia's formerly late-appended Red option is composed with its menu.
  * No quest, NPC, economy, or combat rules are changed.
  */
 (()=>{
@@ -15,6 +15,19 @@
   for(const label of options) (isExit(label)?exits:normal).push(label);
   return normal.concat(exits);
  };
+ // Apply one policy to the shared menu constructors, BEFORE they allocate
+ // numeric choices. This keeps Classic BBS text, numbers and graphical buttons
+ // in agreement. Do not rearrange button DOM independently.
+ function wrapArrayMenu(name){
+  const upstream=globalThis[name];
+  if(typeof upstream!=='function')return false;
+  globalThis[name]=function(options,...rest){
+   return upstream.call(this,Array.isArray(options)?exitLast(options):options,...rest);
+  };
+  return true;
+ }
+ wrapArrayMenu('r5DirectChoices');
+ wrapArrayMenu('v53Choices');
  const originalSubmenu=port55Submenu;
  port55Submenu=function(name,options){
   return originalSubmenu.call(this,name,Array.isArray(options)?exitLast(options):options);

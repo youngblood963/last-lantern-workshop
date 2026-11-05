@@ -30,8 +30,20 @@
    ['portMarket','portClinic','portDocks','portWatch'].includes(currentStage);
   if(model.location==='seaport'&&(atSeaport||inSeaportMenu)){
    const liberated=!!player.flags?.seaport55?.freed;
-   model.art=liberated?'assets/locations/seaport.png':'../devtest/assets/locations/seaport_occupied.png';
-   model.title=liberated?'Seaport':'Seaport — Occupied Harbor';
+   // Only the Harbor Docks use the existing sunset waterfront after liberation.
+   // A neutral scene remains elsewhere until dedicated liberated-town art is approved.
+   const atDocks=currentStage==='port55Docks'||
+    (currentStage==='port55Stop'&&player.flags?.port55CurrentStop==='Docks');
+   if(!liberated){
+    model.art='../devtest/assets/locations/seaport_occupied.png';
+    model.title='Seaport — Occupied Harbor';
+   }else if(atDocks){
+    model.art='assets/locations/seaport.png';
+    model.title='Seaport — Harbor Docks';
+   }else{
+    model.art='';
+    model.title='Seaport';
+   }
   }
   // Kaiden's approved dialogue portrait appears only during his post-liberation conversation.
   // Patrol routing and dialogue stay in the original game code.

@@ -1,4 +1,4 @@
-/* DEVTEST-only: Forge workshop and Boulder Junction visuals. No gameplay changes. */
+/* DEVTEST-only: location-state artwork for Forge, Boulder Junction and Seaport. No gameplay changes. */
 (function(){
  if(typeof GraphicalUI==='undefined')return;
  const oldContext=GraphicalUI.context.bind(GraphicalUI);
@@ -21,6 +21,17 @@
    const cleared=!!player?.flags?.portRoadCleared;
    model.title=cleared?'Boulder Junction — Road Cleared':'Boulder Junction — Road Blocked';
    model.art='../devtest/assets/locations/seaport_boulder_'+(cleared?'cleared':'blocked')+'.png';
+  }
+  // Seaport occupation ends only after the prisoners are freed, not merely when the fighters fall.
+  const g=typeof lanternState==='function'?lanternState():null;
+  const atSeaport=g?.nodeId==='seaport'&&!g.currentEdgeId;
+  const currentStage=String(stage||'');
+  const inSeaportMenu=currentStage==='seaport'||/^port55(?!Road)/.test(currentStage)||
+   ['portMarket','portClinic','portDocks','portWatch'].includes(currentStage);
+  if(model.location==='seaport'&&(atSeaport||inSeaportMenu)){
+   const liberated=!!player.flags?.seaport55?.freed;
+   model.art=liberated?'assets/locations/seaport.png':'../devtest/assets/locations/seaport_occupied.png';
+   model.title=liberated?'Seaport':'Seaport — Occupied Harbor';
   }
   return model;
  };

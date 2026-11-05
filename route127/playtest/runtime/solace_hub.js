@@ -13,7 +13,9 @@ const IN_SHOP={
  'solace savings & loan':'bank',
  'armory':'armory'
 };
-const present=()=>typeof globalThis.Route127WandererDensity?.solaceAt==='function'\n ?globalThis.Route127WandererDensity.solaceAt('mercy')\n :typeof wanderers!=='undefined'&&typeof wandererLocations!=='undefined'
+const present=()=>typeof globalThis.Route127WandererDensity?.solaceAt==='function' 
+ ?globalThis.Route127WandererDensity.solaceAt('mercy')
+ :typeof wanderers!=='undefined'&&typeof wandererLocations!=='undefined'
  ?wanderers.filter(w=>wandererLocations[w.name]==='mercy'&&
    (typeof wandererAlive!=='function'||wandererAlive(w))&&
    !(typeof portIsHired==='function'&&portIsHired(w.name)))

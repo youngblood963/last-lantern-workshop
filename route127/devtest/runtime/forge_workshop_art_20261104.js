@@ -78,7 +78,9 @@
   }
   // Kaiden's approved dialogue portrait appears only during his post-liberation conversation.
   // Patrol routing and dialogue stay in the original game code.
-  if(currentStage==='port55Kaiden'&&!!player.flags?.seaport55?.freed){
+  if((currentStage==='port55Kaiden'||
+      (currentStage==='r11Quest'&&player.flags?.r11QuestFocus==='lights'))&&
+      !!player.flags?.seaport55?.freed){
    model.art='../devtest/assets/locations/sheriff_kaiden.png';
    model.title='Sheriff Kaiden';
   }
@@ -87,93 +89,124 @@
  if(typeof GraphicalUI.schedule==='function')GraphicalUI.schedule();
 })();
 
-/* DEVTEST lawman parity: Kaiden shares Tim's non-quest law services.
- * Keep the existing Seaport quest flags, Kaiden patrol, and legacy dialogue intact. */
+/* DEVTEST Kaiden: one authoritative menu and dialogue state, following Tim's
+ * established legal services. Do not let the old r11 post-command renderer
+ * append a second Kaiden menu. Keep r11's actual lights quest and global crime.
+ */
 (function(){
- if(!location.pathname.includes('/route127/devtest/'))return;
- if(typeof port55Submenu!=='function'||typeof port55Command!=='function')return;
- const originalSubmenu=port55Submenu;
- const originalCommand=port55Command;
- let kaidenPage='main';
- const hasBounty=()=>typeof v52Crime==='function'&&Number(v52Crime().bounty)>0;
- function kaidenMenu(){
-  kaidenPage='main';
-  const choices=['ASK ABOUT SEAPORT','SMALL TALK','VIEW BOUNTIES',...(hasBounty()?['PAY FINE','OFFER BRIBE']:[]),'BACK'];
-  originalSubmenu('Sheriff Kaiden',choices);
-  currentHotkeys.b='back';
- }
- function smallTalkMenu(){
-  kaidenPage='small-talk';
-  originalSubmenu('Sheriff Kaiden — Small Talk',['HOW IS SEAPORT HOLDING UP?','ASK ABOUT KEEPING THE LIGHTS ON','BACK']);
-  currentHotkeys.b='back';
- }
- function bribeMenu(){
-  kaidenPage='bribe';
-  const pending=player.flags?.r18BribePending;
-  if(!pending||pending.lawman!=='Kaiden')return kaidenMenu();
-  originalSubmenu('Sheriff Kaiden — Bribe Offer',['CONFIRM BRIBE','CANCEL BRIBE','BACK']);
-  currentHotkeys.b='back';
- }
- port55Submenu=function(name,choices){
-  if(stage==='port55Kaiden'){
-   // All legacy Kaiden redraws return to the lawman menu, never the removed RETURN TO HARBOR option.
-   return kaidenMenu();
+ 'use strict';
+ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
+ const baseSubmenu=port55Submenu;
+ let page='main';
+ const liberated=()=>player.flags?.seaport55?.freed===true;
+ const wanted=()=>typeof v52Crime==='function'&&Number(v52Crime().bounty)>0;
+ function menu(next='main'){
+  page=next;
+  if(next==='small-talk')
+   baseSubmenu('Sheriff Kaiden — Small Talk',
+    ['HOW IS SEAPORT HOLDING UP?','ASK ABOUT KEEPING THE LIGHTS ON','BACK']);
+  else if(next==='bribe'){
+   if(player.flags?.r18BribePending?.lawman!=='Kaiden')return menu();
+   baseSubmenu('Sheriff Kaiden — Bribe Offer',
+    ['CONFIRM BRIBE','CANCEL BRIBE','BACK']);
+  }else{
+   page='main';
+   baseSubmenu('Sheriff Kaiden',
+    ['ASK ABOUT SEAPORT','SMALL TALK','VIEW BOUNTIES',
+     ...(wanted()?['PAY FINE','OFFER BRIBE']:[]),'BACK']);
   }
-  return originalSubmenu.apply(this,arguments);
+  currentHotkeys.b='back';
+ }
+ // r11QuestReturn, save restores and Seaport's original entry call this
+ // function. Always present one consistent menu instead of legacy choices.
+ port55Submenu=function(name,choices){
+  if(stage==='port55Kaiden'&&liberated())return menu();
+  return baseSubmenu.apply(this,arguments);
  };
+ const basePortCommand=port55Command;
  port55Command=function(input){
-  if(stage!=='port55Kaiden'||!player.flags?.seaport55?.freed)return originalCommand.apply(this,arguments);
+  if(stage!=='port55Kaiden'||!liberated())
+   return basePortCommand.apply(this,arguments);
   const cmd=String(input||'').trim().toLowerCase();
   if(['back','b','return','exit','return to harbor'].includes(cmd)){
-   if(kaidenPage!=='main'){kaidenMenu();return true;}
-   kaidenPage='main';stage='seaport';port55Menu();return true;
+   if(page!=='main'){menu();return true;}
+   // He lives on Town Streets, not at the main Harbor menu.
+   stage='port55Stop';player.flags.port55CurrentStop='Town Streets';
+   port55StopMenu();return true;
   }
-  if(kaidenPage==='bribe'){
-   if(cmd==='confirm bribe'){if(typeof r18BribeConfirm==='function')r18BribeConfirm('Kaiden');kaidenMenu();return true;}
-   if(cmd==='cancel bribe'){if(typeof r18BribeCancel==='function')r18BribeCancel();kaidenMenu();return true;}
-   return bribeMenu(),true;
+  if(page==='bribe'){
+   if(cmd==='confirm bribe'){
+    r18BribeConfirm('Kaiden');menu();return true;
+   }
+   if(cmd==='cancel bribe'){r18BribeCancel();menu();return true;}
+   menu('bribe');return true;
   }
-  if(kaidenPage==='small-talk'){
+  if(page==='small-talk'){
    if(cmd==='how is seaport holding up?'||cmd==='how is seaport holding up'){
-    kaidenPage='main';
-    return originalCommand.call(this,'small talk');
+    add('KAIDEN > The docks are open again. Keeping them safe is the hard part. We need reliable lights, honest traders, and a watch that actually stays put.','bright');
+    menu('small-talk');return true;
    }
    if(cmd==='ask about keeping the lights on'){
-    // The existing quest interaction belongs under Small Talk; retain its original command path.
-    kaidenPage='main';
-    const handled=originalCommand.call(this,cmd);
-    if(handled)return true;
-    // If another handler owns this quest, allow it to process the command.
-    return false;
+    // Canonical R11 quest stage owns acceptance, rewards, and save flags.
+    r11QuestMenu('lights');return true;
    }
-   return smallTalkMenu(),true;
+   menu('small-talk');return true;
   }
-  if(cmd==='small talk'){smallTalkMenu();return true;}
   if(cmd==='ask about seaport'){
    add('KAIDEN > The fishermen are gone, but keeping this town safe will take more than a cleared dock. People need working shops, open roads, and someone watching the harbor.','bright');
-   kaidenMenu();return true;
+   // Original liberation dialogue counted speaking to Kaiden toward chapter completion.
+   const q=port55State();
+   if(q.stage==='meet'&&!q.metKaiden){
+    q.metKaiden=true;
+    if(q.metMia){q.stage='done';port55CompleteChapter();}
+   }
+   menu();return true;
   }
+  if(cmd==='small talk'){menu('small-talk');return true;}
   if(cmd==='view bounties'){
-   if(typeof v52Wanted==='function')v52Wanted();
-   const crime=typeof v52Crime==='function'?v52Crime():{active:[]};
-   if(crime.active?.length)crime.active.slice(-8).forEach(x=>add('DAY '+x.day+' — '+x.detail+' (+'+x.amount+' BOLTS)','system'));
+   v52Wanted();
+   const crime=v52Crime();
+   if(crime.active?.length)crime.active.slice(-8).forEach(x=>
+    add('DAY '+x.day+' — '+x.detail+' (+'+x.amount+' BOLTS)','system'));
    else add('No active warrants.','system');
-   kaidenMenu();return true;
+   menu();return true;
   }
   if(cmd==='pay fine'||cmd==='pay off bounty'){
-   if(typeof r18LegalFine==='function')r18LegalFine('Kaiden');
-   kaidenMenu();return true;
+   if(wanted())r18LegalFine('Kaiden');
+   menu();return true;
   }
   if(cmd==='offer bribe'){
-   if(typeof r18BribeOffer==='function'&&r18BribeOffer('Kaiden'))bribeMenu();
-   else kaidenMenu();
+   if(wanted()&&r18BribeOffer('Kaiden'))menu('bribe');
+   else menu();
    return true;
   }
-  // Preserve quest progression and specialized dialogue owned by the original game.
-  return originalCommand.apply(this,arguments);
+  menu();return true;
+ };
+ // The canonical r11 core appends a second legacy Kaiden choice set after
+ // each command. Intercept only Kaiden conversation; other quests/gameplay
+ // still run through the unchanged command pipeline.
+ const baseCore=handleCommandCore;
+ handleCommandCore=async function(raw){
+  const value=String(raw||'').trim();
+  const mapped=/^\\d+$/.test(value)?numberedChoices[value]:null;
+  const cmd=String(mapped||value).trim().toLowerCase();
+  if(!busy&&liberated()&&stage==='port55Kaiden'&&
+    !/^(?:save|load|inventory|status|quests|map|testing|test off)(?:\\s|$)/i.test(cmd)){
+   return port55Command(cmd);
+  }
+  // The first click entering Kaiden may still route through r11's legacy
+  // post-renderer. Replace its buttons with the single new menu immediately.
+  if(!busy&&liberated()&&
+    ((stage==='port55Stop'&&player.flags?.port55CurrentStop==='Town Streets'&&
+      ['talk kaiden','small talk kaiden','kaiden','small talk'].includes(cmd))||
+     (stage==='seaport'&&['kaiden','talk kaiden'].includes(cmd)))){
+   const result=await baseCore.apply(this,arguments);
+   if(stage==='port55Kaiden')menu();
+   return result;
+  }
+  return baseCore.apply(this,arguments);
  };
 })();
-
 /* DEVTEST Nessa menu: Corvette's queued appended choices can displace the
  * vendor's numbered pet purchases in graphical mode. Build one atomic menu. */
 (function(){

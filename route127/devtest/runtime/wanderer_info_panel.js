@@ -41,7 +41,9 @@
     // Read existing state directly; ws() and v50Profile() can create state or roll loot.
     const state=typeof player!=='undefined'?player?.wandererState?.[name]:null;
     const profile=state?.profile||null;
-    const display=def?.displayName||name;
+    // Match the established graphical names used in road encounters and the roster.
+    // Short names remain the authoritative internal IDs.
+    const display=(typeof RouteIdentity!=='undefined'?RouteIdentity.wanderer?.[name]:null)||def?.displayName||name;
     const level=profile?.level??w?.level??def?.level??'Unknown';
     const occupation=w?.occupation||def?.occupation||'Unknown';
     const skills=ratingFor(name,w,def,state);

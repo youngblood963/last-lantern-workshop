@@ -492,8 +492,11 @@
    const item=document.createElement('div');item.className='r127-roster-item';
    const person=document.createElement('button');person.type='button';person.className='r127-roster-person';
    const label=document.createElement('strong');
-   label.textContent=(typeof WandererWorldExpansion!=='undefined'?
-       WandererWorldExpansion.definition(name)?.displayName:null)||name;
+   // The established graphical identity map owns display surnames.
+   // Keep short handles in commands/saves; never substitute a different
+   // surname from descriptive legacy profiles (e.g. Finch/Cutter).
+   label.textContent=globalThis.RouteIdentity?.wanderer?.[name]||
+    (typeof RouteIdentity!=='undefined'?RouteIdentity.wanderer?.[name]:null)||name;
    const details=document.createElement('span');
    details.textContent=(w.occupation||'Wanderer')+' · '+skill.toUpperCase()+' '+rating+'/5'+
     (assigned?' · '+(assigned===role?'Currently here':'Assigned: '+PORT_STAFF_ROLES[assigned]?.name):' · Available');

@@ -28,3 +28,14 @@ body.full-graphics .gfx-frame .gfx-choice-label{overflow-wrap:break-word}
  body.full-graphics .gfx-frame .gfx-narrative{padding:4px 6px}
  body.full-graphics .gfx-frame #screen{overflow-y:auto;scroll-padding-bottom:8px}
 }
+
+/* DEVTEST: Sheriff's square portrait is not a panoramic landscape. Keep his face
+ * and badge visible rather than center-cropping the image at widescreen ratios. */
+body.full-graphics .gfx-frame .gfx-image[src*="sheriff_kaiden.png"]{
+ object-fit:contain!important;
+ object-position:center center!important;
+ background:#100f0c;
+}
+body.full-graphics .gfx-frame .gfx-art:has(.gfx-image[src*="sheriff_kaiden.png"]){
+ background:#100f0c!important;
+}

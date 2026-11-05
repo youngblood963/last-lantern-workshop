@@ -1,0 +1,62 @@
+/* DEVTEST: preserve readable text and the approved one-page graphical layout.
+ * Reclaim bottom spacing instead of shrinking the story font. */
+@media (min-width:761px){
+ body.full-graphics .gfx-frame .gfx-narrative{padding:3px 8px;margin:0}
+ body.full-graphics .gfx-frame #screen{
+  height:clamp(95px,12dvh,118px);
+  min-height:calc(3 * 1.4em + 16px);
+  overflow-y:auto;
+  scroll-padding-bottom:8px;
+ }
+ body.full-graphics .gfx-frame #screen .line{margin-bottom:3px}
+}
+/* Factory/road names may wrap instead of being cut off or reduced to tiny type. */
+body.full-graphics .gfx-frame .gfx-road-choice{overflow:hidden}
+body.full-graphics .gfx-frame .gfx-road-choice .gfx-choice-label{
+ font-size:clamp(12px,0.95vw,15px);
+ line-height:1.15;
+ white-space:normal;
+ overflow-wrap:break-word;
+ text-overflow:clip;
+ display:-webkit-box;
+ -webkit-box-orient:vertical;
+ -webkit-line-clamp:2;
+ overflow:hidden;
+}
+body.full-graphics .gfx-frame .gfx-choice-label{overflow-wrap:break-word}
+@media(max-width:760px){
+ body.full-graphics .gfx-frame .gfx-narrative{padding:4px 6px}
+ body.full-graphics .gfx-frame #screen{overflow-y:auto;scroll-padding-bottom:8px}
+}
+
+/* DEVTEST: Sheriff's square portrait is not a panoramic landscape. Keep his face
+ * and badge visible rather than center-cropping the image at widescreen ratios. */
+body.full-graphics .gfx-frame .gfx-image[src*="sheriff_kaiden.png"]{
+ object-fit:contain!important;
+ object-position:center center!important;
+ background:#100f0c;
+}
+body.full-graphics .gfx-frame .gfx-art:has(.gfx-image[src*="sheriff_kaiden.png"]){
+ background:#100f0c!important;
+}
+
+/* DEVTEST: fit Nessa's full scene inside the art window so her face isn't
+ * hidden beneath the header in the compact one-page interface. */
+body.full-graphics .gfx-frame .gfx-image[src*="seaport_nessa_pet_shop.png"]{
+ object-fit:contain!important;
+ object-position:center center!important;
+ background:#100f0c;
+}
+body.full-graphics .gfx-frame .gfx-art:has(.gfx-image[src*="seaport_nessa_pet_shop.png"]){
+ background:#100f0c!important;
+}
+
+/* DEVTEST: neutral menu buttons; first item is not a selected action.
+   Preserve orange for keyboard numbers, focus and hover only. */
+body.full-graphics .gfx-frame .gfx-choice:first-child .gfx-choice-label{
+ color:#e7e1d7;
+}
+body.full-graphics .gfx-frame .gfx-choice:first-child{
+ border-color:#745337;
+ color:#e7e1d7;
+}

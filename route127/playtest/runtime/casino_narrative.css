@@ -1,0 +1,7 @@
+/* Devtest-only presentation cleanup: do not remove casino animations from gameplay.
+   The original ASCII frames and Skip Animation control remain present for Classic BBS,
+   while the graphical casino uses its dedicated animated figure instead. */
+body.full-graphics .gfx-frame .gfx-narrative #screen .casino-art,
+body.full-graphics .gfx-frame .gfx-narrative #screen .casino-skip {
+  display: none !important;
+}

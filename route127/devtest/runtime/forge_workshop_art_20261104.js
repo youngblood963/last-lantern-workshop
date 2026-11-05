@@ -736,3 +736,54 @@
  // while occupied, and without requiring a new game.
  addEventListener('DOMContentLoaded',()=>{if(liberated())enable();},{once:true});
 })();
+
+/* DEVTEST: one authoritative graphical Seaport staff-label / Market menu pass.
+ * Read staffing state whenever each menu is shown. Internal commands keep
+ * their original short names; only player-facing labels use display surnames.
+ */
+(function(){
+ 'use strict';
+ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
+ const market=()=>stage==='port55Stop'&&player.flags?.port55CurrentStop==='Market Area';
+ const full=name=>(typeof RouteIdentity!=='undefined'?RouteIdentity.wanderer?.[name]:null)||name;
+ const roleKey=cmd=>Object.keys(PORT_STAFF_ROLES).find(role=>
+  cmd===role||cmd.startsWith(role+' —'));
+ const earlierStop=port55StopMenu;
+ port55StopMenu=function(...args){
+  if(!market())return earlierStop.apply(this,args);
+  const options=Object.entries(PORT_STAFF_ROLES).map(([role,def])=>{
+   const assigned=portStaffState().assignments[role];
+   return def.name.toUpperCase()+' — '+(assigned?full(assigned).toUpperCase():'NEED TO HIRE');
+  });
+  options.push('PET STORE');
+  if(port55PatrolName()==='Market Area')options.push('TALK KAIDEN');
+  options.push('BACK');
+  port55Submenu('Market Area',options);
+ };
+ const earlierCommand=port55Command;
+ port55Command=function(cmd){
+  if(market()&&cmd==='pet store'){
+   stage='port55Vendor';port55Vendor();return true;
+  }
+  if(stage==='port55Vendor'&&
+     ['back','b','exit','return','return to harbor'].includes(cmd)&&
+     player.flags?.port55CurrentStop==='Market Area'){
+   stage='port55Stop';port55StopMenu();return true;
+  }
+  return earlierCommand.apply(this,arguments);
+ };
+ // Graphical label modification never changes numbered choice commands,
+ // staffing assignments or saved internal wanderer names.
+ const earlierChoices=GraphicalUI.choices;
+ GraphicalUI.choices=function(...args){
+  const rows=earlierChoices.apply(this,args);
+  if(!this.active()||!['seaport','port55Stop'].includes(stage))return rows;
+  return rows.map(row=>{
+   const cmd=String(row.command||'').toLowerCase();
+   const role=roleKey(cmd);
+   if(!role)return row;
+   const def=PORT_STAFF_ROLES[role],assigned=portStaffState().assignments[role];
+   return {...row,label:def.name+' — '+(assigned?full(assigned):'Need to Hire')};
+  });
+ };
+})();

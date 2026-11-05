@@ -956,6 +956,21 @@
   if(player.flags?.seaport55?.freed===true)return;
   return formerTick.apply(this,args);
  };
+ // Replace old patrol narration without touching the actual stop options.
+ const previousStopMenu=port55StopMenu;
+ port55StopMenu=function(...args){
+  if(player.flags?.seaport55?.freed!==true||
+     player.flags?.port55CurrentStop!=='Town Streets')
+   return previousStopMenu.apply(this,args);
+  const priorAdd=add;
+  add=function(message,...extra){
+   if(String(message).startsWith('Kaiden is on patrol at '))
+    message='Sheriff Kaiden is stationed in Town Streets.';
+   return priorAdd.call(this,message,...extra);
+  };
+  try{return previousStopMenu.apply(this,args);}
+  finally{add=priorAdd;}
+ };
  // Replace the old changing-patrol announcement, not the town logic.
  const formerMenu=port55Menu;
  port55Menu=function(...args){

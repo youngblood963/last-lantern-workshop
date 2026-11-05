@@ -20,7 +20,7 @@
   const options=confronting
    ? ['LET THE PAST STAY BURIED','FORGIVE RED','BLACKMAIL RED FOR 50 BOLTS','ATTACK RED','RETURN TO CONVERSATION']
    : ['ASK RED HIS NAME','ASK RED ABOUT SEAPORT','ASK RED ABOUT THE IRON PIT',
-      'BUY RED A DRINK',
+      'BUY RED A DRINK — 5 BOLTS',
       ...(player.flags.r18RedPosterSeen&&!q.outcome?[q.posterOpen?'DISCUSS THE WANTED POSTER':'SHOW THE WANTED POSTER']:[]),
       'RETURN TO MIA'];
   r5DirectChoices(options);
@@ -62,11 +62,12 @@
   }else if(cmd==='ask red about the iron pit'){
    page='conversation';
    add('RED > Three qualifying rings, one pass. The old motel runs the Deep End. A pass is permission to enter, not a road through a locked gate.','bright');
-  }else if(cmd==='buy red a drink'){
+  }else if((cmd==='buy red a drink — 5 bolts'||cmd==='buy red a drink')){
    page='conversation';
    if(player.bolts<5)add('A drink costs 5 Bolts.','system');
    else{
     player.bolts-=5;updateHud();
+    add('You spend 5 Bolts on a drink for Red.','system');
     add('Red thanks you for the drink. Neither of you mistakes it for an obligation.','bright');
    }
   }else if((cmd==='show the wanted poster'||cmd==='discuss the wanted poster')&&

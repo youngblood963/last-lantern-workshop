@@ -107,6 +107,16 @@
         typeof player !== 'undefined' &&
         player?.flags?.portHireOffer?.origin !== 'wandererRoad')
       return { name:player.flags.portHireOffer.name,kind:'town' };
+    // A genuinely visiting (not yet hired) Seaport wanderer has the same
+    // portrait affordance as other town encounters.
+    if ((stage==='port55Guest'||(stage==='port55Stop'&&
+         player.flags?.port55CurrentStop==='Town Streets'))&&
+        player.flags?.seaport55?.freed){
+      const guests=wanderers.filter(w=>wandererLocations[w.name]==='seaport'&&
+        wandererAlive(w)&&!portIsHired(w.name));
+      const name=stage==='port55Guest'?player.flags?.port55VisitingName:guests[0]?.name;
+      if(name&&guests.some(w=>w.name===name))return {name,kind:'town'};
+    }
     return null;
   }
 

@@ -61,7 +61,28 @@ function instantRow(rawText='',rawCls=''){
 }
 add=function(text='',cls=''){
  if(!graphical())return previousAdd.apply(this,arguments);
- instantRow(text,cls);return;
+ // WO43: restore the original terminal typewriter for dialogue and story
+ // prose. Menus, rewards, and status lines stay immediate so navigation and
+ // combat are responsive; Classic BBS remains exactly as it was.
+ const normalized=normalizeQuestNotice(String(text??''),String(cls??''));
+ const kind=normalized.cls;
+ const paced=normalized.text &&
+  !kind.includes('system')&&!kind.includes('reward')&&
+  !kind.includes('danger')&&!kind.includes('quest-banner') &&
+  !kind.includes('place');
+ if(!paced){instantRow(text,cls);return;}
+ // This is the original game's authoritative paced writer. It already
+ // registers command state synchronously and follows the newest character.
+ previousAdd.call(this,text,cls);
+ // The final follow corrects scroll position even if an earlier manual
+ // scroll had disabled followOutput's sticky-bottom preference.
+ outputQueue=outputQueue.then(()=>{
+  if(!TravelerPanels.dialog){
+   while(screen.childElementCount>MAX_VISIBLE_LINES)screen.firstElementChild.remove();
+  }
+  showLatestOutput();
+  GraphicalUI.schedule();
+ });
 };
 typeLine=async function(text='',cls='',speed=18){
  if(!graphical())return previousTypeLine.apply(this,arguments);

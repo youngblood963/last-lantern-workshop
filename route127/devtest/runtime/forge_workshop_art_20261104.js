@@ -39,20 +39,28 @@
    }else if(atDocks){
     model.art='../devtest/seaport_liberation.png';
     model.title='Seaport — Harbor Docks';
+   }else if(currentStage==='port55Stop'&&player.flags?.port55CurrentStop==='Town Streets'){
+    model.art='../devtest/assets/locations/seaport_town_streets.png';
+    model.title='Seaport — Town Streets';
    }else{
-    // Temporary nonblank fallback until approved Town Streets / Market artwork is added.
     model.art='assets/locations/seaport.png';
     model.title='Seaport';
    }
   }
-  // Staffed businesses: replace individual venue art as each approved background arrives.
-  // Until then, keep the existing town scene rather than show a broken image.
+  // Each Seaport business has a permanent empty background. The separately
+  // composited full-body wanderer is shown ONLY after that role is assigned.
   if(currentStage==='port55Service'&&!!player.flags?.seaport55?.freed){
    const role=player.flags?.portStaffUI?.role;
-   const names={'clinic':'Clinic','general store':'General Store','workshop':'Workshop','bank':'Bank','armory':'Armory'};
-   if(names[role]){
-    model.title='Seaport — '+names[role];
-    // Shop image mapping will be enabled when the actual approved PNGs are uploaded.
+   const shops={
+    'clinic':['Clinic','seaport_clinic.png'],
+    'general store':['General Store','seaport_general_store.png'],
+    'workshop':['Workshop','seaport_workshop.png'],
+    'bank':['Bank','seaport_bank.png'],
+    'armory':['Armory','seaport_armory.png']
+   };
+   if(shops[role]){
+    model.title='Seaport — '+shops[role][0];
+    model.art='../devtest/assets/locations/'+shops[role][1];
    }
   }
   // Nessa's waterside pet shop is a dedicated scene, independent of Seaport's other venues.

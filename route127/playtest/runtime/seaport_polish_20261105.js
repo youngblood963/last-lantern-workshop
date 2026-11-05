@@ -95,7 +95,7 @@ handleCombat=function(...a){
 const oldModel=GraphicalUI.model;
 GraphicalUI.model=function(...a){
  const m=oldModel.apply(this,a);
- if(market()){m.location='seaport-market-area';m.title='Seaport — Market Area';m.art='../devtest/assets/locations/seaport_market_area.png';}
+ if(market()){m.location='seaport-market-area';m.title='Seaport — Market Area';m.art='/route127/devtest/assets/locations/seaport_market_area.png';}
  return m;
 };
 const oldChoices=GraphicalUI.choices;
@@ -243,5 +243,52 @@ GraphicalUI.sync=function(...a){
   }else caption.style.removeProperty('color');
  }
  return result;
+};
+
+// WO30.3: A Market Area location is a real Seaport art context rather
+// than a painted harbor fallback. Use a root-relative asset URL so that
+// Devtest/Playtest script-base differences cannot change the resolved path.
+if(typeof ROUTE127_ART==='object'){
+ ROUTE127_ART['seaport-market-area']={
+  file:'/route127/devtest/assets/locations/seaport_market_area.png',
+  title:'Seaport — Market Area'
+ };
+}
+const previousContext=GraphicalUI.context;
+GraphicalUI.context=function(...args){
+ if(market())return 'seaport-market-area';
+ return previousContext.apply(this,args);
+};
+// WO30.3: the visitor's availability must match the displayed menu.
+// The density roll may choose a wanderer not yet assigned to seaport, and
+// a previous menu render can clear the interact option. Resolve the same
+// chosen name once, assign its canonical town location, and publish the
+// interact action LAST so its numbered button is never silently removed.
+const previousStopWithGuest=port55StopMenu;
+port55StopMenu=function(...a){
+ if(!(stage==='port55Stop'&&player.flags?.port55CurrentStop==='Town Streets'&&player.flags?.seaport55?.freed))
+  return previousStopWithGuest.apply(this,a);
+ const chosen=globalThis.Route127WandererDensity?.seaportName();
+ const eligible=w=>w&&wandererAlive(w)&&!portIsHired(w.name);
+ const named=chosen&&wandererByName(chosen);
+ const here=named&&eligible(named)?named:null;
+ if(here&&wandererLocations[here.name]!=='seaport')
+  wandererLocations[here.name]='seaport';
+ // Fallback supports old saves that already assigned the town visitor,
+ // but does not fabricate a new one after a failed density roll.
+ const person=here||(!globalThis.Route127WandererDensity?
+   wanderers.find(w=>eligible(w)&&wandererLocations[w.name]==='seaport'):null);
+ const patrol=typeof port55PatrolName==='function'&&port55PatrolName()==='Town Streets';
+ if(graphics()&&screen)screen.replaceChildren();
+ if(person){
+  const display=RouteIdentity?.wanderer?.[person.name]||person.name;
+  add(display+' is visiting the Town Streets.','bright');
+ }
+ const options=[
+  ...(person?['TALK TO WANDERER — '+person.name.toUpperCase()]:[]),
+  ...(patrol?['TALK KAIDEN']:[]),
+  'RETURN TO HARBOR'
+ ];
+ port55Submenu('Town Streets',options);
 };
 })();

@@ -801,3 +801,20 @@
   });
  };
 })();
+
+/* DEVTEST graphical navigation: hide duplicate B BACK buttons only when a
+ * numbered exit already handles returning. Keep the original hotkey and
+ * command mappings intact for Classic BBS and keyboard navigation. */
+(function(){
+ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||typeof GraphicalUI==='undefined')return;
+ const previousChoices=GraphicalUI.choices;
+ GraphicalUI.choices=function(...args){
+  const rows=previousChoices.apply(this,args);
+  if(!this.active())return rows;
+  const exits=rows.filter(r=>/^\d+$/.test(String(r.key))&&
+   /^(?:back|return(?: to (?:seaport|harbor|town|road|market|docks|previous menu))?|leave(?: (?:area|shop|store))?)$/i.test(String(r.command||'').trim()));
+  if(!exits.length)return rows;
+  return rows.filter(r=>!(String(r.key).toLowerCase()==='b'&&
+   /^(?:back|return)$/i.test(String(r.command||'').trim())));
+ };
+})();

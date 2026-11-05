@@ -40,6 +40,8 @@
     'Nadia Rill':'nadia_rill.png',
     'Rhea Tarrant':'rhea_tarrant.png'
   });
+  // Shared read-only identity-to-portrait map for Seaport staffed shop visuals.
+  globalThis.Route127WandererPortraitFiles = art;
   const root = new URL('../devtest/assets/wanderers/', location.href);
   const shortName = name => { const parts=name.trim().split(/\s+/); return parts.length>1 ? parts[0]+' '+parts.at(-1)[0]+'.' : name; };
   const style = document.createElement('style');

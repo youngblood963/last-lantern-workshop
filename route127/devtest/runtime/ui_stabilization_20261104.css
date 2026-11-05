@@ -29,25 +29,26 @@ body.full-graphics .gfx-frame .gfx-choice-label{overflow-wrap:break-word}
  body.full-graphics .gfx-frame #screen{overflow-y:auto;scroll-padding-bottom:8px}
 }
 
-/* DEVTEST: Sheriff's square portrait is not a panoramic landscape. Keep his face
- * and badge visible rather than center-cropping the image at widescreen ratios. */
-body.full-graphics .gfx-frame .gfx-image[src*="sheriff_kaiden.png"]{
+/* DEVTEST — SAFE CHARACTER FRAMING
+ * Shared, location-specific policy for scene art whose subject must remain
+ * entirely visible. Add future character-focused artwork to these two lists,
+ * rather than applying global cropping corrections to every game location.
+ * Preserve the existing art box, menus, and viewport dimensions.
+ */
+body.full-graphics .gfx-frame .gfx-image:is(
+ [src*="sheriff_kaiden.png"],
+ [src*="seaport_nessa_pet_shop.png"],
+ [src*="rusty_anchor.png"]
+){
  object-fit:contain!important;
  object-position:center center!important;
  background:#100f0c;
 }
-body.full-graphics .gfx-frame .gfx-art:has(.gfx-image[src*="sheriff_kaiden.png"]){
- background:#100f0c!important;
-}
-
-/* DEVTEST: fit Nessa's full scene inside the art window so her face isn't
- * hidden beneath the header in the compact one-page interface. */
-body.full-graphics .gfx-frame .gfx-image[src*="seaport_nessa_pet_shop.png"]{
- object-fit:contain!important;
- object-position:center center!important;
- background:#100f0c;
-}
-body.full-graphics .gfx-frame .gfx-art:has(.gfx-image[src*="seaport_nessa_pet_shop.png"]){
+body.full-graphics .gfx-frame .gfx-art:has(.gfx-image:is(
+ [src*="sheriff_kaiden.png"],
+ [src*="seaport_nessa_pet_shop.png"],
+ [src*="rusty_anchor.png"]
+)){
  background:#100f0c!important;
 }
 

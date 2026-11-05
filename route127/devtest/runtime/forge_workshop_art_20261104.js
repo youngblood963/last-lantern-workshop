@@ -247,3 +247,94 @@
  };
  addEventListener('DOMContentLoaded',()=>GraphicalUI.sync(),{once:true});
 })();
+
+/* DEVTEST fifth shop — Seaport Armory.
+ * Reuse Solace's regionalEquipmentStock/Text/Buy and existing Seaport hiring.
+ * No new stock, aptitude, currency or save schema. */
+(function(){
+ 'use strict';
+ if(!location.pathname.includes('/route127/devtest/')||typeof PORT_STAFF_ROLES==='undefined')return;
+ PORT_STAFF_ROLES.armory={name:'Armory',job:'Armorer',skill:'trading'};
+ const previousMenu=port55Menu;
+ port55Menu=function(...args){
+  const out=previousMenu.apply(this,args);
+  if(player.flags?.seaport55?.freed){
+   const assigned=player.flags?.seaportStaff?.assignments?.armory;
+   if(typeof lanternAppendChoices==='function')
+    lanternAppendChoices(['ARMORY — '+(assigned?assigned.toUpperCase():'NEED TO HIRE')]);
+  }
+  return out;
+ };
+ // Armory receives the existing Seaport weapons/armor stock, now sold by
+ // the trader assigned to the Armory rather than General Store.
+ const basePrice=regionalEquipmentPrice;
+ regionalEquipmentPrice=function(name,region){
+  if(region!=='seaport')return basePrice.apply(this,arguments);
+  const g=GEAR[name];if(!g||!g.id)return 0;
+  const rating=Math.max(1,portStaffRating('armory'));
+  const base=(50+3*g.level)*(g.rarity==='rare'?2:1);
+  return Math.max(1,Math.round(base*(1-(rating-1)*.02)));
+ };
+ const previousChoices=portStaffChoices;
+ portStaffChoices=function(title,choices){
+  // Equipment is exclusively at the Armory; keep all the General Store's
+  // other services and trade bonuses untouched.
+  if(stage==='port55Service'&&player.flags?.portStaffUI?.role==='general store'&&title==='SERVICES')
+   choices=choices.filter(x=>x!=='BUY EQUIPMENT');
+  return previousChoices.call(this,title,choices);
+ };
+ const previousRender=portStaffRender;
+ portStaffRender=function(...args){
+  const ui=player.flags?.portStaffUI;
+  if(stage!=='port55Service'||ui?.role!=='armory')return previousRender.apply(this,args);
+  if(!portRecruitUnlocked())return previousRender.apply(this,args);
+  const state=portStaffState(),assigned=state.assignments.armory;
+  // The existing renderer already handles hiring, replacing and releasing
+  // staff, including confirmation and the save/autosave path.
+  if(['assign','unassign','replace'].includes(ui.page))
+   return previousRender.apply(this,args);
+  if(ui.page==='equipment'){
+   add('SEAPORT — ARMORY','place');
+   const stock=regionalEquipmentStock('seaport');
+   for(const slot of stock.slots)add(regionalEquipmentText(slot,'seaport'),GEAR[slot.name]?.rarity||'system');
+   portStaffChoices('EQUIPMENT — PRICE PER ITEM',[
+    ...stock.slots.filter(slot=>!slot.sold).map(slot=>'BUY '+slot.name.toUpperCase()),
+    'BACK'
+   ]);
+   return;
+  }
+  if(ui.page!=='main')ui.page='main';
+  add('SEAPORT — ARMORY','place');
+  if(!assigned||!portStaffRating('armory')){
+   add('NEED TO HIRE — Assign a wanderer with Trading aptitude to open the armory.','system');
+   portStaffChoices('STAFFING',['ASSIGN STAFF','RETURN TO HARBOR']);
+   return;
+  }
+  const rating=portStaffRating('armory');
+  add('Armorer: '+assigned+' — Trading '+rating+'/5. Existing Seaport equipment stock and daily refill apply.','bright');
+  portStaffChoices('SERVICES',[
+   'BROWSE EQUIPMENT','INSPECT STAFF '+assigned.toUpperCase(),
+   'ASSIGN STAFF','UNASSIGN STAFF','RETURN TO HARBOR'
+  ]);
+ };
+ const previousService=portStaffServiceCommand;
+ portStaffServiceCommand=function(cmd){
+  const ui=player.flags?.portStaffUI,role=ui?.role;
+  if(stage!=='port55Service')return previousService.apply(this,arguments);
+  if(role==='general store'&&cmd==='buy equipment'){
+   add('Weapons and armor are sold at the Seaport Armory.','system');
+   portStaffRender();return true;
+  }
+  if(role==='armory'){
+   if(ui.page==='main'&&(cmd==='browse equipment'||cmd==='buy equipment')){
+    if(!portStaffRating('armory')){portStaffRender();return true;}
+    ui.page='equipment';portStaffRender();return true;
+   }
+   if(ui.page==='equipment'&&cmd.startsWith('buy ')){
+    if(portStaffRating('armory'))regionalEquipmentBuy('seaport',cmd.slice(4));
+    portStaffRender();return true;
+   }
+  }
+  return previousService.apply(this,arguments);
+ };
+})();

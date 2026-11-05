@@ -615,6 +615,9 @@
  const origMenu=port55Menu;
  port55Menu=function(...args){
   enable();
+  // Also populate an existing liberated save when its player is already
+  // inside Seaport and the new visitor feature is first loaded.
+  if(liberated())initialVisitor();
   const result=origMenu.apply(this,args);
   if(liberated()&&visitor())
    add('A traveler has been seen in the Town Streets.','system');
@@ -629,8 +632,11 @@
     ...(person?['TALK TO WANDERER — '+person.name.toUpperCase()]:[]),
     ...(patrol?['TALK KAIDEN']:[]),'RETURN TO HARBOR'];
    port55Submenu('Town Streets',options);
-   if(person)add((typeof RouteIdentity!=='undefined'?RouteIdentity.wanderer?.[person.name]:null)||person.name+
-    ' is visiting the fish market.','bright');
+   if(person){
+    const display=(typeof RouteIdentity!=='undefined'?
+       RouteIdentity.wanderer?.[person.name]:null)||person.name;
+    add(display+' is visiting the fish market.','bright');
+   }
    return;
   }
   return origStopMenu.apply(this,args);
@@ -647,6 +653,16 @@
     RouteIdentity.wanderer?.[w.name]:null)||w.name),
     ['SMALL TALK','INSPECT WANDERER','RECRUIT','BACK TO TOWN STREETS']);
  }
+ const origResume=port55Resume;
+ port55Resume=function(...args){
+  if(stage==='port55Guest')return guestMenu();
+  return origResume.apply(this,args);
+ };
+ const originalRenderChoices=renderCurrentChoices;
+ renderCurrentChoices=function(...args){
+  if(stage==='port55Guest')return guestMenu();
+  return originalRenderChoices.apply(this,args);
+ };
  const origCommand=port55Command;
  port55Command=function(cmd){
   if(stage==='port55Stop'&&player.flags?.port55CurrentStop==='Town Streets'&&

@@ -29,27 +29,65 @@ body.full-graphics .gfx-frame .gfx-choice-label{overflow-wrap:break-word}
  body.full-graphics .gfx-frame #screen{overflow-y:auto;scroll-padding-bottom:8px}
 }
 
-/* DEVTEST — SAFE CHARACTER FRAMING
- * Shared, location-specific policy for scene art whose subject must remain
- * entirely visible. Add future character-focused artwork to these two lists,
- * rather than applying global cropping corrections to every game location.
- * Preserve the existing art box, menus, and viewport dimensions.
+/* DEVTEST — cinematic character framing, adapted from Jen's Rusty Lantern.
+ * Keep original art sharp and fully visible; use a darkened copy solely as
+ * an edge fill. No viewport/menu dimensions or gameplay behavior are changed.
+ * Add new character-centric location art to this group and supply its
+ * background image in the URL mapping below.
  */
-body.full-graphics .gfx-frame .gfx-image:is(
- [src*="sheriff_kaiden.png"],
- [src*="seaport_nessa_pet_shop.png"],
- [src*="rusty_anchor.png"]
-){
- object-fit:contain!important;
- object-position:center center!important;
- background:#100f0c;
-}
-body.full-graphics .gfx-frame .gfx-art:has(.gfx-image:is(
+body.full-graphics .gfx-frame .gfx-art:has(> .gfx-image:is(
  [src*="sheriff_kaiden.png"],
  [src*="seaport_nessa_pet_shop.png"],
  [src*="rusty_anchor.png"]
 )){
- background:#100f0c!important;
+ isolation:isolate;
+ background:#100c08!important;
+ overflow:hidden;
+}
+body.full-graphics .gfx-frame .gfx-art:has(> .gfx-image:is(
+ [src*="sheriff_kaiden.png"],
+ [src*="seaport_nessa_pet_shop.png"],
+ [src*="rusty_anchor.png"]
+))::before{
+ content:'';
+ position:absolute;
+ inset:-12px;
+ z-index:0;
+ pointer-events:none;
+ background-position:center;
+ background-size:cover;
+ background-repeat:no-repeat;
+ filter:blur(9px) brightness(.38);
+}
+body.full-graphics .gfx-frame .gfx-art:has(> .gfx-image[src*="sheriff_kaiden.png"])::before{
+ background-image:linear-gradient(#08060466,#08060466),url('../assets/locations/sheriff_kaiden.png');
+}
+body.full-graphics .gfx-frame .gfx-art:has(> .gfx-image[src*="seaport_nessa_pet_shop.png"])::before{
+ background-image:linear-gradient(#08060466,#08060466),url('../assets/locations/seaport_nessa_pet_shop.png');
+}
+body.full-graphics .gfx-frame .gfx-art:has(> .gfx-image[src*="rusty_anchor.png"])::before{
+ background-image:linear-gradient(#08060466,#08060466),url('../assets/locations/rusty_anchor.png');
+}
+body.full-graphics .gfx-frame .gfx-art > .gfx-image:is(
+ [src*="sheriff_kaiden.png"],
+ [src*="seaport_nessa_pet_shop.png"],
+ [src*="rusty_anchor.png"]
+){
+ position:relative;
+ z-index:1;
+ width:100%!important;
+ height:100%!important;
+ max-height:100%!important;
+ object-fit:contain!important;
+ object-position:center center!important;
+ background:transparent!important;
+}
+body.full-graphics .gfx-frame .gfx-art:has(> .gfx-image:is(
+ [src*="sheriff_kaiden.png"],
+ [src*="seaport_nessa_pet_shop.png"],
+ [src*="rusty_anchor.png"]
+)) > .gfx-art-caption{
+ z-index:2;
 }
 
 /* DEVTEST: neutral menu buttons; first item is not a selected action.

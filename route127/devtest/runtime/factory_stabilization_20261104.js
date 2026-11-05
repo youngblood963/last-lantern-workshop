@@ -10,6 +10,10 @@ const floors=['LOADING & RECEIVING','PRODUCTION & ASSEMBLY','CHEMICAL PROCESSING
 const bossNames=['Salvage King','Grinder','The Chemist','The Foreman'];
 function resultFlags(){
  const f=player.flags,d=f.factoryDungeon?.done||[];
+ // Reconcile older saves after they are loaded, not only at script startup.
+ if(!f.devForgeTalked&&f.v49TerminalRead&&
+    (String(stage).startsWith('factoryDungeon')||d.length>0||f.v49RecipeBandage))f.devForgeTalked=true;
+ if(d.includes(3)&&!f.factoryFinalComponent)f.factoryFinalComponent=true;
  return {f,done:d,met:!!(f.r5ForgeBriefed||f.devForgeTalked),all:[0,1,2,3].every(n=>d.includes(n))};
 }
 function isChargeReady(){

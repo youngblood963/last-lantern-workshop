@@ -26,10 +26,12 @@
   providers.set(id,{id,priority:LEVEL[level]??0,supports,choices});
   return ()=>providers.delete(id);
  }
+ let chosenOwner=null;
  const upstream=GraphicalUI.choices;
  const baseChoices=function(){return dedupe(upstream.apply(GraphicalUI,arguments));};
  function resolve(){
   const base=baseChoices();
+  chosenOwner=null;
   if(!GraphicalUI.active())return base;
   const context=Object.freeze({
    stage:String(stage),location:typeof mercyLocation==='string'?mercyLocation:'',
@@ -50,7 +52,7 @@
     if(!live){picked.length=0;break;}
     picked.push({...live,...(typeof item==='object'?{label:item.label||live.label}:{}),command:live.command,key:live.key});
    }
-   if(picked.length)return dedupe(picked);
+   if(picked.length){chosenOwner=provider.id;return dedupe(picked);}
   }
   return base;
  }
@@ -62,12 +64,12 @@
   if(busy)return false;
   const live=this.choices().find(x=>x.key===choice?.key&&x.command===choice?.command);
   if(!live){this.sync();return false;}
+  // Default engine navigation must keep numeric/hotkey semantics. Only an
+  // explicitly owned menu uses the direct command path.
+  if(!chosenOwner)return dispatch.call(this,choice);
   this.navOpen=false;
-  if(typeof handleCommand==='function'){
-   await handleCommand(live.command);
-   this.sync();return true;
-  }
-  return dispatch.call(this,choice);
+  await handleCommand(live.command);
+  this.sync();return true;
  };
  // Explicit first-party Devtest menu ownership is opt-in. Unknown menus
  // retain the already established engine/rendered choices (fallback).

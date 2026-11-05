@@ -50,3 +50,13 @@ body.full-graphics .gfx-frame .gfx-image[src*="seaport_nessa_pet_shop.png"]{
 body.full-graphics .gfx-frame .gfx-art:has(.gfx-image[src*="seaport_nessa_pet_shop.png"]){
  background:#100f0c!important;
 }
+
+/* DEVTEST: neutral menu buttons; first item is not a selected action.
+   Preserve orange for keyboard numbers, focus and hover only. */
+body.full-graphics .gfx-frame .gfx-choice:first-child .gfx-choice-label{
+ color:#e7e1d7;
+}
+body.full-graphics .gfx-frame .gfx-choice:first-child{
+ border-color:#745337;
+ color:#e7e1d7;
+}

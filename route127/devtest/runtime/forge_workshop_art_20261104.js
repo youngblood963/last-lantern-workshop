@@ -39,6 +39,10 @@
    }else if(atDocks){
     model.art='../devtest/seaport_liberation.png';
     model.title='Seaport — Harbor Docks';
+   }else if(currentStage==='port55Stop'&&player.flags?.port55CurrentStop==='Market Area'){
+     // Dedicated Seaport outdoor market, using the existing location-art selector.
+     model.art='../devtest/assets/locations/seaport_market_area.png';
+     model.title='Seaport — Market Area';
    }else if(currentStage==='port55Stop'&&player.flags?.port55CurrentStop==='Town Streets'){
     // Approved waterfront fish market: fish packed on ice and street stalls.
     // Only the actual TOWN STREETS stop uses this background.

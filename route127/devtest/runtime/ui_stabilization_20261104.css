@@ -142,6 +142,24 @@ body.full-graphics .gfx-frame .gfx-art > img.gfx-image:is(
  max-height:100%!important;
 }
 
+/* WO44 DEVTEST — Red's portrait uses the approved subtle double-image framing.
+ * The foreground is never cropped; the underlying image fills side space.
+ */
+body.full-graphics .gfx-frame .gfx-art:has(> img.gfx-image[src*="rusty_anchor_red.png"]){
+ background-image:linear-gradient(90deg,rgba(9,7,6,.85),rgba(9,7,6,.67) 28%,rgba(9,7,6,.67) 72%,rgba(9,7,6,.85)),url('../assets/locations/rusty_anchor_red.png')!important;
+ background-size:cover!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+}
+body.full-graphics .gfx-frame .gfx-art > img.gfx-image[src*="rusty_anchor_red.png"]{
+ object-fit:contain!important;
+ object-position:center!important;
+ background:transparent!important;
+ width:100%!important;
+ height:100%!important;
+ max-height:100%!important;
+}
+
 /* DEVTEST: neutral menu buttons; first item is not a selected action.
    Preserve orange for keyboard numbers, focus and hover only. */
 body.full-graphics .gfx-frame .gfx-choice:first-child .gfx-choice-label{

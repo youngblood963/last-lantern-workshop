@@ -6,20 +6,18 @@
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST' ||
     typeof port55MiaMenu!=='function' || typeof r11QuestMenu!=='function')return;
 
- const oldMiaMenu=port55MiaMenu;
  port55MiaMenu=function(){
-  // Only the menu contents change. Existing service-refusal/Red rules remain.
-  const result=oldMiaMenu.apply(this,arguments);
-  if(stage==='port55Mia' && (Number(day)||1)>=(Number(player.flags.r18MiaBarredUntil)||0)){
-   // Rebuild the live authoritative menu rather than hiding graphical buttons.
-   // This also updates numberedChoices for Classic BBS and keyboard users.
-   const choices=['SMALL TALK','BUY DRINKS','GAMBLE',
-    player.flags.r6AnchorRoomOwned?'GO TO ROOM':'RENT ROOM — 2000 BOLTS',
-    ...(typeof r18RedAllowed==='function'&&r18RedAllowed()?['TALK TO RED']:[]),
-    'RETURN TO HARBOR'];
-   port55Submenu('The Rusty Anchor — Mia',choices);
+  stage='port55Mia';
+  if((Number(day)||1)<(Number(player.flags.r18MiaBarredUntil)||0)){
+   add('MIA > Not until day '+player.flags.r18MiaBarredUntil+'. Leave.','danger');
+   return port55Submenu('The Rusty Anchor — Service Refused',['RETURN TO HARBOR']);
   }
-  return result;
+  return port55Submenu('The Rusty Anchor — Mia',[
+   'SMALL TALK','BUY DRINKS','GAMBLE',
+   player.flags.r6AnchorRoomOwned?'GO TO ROOM':'RENT ROOM — 2000 BOLTS',
+   ...(typeof r18RedAllowed==='function'&&r18RedAllowed()?['TALK TO RED']:[]),
+   'RETURN TO HARBOR'
+  ]);
  };
 
  function talkMenu(){

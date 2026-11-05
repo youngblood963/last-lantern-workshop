@@ -39,9 +39,6 @@
    }else if(atDocks){
     model.art='../devtest/seaport_liberation.png';
     model.title='Seaport — Harbor Docks';
-   }else if(currentStage==='port55Stop'&&player.flags?.port55CurrentStop==='Town Streets'){
-    model.art='../devtest/assets/locations/seaport_town_streets.png';
-    model.title='Seaport — Town Streets';
    }else{
     model.art='assets/locations/seaport.png';
     model.title='Seaport';

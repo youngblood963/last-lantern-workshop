@@ -601,16 +601,23 @@
   if(!liberated())return [];
   return wanderers.filter(w=>eligible(w)&&wandererLocations[w.name]==='seaport');
  }
- function visitor(){return visitors()[0]||null;}
+ function visitor(){
+  const density=globalThis.Route127WandererDensity;
+  if(!density)return visitors()[0]||null;
+  const name=density.seaportName();
+  return name?visitors().find(w=>w.name===name)||null:null;
+ }
  function initialVisitor(){
-  if(!liberated()||visitors().length)return;
-  // Select one living, unhired traveler without relocating a saved encounter.
-  const pool=wanderers.filter(w=>eligible(w)&&
-   ![currentRoadWanderer,currentTownWanderer].includes(w.name));
-  if(pool.length){
-   const w=pool[Math.floor(Math.random()*pool.length)];
-   wandererLocations[w.name]='seaport';
+  if(!liberated())return;
+  const density=globalThis.Route127WandererDensity;
+  if(density){
+   const name=density.seaportName(),w=name&&wandererByName(name);
+   if(w&&eligible(w))wandererLocations[w.name]='seaport';
+   return;
   }
+  if(visitors().length)return;
+  const pool=wanderers.filter(w=>eligible(w)&&![currentRoadWanderer,currentTownWanderer].includes(w.name));
+  if(pool.length)wandererLocations[pool[Math.floor(Math.random()*pool.length)].name]='seaport';
  }
  const origMove=moveWanderers;
  moveWanderers=function(...args){enable();return origMove.apply(this,args);};

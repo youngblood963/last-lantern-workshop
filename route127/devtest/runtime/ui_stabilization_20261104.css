@@ -1,0 +1,30 @@
+/* DEVTEST: preserve readable text and the approved one-page graphical layout.
+ * Reclaim bottom spacing instead of shrinking the story font. */
+@media (min-width:761px){
+ body.full-graphics .gfx-frame .gfx-narrative{padding:3px 8px;margin:0}
+ body.full-graphics .gfx-frame #screen{
+  height:clamp(95px,12dvh,118px);
+  min-height:calc(3 * 1.4em + 16px);
+  overflow-y:auto;
+  scroll-padding-bottom:8px;
+ }
+ body.full-graphics .gfx-frame #screen .line{margin-bottom:3px}
+}
+/* Factory/road names may wrap instead of being cut off or reduced to tiny type. */
+body.full-graphics .gfx-frame .gfx-road-choice{overflow:hidden}
+body.full-graphics .gfx-frame .gfx-road-choice .gfx-choice-label{
+ font-size:clamp(12px,0.95vw,15px);
+ line-height:1.15;
+ white-space:normal;
+ overflow-wrap:break-word;
+ text-overflow:clip;
+ display:-webkit-box;
+ -webkit-box-orient:vertical;
+ -webkit-line-clamp:2;
+ overflow:hidden;
+}
+body.full-graphics .gfx-frame .gfx-choice-label{overflow-wrap:break-word}
+@media(max-width:760px){
+ body.full-graphics .gfx-frame .gfx-narrative{padding:4px 6px}
+ body.full-graphics .gfx-frame #screen{overflow-y:auto;scroll-padding-bottom:8px}
+}

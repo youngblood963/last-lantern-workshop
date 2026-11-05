@@ -55,3 +55,90 @@
  };
  if(typeof GraphicalUI.schedule==='function')GraphicalUI.schedule();
 })();
+
+/* DEVTEST lawman parity: Kaiden shares Tim's non-quest law services.
+ * Keep the existing Seaport quest flags, Kaiden patrol, and legacy dialogue intact. */
+(function(){
+ if(!location.pathname.includes('/route127/devtest/'))return;
+ if(typeof port55Submenu!=='function'||typeof port55Command!=='function')return;
+ const originalSubmenu=port55Submenu;
+ const originalCommand=port55Command;
+ let kaidenPage='main';
+ const hasBounty=()=>typeof v52Crime==='function'&&Number(v52Crime().bounty)>0;
+ function kaidenMenu(){
+  kaidenPage='main';
+  const choices=['ASK ABOUT SEAPORT','SMALL TALK','VIEW BOUNTIES',...(hasBounty()?['PAY FINE','OFFER BRIBE']:[]),'BACK'];
+  originalSubmenu('Sheriff Kaiden',choices);
+  currentHotkeys.b='back';
+ }
+ function smallTalkMenu(){
+  kaidenPage='small-talk';
+  originalSubmenu('Sheriff Kaiden — Small Talk',['HOW IS SEAPORT HOLDING UP?','ASK ABOUT KEEPING THE LIGHTS ON','BACK']);
+  currentHotkeys.b='back';
+ }
+ function bribeMenu(){
+  kaidenPage='bribe';
+  const pending=player.flags?.r18BribePending;
+  if(!pending||pending.lawman!=='Kaiden')return kaidenMenu();
+  originalSubmenu('Sheriff Kaiden — Bribe Offer',['CONFIRM BRIBE','CANCEL BRIBE','BACK']);
+  currentHotkeys.b='back';
+ }
+ port55Submenu=function(name,choices){
+  if(stage==='port55Kaiden'){
+   // All legacy Kaiden redraws return to the lawman menu, never the removed RETURN TO HARBOR option.
+   return kaidenMenu();
+  }
+  return originalSubmenu.apply(this,arguments);
+ };
+ port55Command=function(input){
+  if(stage!=='port55Kaiden'||!player.flags?.seaport55?.freed)return originalCommand.apply(this,arguments);
+  const cmd=String(input||'').trim().toLowerCase();
+  if(['back','b','return','exit','return to harbor'].includes(cmd)){
+   if(kaidenPage!=='main'){kaidenMenu();return true;}
+   kaidenPage='main';stage='seaport';port55Menu();return true;
+  }
+  if(kaidenPage==='bribe'){
+   if(cmd==='confirm bribe'){if(typeof r18BribeConfirm==='function')r18BribeConfirm('Kaiden');kaidenMenu();return true;}
+   if(cmd==='cancel bribe'){if(typeof r18BribeCancel==='function')r18BribeCancel();kaidenMenu();return true;}
+   return bribeMenu(),true;
+  }
+  if(kaidenPage==='small-talk'){
+   if(cmd==='how is seaport holding up?'||cmd==='how is seaport holding up'){
+    kaidenPage='main';
+    return originalCommand.call(this,'small talk');
+   }
+   if(cmd==='ask about keeping the lights on'){
+    // The existing quest interaction belongs under Small Talk; retain its original command path.
+    kaidenPage='main';
+    const handled=originalCommand.call(this,cmd);
+    if(handled)return true;
+    // If another handler owns this quest, allow it to process the command.
+    return false;
+   }
+   return smallTalkMenu(),true;
+  }
+  if(cmd==='small talk'){smallTalkMenu();return true;}
+  if(cmd==='ask about seaport'){
+   add('KAIDEN > The fishermen are gone, but keeping this town safe will take more than a cleared dock. People need working shops, open roads, and someone watching the harbor.','bright');
+   kaidenMenu();return true;
+  }
+  if(cmd==='view bounties'){
+   if(typeof v52Wanted==='function')v52Wanted();
+   const crime=typeof v52Crime==='function'?v52Crime():{active:[]};
+   if(crime.active?.length)crime.active.slice(-8).forEach(x=>add('DAY '+x.day+' — '+x.detail+' (+'+x.amount+' BOLTS)','system'));
+   else add('No active warrants.','system');
+   kaidenMenu();return true;
+  }
+  if(cmd==='pay fine'||cmd==='pay off bounty'){
+   if(typeof r18LegalFine==='function')r18LegalFine('Kaiden');
+   kaidenMenu();return true;
+  }
+  if(cmd==='offer bribe'){
+   if(typeof r18BribeOffer==='function'&&r18BribeOffer('Kaiden'))bribeMenu();
+   else kaidenMenu();
+   return true;
+  }
+  // Preserve quest progression and specialized dialogue owned by the original game.
+  return originalCommand.apply(this,arguments);
+ };
+})();

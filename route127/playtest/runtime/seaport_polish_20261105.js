@@ -128,6 +128,7 @@ function openPets(){
  close();overlay=el('div');overlay.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#000d;padding:16px';
  overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');
  const box=el('section');box.style.cssText='box-sizing:border-box;width:min(740px,100%);max-height:88vh;overflow:auto;background:#23170f;color:#f0e2cd;border:2px solid #8b6542;padding:22px';
+ box.append(button('✕ CLOSE',close));
  const title=el('h2',"NESSA'S PET SHOP — PURCHASE PETS");title.style.color='#efbd85';box.append(title);
  box.append(el('p',player.bolts+' BOLTS AVAILABLE'));
  for(const [name,p] of Object.entries(PORT55_PETS)){
@@ -157,7 +158,7 @@ port55Command=function(cmd){
   if(c==='purchase pets'){openPets();return true;}
   if(Object.keys(PORT55_PETS).some(n=>!PORT55_PETS[n].rescueOnly&&c.includes(n.toLowerCase()))){openPets();return true;}
   if(['return to seaport','return to harbor','back','b','exit'].includes(c)){
-   close();stage='port55Stop';player.flags.port55CurrentStop='Market Area';port55StopMenu();return true;
+   close();stage='seaport';port55Menu();return true;
   }
  }
  return beforePet.apply(this,arguments);
@@ -210,5 +211,20 @@ const oldRoadNode=lanternNodeMenu;
 lanternNodeMenu=function(...a){
  if(graphics()&&screen&&typeof lanternState==='function'&&lanternState()?.nodeId==='seaport')screen.replaceChildren();
  return oldRoadNode.apply(this,a);
+};
+
+// Restore the approved neutral color for the Town Streets location plate;
+// a colored wanderer name must never recolor the location heading.
+const oldSync=GraphicalUI.sync;
+GraphicalUI.sync=function(...a){
+ const result=oldSync.apply(this,a);
+ const caption=this.element?.caption;
+ if(caption){
+  if(stage==='port55Stop'&&player.flags?.port55CurrentStop==='Town Streets'){
+   caption.textContent='Seaport — Town Streets';
+   caption.style.setProperty('color','#eed8b8','important');
+  }else caption.style.removeProperty('color');
+ }
+ return result;
 };
 })();

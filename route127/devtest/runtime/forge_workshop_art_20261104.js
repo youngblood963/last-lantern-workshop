@@ -270,13 +270,32 @@
  // during that one synchronous render (keep it registered for all staffing).
  const previousMenu=port55Menu;
  port55Menu=function(...args){
-  const armory=PORT_STAFF_ROLES.armory;
+  const armory=PORT_STAFF_ROLES.armory,originalAdd=add;
   try{
    delete PORT_STAFF_ROLES.armory;
-   return previousMenu.apply(this,args);
+   // Rename the one real exit in both Classic and graphical menus.
+   add=function(value,cls){
+    if(typeof value==='string'&&/^\\[\\d+\\] RETURN WEST$/.test(value))
+     value=value.replace('RETURN WEST','RETURN TO ROAD');
+    return originalAdd(value,cls);
+   };
+   const result=previousMenu.apply(this,args);
+   for(const [key,value] of Object.entries(numberedChoices||{})){
+    if(value==='return west')numberedChoices[key]='return to road';
+   }
+   // No second exit through a stray Back hotkey on this top-level menu.
+   if(currentHotkeys?.b==='back')delete currentHotkeys.b;
+   return result;
   }finally{
+   add=originalAdd;
    PORT_STAFF_ROLES.armory=armory;
   }
+ };
+ const priorRoadExitCommand=port55Command;
+ port55Command=function(cmd){
+  if(stage==='seaport'&&cmd==='return to road')
+   return priorRoadExitCommand.call(this,'return west');
+  return priorRoadExitCommand.apply(this,arguments);
  };
  // Use the existing market stop stage as the parent of staffed storefronts.
  // Never add a second Return to Seaport option beside Back.

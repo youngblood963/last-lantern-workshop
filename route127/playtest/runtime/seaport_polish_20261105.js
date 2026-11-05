@@ -162,4 +162,53 @@ port55Command=function(cmd){
  }
  return beforePet.apply(this,arguments);
 };
+
+// Presentation only: generated named equipment uses a qualified save key
+// (for example Highway Reaper (L06 RARE)). Show just the display name in
+// graphical menus, and color its actual rarity without changing any item IDs.
+if(typeof RouteIdentity!=='undefined'){
+ const nativePaint=RouteIdentity.paint;
+ RouteIdentity.paint=function(node,raw){
+  if(!graphics())return nativePaint.call(this,node,raw);
+  const source=String(raw??'');
+  const entries=Object.getOwnPropertyNames(GEAR).filter(n=>/\(L\d{1,2} (?:COMMON|UNCOMMON|RARE|EPIC|LEGENDARY)\)/.test(n)&&source.toLowerCase().includes(n.toLowerCase()));
+  if(!entries.length)return nativePaint.call(this,node,raw);
+  let formatted=source;const matches=[];
+  for(const name of entries.sort((a,b)=>b.length-a.length)){
+   const rarity=GEAR[name]?.rarity,display=name.replace(/\s*\(L\d{1,2} (?:COMMON|UNCOMMON|RARE|EPIC|LEGENDARY)\)/,'');
+   formatted=formatted.replace(name,display);matches.push({display,rarity});
+  }
+  nativePaint.call(this,node,formatted);
+  for(const {display,rarity} of matches){
+   const walker=document.createTreeWalker(node,NodeFilter.SHOW_TEXT);
+   const texts=[];while(walker.nextNode())texts.push(walker.currentNode);
+   for(const textNode of texts){
+    const at=textNode.textContent.toLowerCase().indexOf(display.toLowerCase());
+    if(at<0||textNode.parentElement?.closest('.route-color-'+rarity))continue;
+    const rawText=textNode.textContent,frag=document.createDocumentFragment();
+    frag.append(document.createTextNode(rawText.slice(0,at)));
+    const span=document.createElement('span');span.className='route-color-'+rarity;span.textContent=rawText.slice(at,at+display.length);
+    frag.append(span,document.createTextNode(rawText.slice(at+display.length)));
+    textNode.replaceWith(frag);
+   }
+  }
+ };
+}
+// Clearing the previous sublocation's graphical transcript avoids yesterday's
+// General Store and fish-market text persisting after leaving the area.
+const oldStopMenu=port55StopMenu;
+port55StopMenu=function(...a){
+ if(graphics()&&screen&&stage==='port55Stop'&&!guest())screen.replaceChildren();
+ return oldStopMenu.apply(this,a);
+};
+const oldHarborMenu=port55Menu;
+port55Menu=function(...a){
+ if(graphics()&&screen&&stage==='seaport')screen.replaceChildren();
+ return oldHarborMenu.apply(this,a);
+};
+const oldRoadNode=lanternNodeMenu;
+lanternNodeMenu=function(...a){
+ if(graphics()&&screen&&typeof lanternState==='function'&&lanternState()?.nodeId==='seaport')screen.replaceChildren();
+ return oldRoadNode.apply(this,a);
+};
 })();

@@ -811,6 +811,14 @@
  GraphicalUI.choices=function(...args){
   const rows=previousChoices.apply(this,args);
   if(!this.active())return rows;
+  // On the two-way Seaport road, NORTH and SOUTH are the real exits.
+  // The inherited B BACK has no action here; hide only its graphical button.
+  const road=typeof lanternState==='function'?lanternState():null;
+  if(stage==='lanternRoad'&&road?.currentEdgeId==='boulder-junction--seaport'&&
+     rows.filter(r=>/^\d+$/.test(String(r.key))).length>=2){
+   return rows.filter(r=>!(String(r.key).toLowerCase()==='b'&&
+     /^back$/i.test(String(r.command||'').trim())));
+  }
   const exits=rows.filter(r=>/^\d+$/.test(String(r.key))&&
    /^(?:back|return(?: to (?:seaport|harbor|town|road|market|docks|previous menu))?|leave(?: (?:area|shop|store))?)$/i.test(String(r.command||'').trim()));
   if(!exits.length)return rows;

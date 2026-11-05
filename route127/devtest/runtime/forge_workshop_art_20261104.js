@@ -33,6 +33,12 @@
    model.art=liberated?'assets/locations/seaport.png':'../devtest/assets/locations/seaport_occupied.png';
    model.title=liberated?'Seaport':'Seaport — Occupied Harbor';
   }
+  // Kaiden's approved dialogue portrait appears only during his post-liberation conversation.
+  // Patrol routing and dialogue stay in the original game code.
+  if(currentStage==='port55Kaiden'&&!!player.flags?.seaport55?.freed){
+   model.art='../devtest/assets/locations/sheriff_kaiden.png';
+   model.title='Sheriff Kaiden';
+  }
   return model;
  };
  if(typeof GraphicalUI.schedule==='function')GraphicalUI.schedule();

@@ -58,6 +58,17 @@ queueChoiceLine=function(text){
   div.textContent=line;screen.appendChild(div);GraphicalUI.schedule();
  });
 };
+// The old text/map strip belongs to Classic BBS and is hidden below the
+// graphical frame. Avoid rebuilding it on every HUD update in graphical mode.
+const previousLiveMap=v49LiveMap;
+v49LiveMap=function(...args){
+ if(graphical()){
+  const oldMap=document.querySelector('#live-map');
+  if(oldMap)oldMap.hidden=true;
+  return;
+ }
+ return previousLiveMap.apply(this,args);
+};
 // Backpack and Character overlays are already constructed from game state;
 // their graphical panel construction should not append legacy text or animate.
 // Keep interactive item detail/action flows, which rely on existing commands.

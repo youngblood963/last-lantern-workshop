@@ -7,6 +7,7 @@
  'use strict';
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||typeof GraphicalUI==='undefined')return;
  const providers=new Map();
+ let registrationOrder=0;
  const LEVEL=Object.freeze({devtest:400,graphics:300,r11:200,original:100});
  const norm=v=>String(v??'').trim().toLowerCase();
  const dedupe=rows=>{
@@ -23,7 +24,7 @@
  // Never auto-execute gameplay menu functions while resolving display.
  function register(id,{level='devtest',supports,choices}){
   if(!id||typeof supports!=='function'||typeof choices!=='function')throw Error('Invalid menu provider');
-  providers.set(id,{id,priority:LEVEL[level]??0,supports,choices});
+  providers.set(id,{id,priority:LEVEL[level]??0,order:++registrationOrder,supports,choices});
   return ()=>providers.delete(id);
  }
  let chosenOwner=null;
@@ -38,7 +39,7 @@
    stop:player.flags?.port55CurrentStop||'',player,
    base:base.slice(),numbered:numberedChoices,hotkeys:currentHotkeys
   });
-  for(const provider of [...providers.values()].sort((a,b)=>b.priority-a.priority)){
+  for(const provider of [...providers.values()].sort((a,b)=>b.priority-a.priority||b.order-a.order)){
    if(!provider.supports(context))continue;
    const offered=provider.choices(context);
    if(!Array.isArray(offered)||!offered.length)continue;

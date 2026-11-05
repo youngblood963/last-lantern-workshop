@@ -41,7 +41,8 @@
     model.art='assets/locations/seaport.png';
     model.title='Seaport — Harbor Docks';
    }else{
-    model.art='';
+    // Temporary nonblank fallback until approved Town Streets / Market artwork is added.
+    model.art='assets/locations/seaport.png';
     model.title='Seaport';
    }
   }

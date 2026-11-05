@@ -70,7 +70,7 @@
    const suffix=money(command,cost);
    if(!suffix)return row;
    // Only the label changes: the engine still receives exactly row.command.
-   return {...row,label:String(row.label||command).replace(/\s*[—–-]\s*(?:2% max hp per bolt.*|\d+ bolts?\b.*)$/i,'')+suffix};
+   return {...row,label:String(row.label||command).replace(/\s*[—–-]\s*(?:2% max hp per bolt.*|\d+ bolts?\b.*)$/i,'')+suffix,presentationSource:String(row.label||command).replace(/\s*[—–-]\s*(?:2% max hp per bolt.*|\d+ bolts?\b.*)$/i,'')+suffix};
   });
  };
  globalThis.DevtestBoltLabels=Object.freeze({priceFor});

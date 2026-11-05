@@ -18,7 +18,7 @@ function visit(city){
  if(old&&old.key===key)return old;
  let candidate=null;
  if(turn()-(Number.isFinite(s.lastIncidentalTurn)?s.lastIncidentalTurn:-100)>=TOWN_GAP&&Math.random()<TOWN_CHANCE){
-  const pool=wanderers.filter(w=>available(w)&&(city==='solace'?townSpots.has(wandererLocations[w.name]):wandererLocations[w.name]==='seaport'));
+  const pool=wanderers.filter(w=>available(w)&&(city==='solace'?townSpots.has(wandererLocations[w.name]):(wandererLocations[w.name]==='seaport'||(!wanderers.some(v=>available(v)&&wandererLocations[v.name]==='seaport')&&![currentRoadWanderer,currentTownWanderer].includes(w.name))));
   if(pool.length){candidate=pool[Math.floor(Math.random()*pool.length)].name;s.lastIncidentalTurn=turn();}
  }
  return s[city]={key,name:candidate};
@@ -28,7 +28,8 @@ function solaceAt(spot){
  if(!name)return [];
  return wanderers.filter(w=>w.name===name&&available(w)&&wandererLocations[w.name]===spot);
 }
-function seaportAllowed(){return !!visit('seaport').name;}
+function seaportName(){return visit('seaport').name;}
+function seaportAllowed(){return !!seaportName();}
 function showTown(spot){
  if(!townSpots.has(spot))return originalShow.apply(this,arguments);
  const here=solaceAt(spot);
@@ -56,5 +57,5 @@ showRoadWanderer=function(...args){
  }
  return result;
 };
-globalThis.Route127WandererDensity=Object.freeze({solaceAt,seaportAllowed});
+globalThis.Route127WandererDensity=Object.freeze({solaceAt,seaportAllowed,seaportName});
 })();

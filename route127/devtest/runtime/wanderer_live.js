@@ -67,7 +67,7 @@
     .r127-live-wanderer-label {
       position:absolute; bottom:0; left:0; right:0;
       text-align:center; white-space:nowrap; overflow:hidden; padding:3px 1px; z-index:5;
-      background:#18130f; color:#f3e0b8; font:700 clamp(5px,.48rem,8px) Georgia,serif;
+      background:#18130f; color:#65c77b; font:700 clamp(5px,.48rem,8px) Georgia,serif;
     }
     .r127-live-wanderer-town:focus-visible {outline:2px solid #edc48a; outline-offset:2px;}
     .r127-wanderer-expanded{border:1px solid #a08051;background:#18130f;color:#f3e0b8;padding:12px;max-width:min(480px,90vw);max-height:90vh;text-align:center;box-shadow:0 12px 60px #000d;z-index:9999;}
@@ -79,7 +79,7 @@
   document.head.appendChild(style);
   function expandPortrait(name,file){
     const dialog=document.createElement('dialog');dialog.className='r127-wanderer-expanded';
-    const title=document.createElement('h3');title.textContent=name;
+    const title=document.createElement('h3');title.textContent=(typeof RouteIdentity!=='undefined'?RouteIdentity.wanderer?.[name]:null)||name;
     const picture=document.createElement('img');picture.src=new URL(file,root).href;picture.alt=name;
     const close=document.createElement('button');close.type='button';close.textContent='Close';
     close.addEventListener('click',()=>dialog.close());
@@ -151,7 +151,8 @@
       frame.className = 'r127-live-wanderer-town';
       const label = document.createElement('span');
       label.className = 'r127-live-wanderer-label';
-      label.textContent = shortName(encounterInfo.name);
+      label.textContent = (typeof RouteIdentity!=='undefined'?
+        RouteIdentity.wanderer?.[encounterInfo.name]:null)||encounterInfo.name;
       frame.title='Open '+encounterInfo.name+' portrait';frame.tabIndex=0;
       frame.setAttribute('role','button');frame.setAttribute('aria-label','Open full portrait of '+encounterInfo.name);
       frame.addEventListener('click',()=>{if(globalThis.Route127WandererInfo)globalThis.Route127WandererInfo.open(encounterInfo.name,new URL(file,root).href);else expandPortrait(encounterInfo.name,file);});

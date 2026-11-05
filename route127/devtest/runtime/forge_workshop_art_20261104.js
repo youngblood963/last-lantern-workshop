@@ -673,13 +673,16 @@
   const name=player.flags?.port55VisitingName,w=name&&wandererByName(name);
   if(!liberated()||!eligible(w)||wandererLocations[w.name]!=='seaport'){
    delete player.flags.port55VisitingName;
+   delete player.flags.v50Trade;delete player.flags.v53Sale;
+   currentTownWanderer=null;townWandererFocus=null;pendingTownFight=null;
    stage='port55Stop';player.flags.port55CurrentStop='Town Streets';
    return port55StopMenu();
   }
   currentTownWanderer=w.name;townWandererFocus=w.name;
-  port55Submenu('Visiting Wanderer — '+((typeof RouteIdentity!=='undefined'?
-    RouteIdentity.wanderer?.[w.name]:null)||w.name),
-    ['SMALL TALK','INSPECT WANDERER','RECRUIT','BACK TO TOWN STREETS']);
+  if(pendingTownFight===w.name)return v53Choices(['CONFIRM FIGHT','BACK OFF']);
+  if(player.flags.v53Sale)return v53SaleMenu();
+  if(player.flags.v50Trade===w.name)return v50Trade(w);
+  v53WandererMenu(w,false); // The same menu Solace uses.
  }
  const origResume=port55Resume;
  port55Resume=function(...args){
@@ -701,25 +704,44 @@
   }
   if(stage==='port55Guest'){
    const w=wandererByName(player.flags?.port55VisitingName);
-   if(['back','b','exit','return','back to town streets'].includes(cmd)){
-    stage='port55Stop';player.flags.port55CurrentStop='Town Streets';
+   if(!w||!eligible(w)||wandererLocations[w.name]!=='seaport'){guestMenu();return true;}
+   if(['leave','back','b','exit','return','back to town streets'].includes(cmd)){
+    if(player.flags.v50Trade){delete player.flags.v50Trade;delete player.flags.v50Sale;delete player.flags.v53Sale;guestMenu();return true;}
     delete player.flags.port55VisitingName;
-    currentTownWanderer=null;townWandererFocus=null;
-    port55StopMenu();return true;
+    currentTownWanderer=null;townWandererFocus=null;pendingTownFight=null;
+    stage='port55Stop';player.flags.port55CurrentStop='Town Streets';port55StopMenu();return true;
    }
-   if(!w||!eligible(w)){guestMenu();return true;}
-   if(cmd==='small talk'||cmd==='talk'){
-    add(wandererDialogue(w),'bright');guestMenu();return true;
-   }
-   if(cmd==='inspect wanderer'||cmd==='inspect'){
-    const file=globalThis.Route127WandererPortraitFiles?.[w.name];
-    if(file&&globalThis.Route127WandererInfo?.open)
-     globalThis.Route127WandererInfo.open(w.name,
-       new URL('assets/wanderers/'+file,new URL('/route127/devtest/',location.origin)).href);
-    else portInspectAptitudes(w);
+   if(cmd==='back off'&&pendingTownFight===w.name){pendingTownFight=null;guestMenu();return true;}
+   if(cmd==='confirm fight'&&pendingTownFight===w.name){
+    player.flags.devSeaportGuestFight=w.name;
+    handleTownWanderer('confirm fight');
+    if(stage!=='combat'){delete player.flags.devSeaportGuestFight;guestMenu();}
     return true;
    }
-   if(cmd==='recruit'){
+   if(player.flags.v50Trade===w.name){
+    if(['leave browse wares','leave trade'].includes(cmd)){
+     delete player.flags.v50Trade;delete player.flags.v50Sale;delete player.flags.v53Sale;guestMenu();return true;
+    }
+    if(v50TradeCommand(cmd))return true;
+    guestMenu();return true;
+   }
+   if(cmd.startsWith('small talk')||cmd.startsWith('talk ')){
+    ws(w.name);add(wandererDialogue(w),'bright');guestMenu();return true;
+   }
+   if(cmd.startsWith('browse wares')||cmd==='trade'){
+    if(v50Profile(w).hostile){add(w.name+' refuses to trade.','system');guestMenu();return true;}
+    v50Trade(w);return true;
+   }
+   if(cmd.startsWith('steal')){v52Pickpocket(w,true);guestMenu();return true;}
+   if(cmd.startsWith('inspect')){
+    v50Inspect(w);
+    const portrait=globalThis.Route127WandererPortraitFiles?.[w.name];
+    if(portrait&&globalThis.Route127WandererInfo?.open)
+     globalThis.Route127WandererInfo.open(w.name,new URL('assets/wanderers/'+portrait,new URL('/route127/devtest/',location.origin)).href);
+    guestMenu();return true;
+   }
+   if(cmd.startsWith('fight')){handleTownWanderer('fight '+w.name.toLowerCase());guestMenu();return true;}
+   if(cmd.startsWith('recruit')){
     player.flags.portHireOffer={name:w.name,origin:'port55Guest'};
     stage='port55Recruit';portHireMenu();return true;
    }
@@ -745,6 +767,40 @@
    return result;
   }
   return origRecruit.apply(this,arguments);
+ };
+ // Reuse existing Solace legal and merchant mechanics; only substitute the
+ // true town location and restore the Seaport stage after merchant transactions.
+ const previousCrimeLocation=v52CrimeLocation;
+ v52CrimeLocation=function(...args){
+  if(stage==='port55Guest'||player.flags?.devSeaportGuestFight)return 'Seaport — Town Streets';
+  return previousCrimeLocation.apply(this,args);
+ };
+ const previousTradeCommand=v50TradeCommand;
+ v50TradeCommand=function(...args){
+  if(stage!=='port55Guest')return previousTradeCommand.apply(this,args);
+  stage='mercy';
+  try{return previousTradeCommand.apply(this,args);}
+  finally{if(stage==='mercy')stage='port55Guest';}
+ };
+ const previousSaleCommand=v53SaleCommand;
+ v53SaleCommand=function(...args){
+  if(stage!=='port55Guest')return previousSaleCommand.apply(this,args);
+  stage='mercy';
+  try{return previousSaleCommand.apply(this,args);}
+  finally{if(stage==='mercy')stage='port55Guest';}
+ };
+ // The native town-wanderer combat path already records assault and murder.
+ // Only redirect its terminal menu back to Seaport (not Solace).
+ const previousShowContext=showCurrentContext;
+ showCurrentContext=function(...args){
+  if(stage==='mercy'&&player.flags?.devSeaportGuestFight){
+   delete player.flags.devSeaportGuestFight;
+   delete player.flags.port55VisitingName;
+   stage='port55Stop';player.flags.port55CurrentStop='Town Streets';
+   currentTownWanderer=null;townWandererFocus=null;pendingTownFight=null;
+   return port55StopMenu();
+  }
+  return previousShowContext.apply(this,args);
  };
  // Restore old saves at the Seaport stage without making residents appear
  // while occupied, and without requiring a new game.
@@ -824,5 +880,21 @@
   if(!exits.length)return rows;
   return rows.filter(r=>!(String(r.key).toLowerCase()==='b'&&
    /^(?:back|return)$/i.test(String(r.command||'').trim())));
+ };
+})();
+
+/* DEVTEST presentation: location plates are neutral, wanderers stay green. */
+(function(){
+ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||typeof GraphicalUI==='undefined')return;
+ const oldSync=GraphicalUI.sync;
+ GraphicalUI.sync=function(...args){
+  const r=oldSync.apply(this,args),caption=this.element?.caption;
+  if(caption){
+   if(stage==='port55Stop'&&player.flags?.port55CurrentStop==='Town Streets'){
+    caption.replaceChildren(document.createTextNode('Seaport — Town Streets'));
+    caption.style.setProperty('color','#eed8b8','important');
+   }else caption.style.removeProperty('color');
+  }
+  return r;
  };
 })();

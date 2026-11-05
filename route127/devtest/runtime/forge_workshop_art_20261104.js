@@ -45,6 +45,11 @@
     model.title='Seaport';
    }
   }
+  // Nessa's waterside pet shop is a dedicated scene, independent of Seaport's other venues.
+  if(currentStage==='port55Vendor'&&!!player.flags?.seaport55?.freed){
+   model.art='../devtest/assets/locations/seaport_nessa_pet_shop.png';
+   model.title="Nessa's Pet Shop";
+  }
   // Kaiden's approved dialogue portrait appears only during his post-liberation conversation.
   // Patrol routing and dialogue stay in the original game code.
   if(currentStage==='port55Kaiden'&&!!player.flags?.seaport55?.freed){
@@ -154,11 +159,29 @@
    .filter(([,def])=>!def.rescueOnly)
    .map(([name,def])=>name+' — '+def.rarity.toUpperCase()+' — '+def.price+' BOLTS'+
      ((player.flags.ownedPets||[]).includes(name)?' — OWNED':''));
-  const quest=(typeof portRecruitUnlocked==='function'&&portRecruitUnlocked())
+  // Silas is a hidden character until the player has found and released him.
+  // Only offer locket theft after the Corvette engine bargain is actually active.
+  const silasRescued=player.flags?.r18SilasOutcome==='released';
+  const engine=typeof CorvetteRestoration!=='undefined'?CorvetteRestoration.state():null;
+  const quest=silasRescued
    ?['ASK NESSA ABOUT SILAS','INSPECT NESSA LOCKET',
-     ...((typeof CorvetteRestoration!=='undefined'&&CorvetteRestoration.state().engineQuest)?['STEAL NESSAS LOCKET']:[])]
+     ...(engine?.engineQuest&&!engine?.engineDelivered&&!engine?.locketTaken?['STEAL NESSAS LOCKET']:[])]
    :[];
   port55Submenu('Pet Vendor — Nessa',[...pets,...quest,'BACK']);
   currentHotkeys.b='back';
+ };
+ // Do not expose or execute Silas-specific Nessa actions before Silas is rescued,
+ // even when someone types the commands in Classic BBS or through an old hotkey.
+ const priorCommand=port55Command;
+ port55Command=function(cmd){
+  const command=String(cmd||'').trim().toLowerCase();
+  if(stage==='port55Vendor'&&['ask nessa about silas','inspect nessa locket','steal nessas locket'].includes(command)){
+   const rescued=player.flags?.r18SilasOutcome==='released';
+   const engine=typeof CorvetteRestoration!=='undefined'?CorvetteRestoration.state():null;
+   if(!rescued||(command==='steal nessas locket'&&(!engine?.engineQuest||engine?.engineDelivered||engine?.locketTaken))){
+    add('That option is not available.','system');port55Vendor();return true;
+   }
+  }
+  return priorCommand.apply(this,arguments);
  };
 })();

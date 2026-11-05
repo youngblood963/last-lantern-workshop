@@ -632,10 +632,10 @@
   // Also populate an existing liberated save when its player is already
   // inside Seaport and the new visitor feature is first loaded.
   if(liberated())initialVisitor();
-  const result=origMenu.apply(this,args);
+  // Narration before options: later add() calls clear graphical choice state.
   if(liberated()&&visitor())
    add('A traveler has been seen in the Town Streets.','system');
-  return result;
+  return origMenu.apply(this,args);
  };
  const origStopMenu=port55StopMenu;
  port55StopMenu=function(...args){
@@ -645,12 +645,13 @@
    const options=[
     ...(person?['TALK TO WANDERER — '+person.name.toUpperCase()]:[]),
     ...(patrol?['TALK KAIDEN']:[]),'RETURN TO HARBOR'];
-   port55Submenu('Town Streets',options);
    if(person){
     const display=(typeof RouteIdentity!=='undefined'?
        RouteIdentity.wanderer?.[person.name]:null)||person.name;
     add(display+' is visiting the fish market.','bright');
    }
+   // Publish numbered choices last so the buttons remain clickable.
+   port55Submenu('Town Streets',options);
    return;
   }
   return origStopMenu.apply(this,args);

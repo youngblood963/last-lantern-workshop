@@ -907,3 +907,33 @@
   return r;
  };
 })();
+
+/* DEVTEST: post-liberation Sheriff Kaiden has one predictable location.
+ * Old patrol index/step stay in saved data for backwards compatibility, but
+ * no longer influence his location or advance when turns pass. His existing
+ * global bounty, fine, bribe and liberation dialogue are reused unchanged. */
+(function(){
+ 'use strict';
+ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
+ const formerName=port55PatrolName,formerTick=port55PatrolTick;
+ port55PatrolName=function(...args){
+  return player.flags?.seaport55?.freed===true?'Town Streets':formerName.apply(this,args);
+ };
+ port55PatrolTick=function(...args){
+  if(player.flags?.seaport55?.freed===true)return;
+  return formerTick.apply(this,args);
+ };
+ // Replace the old changing-patrol announcement, not the town logic.
+ const formerMenu=port55Menu;
+ port55Menu=function(...args){
+  const priorAdd=add;
+  add=function(message,...extra){
+   if(player.flags?.seaport55?.freed===true&&
+      String(message).startsWith('KAIDEN PATROL — '))
+    message='SHERIFF KAIDEN — Town Streets';
+   return priorAdd.call(this,message,...extra);
+  };
+  try{return formerMenu.apply(this,args);}
+  finally{add=priorAdd;}
+ };
+})();

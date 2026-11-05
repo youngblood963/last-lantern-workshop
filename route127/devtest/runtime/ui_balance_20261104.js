@@ -31,4 +31,18 @@ GraphicalUI.choices=function(...args){
   return simple?{...c,label:simple}:c;
  });
 };
+
+/* Equipment identity highlighting: the actual Widowmaker name should be Epic
+ * purple, not only the separate EPIC rarity badge. */
+if(typeof RouteIdentity!=='undefined'){
+ const originalRanges=RouteIdentity.ranges;
+ RouteIdentity.ranges=function(label){
+  const found=originalRanges.call(this,label),text=String(label);
+  for(const m of text.matchAll(/\\bwidowmaker\\b/gi)){
+   if(!found.some(r=>r.start<=m.index&&r.end>=m.index+m[0].length))
+    found.push({start:m.index,end:m.index+m[0].length,kind:'epic'});
+  }
+  return found.sort((a,b)=>a.start-b.start||(b.end-b.start)-(a.end-a.start));
+ };
+}
 })();

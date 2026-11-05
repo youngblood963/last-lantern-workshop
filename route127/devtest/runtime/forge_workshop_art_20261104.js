@@ -79,8 +79,13 @@
   // Mia's tavern is an interior: use its dedicated scene, not the generic Seaport image.
   // The casino submenu is hosted under the legacy 'mercy' stage.
   if(currentStage==='port55Mia'||(currentStage==='mercy'&&player.flags?.port55Casino)){
-   model.art='../devtest/assets/locations/rusty_anchor.png?v=wo34-art-refresh';
-   model.title='The Rusty Anchor';
+   if(currentStage==='mercy'&&player.flags?.port55Casino){
+    model.art='../devtest/assets/locations/seaport_gambling_hall.png?v=wo47-casino-art';
+    model.title='The Rusty Anchor — Gambling Hall';
+   }else{
+    model.art='../devtest/assets/locations/rusty_anchor.png?v=wo34-art-refresh';
+    model.title='The Rusty Anchor';
+   }
   }
   // Kaiden's approved dialogue portrait appears only during his post-liberation conversation.
   // Patrol routing and dialogue stay in the original game code.

@@ -571,6 +571,20 @@
  }
 })();
 
+/* DEVTEST: keep exactly one top-level Seaport road exit in graphics. */
+(function(){
+ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
+ const prior=GraphicalUI.choices;
+ GraphicalUI.choices=function(...args){
+  const rows=prior.apply(this,args);
+  if(stage!=='seaport'||!this.active())return rows;
+  const exiting=c=>['return west','return to road','back','b','leave','west'].includes(String(c).toLowerCase());
+  const chosen=rows.find(r=>['back','b'].includes(String(r.command).toLowerCase()))||rows.find(r=>exiting(r.command));
+  const remaining=rows.filter(r=>!exiting(r.command));
+  if(chosen)remaining.push({...chosen,label:'RETURN TO ROAD'});
+  return remaining;
+ };
+})();
 /* DEVTEST liberated Seaport visiting wanderers.
  * Global wanderers can drift into Seaport after liberation, even if they are
  * not hired. Town Streets hosts the visitor; existing road roster and save

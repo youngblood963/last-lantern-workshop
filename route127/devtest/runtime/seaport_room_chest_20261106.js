@@ -163,5 +163,5 @@ r6RoomCommand=function(cmd){
  }
  return previous.apply(this,arguments);
 };
-globalThis.SeaportRoomChest=Object.freeze({open:()=>openFor(seaport),openFor,close});
+globalThis.SeaportRoomChest=Object.freeze({open:()=>openFor(seaport),openFor,close,isOpen:()=>!!dialog?.open});
 })();

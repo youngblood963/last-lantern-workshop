@@ -192,7 +192,7 @@ style.textContent=[
  '.r127-seaport-slot-window[data-reel="1"]{left:42.5%}',
  '.r127-seaport-slot-window[data-reel="2"]{left:59.8%}',
  '.r127-seaport-slot-scroll{position:absolute;left:0;top:0;width:100%;will-change:transform}',
- '.r127-seaport-slot-scroll img{position:relative;left:50%;transform:translateX(-50%);display:block;width:235%!important;max-width:none!important;user-select:none;-webkit-user-drag:none;pointer-events:none}',
+ '.r127-seaport-slot-scroll img{position:relative;left:50%;transform:translateX(-50%);display:block;width:285%!important;max-width:none!important;user-select:none;-webkit-user-drag:none;pointer-events:none}',
  '.r127-seaport-slot-glass{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#0007,transparent 18%,#fff2 50%,transparent 82%,#0007);box-shadow:inset 0 7px 9px #180e09,inset 0 -7px 9px #180e09}',
  '.r127-seaport-slot-stage.win .r127-seaport-slot-window{filter:brightness(1.23)}',
  '@media(prefers-reduced-motion:reduce){.r127-seaport-slot-scroll{will-change:auto}}'
@@ -219,9 +219,9 @@ function create(figure){
 }
 // Matches Solace reelTop(): the center of a symbol aligns to the
 // vertical center of the taller reel window, with no CSS background tiles.
-// Seaport reel windows display three vertically stacked symbols.
+// Increase each symbol slightly in both dimensions, retaining nearly three visible per window.
 // Use true JavaScript newlines; the previous escaped text commented out this function.
-function cellHeight(win){return win.getBoundingClientRect().height/3}
+function cellHeight(win){return win.getBoundingClientRect().height/2.75}
 function top(win,index,loop){
  const cell=cellHeight(win),height=win.getBoundingClientRect().height;
  return height/2-((loop*6+index+.5)*cell);

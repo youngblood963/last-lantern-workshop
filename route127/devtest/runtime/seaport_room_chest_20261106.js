@@ -94,7 +94,7 @@ function row(item,from){
  labels.append(el('em','',String(item.type||'ITEM').toUpperCase()+(item.stolen?' · STOLEN':'')));
  btn.append(labels,el('span','', '×'+item.qty));
  btn.setAttribute('aria-pressed',String(side===from&&selection===item));
- btn.addEventListener('click',()=>{side=from;selection=item;quantity=1;note='';render();});
+ btn.addEventListener('click',()=>{side=from;selection=item;quantity=item.qty;note='';render();});
  return btn;
 }
 function pane(title,items,from){
@@ -120,10 +120,13 @@ function render(){
   input.value=String(Math.min(quantity,picked.qty));input.setAttribute('aria-label','Quantity to transfer');
   input.addEventListener('input',()=>{quantity=Number(input.value);});
   label.append(input);bar.append(label);
-  const action=el('button','',side==='pack'?'DEPOSIT →':'← WITHDRAW');action.type='button';
+  const action=el('button','');action.type='button';
+  const updateAction=()=>{const n=Number(input.value);action.textContent=(side==='pack'?'DEPOSIT ':'WITHDRAW ')+(validQty(n)?n:'?');};
+  updateAction();
+  input.addEventListener('input',updateAction);
   action.addEventListener('click',transfer);bar.append(action);
   const all=el('button','','ALL');all.type='button';
-  all.addEventListener('click',()=>{quantity=picked.qty;input.value=String(quantity);});bar.append(all);
+  all.addEventListener('click',()=>{quantity=picked.qty;input.value=String(quantity);updateAction();});bar.append(all);
  }else bar.append(el('span','','Select an item to deposit or withdraw.'));
  dialog.querySelector('.r127-chest-feedback').textContent=note;
 }

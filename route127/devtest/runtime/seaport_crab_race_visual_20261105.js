@@ -67,8 +67,8 @@ const startX=.195,finishX=.84;
 // Lane centers measured against the actual barrel artwork (top lane to bottom).
 // Previous values placed most crabs directly on the rope separators.
 // Wider lane separation: five independent centers, not two sprites per rope gap.
-const startY=[.315,.433,.551,.669,.787];
-const endY=[.310,.425,.540,.655,.770];
+const startY=[.345,.463,.581,.699,.817];
+const endY=[.340,.455,.570,.685,.800];
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
 function place(lane,progress,sway=0){
  if(!track)return;

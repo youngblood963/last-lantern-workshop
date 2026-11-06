@@ -113,7 +113,7 @@ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||typeof GraphicalUI==='undefined'||
 const names=['SCRAP','BOLTS','LANTERN','SKULL','RAT','BLACKGLASS'];
 const base='../devtest/assets/locations/slots/';
 const asset=f=>typeof ROUTE127_ASSET_BASE!=='undefined'&&ROUTE127_ASSET_BASE?new URL(base+f,ROUTE127_ASSET_BASE).href:base+f;
-const wall=asset('seaport_slots_background.png'),cabinet=asset('seaport_slot_machine.png'),strip=asset('seaport_slot_reel_strip.png?v=wo-slots-reels-2');
+const wall=asset('seaport_slots_background.png'),cabinet=asset('seaport_slot_machine.png'),strip=asset('seaport_slot_reel_strip.png?v=wo-slots-reels-3');
 const isSlot=()=>stage==='r6Casino'&&r6Round()?.game==='SLOTS'&&player.flags?.port55Casino;
 const enabled=()=>GraphicalUI.preference()==='graphics'&&isSlot();
 const d=R6_GAMES.indexOf("CAPTAIN'S DICE");if(d!==-1&&!R6_GAMES.includes('SLOTS'))R6_GAMES.splice(d,1,'SLOTS');
@@ -127,6 +127,15 @@ r6Wager=function(bet){
  r6Settle(casinoSlotPayout(round.reels,bet),round.reels.join(' / '));
  r6CasinoRender();return true;
 };
+function slotChoices(actions){
+ // The original Seaport menu defers key registration through outputQueue.
+ // Register keys immediately so animations and long terminal queues
+ // cannot leave the graphical interface with no buttons.
+ numberedChoices=Object.fromEntries(actions.map((action,i)=>[String(i+1),action.toLowerCase()]));
+ currentHotkeys={b:'back'};
+ r5DirectChoices(actions);
+ GraphicalUI.sync();
+}
 const render=r6CasinoRender;
 r6CasinoRender=function(){
  if(!isSlot())return render.apply(this,arguments);
@@ -134,10 +143,10 @@ r6CasinoRender=function(){
  add('RUSTY ANCHOR — SLOTS','place');
  if(r.status==='waiting'){
   add('Match three: Bolt 10x / Crab 18x / Compass 28x / Chest 50x / Anchor 70x / Mermaid 300x.','system');
-  r5DirectChoices(['WAGER 5','WAGER 10','WAGER 25','BACK']);
+  slotChoices(['WAGER 5','WAGER 10','WAGER 25','BACK']);
  }else if(r.status==='settled'){
   add('WAGER '+r.bet+' / RETURN '+r.payout+' / NET '+(r.payout-r.bet)+' Bolts','reward');
-  r5DirectChoices(['PLAY AGAIN','BACK']);
+  slotChoices(['PLAY AGAIN','BACK']);
  }else render.apply(this,arguments);
 };
 const model=GraphicalUI.model;
@@ -161,7 +170,7 @@ style.textContent=[
  '.r127-seaport-slot-window[data-reel="1"]{left:42.5%}',
  '.r127-seaport-slot-window[data-reel="2"]{left:59.8%}',
  '.r127-seaport-slot-scroll{position:absolute;left:0;top:0;width:100%;will-change:transform}',
- '.r127-seaport-slot-scroll img{position:relative;left:50%;transform:translateX(-50%);display:block;width:100%!important;max-width:none!important;user-select:none;-webkit-user-drag:none;pointer-events:none}',
+ '.r127-seaport-slot-scroll img{position:relative;left:50%;transform:translateX(-50%);display:block;width:235%!important;max-width:none!important;user-select:none;-webkit-user-drag:none;pointer-events:none}',
  '.r127-seaport-slot-glass{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#0007,transparent 18%,#fff2 50%,transparent 82%,#0007);box-shadow:inset 0 7px 9px #180e09,inset 0 -7px 9px #180e09}',
  '.r127-seaport-slot-stage.win .r127-seaport-slot-window{filter:brightness(1.23)}',
  '@media(prefers-reduced-motion:reduce){.r127-seaport-slot-scroll{will-change:auto}}'

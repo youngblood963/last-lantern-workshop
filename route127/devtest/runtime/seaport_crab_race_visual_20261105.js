@@ -64,8 +64,10 @@ document.head.appendChild(style);
 let track=null,lastKey='',frame=0,epoch=0;
 const startX=.195,finishX=.84;
 // Perspective of the five rope-defined lanes on the approved barrel artwork.
-const startY=[.465,.545,.623,.702,.782];
-const endY=[.477,.545,.613,.681,.751];
+// Lane centers measured against the actual barrel artwork (top lane to bottom).
+// Previous values placed most crabs directly on the rope separators.
+const startY=[.365,.459,.553,.648,.742];
+const endY=[.358,.451,.544,.637,.730];
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
 function place(lane,progress,sway=0){
  if(!track)return;

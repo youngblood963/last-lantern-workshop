@@ -188,7 +188,7 @@ function create(figure){
 }
 // Matches Solace reelTop(): the center of a symbol aligns to the
 // vertical center of the taller reel window, with no CSS background tiles.
-function cellHeight(win){return win.getBoundingClientRect().width*(156/176)}
+// Seaport's tall windows should show three stacked symbols, unlike the\n// former oversized single-symbol crop. Keep the exact Solace scroll logic.\nfunction cellHeight(win){return win.getBoundingClientRect().height/3}
 function top(win,index,loop){
  const cell=cellHeight(win),height=win.getBoundingClientRect().height;
  return height/2-((loop*6+index+.5)*cell);

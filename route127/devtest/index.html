@@ -132,9 +132,7 @@ r6Wager=function(bet){
 // terminal output queue (which previously left the slot UI with no buttons).
 // Match Solace: 10 / 20 / 50, Custom, All In, Back.
 // Custom hands off to the existing FocusedEntry wager popup.
-const slotActions=()=>r6Round()?.status==='settled'
- ? ['PLAY AGAIN','BACK']
- : r6Round()?.custom?['BACK']
+const slotActions=()=>r6Round()?.custom&&r6Round()?.status==='waiting'?['BACK']
  : ['WAGER 10','WAGER 20','WAGER 50','CUSTOM WAGER','ALL IN','BACK'];
 const slotOptions=()=>slotActions().map((command,i)=>({
  key:String(i+1),command:command.toLowerCase(),
@@ -160,6 +158,15 @@ GraphicalUI.dispatch=async function(choice){
  await handleCommand(current.command);
  this.sync();
  return true;
+};
+// On a settled Seaport spin, choosing a wager starts the next round directly.
+const originalCasinoCommand=r6CasinoCommand;
+r6CasinoCommand=function(cmd){
+ if(isSlot()&&r6Round()?.status==='settled'&&
+   (/^wager [0-9]+$/.test(cmd)||['custom wager','custom','all in'].includes(cmd))){
+  r6Open('SLOTS');
+ }
+ return originalCasinoCommand.apply(this,arguments);
 };
 const render=r6CasinoRender;
 r6CasinoRender=function(){

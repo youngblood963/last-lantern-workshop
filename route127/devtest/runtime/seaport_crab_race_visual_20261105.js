@@ -10,7 +10,7 @@ const graphical=()=>GraphicalUI.preference()==='graphics';
 const enabled=()=>graphical()&&atRace();
 const base='../devtest/assets/locations/crab_racing/';
 const image=p=>typeof ROUTE127_ASSET_BASE!=='undefined'&&ROUTE127_ASSET_BASE?new URL(base+p,ROUTE127_ASSET_BASE).href:base+p;
-const trackUrl=image('seaport_crab_racing_track.png');
+const trackUrl=image('seaport_crab_racing_track.png')+'?v=84c5eed';
 const colors=['Red','Blue','Yellow','Green','Purple'];
 const model=GraphicalUI.model;
 GraphicalUI.model=function(...args){

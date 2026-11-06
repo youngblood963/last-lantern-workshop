@@ -1,0 +1,62 @@
+/* DEVTEST Nessa restored pet catalog — same industrial traveler-panel
+   motif as Backpack / Character, with a prominent riveted metal border. */
+body.full-graphics .r127-pet-dialog{
+ box-sizing:border-box;
+ width:min(790px,96vw);
+ max-width:96vw;
+ height:auto;
+ max-height:90dvh;
+ margin:auto;
+ padding:20px;
+ overflow:auto;
+ border:10px ridge #76624b;
+ border-radius:9px;
+ outline:2px solid #1a1612;
+ background:#141714 url('../../playtest/assets/ui/industrial-backing.png') center / 100% 100% no-repeat;
+ box-shadow:0 22px 90px #000, inset 0 0 0 3px #0b0b0a, inset 0 0 0 6px #876b4b;
+ color:#e9e0d0;
+ font-family:'Segoe UI',Arial,sans-serif;
+}
+body.full-graphics .r127-pet-dialog::backdrop{background:#000c;backdrop-filter:blur(3px)}
+.r127-pet-dialog .r127-pet-header{
+ align-items:flex-start;position:relative;gap:12px;
+ border-bottom:2px solid #715438;margin:0 0 15px;padding:0 0 12px;
+}
+.r127-pet-dialog .r127-pet-heading{flex:1;min-width:0}
+.r127-pet-dialog .r127-pet-header h1{font-size:clamp(26px,4vw,40px);letter-spacing:2px}
+.r127-pet-dialog .r127-pet-subtitle{margin:8px 0 0;font-size:14px;color:#c6b8a3}
+.r127-pet-dialog .r127-pet-wallet{white-space:nowrap;align-self:center;color:#e5bb7f;font-size:16px}
+.r127-pet-dialog .r127-pet-close{min-width:46px;padding:8px 12px}
+.r127-pet-dialog .r127-pet-grid{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;
+}
+.r127-pet-dialog .r127-pet-card{
+ display:flex;flex-direction:column;gap:9px;min-width:0;padding:16px;
+ border:2px solid #65503b;border-radius:5px;
+ background:linear-gradient(145deg,#1b1e1acb,#0b0e0cdb);
+ box-shadow:inset 0 0 0 2px #090a09;
+}
+.r127-pet-dialog .r127-pet-rarity{letter-spacing:2px;font-size:12px;font-weight:700}
+.r127-pet-dialog .r127-pet-card h2{font-size:21px;line-height:1.2;margin:0}
+.r127-pet-dialog .r127-pet-ability{flex:1;font-size:14px;line-height:1.5;margin:0;color:#d1c8b8}
+.r127-pet-dialog .r127-pet-price{font-size:17px;font-weight:700;color:#efbf86}
+.r127-pet-dialog .r127-pet-button{cursor:pointer;min-height:42px}
+.r127-pet-dialog .r127-pet-button:disabled{opacity:.52;cursor:not-allowed}
+.r127-pet-dialog .r127-pet-footer{
+ margin-top:15px;padding-top:12px;border-top:1px solid #70543b;display:flex;justify-content:flex-end;
+}
+.r127-pet-dialog .r127-pet-confirm{
+ max-width:600px;margin:12px auto;padding:20px;
+ background:#0b0e0ddc;border:2px solid #6c5136;border-radius:5px;
+}
+.r127-pet-dialog .r127-pet-confirm h2{margin:0 0 12px;font-size:26px}
+.r127-pet-dialog .r127-pet-confirm p{line-height:1.6}
+.r127-pet-dialog .r127-pet-warning{color:#efa38c}
+.r127-pet-dialog .r127-pet-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+@media(max-width:680px){
+ body.full-graphics .r127-pet-dialog{width:96vw;padding:12px;border-width:7px;max-height:94dvh}
+ .r127-pet-dialog .r127-pet-grid{grid-template-columns:1fr}
+ .r127-pet-dialog .r127-pet-header{flex-wrap:wrap}
+ .r127-pet-dialog .r127-pet-wallet{order:3;width:100%}
+ .r127-pet-dialog .r127-pet-card{padding:12px}
+}

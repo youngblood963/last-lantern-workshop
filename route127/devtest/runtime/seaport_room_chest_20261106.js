@@ -9,7 +9,15 @@ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||typeof r6RoomCommand!=='function'|
 const inRoom=()=>stage==='r6Room'&&player.flags?.r6AnchorRoomOwned&&
     typeof portRecruitUnlocked==='function'&&portRecruitUnlocked();
 const graphics=()=>GraphicalUI.preference()==='graphics';
-const chest=()=>player.flags.r6AnchorRoomChest||(player.flags.r6AnchorRoomChest=[]);
+const seaport={
+ valid:inRoom,get:()=>player.flags.r6AnchorRoomChest||(player.flags.r6AnchorRoomChest=[]),
+ capacity:10,title:'ROOM CHEST',label:'Rusty Anchor room chest',
+ onOpen:()=>{player.flags.r6RoomChestOpen=false;},
+ onClose:()=>{player.flags.r6RoomChestOpen=false;}
+};
+let container=seaport;
+const chest=()=>container.get();
+const capacity=()=>container.capacity;
 const validQty=x=>Number.isSafeInteger(x)&&x>0;
 const el=(tag,cls,txt)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(txt!==undefined)node.textContent=txt;return node;};
 const style=document.createElement('style');style.dataset.r127SeaportChest='v1';
@@ -57,7 +65,7 @@ const available=()=>side==='pack'?player.pack:chest();
 function close(){
  if(!dialog)return;
  dialog.close();dialog.remove();dialog=null;
- player.flags.r6RoomChestOpen=false;
+ container.onClose?.();container=seaport;
  selection=null;note='';side='pack';
  if(focusBefore?.isConnected)focusBefore.focus();focusBefore=null;
 }
@@ -67,15 +75,15 @@ function current(){
 }
 function message(text){note=text;render();}
 function transfer(){
- if(!inRoom()){close();return;}
+ if(!container.valid()){close();return;}
  const item=current(),qty=Number(quantity);
  if(!item){message('Select an item from either list first.');return;}
  if(!validQty(qty)||!validQty(item.qty)||qty>item.qty){message('Choose a valid quantity up to the available stack.');return;}
  const depositing=side==='pack',src=depositing?player.pack:chest(),dst=depositing?chest():player.pack;
  if(depositing&&['quest','key'].includes(item.type)){message('Quest and key items cannot be stored.');return;}
- if(depositing&&(item.name===player.weapon||item.name===player.armor)){message('Unequip that item before storing it.');return;}
+ if(depositing&&(item.name===player.weapon||item.name===player.armor||item.name===player.accessory)){message('Unequip that item before storing it.');return;}
  const same=dst.find(i=>i.name===item.name&&i.type===item.type&&!!i.stolen===!!item.stolen);
- if(!same&&depositing&&dst.length>=10){message('Chest full: 10 stacks maximum.');return;}
+ if(!same&&depositing&&dst.length>=capacity()){message('Storage full: '+capacity()+' stacks maximum.');return;}
  if(!same&&!depositing&&packSlotsUsed()>=player.packMax){message('Backpack has no free slots.');return;}
  if(same&&(!validQty(same.qty)||!Number.isSafeInteger(same.qty+qty))){message('Invalid stack quantity.');return;}
  // Transaction: validate both sides before mutating either list.
@@ -108,9 +116,9 @@ function render(){
  if(!dialog)return;
  const head=dialog.querySelector('.r127-chest-head');
  const caption=head.querySelector('.r127-chest-caption');
- caption.textContent='Backpack '+packSlotsUsed()+'/'+player.packMax+' slots · Chest '+chest().length+'/10 stacks';
+ caption.textContent='Backpack '+packSlotsUsed()+'/'+player.packMax+' slots · Storage '+chest().length+'/'+capacity()+' stacks';
  const body=dialog.querySelector('.r127-chest-body');
- body.replaceChildren(pane('BACKPACK',player.pack,'pack'),pane('ROOM CHEST',chest(),'chest'));
+ body.replaceChildren(pane('BACKPACK',player.pack,'pack'),pane(container.title,chest(),'chest'));
  const bar=dialog.querySelector('.r127-chest-controls');bar.replaceChildren();
  const picked=current();
  if(picked){
@@ -130,14 +138,15 @@ function render(){
  }else bar.append(el('span','','Select an item to deposit or withdraw.'));
  dialog.querySelector('.r127-chest-feedback').textContent=note;
 }
-function open(){
- if(!inRoom()||!graphics()||dialog||document.querySelector('dialog[open]'))return false;
+function openFor(config=seaport){
+ if(!config.valid()||!graphics()||dialog||document.querySelector('dialog[open]'))return false;
+ container=config;
  focusBefore=document.activeElement;
- player.flags.r6RoomChestOpen=false; // legacy submenu is not used in graphical mode
+ config.onOpen?.(); // legacy submenu is not used in graphical mode
  selection=null;side='pack';quantity=1;note='';
- const d=el('dialog','r127-chest-dialog');d.setAttribute('aria-label','Rusty Anchor room chest');
+ const d=el('dialog','r127-chest-dialog');d.setAttribute('aria-label',container.label);
  const head=el('header','r127-chest-head');
- const titles=el('div');titles.append(el('h2','','ROOM CHEST'),el('div','r127-chest-caption'));
+ const titles=el('div');titles.append(el('h2','',container.title),el('div','r127-chest-caption'));
  const exit=el('button','r127-chest-close','X');exit.type='button';
  exit.setAttribute('aria-label','Close chest');exit.addEventListener('click',close);
  head.append(titles,exit);
@@ -149,10 +158,10 @@ function open(){
 const previous=r6RoomCommand;
 r6RoomCommand=function(cmd){
  if(inRoom()&&graphics()&&String(cmd).trim().toLowerCase()==='chest'){
-  if(open())return true;
+  if(openFor(seaport))return true;
   return true; // never fall into the legacy, random-item chest navigation
  }
  return previous.apply(this,arguments);
 };
-globalThis.SeaportRoomChest=Object.freeze({open,close});
+globalThis.SeaportRoomChest=Object.freeze({open:()=>openFor(seaport),openFor,close});
 })();

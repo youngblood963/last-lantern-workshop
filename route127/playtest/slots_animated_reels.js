@@ -32,7 +32,7 @@
  body.full-graphics .gfx-frame[data-layout="casino-slots"] .gfx-art{
    display:block;position:relative;flex:1 1 0;min-height:135px;
    max-height:calc(100% - 150px);overflow:hidden;
-   background:radial-gradient(ellipse at 50% 42%,#403020 0%,#1b120e 65%,#0a0908 100%)!important;
+   background:#1b120e url('${reelArt('assets/locations/slots/solace_slots_background.png')}') center/cover no-repeat!important;
    border:1px solid #79502d}
  body.full-graphics .gfx-frame[data-layout="casino-slots"] .gfx-art-caption,
  body.full-graphics .gfx-frame[data-layout="casino-slots"] .gfx-art-error,

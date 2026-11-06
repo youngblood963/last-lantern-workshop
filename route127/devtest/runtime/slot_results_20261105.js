@@ -25,7 +25,7 @@ function paint(r,spinning){
  let el=box.querySelector('.r127-slot-feedback');
  if(!el){el=document.createElement('div');el.className='r127-slot-feedback';el.setAttribute('role','status');el.setAttribute('aria-live','polite');box.prepend(el)}
  let title,detail,kind='ready';
- if(r.status!=='settled'){title='PLACE YOUR WAGER';detail='Choose 5, 10, or 25 Bolts to spin.';}
+ if(r.status!=='settled'){title='PLACE YOUR WAGER';detail=seaport()?'Bet 10, 20, 50, Custom, or All In.':'Bet 10, 20, 50, Custom, or All In.';}
  else if(spinning){title='REELS SPINNING…';detail='Wager: '+r.bet+' Bolts';kind='spin';}
  else{
   const winning=r.payout>0;const triple=Array.isArray(r.reels)&&r.reels.length===3&&r.reels.every(x=>x===r.reels[0]);

@@ -130,12 +130,15 @@ r6Wager=function(bet){
 // Same native clickable buttons used by the working Solace casino.
 // These choices are derived from the casino round, not an asynchronous
 // terminal output queue (which previously left the slot UI with no buttons).
+// Match Solace: 10 / 20 / 50, Custom, All In, Back.
+// Custom hands off to the existing FocusedEntry wager popup.
 const slotActions=()=>r6Round()?.status==='settled'
  ? ['PLAY AGAIN','BACK']
- : ['WAGER 5','WAGER 10','WAGER 25','BACK'];
+ : r6Round()?.custom?['BACK']
+ : ['WAGER 10','WAGER 20','WAGER 50','CUSTOM WAGER','ALL IN','BACK'];
 const slotOptions=()=>slotActions().map((command,i)=>({
  key:String(i+1),command:command.toLowerCase(),
- label:command.replace(/^WAGER /,'Wager ').replace(/^PLAY AGAIN$/,'Play Again')
+ label:command.replace(/^WAGER /,'Wager ').replace(/^PLAY AGAIN$/,'Play Again').replace(/^CUSTOM WAGER$/,'Custom').replace(/^ALL IN$/,'All In')
 }));
 function slotChoices(){
  numberedChoices=Object.fromEntries(slotOptions().map(c=>[c.key,c.command]));

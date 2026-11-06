@@ -44,10 +44,10 @@ body.full-graphics .gfx-frame[data-layout="seaport-crab-racing"] .gfx-choice{
  transform:translate(-50%,-50%);filter:drop-shadow(2px 3px 3px #000b);
  will-change:left,top,transform;pointer-events:none}
 .r127-crab-racer.is-winner{filter:drop-shadow(0 0 9px #ffdb6a) drop-shadow(2px 3px 3px #000)}
-.r127-crab-track.is-running .r127-crab-racer{animation:r127-crab-sway var(--crab-step,.24s) ease-in-out infinite alternate}
+.r127-crab-track.is-running .r127-crab-racer{animation:r127-crab-sway var(--crab-step,.78s) ease-in-out infinite alternate}
 @keyframes r127-crab-sway{
- 0%{transform:translate(-50%,-50%) rotate(-4deg) scaleY(.97)}
- 50%{transform:translate(-50%,-53%) rotate(3deg) scaleY(1.02)}
+ 0%{transform:translate(-50%,-50%) rotate(-1deg) scaleY(1)}
+ 50%{transform:translate(-50%,-53%) rotate(2deg) scaleY(1.01)}
  100%{transform:translate(-50%,-50%) rotate(-2deg) scaleY(.99)}
 }
 .r127-crab-track.is-running .r127-crab-racer.is-paused{animation-play-state:paused}
@@ -88,7 +88,7 @@ function create(figure){
   img.className='r127-crab-racer';img.dataset.crabLane=String(i);
   img.src=image('seaport_crab_'+(i+1)+'.png');img.alt='';img.draggable=false;
   img.setAttribute('aria-hidden','true');
-  img.style.setProperty('--crab-step',[.24,.31,.26,.29,.22][i]+'s');
+  img.style.setProperty('--crab-step',[.78,.92,.84,1.02,.73][i]+'s');
   surface.append(img);
  }
  stageEl.append(surface);figure.append(stageEl);track=surface;
@@ -113,7 +113,7 @@ function race(r){
  const seed=String(r.id||'').split('').reduce((a,c)=>(a*33+c.charCodeAt(0))>>>0,5381);
  for(let i=0;i<5;i++)others[i]=.65+((seed+i*193)%19)/100;
  if(reduces){settled(winner,others);return}
- const token=++epoch,start=performance.now(),duration=5500;
+ const token=++epoch,start=performance.now(),duration=8500;
  track.classList.add('is-running');
  track.querySelectorAll('.r127-crab-racer').forEach(el=>el.classList.remove('is-winner'));
  function tick(now){
@@ -123,13 +123,13 @@ function race(r){
    const final=i===winner?1:others[i];
    // Distinct stop/go rhythms with sideways sways and tiny backward steps.
    // Only the already-determined winner can reach the finish line.
-   const stopPhase=Math.sin(t*(18+i*1.7)+i*2.3);
+   const stopPhase=Math.sin(t*(12+i*1.1)+i*2.3);
    const paused=stopPhase>.72&&t<.87;
-   const surge=(Math.sin(t*(11+i)+i*1.6)*.038+
-                Math.sin(t*29+i*2.9)*.015)*Math.sin(Math.PI*t);
+   const surge=(Math.sin(t*(8+i*.6)+i*1.6)*.038+
+                Math.sin(t*17+i*2.9)*.009)*Math.sin(Math.PI*t);
    const base=t*t*(3-2*t);
    const p=clamp(final*base+surge,0,final);
-   const sway=(Math.sin(t*25+i*2.8)*.007+Math.sin(t*13+i)*.004)*
+   const sway=(Math.sin(t*15+i*2.8)*.005+Math.sin(t*8+i)*.003)*
               Math.sin(Math.PI*t);
    place(i,p,sway);
    track.querySelector('[data-crab-lane="'+i+'"]')?.classList.toggle('is-paused',paused);

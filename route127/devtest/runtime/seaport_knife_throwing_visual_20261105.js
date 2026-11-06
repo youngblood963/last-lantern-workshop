@@ -38,8 +38,8 @@ body.full-graphics .gfx-frame[data-layout="seaport-knife-throwing"] .gfx-choice{
  min-width:0;min-height:40px;padding:4px 7px}
 .r127-knife-stage{position:absolute;inset:0;pointer-events:none;overflow:hidden;
  background:#160c07 url("${background}") center/100% 100% no-repeat}
-.r127-knife-stuck{position:absolute;width:70%;height:auto;z-index:3;pointer-events:none;
- transform:translate(-58%,-50%) rotate(-8deg);
+.r127-knife-stuck{position:absolute;width:29%;height:auto;z-index:3;pointer-events:none;
+ transform:translate(-69%,-50%) rotate(-8deg);
  filter:drop-shadow(2px 2px 2px #000a)}
 .r127-knife-meter{position:absolute;z-index:8;left:2.2%;bottom:3%;width:min(42%,375px);
  padding:9px 12px 10px;background:#160d09e8;border:1px solid #a77845;
@@ -76,14 +76,15 @@ function clear(){
  placements.clear();pending=null;
 }
 function placeFor(score,index,position){
- // This is a visual landing zone, not a score calculation. The existing
- // exact timing and scoring happens synchronously in the game before flight.
- const delta=Number.isFinite(position)?position-.5:
-   ({50:[0,.013,-.024,.025,-.008],25:[-.09,.082,-.105,.11,-.075],
-     10:[-.195,.175,-.205,.22,.16],0:[.47,-.46,.44,-.42,.49]}[score]?.[index%5]||0);
- const x=clamp(.638+delta*.44,.36,.91);
- const y=.395+((index%3)-1)*.023;
- return {x,y,score};
+ // Tip positions measured against the approved target artwork. Score always
+ // determines the impact ring; timer position only selects the game score.
+ // Target center is approximately 66.5% X, 41.5% Y in the stage.
+ const cx=.665,cy=.415;
+ const angles=[-.52,Math.PI,.55,2.35,-2.2];
+ const radius=score===50?.012:score===25?.057:score===10?.107:.188;
+ const angle=angles[index%5];
+ return {x:clamp(cx+radius*Math.cos(angle),.22,.94),
+         y:clamp(cy+radius*Math.sin(angle)*1.15,.08,.91),score};
 }
 function createKnife(holder,i,placement){
  const img=document.createElement('img');
@@ -92,8 +93,8 @@ function createKnife(holder,i,placement){
  img.src=sprite;
  // Source sprite intentionally occupies a small portion of its transparent
  // canvas. Align the visible blade tip (about x=60%) to the target hit point.
- img.style.left=((placement.x-.07)*100).toFixed(2)+'%';
- img.style.top=((placement.y+.012)*100).toFixed(2)+'%';
+ img.style.left=(placement.x*100).toFixed(2)+'%';
+ img.style.top=(placement.y*100).toFixed(2)+'%';
  holder.append(img);return img;
 }
 function create(figure){
@@ -153,9 +154,9 @@ function renderKnives(r){
    const reduce=matchMedia?.('(prefers-reduced-motion: reduce)').matches;
    if(!reduce&&typeof knife.animate==='function'){
     knife.animate([
-     {transform:'translate(-160%,-30%) rotate(-75deg) scale(1.45)',opacity:.4},
-     {transform:'translate(-85%,-48%) rotate(14deg) scale(1.15)',opacity:1,offset:.77},
-     {transform:'translate(-58%,-50%) rotate(-8deg) scale(1)',opacity:1}
+     {transform:'translate(-250%,-25%) rotate(-65deg) scale(1.45)',opacity:.4},
+     {transform:'translate(-120%,-48%) rotate(10deg) scale(1.12)',opacity:1,offset:.77},
+     {transform:'translate(-69%,-50%) rotate(-8deg) scale(1)',opacity:1}
     ],{duration:540,easing:'cubic-bezier(.2,.65,.25,1)'});
    }
    showImpact(score);pending=null;

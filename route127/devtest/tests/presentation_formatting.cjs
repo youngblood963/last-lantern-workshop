@@ -5,6 +5,7 @@ const helperPath=path.resolve(__dirname,'../../playtest/tests/helpers/game.cjs')
 const helper=new Module(helperPath,module);helper.filename=helperPath;helper.paths=module.paths;
 let source=fs.readFileSync(helperPath,'utf8').replace('const document={body,','const document={baseURI:"https://example.test/route127/playtest/",head:new E("head"),body,')
  .replace("location:{search:","location:{pathname:'/route127/devtest/index.html',search:")
+ .replace('performance:{now:()=>0}', 'MutationObserver:class{observe(){} disconnect(){}},performance:{now:()=>0}')
  .replace('style={setProperty(){}}','style={setProperty(){},removeProperty(){}}');
 const entry=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
 const expanded=entry.replace(/<script>\s*if\(globalThis.ROUTE127_ENV[\s\S]*?<\/script>/,tag=>JSON.parse(tag.match(/else\{document.write\(([\s\S]*?)\);\}/)[1]));

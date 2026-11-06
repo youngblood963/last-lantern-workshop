@@ -11,7 +11,7 @@ const style=document.createElement('style');
 style.textContent=[
 'body.full-graphics .gfx-frame[data-layout="casino-slots"] .gfx-narrative,body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-narrative{min-height:57px;max-height:80px;overflow:hidden;display:flex;align-items:center;padding:5px 10px;box-sizing:border-box}',
 'body.full-graphics .gfx-frame[data-layout="casino-slots"] .gfx-narrative #screen,body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-narrative #screen{display:none!important}',
-'.r127-slot-feedback{width:100%;text-align:center;color:#e9d4ae;font:600 clamp(12px,1.15vw,16px)/1.3 Georgia,serif;letter-spacing:.03em}',
+'.r127-slot-feedback{display:block!important;position:relative;z-index:9;flex:1 1 auto;width:100%;text-align:center;color:#e9d4ae;font:600 clamp(12px,1.15vw,16px)/1.3 Georgia,serif;letter-spacing:.03em}',
 '.r127-slot-feedback strong{display:block;font-size:clamp(16px,1.5vw,21px);color:#f9e5bf;text-shadow:0 2px 4px #000}',
 '.r127-slot-feedback[data-outcome="win"] strong,.r127-slot-feedback[data-outcome="jackpot"] strong{color:#ffe07e;text-shadow:0 0 13px #f6aa3d}',
 '.r127-slot-feedback[data-outcome="loss"] strong{color:#d2c1a7}',
@@ -31,7 +31,7 @@ function paint(r,spinning){
   const winning=r.payout>0;const triple=Array.isArray(r.reels)&&r.reels.length===3&&r.reels.every(x=>x===r.reels[0]);
   const names=seaport()?portNames:solaceNames;const symbol=triple?names[r.reels[0]]||r.reels[0]:'';
   const jackpot=winning&&triple&&r.reels[0]==='BLACKGLASS';
-  title=jackpot?'JACKPOT! '+symbol.toUpperCase()+'!':winning?(triple?'THREE '+symbol.toUpperCase()+'! YOU WIN!':'YOU WIN!'):'NO MATCH — TRY AGAIN';
+  title=jackpot?'JACKPOT! '+symbol.toUpperCase()+'!':winning?(triple?'THREE '+symbol.toUpperCase()+'! YOU WIN!':'YOU WIN!'):'NO MATCH';
   detail='Wager '+r.bet+' · Payout '+r.payout+' · Net '+(r.payout-r.bet)+' Bolts';
   kind=jackpot?'jackpot':winning?'win':'loss';
  }
@@ -52,6 +52,45 @@ function refresh(){
   timer=setTimeout(()=>{timer=0;if(on()&&last===key)paint(r,false)},ms);
  }else paint(r,false);
 }
-const previous=GraphicalUI.sync;GraphicalUI.sync=function(...args){const result=previous.apply(this,args);refresh();return result};
-GraphicalUI.schedule();
+// Immediately visible wager choices after settlement; no second Play Again click.
+const stakes=[
+ {key:'1',command:'wager 10',label:'Wager 10'},
+ {key:'2',command:'wager 20',label:'Wager 20'},
+ {key:'3',command:'wager 50',label:'Wager 50'},
+ {key:'4',command:'custom wager',label:'Custom'},
+ {key:'5',command:'all in',label:'All In'},
+ {key:'6',command:'back',label:'Back'}
+];
+const oldChoices=GraphicalUI.choices;
+GraphicalUI.choices=function(...args){
+ if(solace()&&GraphicalUI.preference()==='graphics'&&casinoRound()?.status==='settled')return stakes.map(x=>({...x}));
+ return oldChoices.apply(this,args);
+};
+const oldDispatch=GraphicalUI.dispatch;
+GraphicalUI.dispatch=async function(choice){
+ if(solace()&&GraphicalUI.preference()==='graphics'&&casinoRound()?.status==='settled'){
+  const selected=stakes.find(x=>x.key===choice.key&&x.command===choice.command);
+  if(!selected||busy)return false;
+  await handleCommand(selected.command);
+  this.sync();return true;
+ }
+ return oldDispatch.call(this,choice);
+};
+// The original Solace renderer treats a settled round as requiring Play Again.
+// Reopen a fresh round automatically when the user selects a new stake instead.
+const oldCasinoCommand=handleCasinoCommand;
+handleCasinoCommand=function(cmd){
+ if(solace()&&casinoRound()?.status==='settled'&&
+    (/^wager [0-9]+$/.test(cmd)||['custom wager','custom','all in'].includes(cmd))){
+  casinoOpen('slots');
+ }
+ return oldCasinoCommand.apply(this,arguments);
+};
+const previous=GraphicalUI.sync;
+GraphicalUI.sync=function(...args){const result=previous.apply(this,args);refresh();return result};
+// Keep outcomes synchronized with the authoritative game round even when
+// the existing output queue is busy with old text rendering.
+const prevCommand=handleCommand;
+handleCommand=async function(...args){try{return await prevCommand.apply(this,args)}finally{GraphicalUI.sync()}};
+GraphicalUI.sync();
 })();

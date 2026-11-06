@@ -5,8 +5,10 @@
 (()=>{
  'use strict';
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||typeof GraphicalUI==='undefined')return;
- const isPoker=()=>stage==='r6Casino'&&player.flags?.port55Casino&&
-                  player.flags?.r6Game?.game==="PIRATE'S POKER";
+ // Read the authoritative round object: Seaport's casino can be restored
+ // without the transient port55Casino navigation flag being populated.
+ const pokerRound=()=>typeof r6Round==='function'?r6Round():player.flags?.r6Game;
+ const isPoker=()=>stage==='r6Casino'&&pokerRound()?.game==="PIRATE'S POKER";
  const faces=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
  const suits=['♣','♦','♥','♠'];
  const symbol=n=>suits[Math.floor(n/13)];
@@ -107,7 +109,7 @@
    container=null;signature='';selection.clear();roundId=null;
    return result;
   }
-  const r=player.flags.r6Game;
+  const r=pokerRound();
   if(roundId!==r.id){roundId=r.id;selection.clear();signature='';}
   const state=[r.id,r.status,(r.hand||[]).join(','),(r.dealer||[]).join(',')].join('|');
   if(container?.parentElement===art&&signature===state)return result;

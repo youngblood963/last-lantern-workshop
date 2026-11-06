@@ -1,0 +1,96 @@
+/* DEVTEST only — graphical slot outcomes for Solace and Seaport. */
+(()=>{'use strict';
+if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||typeof GraphicalUI==='undefined')return;
+const solace=()=>stage==='mercy'&&mercyLocation==='casinoGame'&&casinoRound()?.game==='slots';
+const seaport=()=>stage==='r6Casino'&&r6Round()?.game==='SLOTS';
+const on=()=>GraphicalUI.preference()==='graphics'&&(solace()||seaport());
+const round=()=>solace()?casinoRound():seaport()?r6Round():null;
+const solaceNames={SCRAP:'Scrap',BOLTS:'Bolts',LANTERN:'Lantern',SKULL:'Skull',RAT:'Rat',BLACKGLASS:'Blackglass'};
+const portNames={SCRAP:'Bolt',BOLTS:'Crab',LANTERN:'Compass',SKULL:'Treasure Chest',RAT:'Anchor',BLACKGLASS:'Mermaid'};
+const style=document.createElement('style');
+style.textContent=[
+'body.full-graphics .gfx-frame[data-layout="casino-slots"] .gfx-narrative,body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-narrative{min-height:57px;max-height:80px;overflow:hidden;display:flex;align-items:center;padding:5px 10px;box-sizing:border-box}',
+'body.full-graphics .gfx-frame[data-layout="casino-slots"] .gfx-narrative #screen,body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-narrative #screen{display:none!important}',
+'.r127-slot-feedback{display:block!important;position:relative;z-index:9;flex:1 1 auto;width:100%;text-align:center;color:#e9d4ae;font:600 clamp(12px,1.15vw,16px)/1.3 Georgia,serif;letter-spacing:.03em}',
+'.r127-slot-feedback strong{display:block;font-size:clamp(16px,1.5vw,21px);color:#f9e5bf;text-shadow:0 2px 4px #000}',
+'.r127-slot-feedback[data-outcome="win"] strong,.r127-slot-feedback[data-outcome="jackpot"] strong{color:#ffe07e;text-shadow:0 0 13px #f6aa3d}',
+'.r127-slot-feedback[data-outcome="loss"] strong{color:#d2c1a7}',
+'.r127-slot-feedback[data-outcome="jackpot"]{animation:r127-slot-celebrate .7s ease-in-out 3 alternate}',
+'@keyframes r127-slot-celebrate{from{filter:brightness(1)}to{filter:brightness(1.65)}}',
+'@media(prefers-reduced-motion:reduce){.r127-slot-feedback[data-outcome="jackpot"]{animation:none}}'
+].join('\n');document.head.appendChild(style);
+let last='',timer=0;
+function paint(r,spinning){
+ if(!on())return;const box=GraphicalUI.element?.narrative;if(!box)return;
+ let el=box.querySelector('.r127-slot-feedback');
+ if(!el){el=document.createElement('div');el.className='r127-slot-feedback';el.setAttribute('role','status');el.setAttribute('aria-live','polite');box.prepend(el)}
+ let title,detail,kind='ready';
+ if(r.status!=='settled'){title='PLACE YOUR WAGER';detail=seaport()?'Bet 10, 20, 50, Custom, or All In.':'Bet 10, 20, 50, Custom, or All In.';}
+ else if(spinning){title='REELS SPINNING…';detail='Wager: '+r.bet+' Bolts';kind='spin';}
+ else{
+  const winning=r.payout>0;const triple=Array.isArray(r.reels)&&r.reels.length===3&&r.reels.every(x=>x===r.reels[0]);
+  const names=seaport()?portNames:solaceNames;const symbol=triple?names[r.reels[0]]||r.reels[0]:'';
+  const jackpot=winning&&triple&&r.reels[0]==='BLACKGLASS';
+  title=jackpot?'JACKPOT! '+symbol.toUpperCase()+'!':winning?(triple?'THREE '+symbol.toUpperCase()+'! YOU WIN!':'YOU WIN!'):'NO MATCH';
+  detail='Wager '+r.bet+' · Payout '+r.payout+' · Net '+(r.payout-r.bet)+' Bolts';
+  kind=jackpot?'jackpot':winning?'win':'loss';
+ }
+ el.dataset.outcome=kind;el.replaceChildren();
+ const a=document.createElement('strong');a.textContent=title;
+ const b=document.createElement('span');b.textContent=detail;el.append(a,b);
+}
+function reset(){if(timer)clearTimeout(timer);timer=0;last='';GraphicalUI.element?.narrative?.querySelector('.r127-slot-feedback')?.remove()}
+function refresh(){
+ if(!on()){if(last||timer)reset();return}
+ const r=round();if(!r)return;
+ const sig=(seaport()?'port':'solace')+':'+r.id+':'+r.status+':'+(r.reels||[]).join('/')+':'+r.payout;
+ if(sig===last){if(!GraphicalUI.element?.narrative?.querySelector('.r127-slot-feedback'))paint(r,false);return}
+ if(timer){clearTimeout(timer);timer=0}last=sig;
+ if(r.status==='settled'&&Array.isArray(r.reels)){
+  paint(r,true);const key=sig;
+  const ms=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?0:2350;
+  timer=setTimeout(()=>{timer=0;if(on()&&last===key)paint(r,false)},ms);
+ }else paint(r,false);
+}
+// Immediately visible wager choices after settlement; no second Play Again click.
+const stakes=[
+ {key:'1',command:'wager 10',label:'Wager 10'},
+ {key:'2',command:'wager 20',label:'Wager 20'},
+ {key:'3',command:'wager 50',label:'Wager 50'},
+ {key:'4',command:'custom wager',label:'Custom'},
+ {key:'5',command:'all in',label:'All In'},
+ {key:'6',command:'back',label:'Back'}
+];
+const oldChoices=GraphicalUI.choices;
+GraphicalUI.choices=function(...args){
+ if(solace()&&GraphicalUI.preference()==='graphics'&&casinoRound()?.status==='settled')return stakes.map(x=>({...x}));
+ return oldChoices.apply(this,args);
+};
+const oldDispatch=GraphicalUI.dispatch;
+GraphicalUI.dispatch=async function(choice){
+ if(solace()&&GraphicalUI.preference()==='graphics'&&casinoRound()?.status==='settled'){
+  const selected=stakes.find(x=>x.key===choice.key&&x.command===choice.command);
+  if(!selected||busy)return false;
+  await handleCommand(selected.command);
+  this.sync();return true;
+ }
+ return oldDispatch.call(this,choice);
+};
+// The original Solace renderer treats a settled round as requiring Play Again.
+// Reopen a fresh round automatically when the user selects a new stake instead.
+const oldCasinoCommand=handleCasinoCommand;
+handleCasinoCommand=function(cmd){
+ if(solace()&&casinoRound()?.status==='settled'&&
+    (/^wager [0-9]+$/.test(cmd)||['custom wager','custom','all in'].includes(cmd))){
+  casinoOpen('slots');
+ }
+ return oldCasinoCommand.apply(this,arguments);
+};
+const previous=GraphicalUI.sync;
+GraphicalUI.sync=function(...args){const result=previous.apply(this,args);refresh();return result};
+// Keep outcomes synchronized with the authoritative game round even when
+// the existing output queue is busy with old text rendering.
+const prevCommand=handleCommand;
+handleCommand=async function(...args){try{return await prevCommand.apply(this,args)}finally{GraphicalUI.sync()}};
+GraphicalUI.sync();
+})();

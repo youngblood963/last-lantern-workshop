@@ -78,8 +78,8 @@ function clear(){
 function placeFor(score,index,position){
  // Tip positions measured against the approved target artwork. Score always
  // determines the impact ring; timer position only selects the game score.
- // Target center is approximately 66.5% X, 41.5% Y in the stage.
- const cx=.665,cy=.415;
+ // Target center is approximately 63.5% X, 40.5% Y in the stage.
+ const cx=.635,cy=.405;
  const angles=[-.52,Math.PI,.55,2.35,-2.2];
  const radius=score===50?.012:score===25?.057:score===10?.107:.188;
  const angle=angles[index%5];

@@ -20,7 +20,7 @@
   if(model.location==='boulder-junction-art'){
    const cleared=!!player?.flags?.portRoadCleared;
    model.title=cleared?'Boulder Junction — Road Cleared':'Boulder Junction — Road Blocked';
-   model.art='../devtest/assets/locations/seaport_boulder_'+(cleared?'cleared':'blocked')+'.png';
+   model.art='../devtest/assets/locations/seaport_boulder_'+(cleared?'cleared':'blocked')+'.png?v=wo34-art-refresh';
   }
   // Seaport occupation ends only after the prisoners are freed, not merely when the fighters fall.
   const g=typeof lanternState==='function'?lanternState():null;
@@ -33,12 +33,18 @@
    // Harbor Docks use the separate existing liberation image; main Seaport keeps its sunset town artwork.
    const atDocks=currentStage==='port55Docks'||
     (currentStage==='port55Stop'&&player.flags?.port55CurrentStop==='Docks');
+   const atMarket=currentStage==='port55Market'||currentStage==='portMarket'||
+    (currentStage==='port55Stop'&&player.flags?.port55CurrentStop==='Market Area');
    if(!liberated){
     model.art='../devtest/assets/locations/seaport_occupied.png';
     model.title='Seaport — Occupied Harbor';
    }else if(atDocks){
     model.art='../devtest/seaport_liberation.png';
     model.title='Seaport — Harbor Docks';
+   }else if(atMarket){
+     // Dedicated Seaport outdoor market, using the existing location-art selector.
+     model.art='../devtest/assets/locations/seaport_market_area.png';
+     model.title='Seaport — Market Area';
    }else if(currentStage==='port55Stop'&&player.flags?.port55CurrentStop==='Town Streets'){
     // Approved waterfront fish market: fish packed on ice and street stalls.
     // Only the actual TOWN STREETS stop uses this background.
@@ -70,9 +76,22 @@
    model.art='../devtest/assets/locations/seaport_nessa_pet_shop.png';
    model.title="Nessa's Pet Shop";
   }
+  // Mia's tavern is an interior: use its dedicated scene, not the generic Seaport image.
+  // The casino submenu is hosted under the legacy 'mercy' stage.
+  if(currentStage==='port55Mia'||(currentStage==='mercy'&&player.flags?.port55Casino)){
+   if(currentStage==='mercy'&&player.flags?.port55Casino){
+    model.art='../devtest/assets/locations/seaport_gambling_hall.png?v=wo47-casino-art';
+    model.title='The Rusty Anchor — Gambling Hall';
+   }else{
+    model.art='../devtest/assets/locations/rusty_anchor.png?v=wo34-art-refresh';
+    model.title='The Rusty Anchor';
+   }
+  }
   // Kaiden's approved dialogue portrait appears only during his post-liberation conversation.
   // Patrol routing and dialogue stay in the original game code.
-  if(currentStage==='port55Kaiden'&&!!player.flags?.seaport55?.freed){
+  if((currentStage==='port55Kaiden'||
+      (currentStage==='r11Quest'&&player.flags?.r11QuestFocus==='lights'))&&
+      !!player.flags?.seaport55?.freed){
    model.art='../devtest/assets/locations/sheriff_kaiden.png';
    model.title='Sheriff Kaiden';
   }
@@ -81,93 +100,141 @@
  if(typeof GraphicalUI.schedule==='function')GraphicalUI.schedule();
 })();
 
-/* DEVTEST lawman parity: Kaiden shares Tim's non-quest law services.
- * Keep the existing Seaport quest flags, Kaiden patrol, and legacy dialogue intact. */
+/* DEVTEST Kaiden: one authoritative menu and dialogue state, following Tim's
+ * established legal services. Do not let the old r11 post-command renderer
+ * append a second Kaiden menu. Keep r11's actual lights quest and global crime.
+ */
 (function(){
- if(!location.pathname.includes('/route127/playtest/'))return;
- if(typeof port55Submenu!=='function'||typeof port55Command!=='function')return;
- const originalSubmenu=port55Submenu;
- const originalCommand=port55Command;
- let kaidenPage='main';
- const hasBounty=()=>typeof v52Crime==='function'&&Number(v52Crime().bounty)>0;
- function kaidenMenu(){
-  kaidenPage='main';
-  const choices=['ASK ABOUT SEAPORT','SMALL TALK','VIEW BOUNTIES',...(hasBounty()?['PAY FINE','OFFER BRIBE']:[]),'BACK'];
-  originalSubmenu('Sheriff Kaiden',choices);
-  currentHotkeys.b='back';
- }
- function smallTalkMenu(){
-  kaidenPage='small-talk';
-  originalSubmenu('Sheriff Kaiden — Small Talk',['HOW IS SEAPORT HOLDING UP?','ASK ABOUT KEEPING THE LIGHTS ON','BACK']);
-  currentHotkeys.b='back';
- }
- function bribeMenu(){
-  kaidenPage='bribe';
-  const pending=player.flags?.r18BribePending;
-  if(!pending||pending.lawman!=='Kaiden')return kaidenMenu();
-  originalSubmenu('Sheriff Kaiden — Bribe Offer',['CONFIRM BRIBE','CANCEL BRIBE','BACK']);
-  currentHotkeys.b='back';
- }
- port55Submenu=function(name,choices){
-  if(stage==='port55Kaiden'){
-   // All legacy Kaiden redraws return to the lawman menu, never the removed RETURN TO HARBOR option.
-   return kaidenMenu();
+ 'use strict';
+ if(globalThis.ROUTE127_ENV?.name==='DEVTEST')return;
+ const baseSubmenu=port55Submenu;
+ let page='main';
+ const liberated=()=>player.flags?.seaport55?.freed===true;
+ const wanted=()=>typeof v52Crime==='function'&&Number(v52Crime().bounty)>0;
+ function menu(next='main'){
+  page=next;
+  if(next==='small-talk')
+   baseSubmenu('Sheriff Kaiden — Small Talk',
+    ['HOW IS SEAPORT HOLDING UP?','ASK ABOUT KEEPING THE LIGHTS ON','BACK']);
+  else if(next==='bribe'){
+   if(player.flags?.r18BribePending?.lawman!=='Kaiden')return menu();
+   baseSubmenu('Sheriff Kaiden — Bribe Offer',
+    ['CONFIRM BRIBE','CANCEL BRIBE','BACK']);
+  }else{
+   page='main';
+   baseSubmenu('Sheriff Kaiden',
+    ['ASK ABOUT SEAPORT','SMALL TALK','VIEW BOUNTIES',
+     ...(wanted()?['PAY FINE','OFFER BRIBE']:[]),'BACK']);
   }
-  return originalSubmenu.apply(this,arguments);
+  currentHotkeys.b='back';
+ }
+ // Keep the quest nested beneath Small Talk. Its canonical return handler
+ // calls port55Submenu(), so carry only that one return through to the
+ // Small Talk page; ordinary Kaiden re-entries always start at Main.
+ let returningFromLights=false;
+ const canonicalQuestReturn=r11QuestReturn;
+ r11QuestReturn=function(...args){
+  const fromLights=player.flags?.r11QuestFocus==='lights';
+  if(fromLights)returningFromLights=true;
+  try{return canonicalQuestReturn.apply(this,args);}
+  finally{returningFromLights=false;}
  };
+ port55Submenu=function(name,choices){
+  if(stage==='port55Kaiden'&&liberated())
+   return menu(returningFromLights?'small-talk':'main');
+  return baseSubmenu.apply(this,arguments);
+ };
+ // The older R11 post-command hook still emits a DIFFERENT Kaiden menu,
+ // including the quest on the top level. Redirect it to this menu owner.
+ const legacyKaidenChoices=r18KaidenChoices;
+ r18KaidenChoices=function(...args){
+  if(stage==='port55Kaiden'&&liberated())return menu(page);
+  return legacyKaidenChoices.apply(this,args);
+ };
+ const basePortCommand=port55Command;
  port55Command=function(input){
-  if(stage!=='port55Kaiden'||!player.flags?.seaport55?.freed)return originalCommand.apply(this,arguments);
+  if(stage!=='port55Kaiden'||!liberated())
+   return basePortCommand.apply(this,arguments);
   const cmd=String(input||'').trim().toLowerCase();
   if(['back','b','return','exit','return to harbor'].includes(cmd)){
-   if(kaidenPage!=='main'){kaidenMenu();return true;}
-   kaidenPage='main';stage='seaport';port55Menu();return true;
+   if(page!=='main'){menu();return true;}
+   // He lives on Town Streets, not at the main Harbor menu.
+   stage='port55Stop';player.flags.port55CurrentStop='Town Streets';
+   port55StopMenu();return true;
   }
-  if(kaidenPage==='bribe'){
-   if(cmd==='confirm bribe'){if(typeof r18BribeConfirm==='function')r18BribeConfirm('Kaiden');kaidenMenu();return true;}
-   if(cmd==='cancel bribe'){if(typeof r18BribeCancel==='function')r18BribeCancel();kaidenMenu();return true;}
-   return bribeMenu(),true;
+  if(page==='bribe'){
+   if(cmd==='confirm bribe'){
+    r18BribeConfirm('Kaiden');menu();return true;
+   }
+   if(cmd==='cancel bribe'){r18BribeCancel();menu();return true;}
+   menu('bribe');return true;
   }
-  if(kaidenPage==='small-talk'){
+  if(page==='small-talk'){
    if(cmd==='how is seaport holding up?'||cmd==='how is seaport holding up'){
-    kaidenPage='main';
-    return originalCommand.call(this,'small talk');
+    add('KAIDEN > The docks are open again. Keeping them safe is the hard part. We need reliable lights, honest traders, and a watch that actually stays put.','bright');
+    menu('small-talk');return true;
    }
    if(cmd==='ask about keeping the lights on'){
-    // The existing quest interaction belongs under Small Talk; retain its original command path.
-    kaidenPage='main';
-    const handled=originalCommand.call(this,cmd);
-    if(handled)return true;
-    // If another handler owns this quest, allow it to process the command.
-    return false;
+    // Canonical R11 quest stage owns acceptance, rewards, and save flags.
+    r11QuestMenu('lights');return true;
    }
-   return smallTalkMenu(),true;
+   menu('small-talk');return true;
   }
-  if(cmd==='small talk'){smallTalkMenu();return true;}
   if(cmd==='ask about seaport'){
    add('KAIDEN > The fishermen are gone, but keeping this town safe will take more than a cleared dock. People need working shops, open roads, and someone watching the harbor.','bright');
-   kaidenMenu();return true;
+   // Original liberation dialogue counted speaking to Kaiden toward chapter completion.
+   const q=port55State();
+   if(q.stage==='meet'&&!q.metKaiden){
+    q.metKaiden=true;
+    if(q.metMia){q.stage='done';port55CompleteChapter();}
+   }
+   menu();return true;
   }
+  if(cmd==='small talk'){menu('small-talk');return true;}
   if(cmd==='view bounties'){
-   if(typeof v52Wanted==='function')v52Wanted();
-   const crime=typeof v52Crime==='function'?v52Crime():{active:[]};
-   if(crime.active?.length)crime.active.slice(-8).forEach(x=>add('DAY '+x.day+' — '+x.detail+' (+'+x.amount+' BOLTS)','system'));
+   v52Wanted();
+   const crime=v52Crime();
+   if(crime.active?.length)crime.active.slice(-8).forEach(x=>
+    add('DAY '+x.day+' — '+x.detail+' (+'+x.amount+' BOLTS)','system'));
    else add('No active warrants.','system');
-   kaidenMenu();return true;
+   menu();return true;
   }
   if(cmd==='pay fine'||cmd==='pay off bounty'){
-   if(typeof r18LegalFine==='function')r18LegalFine('Kaiden');
-   kaidenMenu();return true;
+   if(wanted())r18LegalFine('Kaiden');
+   menu();return true;
   }
   if(cmd==='offer bribe'){
-   if(typeof r18BribeOffer==='function'&&r18BribeOffer('Kaiden'))bribeMenu();
-   else kaidenMenu();
+   if(wanted()&&r18BribeOffer('Kaiden'))menu('bribe');
+   else menu();
    return true;
   }
-  // Preserve quest progression and specialized dialogue owned by the original game.
-  return originalCommand.apply(this,arguments);
+  menu();return true;
+ };
+ // The canonical r11 core appends a second legacy Kaiden choice set after
+ // each command. Intercept only Kaiden conversation; other quests/gameplay
+ // still run through the unchanged command pipeline.
+ const baseCore=handleCommandCore;
+ handleCommandCore=async function(raw){
+  const value=String(raw||'').trim();
+  const mapped=/^\d+$/.test(value)?numberedChoices[value]:null;
+  const cmd=String(mapped||value).trim().toLowerCase();
+  if(!busy&&liberated()&&stage==='port55Kaiden'&&
+    !/^(?:save|load|inventory|status|quests|map|testing|test off)(?:\s|$)/i.test(cmd)){
+   return port55Command(cmd);
+  }
+  // The first click entering Kaiden may still route through r11's legacy
+  // post-renderer. Replace its buttons with the single new menu immediately.
+  if(!busy&&liberated()&&
+    ((stage==='port55Stop'&&player.flags?.port55CurrentStop==='Town Streets'&&
+      ['talk kaiden','small talk kaiden','kaiden','small talk'].includes(cmd))||
+     (stage==='seaport'&&['kaiden','talk kaiden'].includes(cmd)))){
+   const result=await baseCore.apply(this,arguments);
+   if(stage==='port55Kaiden')menu();
+   return result;
+  }
+  return baseCore.apply(this,arguments);
  };
 })();
-
 /* DEVTEST Nessa menu: Corvette's queued appended choices can displace the
  * vendor's numbered pet purchases in graphical mode. Build one atomic menu. */
 (function(){
@@ -505,7 +572,7 @@
     const file=globalThis.Route127WandererPortraitFiles?.[name];
     if(file&&globalThis.Route127WandererInfo?.open){
      globalThis.Route127WandererInfo.open(name,
-      new URL('assets/wanderers/'+file,new URL('/route127/playtest/',location.origin)).href);
+      new URL('assets/wanderers/'+file,new URL('/route127/devtest/',location.origin)).href);
     }else{
      const note=document.createElement('p');note.textContent='Portrait is not available for '+name+'.';
      item.appendChild(note);
@@ -647,7 +714,11 @@
  const origStopMenu=port55StopMenu;
  port55StopMenu=function(...args){
   if(stage==='port55Stop'&&player.flags?.port55CurrentStop==='Town Streets'&&liberated()){
+   // One selected visitor for the menu and portrait, not a fresh roll.
+   initialVisitor();
    const person=visitor();
+   currentTownWanderer=person?.name||null;
+   townWandererFocus=null;
    const patrol=port55PatrolName()==='Town Streets';
    const options=[
     ...(person?['TALK TO WANDERER — '+person.name.toUpperCase()]:[]),
@@ -667,13 +738,16 @@
   const name=player.flags?.port55VisitingName,w=name&&wandererByName(name);
   if(!liberated()||!eligible(w)||wandererLocations[w.name]!=='seaport'){
    delete player.flags.port55VisitingName;
+   delete player.flags.v50Trade;delete player.flags.v53Sale;
+   currentTownWanderer=null;townWandererFocus=null;pendingTownFight=null;
    stage='port55Stop';player.flags.port55CurrentStop='Town Streets';
    return port55StopMenu();
   }
   currentTownWanderer=w.name;townWandererFocus=w.name;
-  port55Submenu('Visiting Wanderer — '+((typeof RouteIdentity!=='undefined'?
-    RouteIdentity.wanderer?.[w.name]:null)||w.name),
-    ['SMALL TALK','INSPECT WANDERER','RECRUIT','BACK TO TOWN STREETS']);
+  if(pendingTownFight===w.name)return v53Choices(['CONFIRM FIGHT','BACK OFF']);
+  if(player.flags.v53Sale)return v53SaleMenu();
+  if(player.flags.v50Trade===w.name)return v50Trade(w);
+  v53WandererMenu(w,false); // The same menu Solace uses.
  }
  const origResume=port55Resume;
  port55Resume=function(...args){
@@ -695,25 +769,44 @@
   }
   if(stage==='port55Guest'){
    const w=wandererByName(player.flags?.port55VisitingName);
-   if(['back','b','exit','return','back to town streets'].includes(cmd)){
-    stage='port55Stop';player.flags.port55CurrentStop='Town Streets';
+   if(!w||!eligible(w)||wandererLocations[w.name]!=='seaport'){guestMenu();return true;}
+   if(['leave','back','b','exit','return','back to town streets'].includes(cmd)){
+    if(player.flags.v50Trade){delete player.flags.v50Trade;delete player.flags.v50Sale;delete player.flags.v53Sale;guestMenu();return true;}
     delete player.flags.port55VisitingName;
-    currentTownWanderer=null;townWandererFocus=null;
-    port55StopMenu();return true;
+    currentTownWanderer=null;townWandererFocus=null;pendingTownFight=null;
+    stage='port55Stop';player.flags.port55CurrentStop='Town Streets';port55StopMenu();return true;
    }
-   if(!w||!eligible(w)){guestMenu();return true;}
-   if(cmd==='small talk'||cmd==='talk'){
-    add(wandererDialogue(w),'bright');guestMenu();return true;
-   }
-   if(cmd==='inspect wanderer'||cmd==='inspect'){
-    const file=globalThis.Route127WandererPortraitFiles?.[w.name];
-    if(file&&globalThis.Route127WandererInfo?.open)
-     globalThis.Route127WandererInfo.open(w.name,
-       new URL('assets/wanderers/'+file,new URL('/route127/playtest/',location.origin)).href);
-    else portInspectAptitudes(w);
+   if(cmd==='back off'&&pendingTownFight===w.name){pendingTownFight=null;guestMenu();return true;}
+   if(cmd==='confirm fight'&&pendingTownFight===w.name){
+    player.flags.devSeaportGuestFight=w.name;
+    handleTownWanderer('confirm fight');
+    if(stage!=='combat'){delete player.flags.devSeaportGuestFight;guestMenu();}
     return true;
    }
-   if(cmd==='recruit'){
+   if(player.flags.v50Trade===w.name){
+    if(['leave browse wares','leave trade'].includes(cmd)){
+     delete player.flags.v50Trade;delete player.flags.v50Sale;delete player.flags.v53Sale;guestMenu();return true;
+    }
+    if(v50TradeCommand(cmd))return true;
+    guestMenu();return true;
+   }
+   if(cmd.startsWith('small talk')||cmd.startsWith('talk ')){
+    ws(w.name);add(wandererDialogue(w),'bright');guestMenu();return true;
+   }
+   if(cmd.startsWith('browse wares')||cmd==='trade'){
+    if(v50Profile(w).hostile){add(w.name+' refuses to trade.','system');guestMenu();return true;}
+    v50Trade(w);return true;
+   }
+   if(cmd.startsWith('steal')){v52Pickpocket(w,true);guestMenu();return true;}
+   if(cmd.startsWith('inspect')){
+    v50Inspect(w);
+    const portrait=globalThis.Route127WandererPortraitFiles?.[w.name];
+    if(portrait&&globalThis.Route127WandererInfo?.open)
+     globalThis.Route127WandererInfo.open(w.name,new URL('assets/wanderers/'+portrait,new URL('/route127/devtest/',location.origin)).href);
+    guestMenu();return true;
+   }
+   if(cmd.startsWith('fight')){handleTownWanderer('fight '+w.name.toLowerCase());guestMenu();return true;}
+   if(cmd.startsWith('recruit')){
     player.flags.portHireOffer={name:w.name,origin:'port55Guest'};
     stage='port55Recruit';portHireMenu();return true;
    }
@@ -729,7 +822,11 @@
     delete player.flags.portHireOffer;stage='port55Guest';guestMenu();return true;
    }
    const hiredBefore=portIsHired(offer.name);
-   const result=origRecruit.apply(this,arguments);
+   // Native recruit flow normally returns to Solace; keep this guest in Seaport.
+   player.flags.devSeaportGuestHire=true;
+   let result;
+   try{result=origRecruit.apply(this,arguments);}
+   finally{delete player.flags.devSeaportGuestHire;}
    if(!hiredBefore&&portIsHired(offer.name)){
     delete player.flags.port55VisitingName;
     currentTownWanderer=null;townWandererFocus=null;
@@ -739,6 +836,41 @@
    return result;
   }
   return origRecruit.apply(this,arguments);
+ };
+ // Reuse existing Solace legal and merchant mechanics; only substitute the
+ // true town location and restore the Seaport stage after merchant transactions.
+ const previousCrimeLocation=v52CrimeLocation;
+ v52CrimeLocation=function(...args){
+  if(stage==='port55Guest'||player.flags?.devSeaportGuestFight)return 'Seaport — Town Streets';
+  return previousCrimeLocation.apply(this,args);
+ };
+ const previousTradeCommand=v50TradeCommand;
+ v50TradeCommand=function(...args){
+  if(stage!=='port55Guest')return previousTradeCommand.apply(this,args);
+  stage='mercy';
+  try{return previousTradeCommand.apply(this,args);}
+  finally{if(stage==='mercy')stage='port55Guest';}
+ };
+ const previousSaleCommand=v53SaleCommand;
+ v53SaleCommand=function(...args){
+  if(stage!=='port55Guest')return previousSaleCommand.apply(this,args);
+  stage='mercy';
+  try{return previousSaleCommand.apply(this,args);}
+  finally{if(stage==='mercy')stage='port55Guest';}
+ };
+ // The native town-wanderer combat path already records assault and murder.
+ // Only redirect its terminal menu back to Seaport (not Solace).
+ const previousShowContext=showCurrentContext;
+ showCurrentContext=function(...args){
+  if(stage==='mercy'&&(player.flags?.devSeaportGuestFight||player.flags?.devSeaportGuestHire)){
+   delete player.flags.devSeaportGuestFight;
+   delete player.flags.devSeaportGuestHire;
+   delete player.flags.port55VisitingName;
+   stage='port55Stop';player.flags.port55CurrentStop='Town Streets';
+   currentTownWanderer=null;townWandererFocus=null;pendingTownFight=null;
+   return port55StopMenu();
+  }
+  return previousShowContext.apply(this,args);
  };
  // Restore old saves at the Seaport stage without making residents appear
  // while occupied, and without requiring a new game.
@@ -793,5 +925,91 @@
    const def=PORT_STAFF_ROLES[role],assigned=portStaffState().assignments[role];
    return {...row,label:def.name+' — '+(assigned?full(assigned):'Need to Hire')};
   });
+ };
+})();
+
+/* DEVTEST graphical navigation: hide duplicate B BACK buttons only when a
+ * numbered exit already handles returning. Keep the original hotkey and
+ * command mappings intact for Classic BBS and keyboard navigation. */
+(function(){
+ if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||typeof GraphicalUI==='undefined')return;
+ const previousChoices=GraphicalUI.choices;
+ GraphicalUI.choices=function(...args){
+  const rows=previousChoices.apply(this,args);
+  if(!this.active())return rows;
+  // On the two-way Seaport road, NORTH and SOUTH are the real exits.
+  // The inherited B BACK has no action here; hide only its graphical button.
+  const road=typeof lanternState==='function'?lanternState():null;
+  if(stage==='lanternRoad'&&road?.currentEdgeId==='boulder-junction--seaport'&&
+     rows.filter(r=>/^\d+$/.test(String(r.key))).length>=2){
+   return rows.filter(r=>!(String(r.key).toLowerCase()==='b'&&
+     /^back$/i.test(String(r.command||'').trim())));
+  }
+  const exits=rows.filter(r=>/^\d+$/.test(String(r.key))&&
+   /^(?:back|return(?: to (?:seaport|harbor|town|road|market|docks|previous menu))?|leave(?: (?:area|shop|store))?)$/i.test(String(r.command||'').trim()));
+  if(!exits.length)return rows;
+  return rows.filter(r=>!(String(r.key).toLowerCase()==='b'&&
+   /^(?:back|return)$/i.test(String(r.command||'').trim())));
+ };
+})();
+
+/* DEVTEST presentation: location plates are neutral, wanderers stay green. */
+(function(){
+ if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||typeof GraphicalUI==='undefined')return;
+ const oldSync=GraphicalUI.sync;
+ GraphicalUI.sync=function(...args){
+  const r=oldSync.apply(this,args),caption=this.element?.caption;
+  if(caption){
+   if(stage==='port55Stop'&&player.flags?.port55CurrentStop==='Town Streets'){
+    caption.replaceChildren(document.createTextNode('Seaport — Town Streets'));
+    caption.style.setProperty('color','#eed8b8','important');
+   }else caption.style.removeProperty('color');
+  }
+  return r;
+ };
+})();
+
+/* DEVTEST: post-liberation Sheriff Kaiden has one predictable location.
+ * Old patrol index/step stay in saved data for backwards compatibility, but
+ * no longer influence his location or advance when turns pass. His existing
+ * global bounty, fine, bribe and liberation dialogue are reused unchanged. */
+(function(){
+ 'use strict';
+ if(globalThis.ROUTE127_ENV?.name==='DEVTEST')return;
+ const formerName=port55PatrolName,formerTick=port55PatrolTick;
+ port55PatrolName=function(...args){
+  return player.flags?.seaport55?.freed===true?'Town Streets':formerName.apply(this,args);
+ };
+ port55PatrolTick=function(...args){
+  if(player.flags?.seaport55?.freed===true)return;
+  return formerTick.apply(this,args);
+ };
+ // Replace old patrol narration without touching the actual stop options.
+ const previousStopMenu=port55StopMenu;
+ port55StopMenu=function(...args){
+  if(player.flags?.seaport55?.freed!==true||
+     player.flags?.port55CurrentStop!=='Town Streets')
+   return previousStopMenu.apply(this,args);
+  const priorAdd=add;
+  add=function(message,...extra){
+   if(String(message).startsWith('Kaiden is on patrol at '))
+    message='Sheriff Kaiden is stationed in Town Streets.';
+   return priorAdd.call(this,message,...extra);
+  };
+  try{return previousStopMenu.apply(this,args);}
+  finally{add=priorAdd;}
+ };
+ // Replace the old changing-patrol announcement, not the town logic.
+ const formerMenu=port55Menu;
+ port55Menu=function(...args){
+  const priorAdd=add;
+  add=function(message,...extra){
+   if(player.flags?.seaport55?.freed===true&&
+      String(message).startsWith('KAIDEN PATROL — '))
+    message='SHERIFF KAIDEN — Town Streets';
+   return priorAdd.call(this,message,...extra);
+  };
+  try{return formerMenu.apply(this,args);}
+  finally{add=priorAdd;}
  };
 })();

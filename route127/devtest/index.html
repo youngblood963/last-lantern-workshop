@@ -127,15 +127,37 @@ r6Wager=function(bet){
  r6Settle(casinoSlotPayout(round.reels,bet),round.reels.join(' / '));
  r6CasinoRender();return true;
 };
-function slotChoices(actions){
- // The original Seaport menu defers key registration through outputQueue.
- // Register keys immediately so animations and long terminal queues
- // cannot leave the graphical interface with no buttons.
- numberedChoices=Object.fromEntries(actions.map((action,i)=>[String(i+1),action.toLowerCase()]));
+// Same native clickable buttons used by the working Solace casino.
+// These choices are derived from the casino round, not an asynchronous
+// terminal output queue (which previously left the slot UI with no buttons).
+const slotActions=()=>r6Round()?.status==='settled'
+ ? ['PLAY AGAIN','BACK']
+ : ['WAGER 5','WAGER 10','WAGER 25','BACK'];
+const slotOptions=()=>slotActions().map((command,i)=>({
+ key:String(i+1),command:command.toLowerCase(),
+ label:command.replace(/^WAGER /,'Wager ').replace(/^PLAY AGAIN$/,'Play Again')
+}));
+function slotChoices(){
+ numberedChoices=Object.fromEntries(slotOptions().map(c=>[c.key,c.command]));
  currentHotkeys={b:'back'};
- r5DirectChoices(actions);
- GraphicalUI.sync();
+ GraphicalUI.schedule();
 }
+const oldChoices=GraphicalUI.choices;
+GraphicalUI.choices=function(){
+ return enabled()?slotOptions():oldChoices.call(this);
+};
+// Native button component, but dispatch the resolved command itself so
+// stale numbered-choice registrations cannot route a click elsewhere.
+const oldDispatch=GraphicalUI.dispatch;
+GraphicalUI.dispatch=async function(choice){
+ if(!enabled())return oldDispatch.call(this,choice);
+ const current=slotOptions().find(c=>c.key===choice.key&&c.command===choice.command);
+ if(!current||busy)return false;
+ this.navOpen=false;
+ await handleCommand(current.command);
+ this.sync();
+ return true;
+};
 const render=r6CasinoRender;
 r6CasinoRender=function(){
  if(!isSlot())return render.apply(this,arguments);
@@ -143,10 +165,10 @@ r6CasinoRender=function(){
  add('RUSTY ANCHOR — SLOTS','place');
  if(r.status==='waiting'){
   add('Match three: Bolt 10x / Crab 18x / Compass 28x / Chest 50x / Anchor 70x / Mermaid 300x.','system');
-  slotChoices(['WAGER 5','WAGER 10','WAGER 25','BACK']);
+  slotChoices();
  }else if(r.status==='settled'){
   add('WAGER '+r.bet+' / RETURN '+r.payout+' / NET '+(r.payout-r.bet)+' Bolts','reward');
-  slotChoices(['PLAY AGAIN','BACK']);
+  slotChoices();
  }else render.apply(this,arguments);
 };
 const model=GraphicalUI.model;

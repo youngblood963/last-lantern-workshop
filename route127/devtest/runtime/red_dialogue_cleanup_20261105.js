@@ -11,7 +11,7 @@
  let page='conversation';
  const graphical=()=>GraphicalUI.active();
  const clean=()=>{if(graphical()&&screen)screen.replaceChildren();};
- const heading=()=>add('ELIAS “RED” HARPER — THE RUSTY ANCHOR','place');
+ const heading=()=>add('ELIAS “RED” HARPER — THE RUSTY ANCHOR','npc-blue');
  const norm=value=>String(value||'').trim().toLowerCase();
 
  function redChoices(){

@@ -25,6 +25,7 @@ body.full-graphics .gfx-frame[data-layout="seaport-knife-throwing"] .gfx-main{
  display:flex;flex-direction:column;min-height:0;height:100%;overflow:hidden;gap:6px}
 body.full-graphics .gfx-frame[data-layout="seaport-knife-throwing"] .gfx-art{
  display:block;position:relative;flex:1 1 0;min-height:160px;overflow:hidden;background:#100b08!important}
+body.full-graphics .gfx-frame[data-layout="seaport-knife-throwing"] .r6-knife{display:none!important}
 body.full-graphics .gfx-frame[data-layout="seaport-knife-throwing"] .gfx-image,
 body.full-graphics .gfx-frame[data-layout="seaport-knife-throwing"] .gfx-art-caption,
 body.full-graphics .gfx-frame[data-layout="seaport-knife-throwing"] .gfx-art-error{display:none!important}
@@ -195,12 +196,15 @@ r6Throw=function(now){
   point=placeFor(elapsed<0||elapsed>10000?0:r6Score(p),before,p);
  }
  // Scores/ledger/forfeit guards are decided immediately, before ANY graphics.
- const result=oldThrow.call(this,now);
- if(qualifies&&r.scores.length===before+1){
+ if(qualifies){
+  // The original settlement saves immediately and updateHud() may synchronously
+  // render graphics, so arm the flight BEFORE calling the gameplay function.
   placements.set(before,point);
   pending={id:r.id,index:before};
-  GraphicalUI.sync();
  }
+ const result=oldThrow.call(this,now);
+ if(qualifies&&r.scores.length===before+1)GraphicalUI.sync();
+ else if(qualifies){placements.delete(before);pending=null;}
  return result;
 };
 GraphicalUI.schedule();

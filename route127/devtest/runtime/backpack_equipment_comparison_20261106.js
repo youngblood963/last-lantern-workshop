@@ -49,10 +49,18 @@
   const items=this.items(),rows=[...list.querySelectorAll('button.traveler-item')];
   rows.forEach((button,i)=>{
    const stack=items[i],g=stack&&GEAR[stack.name];
-   if(!g||!['weapon','armor','accessory'].includes(g.type))return;
+   if(!stack)return;
+   const healing=typeof HEALING_ITEM_RATES!=='undefined'?HEALING_ITEM_RATES[stack.name]:undefined;
+   const equipment=!!g&&['weapon','armor','accessory'].includes(g.type);
+   if(!equipment&&!Number.isFinite(healing))return;
    const label=button.querySelector('.traveler-item-label');
    if(!label)return;
    const meta=document.createElement('span');meta.className='r127-bag-gear-meta';
+   if(Number.isFinite(healing)){
+    const potential=Math.max(1,Math.ceil(player.maxHp*healing));
+    meta.textContent='HEALS '+Math.round(healing*100)+'% MAX HP · UP TO '+potential+' HP';
+    label.append(meta);return;
+   }
    const equipName=player[g.type];
    const equipped=stack.name===equipName;
    const base=stats(g);

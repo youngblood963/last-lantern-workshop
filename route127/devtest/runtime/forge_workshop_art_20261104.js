@@ -128,11 +128,28 @@
   }
   currentHotkeys.b='back';
  }
- // r11QuestReturn, save restores and Seaport's original entry call this
- // function. Always present one consistent menu instead of legacy choices.
+ // Keep the quest nested beneath Small Talk. Its canonical return handler
+ // calls port55Submenu(), so carry only that one return through to the
+ // Small Talk page; ordinary Kaiden re-entries always start at Main.
+ let returningFromLights=false;
+ const canonicalQuestReturn=r11QuestReturn;
+ r11QuestReturn=function(...args){
+  const fromLights=player.flags?.r11QuestFocus==='lights';
+  if(fromLights)returningFromLights=true;
+  try{return canonicalQuestReturn.apply(this,args);}
+  finally{returningFromLights=false;}
+ };
  port55Submenu=function(name,choices){
-  if(stage==='port55Kaiden'&&liberated())return menu();
+  if(stage==='port55Kaiden'&&liberated())
+   return menu(returningFromLights?'small-talk':'main');
   return baseSubmenu.apply(this,arguments);
+ };
+ // The older R11 post-command hook still emits a DIFFERENT Kaiden menu,
+ // including the quest on the top level. Redirect it to this menu owner.
+ const legacyKaidenChoices=r18KaidenChoices;
+ r18KaidenChoices=function(...args){
+  if(stage==='port55Kaiden'&&liberated())return menu(page);
+  return legacyKaidenChoices.apply(this,args);
  };
  const basePortCommand=port55Command;
  port55Command=function(input){

@@ -18,6 +18,9 @@ body.full-graphics .gfx-main:has(.r127-last-combat) .gfx-narrative{min-height:55
 `;
 document.head.append(style);
 let previousCombat=false,result=null,visible=null,watching=false,closeCount=0;
+let rewardTurns=null;
+const turnCount=()=>Number(player?.turns);
+function dismiss(){result=null;watching=false;rewardTurns=null;visible?.remove();visible=null;}
 const active=()=>GraphicalUI.active()&&!combatState;
 const summaryPattern=/\b(?:you deal|damage|xp|experience|bolts|pack:|pack \+|loot|salvage|reward|victory|won|defeated|killed|result|level up|level-up|item found|you receive|you gain)\b/i;
 const isHeading=t=>/^\s*(?:result|combat result|victory|battle won)\s*[:—-]?\s*$/i.test(t);
@@ -55,22 +58,26 @@ function draw(){
  for(const line of result){const span=document.createElement('span');span.className='r127-last-combat-line';span.textContent=line;panel.append(span);}
  const close=document.createElement('button');close.type='button';close.textContent='×';
  close.setAttribute('aria-label','Dismiss combat results');
- close.addEventListener('click',()=>{result=null;panel.remove();visible=null;});
+ close.addEventListener('click',dismiss);
  panel.append(close);
  e.narrative.parentElement?.insertBefore(panel,e.narrative);
  visible=panel;
 }
 function update(){
  if(!GraphicalUI.active())return;
- if(combatState){previousCombat=true;visible?.remove();visible=null;return;}
+ if(combatState){previousCombat=true;dismiss();return;}
+ // A new movement/game turn ends the reward display automatically. This
+ // comparison is made against the turn count when the result was displayed,
+ // not the count when combat began (combat itself can consume turns).
+ if(result&&rewardTurns!==null&&Number.isFinite(turnCount())&&turnCount()!==rewardTurns){dismiss();return;}
  if(previousCombat){
-  previousCombat=false;closeCount=0;
+  previousCombat=false;closeCount=0;rewardTurns=null;
   // Some combat rewards are posted on the next output tick.
   watching=true;
  }
  if(!watching){if(result)draw();return;}
  const lines=findCombatResult();
- if(lines?.length){result=lines;visible?.remove();visible=null;draw();}
+ if(lines?.length){result=lines;rewardTurns=turnCount();visible?.remove();visible=null;draw();}
  if(++closeCount>10)watching=false;
 }
 const priorSync=GraphicalUI.sync;
@@ -84,7 +91,7 @@ GraphicalUI.sync=function(...args){
 const mutation=new MutationObserver(()=>{
  if(!watching||!active()||!screen?.isConnected)return;
  const lines=findCombatResult();
- if(lines?.length){result=lines;visible?.remove();visible=null;draw();}
+ if(lines?.length){result=lines;rewardTurns=turnCount();visible?.remove();visible=null;draw();}
 });
 if(screen)mutation.observe(screen,{childList:true});
 })();

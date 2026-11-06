@@ -105,6 +105,121 @@ if(globalThis.ROUTE127_ENV?.name!=="DEVTEST"){document.write('<p role="alert">De
 <script src="../devtest/runtime/shared_inn_room_art_20261105.js?v=wo49"></script>
 <script src="../devtest/runtime/seaport_pirates_poker_20261105.js?v=wo50-round-binding"></script>
 
+<script id="seaport-slots-20261105">
+/* DEVTEST: Seaport slot machine reuses Solace odds, payouts, and reel spin technique. */
+(function(){
+'use strict';
+if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||typeof GraphicalUI==='undefined'||typeof r6Round!=='function'||typeof casinoSlotDraw!=='function')return;
+const names=['SCRAP','BOLTS','LANTERN','SKULL','RAT','BLACKGLASS'];
+const base='../devtest/assets/locations/slots/';
+const asset=f=>typeof ROUTE127_ASSET_BASE!=='undefined'&&ROUTE127_ASSET_BASE?new URL(base+f,ROUTE127_ASSET_BASE).href:base+f;
+const wall=asset('seaport_slots_background.png'),cabinet=asset('seaport_slot_machine.png'),strip=asset('seaport_slot_reel_strip.png');
+const isSlot=()=>stage==='r6Casino'&&r6Round()?.game==='SLOTS'&&player.flags?.port55Casino;
+const enabled=()=>GraphicalUI.preference()==='graphics'&&isSlot();
+const d=R6_GAMES.indexOf("CAPTAIN'S DICE");if(d!==-1&&!R6_GAMES.includes('SLOTS'))R6_GAMES.splice(d,1,'SLOTS');
+const wager=r6Wager;
+r6Wager=function(bet){
+ if(!isSlot())return wager.apply(this,arguments);
+ if(!Number.isSafeInteger(bet)||bet<1||bet>Math.floor((Number.MAX_SAFE_INTEGER-player.bolts)/300))return false;
+ const round=r6Round(),ok=wager.apply(this,arguments);
+ if(!ok)return false;
+ round.reels=[casinoSlotDraw(),casinoSlotDraw(),casinoSlotDraw()];
+ r6Settle(casinoSlotPayout(round.reels,bet),round.reels.join(' / '));
+ r6CasinoRender();return true;
+};
+const render=r6CasinoRender;
+r6CasinoRender=function(){
+ if(!isSlot())return render.apply(this,arguments);
+ const r=r6Round();
+ add('RUSTY ANCHOR — SLOTS','place');
+ if(r.status==='waiting'){
+  add('Match three: Bolt 10x / Crab 18x / Compass 28x / Chest 50x / Anchor 70x / Mermaid 300x.','system');
+  r5DirectChoices(['WAGER 5','WAGER 10','WAGER 25','BACK']);
+ }else if(r.status==='settled'){
+  add('WAGER '+r.bet+' / RETURN '+r.payout+' / NET '+(r.payout-r.bet)+' Bolts','reward');
+  r5DirectChoices(['PLAY AGAIN','BACK']);
+ }else render.apply(this,arguments);
+};
+const model=GraphicalUI.model;
+GraphicalUI.model=function(){
+ const m=model.apply(this,arguments);
+ if(enabled()){m.layout='seaport-slots';m.art='';m.title='Rusty Anchor — Slots'}
+ return m;
+};
+const style=document.createElement('style');
+style.textContent=[
+ 'body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-main{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;gap:6px}',
+ 'body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-art{display:block!important;position:relative;flex:1 1 0;min-height:150px;overflow:hidden;background:#241b17 url("'+wall+'") center/cover no-repeat!important}',
+ 'body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-art-caption,body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-art-error,body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-image{display:none!important}',
+ 'body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-narrative{flex:0 0 auto;max-height:68px;overflow:auto}',
+ 'body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-choices{flex:0 0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;max-height:125px;overflow-y:auto}',
+ 'body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-choice{min-width:0;min-height:40px;padding:3px 7px}',
+ '.r127-seaport-slot-stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none;isolation:isolate}',
+ '.r127-seaport-slot-cabinet{position:relative;height:100%;max-width:100%;aspect-ratio:3/2;flex:none;background:url("'+cabinet+'") center/100% 100% no-repeat;filter:drop-shadow(0 5px 10px #000b)}',
+ '.r127-seaport-slot-window{position:absolute;top:27%;height:19%;width:11.5%;overflow:hidden;background:#a38865;box-shadow:inset 0 0 8px 3px #120a08}',
+ '.r127-seaport-slot-window[data-reel="0"]{left:32.2%}',
+ '.r127-seaport-slot-window[data-reel="1"]{left:44.35%}',
+ '.r127-seaport-slot-window[data-reel="2"]{left:56.5%}',
+ '.r127-seaport-slot-scroll{position:absolute;left:0;top:0;width:100%;will-change:transform}',
+ '.r127-seaport-slot-cell{display:block;width:100%;height:var(--cell-height);background:url("'+strip+'") center var(--y)/100% 600% no-repeat}',
+ '.r127-seaport-slot-glass{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#0007,transparent 18%,#fff2 50%,transparent 82%,#0007);box-shadow:inset 0 7px 9px #180e09,inset 0 -7px 9px #180e09}',
+ '.r127-seaport-slot-stage.win .r127-seaport-slot-window{filter:brightness(1.23)}',
+ '@media(prefers-reduced-motion:reduce){.r127-seaport-slot-scroll{will-change:auto}}'
+].join('\n');
+document.head.appendChild(style);
+let key='',running=[];
+function stop(){running.forEach(a=>{try{a.cancel()}catch(e){}});running=[]}
+function create(figure){
+ const scene=document.createElement('div');scene.className='r127-seaport-slot-stage';scene.setAttribute('role','img');scene.setAttribute('aria-label','Rusty Anchor slot machine');
+ const machine=document.createElement('div');machine.className='r127-seaport-slot-cabinet';
+ for(let i=0;i<3;i++){
+  const windowEl=document.createElement('div');windowEl.className='r127-seaport-slot-window';windowEl.dataset.reel=i;
+  const scroll=document.createElement('div');scroll.className='r127-seaport-slot-scroll';
+  for(let c=0;c<5;c++)for(let j=0;j<6;j++){
+   const cell=document.createElement('div');cell.className='r127-seaport-slot-cell';cell.style.setProperty('--y',j*20+'%');scroll.appendChild(cell);
+  }
+  const glass=document.createElement('div');glass.className='r127-seaport-slot-glass';
+  windowEl.append(scroll,glass);machine.append(windowEl);
+ }
+ scene.append(machine);figure.append(scene);return scene;
+}
+function top(w,index,loop){return -(loop*6+index)*w.clientHeight}
+function pose(scene,ids){
+ [...scene.querySelectorAll('.r127-seaport-slot-window')].forEach((w,i)=>{
+  w.querySelector('.r127-seaport-slot-scroll').style.setProperty('--cell-height',w.clientHeight+'px');
+  w.querySelector('.r127-seaport-slot-scroll').style.transform='translate3d(0,'+top(w,ids[i],0)+'px,0)';
+ });
+}
+function spin(scene,reels){
+ const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+ const wins=[...scene.querySelectorAll('.r127-seaport-slot-window')];
+ if(reduced||!Element.prototype.animate){pose(scene,reels.map(x=>names.indexOf(x)));return}
+ wins.forEach((w,i)=>{
+  const s=w.querySelector('.r127-seaport-slot-scroll'),from=top(w,0,0),to=top(w,names.indexOf(reels[i]),3);
+  s.style.transform='translate3d(0,'+to+'px,0)';
+  running.push(s.animate([{transform:'translate3d(0,'+from+'px,0)'},{transform:'translate3d(0,'+to+'px,0)'}],{duration:1450+i*420,easing:'cubic-bezier(.16,.82,.28,1)',fill:'none'}));
+ });
+}
+function refresh(){
+ const figure=GraphicalUI.element?.figure;if(!figure)return;
+ let scene=figure.querySelector('.r127-seaport-slot-stage');
+ if(!enabled()){if(scene)scene.remove();key='';stop();return}
+ if(!scene){scene=create(figure);key=''}
+ const r=r6Round(),reels=Array.isArray(r.reels)&&r.reels.length===3?r.reels:null;
+ const next=r.id+':'+r.status+':'+(reels?reels.join('/'):'');
+ if(next===key)return;key=next;stop();
+ if(r.status==='settled'&&reels&&reels.every(x=>names.includes(x))){
+  scene.classList.toggle('win',reels.every(x=>x===reels[0]));scene.setAttribute('aria-label','Rusty Anchor: '+reels.join(', '));
+  pose(scene,[0,0,0]);
+  requestAnimationFrame(()=>{if(scene.isConnected&&enabled()&&key===next)spin(scene,reels)});
+ }else{scene.classList.remove('win');pose(scene,[0,2,1]);scene.setAttribute('aria-label','Rusty Anchor slots ready')}
+}
+const sync=GraphicalUI.sync;
+GraphicalUI.sync=function(){const result=sync.apply(this,arguments);refresh();return result};
+GraphicalUI.schedule();
+})();
+</script>
+
 
 
 

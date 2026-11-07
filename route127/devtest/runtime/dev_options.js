@@ -261,7 +261,7 @@
       plate.textContent=region.value+' — '+encounter.value.toUpperCase();
       stage.querySelectorAll('.dw-combat-enemy').forEach(n=>n.remove());
       if(!imageUrl)return;
-      const positions=[[50,30],[39,19],[60,22],[43,41],[59,43]];
+      const positions=[[50,30],[31,16],[65,27],[43,37],[72,48]];
       const total=Number(count.value);
       for(let i=0;i<total;i++){
         const img=el('img','dw-combat-enemy');img.src=imageUrl;img.alt='Bat '+(i+1);

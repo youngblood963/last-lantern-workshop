@@ -265,7 +265,7 @@
       const total=Number(count.value);
       for(let i=0;i<total;i++){
         const img=el('img','dw-combat-enemy');img.src=imageUrl;img.alt='Bat '+(i+1);
-        img.style.cssText='position:absolute;z-index:2;object-fit:contain;filter:brightness(.58) contrast(1.22) saturate(.72) drop-shadow(0 6px 6px #000b);width:'+size.value+'%;left:'+positions[total===1?0:i+1][0]+'%;top:'+positions[total===1?0:i+1][1]+'%;transform:translate(-50%,-50%)';
+        img.style.cssText='position:absolute;z-index:2;object-fit:contain;filter:drop-shadow(-2px -2px 1px rgba(255,198,126,.65)) drop-shadow(3px 7px 4px rgba(10,6,5,.85));width:'+size.value+'%;left:'+positions[total===1?0:i+1][0]+'%;top:'+positions[total===1?0:i+1][1]+'%;transform:translate(-50%,-50%)';
         stage.append(img);
       }
     }

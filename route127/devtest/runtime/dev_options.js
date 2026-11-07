@@ -270,7 +270,7 @@
         const pos=cfg.positions[total===1?0:i+1]||cfg.positions[i%cfg.positions.length];
         const flipped=encounter.value==='Rabid Raccoons'&&(i===1||i===2)&&total>1;
         const scale=encounter.value==='Rabid Raccoons'?[.9,.72,.86,1][i]:1;
-        img.style.cssText='position:absolute;z-index:2;object-fit:contain;filter:drop-shadow(3px 7px 4px rgba(10,6,5,.85));width:'+size.value+'%;left:'+pos[0]+'%;top:'+pos[1]+'%;transform:translate(-50%,-50%) scale('+(flipped?-scale:scale)+','+scale+')';
+        img.style.cssText='position:absolute;z-index:2;object-fit:contain;filter:drop-shadow(-2px -2px 1px rgba(255,198,126,.65)) drop-shadow(3px 7px 4px rgba(10,6,5,.85));width:'+size.value+'%;left:'+pos[0]+'%;top:'+pos[1]+'%;transform:translate(-50%,-50%) scale('+(flipped?-scale:scale)+','+scale+')';
         stage.append(img);
       }
     }

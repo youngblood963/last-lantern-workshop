@@ -261,11 +261,11 @@
       plate.textContent=region.value+' — '+encounter.value.toUpperCase();
       stage.querySelectorAll('.dw-combat-enemy').forEach(n=>n.remove());
       if(!imageUrl)return;
-      const positions=[[50,49],[40,36],[60,39],[43,62],[59,65]];
+      const positions=[[50,30],[39,19],[60,22],[43,41],[59,43]];
       const total=Number(count.value);
       for(let i=0;i<total;i++){
         const img=el('img','dw-combat-enemy');img.src=imageUrl;img.alt='Bat '+(i+1);
-        img.style.cssText='position:absolute;z-index:2;object-fit:contain;filter:drop-shadow(0 6px 6px #000a);width:'+size.value+'%;left:'+positions[total===1?0:i+1][0]+'%;top:'+positions[total===1?0:i+1][1]+'%;transform:translate(-50%,-50%)';
+        img.style.cssText='position:absolute;z-index:2;object-fit:contain;filter:brightness(.58) contrast(1.22) saturate(.72) drop-shadow(0 6px 6px #000b);width:'+size.value+'%;left:'+positions[total===1?0:i+1][0]+'%;top:'+positions[total===1?0:i+1][1]+'%;transform:translate(-50%,-50%)';
         stage.append(img);
       }
     }

@@ -1184,11 +1184,11 @@ async function leaveHouse() {
   updateHud();
   try {
     add("");
-    await typeLine("You pull on the worn jacket, slide the rusted pipe through your pack straps, and step outside.");
+    add("You pull on the worn jacket, slide the rusted pipe through your pack straps, and step outside.");
     add("");
-    await typeLine("ROUTE 127 — MILE 0", "place", 40);
-    await typeLine("The highway runs south through wet gray country. Weeds split the pavement. Power lines sag between leaning poles, and the shell of a gas station waits a few hundred yards ahead. Beyond it, Route 127 disappears between black hills.");
-    await typeLine("Six-point-two miles to walls, clean water, and the only voices that have answered you in days.");
+    add("ROUTE 127 — MILE 0", "place");
+    add("The highway runs south through wet gray country. Weeds split the pavement. Power lines sag between leaning poles, and the shell of a gas station waits a few hundred yards ahead. Beyond it, Route 127 disappears between black hills.");
+    add("Six-point-two miles to walls, clean water, and the only voices that have answered you in days.");
     add("NEW QUEST — HEAD TO SOLACE","bright");
     add("Follow the GPS coordinates south to Solace. Find shelter, then ask about the Relay Station to restore contact with the Tomorrow Project.","system");
 

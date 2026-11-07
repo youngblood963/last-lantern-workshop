@@ -230,6 +230,54 @@
     document.body.appendChild(dialog);update();dialog.showModal();close.focus();
   }
 
+  // DEVTEST-only combat art composition tab, alongside Wanderer preview.
+  function showCombatPreview(){
+    addStyle();
+    const dialog=el('dialog','dw-preview');
+    dialog.setAttribute('aria-label','Combat Visual Testing');
+    const header=el('div','dw-head'),title=el('h2','','COMBAT VISUAL TESTING');
+    const close=el('button','dw-close','X — Close');close.type='button';
+    close.addEventListener('click',()=>dialog.close());header.append(title,close);dialog.append(header);
+    const controls=el('div','dw-controls');
+    function select(label,values){
+      const wrap=el('label','',label),node=el('select');
+      for(const value of values){const opt=el('option','',value);opt.value=value;node.append(opt);}
+      wrap.append(node);controls.append(wrap);return node;
+    }
+    const encounter=select('Combat encounter',['Bat Colony']);
+    const region=select('Background region',REGIONS);
+    const count=select('Enemies',['1','2','3','4']);
+    count.value='4';
+    const sizeWrap=el('label','','Enemy size'),size=el('input');size.type='range';size.min='10';size.max='50';size.value='27';sizeWrap.append(size);controls.append(sizeWrap);
+    const fileWrap=el('label','','Transparent enemy artwork'),file=el('input');file.type='file';file.accept='image/png,image/webp,image/*';fileWrap.append(file);controls.append(fileWrap);
+    dialog.append(controls);
+    const stage=el('div','dw-scene');stage.style.marginTop='12px';stage.style.setProperty('aspect-ratio','16/9');
+    const bg=el('img','dw-bg');bg.alt='Central region background';stage.append(bg);
+    const plate=el('span','dw-location','CENTRAL — BAT COLONY');stage.append(plate);dialog.append(stage);
+    dialog.append(el('p','dw-note','DEVTEST composition only. Select the approved bat PNG from your phone to preview one or four bats over the actual regional background. No combat, saves, or Playtest changes.'));
+    let imageUrl=null;
+    function render(){
+      bg.src=regionUrl(region.value);
+      plate.textContent=region.value+' — '+encounter.value.toUpperCase();
+      stage.querySelectorAll('.dw-combat-enemy').forEach(n=>n.remove());
+      if(!imageUrl)return;
+      const positions=[[50,47],[25,30],[73,29],[35,69],[72,68]];
+      const total=Number(count.value);
+      for(let i=0;i<total;i++){
+        const img=el('img','dw-combat-enemy');img.src=imageUrl;img.alt='Bat '+(i+1);
+        img.style.cssText='position:absolute;z-index:2;object-fit:contain;filter:drop-shadow(0 6px 6px #000a);width:'+size.value+'%;left:'+positions[total===1?0:i+1][0]+'%;top:'+positions[total===1?0:i+1][1]+'%;transform:translate(-50%,-50%)';
+        stage.append(img);
+      }
+    }
+    file.addEventListener('change',()=>{
+      if(imageUrl)URL.revokeObjectURL(imageUrl);
+      imageUrl=file.files?.[0]?URL.createObjectURL(file.files[0]):null;render();
+    });
+    for(const input of [region,count,size])input.addEventListener('input',render);
+    dialog.addEventListener('close',()=>{if(imageUrl)URL.revokeObjectURL(imageUrl);dialog.remove();},{once:true});
+    document.body.append(dialog);render();dialog.showModal();close.focus();
+  }
+
   const originalOptions=TravelerPanels.options;
   TravelerPanels.options=function(...args){
     const result=originalOptions.apply(this,args);
@@ -250,6 +298,9 @@
     preview.dataset.devtestWandererPreview='true';
     panel.insertBefore(turns,close||null);
     panel.insertBefore(preview,close||null);
+    const combat=this.button('Combat Visual Testing',showCombatPreview);
+    combat.dataset.devtestCombatPreview='true';
+    panel.insertBefore(combat,close||null);
     return result;
   };
 })();

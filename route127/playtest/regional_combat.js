@@ -348,6 +348,8 @@
  };
  for(const d of designs){
   const [title,region,type,count,fraction,alternative,text,material]=d;
+  // Bat Colony can appear on Central, North, and West roads; one shared encounter definition.
+  const regions=title==='Bat Colony'?['CENTRAL','NORTH','WEST']:[region];
   const encounter={title:title.toUpperCase(),text,exclusive:true,choices:alternative+'   FIGHT   LEAVE',resolve(cmd){
    if(['leave','back away','move on'].includes(cmd)){add('You leave the encounter behind.');return true;}
    if(cmd==='fight'||(title==='Fuel Thieves'&&cmd==='take the fuel'))return r.regionalCombatFight(d);
@@ -360,9 +362,9 @@
   }};
   const index=encounters.push(encounter)-1,id='early:'+index;
   r.originalIds.set(encounter,id);
-  const metadata={number:null,id,legacyName:encounter.title,name:title,classification:'REGIONAL',regions:[region],encounter,authority:'Owner-approved October 29 regional combat expansion'};
+  const metadata={number:null,id,legacyName:encounter.title,name:title,classification:'REGIONAL',regions,encounter,authority:'Owner-approved October 29 regional combat expansion'};
   r.regionalCatalog.push(metadata);r.regionalById.set(id,metadata);r.regionalByTitle.set(encounter.title,metadata);
-  const entry={id,canonicalId:id,name:title,classification:'REGIONAL',region,regions:[region],encounter,references:[]};
+  const entry={id,canonicalId:id,name:title,classification:'REGIONAL',region:regions.join('+'),regions,encounter,references:[]};
   for(const road of ['early','east','coast']){const pool=r.pool(road);let i=pool.indexOf(encounter);if(i<0)i=pool.push(encounter)-1;R10_POOLS[road].combat.push(i);entry.references.push({road,category:'combat',index:i});}
   r.entries.push(entry);r.byId[id]=entry;
  }

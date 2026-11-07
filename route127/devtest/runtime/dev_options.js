@@ -246,7 +246,7 @@
     }
     const encounters={
       'Bat Colony':{asset:'bat_colony.png',count:4,size:27,positions:[[50,30],[31,16],[65,27],[43,37],[72,48]]},
-      'Rabid Raccoons':{asset:'rabid_raccoon.png',count:3,size:32,positions:[[50,60],[25,65],[53,48],[77,68]]}
+      'Rabid Raccoons':{asset:'rabid_raccoon.png',count:3,size:32,positions:[[50,60],[32,65],[53,48],[69,68]]}
     };
     const encounter=select('Combat encounter',Object.keys(encounters));
     const region=select('Background region',REGIONS);
@@ -268,7 +268,7 @@
       for(let i=0;i<total;i++){
         const img=el('img','dw-combat-enemy');img.src=localUrl||assetUrl();img.alt=encounter.value+' '+(i+1);img.addEventListener('error',()=>img.remove(),{once:true});
         const pos=cfg.positions[total===1?0:i+1]||cfg.positions[i%cfg.positions.length];
-        const flipped=encounter.value==='Rabid Raccoons'&&i===1&&total>1;
+        const flipped=encounter.value==='Rabid Raccoons'&&(i===1||i===2)&&total>1;
         const scale=encounter.value==='Rabid Raccoons'?[.9,.72,.86,1][i]:1;
         img.style.cssText='position:absolute;z-index:2;object-fit:contain;filter:drop-shadow(3px 7px 4px rgba(10,6,5,.85));width:'+size.value+'%;left:'+pos[0]+'%;top:'+pos[1]+'%;transform:translate(-50%,-50%) scale('+(flipped?-scale:scale)+','+scale+')';
         stage.append(img);

@@ -254,8 +254,9 @@
     const stage=el('div','dw-scene');stage.style.marginTop='12px';stage.style.setProperty('aspect-ratio','16/9');
     const bg=el('img','dw-bg');bg.alt='Central region background';stage.append(bg);
     const plate=el('span','dw-location','CENTRAL — BAT COLONY');stage.append(plate);dialog.append(stage);
-    dialog.append(el('p','dw-note','DEVTEST composition only. Select the approved bat PNG from your phone to preview one or four bats over the actual regional background. No combat, saves, or Playtest changes.'));
-    let imageUrl=null;
+    dialog.append(el('p','dw-note','DEVTEST composition only. Bat Colony artwork loads automatically once its asset is installed. You can also select a local PNG to compare artwork. No combat, saves, or Playtest changes.'));
+    const batAssetUrl=new URL('assets/enemies/bat_colony.png',devtestRoot).href;
+    let imageUrl=batAssetUrl;
     function render(){
       bg.src=regionUrl(region.value);
       plate.textContent=region.value+' — '+encounter.value.toUpperCase();
@@ -271,7 +272,7 @@
     }
     file.addEventListener('change',()=>{
       if(imageUrl)URL.revokeObjectURL(imageUrl);
-      imageUrl=file.files?.[0]?URL.createObjectURL(file.files[0]):null;render();
+      imageUrl=file.files?.[0]?URL.createObjectURL(file.files[0]):batAssetUrl;render();
     });
     for(const input of [region,count,size])input.addEventListener('input',render);
     dialog.addEventListener('close',()=>{if(imageUrl)URL.revokeObjectURL(imageUrl);dialog.remove();},{once:true});

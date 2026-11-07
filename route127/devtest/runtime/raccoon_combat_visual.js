@@ -3,7 +3,7 @@
 'use strict';
 if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||!/^\/route127\/devtest\/(?:index\.html)?$/.test(location.pathname)||typeof GraphicalUI==='undefined')return;
 const art=new URL('../devtest/assets/enemies/rabid_raccoon.png',document.baseURI).href;
-const spots=[[25,65,0.9,false],[53,48,0.72,true],[77,68,0.86,false]];
+const spots=[[32,65,0.9,false],[53,48,0.72,true],[69,68,0.86,true]];
 const style=document.createElement('style');
 style.textContent=`
 .gfx-art{position:relative}

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Route 127 — Bat Colony Visual Lab</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#14110f;color:#e8d6b6;font:16px system-ui,sans-serif}header,aside{padding:16px;background:#211a16}h1{font-size:22px;margin:0 0 6px}p{color:#c3ae94}main{max-width:1100px;margin:auto}label{display:block;margin:12px 0}input,button{accent-color:#cb814a}button{background:#493326;color:#fff;border:1px solid #9c6743;padding:9px 14px;border-radius:6px}.stage{position:relative;height:min(65vw,550px);min-height:310px;overflow:hidden;background:radial-gradient(ellipse at center,#51483d,#171b1d 75%);border:2px solid #6e4930}.stage:before{content:"CENTRAL REGION — VISUAL TEST";position:absolute;bottom:10px;left:12px;color:#d7b990;font-size:12px;letter-spacing:2px}.bat{position:absolute;width:var(--bat-size);height:auto;object-fit:contain;transform:translate(-50%,-50%);filter:drop-shadow(0 9px 9px #0009)}.bat:nth-child(1){left:25%;top:29%}.bat:nth-child(2){left:73%;top:28%}.bat:nth-child(3){left:35%;top:67%}.bat:nth-child(4){left:70%;top:69%}.controls{display:flex;gap:18px;flex-wrap:wrap;align-items:center}small{color:#bda88d}
+</style>
+<main><header><h1>BAT COLONY — VISUAL LAB</h1><p>Isolated DEVTEST art preview. Does not alter encounters, saves or Playtest.</p></header>
+<aside><div class="controls"><label>Bat count <select id="count"><option>1</option><option selected>4</option></select></label><label>Bat size <input id="size" type="range" min="12" max="48" value="28"> <output id="pct">28%</output></label><label>Bat image <input type="file" id="batFile" accept="image/png,image/webp,image/*"></label><label>Central background <input type="file" id="bgFile" accept="image/*"></label></div><small>Choose the approved transparent bat image and Central background to preview. Images remain in this browser session; no upload or game changes.</small></aside>
+<div class="stage" id="stage"><div id="bats"></div></div>
+</main>
+<script>
+const stage=document.querySelector('#stage'),bats=document.querySelector('#bats'),count=document.querySelector('#count'),size=document.querySelector('#size'),pct=document.querySelector('#pct');let batUrl='';
+function render(){bats.replaceChildren();stage.style.setProperty('--bat-size',size.value+'%');pct.textContent=size.value+'%';if(!batUrl)return;for(let i=0;i<Number(count.value);i++){let img=document.createElement('img');img.className='bat';img.src=batUrl;img.alt='Bat';bats.append(img)}}
+count.onchange=render;size.oninput=render;
+document.querySelector('#batFile').onchange=e=>{const f=e.target.files[0];if(f){if(batUrl)URL.revokeObjectURL(batUrl);batUrl=URL.createObjectURL(f);render()}};
+document.querySelector('#bgFile').onchange=e=>{const f=e.target.files[0];if(f){stage.style.backgroundImage='linear-gradient(#0003,#0003),url("'+URL.createObjectURL(f)+'")';stage.style.backgroundSize='cover';stage.style.backgroundPosition='center'}};
+render();
+</script></html>

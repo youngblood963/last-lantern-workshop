@@ -8,7 +8,7 @@ const style=document.createElement('style');
 style.textContent=`
 .gfx-art{position:relative}
 .r127-raccoon-layer{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
-.r127-raccoon-unit{position:absolute;width:34%;transform:translate(-50%,-50%);background:none;border:0;color:white;pointer-events:auto;cursor:pointer;padding:0;filter:drop-shadow(3px 8px 5px #000b)}
+.r127-raccoon-unit{position:absolute;width:34%;transform:translate(-50%,-50%);background:none;border:0;color:white;pointer-events:auto;cursor:pointer;padding:0;filter:drop-shadow(-2px -2px 1px rgba(255,198,126,.65)) drop-shadow(3px 8px 5px #000b)}
 .r127-raccoon-unit img{width:100%;max-height:185px;object-fit:contain;display:block}
 .r127-raccoon-unit.flipped img{transform:scaleX(-1)}
 .r127-raccoon-label{display:block;background:#160e0de8;border:1px solid #aa9073;border-radius:3px;padding:2px;font:700 clamp(9px,1vw,12px) sans-serif;text-shadow:0 1px 2px black}

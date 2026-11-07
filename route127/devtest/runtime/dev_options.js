@@ -244,39 +244,49 @@
       for(const value of values){const opt=el('option','',value);opt.value=value;node.append(opt);}
       wrap.append(node);controls.append(wrap);return node;
     }
-    const encounter=select('Combat encounter',['Bat Colony']);
+    const encounters={
+      'Bat Colony':{asset:'bat_colony.png',count:4,size:27,positions:[[50,30],[31,16],[65,27],[43,37],[72,48]]},
+      'Rabid Raccoons':{asset:'rabid_raccoon.png',count:3,size:32,positions:[[50,60],[25,65],[53,48],[77,68]]}
+    };
+    const encounter=select('Combat encounter',Object.keys(encounters));
     const region=select('Background region',REGIONS);
     const count=select('Enemies',['1','2','3','4']);
-    count.value='4';
-    const sizeWrap=el('label','','Enemy size'),size=el('input');size.type='range';size.min='10';size.max='50';size.value='27';sizeWrap.append(size);controls.append(sizeWrap);
+    const sizeWrap=el('label','','Enemy size'),size=el('input');size.type='range';size.min='10';size.max='50';sizeWrap.append(size);controls.append(sizeWrap);
     const fileWrap=el('label','','Transparent enemy artwork'),file=el('input');file.type='file';file.accept='image/png,image/webp,image/*';fileWrap.append(file);controls.append(fileWrap);
     dialog.append(controls);
     const stage=el('div','dw-scene');stage.style.marginTop='12px';stage.style.setProperty('aspect-ratio','16/9');
-    const bg=el('img','dw-bg');bg.alt='Central region background';stage.append(bg);
-    const plate=el('span','dw-location','CENTRAL — BAT COLONY');stage.append(plate);dialog.append(stage);
-    dialog.append(el('p','dw-note','DEVTEST composition only. Bat Colony artwork loads automatically once its asset is installed. You can also select a local PNG to compare artwork. No combat, saves, or Playtest changes.'));
-    const batAssetUrl=new URL('assets/enemies/bat_colony.png',devtestRoot).href;
-    let imageUrl=batAssetUrl;
+    const bg=el('img','dw-bg');bg.alt='Region background';stage.append(bg);
+    const plate=el('span','dw-location');stage.append(plate);dialog.append(stage);
+    dialog.append(el('p','dw-note','DEVTEST composition only. Select Bat Colony or Rabid Raccoons to preview installed artwork, or choose a local PNG. No combat, saves, or Playtest changes.'));
+    const assetUrl=()=>new URL('assets/enemies/'+encounters[encounter.value].asset,devtestRoot).href;
+    let localUrl=null;
     function render(){
       bg.src=regionUrl(region.value);
       plate.textContent=region.value+' — '+encounter.value.toUpperCase();
       stage.querySelectorAll('.dw-combat-enemy').forEach(n=>n.remove());
-      if(!imageUrl)return;
-      const positions=[[50,30],[31,16],[65,27],[43,37],[72,48]];
-      const total=Number(count.value);
+      const cfg=encounters[encounter.value],total=Number(count.value);
       for(let i=0;i<total;i++){
-        const img=el('img','dw-combat-enemy');img.src=imageUrl;img.alt='Bat '+(i+1);img.addEventListener('error',()=>img.remove(),{once:true});
-        img.style.cssText='position:absolute;z-index:2;object-fit:contain;filter:drop-shadow(-2px -2px 1px rgba(255,198,126,.65)) drop-shadow(3px 7px 4px rgba(10,6,5,.85));width:'+size.value+'%;left:'+positions[total===1?0:i+1][0]+'%;top:'+positions[total===1?0:i+1][1]+'%;transform:translate(-50%,-50%)';
+        const img=el('img','dw-combat-enemy');img.src=localUrl||assetUrl();img.alt=encounter.value+' '+(i+1);img.addEventListener('error',()=>img.remove(),{once:true});
+        const pos=cfg.positions[total===1?0:i+1]||cfg.positions[i%cfg.positions.length];
+        const flipped=encounter.value==='Rabid Raccoons'&&i===1&&total>1;
+        const scale=encounter.value==='Rabid Raccoons'?[.9,.72,.86,1][i]:1;
+        img.style.cssText='position:absolute;z-index:2;object-fit:contain;filter:drop-shadow(3px 7px 4px rgba(10,6,5,.85));width:'+size.value+'%;left:'+pos[0]+'%;top:'+pos[1]+'%;transform:translate(-50%,-50%) scale('+(flipped?-scale:scale)+','+scale+')';
         stage.append(img);
       }
     }
+    function changeEncounter(){
+      if(localUrl){URL.revokeObjectURL(localUrl);localUrl=null;file.value='';}
+      const cfg=encounters[encounter.value];count.value=String(cfg.count);size.value=String(cfg.size);
+      render();
+    }
     file.addEventListener('change',()=>{
-      if(imageUrl)URL.revokeObjectURL(imageUrl);
-      imageUrl=file.files?.[0]?URL.createObjectURL(file.files[0]):batAssetUrl;render();
+      if(localUrl)URL.revokeObjectURL(localUrl);
+      localUrl=file.files?.[0]?URL.createObjectURL(file.files[0]):null;render();
     });
+    encounter.addEventListener('change',changeEncounter);
     for(const input of [region,count,size])input.addEventListener('input',render);
-    dialog.addEventListener('close',()=>{if(imageUrl)URL.revokeObjectURL(imageUrl);dialog.remove();},{once:true});
-    document.body.append(dialog);render();dialog.showModal();close.focus();
+    dialog.addEventListener('close',()=>{if(localUrl)URL.revokeObjectURL(localUrl);dialog.remove();},{once:true});
+    document.body.append(dialog);changeEncounter();dialog.showModal();close.focus();
   }
 
   const originalOptions=TravelerPanels.options;

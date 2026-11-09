@@ -6,7 +6,7 @@
   const overlayStages=new Set(['inventory','inventoryItem','confirmDrop','quests','interfaceStatus','interfaceMap','interfaceSave','combatItems','r5Loot','r18HorseTravel','corvetteRescue']);
   const place=overlayStages.has(stage)?returnStage:stage;
   // Explicit context for crafting: the map-node fallback can otherwise leave the art blank.
-  if(place==='r11Craft'&&['home','murphy','factory','seaport','port'].includes(String(player?.flags?.r11Bench||'').toLowerCase()))return 'crafting-workbench';
+  if(place==='r11Craft')return 'crafting-workbench'; // Stage alone identifies the craft screen; restored saves may omit r11Bench.
   if(place==='factoryBench')return 'crafting-workbench';
   if(place==='mercy'&&mercyLocation==='murphy'&&!!player?.flags?.v49MurphyMenu)return 'crafting-workbench';
   if(place==='port55Service'&&player?.flags?.portStaffUI?.role==='workshop')return 'crafting-workbench';

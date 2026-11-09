@@ -10,13 +10,14 @@ css.textContent=`
 .r127-npc-scene{position:absolute;inset:0;overflow:hidden;z-index:5;pointer-events:none}
 .r127-npc-scene .r127-npc-figure{position:absolute;bottom:1%;left:50%;transform:translateX(-50%);height:94%;max-width:75%;width:auto;object-fit:contain;object-position:bottom;filter:drop-shadow(5px 7px 6px #000b);pointer-events:none}
 .r127-npc-scene .r127-npc-figure.cage{height:96%;max-width:86%}
-.r127-npc-scene .r127-npc-combat{position:absolute;left:50%;top:54%;transform:translate(-50%,-50%);width:35%;border:0;background:transparent;color:#fff;pointer-events:auto;cursor:pointer;padding:0;filter:drop-shadow(4px 6px 6px #000c)}
-.r127-npc-scene .r127-npc-combat img{width:100%;max-height:200px;object-fit:contain;display:block}
-.r127-npc-scene .r127-npc-label{display:block;background:#170f0de8;border:1px solid #aa9073;padding:3px;font:700 clamp(9px,1vw,12px) sans-serif;text-shadow:0 1px 2px black}
-.r127-npc-scene .r127-npc-track{display:block;height:5px;background:#4b1c1c}
-.r127-npc-scene .r127-npc-fill{display:block;height:100%;background:#b8cf65}
+.gfx-frame .r127-npc-scene button.r127-npc-combat{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:75%;height:94%;min-height:0!important;border:0!important;border-radius:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;color:#fff;pointer-events:auto;cursor:pointer;padding:0!important;filter:drop-shadow(4px 6px 6px #000c)}
+.r127-npc-scene .r127-npc-combat img{width:100%;height:100%;max-height:none;object-fit:contain;display:block}
+.r127-npc-scene .r127-npc-label{position:absolute;bottom:5px;left:15%;right:15%;display:block;background:#170f0de8;border:1px solid #aa9073;padding:3px;font:700 clamp(9px,1vw,12px) sans-serif;text-shadow:0 1px 2px black}
+.r127-npc-scene .r127-npc-track{position:absolute;bottom:0;left:15%;right:15%;display:block;height:5px;background:#4b1c1c}
+.r127-npc-scene .r127-npc-fill{display:block;height:100%;background:linear-gradient(90deg,#8f211d,#d8493e)}
+.gfx-frame.r127-npc-combat-active .gfx-combat{display:none!important}
 .r127-npc-scene .r127-npc-combat:focus-visible,.r127-npc-scene .r127-npc-combat:hover{outline:2px solid #f5c56d}
-@media(max-width:600px){.r127-npc-scene .r127-npc-combat{width:42%}.r127-npc-scene .r127-npc-combat img{max-height:120px}}
+@media(max-width:600px){.gfx-frame .r127-npc-scene button.r127-npc-combat{width:75%;height:94%}.r127-npc-scene .r127-npc-combat img{max-height:none}}
 `;document.head.append(css);
 let activeKey='';
 const previous=GraphicalUI.sync;
@@ -37,6 +38,7 @@ GraphicalUI.sync=function(...args){
   }else if(!e.frame.hidden&&stage==='mercy'&&typeof mercyLocation!=='undefined'&&mercyLocation==='johnny'&&player.flags?.r18MarthaSettled&&player.flags?.solaceMenu==='marthaCounter'){
    spec={key:'martha-counter',file:'martha.png'};
   }
+  e.frame.classList.toggle('r127-npc-combat-active',!!spec?.fight);
   if(!spec){layer?.remove();activeKey='';return result}
   if(!layer||activeKey!==spec.key){layer?.remove();layer=document.createElement('div');layer.className='r127-npc-scene';layer.setAttribute('aria-label',spec.key.replace(/-/g,' '));e.figure.append(layer);activeKey=spec.key}
   if(!spec.fight){
@@ -60,7 +62,7 @@ GraphicalUI.sync=function(...args){
     layer.append(button);
   }
   button.setAttribute('aria-label','Attack '+spec.label+', '+hp+' of '+max+' HP');
-  button.querySelector('.r127-npc-label').textContent=spec.label+'  '+hp+'/'+max+' HP';
+  button.querySelector('.r127-npc-label').textContent=hp+'/'+max+' HP';
   button.querySelector('.r127-npc-fill').style.width=Math.min(100,100*hp/max)+'%';
  }catch(error){console.warn('DEVTEST roadside NPC art:',error)}
  return result;

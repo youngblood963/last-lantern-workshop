@@ -35,12 +35,15 @@ const style=document.createElement('style');style.textContent=`
 .r127-looter-unit .r127-human-hp{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(9px,.9vw,12px)}
 @media(max-width:600px){.gfx-frame button.r127-human-unit.r127-looter-unit{width:30%}.r127-looter-unit img{max-height:185px}.r127-looter-unit .r127-human-hp{font-size:8px;padding:2px 1px}}
 /* Parking Lot Raiders: larger individual figures, with dedicated non-overlapping HP lanes. */
-.gfx-frame button.r127-human-unit.r127-raider-unit{width:30%;z-index:6;filter:drop-shadow(2px 6px 6px #000e)}
-.r127-raider-unit img{max-height:255px;object-position:center bottom}
+/* Raiders have exactly the same image frame before and during combat. */
+.gfx-frame button.r127-human-unit.r127-raider-unit{width:32%;height:85%;min-height:0!important;z-index:6;filter:drop-shadow(2px 6px 6px #000e)}
+.r127-raider-unit img{width:100%;height:100%;max-height:none;object-fit:contain;object-position:center center}
+.r127-raider-unit .r127-human-hp{position:absolute;bottom:4px;left:0;right:0;z-index:2}
+.r127-raider-unit .r127-human-track{position:absolute;bottom:0;left:0;right:0;z-index:2}
 /* Recede the left raider into the roadway; keep their HP plate in a narrower lane. */
 .r127-raider-unit[data-human-index="0"] .r127-human-hp,.r127-raider-unit[data-human-index="0"] .r127-human-track{width:82%;margin-left:auto;margin-right:auto}
 .r127-raider-unit .r127-human-hp{box-sizing:border-box;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(9px,.9vw,12px)}
-@media(max-width:600px){.gfx-frame button.r127-human-unit.r127-raider-unit{width:30%}.r127-raider-unit img{max-height:185px}.r127-raider-unit .r127-human-hp{font-size:8px;padding:2px 1px}}
+@media(max-width:600px){.gfx-frame button.r127-human-unit.r127-raider-unit{width:32%;height:85%}.r127-raider-unit img{max-height:none}.r127-raider-unit .r127-human-hp{font-size:8px;padding:2px 1px}}
 /* Highway robbers share only temporary looter artwork; their two wide lanes prevent HP overlap. */
 .gfx-frame button.r127-human-unit.r127-robber-unit{width:42%;min-height:0!important;z-index:6}
 .r127-robber-unit img{max-height:275px;object-position:center bottom}
@@ -96,7 +99,9 @@ GraphicalUI.sync=function(...args){
      img.style.position='absolute';img.style.left=spots[i][0]+'%';img.style.top=spots[i][1]+'%';
      img.style.transform='translate(-50%,-50%) scale('+spots[i][2]+')';
      img.style.width=title==='THE HOLLOWED'?'40%':title==='HIGHWAY ROBBERS'?'42%':previewGroup.count===1?'42%':previewGroup.count===2?'36%':'32%';
+     if(title==='PARKING LOT RAIDERS')img.style.height='85%';
      img.style.maxHeight='85%';img.style.objectFit='contain';img.style.filter='drop-shadow(2px 6px 5px #000c)';
+     if(title==='PARKING LOT RAIDERS')img.style.maxHeight='none';
      if(title==='THE HOLLOWED')img.style.transform='translate(-50%,-50%) scale(1.75)';
      layer.append(img);
     });
@@ -126,7 +131,7 @@ GraphicalUI.sync=function(...args){
    }
    const label=String(enemy.name||'ENEMY '+(i+1));
    button.setAttribute('aria-label','Attack '+label+', '+hp+' of '+max+' HP');
-   button.querySelector('.r127-human-hp').textContent=label+'  '+hp+'/'+max+' HP';
+   button.querySelector('.r127-human-hp').textContent=hp+'/'+max+' HP';
    button.querySelector('.r127-human-fill').style.width=Math.min(100,100*hp/max)+'%';
   }
  }catch(error){console.warn('DEVTEST human combat visual:',error)}

@@ -366,15 +366,14 @@ async function r11ClaimBoard(){
 }
 const {r11SteveScene, r11SteveFinish, r11Elephant, r11SteveVictory, r11SteveRoll, r11Prepare} = RoadScenarioRegistry.steve();
 const r11Retreat=handleCombat;handleCombat=function(cmd){if(combatState?.source==='r11Elephant'&&/^(?:b|back|flee|run)/.test(cmd)){combatState=null;add('Steve takes cover behind his sign.','system');r11SteveFinish();return;}return r11Retreat(cmd);};
-const r11Choices=renderCurrentChoices;renderCurrentChoices=function(){if(stage==='r11Gambler')return r11GamblerMenu();if(stage==='r11Craft')return r11CraftMenu();if(stage==='r11Drinks')return r11Drinks();if(stage==='r11Board')return r11PortBoard();if(stage==='r11Quest')return r11QuestMenu(player.flags.r11QuestFocus);if(stage==='r11Steve')return r11SteveScene(player.flags.r11SteveReturn);if(stage==='r11SteveReward')return add('CLAIM STEVE REWARD','system');return r11Choices();};
+const r11Choices=renderCurrentChoices;renderCurrentChoices=function(){if(stage==='r11Gambler')return r11GamblerMenu();if(stage==='r11Craft')return r11CraftMenu();if(stage==='r11Drinks')return r11Drinks();if(stage==='r11Board')return r11PortBoard();if(stage==='r11Quest')return r11QuestMenu(player.flags.r11QuestFocus);if(stage==='r11Steve'||stage==='r11SteveReward'){add('Crazy Steve is temporarily unavailable. Returning to your journey.','system');return r11SteveFinish();}return r11Choices();};
 const r11Core=handleCommandCore;
 handleCommandCore=async function(raw){
  const cmd=r5Mapped(raw);if(busy)return;
  if(/^save(?: |$)|^load(?: |$)|^testing(?: |$)|^test off$/.test(cmd))return r11Core(raw);
  if(stage==='r11Craft')return r11CraftCommand(cmd);
  if(stage==='mercy'&&mercyLocation==='murphy'&&player.flags.v49MurphyMenu==='recipe'&&['i','insert','insert materials','start','c','check','collect','collect result'].includes(cmd)){const key=player.flags.v49MurphyJob?.key||player.flags.v49MurphyRecipe;r11CraftMenu('murphy');return r11CraftCommand(['i','insert','insert materials','start'].includes(cmd)?'craft '+(CRAFT_RECIPES[key]?.name||'').toLowerCase():'collect craft');}
- if(stage==='r11Steve'){if(cmd==='leave steve alone')return r11SteveFinish();if(['ask about the elephants','fight the elephants'].includes(cmd))return r11Elephant();return renderCurrentChoices();}
- if(stage==='r11SteveReward'&&cmd==='claim steve reward')return r11SteveVictory();
+ if(stage==='r11Steve'||stage==='r11SteveReward'){add('Crazy Steve is temporarily unavailable. Returning to your journey.','system');return r11SteveFinish();}
  if(stage==='r11Drinks'){
   if(['back','b'].includes(cmd))return port55MiaMenu();const d=R11_DRINKS[cmd.split(' — ')[0]];
   if(d)Economy.drink(d);return r11Drinks();

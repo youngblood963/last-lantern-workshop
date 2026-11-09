@@ -95,6 +95,18 @@
    model.art='../devtest/assets/locations/sheriff_kaiden.png';
    model.title='Sheriff Kaiden';
   }
+  // Shared crafting art: one image for all four existing crafting locations.
+  // Preserve gameplay, menus, scenery for non-crafting pages and staff overlays.
+  const craftingStage=String(stage||'');
+  const bench=String(player?.flags?.r11Bench||'').toLowerCase();
+  const craftingHere=(craftingStage==='r11Craft'&&['home','murphy','factory','seaport','port'].includes(bench))||
+    craftingStage==='factoryBench'||
+    (craftingStage==='mercy'&&mercyLocation==='murphy'&&!!player?.flags?.v49MurphyMenu)||
+    (craftingStage==='port55Service'&&player?.flags?.portStaffUI?.role==='workshop');
+  if(craftingHere){
+    model.title='Crafting';
+    model.art='../devtest/assets/locations/crafting_workbench.png?v=wo41-shared';
+  }
   return model;
  };
  if(typeof GraphicalUI.schedule==='function')GraphicalUI.schedule();

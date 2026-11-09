@@ -1427,8 +1427,13 @@ RoadScenarioRegistry.courier();
 const {encounterLevels, combatSpecs, combatTriggers} = RoadScenarioRegistry.combat();
 function v555RollEquipmentDrop(){
  const level=Math.max(1,Math.min(50,Math.floor(Number(player.level)||1)));
- const rarity=equipmentRarityRoll(level,Math.random()*100);
- if(rarity==='legendary')return 'RESERVED_LEGENDARY_ROLL';
+ // Legendary random equipment is temporarily disabled, not deleted from saved items.
+ let rarity='common';
+ for(let attempt=0;attempt<24;attempt++){
+   rarity=equipmentRarityRoll(level,Math.random()*100);
+   if(rarity!=='legendary')break;
+ }
+ if(rarity==='legendary')rarity='common';
  const type=Math.random()<.5?'weapon':'armor';
  const pool=EQUIPMENT_CATALOG.filter(x=>x.rarity===rarity&&x.type===type&&level>=x.minLevel&&level<=x.maxLevel);
  return catalogInstanceName(pool[Math.floor(Math.random()*pool.length)],level);

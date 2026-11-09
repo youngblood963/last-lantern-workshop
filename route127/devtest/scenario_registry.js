@@ -1251,8 +1251,11 @@ function r11SteveScene(branchReturn=null){
 }
 function r11SteveFinish(){const back=player.flags.r11SteveReturn;delete player.flags.r11SteveReturn;if(back){stage=back.stage;serviceRoadDepth=back.depth;renderCurrentChoices();}else completeRoadTurn();}
 function r11Elephant(){startCombat({name:'PINK ELEPHANT',level:1,hp:1,min:0,max:1,xp:1,bolts:0,end:'The pink elephant pops like a soap bubble. Steve applauds, then checks behind you.'},'r11Elephant');r6Art('PINK ELEPHANT',[['pink','    __     __'],['pink','  /    \\__/  \\'],['pink',' (  o       o )~~'],['pink','  \\___/\\____/'],['pink','    ||    ||']]);}
-function r11SteveVictory(){stage='r11SteveReward';outputQueue=outputQueue.then(async()=>{try{const won=await r11ClaimBoard();add(won?'CRAZY STEVE > THANK YOU! Take the board! It attracts them!':"CRAZY STEVE > I already gave the board away! They said there could only be one. THE ELEPHANTS KNOW.",'bright');if(won)add('LEGENDARY — '+R11_BOARD+' — DEF 15 / MAX HP +20', 'legendary');r11SteveFinish();r11Quiet(()=>v49Autosave());}catch(e){add('Steve cannot secure the reward right now. CLAIM STEVE REWARD to retry.','danger');}});}
-function r11SteveRoll(){return Math.random()<.01;}
+function r11SteveVictory(){ // Do not award late-game Legendary gear while Steve is disabled.
+  add('The pink elephant vanishes. Crazy Steve wanders away, still muttering.','system');
+  r11SteveFinish();r11Quiet(()=>v49Autosave());
+}
+function r11SteveRoll(){return false;} // Late-game special disabled for now; preserved for future reactivation.
 const r11Prepare=r10PrepareEncounter;r10PrepareEncounter=function(){if(!resumeSavedEncounter&&r11SteveRoll()){player.flags.r10LastRoadCategory='special';r11SteveScene();return false;}return r11Prepare();};
 
 return {r11SteveScene, r11SteveFinish, r11Elephant, r11SteveVictory, r11SteveRoll, r11Prepare};

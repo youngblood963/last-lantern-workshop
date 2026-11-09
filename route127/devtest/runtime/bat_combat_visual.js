@@ -15,6 +15,7 @@ css.textContent=`
 .r127-bat-unit .r127-bat-hp{display:block;background:#140d0bdc;border:1px solid #a58a68;border-radius:3px;padding:2px 3px;font:700 clamp(9px,1vw,12px) sans-serif;text-shadow:0 1px 2px black}
 .r127-bat-unit .r127-bat-track{display:block;height:5px;background:#4b1c1c;margin-top:2px}
 .r127-bat-unit .r127-bat-fill{display:block;height:100%;background:#b8cf65}
+.gfx-frame.r127-bat-combat-active .gfx-combat{display:none!important}
 .r127-bat-unit:focus-visible,.r127-bat-unit:hover{outline:2px solid #f5c56d}
 @media(max-width:600px){.r127-bat-unit{width:30%}.r127-bat-unit img{max-height:90px}.r127-bat-unit .r127-bat-hp{font-size:9px}}
 `;
@@ -29,6 +30,18 @@ GraphicalUI.sync=function(...args){
   let layer=e.figure.querySelector('.r127-bat-layer');
   const c=typeof combatState!=='undefined'?combatState:null;
   const active=!!c&&/^BAT COLONY$/i.test(c.name||'')&&Array.isArray(c.enemies)&&c.enemies.length===4&&!e.frame.hidden;
+  e.frame.classList.toggle('r127-bat-combat-active',active);
+  const title=typeof stage!=='undefined'&&stage==='encounter'&&typeof currentEncounter==='function'
+   ?String(currentEncounter()?.title||'').replace(/^EAST ROAD — /,'').toUpperCase():'';
+  if(!active&&title==='BAT COLONY'&&!c&&!e.frame.hidden){
+   if(!layer||layer.dataset.preview!=='1'){
+    layer?.remove();layer=document.createElement('div');layer.className='r127-bat-layer';layer.dataset.preview='1';e.figure.append(layer);
+    positions.forEach((pos,i)=>{const img=document.createElement('img');img.src=artwork;img.alt='';
+      img.style.cssText='position:absolute;width:27%;max-height:35%;object-fit:contain;transform:translate(-50%,-50%);filter:drop-shadow(2px 5px 4px #000c)';
+      img.style.left=pos[0]+'%';img.style.top=pos[1]+'%';layer.append(img);});
+   }
+   return result;
+  }
   if(!active){layer?.remove();lastCombat=null;return result;}
   if(!layer||lastCombat!==c){
    layer?.remove();layer=document.createElement('div');layer.className='r127-bat-layer';layer.setAttribute('aria-label','Bat Colony enemies');e.figure.append(layer);

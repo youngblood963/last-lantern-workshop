@@ -311,3 +311,8 @@ dialog.route127-map-overlay[open]{display:flex;flex-direction:column;}
 .gfx-frame .gfx-road-choice{min-width:0;max-width:100%;overflow:hidden}
 .gfx-frame .gfx-road-choice .gfx-choice-label{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(10px,.8vw,13px)}
 .gfx-frame .gfx-road-choice .gfx-choice-arrow{display:none}
+
+/* Crafting retains its illustrated workbench scene rather than the text-only layout. */
+.full-graphics .gfx-frame[data-layout='crafting'] .gfx-art{display:block}
+.full-graphics .gfx-frame[data-layout='crafting'] #screen{height:clamp(110px,20vh,235px);max-height:40vh}
+@media(max-width:640px){.full-graphics .gfx-frame[data-layout='crafting'] #screen{height:clamp(100px,22vh,200px);max-height:35vh}}

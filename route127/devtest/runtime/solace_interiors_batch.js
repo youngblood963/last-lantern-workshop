@@ -150,6 +150,9 @@ handleSolace=function(cmd,...args){
 };
 const previousRender=renderCurrentChoices;
 renderCurrentChoices=function(...args){
+ if(at('mara')&&player.flags.solaceMenu==='equipment'&&player.flags.v48Shop!=='sell'&&
+    !player.flags.v53Sale&&!player.flags.pendingQuest&&!player.flags.pendingQuestOffer&&!townWandererFocus)
+  return showEquipmentShop();
  if(at('wayne')&&player.flags.solaceMenu==='clinic'&&player.flags.v48Shop!=='sell'&&
     !player.flags.pendingQuest&&!player.flags.pendingQuestOffer&&!townWandererFocus)
   return publishClinic();

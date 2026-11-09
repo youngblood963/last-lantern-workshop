@@ -52,6 +52,8 @@ function check(id,expected){
   await command('back');check('solace-murphy');
   run("mercyLocation='town';mercyMenu();");await flush();await command('shops');
   await command('6');check('solace-armory');
+  const armory=run('JSON.stringify(GraphicalUI.choices().map(row=>row.command))');
+  run('renderCurrentChoices()');await flush();check('solace-armory',JSON.parse(armory));
   assert.deepEqual(JSON.parse(run('JSON.stringify(GraphicalUI.choices().slice(-2).map(row=>row.command))')),['sell items','back']);
   run("mercyLocation='town';mercyMenu();");await flush();await command('shops');
   await command('4');check('solace-clinic');await command('small talk wayne');

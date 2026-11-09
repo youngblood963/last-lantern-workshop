@@ -52,8 +52,10 @@ let signature='';
 const original=GraphicalUI.sync;
 GraphicalUI.sync=function(...args){
  const result=original.apply(this,args);
+ const wasHumanCombat=!!this.element?.frame?.classList.contains('r127-human-combat-active');
  if(this.element?.frame)this.element.frame.classList.remove('r127-human-combat-active');
- if(this.element?.enemies)this.element.enemies.style.removeProperty('display');
+ // Do not undo the Raccoons/Bats legacy-HP suppression established by prior renderers.
+ if(wasHumanCombat&&this.element?.enemies)this.element.enemies.style.removeProperty('display');
  try{
   const e=this.element;if(!e?.figure)return result;
   let layer=e.figure.querySelector('.r127-human-layer');

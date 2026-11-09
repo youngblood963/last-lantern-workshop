@@ -253,7 +253,11 @@
       'Gang Lookout — Reinforcements':{assets:['gang_lookout_1.png','gang_lookout_2.png'],count:2,size:32,positions:[[50,58],[35,59],[67,60]]},
       'The Hollowed':{assets:['the_hollowed_1.png','the_hollowed_2.png'],count:2,size:32,positions:[[50,58],[35,59],[67,60]]},
       'The Squatters':{assets:['the_squatters_1.png','the_squatters_2.png','the_squatters_3.png'],count:3,size:32,positions:[[50,58],[24,60],[51,55],[77,61]]},
-      'Gunshop Owner':{assets:['gunshop_owner.png'],count:1,size:36,positions:[[50,57]]}
+      'Gunshop Owner':{assets:['gunshop_owner.png'],count:1,size:36,positions:[[50,57]]},
+      'Martha — Steel Orchard':{assets:['martha.png'],count:1,size:36,positions:[[50,57]]},
+      'Rivet — Grinder Crew':{assets:['rivet.png'],count:1,size:36,positions:[[50,57]]},
+      'Silas Crowe — Caged':{assets:['silas_crowe_caged.png'],count:1,size:42,positions:[[50,57]]},
+      'Silas Crowe — Combat':{assets:['silas_crowe.png'],count:1,size:36,positions:[[50,57]]}
     };
     const encounter=select('Combat encounter',Object.keys(encounters));
     const region=select('Background region',REGIONS);
@@ -264,7 +268,7 @@
     const stage=el('div','dw-scene');stage.style.marginTop='12px';stage.style.setProperty('aspect-ratio','16/9');
     const bg=el('img','dw-bg');bg.alt='Region background';stage.append(bg);
     const plate=el('span','dw-location');stage.append(plate);dialog.append(stage);
-    dialog.append(el('p','dw-note','DEVTEST composition only. Preview installed combat art: Bat Colony, Rabid Raccoons, Looters, Parking Lot Raiders, Gang Lookout, The Hollowed, The Squatters, and Gunshop Owner. This composition preview never changes live combat, saves, or Playtest.'));
+    dialog.append(el('p','dw-note','DEVTEST composition only. Preview installed combat art: Bat Colony, Rabid Raccoons, Looters, Parking Lot Raiders, Gang Lookout, The Hollowed, The Squatters, Gunshop Owner, Martha, Rivet and Silas Crowe. This composition preview never changes live combat, saves, or Playtest.'));
     const assetUrl=()=>new URL('assets/enemies/'+(encounters[encounter.value].asset||encounters[encounter.value].assets?.[0]),devtestRoot).href;
     let localUrl=null;
     function render(){

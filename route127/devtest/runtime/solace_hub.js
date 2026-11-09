@@ -120,5 +120,5 @@ handleCommandCore=async function(raw){
  add('Choose an option or return to Solace.','system');
  return view==='town'?hub():submenu(view);
 };
-globalThis.Route127SolaceHub=Object.freeze({present});
+globalThis.Route127SolaceHub=Object.freeze({present,featuredName:()=>visibleWanderer&&present().some(w=>w.name===visibleWanderer)?visibleWanderer:null});
 })();

@@ -1,4 +1,4 @@
-/* DEVTEST only: individual looter/raider/lookout art, tied to each live enemy HP.
+/* DEVTEST only: individual regional human encounter artwork, tied to live enemy HP.
    Preserves the existing combat and lookout reinforcement mechanics. */
 (()=>{
 'use strict';
@@ -8,7 +8,10 @@ const asset=name=>new URL('assets/enemies/'+name,root).href;
 const groups={
  'LOOTERS':{files:['looters_1.png','looters_2.png','looters_3.png'],count:3},
  'PARKING LOT RAIDERS':{files:['parking_lot_raiders-_1.png','parking_lot_raiders_2.png','parking_lot_raiders_3.png'],count:3},
- 'GANG LOOKOUT':{files:['gang_lookout.png'],count:1}
+ 'GANG LOOKOUT':{files:['gang_lookout.png'],count:1},
+ 'THE HOLLOWED':{files:['the_hollowed_1.png','the_hollowed_2.png'],count:2},
+ 'THE SQUATTERS':{files:['the_squatters_1.png','the_squatters_2.png','the_squatters_3.png'],count:3},
+ 'GUNSHOP OWNER':{files:['gunshop_owner.png'],count:1,solo:true}
 };
 const placements={
  1:[[50,57,0.72]],
@@ -39,13 +42,13 @@ GraphicalUI.sync=function(...args){
   const gang=name==='GANG LOOKOUT';
   // The lookout leaves after whistling; display ONLY the two new gang members.
   if(gang&&c?.reinforcementsArrived)group={files:['gang_lookout_1.png','gang_lookout_2.png'],count:2};
-  const active=!!group&&Array.isArray(c?.enemies)&&c.enemies.length===group.count&&!e.frame.hidden;
+  const active=!!group&&!!c&&!e.frame.hidden&&(group.solo?Number(c.hp)>0:Array.isArray(c.enemies)&&c.enemies.length===group.count);
   if(!active){layer?.remove();signature='';return result}
   const key=name+':'+(gang&&c.reinforcementsArrived?'reinforcements':'lookout')+':'+group.count;
   if(!layer||signature!==key){layer?.remove();layer=document.createElement('div');layer.className='r127-human-layer';e.figure.append(layer);signature=key}
   const spots=placements[group.count]||placements[3];
   for(let i=0;i<group.count;i++){
-   const enemy=c.enemies[i],hp=Math.max(0,Number(enemy.hp)||0),max=Math.max(1,Number(enemy.maxHp)||hp);
+   const enemy=group.solo?{name:'GUNSHOP OWNER',hp:c.hp,maxHp:c.maxHp}:c.enemies[i],hp=Math.max(0,Number(enemy.hp)||0),max=Math.max(1,Number(enemy.maxHp)||hp);
    let button=layer.querySelector('[data-human-index="'+i+'"]');
    if(hp<=0){button?.remove();continue}
    if(!button){
@@ -55,7 +58,7 @@ GraphicalUI.sync=function(...args){
     const label=document.createElement('span');label.className='r127-human-hp';
     const track=document.createElement('span');track.className='r127-human-track';
     const fill=document.createElement('span');fill.className='r127-human-fill';track.append(fill);button.append(img,label,track);
-    button.addEventListener('click',()=>{if(typeof busy!=='undefined'&&busy)return;if(typeof handleCommand==='function')handleCommand('attack '+(i+1))});
+    button.addEventListener('click',()=>{if(typeof busy!=='undefined'&&busy)return;if(typeof handleCommand==='function')handleCommand(group.solo?'attack':'attack '+(i+1))});
     layer.append(button)
    }
    const label=String(enemy.name||'ENEMY '+(i+1));

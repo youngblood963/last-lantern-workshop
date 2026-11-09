@@ -10,14 +10,14 @@ const css=document.createElement('style');
 css.textContent=`
 .gfx-art{position:relative}
 .r127-bat-layer{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden}
-.r127-bat-unit{position:absolute;width:27%;transform:translate(-50%,-50%);pointer-events:auto;border:0;background:transparent;color:#fff;cursor:pointer;padding:0;filter:drop-shadow(-2px -2px 1px rgba(255,198,126,.65)) drop-shadow(3px 7px 4px rgba(10,6,5,.85))}
+.gfx-frame button.r127-bat-unit{position:absolute;width:27%;transform:translate(-50%,-50%);pointer-events:auto;border:0!important;border-radius:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;min-height:0!important;color:#fff;cursor:pointer;padding:0!important;filter:drop-shadow(-2px -2px 1px rgba(255,198,126,.65)) drop-shadow(3px 7px 4px rgba(10,6,5,.85))}
 .r127-bat-unit img{display:block;width:100%;height:auto;max-height:150px;object-fit:contain}
 .r127-bat-unit .r127-bat-hp{display:block;background:#140d0bdc;border:1px solid #a58a68;border-radius:3px;padding:2px 3px;font:700 clamp(9px,1vw,12px) sans-serif;text-shadow:0 1px 2px black}
 .r127-bat-unit .r127-bat-track{display:block;height:5px;background:#4b1c1c;margin-top:2px}
-.r127-bat-unit .r127-bat-fill{display:block;height:100%;background:#b8cf65}
-.gfx-frame.r127-bat-combat-active .gfx-combat{display:none!important}
+.r127-bat-unit .r127-bat-fill{display:block;height:100%;background:linear-gradient(90deg,#8f211d,#d8493e)}
+.gfx-frame.r127-bat-combat-active .gfx-combat,.gfx-frame.r127-bat-combat-active .gfx-main>.gfx-combat{display:none!important}
 .r127-bat-unit:focus-visible,.r127-bat-unit:hover{outline:2px solid #f5c56d}
-@media(max-width:600px){.r127-bat-unit{width:30%}.r127-bat-unit img{max-height:90px}.r127-bat-unit .r127-bat-hp{font-size:9px}}
+@media(max-width:600px){.gfx-frame button.r127-bat-unit{width:30%}.r127-bat-unit img{max-height:90px}.r127-bat-unit .r127-bat-hp{font-size:9px}}
 `;
 document.head.append(css);
 let lastCombat=null;
@@ -31,6 +31,8 @@ GraphicalUI.sync=function(...args){
   const c=typeof combatState!=='undefined'?combatState:null;
   const active=!!c&&/^BAT COLONY$/i.test(c.name||'')&&Array.isArray(c.enemies)&&c.enemies.length===4&&!e.frame.hidden;
   e.frame.classList.toggle('r127-bat-combat-active',active);
+  if(active&&e.enemies)e.enemies.style.setProperty('display','none','important');
+  else if(e.enemies)e.enemies.style.removeProperty('display');
   const title=typeof stage!=='undefined'&&stage==='encounter'&&typeof currentEncounter==='function'
    ?String(currentEncounter()?.title||'').replace(/^EAST ROAD — /,'').toUpperCase():'';
   if(!active&&title==='BAT COLONY'&&!c&&!e.frame.hidden){
@@ -43,7 +45,7 @@ GraphicalUI.sync=function(...args){
    return result;
   }
   if(!active){layer?.remove();lastCombat=null;return result;}
-  if(!layer||lastCombat!==c){
+  if(!layer||lastCombat!==c||layer.dataset.preview==='1'){
    layer?.remove();layer=document.createElement('div');layer.className='r127-bat-layer';layer.setAttribute('aria-label','Bat Colony enemies');e.figure.append(layer);
    lastCombat=c;
   }

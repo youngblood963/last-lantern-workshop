@@ -31,6 +31,10 @@ const style=document.createElement('style');style.textContent=`
 .r127-human-unit:hover,.r127-human-unit:focus-visible{outline:2px solid #f5c56d}
 @media(max-width:600px){.r127-human-unit{width:39%}.r127-human-unit img{max-height:130px}.r127-human-unit .r127-human-hp{font-size:9px}}
 `;document.head.append(style);
+function isLookoutEncounter(){
+ if(typeof stage==='undefined'||stage!=='encounter'||typeof currentEncounter!=='function')return false;
+ return String(currentEncounter()?.title||'').replace(/^EAST ROAD — /,'').toUpperCase()==='GANG LOOKOUT';
+}
 let signature='';
 const original=GraphicalUI.sync;
 GraphicalUI.sync=function(...args){
@@ -47,6 +51,18 @@ GraphicalUI.sync=function(...args){
   // The lookout leaves after whistling; display ONLY the two new gang members.
   if(gang&&c?.reinforcementsArrived)group={files:['gang_lookout_1.png','gang_lookout_2.png'],count:2};
   const active=!!group&&!!c&&!e.frame.hidden&&(group.solo?Number(c.hp)>0:Array.isArray(c.enemies)&&c.enemies.length===group.count);
+  // The encounter portrait is always present before the player chooses a tactic.
+  // Only fighting adds HP bars and attack controls.
+  const preview=!active&&!c&&!e.frame.hidden&&isLookoutEncounter();
+  if(preview){
+   if(!layer||signature!=='gang-lookout-preview'){
+    layer?.remove();layer=document.createElement('div');layer.className='r127-human-layer';e.figure.append(layer);signature='gang-lookout-preview';
+    const img=document.createElement('img');img.src=asset('gang_lookout.png');img.alt='Gang lookout';
+    img.style.cssText='position:absolute;left:50%;top:57%;transform:translate(-50%,-50%);height:72%;max-width:50%;object-fit:contain;filter:drop-shadow(1px 5px 5px #000c)';
+    layer.append(img);
+   }
+   return result;
+  }
   if(!active){layer?.remove();signature='';return result}
   // Individual sprite HP indicators replace the tall, scrollable duplicate combat panel.
   e.frame.classList.add('r127-human-combat-active');

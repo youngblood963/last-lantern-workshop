@@ -18,7 +18,7 @@ const groups={
 const placements={
  1:[[50,57,0.72]],
  2:[[35,59,0.66],[67,60,0.66]],
- 3:[[24,60,0.63],[51,55,0.69],[77,61,0.62]]
+ 3:[[17,54,1],[50,51,1.06],[83,55,1]]
 };
 const style=document.createElement('style');style.textContent=`
 .gfx-art{position:relative}
@@ -26,6 +26,11 @@ const style=document.createElement('style');style.textContent=`
 .gfx-frame button.r127-human-unit{position:absolute;transform:translate(-50%,-50%);width:32%;padding:0;border:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;min-height:0;color:#fff;cursor:pointer;pointer-events:auto;filter:drop-shadow(1px 5px 5px #000c)}
 .r127-human-unit img{width:100%;height:auto;display:block;max-height:200px;object-fit:contain}
 .r127-human-unit .r127-human-hp{display:block;background:#140d0be8;border:1px solid #a58a68;padding:2px 4px;font:700 clamp(9px,1vw,12px) sans-serif;text-shadow:0 1px 2px black}
+/* Looters use three non-overlapping HP columns; sprites occupy more of the scene. */
+.gfx-frame button.r127-human-unit.r127-looter-unit{width:30%;z-index:6;filter:drop-shadow(2px 6px 6px #000e)}
+.r127-looter-unit img{max-height:255px;object-position:center bottom}
+.r127-looter-unit .r127-human-hp{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(9px,.9vw,12px)}
+@media(max-width:600px){.gfx-frame button.r127-human-unit.r127-looter-unit{width:30%}.r127-looter-unit img{max-height:185px}.r127-looter-unit .r127-human-hp{font-size:8px;padding:2px 1px}}
 .r127-human-unit .r127-human-track{display:block;height:5px;background:#4b1c1c}
 .r127-human-unit .r127-human-fill{display:block;height:100%;background:linear-gradient(90deg,#8f211d,#d8493e)}
 .gfx-frame.r127-human-combat-active .gfx-combat{display:none!important}
@@ -63,7 +68,7 @@ GraphicalUI.sync=function(...args){
    const key='encounter-preview:'+title;
    if(!layer||signature!==key){
     layer?.remove();layer=document.createElement('div');layer.className='r127-human-layer';e.figure.append(layer);signature=key;
-    const spots=placements[previewGroup.count]||placements[3];
+    const spots=previewGroup.count===3&&title!=='LOOTERS'?[[24,60,0.63],[51,55,0.69],[77,61,0.62]]:(placements[previewGroup.count]||placements[3]);
     previewGroup.files.forEach((file,i)=>{
      const img=document.createElement('img');img.src=asset(file);img.alt='';
      img.style.position='absolute';img.style.left=spots[i][0]+'%';img.style.top=spots[i][1]+'%';
@@ -81,13 +86,13 @@ GraphicalUI.sync=function(...args){
   if(e.enemies)e.enemies.style.setProperty('display','none','important');
   const key=name+':'+(gang&&c.reinforcementsArrived?'reinforcements':'lookout')+':'+group.count;
   if(!layer||signature!==key){layer?.remove();layer=document.createElement('div');layer.className='r127-human-layer';e.figure.append(layer);signature=key}
-  const spots=placements[group.count]||placements[3];
+  const spots=group.count===3&&name!=='LOOTERS'?[[24,60,0.63],[51,55,0.69],[77,61,0.62]]:(placements[group.count]||placements[3]);
   for(let i=0;i<group.count;i++){
    const enemy=group.solo?{name:'GUNSHOP OWNER',hp:c.hp,maxHp:c.maxHp}:c.enemies[i],hp=Math.max(0,Number(enemy.hp)||0),max=Math.max(1,Number(enemy.maxHp)||hp);
    let button=layer.querySelector('[data-human-index="'+i+'"]');
    if(hp<=0){button?.remove();continue}
    if(!button){
-    button=document.createElement('button');button.type='button';button.className='r127-human-unit';button.dataset.humanIndex=String(i);
+    button=document.createElement('button');button.type='button';button.className='r127-human-unit'+(name==='LOOTERS'?' r127-looter-unit':'');button.dataset.humanIndex=String(i);
     button.style.left=spots[i][0]+'%';button.style.top=spots[i][1]+'%';button.style.scale=String(spots[i][2]);
     const img=document.createElement('img');img.src=asset(group.files[i]);img.alt='';
     const label=document.createElement('span');label.className='r127-human-hp';

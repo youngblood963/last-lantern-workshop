@@ -21,12 +21,13 @@ const placements={
 const style=document.createElement('style');style.textContent=`
 .gfx-art{position:relative}
 .r127-human-layer{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden}
-.r127-human-unit{position:absolute;transform:translate(-50%,-50%);width:32%;padding:0;border:0;background:transparent;color:#fff;cursor:pointer;pointer-events:auto;filter:drop-shadow(1px 5px 5px #000c)}
+.gfx-frame button.r127-human-unit{position:absolute;transform:translate(-50%,-50%);width:32%;padding:0;border:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;min-height:0;color:#fff;cursor:pointer;pointer-events:auto;filter:drop-shadow(1px 5px 5px #000c)}
 .r127-human-unit img{width:100%;height:auto;display:block;max-height:200px;object-fit:contain}
 .r127-human-unit .r127-human-hp{display:block;background:#140d0be8;border:1px solid #a58a68;padding:2px 4px;font:700 clamp(9px,1vw,12px) sans-serif;text-shadow:0 1px 2px black}
 .r127-human-unit .r127-human-track{display:block;height:5px;background:#4b1c1c}
 .r127-human-unit .r127-human-fill{display:block;height:100%;background:linear-gradient(90deg,#8f211d,#d8493e)}
 .gfx-frame.r127-human-combat-active .gfx-combat{display:none!important}
+.gfx-frame.r127-human-combat-active .gfx-main>.gfx-combat{display:none!important}
 .r127-human-unit:hover,.r127-human-unit:focus-visible{outline:2px solid #f5c56d}
 @media(max-width:600px){.r127-human-unit{width:39%}.r127-human-unit img{max-height:130px}.r127-human-unit .r127-human-hp{font-size:9px}}
 `;document.head.append(style);
@@ -35,6 +36,7 @@ const original=GraphicalUI.sync;
 GraphicalUI.sync=function(...args){
  const result=original.apply(this,args);
  if(this.element?.frame)this.element.frame.classList.remove('r127-human-combat-active');
+ if(this.element?.enemies)this.element.enemies.style.removeProperty('display');
  try{
   const e=this.element;if(!e?.figure)return result;
   let layer=e.figure.querySelector('.r127-human-layer');
@@ -48,6 +50,7 @@ GraphicalUI.sync=function(...args){
   if(!active){layer?.remove();signature='';return result}
   // Individual sprite HP indicators replace the tall, scrollable duplicate combat panel.
   e.frame.classList.add('r127-human-combat-active');
+  if(e.enemies)e.enemies.style.setProperty('display','none','important');
   const key=name+':'+(gang&&c.reinforcementsArrived?'reinforcements':'lookout')+':'+group.count;
   if(!layer||signature!==key){layer?.remove();layer=document.createElement('div');layer.className='r127-human-layer';e.figure.append(layer);signature=key}
   const spots=placements[group.count]||placements[3];

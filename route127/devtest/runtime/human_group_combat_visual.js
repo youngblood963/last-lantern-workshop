@@ -33,6 +33,7 @@ let signature='';
 const original=GraphicalUI.sync;
 GraphicalUI.sync=function(...args){
  const result=original.apply(this,args);
+ if(this.element?.enemies)this.element.enemies.style.removeProperty('display');
  try{
   const e=this.element;if(!e?.figure)return result;
   let layer=e.figure.querySelector('.r127-human-layer');
@@ -43,7 +44,9 @@ GraphicalUI.sync=function(...args){
   // The lookout leaves after whistling; display ONLY the two new gang members.
   if(gang&&c?.reinforcementsArrived)group={files:['gang_lookout_1.png','gang_lookout_2.png'],count:2};
   const active=!!group&&!!c&&!e.frame.hidden&&(group.solo?Number(c.hp)>0:Array.isArray(c.enemies)&&c.enemies.length===group.count);
-  if(!active){layer?.remove();signature='';return result}
+  if(!active){layer?.remove();signature='';if(e.enemies)e.enemies.style.removeProperty('display');return result}
+  // Individual sprite HP indicators replace the tall, scrollable duplicate combat panel.
+  if(e.enemies)e.enemies.style.display='none';
   const key=name+':'+(gang&&c.reinforcementsArrived?'reinforcements':'lookout')+':'+group.count;
   if(!layer||signature!==key){layer?.remove();layer=document.createElement('div');layer.className='r127-human-layer';e.figure.append(layer);signature=key}
   const spots=placements[group.count]||placements[3];

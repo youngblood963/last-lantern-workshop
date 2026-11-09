@@ -106,7 +106,7 @@
   "The Squatters",
   "CENTRAL",
   "human",
-  2,
+  3,
   0.29,
   "ASK TO PASS",
   "Squatters defend a ruined storefront. Ask permission to cross their shelter.",

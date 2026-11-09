@@ -14,6 +14,7 @@ style.textContent=`
 .r127-raccoon-label{display:block;background:#160e0de8;border:1px solid #aa9073;border-radius:3px;padding:2px;font:700 clamp(9px,1vw,12px) sans-serif;text-shadow:0 1px 2px black}
 .r127-raccoon-track{display:block;height:5px;background:#4b1c1c;margin-top:2px}
 .r127-raccoon-fill{display:block;height:100%;background:#b8cf65}
+.gfx-frame.r127-raccoon-combat-active .gfx-combat{display:none!important}
 .r127-raccoon-unit:hover,.r127-raccoon-unit:focus-visible{outline:2px solid #f5c56d}
 @media(max-width:600px){.r127-raccoon-unit{width:39%}.r127-raccoon-unit img{max-height:110px}.r127-raccoon-label{font-size:9px}}
 `;document.head.append(style);
@@ -25,6 +26,20 @@ GraphicalUI.sync=function(...args){
  let layer=e.figure.querySelector('.r127-raccoon-layer');
  const c=typeof combatState!=='undefined'?combatState:null;
  const active=!!c&&/^RABID RACCOONS$/i.test(c.name||'')&&Array.isArray(c.enemies)&&c.enemies.length===3&&!e.frame.hidden;
+ e.frame.classList.toggle('r127-raccoon-combat-active',active);
+ const title=typeof stage!=='undefined'&&stage==='encounter'&&typeof currentEncounter==='function'
+  ?String(currentEncounter()?.title||'').replace(/^EAST ROAD — /,'').toUpperCase():'';
+ if(!active&&title==='RABID RACCOONS'&&!c&&!e.frame.hidden){
+  if(!layer||layer.dataset.preview!=='1'){
+   layer?.remove();layer=document.createElement('div');layer.className='r127-raccoon-layer';layer.dataset.preview='1';e.figure.append(layer);
+   spots.forEach((pos)=>{const img=document.createElement('img');img.src=art;img.alt='';
+    img.style.cssText='position:absolute;width:34%;max-height:80%;object-fit:contain;transform:translate(-50%,-50%);filter:drop-shadow(2px 5px 4px #000c)';
+    img.style.left=pos[0]+'%';img.style.top=pos[1]+'%';img.style.scale=String(pos[2]);
+    if(pos[3])img.style.transform='translate(-50%,-50%) scaleX(-1)';
+    layer.append(img);});
+  }
+  return result;
+ }
  if(!active){layer?.remove();last=null;return result}
  if(!layer||last!==c){layer?.remove();layer=document.createElement('div');layer.className='r127-raccoon-layer';e.figure.append(layer);last=c}
  for(let i=0;i<3;i++){

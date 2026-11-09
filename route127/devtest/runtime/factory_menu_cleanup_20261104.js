@@ -24,12 +24,6 @@ v49FactoryRoom=function(...args){
  }
  return result;
 };
-// Prevent legacy Forge action strip from creating duplicate craft/terminal options.
-const previousAdd=add;
-add=function(value='',cls=''){
- if(stage==='factoryForge'&&/\(W\) USE WORKBENCH\s+\(T\) TERMINAL\s+\(B\) BACK/.test(String(value)))return;
- return previousAdd.apply(this,arguments);
-};
 // Don't silently craft a charge upon merely talking: expose a deliberate action.
 const previousForge=v49Forge;
 v49Forge=function(...args){

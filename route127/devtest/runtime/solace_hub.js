@@ -21,36 +21,53 @@ const present=()=>typeof wanderers!=='undefined'&&typeof wandererLocations!=='un
 // The legacy town encounter exposes ONE wanderer, even if several NPCs are assigned to Solace.
 let visibleWanderer=null;
 const featured=()=>{const people=present();if(!people.length){visibleWanderer=null;return null;}if(visibleWanderer&&people.some(w=>w.name===visibleWanderer))return people.find(w=>w.name===visibleWanderer);visibleWanderer=people[Math.floor(Math.random()*people.length)].name;return people.find(w=>w.name===visibleWanderer);};
-const canHub=()=>stage==='mercy'&&mercyLocation==='town'&&VIEWS.has(player.flags.solaceMenu);
+const canHub=()=>stage==='mercy'&&mercyLocation==='town'&&!townWandererFocus&&VIEWS.has(player.flags.solaceMenu);
+function openVisitor(w){
+ currentTownWanderer=w.name;
+ townWandererFocus=w.name;
+ showWanderer(w,'town');
+}
 function hub(){
  player.flags.solaceMenu='town';mercyLocation='town';townWandererFocus=null;
  const g=typeof lanternMigrate==='function'?lanternMigrate():null;
  if(g?.nodeId==='solace'){g.solaceAdmitted=true;g.lastSettlement='solace';}
  add('SOLACE — MAIN STREET','place');
- v53Choices(['SHOPS',...(player.flags.relayUnlocked?['RELAY STATION']:[]),
-   'FIND TIM','GATES',...(featured()?['TALK TO '+featured().name.toUpperCase()]:[]),'BULLETIN BOARD',
+ const visitor=featured();
+ DevtestMenuModel.publishLabels('solace-town',['SHOPS',...(player.flags.relayUnlocked?['RELAY STATION']:[]),
+   'FIND TIM','GATES',...(visitor?['TALK TO '+visitor.name.toUpperCase()]:[]),'BULLETIN BOARD',
    ...(player.flags.r18Courier?.phase==='service'?['POST OFFICE']:[])]);
 }
 function submenu(which){
  player.flags.solaceMenu=which;mercyLocation='town';
  if(which==='hubShops'){
   add('SOLACE — SHOPS','place');
-  v53Choices(['THE RUSTY LANTERN',"JOHNNY'S TRADING POST",
+  DevtestMenuModel.publishLabels('solace-shops',['THE RUSTY LANTERN',"JOHNNY'S TRADING POST",
    "MURPHY'S MOTOR WORKS",'LAST CHANCE CLINIC','SOLACE SAVINGS & LOAN',
-   'ARMORY','BACK TO SOLACE']);
+   'ARMORY','BACK TO SOLACE'],'BACK TO SOLACE');
  }else if(which==='hubGates'){
   add('SOLACE — GATES','place');
-  v53Choices(['NORTH GATE','SOUTH GATE','EAST GATE','WEST GATE','BACK TO SOLACE']);
+  DevtestMenuModel.publishLabels('solace-gates',['NORTH GATE','SOUTH GATE','EAST GATE','WEST GATE','BACK TO SOLACE'],'BACK TO SOLACE');
  }else if(which==='hubWanderers'){
   add('SOLACE — WANDERERS','place');
   const people=present();
   if(!people.length)add('No wanderers are currently on Main Street.','system');
-  v53Choices([...people.map(w=>'TALK TO '+w.name.toUpperCase()),
+  DevtestMenuModel.publishLabels('solace-wanderers',[...people.map(w=>'TALK TO '+w.name.toUpperCase()),
    ...(player.flags.r18SaltWorkersFreed?['TALK TO GIDEON']:[]),
    ...(player.flags.r18Ash?.reunionAvailable&&!player.flags.r18Ash?.reunion?['SEEK ASH SURVIVOR']:[]),
-   'BACK TO SOLACE']);
+   'BACK TO SOLACE'],'BACK TO SOLACE');
  }
 }
+showSolaceGateBusiness=function(){
+ add('GUARD > State your business.','man');
+ DevtestMenuModel.publishLabels('solace-guard',[
+  'ABANDONED TERMINAL SENT ME','LOOKING TO TRADE','LOOKING FOR THE RELAY STATION',
+  'JUST PASSING THROUGH','PICK A FIGHT',
+  ...(player.flags.solaceGateChallenge?['OFFER GUARD 50 BOLTS']:[])
+ ]);
+};
+// The shared Corvette adapter still owns guard bribe resolution. Its late
+// choice append is superseded by the guard's complete published menu.
+ordinaryGuardOption=function(){};
 const previousMenu=mercyMenu;
 mercyMenu=function(...args){
  // New Solace hub replaces the legacy endless list while preserving
@@ -78,21 +95,14 @@ handleCommandCore=async function(raw){
   if(cmd==='gates')return submenu('hubGates');
   // Direct, named wanderer interactions; no redundant selection submenu.
   const nearby=featured();
-  if(nearby&&cmd==='talk to '+nearby.name.toLowerCase()){
-   currentTownWanderer=nearby.name;
-   townWandererFocus=nearby.name;
-   showWanderer(nearby,'town');
-   return typeof v53WandererMenu==='function'?v53WandererMenu(nearby,false):undefined;
-  }
+  if(nearby&&cmd==='talk to '+nearby.name.toLowerCase())return openVisitor(nearby);
   if(cmd==='talk to wanderer')return submenu('hubWanderers'); // legacy command compatibility
   if(cmd==='find tim')return typeof v53TimMenu==='function'?v53TimMenu():previousCore.call(this,'find tim');
   if(cmd==='relay station'&&player.flags.relayUnlocked)return previousCore.call(this,'relay station');
   if(cmd==='bulletin board')return previousCore.call(this,'bulletin board');
   if(cmd==='post office'&&player.flags.r18Courier?.phase==='service')return previousCore.call(this,'post office');
  }else if(view==='hubShops'){
-  const map={...IN_SHOP,'the rusty lantern':'bar'};
-  if(cmd==='the rusty lantern')return previousCore.call(this,'bar');
-  if(map[cmd]&&cmd!=='post office')return previousCore.call(this,map[cmd]);
+  if(Object.hasOwn(IN_SHOP,cmd))return previousCore.call(this,IN_SHOP[cmd]);
  }else if(view==='hubGates'){
   const gate=/^(north|south|east|west) gate$/.exec(cmd);
   if(gate){
@@ -109,10 +119,7 @@ handleCommandCore=async function(raw){
   if(cmd==='seek ash survivor'&&player.flags.r18Ash?.reunionAvailable&&!player.flags.r18Ash?.reunion)
    return previousCore.call(this,cmd);
   const w=present().find(x=>cmd==='talk to '+x.name.toLowerCase());
-  if(w){
-   currentTownWanderer=w.name;
-   return previousCore.call(this,'talk to '+w.name.toLowerCase());
-  }
+  if(w)return openVisitor(w);
  }
  // Preserve globals, e.g. inventory, status, quests and map.
  if(['inventory','inv','i','status','stats','s','quests','quest','q','map','m','save','v'].includes(cmd))

@@ -46,6 +46,7 @@ function check(expected,screen){
  check([...bar.slice(0,2),'buy room',...bar.slice(2)],'rusty-lantern');
  await command('3');assert.equal(run('mercyLocation'),'jenRoom');assert.equal(run('player.bolts'),0);
  assert(run('player.flags.rustyRoomOwned'));
+ check(['rest','chest','look around','return'],'solace-room');
  await command('return');check([...bar.slice(0,2),'your room',...bar.slice(2)],'rusty-lantern');
  assert.equal(await run("GraphicalUI.dispatch(GraphicalUI.choices().find(row=>row.command==='your room'))"),true);await flush();
  assert.equal(run('mercyLocation'),'jenRoom');assert.equal(run('player.bolts'),0);

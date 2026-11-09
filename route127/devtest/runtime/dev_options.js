@@ -246,7 +246,11 @@
     }
     const encounters={
       'Bat Colony':{asset:'bat_colony.png',count:4,size:27,positions:[[50,30],[31,16],[65,27],[43,37],[72,48]]},
-      'Rabid Raccoons':{asset:'rabid_raccoon.png',count:3,size:32,positions:[[50,64],[32,65],[53,63],[69,68]]}
+      'Rabid Raccoons':{asset:'rabid_raccoon.png',count:3,size:32,positions:[[50,64],[32,65],[53,63],[69,68]]},
+      'Looters':{assets:['looters_1.png','looters_2.png','looters_3.png'],count:3,size:32,positions:[[50,58],[24,60],[51,55],[77,61]]},
+      'Parking Lot Raiders':{assets:['parking_lot_raiders-_1.png','parking_lot_raiders_2.png','parking_lot_raiders_3.png'],count:3,size:32,positions:[[50,58],[24,60],[51,55],[77,61]]},
+      'Gang Lookout':{assets:['gang_lookout.png'],count:1,size:32,positions:[[50,57]]},
+      'Gang Lookout — Reinforcements':{assets:['gang_lookout_1.png','gang_lookout_2.png'],count:2,size:32,positions:[[50,58],[35,59],[67,60]]}
     };
     const encounter=select('Combat encounter',Object.keys(encounters));
     const region=select('Background region',REGIONS);
@@ -257,8 +261,8 @@
     const stage=el('div','dw-scene');stage.style.marginTop='12px';stage.style.setProperty('aspect-ratio','16/9');
     const bg=el('img','dw-bg');bg.alt='Region background';stage.append(bg);
     const plate=el('span','dw-location');stage.append(plate);dialog.append(stage);
-    dialog.append(el('p','dw-note','DEVTEST composition only. Select Bat Colony or Rabid Raccoons to preview installed artwork, or choose a local PNG. No combat, saves, or Playtest changes.'));
-    const assetUrl=()=>new URL('assets/enemies/'+encounters[encounter.value].asset,devtestRoot).href;
+    dialog.append(el('p','dw-note','DEVTEST composition only. Preview installed Bat Colony, Rabid Raccoons, Looters, Parking Lot Raiders, or Gang Lookout artwork. Gang reinforcements are a separate preview; this tool never changes live combat. No combat, saves, or Playtest changes.'));
+    const assetUrl=()=>new URL('assets/enemies/'+(encounters[encounter.value].asset||encounters[encounter.value].assets?.[0]),devtestRoot).href;
     let localUrl=null;
     function render(){
       bg.src=regionUrl(region.value);
@@ -266,7 +270,7 @@
       stage.querySelectorAll('.dw-combat-enemy').forEach(n=>n.remove());
       const cfg=encounters[encounter.value],total=Number(count.value);
       for(let i=0;i<total;i++){
-        const img=el('img','dw-combat-enemy');img.src=localUrl||assetUrl();img.alt=encounter.value+' '+(i+1);img.addEventListener('error',()=>img.remove(),{once:true});
+        const img=el('img','dw-combat-enemy');img.src=localUrl||(cfg.assets?new URL('assets/enemies/'+cfg.assets[i%cfg.assets.length],devtestRoot).href:assetUrl());img.alt=encounter.value+' '+(i+1);img.addEventListener('error',()=>img.remove(),{once:true});
         const pos=cfg.positions[total===1?0:i+1]||cfg.positions[i%cfg.positions.length];
         const flipped=encounter.value==='Rabid Raccoons'&&i===1&&total>1;
         const scale=encounter.value==='Rabid Raccoons'?[.9,.72,.86,1][i]:1;

@@ -6,6 +6,8 @@ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||!/^\/route127\/devtest\/(?:index\.
 const root=new URL('../devtest/',document.baseURI);
 const asset=name=>new URL('assets/enemies/'+name,root).href;
 const groups={
+ // Interim Highway Robbers sprites reuse approved looter art until unique robber art is supplied.
+ 'HIGHWAY ROBBERS':{files:['looters_1.png','looters_2.png'],count:2},
  'LOOTERS':{files:['looters_1.png','looters_2.png','looters_3.png'],count:3},
  'PARKING LOT RAIDERS':{files:['parking_lot_raiders-_1.png','parking_lot_raiders_2.png','parking_lot_raiders_3.png'],count:3},
  'GANG LOOKOUT':{files:['gang_lookout.png'],count:1},
@@ -51,15 +53,25 @@ GraphicalUI.sync=function(...args){
   // The lookout leaves after whistling; display ONLY the two new gang members.
   if(gang&&c?.reinforcementsArrived)group={files:['gang_lookout_1.png','gang_lookout_2.png'],count:2};
   const active=!!group&&!!c&&!e.frame.hidden&&(group.solo?Number(c.hp)>0:Array.isArray(c.enemies)&&c.enemies.length===group.count);
-  // The encounter portrait is always present before the player chooses a tactic.
-  // Only fighting adds HP bars and attack controls.
-  const preview=!active&&!c&&!e.frame.hidden&&isLookoutEncounter();
+  // Keep scenario characters visible during the encounter, before a fight begins.
+  // No HP meters or attack buttons appear until actual combat.
+  const title=typeof currentEncounter==='function'&&typeof stage!=='undefined'&&stage==='encounter'
+   ?String(currentEncounter()?.title||'').replace(/^EAST ROAD — /,'').toUpperCase():'';
+  const previewGroup=!c&&!e.frame.hidden?groups[title]:null;
+  const preview=!!previewGroup;
   if(preview){
-   if(!layer||signature!=='gang-lookout-preview'){
-    layer?.remove();layer=document.createElement('div');layer.className='r127-human-layer';e.figure.append(layer);signature='gang-lookout-preview';
-    const img=document.createElement('img');img.src=asset('gang_lookout.png');img.alt='Gang lookout';
-    img.style.cssText='position:absolute;left:50%;top:57%;transform:translate(-50%,-50%);height:72%;max-width:50%;object-fit:contain;filter:drop-shadow(1px 5px 5px #000c)';
-    layer.append(img);
+   const key='encounter-preview:'+title;
+   if(!layer||signature!==key){
+    layer?.remove();layer=document.createElement('div');layer.className='r127-human-layer';e.figure.append(layer);signature=key;
+    const spots=placements[previewGroup.count]||placements[3];
+    previewGroup.files.forEach((file,i)=>{
+     const img=document.createElement('img');img.src=asset(file);img.alt='';
+     img.style.position='absolute';img.style.left=spots[i][0]+'%';img.style.top=spots[i][1]+'%';
+     img.style.transform='translate(-50%,-50%) scale('+spots[i][2]+')';
+     img.style.width=previewGroup.count===1?'42%':previewGroup.count===2?'36%':'32%';
+     img.style.maxHeight='85%';img.style.objectFit='contain';img.style.filter='drop-shadow(2px 6px 5px #000c)';
+     layer.append(img);
+    });
    }
    return result;
   }

@@ -19,7 +19,7 @@ const placements={
  1:[[50,57,0.72]],
  2:[[35,59,0.66],[67,60,0.66]],
  3:[[17,54,1],[50,51,1.06],[83,55,1]],
- raiders:[[17,54,1.02],[50,50,1.12],[83,54,1.02]],
+ raiders:[[28,45,0.83],[50,50,1.12],[83,54,1.02]],
  robbers:[[26,53,1.0],[74,53,1.0]],
  hollowed:[[27,51,1.12],[73,53,1.12]]
 };
@@ -37,6 +37,8 @@ const style=document.createElement('style');style.textContent=`
 /* Parking Lot Raiders: larger individual figures, with dedicated non-overlapping HP lanes. */
 .gfx-frame button.r127-human-unit.r127-raider-unit{width:30%;z-index:6;filter:drop-shadow(2px 6px 6px #000e)}
 .r127-raider-unit img{max-height:255px;object-position:center bottom}
+/* Recede the left raider into the roadway; keep their HP plate in a narrower lane. */
+.r127-raider-unit[data-human-index="0"] .r127-human-hp,.r127-raider-unit[data-human-index="0"] .r127-human-track{width:82%;margin-left:auto;margin-right:auto}
 .r127-raider-unit .r127-human-hp{box-sizing:border-box;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(9px,.9vw,12px)}
 @media(max-width:600px){.gfx-frame button.r127-human-unit.r127-raider-unit{width:30%}.r127-raider-unit img{max-height:185px}.r127-raider-unit .r127-human-hp{font-size:8px;padding:2px 1px}}
 /* Highway robbers share only temporary looter artwork; their two wide lanes prevent HP overlap. */

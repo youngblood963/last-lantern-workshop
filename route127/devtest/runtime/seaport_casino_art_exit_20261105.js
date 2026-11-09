@@ -6,7 +6,7 @@
 (()=>{
  'use strict';
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST' ||
-    typeof GraphicalUI==='undefined' || typeof casinoMenu!=='function')return;
+    typeof GraphicalUI==='undefined')return;
 
  const atAnchor=()=>stage==='r6Casino'&&!!player.flags?.port55Casino;
  const menuOnly=()=>atAnchor()&&!player.flags?.r6Game;
@@ -24,30 +24,5 @@
   return model;
  };
 
- // The R6 menu already has 'RETURN TO MIA'. Its shared r5DirectChoices
- // producer also leaves the old B->back hotkey in currentHotkeys, which
- // surfaces as an extra non-working button. Remove only that redundant map
- // entry after the menu's deferred numeric bindings have been registered.
- const previousMenu=casinoMenu;
- casinoMenu=function(...args){
-  const result=previousMenu.apply(this,args);
-  if(menuOnly()){
-   outputQueue=outputQueue.then(()=>{
-    if(menuOnly() && currentHotkeys?.b==='back')delete currentHotkeys.b;
-   });
-  }
-  return result;
- };
-
- // Also guard graphical rendering during async output-queue updates, before
- // the deferred B removal has completed. Other casinos and game tables retain
- // their own Back controls.
- const previousChoices=GraphicalUI.choices;
- GraphicalUI.choices=function(...args){
-  const choices=previousChoices.apply(this,args);
-  if(!menuOnly())return choices;
-  return choices.filter(row=>!(String(row.key).toLowerCase()==='b'&&
-      String(row.command).toLowerCase()==='back'));
- };
  if(typeof GraphicalUI.schedule==='function')GraphicalUI.schedule();
 })();

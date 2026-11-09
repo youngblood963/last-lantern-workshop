@@ -24,9 +24,7 @@
       ...(player.flags.r18RedPosterSeen&&!q.outcome?[q.posterOpen?'DISCUSS THE WANTED POSTER':'SHOW THE WANTED POSTER']:[]),
       'RETURN TO MIA'];
   r5DirectChoices(options);
-  // A previous conversation may leave a legacy B hotkey in the same menu.
-  // The explicit RETURN button provides the only visible exit.
-  if(currentHotkeys?.b==='back')delete currentHotkeys.b;
+
  }
  function redIntro(){
   const q=r18RedState();

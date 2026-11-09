@@ -107,7 +107,11 @@
 (function(){
  'use strict';
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
- const baseSubmenu=port55Submenu;
+ const originalSubmenu=port55Submenu;
+ const baseSubmenu=(title,choices)=>DevtestMenuModel.publishQueued(
+  'seaport:kaiden:'+title,choices,'BACK',
+  labels=>originalSubmenu(title,labels),{direct:true}
+ );
  let page='main';
  const liberated=()=>player.flags?.seaport55?.freed===true;
  const wanted=()=>typeof v52Crime==='function'&&Number(v52Crime().bounty)>0;
@@ -142,7 +146,7 @@
  port55Submenu=function(name,choices){
   if(stage==='port55Kaiden'&&liberated())
    return menu(returningFromLights?'small-talk':'main');
-  return baseSubmenu.apply(this,arguments);
+  return originalSubmenu.apply(this,arguments);
  };
  // The older R11 post-command hook still emits a DIFFERENT Kaiden menu,
  // including the quest on the top level. Redirect it to this menu owner.
@@ -332,32 +336,6 @@
  'use strict';
  if(!location.pathname.includes('/route127/devtest/')||typeof PORT_STAFF_ROLES==='undefined')return;
  PORT_STAFF_ROLES.armory={name:'Armory',job:'Armorer',skill:'trading'};
- // Market Area is the Armory's only entrance. The existing main Seaport
- // menu builds its options from PORT_STAFF_ROLES, so hide the Armory only
- // during that one synchronous render (keep it registered for all staffing).
- const previousMenu=port55Menu;
- port55Menu=function(...args){
-  const armory=PORT_STAFF_ROLES.armory,originalAdd=add;
-  try{
-   delete PORT_STAFF_ROLES.armory;
-   // Rename the one real exit in both Classic and graphical menus.
-   add=function(value,cls){
-    if(typeof value==='string'&&/^\\[\\d+\\] RETURN WEST$/.test(value))
-     value=value.replace('RETURN WEST','RETURN TO ROAD');
-    return originalAdd(value,cls);
-   };
-   const result=previousMenu.apply(this,args);
-   for(const [key,value] of Object.entries(numberedChoices||{})){
-    if(value==='return west')numberedChoices[key]='return to road';
-   }
-   // No second exit through a stray Back hotkey on this top-level menu.
-   if(currentHotkeys?.b==='back')delete currentHotkeys.b;
-   return result;
-  }finally{
-   add=originalAdd;
-   PORT_STAFF_ROLES.armory=armory;
-  }
- };
  const priorRoadExitCommand=port55Command;
  port55Command=function(cmd){
   if(stage==='seaport'&&cmd==='return to road')
@@ -638,20 +616,6 @@
  }
 })();
 
-/* DEVTEST: keep exactly one top-level Seaport road exit in graphics. */
-(function(){
- if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
- const prior=GraphicalUI.choices;
- GraphicalUI.choices=function(...args){
-  const rows=prior.apply(this,args);
-  if(stage!=='seaport'||!this.active())return rows;
-  const exiting=c=>['return west','return to road','back','b','leave','west'].includes(String(c).toLowerCase());
-  const chosen=rows.find(r=>['back','b'].includes(String(r.command).toLowerCase()))||rows.find(r=>exiting(r.command));
-  const remaining=rows.filter(r=>!exiting(r.command));
-  if(chosen)remaining.push({...chosen,label:'RETURN TO ROAD'});
-  return remaining;
- };
-})();
 /* DEVTEST liberated Seaport visiting wanderers.
  * Global wanderers can drift into Seaport after liberation, even if they are
  * not hired. Town Streets hosts the visitor; existing road roster and save
@@ -700,16 +664,38 @@
   if(liberated())initialVisitor();
   return origArrive.apply(this,args);
  };
- const origMenu=port55Menu;
- port55Menu=function(...args){
+ port55Menu=function(){
   enable();
-  // Also populate an existing liberated save when its player is already
-  // inside Seaport and the new visitor feature is first loaded.
-  if(liberated())initialVisitor();
-  // Narration before options: later add() calls clear graphical choice state.
-  if(liberated()&&visitor())
-   add('A traveler has been seen in the Town Streets.','system');
-  return origMenu.apply(this,args);
+  const q=port55State();
+  if(q.freed){
+   initialVisitor();
+   if(visitor())add('A traveler has been seen in the Town Streets.','system');
+   portRecruitIntro();port55PatrolTick();
+   add('=== SEAPORT ===','place');
+   add('SHERIFF KAIDEN — Town Streets','system');
+   r5DirectChoices(['TOWN STREETS','HARBOR DOCKS','MARKET AREA','RUSTY ANCHOR',
+    ...(r18FenceAllowed()?['OLD CUSTOMS OFFICE']:[]),
+    ...(portRecruitUnlocked()&&r18MilesLocation()==='seaport'?['TALK TO MILES']:[]),
+    'RETURN TO ROAD']);
+  }else{
+   add('=== OCCUPIED SEAPORT ===','place');
+   add(q.stage==='free'?'The enforcers are defeated. The survivors are still chained at the docks.':
+    'Dominion-backed fishermen hold the harbor.','system');
+   r5DirectChoices(['HARBOR DOCKS','RETURN TO ROAD']);
+  }
+  r5Scene('seaport');
+ };
+ const occupiedDocks=r5Docks;
+ r5Docks=function(){
+  if(!portRecruitUnlocked())return occupiedDocks();
+  stage='port55Docks';
+  add('SEAPORT — HARBOR DOCKS','place');
+  add('A clerk checks water-stained manifests beside the freed quay.','bright');
+  r5DirectChoices(['DOCK BULLETIN BOARD','TALK TO DOCKS CLERK',
+   ...(r18CourierEligible('docks')?['DELIVER SEAPORT PARCEL']:[]),
+   ...(player.flags.port55PendingRewards?.length?['CLAIM PENDING REWARD']:[]),
+   ...(r18CalebAvailable()?['TALK TO CALEB']:[]),
+   'RETURN TO SEAPORT']);
  };
  const origStopMenu=port55StopMenu;
  port55StopMenu=function(...args){
@@ -945,6 +931,7 @@
    return rows.filter(r=>!(String(r.key).toLowerCase()==='b'&&
      /^back$/i.test(String(r.command||'').trim())));
   }
+  if(rows.some(row=>row.id?.startsWith('seaport:')))return rows;
   const exits=rows.filter(r=>/^\d+$/.test(String(r.key))&&
    /^(?:back|return(?: to (?:seaport|harbor|town|road|market|docks|previous menu))?|leave(?: (?:area|shop|store))?)$/i.test(String(r.command||'').trim()));
   if(!exits.length)return rows;
@@ -999,17 +986,5 @@
   try{return previousStopMenu.apply(this,args);}
   finally{add=priorAdd;}
  };
- // Replace the old changing-patrol announcement, not the town logic.
- const formerMenu=port55Menu;
- port55Menu=function(...args){
-  const priorAdd=add;
-  add=function(message,...extra){
-   if(player.flags?.seaport55?.freed===true&&
-      String(message).startsWith('KAIDEN PATROL — '))
-    message='SHERIFF KAIDEN — Town Streets';
-   return priorAdd.call(this,message,...extra);
-  };
-  try{return formerMenu.apply(this,args);}
-  finally{add=priorAdd;}
- };
+
 })();

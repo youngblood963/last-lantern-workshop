@@ -23,7 +23,7 @@
   node.addEventListener('click',handler);
   return node;
  };
- let dialog=null,selected=null,processing=false,returnFocus=null;
+ let dialog=null,selected=null,processing=false,returnFocus=null,classicCatalog=false;
  function close(){
   if(!dialog)return;
   const old=dialog;dialog=null;selected=null;
@@ -105,7 +105,8 @@
  }
  const previousVendor=port55Vendor;
  port55Vendor=function(...args){
-  if(!graphical())return previousVendor.apply(this,args);
+  classicCatalog=false;
+  if(!graphical())add('NESSA > These strays choose their people. Choose a pet to buy or inspect one by name.','bright');
   // This remains the original vendor stage: quest dialogue stays available.
   const rescued=player.flags?.r18SilasOutcome==='released';
   const engine=typeof CorvetteRestoration!=='undefined'?CorvetteRestoration.state():null;
@@ -119,8 +120,15 @@
  const previousCommand=port55Command;
  port55Command=function(input){
   const cmd=String(input||'').trim().toLowerCase();
+  if(atShop()&&cmd==='purchase pets'){
+   if(graphical())drawCatalog();
+   else {classicCatalog=true;previousVendor();}
+   return true;
+  }
+  if(atShop()&&classicCatalog&&!graphical()&&['back','b'].includes(cmd)){
+   port55Vendor();return true;
+  }
   if(atShop()&&graphical()){
-   if(cmd==='purchase pets'){drawCatalog();return true;}
    const match=available().find(([name])=>cmd===name.toLowerCase()||
     cmd.startsWith(name.toLowerCase()+' —'));
    if(match){drawConfirm(match[0]);return true;}
@@ -131,14 +139,9 @@
  const oldSync=GraphicalUI.sync;
  GraphicalUI.sync=function(...args){
   if(dialog&&(!graphical()||!atShop()))close();
+  if(classicCatalog&&graphical()&&atShop())port55Vendor();
+  if(!atShop())classicCatalog=false;
   return oldSync.apply(this,args);
  };
- if(globalThis.Route127MenuAuthority){
-  Route127MenuAuthority.register('nessa-pet-shop',{
-   level:'devtest',
-   supports:ctx=>ctx.stage==='port55Vendor'&&graphical(),
-   choices:ctx=>ctx.base.map(row=>row.command)
-  });
- }
  globalThis.DevtestNessaShop=Object.freeze({open:drawCatalog,close});
 })();

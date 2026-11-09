@@ -72,23 +72,6 @@
   await handleCommand(live.command);
   this.sync();return true;
  };
- // Explicit first-party Devtest menu ownership is opt-in. Unknown menus
- // retain the already established engine/rendered choices (fallback).
- // First registered owner: the repaired Devtest Kaiden dialogue. R11 quest
- // stage is intentionally NOT claimed; its own Accept/Complete actions work.
- register('devtest-kaiden',{
-  level:'devtest',
-  supports:ctx=>ctx.stage==='port55Kaiden'&&ctx.player.flags?.seaport55?.freed===true,
-  choices:ctx=>{
-   const commands=ctx.base.map(c=>norm(c.command));
-   // Reject any stale composite menu; never invent a command.
-   const valid=new Set(['ask about seaport','small talk','view bounties',
-     'pay fine','offer bribe','how is seaport holding up?',
-     'ask about keeping the lights on','confirm bribe','cancel bribe','back']);
-   if(commands.some(cmd=>!valid.has(cmd)))return null;
-   return ctx.base.map(c=>c.command);
-  }
- });
  globalThis.Route127MenuAuthority=Object.freeze({
   priority:LEVEL,register,resolve,
   diagnose:()=>({stage,providers:[...providers.values()].map(p=>({id:p.id,priority:p.priority})),choices:resolve().map(x=>({key:x.key,command:x.command}))})

@@ -1,0 +1,17 @@
+# WO35 baseline test diagnosis
+
+Both failures reproduced on clean GitHub main at `221fc1aac7ce29acb469ed35d5b811472863f456` and the local WO34 patch. The original suites and fixture expectations are unchanged.
+
+## R11 integrity — Grinder's Cutter
+
+- `tests/r11_integrity.cjs:8–10` compares current quotes against the R10 economy fixture. `tests/fixtures/r10_economy.json:3` records 31 Bolts.
+- `../playtest/app.js:469` defines a rare weapon with 20–27 damage. The loaded gear is marked quest-only, but `../playtest/polish.js:14` tests the carried stack type and whether it is equipped. `../playtest/app.js:514` does not list this weapon among protected unique equipment. The test probes an unequipped, ordinary weapon stack, which passes those checks.
+- `../playtest/economy.js:7,26` sets the current value using weapon stats, rarity, level and identity. The rare multiplier is 3.6. The measured value is 1,275, and eligible equipment pays floor(1,275 × 0.08) = 102. Legendary and protected equipment remain excluded. The material wrapper at `../playtest/playthrough_repairs.js:92–98` and crafted resale wrapper at `runtime/crafting_home_patch.js:3–9` delegate this weapon to that calculation. The sale flow quotes and revalidates the same function at `../playtest/consolidation.js:101,119`.
+- The R10 fixture is stale against the shipped WO12 policy. Source and runtime evidence explain the quote, but owner intent about selling this specific quest-only weapon remains unverified. If the owner confirms the current policy, update the integrity suite separately to cover the approved policy and preserve the R10 fixture as historical evidence. If the intended price or sellability differs, review it as a separate economy decision. No price, protection rule, or expectation changed.
+
+## Road balance — dynamic encounters and legacy traversal
+
+- `tests/road_balance.cjs:13,44` assumes every combat category scene provides a static spec. A seeded diagnostic identifies DRAINAGE STALKER on the early trip toward Solace, with category combat and no spec under that title.
+- WO3 is already initialized. `../playtest/scenario_registry.js:1476–1495` deliberately clears the static field and registers FIGHT as a scene action. `wo3Fight` at 1458–1461 starts combat with the captured crawler spec. Installing WO3 again or inserting a static combat spec would bypass the intended handler. The real DEVTEST entry and VM helper already initialize the registry.
+- Optional access alone gets through Drainage Stalker, then fails at line 14 on THE IRON CHOIR, whose offered command is FIGHT THE RAIDERS (`../playtest/scenario_registry.js:712`). A temporary probe using the scene's offered FIGHT command when a static action is absent reached line 49, where the legacy trip's fixed 9-turn assertion measured 0. This exposes a separate traversal fixture mismatch. The probe was discarded.
+- Proposed minimum first repair, test only. Declare explicit offered actions for dynamic fixtures, dispatch through the existing resolver, and retain the combat-stage assertion with scene and command context. Reset one-time encounter state for isolated combat cases. Then initialize an actual graph node/edge for traversal cases and assert charges against actual departures on that route. Keep category weights and gameplay scripts intact. The full corrected harness still needs validation, including the line 49 fixture. No test infrastructure was committed.

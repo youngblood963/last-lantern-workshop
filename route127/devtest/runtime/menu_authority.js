@@ -31,7 +31,7 @@
  const upstream=GraphicalUI.choices;
  const baseChoices=function(){return dedupe(upstream.apply(GraphicalUI,arguments));};
  function resolve(){
-  const base=baseChoices();
+  const base=DevtestMenuModel.project(baseChoices());
   chosenOwner=null;
   if(!GraphicalUI.active())return base;
   const context=Object.freeze({

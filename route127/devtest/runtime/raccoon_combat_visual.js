@@ -11,12 +11,10 @@ style.textContent=`
 .gfx-frame button.r127-raccoon-unit{position:absolute;width:30%;height:80%;transform:translate(-50%,-50%);background:transparent!important;background-image:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;min-height:0!important;color:white;pointer-events:auto;cursor:pointer;padding:0!important;filter:drop-shadow(-2px -2px 1px rgba(255,198,126,.65)) drop-shadow(3px 8px 5px #000b)}
 .r127-raccoon-unit img{width:100%;height:100%;max-height:none;object-fit:contain;display:block}
 .r127-raccoon-unit.flipped img{transform:scaleX(-1)}
-.r127-raccoon-label{position:absolute;bottom:5px;left:0;right:0;box-sizing:border-box;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:#160e0de8;border:1px solid #aa9073;border-radius:3px;padding:2px;font:700 clamp(9px,1vw,12px) sans-serif;text-shadow:0 1px 2px black}
-.r127-raccoon-track{position:absolute;bottom:0;left:0;right:0;display:block;height:5px;background:#4b1c1c;margin-top:2px}
-.r127-raccoon-fill{display:block;height:100%;background:linear-gradient(90deg,#8f211d,#d8493e)}
 .gfx-frame.r127-raccoon-combat-active .gfx-combat,.gfx-frame.r127-raccoon-combat-active .gfx-main>.gfx-combat{display:none!important}
 .r127-raccoon-unit:hover,.r127-raccoon-unit:focus-visible{outline:2px solid #f5c56d}
-@media(max-width:600px){.gfx-frame button.r127-raccoon-unit{width:30%}.r127-raccoon-unit img{max-height:none}.r127-raccoon-label{font-size:8px;padding:2px 1px}}
+@media(max-width:600px){.gfx-frame button.r127-raccoon-unit{width:30%}.r127-raccoon-unit img{max-height:none}}
+.gfx-frame .r127-raccoon-label{position:absolute;bottom:0;left:50%;transform:translateX(-50%);z-index:2;white-space:nowrap;background:#32100e;color:#ffaaa4;border:1px solid #aa413b;border-radius:3px;padding:2px 4px;font:700 clamp(9px,1vw,12px) sans-serif}
 `;document.head.append(style);
 let last=null;const sync=GraphicalUI.sync;
 GraphicalUI.sync=function(...args){
@@ -27,8 +25,6 @@ GraphicalUI.sync=function(...args){
  const c=typeof combatState!=='undefined'?combatState:null;
  const active=!!c&&/^RABID RACCOONS$/i.test(c.name||'')&&Array.isArray(c.enemies)&&c.enemies.length===3&&!e.frame.hidden;
  e.frame.classList.toggle('r127-raccoon-combat-active',active);
- if(active&&e.enemies)e.enemies.style.setProperty('display','none','important');
- else if(e.enemies)e.enemies.style.removeProperty('display');
  const title=typeof stage!=='undefined'&&stage==='encounter'&&typeof currentEncounter==='function'
   ?String(currentEncounter()?.title||'').replace(/^EAST ROAD — /,'').toUpperCase():'';
  if(!active&&title==='RABID RACCOONS'&&!c&&!e.frame.hidden){
@@ -54,13 +50,11 @@ GraphicalUI.sync=function(...args){
  b.style.left=spots[i][0]+'%';b.style.top=spots[i][1]+'%';b.style.scale=String(spots[i][2]);
  const img=document.createElement('img');img.src=art;img.alt='';
  const label=document.createElement('span');label.className='r127-raccoon-label';
- const track=document.createElement('span');track.className='r127-raccoon-track';
- const fill=document.createElement('span');fill.className='r127-raccoon-fill';track.append(fill);b.append(img,label,track);
+ b.append(img,label);
  b.addEventListener('click',()=>{if(typeof busy!=='undefined'&&busy)return;if(typeof handleCommand==='function')handleCommand('attack '+(i+1))});layer.append(b)
  }
  b.setAttribute('aria-label','Attack raccoon '+(i+1)+', '+hp+' of '+max+' HP');
  b.querySelector('.r127-raccoon-label').textContent=hp+'/'+max+' HP';
- b.querySelector('.r127-raccoon-fill').style.width=Math.min(100,100*hp/max)+'%';
  }
  }catch(error){console.warn('DEVTEST raccoon combat visual:',error)}
  return result;

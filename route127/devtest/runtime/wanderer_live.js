@@ -95,6 +95,13 @@
     // Only an actual active road wanderer encounter; never a stale saved name.
     if (stage === 'wandererRoad' && typeof currentRoadWanderer !== 'undefined')
       return currentRoadWanderer ? { name:currentRoadWanderer, kind:'road' } : null;
+    // Solace main street advertises one specific visitor before the player clicks
+    // TALK TO. Read the hub's already-selected identity; never reroll visitors.
+    if (stage === 'mercy' && typeof mercyLocation !== 'undefined' &&
+        mercyLocation === 'town' && player?.flags?.solaceMenu === 'town') {
+      const featured=globalThis.Route127SolaceHub?.featuredName?.();
+      if (featured) return {name:featured,kind:'town'};
+    }
     // Town guest is shown while present at the town, or during focused dialogue.
     if (stage === 'mercy' &&
         typeof currentTownWanderer !== 'undefined' && currentTownWanderer &&

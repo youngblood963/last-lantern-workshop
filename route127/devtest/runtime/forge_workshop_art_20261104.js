@@ -118,6 +118,33 @@
   }
   return model;
  };
+ // DEVTEST loads the shared playtest/graphics.js through its <base> element.
+ // That shared renderer intentionally hides the illustration for layout='crafting'.
+ // Earlier changes to devtest/graphics.js and devtest/graphics.css had no effect
+ // because those files are not loaded by the actual DEVTEST entry point.
+ // Preserve the shared renderer and reveal ONLY our registered Workbench image.
+ const workbenchSync=GraphicalUI.sync;
+ GraphicalUI.sync=function(...args){
+   const result=workbenchSync.apply(this,args);
+   const el=this.element;
+   if(stage==='r11Craft' && el?.figure && el?.img &&
+      /\/crafting_workbench\.png(?:\?|$)/.test(el.img.getAttribute('src')||'')){
+     el.figure.hidden=false;
+   }
+   return result;
+ };
+ // The shared stylesheet likewise comes from playtest: its crafting layout
+ // allots a tall scrolling text panel and can squeeze the image to zero.
+ // Scope the space correction strictly to DEVTEST crafting.
+ const benchStyle=document.createElement('style');
+ benchStyle.textContent=`
+ body.full-graphics .gfx-frame[data-layout="crafting"] .gfx-art:not([hidden]){min-height:clamp(130px,28dvh,280px)}
+ body.full-graphics .gfx-frame[data-layout="crafting"] #screen{height:clamp(100px,17dvh,185px);max-height:32dvh}
+ @media(max-width:760px){
+  body.full-graphics .gfx-frame[data-layout="crafting"] .gfx-art:not([hidden]){min-height:130px}
+  body.full-graphics .gfx-frame[data-layout="crafting"] #screen{height:clamp(95px,18dvh,155px);max-height:30dvh}
+ }`;
+ document.head.append(benchStyle);
  if(typeof GraphicalUI.schedule==='function')GraphicalUI.schedule();
 })();
 

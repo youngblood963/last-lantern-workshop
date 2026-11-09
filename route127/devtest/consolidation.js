@@ -100,7 +100,15 @@ function v53SaleStart(name,merchant=null){
  name=String(name).replace(/\s+[×x]\d+$/i,'').trim();
  const item=r18NamedStack(player.pack,name),unit=v48SellPrice(item);
  if(!item||unit<=0){add('That item cannot be sold. Equipped, quest and Legendary items are protected.','system');return false;}
- player.flags.v53Sale={name:item.name,type:item.type,stolen:!!item.stolen,available:item.qty,unit,qty:1,merchant,location:mercyLocation,mode:'quantity'};if(!merchant)player.flags.v48Sale={name:item.name,type:item.type,qty:1,total:unit};v53SaleMenu();return true;
+ // A single item needs no quantity choice. Preserve confirmation for rare/epic gear.
+ // All sales still pass through v53SaleCommand's merchant, price, inventory,
+ // stolen-property and balance validation before anything is transferred.
+ const gear=typeof GEAR!=='undefined'?GEAR[item.name]:null;
+ const protectedConfirm=gear&&['weapon','armor','accessory'].includes(gear.type)&&['rare','epic'].includes(gear.rarity);
+ player.flags.v53Sale={name:item.name,type:item.type,stolen:!!item.stolen,available:item.qty,unit,qty:1,merchant,location:mercyLocation,mode:item.qty===1?'confirm':'quantity'};
+ if(!merchant)player.flags.v48Sale={name:item.name,type:item.type,qty:1,total:unit};
+ if(item.qty===1&&!protectedConfirm)return v53SaleCommand('confirm sale');
+ v53SaleMenu();return true;
 }
 function v53SaleMenu(){const q=player.flags.v53Sale;if(!q)return;
  add(`SELL ${q.name}${q.stolen?' (STOLEN)':''} — ${q.available} AVAILABLE — ${q.unit} BOLTS EACH${q.merchant?' — MERCHANT CASH '+v52Inventory(wandererByName(q.merchant)).bolts+' BOLTS':''}`,'system');
@@ -127,7 +135,7 @@ function v53SaleCommand(cmd){
  add('Choose a valid quantity or cancel.','system');v53SaleMenu();return true;
 }
 v48Sell=function(name,confirmed=false){if(confirmed){if(player.flags.v53Sale)return v53SaleCommand('confirm sale');add('Choose a quantity before confirming.','system');return false;}return v53SaleStart(name);};
-v48SaleMenu=function(){player.flags.v48Shop='sell';if(player.flags.v53Sale)return v53SaleMenu();add('SELL CARRIED ITEMS — SELECT AN ITEM (default quantity 1)','place');v53Choices([...player.pack.filter(i=>v48SellPrice(i)>0).map(i=>`SELL ${r18ItemLabel(i).toUpperCase()} ×${i.qty} — ${v48SellPrice(i)} BOLTS EACH`),'BACK']);};
+v48SaleMenu=function(){player.flags.v48Shop='sell';if(player.flags.v53Sale)return v53SaleMenu();add('SELL CARRIED ITEMS — SELECT AN ITEM','place');v53Choices([...player.pack.filter(i=>v48SellPrice(i)>0).map(i=>`SELL ${r18ItemLabel(i).toUpperCase()} ×${i.qty} — ${v48SellPrice(i)} BOLTS EACH`),'BACK']);};
 const v53OldTradeCommand=v50TradeCommand;v50TradeCommand=function(cmd){if(v53SaleCommand(cmd))return true;const w=wandererByName(player.flags.v50Trade);if(w&&cmd.startsWith('sell ')&&cmd!=='sell items'){v53SaleStart(cmd.slice(5).split(' ×')[0].split(' —')[0],w.name);return true;}return v53OldTradeCommand(cmd);};
 // Board content stays local/shared; no per-character Relay completion announcement.
 showBulletinBoard=function(){const counter=document.querySelector('#v53-board-counter');if(counter)counter.hidden=true;mercyLocation='town';player.flags.solaceMenu='board';townWandererFocus=null;add('SOLACE BULLETIN BOARD','place');add('MISSING: Two runners. Last seen eastbound.');add('NOTICE: Stop leaving broken glass outside The Rusty Lantern Tavern.');add('Someone has added underneath: THEN GIVE US BETTER CUPS.','system');getBoardPosts().forEach(p=>add(`> ${p.handle||'TRAVELER'} — DAY ${p.day||1}: ${p.text}`,'system'));v53Choices(['POST A MESSAGE','VIEW BOUNTIES','RETURN TO TOWN']);};

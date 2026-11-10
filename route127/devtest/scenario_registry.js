@@ -41,7 +41,8 @@ const RoadScenarioRegistry = {
    }
    entry.references.push({road,category,index});
   }
-  this.special={id:'special:steve',name:"CRAZY STEVE'S PINK ELEPHANTS",region:'GLOBAL',category:'special',scene:r11SteveScene,combat:r11Elephant};
+  // Retired completely: do not publish Crazy Steve as an eligible special encounter.
+  this.special=null;
   this.wanderers=wanderers.map(w=>({id:'wanderer:'+w.name,name:w.name,region:'GLOBAL',category:'wanderer',npc:w}));
   this.ready=true;
  },
@@ -1247,7 +1248,10 @@ const r18Rivet=eastEncounters.find(e=>e.title==='THE GRINDER CREW');if(r18Rivet)
 // BEGIN steve — formerly r11.js
 steve(){
 function r11SteveScene(branchReturn=null){
- player.flags.r11SteveReturn=branchReturn;stage='r11Steve';add("CRAZY STEVE'S PINK ELEPHANTS",'place');add('Crazy Steve staggers across the road in an old wooden sandwich board. He points wildly at something the size of a wheelbarrow.');add("CRAZY STEVE > YOU SEE 'EM?! TELL ME YOU SEE 'EM! THE PINK ELEPHANTS! THEY'RE EVERYWHERE!",'bright');r5DirectChoices(['ASK ABOUT THE ELEPHANTS','FIGHT THE ELEPHANTS','LEAVE STEVE ALONE']);
+ // Removed encounter: hard guard even if an older save, devtool or cached
+ // caller invokes this scene directly. Never present Steve's old menu.
+ player.flags.r11SteveReturn=branchReturn;
+ r11SteveFinish();
 }
 function r11SteveFinish(){const back=player.flags.r11SteveReturn;delete player.flags.r11SteveReturn;if(back){stage=back.stage;serviceRoadDepth=back.depth;renderCurrentChoices();}else completeRoadTurn();}
 function r11Elephant(){startCombat({name:'PINK ELEPHANT',level:1,hp:1,min:0,max:1,xp:1,bolts:0,end:'The pink elephant pops like a soap bubble. Steve applauds, then checks behind you.'},'r11Elephant');r6Art('PINK ELEPHANT',[['pink','    __     __'],['pink','  /    \\__/  \\'],['pink',' (  o       o )~~'],['pink','  \\___/\\____/'],['pink','    ||    ||']]);}

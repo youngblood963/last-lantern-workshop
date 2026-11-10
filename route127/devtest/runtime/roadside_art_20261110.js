@@ -22,7 +22,7 @@ const scenes={
  'THE PAINTED ARROWS':()=>[file('Painted Arrows - Club Scavenger.png'),file('Painted Arrows - Knife Scavenger.png')],
  'ARROW AMBUSH':()=>[file('Painted Arrows - Club Scavenger.png'),file('Painted Arrows - Knife Scavenger.png')],
  'HIGHWAY ROBBERS':()=>[file('Tire Iron Robber.png'),file('Spear Robber.png')],
- 'EAST ROAD — RATS IN THE PANTRY':()=>file('Snarling Rats at a Rusted Sewer Drain.png')
+ 'RATS IN THE PANTRY':()=>file('Snarling Rats at a Rusted Sewer Drain.png')
 };
 const normalize=s=>String(s||'').toUpperCase().replace(/^EAST ROAD — /,'').trim();
 function current(){

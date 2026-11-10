@@ -7,9 +7,9 @@
  const factors={common:1,uncommon:1.20,rare:1.40,epic:1.52,legendary:1.67};
  const previous={common:1,uncommon:1.13,rare:1.30,epic:1.46,legendary:1.60};
  const ordinary=new Map([
-  ['RABID RACCOONS',3.5],['BAT COLONY',3.5],['RAT PACK',3.5],['PANTRY RAT PACK',3.5],
-  ['FERAL DOG PACK',3],['FERAL DOG',3],['MOUNTAIN LIONS',3],
-  ['LOOTERS',3],['PARKING LOT RAIDERS',3]
+  ['RABID RACCOONS',1.5],['BAT COLONY',1.5],['RAT PACK',1.5],['PANTRY RAT PACK',1.5],
+  ['FERAL DOG PACK',1.65],['FERAL DOG',1.65],['MOUNTAIN LIONS',1.75],
+  ['LOOTERS',1.75],['PARKING LOT RAIDERS',1.75]
  ]);
  function multiplier(combat){
   if(combat?.wo33?.tier==='ordinary'&&combat.source==='encounter'){

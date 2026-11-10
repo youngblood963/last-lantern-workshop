@@ -37,9 +37,10 @@ button{cursor:pointer}button:hover{background:#59402d}button:disabled{opacity:.4
 <label>Enemy count<select id="count"><option>1</option><option>2</option><option selected>3</option><option>4</option></select></label>
 <label>Gear quality<select id="quality"><option>Standard</option><option>Crafted (+9%)</option><option>Upgraded (+6)</option></select></label>
 <label>Starting ammo<input id="ammo" type="number" min="0" max="999" value="4" style="width:100%"></label>
+<label>Enemy damage<select id="damageScale"><option value="1">100% — WO41 baseline</option><option value="1.25">125%</option><option value="1.5">150%</option><option value="1.75">175%</option><option value="2">200%</option></select></label>
 <button id="start">Start new fight</button>
 </div>
-<p class="note">Matched-level enemies; no regional level rolls. Firearms use four-round default ammunition; automatic melee fallback when empty. Enemy count and gear can be changed before starting. This tests combat feel, not the full WO41 Monte Carlo measurements.</p>
+<p class="note">Matched-level enemies; no regional level rolls. Firearms use four-round default ammunition; automatic melee fallback when empty. Enemy damage is an experimental multiplier applied to enemy retaliation only (including enemy critical hits), not enemy HP or player damage. It is selected at the start of each fight. High-level bosses are included for scaling comparisons; this sandbox does not enforce story or level gates. Enemy count and gear can be changed before starting. This tests combat feel, not the full WO41 Monte Carlo measurements.</p>
 </section>
 <section class="panel">
 <h2>Fight <span id="status">Not started</span></h2>
@@ -47,7 +48,7 @@ button{cursor:pointer}button:hover{background:#59402d}button:disabled{opacity:.4
 <div class="stat">Player HP<strong id="playerhp">—</strong><div class="hp"><span id="hpfill" style="width:100%"></span></div></div>
 <div class="stat">Weapon / armor<strong id="gearlabel">—</strong></div>
 <div class="stat">Ammo / bandages<strong id="supplies">—</strong></div>
-<div class="stat">Rounds<strong id="rounds">0</strong></div>
+<div class="stat">Rounds / enemy damage<strong id="rounds">0</strong><small id="multiplierLabel">100% baseline</small></div>
 </div>
 <h3>Opponents</h3><div id="enemies"></div>
 <div class="controls" style="margin:14px 0">
@@ -85,6 +86,7 @@ function render(){
  $('gearlabel').textContent=(state.active==='Firearm'&&state.ammo===0?'Melee':state.active)+' / '+state.armor;
  $('supplies').textContent=state.ammo+' / '+state.bandages;
  $('rounds').textContent=state.rounds;
+ $('multiplierLabel').textContent=Math.round(state.damageScale*100)+'% enemy retaliation';
  $('enemies').replaceChildren();$('target').replaceChildren();
  state.enemies.forEach((e,i)=>{let row=document.createElement('div');row.className='enemy'+(e.hp<=0?' dead':'');let name=document.createElement('span');name.textContent=e.name+' '+(i+1);let stats=document.createElement('span');stats.textContent=e.hp+' / '+e.max+' HP';let bar=document.createElement('div');bar.className='hp';bar.style.width='100px';let fill=document.createElement('span');fill.style.width=(100*e.hp/e.max)+'%';bar.append(fill);row.append(name,stats,bar);$('enemies').append(row);if(e.hp>0){let opt=document.createElement('option');opt.value=i;opt.textContent=e.name+' '+(i+1);$('target').append(opt);}});
  $('attack').disabled=done();$('heal').disabled=done()||!state.bandages||state.hp===state.max;$('switch').disabled=done()||state.weapon==='Unarmed';
@@ -94,14 +96,14 @@ function make(){
  let level=+$('level').value,mon=$('enemy').value,num=+$('count').value,meta=monsters[mon];
  let tier=mon==='Salvage King'?1.6:mon==='Foreman'?1.9:1;
  let hp=Math.max(1,Math.round(power(level)*meta[0]*tier));
- state={level,max:baseHP(level),hp:baseHP(level),rarity:$('rarity').value,weapon:$('weapon').value,active:$('weapon').value==='Firearm'?'Firearm':$('weapon').value,armor:$('armor').value,quality:$('quality').value,ammo:clamp(+$('ammo').value||0,0,999),bandages:4,rounds:0,enemies:Array.from({length:num},()=>({name:mon,hp,max:hp,meta,tier}))};
- $('log').textContent='';log('NEW FIGHT — Level '+level+' / '+num+' × '+mon+'.');render();
+ state={level,max:baseHP(level),hp:baseHP(level),rarity:$('rarity').value,weapon:$('weapon').value,active:$('weapon').value==='Firearm'?'Firearm':$('weapon').value,armor:$('armor').value,quality:$('quality').value,ammo:clamp(+$('ammo').value||0,0,999),bandages:4,rounds:0,damageScale:clamp(Number($('damageScale').value)||1,1,2),enemies:Array.from({length:num},()=>({name:mon,hp,max:hp,meta,tier}))};
+ $('log').textContent='';log('NEW FIGHT — Level '+level+' / '+num+' × '+mon+' / enemy damage '+Math.round(state.damageScale*100)+'%.');render();
 }
 function retaliate(){
  const grade=armor[state.armor],maturity=clamp((state.level-1)/7,0,1);
  for(const e of alive()){if(state.hp<=0)break;
  let pack=state.enemies.length>1,role=e.tier>1?1:pack?.52+.18*maturity:.72+.28*maturity;
- let raw=baseHP(state.level)*e.meta[1]*role*rand(.78,1.22);
+ let raw=baseHP(state.level)*e.meta[1]*role*rand(.78,1.22)*state.damageScale;
  let enemyHit=chance(e.meta[2],grade[2],0);
  if(Math.random()>enemyHit){log(e.name+' misses.');continue;}
  if(Math.random()<.025)raw*=1.4;

@@ -749,7 +749,10 @@ function useItem(name){
 }
 function showCombatItems(){
   const usable=player.pack.filter(i=>i.name==="Bandage"||i.name==="Energy Bars"||i.name==="Reinforced Bandage"||i.name==="Wild Honey");
-  inventoryMode={combat:true,items:usable.map(r18ItemLabel)};returnStage="combat";stage="combatItems";refreshInterfaceShortcutLabels();
+  inventoryMode={combat:true,items:usable.map(r18ItemLabel)};returnStage="combat";stage="combatItems";
+  // A combat-items overlay owns its own keys; never retain stale attack/target numbers.
+  numberedChoices={};currentHotkeys={b:"back"};
+  refreshInterfaceShortcutLabels();
   add("──────────── COMBAT ITEMS ────────────","system"); if(!usable.length){add("NO USABLE COMBAT ITEMS","system");add("(B) BACK","system");currentHotkeys.b="back";return;}
   usable.forEach((i,n)=>add(`[${n+1}] ${r18ItemLabel(i)}${i.qty>1?` ×${i.qty}`:""} — ${i.name==="Reinforced Bandage"?"50% MAX HP":i.name==="Bandage"?"25% MAX HP":i.name==="Wild Honey"?"15% MAX HP":"10% MAX HP"}`)); add("Choose a NUMBER to use it. (B) BACK","system");
   inventoryMode={combat:true,items:usable.map(i=>i.name)}; returnStage="combat"; stage="combatItems";

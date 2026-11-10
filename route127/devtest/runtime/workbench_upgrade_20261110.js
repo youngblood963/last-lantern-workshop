@@ -175,6 +175,14 @@ GraphicalUI.choices=function(...args){
 const oldDispatch=GraphicalUI.dispatch;
 GraphicalUI.dispatch=async function(choice){
  if(stage==='r11Craft'&&/^r127 bench /.test(choice?.command||'')){open(choice.command.slice(11).replace(/^./,x=>x.toUpperCase()));return true}
+ // The graphical Back is a synthetic fifth choice. Its key 5 may still
+ // correspond to a learned recipe in numberedChoices; route the command
+ // itself instead of resolving that stale numeric slot.
+ if(stage==='r11Craft'&&choice?.command==='back'){
+  await handleCommand('back');
+  this.sync();
+  return true;
+ }
  return oldDispatch.apply(this,arguments);
 };
 const oldCore=handleCommandCore;

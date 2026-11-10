@@ -323,6 +323,12 @@
     const combat=this.button('Combat Visual Testing',showCombatPreview);
     combat.dataset.devtestCombatPreview='true';
     panel.insertBefore(combat,close||null);
+    const formula=this.button('WO41 Combat Simulator',()=>{
+      const url=new URL('../devtest/combat_simulator_wo41.html',document.baseURI).href;
+      window.open(url,'_blank','noopener');
+    });
+    formula.dataset.devtestCombatSimulator='true';
+    panel.insertBefore(formula,close||null);
     return result;
   };
 })();

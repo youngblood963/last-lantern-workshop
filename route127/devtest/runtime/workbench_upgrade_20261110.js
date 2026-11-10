@@ -52,7 +52,7 @@ function ready(r){
 }
 const css=document.createElement('style');css.textContent=`
 .r127-bench-shade{position:fixed;inset:0;z-index:9999;background:#050403bb;display:flex;align-items:center;justify-content:center;padding:12px}
-.r127-bench-panel{box-sizing:border-box;width:min(760px,96vw);max-height:90dvh;overflow:auto;color:#f1ddbd;background:linear-gradient(130deg,#251b15ec,#0b0c0cef),url('../devtest/assets/locations/crafting_workbench.png') center/cover;border:3px ridge #a26a38;box-shadow:0 15px 65px #000, inset 0 0 50px #000;border-radius:9px;padding:18px;font-family:Georgia,serif}
+.r127-bench-panel{box-sizing:border-box;width:min(760px,96vw);max-height:90dvh;overflow:auto;color:#f1ddbd;background:linear-gradient(130deg,#251b15ec,#0b0c0cef),url('../devtest/assets/locations/crafting_workbench.png') center/cover;border:16px solid transparent;border-image:url('assets/ui/rust-frame.svg') 24 stretch;box-shadow:0 15px 65px #000, inset 0 0 50px #000;border-radius:8px;padding:18px;font-family:Georgia,serif}
 .r127-bench-panel h2{margin:0 0 12px;color:#e5a563;text-transform:uppercase;letter-spacing:2px}
 .r127-bench-panel h3{color:#ffcb88}
 .r127-bench-tabs,.r127-bench-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
@@ -64,6 +64,12 @@ const css=document.createElement('style');css.textContent=`
 .r127-bench-panel .r127-bench-list button{text-align:left}
 .r127-bench-panel .r127-bench-detail{padding:12px;background:#090807c9;border:1px solid #72512f;min-height:90px}
 .r127-bench-panel .r127-bench-row{padding:4px 0}
+.r127-bench-panel,.r127-bench-panel *{scrollbar-width:thin;scrollbar-color:#79553b #15100c}
+.r127-bench-panel ::-webkit-scrollbar{width:10px;height:10px}
+.r127-bench-panel ::-webkit-scrollbar-track{background:#15100c;border:1px solid #4b3425}
+.r127-bench-panel ::-webkit-scrollbar-thumb{background:linear-gradient(90deg,#593a27,#9c6335,#593a27);border:1px solid #b17945;border-radius:3px}
+.r127-bench-panel ::-webkit-scrollbar-thumb:hover{background:#b4743c}
+
 `;document.head.append(css);
 let shade=null;
 function button(parent,label,fn,disabled=false,klass=''){const b=document.createElement('button');b.type='button';b.textContent=label;b.disabled=disabled;b.className=klass;b.addEventListener('click',fn);parent.append(b);return b}

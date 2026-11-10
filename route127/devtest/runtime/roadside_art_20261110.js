@@ -50,7 +50,8 @@ document.head.append(css);
 const alphaRepairNames=new Set([
  'Painted Arrows - Knife Scavenger.png',
  'Lone Scavenger - Suspicious Scavenger.png',
- 'The Bone Collector.png'
+ 'The Bone Collector.png',
+ 'The Curator.png'
 ]);
 const alphaRepairCache=new Map();
 function repairFlattenedBackground(img,name){

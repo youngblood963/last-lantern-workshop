@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Route 127 — WO41 Combat Sandbox (DEVTEST)</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}
+body{margin:0;background:#100f0e;color:#e9dbc4;font:15px/1.5 system-ui,sans-serif}
+main{max-width:1000px;margin:auto;padding:22px}
+h1,h2{font-family:Georgia,serif;color:#f0b576}h1{margin:0;font-size:1.65rem}
+.note{color:#c2b49e}.banner{border-left:4px solid #d38a45;background:#2a1b13;padding:12px;margin:16px 0}
+.panel{background:#201c19;border:1px solid #655039;border-radius:9px;padding:17px;margin-top:16px}
+.controls{display:flex;gap:12px;flex-wrap:wrap;align-items:end}.controls label{display:grid;gap:5px;min-width:135px}
+select,input,button{background:#342b25;color:#fff0d6;border:1px solid #a67d4e;border-radius:5px;padding:9px;font:inherit}
+button{cursor:pointer}button:hover{background:#59402d}button:disabled{opacity:.4;cursor:default}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.stat{background:#2b251e;padding:11px;border-radius:6px}.stat strong{display:block;font-size:1.25rem;color:#f4c48a}
+.enemy{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #554532;padding:9px 0}.enemy.dead{opacity:.42}
+.hp{height:9px;background:#4b2828;border-radius:10px;overflow:hidden;min-width:95px}.hp>span{display:block;height:100%;background:#dc4545}
+#log{max-height:260px;overflow:auto;background:#12100f;border:1px solid #4d4035;padding:12px;white-space:pre-wrap;font:13px/1.6 ui-monospace,monospace}
+#status{font-weight:bold;color:#f0b576}a{color:#f0bd80}
+@media(max-width:550px){main{padding:12px}.controls label{min-width:calc(50% - 10px)}}
+</style>
+</head>
+<body><main>
+<h1>⚔ Route 127 · WO41 Combat Sandbox</h1>
+<p class="note">DEVTEST developer tool · Standalone, experimental formula preview</p>
+<div class="banner"><b>Safe simulation, not live combat.</b> This browser sandbox implements the key WO41 proposed formulas for hands-on testing. It is <b>not</b> the exact Node.js <code>simulate.cjs</code> harness or a deployment of the new combat engine. No game state, turns, inventory, or saves are read or modified.</div>
+<section class="panel">
+<h2>Set up a fight</h2>
+<div class="controls">
+<label>Player level<select id="level"></select></label>
+<label>Weapon rarity<select id="rarity"><option>Common</option><option>Uncommon</option><option selected>Rare</option><option>Epic</option><option>Legendary</option></select></label>
+<label>Weapon class<select id="weapon"><option selected>Melee</option><option>Firearm</option><option>Unarmed</option></select></label>
+<label>Armor<select id="armor"><option>Common</option><option selected>Uncommon</option><option>Rare</option><option>Epic</option><option>Legendary</option><option>Light</option><option>Heavy</option></select></label>
+<label>Enemy type<select id="enemy"><option>Raccoon</option><option>Bat</option><option>Looter</option><option>Mountain Lion</option><option>Raider</option><option>Salvage King</option><option>Foreman</option></select></label>
+<label>Enemy count<select id="count"><option>1</option><option>2</option><option selected>3</option><option>4</option></select></label>
+<label>Gear quality<select id="quality"><option>Standard</option><option>Crafted (+9%)</option><option>Upgraded (+6)</option></select></label>
+<label>Starting ammo<input id="ammo" type="number" min="0" max="999" value="4" style="width:100%"></label>
+<button id="start">Start new fight</button>
+</div>
+<p class="note">Matched-level enemies; no regional level rolls. Firearms use four-round default ammunition; automatic melee fallback when empty. Enemy count and gear can be changed before starting. This tests combat feel, not the full WO41 Monte Carlo measurements.</p>
+</section>
+<section class="panel">
+<h2>Fight <span id="status">Not started</span></h2>
+<div class="stats">
+<div class="stat">Player HP<strong id="playerhp">—</strong><div class="hp"><span id="hpfill" style="width:100%"></span></div></div>
+<div class="stat">Weapon / armor<strong id="gearlabel">—</strong></div>
+<div class="stat">Ammo / bandages<strong id="supplies">—</strong></div>
+<div class="stat">Rounds<strong id="rounds">0</strong></div>
+</div>
+<h3>Opponents</h3><div id="enemies"></div>
+<div class="controls" style="margin:14px 0">
+<label>Target<select id="target"></select></label>
+<button id="attack" disabled>Attack</button>
+<button id="heal" disabled>Use bandage (25%)</button>
+<button id="switch" disabled>Switch melee / firearm</button>
+</div>
+<div id="log" aria-live="polite">Start a fight to see how the proposed combat model feels.</div>
+</section>
+<p class="note">WO41 proposed milestones: 100 HP at level 1, 350 at level 10 and exactly 4,000 HP at level 50. Enemy HP is independent of equipped gear. Bosses and special named effects are simplified here; the Node.js harness remains authoritative for its reported aggregates.</p>
+</main>
+<script>
+(()=>{'use strict';
+if(!location.pathname.endsWith('/route127/devtest/combat_simulator_wo41.html'))return;
+const $=id=>document.getElementById(id);
+for(let i=1;i<=50;i++){let o=document.createElement('option');o.value=i;o.textContent=i;if(i===9)o.selected=true;$('level').append(o);}
+const milestones=[[1,100],[5,180],[10,350],[20,900],[30,1700],[40,2750],[50,4000]];
+const baseHP=l=>{let i=1;while(i<milestones.length&&l>milestones[i][0])i++;const a=milestones[i-1],b=milestones[Math.min(i,milestones.length-1)];return Math.round(a[1]+(b[1]-a[1])*(l-a[0])/(b[0]-a[0]||1));};
+const power=l=>{let d=baseHP(l)-100;return 7.5+.072*d+.000021*d*d;};
+const rars={Common:1,Uncommon:1.13,Rare:1.30,Epic:1.46,Legendary:1.60};
+const armor={Common:[.11,.07,.025],Uncommon:[.15,.09,.028],Rare:[.19,.11,.026],Epic:[.22,.12,.022],Legendary:[.25,.13,.018],Light:[.04,.025,.12],Heavy:[.31,.17,-.025]};
+const monsters={Raccoon:[1.35,.048,.90,.03,.015,0],Bat:[1.13,.035,.88,.065,0,0],Looter:[1.62,.052,.91,.025,.055,.08], 'Mountain Lion':[3,.096,.91,.04,.025,0],Raider:[1.72,.059,.92,.025,.065,.10],'Salvage King':[3,.109,.92,.018,.07,.14],Foreman:[3,.120,.94,.020,.09,.19]};
+let state=null;
+const rand=(a,b)=>a+(b-a)*Math.random(),clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
+const chance=(acc,ev,delta)=>clamp(acc-ev+clamp(delta*.009,-.10,.10),.52,.98);
+const damage=(raw,flat,mit)=>Math.max(1,Math.round(Math.max(.22*raw,raw-flat)*(1-clamp(mit,0,.55))));
+function log(message){const d=$('log');d.textContent+=message+'\n';d.scrollTop=d.scrollHeight;}
+function alive(){return state.enemies.filter(e=>e.hp>0);}
+function done(){return state.hp<=0||alive().length===0;}
+function render(){
+ if(!state)return;
+ $('playerhp').textContent=state.hp+' / '+state.max;
+ $('hpfill').style.width=clamp(state.hp/state.max*100,0,100)+'%';
+ $('gearlabel').textContent=(state.active==='Firearm'&&state.ammo===0?'Melee':state.active)+' / '+state.armor;
+ $('supplies').textContent=state.ammo+' / '+state.bandages;
+ $('rounds').textContent=state.rounds;
+ $('enemies').replaceChildren();$('target').replaceChildren();
+ state.enemies.forEach((e,i)=>{let row=document.createElement('div');row.className='enemy'+(e.hp<=0?' dead':'');let name=document.createElement('span');name.textContent=e.name+' '+(i+1);let stats=document.createElement('span');stats.textContent=e.hp+' / '+e.max+' HP';let bar=document.createElement('div');bar.className='hp';bar.style.width='100px';let fill=document.createElement('span');fill.style.width=(100*e.hp/e.max)+'%';bar.append(fill);row.append(name,stats,bar);$('enemies').append(row);if(e.hp>0){let opt=document.createElement('option');opt.value=i;opt.textContent=e.name+' '+(i+1);$('target').append(opt);}});
+ $('attack').disabled=done();$('heal').disabled=done()||!state.bandages||state.hp===state.max;$('switch').disabled=done()||state.weapon==='Unarmed';
+ $('status').textContent=state.hp<=0?'— DEFEAT':alive().length===0?'— VICTORY':'— ACTIVE';
+}
+function make(){
+ let level=+$('level').value,mon=$('enemy').value,num=+$('count').value,meta=monsters[mon];
+ let tier=mon==='Salvage King'?1.6:mon==='Foreman'?1.9:1;
+ let hp=Math.max(1,Math.round(power(level)*meta[0]*tier));
+ state={level,max:baseHP(level),hp:baseHP(level),rarity:$('rarity').value,weapon:$('weapon').value,active:$('weapon').value==='Firearm'?'Firearm':$('weapon').value,armor:$('armor').value,quality:$('quality').value,ammo:clamp(+$('ammo').value||0,0,999),bandages:4,rounds:0,enemies:Array.from({length:num},()=>({name:mon,hp,max:hp,meta,tier}))};
+ $('log').textContent='';log('NEW FIGHT — Level '+level+' / '+num+' × '+mon+'.');render();
+}
+function retaliate(){
+ const grade=armor[state.armor],maturity=clamp((state.level-1)/7,0,1);
+ for(const e of alive()){if(state.hp<=0)break;
+ let pack=state.enemies.length>1,role=e.tier>1?1:pack?.52+.18*maturity:.72+.28*maturity;
+ let raw=baseHP(state.level)*e.meta[1]*role*rand(.78,1.22);
+ let enemyHit=chance(e.meta[2],grade[2],0);
+ if(Math.random()>enemyHit){log(e.name+' misses.');continue;}
+ if(Math.random()<.025)raw*=1.4;
+ let dealt=damage(raw,grade[1]*power(state.level),grade[0]);
+ state.hp=Math.max(0,state.hp-dealt);log(e.name+' hits you for '+dealt+'.');
+ }
+}
+function attack(){
+ if(done())return;
+ let target=state.enemies[+$('target').value];if(!target||target.hp<=0)return;
+ state.rounds++;
+ let active=state.active;
+ if(active==='Firearm'&&state.ammo<=0){active='Melee';state.active='Melee';log('Out of ammo — automatically switching to melee.');}
+ if(active==='Firearm'){state.ammo--;if(state.ammo===0)log('Last round fired — melee will be next.');}
+ let raw=power(state.level)*(active==='Firearm'?1.13:active==='Unarmed'?.56:1)*(active==='Unarmed'?1:rars[state.rarity])*(state.quality==='Crafted (+9%)'?1.09:1)*rand(.82,1.18)+(state.quality==='Upgraded (+6)'?6:0);
+ const acc=active==='Firearm'?.92:active==='Unarmed'?.96:.95,critChance=active==='Firearm'?.08:active==='Unarmed'?.04:.06;
+ if(Math.random()>chance(acc,target.meta[3],0)){log('Round '+state.rounds+': Your '+active.toLowerCase()+' attack MISSES.');}
+ else {let critical=Math.random()<critChance;if(critical)raw*=1.68;let dealt=damage(raw,target.meta[5]*power(state.level),target.meta[4]);
+ target.hp=Math.max(0,target.hp-dealt);log('Round '+state.rounds+': '+(critical?'CRIT! ':'')+'You hit '+target.name+' for '+dealt+'.'+(target.hp<=0?' Defeated!':''));}
+ if(alive().length)retaliate();if(state.hp===0)log('You were defeated.');else if(!alive().length)log('Victory!');render();
+}
+function heal(){
+ if(done()||!state.bandages||state.hp===state.max)return;
+ state.rounds++;state.bandages--;let gain=Math.min(state.max-state.hp,Math.ceil(state.max*.25));state.hp+=gain;log('Round '+state.rounds+': Bandage heals '+gain+'. No enemy retaliation on item use.');render();
+}
+$('start').addEventListener('click',make);$('attack').addEventListener('click',attack);$('heal').addEventListener('click',heal);
+$('switch').addEventListener('click',()=>{if(!state||done())return;state.active=state.active==='Firearm'?'Melee':'Firearm';log('Free switch to '+state.active+'.');render();});
+make();
+})();
+</script></body></html>

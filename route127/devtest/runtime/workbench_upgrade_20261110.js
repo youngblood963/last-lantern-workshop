@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||!location.pathname.includes('/route127/devtest/'))return;
-const tiers=[1,.8,.6,.4,.2],costs=[2,4,6,8,10],minutes=[1,5,10,20,40];
+const tiers=[1,.75,.5,.25,.1],costs=[2,4,6,8,10],minutes=[1,5,10,20,40];
 const mats=r=>({Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0,'Tempered Steel':r.tempered||0,'Small Animal Bones':r.smallBones||0,'Animal Bones':r.bones||0,'Explosive Components':r.explosives||0,'Animal Hide':r.hide||0,...(r.materials||{})});
 const state={tab:'Items',selected:null,upgrade:null,open:false};
 const baseName=name=>String(name||'').replace(/ \+[1-5]$/,'');

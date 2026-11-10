@@ -15,20 +15,11 @@ function ensureSteveAnnouncements(){
  for(const row of STEVE_NEWS)if(player.level>=row.level&&!news.seen[row.id]&&!news.queue.includes(row.id))news.queue.push(row.id);
  return news;
 }
-function showSteveAnnouncement(){
- const news=ensureSteveAnnouncements();
- if(!['between','roadReady','turnComplete','questRoadComplete','fork'].includes(stage)||!news.queue.length)return false;
- const id=news.queue.shift(),row=STEVE_NEWS.find(n=>n.id===id);if(!row||news.seen[id])return false;news.seen[id]=true;
- add('CRAZY STEVE — NEWS ON THE ROAD','place');
- add('An elderly, wild-eyed wanderer bounds into view: wild gray hair, tangled beard, mismatched boots and a filthy sandwich board. The smell arrives a moment before his excessive enthusiasm.');
- add("CRAZY STEVE'S GOT NEWS YOU CAN USE!",'bright');
- add(row.title,'system');add(row.message);
- if(player.level>=5)casinoArt(row.board.join('\n'));
- add('Steve shuffles aside, recommending Cheeseburger to a passing crow. Your road journey continues. No additional turn spent.');
- // Enqueue the checkpoint; the caller has established its normal encounter stage by then.
- outputQueue=outputQueue.then(()=>{if(activeSaveSlot)saveGame(activeSaveSlot)});
- return true;
-}
+// Crazy Steve was retired from roadside encounters. The separate level-up
+// announcement system must not resurrect him on later road turns.
+// Preserve prior saved announcements and casino features without displaying him.
+function showSteveAnnouncement(){return false;}
+
 function casinoArt(text){if(player.level<5)return;outputQueue=outputQueue.then(()=>{addImmediate(text,'casino-art system');followOutput()});}
 function cancelCasinoAnimation(){if(casinoAnimation)casinoAnimation.skip=true;}
 async function casinoDelay(ms,token,epoch){for(let left=ms;left>0;left-=50){if(token.skip||token.cancelled||epoch!==casinoAnimationEpoch)return;await sleep(Math.min(left,50));}}

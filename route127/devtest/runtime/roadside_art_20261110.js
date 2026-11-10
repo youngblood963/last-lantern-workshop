@@ -29,13 +29,21 @@ function current(){
  if(typeof stage==='undefined')return null;
  const combat=typeof combatState!=='undefined'?combatState:null;
  const encounter=stage==='encounter'&&typeof currentEncounter==='function'?currentEncounter():null;
- const title=normalize(combat?.name||encounter?.title);
+ const origin=typeof currentEncounter==='function'&&['encounter','combat','combatItems'].includes(stage)?currentEncounter():null;
+ const aliases={'SCAVENGER':'LONE SCAVENGER','WRECKERS':'THE WRECKERS','DRAIN CREATURE':'SOMETHING IN THE DRAIN',
+ 'FERAL BOAR':'TUNNEL RATS','PANTRY RAT PACK':'RATS IN THE PANTRY','LARGE CONTAMINATED ROACHES':'ROACH NEST','AGGRESSIVE ROACH SWARM':'ROACH NEST'};
+ const raw=normalize(combat?.name||encounter?.title);
+ const title=aliases[raw]||raw;
  if(!title)return null;
- let spec=scenes[title]||scenes[normalize(encounter?.title)];
+ if(['HIGHWAY ROBBERS','LOOTERS','PARKING LOT RAIDERS','GANG LOOKOUT','THE HOLLOWED',
+ 'THE SQUATTERS','GUNSHOP OWNER','RABID RACCOONS','BAT COLONY',
+ 'SILAS CROWE','RIVET AND CREW'].includes(title))return null;
+ let spec=raw==='FERAL BOAR'?()=>file('Tunnel Rats - Wild Boar.png'):scenes[title]||scenes[normalize(origin?.title)];
+ if(!combat&&normalize(origin?.title)==='THE PAINTED ARROWS')return null;
  if(!spec&&/CHEMICAL BURNER/.test(title))spec=()=>[file('Chemical Burner 1.png'),file('Chemical Burner 2.png')];
  if(!spec&&/SENTRY/.test(title))spec=()=>file('Sentry.png');
  if(!spec&&/PIPE ROBBER/.test(title))spec=()=>file('Pipe Robber.png');
- return spec?{title,items:[].concat(spec()).filter(Boolean)}:null;
+ return spec?{title,items:[].concat(spec()).filter(Boolean),combat}:null;
 }
 const css=document.createElement('style');
 css.textContent=`
@@ -44,76 +52,114 @@ css.textContent=`
 .gfx-art .r127-road-art.single img{width:94%;height:98%}
 `;
 document.head.append(css);
-// DEVTEST visual-only repair for accidentally flattened white/checkerboard PNG backgrounds.
-// Keep GitHub originals untouched. Only named problem assets are processed;
-// transparently encoded source PNGs are left unchanged.
-const alphaRepairNames=new Set([
- 'Painted Arrows - Knife Scavenger.png',
- 'Lone Scavenger - Suspicious Scavenger.png',
- 'The Bone Collector.png',
- 'The Curator.png'
-]);
-const alphaRepairCache=new Map();
-function repairFlattenedBackground(img,name){
- if(!alphaRepairNames.has(name)||!img?.naturalWidth||!img?.naturalHeight)return;
- const key=img.currentSrc||img.src;
- if(alphaRepairCache.has(key)){const repaired=alphaRepairCache.get(key);if(repaired)img.src=repaired;return;}
- try{
-  const w=img.naturalWidth,h=img.naturalHeight,canvas=document.createElement('canvas');
-  canvas.width=w;canvas.height=h;
-  const ctx=canvas.getContext('2d',{willReadFrequently:true});
-  ctx.drawImage(img,0,0);
-  const pixels=ctx.getImageData(0,0,w,h),p=pixels.data,n=w*h;
-  // A genuinely transparent asset never needs white-background removal.
-  let hasAlpha=false;
-  for(let k=3;k<p.length;k+=4){if(p[k]<248){hasAlpha=true;break;}}
-  if(hasAlpha){alphaRepairCache.set(key,null);return;}
-  const white=(pos)=>{const i=pos*4,r=p[i],g=p[i+1],b=p[i+2];return r>=215&&g>=215&&b>=215&&Math.max(r,g,b)-Math.min(r,g,b)<=23;};
-  const corners=[0,w-1,(h-1)*w,n-1].filter(white).length;
-  if(corners<2){alphaRepairCache.set(key,null);return;}
-  let edgeHits=0,edgeTotal=0;
-  for(let x=0;x<w;x+=Math.max(1,Math.floor(w/64))){edgeTotal+=2;edgeHits+=Number(white(x))+Number(white((h-1)*w+x));}
-  for(let y=0;y<h;y+=Math.max(1,Math.floor(h/64))){edgeTotal+=2;edgeHits+=Number(white(y*w))+Number(white(y*w+w-1));}
-  if(edgeHits/edgeTotal<.45){alphaRepairCache.set(key,null);return;}
-  // Remove only near-white regions connected to the actual image perimeter.
-  // This retains enclosed whites on clothing, eyes and equipment.
-  const seen=new Uint8Array(n),stack=[];
-  const push=i=>{if(i<0||i>=n||seen[i]||!white(i))return;seen[i]=1;stack.push(i);};
-  for(let x=0;x<w;x++){push(x);push((h-1)*w+x);}
-  for(let y=0;y<h;y++){push(y*w);push(y*w+w-1);}
-  let removed=0;
-  while(stack.length){
-   const i=stack.pop(),x=i%w,y=(i/w)|0;
-   p[i*4+3]=0;removed++;
-   if(x>0)push(i-1);if(x<w-1)push(i+1);
-   if(y>0)push(i-w);if(y<h-1)push(i+w);
-  }
-  if(removed<n*.12){alphaRepairCache.set(key,null);return;}
-  ctx.putImageData(pixels,0,0);
-  canvas.toBlob(blob=>{
-   if(!blob)return;
-   const url=URL.createObjectURL(blob);alphaRepairCache.set(key,url);
-   if(img.isConnected)img.src=url;
-   console.info('DEVTEST PNG alpha repair',name,{removed,percent:Math.round(100*removed/n)});
-  },'image/png');
- }catch(error){console.warn('DEVTEST PNG alpha repair skipped:',name,error);alphaRepairCache.set(key,null);}
+
+const scopeRegions=new Set(['CENTRAL','INDUSTRIAL','SEAPORT']);
+function inScope(){
+ if(typeof combatState!=='undefined'&&combatState&&combatState.source!=='encounter')return false;
+ return typeof route127CurrentRegion==='function'&&scopeRegions.has(route127CurrentRegion(lanternState()));
 }
+function scenarioChoices(){
+ if(stage!=='encounter'||!inScope()||player.flags?.r18HoundNaming)return null;
+ const encounter=currentEncounter();if(!encounter)return null;
+ const labels=encounterChoices(encounter).split(/\s{2,}/).filter(Boolean);
+ if(typeof questRoadMarkers==='function')labels.push(...questRoadMarkers().map(row=>row[1]));
+ const exits=/^(BACK AWAY|MOVE ON|KEEP MOVING|WALK AWAY|LEAVE|WITHDRAW|RETREAT|BACK DOWN)$/i;
+ const exit=labels.find(label=>/^(BACK AWAY|MOVE ON|WALK AWAY|LEAVE|KEEP MOVING)$/i.test(label))||labels.find(label=>exits.test(label))||'LEAVE';
+ const actions=labels.filter(label=>label!==exit);
+ // Generic LEAVE is already supported by resolveEncounter.
+ actions.push(exit);
+ return actions.map((label,i)=>({key:String(i+1),command:choiceCommand(label),label}));
+}
+globalThis.Route127RoadsidePresentation=Object.freeze({choices:scenarioChoices,current,inScope});
+Route127MenuAuthority.register('roadside-scenarios',{
+ supports:()=>stage==='encounter'&&inScope()&&!player.flags?.r18HoundNaming,
+ choices:context=>context.base
+});
+const presentation=document.createElement('style');
+presentation.textContent=`
+.gfx-frame.r127-route-scene .r127-road-art{padding:0 0 5%;box-sizing:border-box;align-items:flex-end}
+.gfx-frame.r127-route-scene .r127-road-unit{height:82%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0!important;margin:0;border:0!important;border-image:none!important;background:transparent!important;box-shadow:none!important;min-height:0!important;pointer-events:auto;cursor:pointer}
+.gfx-frame.r127-route-scene .r127-road-art img,.gfx-frame.r127-route-scene .r127-road-art.single img{width:100%;height:calc(100% - 31px);object-fit:contain;object-position:center bottom}
+.gfx-frame.r127-route-scene .r127-road-unit[hidden]{display:none}
+.gfx-frame.r127-route-scene :is(.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-combat){display:flex;flex-direction:column;align-items:center;gap:3px}
+.gfx-frame.r127-route-scene :is(.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-combat)>img{height:calc(100% - 31px)!important;flex:1;min-height:0;object-position:center bottom}
+.gfx-frame.r127-route-scene :is(.r127-bat-hp,.r127-raccoon-label,.r127-human-hp,.r127-npc-label,.r127-road-hp){position:static!important;transform:none!important;left:auto;bottom:auto;display:block;flex:none;z-index:2;white-space:nowrap;color:#ffaaa4;background:#32100e;border:1px solid #aa413b;border-radius:4px;padding:3px 6px;font:700 clamp(13.5px,1.5vw,18px)/1.15 sans-serif}
+.gfx-frame.r127-route-scene button.r127-raccoon-unit{width:24%;height:42%}
+.gfx-frame.r127-route-scene .r127-raccoon-unit img{object-position:center bottom}
+.gfx-frame.r127-route-scene :is(.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit)[aria-hidden="true"]::after,
+.gfx-frame.r127-route-scene div.r127-road-unit::after,.gfx-frame.r127-route-scene .r127-road-unit[data-no-hp='true']::after{content:'';height:31px;flex:none}
+.gfx-frame.r127-route-scene .r127-npc-figure:not(.cage){height:calc(94% - 31px);top:calc(52% - 15.5px)}
+
+.gfx-frame.r127-road-combat-active .gfx-combat{display:none!important}
+.gfx-frame.r127-route-scene .gfx-combat{border:0!important;border-image:none!important;box-shadow:none!important;background:transparent!important;padding:4px 0;display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.gfx-frame.r127-route-scene .gfx-combat[hidden]{display:none!important}
+.gfx-frame.r127-route-scene .gfx-enemy{border:1px solid #aa413b;border-radius:4px;background:#32100e;color:#ffaaa4;padding:3px 6px;gap:5px;flex-wrap:nowrap}
+.gfx-frame.r127-route-scene .gfx-enemy .gfx-stat{max-width:110px}
+.gfx-frame.r127-route-scene.r127-npc-partial .gfx-enemy:first-child{display:none}
+.gfx-frame.r127-route-scene .gfx-enemy strong,.gfx-frame.r127-route-scene .gfx-enemy .gfx-stat{font:700 clamp(13.5px,1.5vw,18px)/1.15 sans-serif}
+
+.gfx-frame.r127-route-scene:is(.r127-human-combat-active,.r127-bat-combat-active,.r127-raccoon-combat-active,.r127-npc-combat-active,.r127-road-combat-active) .gfx-combat{display:none!important}
+.gfx-frame.r127-route-scene.r127-sprite-failed .gfx-combat{display:flex!important}
+.gfx-frame.r127-route-scene .gfx-art-caption{top:8px;bottom:auto;font-size:16px}
+
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"] .r127-road-unit{width:46%!important;height:49%}
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="SOMETHING IN THE DRAIN"] .r127-road-unit{width:48%!important;height:30%}
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="FERAL DOG"] .r127-road-unit{width:52%!important;height:60%}
+
+.gfx-frame.r127-route-scene :is(.r127-bat-layer,.r127-raccoon-layer,.r127-human-layer,.r127-npc-scene){bottom:6%}
+.gfx-frame.r127-route-scene .r127-road-art{top:0;bottom:0}
+`;
+document.head.append(presentation);
 const old=GraphicalUI.sync;
 GraphicalUI.sync=function(...args){
  const result=old.apply(this,args);
  try{
   const e=this.element;if(!e?.figure)return result;
+  e.frame.classList.toggle('r127-route-scene',inScope()&&['encounter','combat','combatItems'].includes(stage));
+  e.frame.classList.toggle('r127-sprite-failed',!!e.figure.querySelector('img[data-failed="true"]'));
+  if(inScope()&&stage==='encounter')e.caption.textContent=currentEncounter()?.displayName||currentEncounter()?.title||e.caption.textContent;
   let layer=e.figure.querySelector('.r127-road-art');
-  const scene=!e.frame.hidden&&this.preference()==='graphics'?current():null;
+  const scene=inScope()&&!e.frame.hidden&&this.preference()==='graphics'?current():null;
   // Dedicated HP-linked sprite layers already own these combat visuals.
   const combat=typeof combatState!=='undefined'?combatState:null;
   if(scene&&combat&&['HIGHWAY ROBBERS'].includes(scene.title))scene.items=[];
+  const completeUnits=!scene?.combat?.enemies?.length||scene.combat.enemies.length===scene.items.length;
+  e.frame.classList.toggle('r127-road-combat-active',!!scene?.combat&&completeUnits);
   if(!scene||!scene.items.length){layer?.remove();return result}
-  const key=scene.title+':'+scene.items.map(x=>x.name).join('|');
+  const key=scene.title+':'+scene.items.map(x=>x.name).join('|')+':'+!!scene.combat;
   if(layer?.dataset.key!==key){
    layer?.remove();layer=document.createElement('div');layer.className='r127-road-art'+(scene.items.length===1?' single':'');layer.dataset.key=key;
-   for(const f of scene.items){const img=document.createElement('img');img.src=asset(f.name,f.root);img.alt='';img.onerror=()=>{img.hidden=true;console.warn('Missing DEVTEST encounter art',f.name)};img.addEventListener('load',()=>{if(img.src.startsWith('blob:'))return;repairFlattenedBackground(img,f.name)},{once:true});layer.append(img)}
+   scene.items.forEach((f,i)=>{
+    const unit=document.createElement(scene.combat?'button':'div');
+    unit.className='r127-road-unit';unit.style.width=(scene.items.length===1?'54%':'38%');
+    if(scene.combat){
+     unit.type='button';
+     unit.addEventListener('click',()=>{if(!busy)handleCommand(scene.combat.enemies?.length?'attack '+(i+1):'attack')});
+    }
+    const img=document.createElement('img');img.src=asset(f.name,f.root)+'?v=road-repair-1';img.alt='';
+    img.onerror=()=>{img.hidden=true;img.dataset.failed='true';e.frame.classList.add('r127-sprite-failed');e.frame.classList.remove('r127-road-combat-active');console.warn('Missing DEVTEST encounter art',f.name)};
+    unit.append(img);layer.append(unit);
+   });
    e.figure.append(layer);
+  }
+  if(scene.combat&&completeUnits){
+   const units=[...layer.children],fighters=scene.combat.enemies?.length?scene.combat.enemies:[scene.combat];
+   // Composite artwork retains its composition; individual fighters still have
+   // associated indicators below the picture, without inventing missing sprites.
+   units.forEach((unit,i)=>{
+    const fighter=fighters[Math.min(i,fighters.length-1)];
+    const alive=fighter?.hp>0;
+    unit.hidden=!alive;
+    if(!scene.combat.enemies?.length&&i>0){
+     unit.dataset.noHp='true';
+     unit.querySelector('.r127-road-hp')?.remove();
+     return;
+    }
+    let label=unit.querySelector('.r127-road-hp');
+    if(!label){label=document.createElement('span');label.className='r127-road-hp';unit.append(label);}
+    label.textContent=Math.max(0,fighter?.hp||0)+'/'+Math.max(1,fighter?.maxHp||fighter?.hp||1)+' HP';
+    unit.setAttribute('aria-label','Attack '+(fighter?.name||scene.combat.name));
+   });
   }
  }catch(error){console.warn('DEVTEST roadside art:',error)}
  return result;

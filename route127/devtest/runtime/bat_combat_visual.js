@@ -38,7 +38,8 @@ GraphicalUI.sync=function(...args){
     positions.forEach((pos,i)=>{
       const preview=document.createElement('button');preview.type='button';preview.tabIndex=-1;preview.setAttribute('aria-hidden','true');
       preview.className='r127-bat-unit';preview.style.left=pos[0]+'%';preview.style.top=pos[1]+'%';preview.style.pointerEvents='none';
-      const img=document.createElement('img');img.src=artwork;img.alt='';preview.append(img);layer.append(preview);
+      const img=document.createElement('img');img.src=artwork+'?v=road-repair-1';img.alt='';
+    img.onerror=()=>{img.dataset.failed='true';img.hidden=true;GraphicalUI.element?.frame.classList.add('r127-sprite-failed')};preview.append(img);layer.append(preview);
     });
    }
    return result;
@@ -55,7 +56,8 @@ GraphicalUI.sync=function(...args){
    if(!button){
     button=document.createElement('button');button.type='button';button.className='r127-bat-unit';button.dataset.batIndex=String(i);
     button.style.left=positions[i][0]+'%';button.style.top=positions[i][1]+'%';
-    const img=document.createElement('img');img.src=artwork;img.alt='';
+    const img=document.createElement('img');img.src=artwork+'?v=road-repair-1';img.alt='';
+    img.onerror=()=>{img.dataset.failed='true';img.hidden=true;GraphicalUI.element?.frame.classList.add('r127-sprite-failed')};
     const label=document.createElement('span');label.className='r127-bat-hp';
     button.append(img,label);
     button.addEventListener('click',()=>{if(typeof busy!=='undefined'&&busy)return;if(typeof handleCommand==='function')handleCommand('attack '+(i+1));});

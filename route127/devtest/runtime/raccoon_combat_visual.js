@@ -3,7 +3,7 @@
 'use strict';
 if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||!/^\/route127\/devtest\/(?:index\.html)?$/.test(location.pathname)||typeof GraphicalUI==='undefined')return;
 const art=new URL('../devtest/assets/enemies/rabid_raccoon.png',document.baseURI).href;
-const spots=[[18,57,1,false],[50,51,1.05,true],[82,57,1,false]];
+const spots=[[22,65,1,false],[50,58,1.05,true],[78,65,1,false]];
 const style=document.createElement('style');
 style.textContent=`
 .gfx-art{position:relative}
@@ -34,7 +34,8 @@ GraphicalUI.sync=function(...args){
     const preview=document.createElement('button');preview.type='button';preview.tabIndex=-1;preview.setAttribute('aria-hidden','true');
     preview.className='r127-raccoon-unit'+(pos[3]?' flipped':'');
     preview.style.left=pos[0]+'%';preview.style.top=pos[1]+'%';preview.style.scale=String(pos[2]);preview.style.pointerEvents='none';
-    const img=document.createElement('img');img.src=art;img.alt='';preview.append(img);layer.append(preview);
+    const img=document.createElement('img');img.src=art+'?v=road-repair-1';img.alt='';
+    img.onerror=()=>{img.dataset.failed='true';img.hidden=true;GraphicalUI.element?.frame.classList.add('r127-sprite-failed')};preview.append(img);layer.append(preview);
    });
   }
   return result;
@@ -48,7 +49,8 @@ GraphicalUI.sync=function(...args){
  if(!b){
  b=document.createElement('button');b.type='button';b.className='r127-raccoon-unit'+(spots[i][3]?' flipped':'');b.dataset.raccoonIndex=String(i);
  b.style.left=spots[i][0]+'%';b.style.top=spots[i][1]+'%';b.style.scale=String(spots[i][2]);
- const img=document.createElement('img');img.src=art;img.alt='';
+ const img=document.createElement('img');img.src=art+'?v=road-repair-1';img.alt='';
+    img.onerror=()=>{img.dataset.failed='true';img.hidden=true;GraphicalUI.element?.frame.classList.add('r127-sprite-failed')};
  const label=document.createElement('span');label.className='r127-raccoon-label';
  b.append(img,label);
  b.addEventListener('click',()=>{if(typeof busy!=='undefined'&&busy)return;if(typeof handleCommand==='function')handleCommand('attack '+(i+1))});layer.append(b)

@@ -37,12 +37,14 @@ GraphicalUI.sync=function(...args){
   }else if(!e.frame.hidden&&stage==='mercy'&&typeof mercyLocation!=='undefined'&&mercyLocation==='johnny'&&player.flags?.r18MarthaSettled&&player.flags?.solaceMenu==='marthaCounter'){
    spec={key:'martha-counter',file:'martha.png'};
   }
-  e.frame.classList.toggle('r127-npc-combat-active',!!spec?.fight);
+  e.frame.classList.toggle('r127-npc-partial',spec?.fight==='rivet'&&combat.enemies?.length>1);
+  e.frame.classList.toggle('r127-npc-combat-active',!!spec?.fight&&(spec.fight!=='rivet'||combat.enemies.length===1));
   if(!spec){layer?.remove();activeKey='';return result}
   if(!layer||activeKey!==spec.key){layer?.remove();layer=document.createElement('div');layer.className='r127-npc-scene';layer.setAttribute('aria-label',spec.key.replace(/-/g,' '));e.figure.append(layer);activeKey=spec.key}
   if(!spec.fight){
    if(!layer.firstElementChild){
-    const img=document.createElement('img');img.className='r127-npc-figure'+(spec.cage?' cage':'');img.src=url(spec.file);img.alt='';layer.append(img);
+    const img=document.createElement('img');img.className='r127-npc-figure'+(spec.cage?' cage':'');img.src=url(spec.file)+'?v=road-repair-1';img.alt='';
+    img.onerror=()=>{img.dataset.failed='true';img.hidden=true;GraphicalUI.element?.frame.classList.add('r127-sprite-failed')};layer.append(img);
    }
    return result;
   }
@@ -52,7 +54,8 @@ GraphicalUI.sync=function(...args){
   let button=layer.querySelector('button');
   if(!button){
     button=document.createElement('button');button.className='r127-npc-combat';button.type='button';
-    const img=document.createElement('img');img.src=url(spec.file);img.alt='';
+    const img=document.createElement('img');img.src=url(spec.file)+'?v=road-repair-1';img.alt='';
+    img.onerror=()=>{img.dataset.failed='true';img.hidden=true;GraphicalUI.element?.frame.classList.add('r127-sprite-failed')};
     const label=document.createElement('span');label.className='r127-npc-label';
     button.append(img,label);
     button.addEventListener('click',()=>{if(typeof busy!=='undefined'&&busy)return;if(typeof handleCommand==='function')handleCommand(spec.fight==='rivet'?'attack 1':'attack')});

@@ -29,7 +29,10 @@
  }
  let chosenOwner=null;
  const upstream=GraphicalUI.choices;
- const baseChoices=function(){return dedupe(upstream.apply(GraphicalUI,arguments));};
+ const baseChoices=function(){
+  const roadside=globalThis.Route127RoadsidePresentation?.choices();
+  return dedupe(roadside||upstream.apply(GraphicalUI,arguments));
+ };
  function resolve(){
   const base=DevtestMenuModel.project(baseChoices());
   chosenOwner=null;

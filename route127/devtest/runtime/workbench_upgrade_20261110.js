@@ -7,6 +7,20 @@ const mats=r=>({Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncomm
 const state={tab:'Items',selected:null,upgrade:null,open:false};
 const baseName=name=>String(name||'').replace(/ \+[1-5]$/,'');
 const level=name=>Number(String(name||'').match(/ \+([1-5])$/)?.[1]||0);
+/* Presentation only: never alter inventory keys, GEAR lookups, saves or upgrade identifiers. */
+const displayName=name=>String(name||'').replace(/\s*\(L\d{1,3}\s+(?:COMMON|UNCOMMON|RARE|EPIC|LEGENDARY)\)/gi,'').trim();
+const rarityColor={common:'#e5e7eb',uncommon:'#22c55e',rare:'#3b82f6',epic:'#a855f7',legendary:'#f97316'};
+function equipmentRarity(name){
+ const canonical=GEAR[name]?.rarity;
+ const legacy=String(name||'').match(/\(L\d{1,3}\s+(COMMON|UNCOMMON|RARE|EPIC|LEGENDARY)\)/i)?.[1];
+ return String(canonical||legacy||'common').toLowerCase();
+}
+function styledEquipment(parent,tag,name,suffix=''){
+ const node=el(parent,tag,displayName(name)+suffix);
+ node.style.color=rarityColor[equipmentRarity(name)]||rarityColor.common;
+ return node;
+}
+
 function records(){return player.flags.r127EquipmentUpgrades||(player.flags.r127EquipmentUpgrades={});}
 function hydrate(){
  const rec=records();
@@ -101,8 +115,8 @@ function finishUpgrade(job){
   if(selected.equipped)player[selected.kind]=name;
   else if(Number(selected.item.qty||1)>1){selected.item.qty--;player.pack.push({name,qty:1,type:selected.kind,...(selected.item.stolen?{stolen:true}:{})})}
   else selected.item.name=name;
-  message='SUCCESS! '+job.name+' upgraded to '+name+' (+'+job.bonus+' '+(job.kind==='weapon'?'Attack':'Defense')+').'+(job.level===4?' FULLY UPGRADED!':'');
- }else message='FAILED! '+job.name+' upgrade failed. Your equipment is unchanged and has been returned. Materials were consumed.';
+  message='SUCCESS! '+displayName(job.name)+' upgraded to '+displayName(name)+' (+'+job.bonus+' '+(job.kind==='weapon'?'Attack':'Defense')+').'+(job.level===4?' FULLY UPGRADED!':'');
+ }else message='FAILED! '+displayName(job.name)+' upgrade failed. Your equipment is unchanged and has been returned. Materials were consumed.';
  delete player.flags.r127UpgradeJob;saveUpgrade();return message;
 }
 function drawUpgrade(panel){
@@ -110,7 +124,7 @@ function drawUpgrade(panel){
  if(job){
   const remaining=Math.max(0,Math.ceil((job.endsAt-Date.now())/1000));
   const detail=el(panel,'div','','r127-bench-detail');
-  el(detail,'h3',job.name+' — Upgrade +'+(job.level+1));
+  styledEquipment(detail,'h3',job.name,' — Upgrade +'+(job.level+1));
   if(remaining){
    el(detail,'p','UPGRADE IN PROGRESS — '+String(Math.floor(remaining/60)).padStart(2,'0')+':'+String(remaining%60).padStart(2,'0')+' remaining.');
    el(detail,'p','Equipment remains yours. Materials have already been consumed.');
@@ -122,10 +136,10 @@ function drawUpgrade(panel){
   return;
  }
  const entries=inventory(),list=el(panel,'div','','r127-bench-list');
- for(let i=0;i<entries.length;i++){const e=entries[i];button(list,e.name+(e.equipped?' (EQUIPPED)':''),()=>{state.upgrade=i;draw()},false,state.upgrade===i?'active':'')}
+ for(let i=0;i<entries.length;i++){const e=entries[i];(()=>{const b=button(list,displayName(e.name)+(e.equipped?' (EQUIPPED)':''),()=>{state.upgrade=i;draw()},false,state.upgrade===i?'active':'');b.style.color=rarityColor[equipmentRarity(e.name)]||rarityColor.common})()}
  if(!entries.length){el(panel,'p','No weapons or armor available.');return}
  const index=Number.isInteger(state.upgrade)&&entries[state.upgrade]?state.upgrade:0,e=entries[index],lv=level(e.name),g=GEAR[e.name],material=e.kind==='weapon'?'Scrap Metal':'Cloth',cost=costs[lv],chance=tiers[lv],detail=el(panel,'div','','r127-bench-detail');
- el(detail,'h3',e.name+(e.equipped?' — Equipped':''));
+ styledEquipment(detail,'h3',e.name,e.equipped?' — Equipped':'');
  el(detail,'p',e.kind==='weapon'?'Attack: '+g.min+'–'+g.max:'Defense: '+g.def);
  if(lv>=5){el(detail,'h3','FULLY UPGRADED — MAXIMUM LEVEL REACHED','good');return}
  el(detail,'p','Next: +'+(lv+1)+' · Time: '+minutes[lv]+' minute'+(minutes[lv]===1?'':'s')+' · Success chance: '+Math.round(chance*100)+'% · On success: +1–3 '+(e.kind==='weapon'?'Attack':'Defense'));

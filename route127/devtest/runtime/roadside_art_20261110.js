@@ -19,7 +19,7 @@ const scenes={
  'THE WAX MUSEUM':()=>file('The Curator.png'),
  'THE CURATOR':()=>file('The Curator.png'),
  'THE WRECKERS':()=>[file('The Wreckers - Pipe.png'),file('The Wreckers - Chain.png')],
- 'THE PAINTED ARROWS':()=>[file('Painted Arrows - Club Scavenger.png'),file('Painted Arrows - Knife Scavenger.png')],
+ // The arrow-choice scene is a mystery: reveal these ambushers only after FOLLOW RED ARROW starts combat.
  'ARROW AMBUSH':()=>[file('Painted Arrows - Club Scavenger.png'),file('Painted Arrows - Knife Scavenger.png')],
  'HIGHWAY ROBBERS':()=>[file('Tire Iron Robber.png'),file('Spear Robber.png')],
  'RATS IN THE PANTRY':()=>file('Snarling Rats at a Rusted Sewer Drain.png')

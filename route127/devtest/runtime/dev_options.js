@@ -329,6 +329,21 @@
     });
     formula.dataset.devtestCombatSimulator='true';
     panel.insertBefore(formula,close||null);
+    const balance=globalThis.WO43Balance;
+    if(balance){
+      const danger=this.button('',()=>{
+        balance.setEnabled(!balance.enabled());
+        refreshDanger();
+      });
+      function refreshDanger(){
+        const on=balance.enabled();
+        danger.textContent='WO43 Enemy Damage: '+(on?'Challenge':'Baseline');
+        danger.setAttribute('aria-pressed',String(on));
+      }
+      danger.title='Challenge raises retaliation only for selected encounters. Baseline uses normal damage.';
+      refreshDanger();
+      panel.insertBefore(danger,close||null);
+    }
     return result;
   };
 })();

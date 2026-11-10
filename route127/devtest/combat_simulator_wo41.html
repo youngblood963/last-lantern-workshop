@@ -37,7 +37,7 @@ button{cursor:pointer}button:hover{background:#59402d}button:disabled{opacity:.4
 <label>Enemy count<select id="count"><option>1</option><option>2</option><option selected>3</option><option>4</option></select></label>
 <label>Gear quality<select id="quality"><option>Standard</option><option>Crafted (+9%)</option><option>Upgraded (+6)</option></select></label>
 <label>Starting ammo<input id="ammo" type="number" min="0" max="999" value="4" style="width:100%"></label>
-<label>Enemy damage<select id="damageScale"><option value="1">100% — WO41 baseline</option><option value="1.25">125%</option><option value="1.5">150%</option><option value="1.75">175%</option><option value="2">200%</option></select></label>
+<label>Enemy damage<select id="damageScale"><option value="1">100% — WO41 baseline</option><option value="1.25">125%</option><option value="1.5">150%</option><option value="1.75">175%</option><option value="2">200%</option><option value="2.5">250%</option><option value="3">300%</option><option value="3.5">350%</option><option value="4">400% — maximum carnage</option></select></label>
 <button id="start">Start new fight</button>
 </div>
 <p class="note">Matched-level enemies; no regional level rolls. Firearms use four-round default ammunition; automatic melee fallback when empty. Enemy damage is an experimental multiplier applied to enemy retaliation only (including enemy critical hits), not enemy HP or player damage. It is selected at the start of each fight. High-level bosses are included for scaling comparisons; this sandbox does not enforce story or level gates. Enemy count and gear can be changed before starting. This tests combat feel, not the full WO41 Monte Carlo measurements.</p>
@@ -96,7 +96,7 @@ function make(){
  let level=+$('level').value,mon=$('enemy').value,num=+$('count').value,meta=monsters[mon];
  let tier=mon==='Salvage King'?1.6:mon==='Foreman'?1.9:1;
  let hp=Math.max(1,Math.round(power(level)*meta[0]*tier));
- state={level,max:baseHP(level),hp:baseHP(level),rarity:$('rarity').value,weapon:$('weapon').value,active:$('weapon').value==='Firearm'?'Firearm':$('weapon').value,armor:$('armor').value,quality:$('quality').value,ammo:clamp(+$('ammo').value||0,0,999),bandages:4,rounds:0,damageScale:clamp(Number($('damageScale').value)||1,1,2),enemies:Array.from({length:num},()=>({name:mon,hp,max:hp,meta,tier}))};
+ state={level,max:baseHP(level),hp:baseHP(level),rarity:$('rarity').value,weapon:$('weapon').value,active:$('weapon').value==='Firearm'?'Firearm':$('weapon').value,armor:$('armor').value,quality:$('quality').value,ammo:clamp(+$('ammo').value||0,0,999),bandages:4,rounds:0,damageScale:clamp(Number($('damageScale').value)||1,1,4),enemies:Array.from({length:num},()=>({name:mon,hp,max:hp,meta,tier}))};
  $('log').textContent='';log('NEW FIGHT — Level '+level+' / '+num+' × '+mon+' / enemy damage '+Math.round(state.damageScale*100)+'%.');render();
 }
 function retaliate(){

@@ -111,7 +111,7 @@ function drawUpgrade(panel){
    records()[name]={base:old?.base||baseName(e.name),bonus:total};
    hydrate();
    if(selected.equipped)player[selected.kind]=name;
-   else selected.item.name=name;
+   else if(Number(selected.item.qty||1)>1){selected.item.qty--;player.pack.push({name,qty:1,type:selected.kind,...(selected.item.stolen?{stolen:true}:{})})}else selected.item.name=name;
    state.upgrade=null;
   }
   updateHud();if(typeof v49Autosave==='function')v49Autosave();

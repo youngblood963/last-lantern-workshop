@@ -27,10 +27,24 @@ function openVisitor(w){
  townWandererFocus=w.name;
  showWanderer(w,'town');
 }
+// A road death may restore the shared town stage while older travel metadata
+// still points to the road or Old House. Never leave players stranded in town.
+function reconcileTownTravel(){
+ if(stage!=='mercy'||mercyLocation!=='town'||combatState)return;
+ const g=typeof lanternMigrate==='function'?lanternMigrate():null;
+ if(!g)return;
+ const mismatched=g.nodeId!=='solace'||!!g.currentEdgeId||!!g.pending;
+ if(mismatched){
+  Object.assign(g,{nodeId:'solace',currentEdgeId:null,stepIndex:0,pending:false,encounterIndex:null,markerContext:null,selectedGate:null});
+  if(typeof lanternMark==='function')lanternMark('discoveredNodes','solace');
+  add('Travel position restored to Solace. You can use the town gates again.','system');
+  if(typeof v49Autosave==='function')v49Autosave();
+ }
+ g.solaceAdmitted=true;g.lastSettlement='solace';
+}
 function hub(){
  player.flags.solaceMenu='town';mercyLocation='town';townWandererFocus=null;
- const g=typeof lanternMigrate==='function'?lanternMigrate():null;
- if(g?.nodeId==='solace'){g.solaceAdmitted=true;g.lastSettlement='solace';}
+ reconcileTownTravel();
  add('SOLACE — MAIN STREET','place');
  const visitor=featured();
  DevtestMenuModel.publishLabels('solace-town',['SHOPS',...(player.flags.relayUnlocked?['RELAY STATION']:[]),
@@ -39,6 +53,7 @@ function hub(){
 }
 function submenu(which){
  player.flags.solaceMenu=which;mercyLocation='town';
+ reconcileTownTravel();
  if(which==='hubShops'){
   add('SOLACE — SHOPS','place');
   DevtestMenuModel.publishLabels('solace-shops',['THE RUSTY LANTERN',"JOHNNY'S TRADING POST",
@@ -106,6 +121,7 @@ handleCommandCore=async function(raw){
  }else if(view==='hubGates'){
   const gate=/^(north|south|east|west) gate$/.exec(cmd);
   if(gate){
+   reconcileTownTravel();
    const g=typeof lanternState==='function'?lanternState():null;
    if(!g||g.nodeId!=='solace'||g.currentEdgeId){
     add('The gate map is unavailable. No travel occurred.','system');

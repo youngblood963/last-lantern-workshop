@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||!location.pathname.includes('/route127/devtest/'))return;
-const tiers=[1,.8,.6,.4,.2],costs=[2,4,6,8,10];
+const tiers=[1,.8,.6,.4,.2],costs=[2,4,6,8,10],minutes=[1,5,10,20,40];
 const mats=r=>({Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0,'Tempered Steel':r.tempered||0,'Small Animal Bones':r.smallBones||0,'Animal Bones':r.bones||0,'Explosive Components':r.explosives||0,'Animal Hide':r.hide||0,...(r.materials||{})});
 const state={tab:'Items',selected:null,upgrade:null,open:false};
 const baseName=name=>String(name||'').replace(/ \+[1-5]$/,'');
@@ -88,7 +88,39 @@ function draw(){
  button(actions,'Craft',()=>{close();r11CraftCommand('craft '+r.name.toLowerCase());if(typeof GraphicalUI!=='undefined')GraphicalUI.schedule()},!ready(r)||!!player.flags.v49MurphyJob,'primary');
  button(actions,'Back to Workbench',close);
 }
+function saveUpgrade(){updateHud();if(typeof v49Autosave==='function')v49Autosave()}
+function finishUpgrade(job){
+ const selected=inventory().find(x=>x.name===job.name&&x.kind===job.kind&&x.equipped===job.equipped);
+ // Keep the job until its exact item can be resolved; never lose equipment on a full backpack.
+ if(!selected)return 'Upgrade finished, but the original equipment is not available. Restore it to collect.';
+ let message;
+ if(job.success){
+  const name=baseName(job.name)+' +'+(job.level+1),old=records()[job.name];
+  records()[name]={base:old?.base||baseName(job.name),bonus:(old?.bonus||0)+job.bonus};
+  hydrate();
+  if(selected.equipped)player[selected.kind]=name;
+  else if(Number(selected.item.qty||1)>1){selected.item.qty--;player.pack.push({name,qty:1,type:selected.kind,...(selected.item.stolen?{stolen:true}:{})})}
+  else selected.item.name=name;
+  message='SUCCESS! '+job.name+' upgraded to '+name+' (+'+job.bonus+' '+(job.kind==='weapon'?'Attack':'Defense')+').'+(job.level===4?' FULLY UPGRADED!':'');
+ }else message='FAILED! '+job.name+' upgrade failed. Your equipment is unchanged and has been returned. Materials were consumed.';
+ delete player.flags.r127UpgradeJob;saveUpgrade();return message;
+}
 function drawUpgrade(panel){
+ const job=player.flags.r127UpgradeJob;
+ if(job){
+  const remaining=Math.max(0,Math.ceil((job.endsAt-Date.now())/1000));
+  const detail=el(panel,'div','','r127-bench-detail');
+  el(detail,'h3',job.name+' — Upgrade +'+(job.level+1));
+  if(remaining){
+   el(detail,'p','UPGRADE IN PROGRESS — '+String(Math.floor(remaining/60)).padStart(2,'0')+':'+String(remaining%60).padStart(2,'0')+' remaining.');
+   el(detail,'p','Equipment remains yours. Materials have already been consumed.');
+   setTimeout(()=>{if(state.open&&state.tab==='Upgrade')draw()},Math.min(1000,remaining*1000));
+  }else{
+   el(detail,'p','UPGRADE COMPLETE — Result ready!');
+   button(detail,'Collect Result',()=>{const message=finishUpgrade(job);draw();const d=shade?.querySelector('.r127-bench-panel');if(d)el(d,'p',message,message.startsWith('SUCCESS')?'good':'bad')},false,'primary');
+  }
+  return;
+ }
  const entries=inventory(),list=el(panel,'div','','r127-bench-list');
  for(let i=0;i<entries.length;i++){const e=entries[i];button(list,e.name+(e.equipped?' (EQUIPPED)':''),()=>{state.upgrade=i;draw()},false,state.upgrade===i?'active':'')}
  if(!entries.length){el(panel,'p','No weapons or armor available.');return}
@@ -96,27 +128,16 @@ function drawUpgrade(panel){
  el(detail,'h3',e.name+(e.equipped?' — Equipped':''));
  el(detail,'p',e.kind==='weapon'?'Attack: '+g.min+'–'+g.max:'Defense: '+g.def);
  if(lv>=5){el(detail,'h3','FULLY UPGRADED — MAXIMUM LEVEL REACHED','good');return}
- el(detail,'p','Next: +'+(lv+1)+' · Success chance: '+Math.round(chance*100)+'% · On success: +1–3 '+(e.kind==='weapon'?'Attack':'Defense'));
+ el(detail,'p','Next: +'+(lv+1)+' · Time: '+minutes[lv]+' minute'+(minutes[lv]===1?'':'s')+' · Success chance: '+Math.round(chance*100)+'% · On success: +1–3 '+(e.kind==='weapon'?'Attack':'Defense'));
  el(detail,'div',material+' — '+have(material)+'/'+cost,have(material)>=cost?'good':'bad');
  el(detail,'p','Materials are consumed on every attempt. Failure leaves the equipment and its current stats unchanged.');
  const actions=el(detail,'div','','r127-bench-actions');
- button(actions,'Upgrade',()=>{
-  // Resolve again to avoid spending on a stale selection.
+ button(actions,'Start Upgrade',()=>{
   const selected=inventory().find(x=>x.name===e.name&&x.kind===e.kind&&x.equipped===e.equipped);
-  if(!selected||level(selected.name)!==lv||have(material)<cost){draw();return}
+  if(player.flags.r127UpgradeJob||!selected||level(selected.name)!==lv||have(material)<cost){draw();return}
   if(!consume(material,cost)){draw();return}
-  const success=Math.random()<chance;
-  if(success){
-   const bonus=1+Math.floor(Math.random()*3),name=baseName(e.name)+' +'+(lv+1),old=records()[e.name],total=(old?.bonus||0)+bonus;
-   records()[name]={base:old?.base||baseName(e.name),bonus:total};
-   hydrate();
-   if(selected.equipped)player[selected.kind]=name;
-   else if(Number(selected.item.qty||1)>1){selected.item.qty--;player.pack.push({name,qty:1,type:selected.kind,...(selected.item.stolen?{stolen:true}:{})})}else selected.item.name=name;
-   state.upgrade=null;
-  }
-  updateHud();if(typeof v49Autosave==='function')v49Autosave();
-  draw();const result=el(panel,'p',success?'UPGRADE SUCCESS — +'+(lv+1)+' achieved!':'UPGRADE FAILED — Equipment preserved.',success?'good':'bad');
-  result.scrollIntoView({block:'nearest'});
+  player.flags.r127UpgradeJob={name:e.name,kind:e.kind,equipped:e.equipped,level:lv,success:Math.random()<chance,bonus:1+Math.floor(Math.random()*3),endsAt:Date.now()+minutes[lv]*60000};
+  saveUpgrade();draw();
  },have(material)<cost,'primary');
 }
 const oldMenu=r11CraftMenu;

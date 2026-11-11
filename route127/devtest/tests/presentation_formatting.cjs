@@ -1,19 +1,5 @@
-const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
-// Extend the existing harness without modifying the shared Playtest helper.
-const Module=require('node:module');
-const helperPath=path.resolve(__dirname,'../../playtest/tests/helpers/game.cjs');
-const helper=new Module(helperPath,module);helper.filename=helperPath;helper.paths=module.paths;
-let source=fs.readFileSync(helperPath,'utf8').replace('const document={body,','const document={baseURI:"https://example.test/route127/playtest/",head:new E("head"),body,')
- .replace("location:{search:","location:{pathname:'/route127/devtest/index.html',search:")
- .replace('performance:{now:()=>0}', 'MutationObserver:class{observe(){} disconnect(){}},performance:{now:()=>0}')
- .replace('style={setProperty(){}}','style={setProperty(){},removeProperty(){}}');
-const entry=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
-const expanded=entry.replace(/<script>\s*if\(globalThis.ROUTE127_ENV[\s\S]*?<\/script>/,tag=>JSON.parse(tag.match(/else\{document.write\(([\s\S]*?)\);\}/)[1]));
-source=source.replace("fs.readFileSync(path.join(gameDir,'index.html'),'utf8')",JSON.stringify(expanded));
-helper._compile(source,helperPath);
-const game=helper.exports();
-const {run}=game;
-
+const assert=require('node:assert/strict');
+const {run}=require('./helpers/wo33_dom.cjs')();
 
 run(`GraphicalUI.preferred='graphics';`);
 for(const [input,expected] of Object.entries({'RETURN TO SEAPORT':'Return to Seaport','return to harbor':'Return to Harbor','INSPECT WANDERER':'Inspect Wanderer','browse wares':'Browse Wares','CONFIRM PURCHASE':'Confirm Purchase','BACK':'Back','BUY SUPPLIES':'Buy Supplies','TALK TO KAIDEN':'Talk to Kaiden','VIEW HP / XP':'View HP / XP'}))assert.equal(run(`DevtestPresentation.title(${JSON.stringify(input)})`),expected);

@@ -7,6 +7,7 @@ module.exports=function(){
  let source=fs.readFileSync(helperPath,'utf8').replace('const document={body,','const document={baseURI:"https://example.test/route127/playtest/",head:new E("head"),body,')
   .replace("location:{search:","location:{pathname:'/route127/devtest/index.html',search:")
   .replace('style={setProperty(){}}','style={setProperty(){},removeProperty(){}}')
+  .replace('vm.createContext({document,','vm.createContext({document,Image:class {},')
   .replace('performance:{now:()=>0}', 'MutationObserver:class{observe(){} disconnect(){}},performance:{now:()=>0}');
  const entry=fs.readFileSync(path.resolve(__dirname,'../../index.html'),'utf8');
  let expanded=entry.replace(/<script>\s*if\(globalThis.ROUTE127_ENV[\s\S]*?<\/script>/,tag=>JSON.parse(tag.match(/else\{document.write\(([\s\S]*?)\);\}/)[1]));

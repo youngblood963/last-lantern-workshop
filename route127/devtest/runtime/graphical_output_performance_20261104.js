@@ -60,7 +60,10 @@ function instantRow(rawText='',rawCls=''){
  return div;
 }
 add=function(text='',cls=''){
- if(!graphical())return previousAdd.apply(this,arguments);
+ if(stage==='confirmNewSlot' && text==='EXISTING SAVE DATA DETECTED.' && !newestSave()){
+  text='NO SAVE FOUND.';
+ }
+ if(!graphical())return previousAdd.call(this,text,cls);
  // WO43: restore the original terminal typewriter for dialogue and story
  // prose. Menus, rewards, and status lines stay immediate so navigation and
  // combat are responsive; Classic BBS remains exactly as it was.

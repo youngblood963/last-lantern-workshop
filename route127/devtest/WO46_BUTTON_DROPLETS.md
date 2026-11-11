@@ -10,4 +10,10 @@ STOP, restart, toggle OFF, close, phase/region/encounter switch and load dispose
 
 Automated tests in `tests/wo46_environment.cjs` cover accumulation limits, first-button isolation, merging, slide/trail, resize/390px/scroll anchoring, mouse/touch/focus response, pause/restart, rainfall with droplets OFF, reduced motion, fog exclusion and cleanup, alongside the existing controller tests. WO45 sky/nightfall and scenario-menu regressions are also run.
 
-Phased rollout: live gameplay droplets remain disabled during the initial preview proof. Only extend to all Red Rain choice buttons after the prototype's live visual/input checks pass. Physical-phone checks must be distinguished from the narrow preview and synthetic touch tests. Deployment commits and live validation results are reported separately.
+## Prototype validation and rollout
+
+The one-button proof was deployed first as `32b2b3a` and checked in the live browser before enabling gameplay beads. Counts increased from zero to five on the first button while the other three remained dry. Clicking the wet button still invoked only its visual-preview action. The 390px layout measured 390px, with four readable 372px buttons; beads remained attached after resizing. Toggle OFF removed all bead attributes while both rainfall canvases remained. Keyboard Tab focus and scenario switching remained functional. A rain-only toggle visibility defect found on switching to fog was corrected before rollout.
+
+Following that proof, DEVTEST gameplay enables droplets on all four choices only when the authoritative current encounter is THE RED RAIN. Preview deliberately retains its one-button comparison. A time-period change clears the current bead collection before reaccumulation; normal weather remains. Four-button accumulation and disposal are covered by the automated suite. No live rollout is made to Lime Fog or unrelated scenarios.
+
+Physical-phone/touch visual verification remains outstanding. The 390px browser presentation is a narrow-layout check, and synthetic pointer events test touch response; neither is physical-device validation. Final deployment commit and status are reported separately. PLAYTEST remains unchanged; stop for owner review after DEVTEST publication.

@@ -14,6 +14,7 @@
  .r127-env-preview::backdrop{background:#000b}
  .r127-env-controls{display:flex;flex-wrap:wrap;gap:9px;margin:10px 0}
  .r127-env-controls label{display:grid;gap:4px}
+ .r127-env-controls label[hidden]{display:none}
  .r127-env-preview select,.r127-env-preview button{min-height:44px;font:inherit}
  .r127-env-stage{overflow:hidden;border:1px solid #805436;background:#11171b;padding:8px}
  .r127-env-stage .r127-sky-preview-art{margin:0;width:100%;max-height:49dvh}
@@ -142,7 +143,7 @@
  let live=null,previewDialog=null;
  function update(){const spec=liveEffect(),root=GraphicalUI.element?.frame,figure=GraphicalUI.element?.figure;if(!spec||!root||!figure||root.hidden){live?.stop();live=null;return;}
   if(live&&(live.effect!==spec.effect||live.root!==root)){live.stop();live=null;}
-  const period=Route127RegionalSky.phase(player.flags.worldHour);if(!live)live=new EnvironmentalEffects(root,figure,{effect:spec.effect,period});else live.period=period;
+  const period=Route127RegionalSky.phase(player.flags.worldHour);if(!live)live=new EnvironmentalEffects(root,figure,{effect:spec.effect,period,buttonDroplets:spec.effect==='rain',buttonLimit:4});else if(live.period!==period){live.clearBeads();live.period=period;}
  }
  function preview(){if(previewDialog?.open)return;live?.stop();live=null;
   const dialog=document.createElement('dialog');previewDialog=dialog;dialog.className='r127-env-preview';dialog.setAttribute('aria-label','Environmental effects preview');

@@ -80,3 +80,26 @@ reduced=true;const staticWet=new Controller(root,scene,{effect:'rain',buttonDrop
 const unaffected=new Controller(root,scene,{effect:'fog',buttonDroplets:true});assert.equal(unaffected.buttonDroplets,false);unaffected.stop();
 assert.equal(button.dataset.wetBeads,undefined);assert.equal(root.listenerCount(),0);assert.equal(frames.size,0);assert.equal(run('JSON.stringify(player)'),before);
 console.log('PASS #19 prototype: gradual capped accumulation, first button only, merging, heavy slide/trail, resize/390px/scroll anchoring, mouse/touch/focus response, pause/restart, toggle-off rain preservation, static reduced motion, fog exclusion and complete cleanup');
+reduced=false;root.buttons=[button,second,node('button'),node('button')];
+const gameplayWet=new Controller(root,scene,{effect:'rain',buttonDroplets:true,buttonLimit:4});
+for(let i=0;i<120;i++)gameplayWet.draw(.05);
+assert.equal(root.buttons.filter(b=>Number(b.dataset.wetBeads)>0).length,4);
+gameplayWet.stop();assert(root.buttons.every(b=>b.dataset.wetBeads===undefined));assert.equal(frames.size,0);
+console.log('PASS #19 rollout: all four Red Rain choices accumulate independently and dispose together');
+
+// Execute the shipped live-owner hook, rather than only constructing controllers.
+const integration=require('./helpers/devtest.cjs')({skipScripts:['environmental_effects_wo46.js']});
+integration.ctx.document.createElement=tag=>node(tag);integration.ctx.matchMedia=()=>Object.assign(node(),{matches:false});integration.ctx.devicePixelRatio=1;
+integration.ctx.ResizeObserver=ctx.ResizeObserver;integration.ctx.performance={now:()=>now};integration.ctx.requestAnimationFrame=ctx.requestAnimationFrame;integration.ctx.cancelAnimationFrame=ctx.cancelAnimationFrame;
+const liveRoot=node(),liveFigure=node('figure');liveRoot.buttons=Array.from({length:4},()=>node('button'));liveRoot.append(liveFigure);
+integration.ctx.__frame=liveRoot;integration.ctx.__figure=liveFigure;
+integration.run(`GraphicalUI.sync=()=>{};GraphicalUI.active=()=>true;GraphicalUI.element={frame:__frame,figure:__figure};stage='encounter';combatState=null;currentEncounter=()=>RoadScenarioRegistry.entries.find(e=>e.encounter.title==='THE RED RAIN').encounter;loadGame=()=>{stage='lanternRoad';return true;};`);
+const liveBefore=integration.run('JSON.stringify(player)');
+vm.runInContext(fs.readFileSync(path.resolve(__dirname,'../runtime/environmental_effects_wo46.js'),'utf8'),integration.ctx);
+integration.run('GraphicalUI.sync()');assert.equal(integration.run('Route127Environment.diagnostics().effect'),'rain');
+for(let i=0;i<200;i++){now+=20;const pending=[...frames.values()];frames.clear();for(const fn of pending)fn(now);}
+assert.equal(liveRoot.buttons.filter(b=>Number(b.dataset.wetBeads)>0).length,4);
+integration.run('stage="lanternRoad";GraphicalUI.sync();');assert(liveRoot.buttons.every(b=>b.dataset.wetBeads===undefined));assert.equal(frames.size,0);
+integration.run('stage="encounter";GraphicalUI.sync();loadGame();');assert(liveRoot.buttons.every(b=>b.dataset.wetBeads===undefined));assert.equal(frames.size,0);
+assert.equal(integration.run('JSON.stringify(player)'),liveBefore);
+console.log('PASS #19 shipped live hook: all four rain buttons, unrelated-stage cleanup, load cleanup and unchanged player data');

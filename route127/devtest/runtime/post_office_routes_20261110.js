@@ -156,8 +156,9 @@
   if(!x||!available(x)||!letter(x))return null;
   if(stage==='mercy'){
    const loc=String(mercyLocation||'').toLowerCase();
-   return ({tim:'tim',jen:'jen',bar:'jen',trader:'johnny',workshop:'murphy',
-    clinic:'wayne',bank:'amii',armory:'mara'})[loc]===x.id?x:null;
+   return ({tim:'tim',jen:'jen',bar:'jen',johnny:'johnny',trader:'johnny',
+    murphy:'murphy',workshop:'murphy',wayne:'wayne',clinic:'wayne',
+    amii:'amii',bank:'amii',mara:'mara',armory:'mara'})[loc]===x.id?x:null;
   }
   if(stage==='port55Docks'&&x.id==='docks')return x;
   if(stage==='port55Kaiden'&&x.id==='kaiden')return x;

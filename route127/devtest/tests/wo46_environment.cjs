@@ -8,12 +8,12 @@ function node(tag='div',box={left:0,top:0,width:800,height:600}){
   getBoundingClientRect:()=>({...box,right:box.left+box.width,bottom:box.top+box.height}),
   append(...xs){for(const x of xs){this.children.push(x);x.parentElement=this;}},
   remove(){this.isConnected=false;if(this.parentElement)this.parentElement.children=this.parentElement.children.filter(x=>x!==this);},
-  setAttribute(){},getContext:()=>({setTransform(){},clearRect(){},beginPath(){},moveTo(){},lineTo(){},stroke(){draws++;},fillRect(){draws++;},createRadialGradient(){return {addColorStop(){}};}}),
+  setAttribute(){},getContext:()=>({setTransform(){},clearRect(){},beginPath(){},moveTo(){},lineTo(){},save(){},restore(){},rect(){},clip(){},ellipse(){draws++;},fill(){draws++;},stroke(){draws++;},fillRect(){draws++;},createRadialGradient(){return {addColorStop(){}};}}),
   addEventListener(k,fn){if(!listeners.has(k))listeners.set(k,new Set());listeners.get(k).add(fn);},
   removeEventListener(k,fn){listeners.get(k)?.delete(fn);},
   fire(k,e={}){for(const f of listeners.get(k)||[])f(e);},
   listenerCount:()=>[...listeners.values()].reduce((n,s)=>n+s.size,0),
-  querySelectorAll(selector){return selector==='button'?this.buttons||[]:[];},
+  querySelectorAll(selector){return ['button','.gfx-choice'].includes(selector)?this.buttons||[]:[];},
   closest(selector){return tag==='button'&&selector==='button'?this:null;}
  };
 }
@@ -49,3 +49,34 @@ assert.equal(frames.size,0);assert.equal(root.listenerCount(),0);assert.equal(vi
 assert.equal(run('JSON.stringify(player)'),before);records.forEach((r,i)=>assert.equal(r.entry.encounter.resolve,logic[i]));
 run('GraphicalUI.active=()=>true;stage="encounter";combatState=null;');ctx.__rain=records[0].entry.encounter;run('currentEncounter=()=>__rain;');assert.equal(run('Route127Environment.liveEffect().effect'),'rain');run('stage="lanternRoad";');assert.equal(run('Route127Environment.liveEffect()'),null);run('stage="encounter";TravelerPanels.dialog={};');assert.equal(run('Route127Environment.liveEffect()'),null);
 console.log('PASS WO46: authoritative registry/choices/classifications; 8 effect/time combinations; canvas draws; mouse/touch/focus clearing; pause/play/restart/stop; visibility/reduced motion; replacement and 60 cleanup cycles; no player/resolver mutations; live encounter and unrelated-menu gating');
+
+// Issue #19: first-button preview proof, reusing the existing rain canvas/loop.
+reduced=false;const second=node('button',{left:500,top:450,width:220,height:50});root.buttons=[button,second];
+const wet=new Controller(root,scene,{effect:'rain',buttonDroplets:true,buttonLimit:1});
+assert.equal(button.dataset.wetBeads,'0');assert.equal(second.dataset.wetBeads,undefined);
+for(let i=0;i<240;i++)wet.draw(.05);
+assert(Number(button.dataset.wetBeads)>0);assert(Number(button.dataset.wetBeads)<=14);
+let water=wet.wetButtons.get(button);
+water.beads=[{x:.5,y:.08,radius:2,age:4,slide:0,trail:0},{x:.501,y:.08,radius:2,age:4,slide:0,trail:0}];
+wet.draw(0);assert.equal(water.beads.length,1);assert(water.beads[0].radius>2);
+const random=wet.random;wet.random=()=>0;wet.draw(.05);wet.random=random;
+assert(water.beads[0].slide>0);assert(water.beads[0].trail>0);
+const drawing=wet.layers.find(l=>l.canvas.dataset.layer==='interface').context;let beadCenter;
+drawing.ellipse=(x,y)=>{if(!beadCenter)beadCenter=[x,y];};
+button.getBoundingClientRect=()=>({left:20,top:430,width:340,height:50,right:360,bottom:480});
+wet.draw(0);assert(Math.abs(beadCenter[0]-(20+water.beads[0].x*340))<.001);
+// Scroll moves the canvas and button together; local bead position stays attached.
+root.getBoundingClientRect=()=>({left:0,top:-200,width:390,height:600});
+button.getBoundingClientRect=()=>({left:20,top:230,width:340,height:50,right:360,bottom:280});
+beadCenter=null;wet.draw(0);assert(Math.abs(beadCenter[1]-(430+water.beads[0].y*50))<.001);
+root.fire('pointermove',{clientX:190,clientY:240,pointerType:'mouse',preventDefault(){throw Error('Input consumed');}});
+root.fire('pointerdown',{clientX:190,clientY:240,pointerType:'touch',preventDefault(){throw Error('Touch consumed');}});
+assert(water.beads[0].slide>=20);
+now+=500;root.fire('focusin',{target:button});assert(water.beads[0].slide>=20);
+wet.pause();const elapsed=wet.elapsed;wet.draw(0);assert.equal(wet.elapsed,elapsed);assert.equal(frames.size,0);
+wet.restart();assert.equal(wet.wetButtons.size,0);wet.draw(.05);assert.equal(button.dataset.wetBeads,'0');
+const strokes=draws;wet.setButtonDroplets(false);assert.equal(wet.wetButtons.size,0);assert.equal(button.dataset.wetBeads,undefined);assert(draws>strokes,'Rain must continue while beads are off');wet.stop();
+reduced=true;const staticWet=new Controller(root,scene,{effect:'rain',buttonDroplets:true});assert(Number(button.dataset.wetBeads)>0);assert.equal(frames.size,0);staticWet.stop();
+const unaffected=new Controller(root,scene,{effect:'fog',buttonDroplets:true});assert.equal(unaffected.buttonDroplets,false);unaffected.stop();
+assert.equal(button.dataset.wetBeads,undefined);assert.equal(root.listenerCount(),0);assert.equal(frames.size,0);assert.equal(run('JSON.stringify(player)'),before);
+console.log('PASS #19 prototype: gradual capped accumulation, first button only, merging, heavy slide/trail, resize/390px/scroll anchoring, mouse/touch/focus response, pause/restart, toggle-off rain preservation, static reduced motion, fog exclusion and complete cleanup');

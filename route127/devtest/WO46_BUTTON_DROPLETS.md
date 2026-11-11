@@ -1,0 +1,13 @@
+# WO46 addendum — Red Rain button droplets (#19)
+
+The first phase is a one-button proof in Options → ENVIRONMENTAL EFFECTS. `Button Droplets` defaults ON for the first real Red Rain choice button; OFF removes only beads and leaves the original rainfall running. Lime Fog has no beads and hides the toggle. `Preview layout → Phone width (390px)` provides a narrow, single-column presentation for checking attachment and label clarity; it is not physical-device emulation.
+
+The existing weather controller draws beads in its existing interface canvas and requestAnimationFrame loop. There are no new assets, dependencies, per-button overlays, timers or button event handlers. Buttons retain their position and normal input behavior. Beads accumulate at 1.4–2 per second, with caps of 14 for narrow buttons and 20 for wider buttons. Most form near the top edge, some on the face. Nearby beads merge by area (radius capped at 4.6px); heavier drops occasionally descend with a small translucent trail. Mouse proximity, pointer-down/touch and keyboard focus disturb nearby drops. Reduced motion shows a small static wet pattern without a new animation loop.
+
+Positions are normalized within each button, and drawing uses current bounding rectangles relative to the weather canvas. Resizing, scrolling and narrow layout preserve attachment. The canvas clips beads to each button face, remains pointer-transparent, and uses restrained rust-colored bodies, rims and highlights. Data attributes expose bead counts for read-only DEVTEST verification; these are removed with the effect.
+
+STOP, restart, toggle OFF, close, phase/region/encounter switch and load dispose of bead state through the existing lifecycle. Restart begins gradual accumulation again. Drawing never calls gameplay resolvers, commands, clock advancement or persistence. The private weather PRNG remains separate from gameplay rolls.
+
+Automated tests in `tests/wo46_environment.cjs` cover accumulation limits, first-button isolation, merging, slide/trail, resize/390px/scroll anchoring, mouse/touch/focus response, pause/restart, rainfall with droplets OFF, reduced motion, fog exclusion and cleanup, alongside the existing controller tests. WO45 sky/nightfall and scenario-menu regressions are also run.
+
+Phased rollout: live gameplay droplets remain disabled during the initial preview proof. Only extend to all Red Rain choice buttons after the prototype's live visual/input checks pass. Physical-phone checks must be distinguished from the narrow preview and synthetic touch tests. Deployment commits and live validation results are reported separately.

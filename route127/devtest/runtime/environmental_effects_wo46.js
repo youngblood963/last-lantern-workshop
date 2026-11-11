@@ -20,14 +20,17 @@
  .r127-env-choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:8px}
  .r127-env-choices .gfx-choice{position:relative;padding:10px;color:#ffe5b7;background:#282018;border:1px solid #a27647;min-height:48px;font:14px Georgia,serif;text-align:left}
  .r127-env-choices button:focus-visible{outline:3px solid #f5c278;outline-offset:-4px}
+ .r127-env-stage.r127-env-phone{box-sizing:border-box;width:390px;max-width:100%;margin-inline:auto}
+ .r127-env-phone .r127-env-choices{grid-template-columns:1fr}
  @media(max-width:640px){.r127-env-choices{grid-template-columns:1fr}.r127-env-preview{padding:9px}.r127-env-controls{gap:5px}.r127-env-preview h2{font-size:20px}}
  `;document.head.append(style);
 
  class EnvironmentalEffects {
   static register(name,definition){if(!definition?.create||!definition?.draw)throw Error('Weather requires create and draw');effects.set(name,definition);}
-  constructor(root,scenery,{effect,period='day'}={}){
+  constructor(root,scenery,{effect,period='day',buttonDroplets=false,buttonLimit=1}={}){
    owners.get(root)?.stop();owners.set(root,this);this.root=root;this.scenery=scenery;this.effect=effect;this.period=period;
    this.running=false;this.stopped=false;this.frame=null;this.elapsed=0;this.last=0;this.listeners=[];this.layers=[];
+   this.wetButtons=new Map();this.buttonDroplets=buttonDroplets&&effect==='rain';this.buttonLimit=buttonLimit;
    this.randomState=(Date.now()+(sequence++*2654435761))>>>0;
    this.motion=matchMedia('(prefers-reduced-motion: reduce)');this.reduced=this.motion.matches;
    this.pointer={x:0,y:0,target:0,strength:0,until:0,focused:false};this.lastPointer=-1000;
@@ -41,7 +44,7 @@
    this.listen(root,'pointermove',e=>this.approach(e));
    this.listen(root,'pointerdown',e=>this.approach(e,true));
    this.listen(root,'pointerleave',()=>{if(!this.pointer.focused)this.release();});
-   this.listen(root,'focusin',e=>{if(performance.now()-this.lastPointer<300)return;const b=e.target.closest?.('button');if(b){const r=b.getBoundingClientRect(),box=root.getBoundingClientRect();this.interact(r.left+r.width/2-box.left,r.top+r.height/2-box.top,true);}});
+   this.listen(root,'focusin',e=>{if(performance.now()-this.lastPointer<300)return;const b=e.target.closest?.('button');if(b){const r=b.getBoundingClientRect(),box=root.getBoundingClientRect();if(this.effect==='rain'){this.disturbBeads(r.left+r.width/2,r.top+r.height/2,true,b);return;}this.interact(r.left+r.width/2-box.left,r.top+r.height/2-box.top,true);}});
    this.listen(root,'focusout',()=>{this.pointer.focused=false;this.release();});
    this.listen(document,'visibilitychange',()=>this.schedule());
    this.listen(this.motion,'change',e=>{this.reduced=e.matches;this.schedule();});
@@ -52,6 +55,7 @@
   random(){this.randomState=(Math.imul(this.randomState,1664525)+1013904223)>>>0;return this.randomState/4294967296;}
   listen(target,type,fn){target.addEventListener?.(type,fn,{passive:true});this.listeners.push([target,type,fn]);}
   approach(event,touch=false){
+   if(this.effect==='rain'){this.lastPointer=performance.now();this.disturbBeads(event.clientX,event.clientY,touch);return;}
    if(this.effect!=='fog')return;
    this.lastPointer=performance.now();this.pointer.focused=false;
    const root=this.root.getBoundingClientRect();let best=null,distance=110;
@@ -67,7 +71,7 @@
   }
   play(){if(this.stopped)return;this.running=true;this.last=0;this.schedule();}
   pause(){this.running=false;this.cancel();}
-  restart(){if(this.stopped)return;this.elapsed=0;this.state=effects.get(this.effect).create(this);this.pointer.strength=0;this.pointer.target=0;this.play();}
+  restart(){if(this.stopped)return;this.clearBeads();this.elapsed=0;this.state=effects.get(this.effect).create(this);this.pointer.strength=0;this.pointer.target=0;this.play();}
   cancel(){if(this.frame!==null){cancelAnimationFrame(this.frame);this.frame=null;}}
   schedule(){if(this.stopped||document.hidden||!this.running){this.cancel();return;}if(this.reduced){this.cancel();this.draw(0);return;}if(this.frame!==null)return;
    this.frame=requestAnimationFrame(time=>{this.frame=null;const dt=this.last?Math.min(.05,(time-this.last)/1000):0;this.last=time;this.elapsed+=dt;this.draw(dt);this.schedule();});
@@ -75,9 +79,41 @@
   draw(dt){if(this.stopped||document.hidden)return;const p=this.pointer;if(p.until&&performance.now()>p.until&&!p.focused){p.until=0;p.target=0;}p.strength+=(p.target-p.strength)*(this.reduced?1:Math.min(1,dt*5));
    this.atmosphere.style.background=this.effect==='rain'?'rgba(96,37,24,.19)':'rgba(145,154,111,.07)';
    this.atmosphere.style.opacity=this.period==='night'?'.85':'.65';
-   for(const layer of this.layers){const c=layer.context;if(!c)continue;c.clearRect(0,0,layer.width,layer.height);effects.get(this.effect).draw(c,layer,this,dt);}
+   for(const layer of this.layers){const c=layer.context;if(!c)continue;c.clearRect(0,0,layer.width,layer.height);effects.get(this.effect).draw(c,layer,this,dt);if(layer.canvas.dataset.layer==='interface'&&this.buttonDroplets)this.drawBeads(c,dt);}
   }
-  stop(){if(this.stopped)return;this.stopped=true;this.running=false;this.cancel();this.observer?.disconnect();for(const [target,type,fn]of this.listeners)target.removeEventListener?.(type,fn);this.listeners=[];for(const l of this.layers)l.canvas.remove();this.layers=[];this.atmosphere?.remove();this.scenery.classList.remove('r127-env-host');this.root.classList.remove('r127-env-host');delete this.root.dataset.environmentEffect;if(owners.get(this.root)===this)owners.delete(this.root);}
+  clearBeads(){for(const b of this.wetButtons.keys())delete b.dataset.wetBeads;this.wetButtons.clear();}
+  setButtonDroplets(enabled,limit=1){this.clearBeads();this.buttonDroplets=!!enabled&&this.effect==='rain';this.buttonLimit=limit;this.draw(0);}
+  disturbBeads(x,y,strong=false,focused=null){
+   if(!this.buttonDroplets)return;const time=performance.now();
+   for(const [button,state]of this.wetButtons){const r=button.getBoundingClientRect(),near=x>=r.left-30&&x<=r.right+30&&y>=r.top-30&&y<=r.bottom+30;if(!near&&button!==focused)continue;if(!strong&&time-state.lastDisturb<130)continue;state.lastDisturb=time;
+    for(const bead of state.beads){const dx=r.left+bead.x*r.width-x,dy=r.top+bead.y*r.height-y;if(focused!==button&&Math.hypot(dx,dy)>65)continue;bead.slide=strong?20:9;bead.x=clamp(bead.x+(dx<0?-.012:.012),.025,.975);bead.trail=strong?13:7;}
+   }
+   if(this.reduced||!this.running)this.draw(0);
+  }
+  drawBeads(c,dt){
+   const buttons=[...this.root.querySelectorAll('.gfx-choice')].slice(0,this.buttonLimit),root=this.root.getBoundingClientRect();
+   for(const b of [...this.wetButtons.keys()])if(!buttons.includes(b)){delete b.dataset.wetBeads;this.wetButtons.delete(b);}
+   for(const button of buttons){const r=button.getBoundingClientRect();if(!r.width||!r.height)continue;const x=r.left-root.left,y=r.top-root.top,cap=r.width<400?14:20;
+    let s=this.wetButtons.get(button);if(!s){s={beads:[],water:0,lastDisturb:-1000};this.wetButtons.set(button,s);}
+    const make=()=>({x:.035+this.random()*.93,y:this.random()<.72?.04+this.random()*.08:.18+this.random()*.57,radius:1.25+this.random()*1.45,age:0,slide:0,trail:0});
+    if(this.reduced&&s.beads.length===0)for(let i=0;i<6;i++)s.beads.push(make());
+    if(!this.reduced){s.water+=dt*(r.width<400?1.4:2);if(s.water>=1){s.water-=1;if(s.beads.length<cap)s.beads.push(make());}}
+    for(const bead of s.beads){if(this.reduced)continue;bead.age+=dt;
+     if(bead.radius>2.5&&bead.age>2.5&&!bead.slide&&this.random()<dt*.1)bead.slide=8+bead.radius*2;
+     if(bead.slide){bead.y+=dt*bead.slide/r.height;bead.slide+=dt*4;bead.trail=Math.min(17,bead.trail+dt*18);}
+    }
+    // Merge by area, with a strict radius cap so labels never disappear under blobs.
+    for(let i=0;i<s.beads.length;i++)for(let j=s.beads.length-1;j>i;j--){const a=s.beads[i],b=s.beads[j];if(Math.hypot((a.x-b.x)*r.width,(a.y-b.y)*r.height)<(a.radius+b.radius)*.85){const aa=a.radius*a.radius,bb=b.radius*b.radius;a.x=(a.x*aa+b.x*bb)/(aa+bb);a.y=(a.y*aa+b.y*bb)/(aa+bb);a.radius=Math.min(4.6,Math.sqrt(aa+bb));a.age=Math.max(a.age,b.age);s.beads.splice(j,1);}}
+    s.beads=s.beads.filter(b=>b.y<1.08);const count=String(s.beads.length);if(button.dataset.wetBeads!==count)button.dataset.wetBeads=count;
+    c.save();c.beginPath();c.rect(x,y,r.width,r.height);c.clip();
+    for(const bead of s.beads){const bx=x+bead.x*r.width,by=y+bead.y*r.height,rad=bead.radius;
+     if(bead.trail){c.strokeStyle='rgba(174,95,54,.2)';c.lineWidth=Math.max(1,rad*.7);c.beginPath();c.moveTo(bx,by);c.lineTo(bx,by-bead.trail);c.stroke();}
+     c.fillStyle='rgba(155,72,35,.48)';c.strokeStyle='rgba(233,173,120,.58)';c.lineWidth=.7;c.beginPath();c.ellipse(bx,by,rad,rad*1.25,0,0,Math.PI*2);c.fill();c.stroke();
+     c.fillStyle='rgba(255,222,178,.7)';c.beginPath();c.ellipse(bx-rad*.3,by-rad*.4,Math.max(.45,rad*.23),Math.max(.65,rad*.35),-.4,0,Math.PI*2);c.fill();
+    }c.restore();
+   }
+  }
+  stop(){if(this.stopped)return;this.stopped=true;this.running=false;this.cancel();this.clearBeads();this.observer?.disconnect();for(const [target,type,fn]of this.listeners)target.removeEventListener?.(type,fn);this.listeners=[];for(const l of this.layers)l.canvas.remove();this.layers=[];this.atmosphere?.remove();this.scenery.classList.remove('r127-env-host');this.root.classList.remove('r127-env-host');delete this.root.dataset.environmentEffect;if(owners.get(this.root)===this)owners.delete(this.root);}
   diagnostics(){return {effect:this.effect,running:this.running,stopped:this.stopped,frame:this.frame!==null,layers:this.layers.length,elapsed:this.elapsed,reducedMotion:this.reduced,clearing:this.pointer.strength};}
  }
  EnvironmentalEffects.register('rain',{
@@ -115,11 +151,15 @@
   const available=records(),encounter=select('Environmental encounter',available.map(d=>[d.effect,d.title]));
   const region=select('Weather preview region',Object.entries(Route127RegionalSky.regions).map(([key,row])=>[key,row[2]]));
   const period=select('Weather time of day',['dawn','day','dusk','night'].map(p=>[p,p.toUpperCase()]));
+  const layout=select('Preview layout',[['desktop','Full width'],['phone','Phone width (390px)']]);
+  const wetWrap=document.createElement('label'),wet=document.createElement('input');wet.type='checkbox';wet.checked=true;wet.setAttribute('aria-label','Button Droplets');wetWrap.append(wet,document.createTextNode('Button Droplets: ON — first button prototype'));controls.append(wetWrap);
   const stage=document.createElement('section');stage.className='r127-env-stage';const figure=document.createElement('figure');figure.className='r127-sky-preview-art';const img=document.createElement('img');img.alt='Environmental region background';figure.append(img);const choices=document.createElement('div');choices.className='r127-env-choices';stage.append(figure,choices);
   const status=document.createElement('p');status.setAttribute('role','status');status.textContent='Preview only — no gameplay or saved progress changes.';
   let controller=null,revision=0,closed=false,mode='playing';
-  function start(){controller?.stop();controller=new EnvironmentalEffects(stage,figure,{effect:encounter.value,period:period.value});if(mode==='paused')controller.pause();if(mode==='stopped'){controller.stop();controller=null;}}
-  async function render(){const version=++revision,spec=available.find(d=>d.effect===encounter.value);choices.replaceChildren();
+  function start(){controller?.stop();controller=new EnvironmentalEffects(stage,figure,{effect:encounter.value,period:period.value,buttonDroplets:wet.checked,buttonLimit:1});if(mode==='paused')controller.pause();if(mode==='stopped'){controller.stop();controller=null;}}
+  wet.addEventListener('change',()=>{controller?.setButtonDroplets(wet.checked,1);wetWrap.lastChild.textContent='Button Droplets: '+(wet.checked?'ON':'OFF')+' — first button prototype';});
+  layout.addEventListener('change',()=>{stage.classList.toggle('r127-env-phone',layout.value==='phone');controller?.resize();});
+  async function render(){const version=++revision,spec=available.find(d=>d.effect===encounter.value);controller?.stop();controller=null;wetWrap.hidden=encounter.value!=='rain';choices.replaceChildren();
    for(const label of spec.entry.encounter.choices.split(/\s{2,}/).filter(Boolean)){const b=GraphicalUI.button(label,()=>{status.textContent=label+' — visual interaction only; no outcome executed.';},'gfx-choice');choices.append(b);}
    const scene=Route127RegionalSky.describe(region.value,{dawn:6,day:12,dusk:18,night:22}[period.value]),base=new URL('../../assets/regions/',document.currentScript?.src||new URL('../devtest/runtime/environmental_effects_wo46.js',document.baseURI));
    const source=file=>new URL(file,base).href;const files=scene.sky?[scene.overlay,scene.sky]:[scene.original];
@@ -144,7 +184,7 @@
  }
  const oldKey=FocusedEntry.key;FocusedEntry.key=function(event){if(previewDialog?.open)return;return oldKey.call(this,event);};
  const oldSync=GraphicalUI.sync;GraphicalUI.sync=function(...args){const result=oldSync.apply(this,args);update();return result;};
- const oldLoad=loadGame;loadGame=function(...args){live?.stop();live=null;return oldLoad.apply(this,args);};
+ const oldLoad=loadGame;loadGame=function(...args){live?.stop();live=null;previewDialog?.close();return oldLoad.apply(this,args);};
  const oldOptions=TravelerPanels.options;TravelerPanels.options=function(...args){const result=oldOptions.apply(this,args);if(this.which==='options'){const panel=this.body?.querySelector('.traveler-detail');if(panel&&!panel.querySelector('[data-environment-preview]')){const b=this.button('ENVIRONMENTAL EFFECTS',()=>{this.close();preview();});b.dataset.environmentPreview='true';panel.append(b);}}return result;};
  globalThis.Route127Environment=Object.freeze({Controller:EnvironmentalEffects,records,liveEffect,preview,diagnostics:()=>live?.diagnostics()||null});
 })();

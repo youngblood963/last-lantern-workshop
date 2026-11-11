@@ -1128,7 +1128,7 @@ if(r18CraneNestIndex>=0&&!R10_POOLS.east.combat.includes(r18CraneNestIndex))R10_
 const r18SiloIndex=eastEncounters.findIndex(e=>e.title==='THE SHATTERED SILO');
 if(r18SiloIndex>=0&&!R10_POOLS.east.combat.includes(r18SiloIndex))R10_POOLS.east.combat.push(r18SiloIndex);
 const r18GardenIndex=encounters.findIndex(e=>e.title==='IRRADIATED ROACHES');
-if(r18GardenIndex>=0){let i=eastEncounters.findIndex(e=>e.title==='EAST ROAD — IRRADIATED ROACHES');if(i<0)i=eastEncounters.push({...encounters[r18GardenIndex],title:'EAST ROAD — IRRADIATED ROACHES'})-1;if(!R10_POOLS.east.combat.includes(i))R10_POOLS.east.combat.push(i);}
+if(r18GardenIndex>=0){let i=eastEncounters.findIndex(e=>e.title==='EAST ROAD — IRRADIATED ROACHES');if(i<0)i=eastEncounters.push({...encounters[r18GardenIndex],title:'EAST ROAD — IRRADIATED ROACHES',displayName:'THE FORGOTTEN GARDEN'})-1;if(!R10_POOLS.east.combat.includes(i))R10_POOLS.east.combat.push(i);}
 const r18TarPoolIndex=eastEncounters.findIndex(e=>e.title==='THE TAR POOL');
 if(r18TarPoolIndex>=0&&!R10_POOLS.east.salvage.includes(r18TarPoolIndex))R10_POOLS.east.salvage.push(r18TarPoolIndex);
 const r18ReapersIndex=eastEncounters.findIndex(e=>e.title==='THE KNIFE WIND');
@@ -3064,6 +3064,8 @@ RoadScenarioRegistry.regionalSpec = {
   "INACTIVE": 5
  },
  "nameOverrides": {
+  "early:46": "THE FORGOTTEN GARDEN",
+  "east:33": "THE ROAD REAPERS",
   "east:10": "THE BONE HUNTERS",
   "east:75": "WILD BEAR",
   "east:77": "THE BROKEN BRIDGE DISCOVERY",

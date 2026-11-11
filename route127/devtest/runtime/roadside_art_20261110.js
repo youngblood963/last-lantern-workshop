@@ -17,6 +17,7 @@ const scenes={
  // These two case-sensitive assets are different characters. Keep the Warden on the original art.
  'THE WARDEN':()=>file('Sentry.png'),
  'THE SENTRY':()=>file('sentry.png'),
+ 'THE GATELESS WALL':()=>file('sentry.png'),
  'SECURITY DRONE':()=>file('Security Drone.png'),
  'SOMETHING IN THE DRAIN':()=>file('Something in the Drain - Grate and Claw.png'),
  'THE WAX MUSEUM':()=>file('The Curator.png'),

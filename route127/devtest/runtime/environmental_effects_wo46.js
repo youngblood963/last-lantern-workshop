@@ -103,12 +103,15 @@
    const dx=end.x-start.x,dy=end.y-start.y;
    const lengthSquared=dx*dx+dy*dy;
    if(lengthSquared<4)return;
+   surface.tracks.push({x1:start.x/rect.width,y1:start.y/rect.height,
+    x2:end.x/rect.width,y2:end.y/rect.height,life:1});
+   if(surface.tracks.length>48)surface.tracks.shift();
    surface.specks=surface.specks.filter(speck=>{
     const x=speck.x*rect.width-start.x,y=speck.y*rect.height-start.y;
     const along=Math.max(0,Math.min(1,(x*dx+y*dy)/lengthSquared));
     const distance=Math.hypot(x-along*dx,y-along*dy);
     // Keep scattered grains in the track and more residue toward its edges.
-    const keep=distance>5+speck.edge*7||speck.edge<.12;
+    const keep=distance>8+speck.edge*8||speck.edge<.12;
     if(!keep)surface.refill.push(speck);
     return keep;
    });
@@ -211,7 +214,7 @@
    if(!rect.width||!rect.height)continue;
    let surface=state.soot.get(button);
    if(!surface){
-    surface={specks:[],refill:[],carry:0};
+    surface={specks:[],refill:[],carry:0,tracks:[]};
     state.soot.set(button,surface);
     if(reduced){
      surface.specks=Array.from({length:28},()=>sootGrain(engine));
@@ -233,6 +236,24 @@
    context.beginPath();
    context.rect(rect.left-bounds.left,rect.top-bounds.top,rect.width,rect.height);
    context.clip();
+   const left=rect.left-bounds.left,top=rect.top-bounds.top;
+   for(const track of surface.tracks){
+    track.life-=dt*.28;
+    if(track.life<=0)continue;
+    const x=left+track.x1*rect.width,y=top+track.y1*rect.height;
+    const dx=(track.x2-track.x1)*rect.width,dy=(track.y2-track.y1)*rect.height;
+    const length=Math.hypot(dx,dy);
+    if(length<1)continue;
+    const steps=Math.min(90,Math.ceil(length/3));
+    context.fillStyle='rgba(171,146,114,'+(.20*track.life)+')';
+    for(let i=0;i<=steps;i++){
+     const t=i/steps,offset=Math.sin(i*2.7+x)*6;
+     const px=x+dx*t-dy/length*offset,py=y+dy*t+dx/length*offset;
+     context.fillRect(px-3,py-4,6,8);
+     if(i%3===0)context.fillRect(px+dy/length*7,py-dx/length*7,2,2);
+    }
+   }
+   surface.tracks=surface.tracks.filter(track=>track.life>0);
    for(const speck of surface.specks){
     const x=rect.left-bounds.left+speck.x*rect.width;
     const y=rect.top-bounds.top+speck.y*rect.height;
@@ -253,7 +274,7 @@
     flakes:Array.from({length:96},()=>({
      x:engine.random(),
      y:engine.random(),
-     size:.65+engine.random()*1.95,
+     size:1.15+engine.random()*3.3,
      speed:12+engine.random()*28,
      drift:4+engine.random()*13,
      phase:engine.random()*Math.PI*2,

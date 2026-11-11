@@ -1,0 +1,93 @@
+[
+  {
+    "overlay": "route127/assets/regions/central_overlay.png",
+    "original": "central.png",
+    "mode": "RGBA",
+    "dimensions": [
+      1670,
+      942
+    ],
+    "transparentPixels": 306664,
+    "partialPixels": 1264895,
+    "sha256": "60d487b386417ca82efdd80f10faed9c4dc0762abf37a4876f67542f20fd04b7",
+    "originalSha256": "bdb3d04a4e1d2d3f431773a7a769a53ec88f16f235dc784c9ec5f9c30de7c2a8"
+  },
+  {
+    "overlay": "route127/assets/regions/industrial_overlay.png",
+    "original": "industrial.png",
+    "mode": "RGBA",
+    "dimensions": [
+      1670,
+      942
+    ],
+    "transparentPixels": 255794,
+    "partialPixels": 1316484,
+    "sha256": "e647a058704dd90a4ceab208b8dbad3e3cae651727878c3bb2113bdf112bd8bd",
+    "originalSha256": "61a45a3c566c131a890219b8f783d79442f6793807061c1595871fe7c712f2dd"
+  },
+  {
+    "overlay": "route127/assets/regions/bayou_overlay.png",
+    "original": "lowlands.png",
+    "mode": "RGBA",
+    "dimensions": [
+      1670,
+      942
+    ],
+    "transparentPixels": 118505,
+    "partialPixels": 1454629,
+    "sha256": "ef06d915089450e85592785bebb4f5a3bb10dd83cc6aeb54272e182d9406ecca",
+    "originalSha256": "f504b89ca889c4939c00735fdd21ac0a6302dafa4ad6ab68791700848c683bba"
+  },
+  {
+    "overlay": "route127/assets/regions/forest_overlay.png",
+    "original": "west.png",
+    "mode": "RGBA",
+    "dimensions": [
+      1670,
+      942
+    ],
+    "transparentPixels": 105985,
+    "partialPixels": 1466603,
+    "sha256": "feadfa0632e15fa1f923149255217ad44776c11d09c43bf49c007656b2009892",
+    "originalSha256": "c129de5ab355cdd872b64409c5b094400839c9b8e871e0a8a2ee18a2392f0e96"
+  },
+  {
+    "overlay": "route127/assets/regions/northern_ridge_overlay.png",
+    "original": "north.png",
+    "mode": "RGBA",
+    "dimensions": [
+      1670,
+      941
+    ],
+    "transparentPixels": 3677,
+    "partialPixels": 1567745,
+    "sha256": "b5b94d3f078700def870f392cafe89e3dd8f4b3b98db56e3c1c0e825bee6a9ef",
+    "originalSha256": "2c8061880f4b98af772605cba72af8155f74bdf64cb5c14a2e6787da48083f20"
+  },
+  {
+    "overlay": "route127/assets/regions/farmland_overlay.png",
+    "original": "east.png",
+    "mode": "RGBA",
+    "dimensions": [
+      1670,
+      941
+    ],
+    "transparentPixels": 333527,
+    "partialPixels": 1237473,
+    "sha256": "2543a46e223e4f4a0a5f97b0cf6380ff503536119341d4fd586d54910b5524fb",
+    "originalSha256": "ad10f11c9cb8f42f4ad88df95a66112eee706996152fcaf8203a1c945b0c99a3"
+  },
+  {
+    "overlay": "route127/assets/regions/seaport_road_overlay.png",
+    "original": "seaport.png",
+    "mode": "RGBA",
+    "dimensions": [
+      1670,
+      942
+    ],
+    "transparentPixels": 422735,
+    "partialPixels": 1150162,
+    "sha256": "9e9356ce287d4179f812082142ec7e0d7b8a32707b8ff021ba372250f0d13a47",
+    "originalSha256": "d65201f22c8cc5cd2532858afd18bfdbdc21254e5d88a340ba21fa4ce4391246"
+  }
+]

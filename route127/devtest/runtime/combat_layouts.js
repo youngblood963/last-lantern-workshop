@@ -1,4 +1,5 @@
 /* DEVTEST cosmetic layouts. Gameplay state and save slots are never edited here. */
+/* Deployment refresh: include latest Pipe Robber.png upload and Miles rendering adjustment. */
 (() => {
  'use strict';
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||typeof GraphicalUI==='undefined')return;

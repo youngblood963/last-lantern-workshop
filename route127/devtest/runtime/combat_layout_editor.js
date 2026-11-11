@@ -64,6 +64,10 @@
  .r127-layout-editor .layout-empty{position:absolute;inset:auto 0 0;background:#130e09dd;padding:8px;text-align:center}
  .r127-layout-editor .layout-fields input[type=number]{width:5.5em}
  .r127-layout-editor textarea{width:100%;box-sizing:border-box}
+ .r127-layout-editor .layout-save-indicator{display:inline-block;padding:6px 9px;border:1px solid #94734d;border-radius:4px;font-size:13px}
+ .r127-layout-editor .layout-save-indicator[data-state=saved]{color:#9ee8a5;border-color:#51835a}
+ .r127-layout-editor .layout-save-indicator[data-state=dirty]{color:#ffd68a;border-color:#b18b41}
+ .r127-layout-editor .layout-save-indicator[data-state=unsaved]{color:#ddd0bb}
  `;
  document.head.append(css);
  function show(legacy){
@@ -124,11 +128,24 @@
   }
   const flipWrap=el('label','Mirror'),flip=el('input');flip.type='checkbox';flipWrap.append(flip);fields.append(flipWrap);
   const actions=controls(),message=el('p');message.setAttribute('role','status');dialog.append(message);
+  const saveIndicator=el('span','Not saved locally');saveIndicator.className='layout-save-indicator';saveIndicator.setAttribute('role','status');saveIndicator.setAttribute('aria-live','polite');actions.append(saveIndicator);
   const transfer=el('textarea');transfer.rows=7;transfer.setAttribute('aria-label','Layout JSON');transfer.hidden=true;dialog.append(transfer);
-  let row,spec,initial={},draft={},nodes=new Map(),preview=false,closed=false;
+  let row,spec,initial={},draft={},baseline={},nodes=new Map(),preview=false,closed=false;
   const descriptor=(path,index)=>({path,key:L.unitKey(path,index),index});
   const selected=()=>nodes.get(units.value);
   const updateStatus=text=>{message.textContent=text;};
+  const hasOwn=(obj,key)=>Object.prototype.hasOwnProperty.call(obj,key);
+  function updateSaveIndicator(){
+   if(!row){saveIndicator.textContent='No encounter selected';saveIndicator.dataset.state='unsaved';return;}
+   const key=L.sceneKey(row.id,phase.value,device.value),localSaved=hasOwn(L.local(),key);
+   const published=typeof L.published==='function'&&hasOwn(L.published(),key);
+   const dirty=JSON.stringify(draft)!==JSON.stringify(baseline);
+   saveIndicator.dataset.state=dirty?'dirty':localSaved?'saved':'unsaved';
+   saveIndicator.textContent=dirty?'● Unsaved changes · '+(localSaved?'saved version exists':'not saved yet'):
+    localSaved?'✓ Saved in this browser'+(published?' · Published version also exists':' · Browser only'):
+    published?'○ Not saved locally · Published in game':'○ Not saved locally';
+   removeLocalSave.disabled=!localSaved;
+  }
   function rebuildPicker(){
    if(closed)return;
    const keep=picker.value||L.activeScene()?.id;
@@ -155,7 +172,7 @@
   }
   function changeScene(){
    row=L.rows.get(picker.value);
-   if(!row){nodes.clear();draft={};initial={};metadata.textContent='No encounters match these filters.';canvas.replaceChildren();options(units,[]);updateFields();return;}
+   if(!row){nodes.clear();draft={};initial={};baseline={};metadata.textContent='No encounters match these filters.';canvas.replaceChildren();options(units,[]);updateFields();return;}
    const active=L.activeScene();
    phase.value=active?.id===row.id?active.phase:'approach';
    if(row.regions.length)background.value=row.regions[0];
@@ -179,6 +196,7 @@
    initial=Object.fromEntries(records.map(record=>[record.key,live[record.key]||
     defaults(row,record.index,spec?.units.length,record.background)]));
    draft=Object.fromEntries(records.map(record=>[record.key,{...saved[record.key]||initial[record.key]}]));
+   baseline=JSON.parse(JSON.stringify(draft));
    metadata.textContent=row.name+' · '+row.id+' · '+regionLabel(row)+' · '+(row.combat?'Combat available':'Noncombat')+
     ' · '+(spec?.units.length||0)+' sprites · '+row.variants.length+' variants · '+
     (records.map(record=>L.assetName(record.path)+' ('+(status.get(record.path)||'unchecked')+')').join(', ')||state(row));
@@ -230,10 +248,11 @@
    }
    flip.disabled=!u||preview;flip.checked=!!u?.flip;
    for(const [key,record] of nodes)if(record.element&&draft[key])position(record.element,key);
+   updateSaveIndicator();
   }
   for(const [name,input] of Object.entries(values))input.addEventListener('input',()=>{
    if(!selected()||!input.validity.valid||input.value==='')return;
-   draft[units.value][name]=Number(input.value);position(selected().element,units.value);
+   draft[units.value][name]=Number(input.value);position(selected().element,units.value);updateSaveIndicator();
   });
   flip.addEventListener('change',()=>{if(selected()){draft[units.value].flip=flip.checked;updateFields();}});
   units.addEventListener('change',updateFields);
@@ -260,7 +279,18 @@
    try{
     const previous=Object.fromEntries(Object.entries(L.local()[key]||{}).filter(([unit])=>!unit.startsWith('attachment:')));
     L.save({...L.local(),[key]:{...previous,...draft}});
+    baseline=JSON.parse(JSON.stringify(draft));updateSaveIndicator();
     updateStatus('Saved on this browser. Gameplay uses it now and after refresh.');
+   }catch(error){updateStatus(error.message);}
+  });
+  const removeLocalSave=button(actions,'Unsave this layout',()=>{
+   if(!row)return;
+   const key=L.sceneKey(row.id,phase.value,device.value);
+   if(!hasOwn(L.local(),key))return;
+   if(!confirm('Remove the browser save for '+row.name+' ('+phase.value+', '+device.value+')? Other layouts and published game artwork will not be changed.'))return;
+   try{
+    const next={...L.local()};delete next[key];L.save(next);loadDraft();
+    updateStatus('Local save removed for this scene/state/device only. Other saved layouts are safe.');
    }catch(error){updateStatus(error.message);}
   });
   button(actions,'Export Layout JSON',()=>{

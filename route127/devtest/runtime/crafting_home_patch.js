@@ -7,10 +7,22 @@ v48SellPrice=function(item){
  const values={'Reinforced Bandage':8,'Wasteland Stew':5,'Roadhouse Hash':4,'Preserved Meat':3,'Preserved Vegetables':3};
  return values[item.name]||0;
 };
-const oldHouse=showHouseChoices;
+const appendChoices=lanternAppendChoices;
+lanternAppendChoices=function(labels){
+ if(stage==='house'&&labels.length===1&&labels[0]==='EXPLORE ROADS')return;
+ return appendChoices.apply(this,arguments);
+};
 showHouseChoices=function(){
- if(!player.flags.houseOwned)return oldHouse.apply(this,arguments);
- r5DirectChoices(['OPEN STORAGE BOX','CRAFTING','HEAD SOUTH — SOLACE']);
+ ensureHousing();
+ const quest=player.flags.houseQuest;
+ const choices=player.flags.houseOwned?['OPEN STORAGE BOX','CRAFTING']:['SEARCH BATHROOM CABINET','CHECK FIREPLACE'];
+ if(!player.flags.houseOwned){
+  if(quest==='active')choices.push('INVESTIGATE OCCUPATION');
+  if(quest==='cleared')choices.push('LIFT FLOORBOARD');
+  choices.push('CHECK PACK');
+ }
+ r5DirectChoices([...choices,'HEAD TO SOLACE']);
+ outputQueue=outputQueue.then(()=>{if(stage==='house')delete currentHotkeys.b;});
 };
 const oldMenu=r11CraftMenu,oldCraft=r11CraftCommand;
 r11CraftMenu=function(where){
@@ -31,6 +43,7 @@ r11CraftCommand=function(cmd){
 const oldCore=handleCommandCore;
 handleCommandCore=async function(raw){
  const cmd=String(r5Mapped(raw)||'').trim().toLowerCase();
+ if(!busy&&stage==='house'&&cmd==='head to solace')return oldCore.call(this,'head south — solace');
  if(!busy&&stage==='house'&&player.flags.houseOwned&&cmd==='crafting'){
   return r11CraftMenu('home');
  }

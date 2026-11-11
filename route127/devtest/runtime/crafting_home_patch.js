@@ -12,6 +12,7 @@ lanternAppendChoices=function(labels){
  if(stage==='house'&&labels.length===1&&labels[0]==='EXPLORE ROADS')return;
  return appendChoices.apply(this,arguments);
 };
+const solaceExit='↓ S — SOLACE';
 showHouseChoices=function(){
  ensureHousing();
  const quest=player.flags.houseQuest;
@@ -21,7 +22,7 @@ showHouseChoices=function(){
   if(quest==='cleared')choices.push('LIFT FLOORBOARD');
   choices.push('CHECK PACK');
  }
- r5DirectChoices([...choices,'HEAD TO SOLACE']);
+ r5DirectChoices([...choices,solaceExit]);
  outputQueue=outputQueue.then(()=>{if(stage==='house')delete currentHotkeys.b;});
 };
 const oldMenu=r11CraftMenu,oldCraft=r11CraftCommand;
@@ -43,7 +44,7 @@ r11CraftCommand=function(cmd){
 const oldCore=handleCommandCore;
 handleCommandCore=async function(raw){
  const cmd=String(r5Mapped(raw)||'').trim().toLowerCase();
- if(!busy&&stage==='house'&&cmd==='head to solace')return oldCore.call(this,'head south — solace');
+ if(!busy&&stage==='house'&&[solaceExit.toLowerCase(),'head to solace'].includes(cmd))return oldCore.call(this,'head south — solace');
  if(!busy&&stage==='house'&&player.flags.houseOwned&&cmd==='crafting'){
   return r11CraftMenu('home');
  }

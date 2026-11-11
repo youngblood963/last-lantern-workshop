@@ -42,7 +42,10 @@ function current(){
  if(['HIGHWAY ROBBERS','LOOTERS','PARKING LOT RAIDERS','GANG LOOKOUT','THE HOLLOWED',
  'THE SQUATTERS','GUNSHOP OWNER','RABID RACCOONS','BAT COLONY',
  'SILAS CROWE','RIVET AND CREW'].includes(title))return null;
- let spec=combat?.r18WardenId?scenes['THE WARDEN']:raw==='FERAL BOAR'?()=>file('Tunnel Rats - Wild Boar.png'):scenes[title]||scenes[normalize(origin?.title)];
+ let spec=scenes[title]||scenes[normalize(origin?.title)];
+ if(combat?.r18WallFight||normalize(encounter?.displayName)==='THE SENTRY')spec=scenes['THE SENTRY'];
+ if(combat?.r18WardenId)spec=scenes['THE WARDEN'];
+ if(raw==='FERAL BOAR')spec=()=>file('Tunnel Rats - Wild Boar.png');
  if(!combat&&normalize(origin?.title)==='THE PAINTED ARROWS')return null;
  if(!spec&&/CHEMICAL BURNER/.test(title))spec=()=>[file('Chemical Burner 1.png'),file('Chemical Burner 2.png')];
  if(!spec&&/SENTRY/.test(title))spec=()=>file('sentry.png');
@@ -122,6 +125,13 @@ GraphicalUI.sync=function(...args){
   e.frame.classList.toggle('r127-route-scene',inScope()&&['encounter','combat','combatItems'].includes(stage));
   e.frame.classList.toggle('r127-sprite-failed',!!e.figure.querySelector('img[data-failed="true"]'));
   if(inScope()&&stage==='encounter')e.caption.textContent=currentEncounter()?.displayName||currentEncounter()?.title||e.caption.textContent;
+  if(inScope()&&['combat','combatItems'].includes(stage)&&combatState?.source==='encounter'){
+   if(combatState.r18WallFight)e.caption.textContent='THE SENTRY';
+   else if(combatState.r18WardenId)e.caption.textContent='THE WARDEN';
+   else if(combatState.r18GardenChickens||combatState.r18Harlan||currentEncounter()?.title==='THE KNIFE WIND'){
+    e.caption.textContent=currentEncounter()?.displayName||e.caption.textContent;
+   }
+  }
   let layer=e.figure.querySelector('.r127-road-art');
   const scene=inScope()&&!e.frame.hidden&&this.preference()==='graphics'?current():null;
   // Dedicated HP-linked sprite layers already own these combat visuals.

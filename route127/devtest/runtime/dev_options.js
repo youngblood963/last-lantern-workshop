@@ -245,6 +245,8 @@
       wrap.append(node);controls.append(wrap);return node;
     }
     const encounters={
+      'The Sentry':{assets:['sentry.png'],count:1,size:36,positions:[[50,57]]},
+      'The Warden':{assets:['Sentry.png'],count:1,size:36,positions:[[50,57]]},
       'Bat Colony':{asset:'bat_colony.png',count:4,size:27,positions:[[50,30],[31,16],[65,27],[43,37],[72,48]]},
       'Rabid Raccoons':{asset:'rabid_raccoon.png',count:3,size:32,positions:[[50,64],[32,65],[53,63],[69,68]]},
       'Looters':{assets:['looters_1.png','looters_2.png','looters_3.png'],count:3,size:32,positions:[[50,58],[24,60],[51,55],[77,61]]},
@@ -268,7 +270,7 @@
     const stage=el('div','dw-scene');stage.style.marginTop='12px';stage.style.setProperty('aspect-ratio','16/9');
     const bg=el('img','dw-bg');bg.alt='Region background';stage.append(bg);
     const plate=el('span','dw-location');stage.append(plate);dialog.append(stage);
-    dialog.append(el('p','dw-note','DEVTEST composition only. Preview installed combat art: Bat Colony, Rabid Raccoons, Looters, Parking Lot Raiders, Gang Lookout, The Hollowed, The Squatters, Gunshop Owner, Martha, Rivet and Silas Crowe. This composition preview never changes live combat, saves, or Playtest.'));
+    dialog.append(el('p','dw-note','DEVTEST composition only. Preview installed combat art: The Sentry, The Warden, Bat Colony, Rabid Raccoons, Looters, Parking Lot Raiders, Gang Lookout, The Hollowed, The Squatters, Gunshop Owner, Martha, Rivet and Silas Crowe. This composition preview never changes live combat, saves, or Playtest.'));
     const assetUrl=()=>new URL('assets/enemies/'+(encounters[encounter.value].asset||encounters[encounter.value].assets?.[0]),devtestRoot).href;
     let localUrl=null;
     function render(){

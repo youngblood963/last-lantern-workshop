@@ -4,16 +4,13 @@
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||typeof RouteIdentity==='undefined')return;
  // Legacy titles remain the stable keys for mechanics and saved encounters.
  const encounterNames={
-  'IRRADIATED ROACHES':'THE FORGOTTEN FARMHOUSE',
-  'THE KNIFE WIND':'THE ROAD REAPERS'
+  'early:12':'THE COUNTY OFFICES',
+  'early:46':'THE FORGOTTEN GARDEN',
+  'east:33':'THE ROAD REAPERS'
  };
- for(const encounter of [...encounters,...eastEncounters]){
-  const name=encounterNames[encounter.title.replace(/^EAST ROAD — /,'')];
-  if(name)encounter.displayName=name;
- }
  for(const entry of [...RoadScenarioRegistry.entries,...RoadScenarioRegistry.regionalCatalog]){
-  const name=encounterNames[entry.encounter.title.replace(/^EAST ROAD — /,'')];
-  if(name)entry.name=name;
+  const name=encounterNames[entry.canonicalId||entry.id];
+  if(name)entry.name=entry.encounter.displayName=name;
  }
  const suffix=/\s*(?:[-–—|:]\s*)?(?:\[|\()?\s*(?:Forge[ _-]*)?(?:Common|Uncommon|Rare|Epic|Legendary)[ _-]*\d+(?:\s*[\])])?(?=\s|$|[—–,:])/gi;
  const F={

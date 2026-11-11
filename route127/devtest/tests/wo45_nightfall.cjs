@@ -1,0 +1,58 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const create=require('./helpers/devtest.cjs');
+(async()=>{
+ const {run,ctx}=create();
+ run("updateHud=()=>{};GraphicalUI.active=()=>true;testMode=false;player.turns=1000;player.lifetimeTurns=0;player.flags.worldHour=19;");
+ assert.equal(run('spendTurns(1)'),true);
+ assert.equal(run('player.flags.worldHour'),20);
+ assert.equal(run('Route127Notifications.nightfallVisible()'),true);
+ const unchanged=run('player.turns');
+ run('GraphicalUI.sync();GraphicalUI.sync();');
+ assert.equal(run('Route127Notifications.nightfallVisible()'),true);
+ assert.equal(run('player.turns'),unchanged);
+ run('spendTurns(1);GraphicalUI.sync();');
+ assert.equal(run('Route127Notifications.nightfallVisible()'),false);
+ run('spendTurns(2);GraphicalUI.sync();');
+ assert.equal(run('Route127Notifications.nightfallVisible()'),false);
+ run('player.flags.worldHour=18;spendTurns(5);');
+ assert.equal(run('player.flags.worldHour'),23);
+ assert.equal(run('Route127Notifications.nightfallVisible()'),true);
+ run('spendTurns(21);'); // Next evening at 20:00, a different night.
+ assert.equal(run('Route127Notifications.nightfallVisible()'),true);
+ run('player.turns=0;Route127Notifications.clearNightfall();player.flags.worldHour=19;');
+ assert.equal(run('spendTurns(1)'),false);
+ assert.equal(run('Route127Notifications.nightfallVisible()'),false);
+ run('testMode=true;player.flags.worldHour=19;spendTurns(1);');
+ assert.equal(run('Route127Notifications.nightfallVisible()'),true);
+ run('spendTurns(1);GraphicalUI.sync();');
+ assert.equal(run('Route127Notifications.nightfallVisible()'),false,'Unlimited-turn mode must still dismiss');
+ run('player.flags.worldHour=17;spendTurns(1);GraphicalUI.sync();');
+ assert.equal(run('Route127Notifications.nightfallVisible()'),false);
+ run('player.flags.worldHour=6;spendTurns(1);GraphicalUI.sync();');
+ assert.equal(run('Route127Notifications.nightfallVisible()'),false);
+ run("combatState={name:'WO45 TEST',hp:10,maxHp:10};stage='combat';player.flags.worldHour=19;spendTurns(1);");
+ assert.equal(run('Route127Notifications.nightfallVisible()'),true);
+ assert.equal(run('combatState.hp'),10);
+ // Exercise the actual reward renderer with a small observable DOM.
+ let panel;
+ ctx.document.createElement=tag=>({tag,children:[],attributes:{},append(...items){this.children.push(...items);},setAttribute(k,v){this.attributes[k]=v;},addEventListener(){},remove(){}});
+ ctx.__noticeHost={frame:{},narrative:{parentElement:{insertBefore(value){panel=value;}}}};
+ run('GraphicalUI.element=__noticeHost;Route127Notifications.showNightfall();');
+ assert.equal(panel.attributes.role,'status');
+ assert.equal(panel.children[0].textContent,'🌙 NIGHT HAS FALLEN');
+ assert.equal(panel.children[1].textContent,'The last light disappears beyond the horizon. Somewhere in the darkness, something howls.');
+ assert.equal(panel.children[2].textContent,'⚠️ Enemies deal 25% more damage after dark.');
+ assert(!panel.children.some(x=>x.tag==='button'),'Atmospheric notice must not require confirmation');
+ // Isolated command observation covers direct clock writers and load suppression.
+ const other=create({skipScripts:['nightfall_wo45.js']});
+ other.run(`updateHud=()=>{};GraphicalUI.active=()=>true;
+ handleCommand=async cmd=>{if(cmd==='travel')player.flags.worldHour=23;else if(cmd==='load')loadGame();};
+ loadGame=()=>{player.flags.worldHour=23;return true;};resetPlayer=()=>{player.flags.worldHour=8;};`);
+ vm.runInContext(fs.readFileSync(path.resolve(__dirname,'../runtime/nightfall_wo45.js'),'utf8'),other.ctx);
+ other.run('player.flags.worldHour=18;');await other.run("handleCommand('travel')");
+ assert.equal(other.run('Route127Notifications.nightfallVisible()'),true);
+ other.run('Route127Notifications.clearNightfall();player.flags.worldHour=18;');await other.run("handleCommand('load')");
+ assert.equal(other.run('Route127Notifications.nightfallVisible()'),false);
+ assert.equal(other.run('player.flags.worldHour'),23);
+ console.log('PASS WO45 nightfall: 20:00 crossing, time jumps, once per night, next-turn dismissal, unlimited turns, failed spend, day/dusk exclusion, combat coexistence, exact content, no confirmation, direct travel and nighttime-load suppression');
+})().catch(error=>{console.error(error);process.exitCode=1;});

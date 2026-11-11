@@ -18,10 +18,11 @@ body.full-graphics .gfx-main:has(.r127-last-combat) .gfx-narrative{min-height:55
 `;
 document.head.append(style);
 let previousCombat=false,result=null,visible=null,watching=false,closeCount=0;
-let rewardTurns=null;
+let rewardTurns=null,notice=null,noticeTurn=null;
+const turnSignature=()=>[player?.lifetimeTurns,player?.turns,player?.flags?.worldHour].join(':');
 const turnCount=()=>Number(player?.turns);
-function dismiss(){result=null;watching=false;rewardTurns=null;visible?.remove();visible=null;}
-const active=()=>GraphicalUI.active()&&!combatState;
+function dismiss(){result=null;watching=false;rewardTurns=null;notice=null;noticeTurn=null;visible?.remove();visible=null;}
+const active=()=>GraphicalUI.active()&&(!combatState||notice);
 const summaryPattern=/\b(?:you deal|damage|xp|experience|bolts|pack:|pack \+|loot|salvage|reward|victory|won|defeated|killed|result|level up|level-up|item found|you receive|you gain)\b/i;
 const isHeading=t=>/^\s*(?:result|combat result|victory|battle won)\s*[:—-]?\s*$/i.test(t);
 const squash=t=>String(t||'').replace(/\s+/g,' ').trim();
@@ -51,20 +52,23 @@ function draw(){
  const e=GraphicalUI.element;
  if(!e?.narrative||!e?.frame||!result||!active())return;
  if(visible?.isConnected)return;
- const panel=document.createElement('aside');panel.className='r127-last-combat';
- panel.setAttribute('role','status');panel.setAttribute('aria-label','Recent combat rewards');
- const heading=document.createElement('strong');heading.textContent='LAST COMBAT — RESULTS & LOOT';
+ const panel=document.createElement('aside');panel.className='r127-last-combat'+(notice?' r127-nightfall':'');
+ panel.setAttribute('role','status');panel.setAttribute('aria-label',notice?'Nightfall warning':'Recent combat rewards');
+ const heading=document.createElement('strong');heading.textContent=notice?.heading||'LAST COMBAT — RESULTS & LOOT';
  panel.append(heading);
- for(const line of result){const span=document.createElement('span');span.className='r127-last-combat-line';span.textContent=line;panel.append(span);}
+ for(const [index,line]of result.entries()){const span=document.createElement('span');span.className='r127-last-combat-line'+(notice?(index===0?' r127-nightfall-story':' r127-nightfall-warning'):'');span.textContent=line;panel.append(span);}
+ if(!notice){
  const close=document.createElement('button');close.type='button';close.textContent='×';
  close.setAttribute('aria-label','Dismiss combat results');
  close.addEventListener('click',dismiss);
  panel.append(close);
+ }
  e.narrative.parentElement?.insertBefore(panel,e.narrative);
  visible=panel;
 }
 function update(){
  if(!GraphicalUI.active())return;
+ if(notice){if(turnSignature()!==noticeTurn){dismiss();}else{draw();return;}}
  if(combatState){previousCombat=true;dismiss();return;}
  // A new movement/game turn ends the reward display automatically. This
  // comparison is made against the turn count when the result was displayed,
@@ -94,4 +98,18 @@ const mutation=new MutationObserver(()=>{
  if(lines?.length){result=lines;rewardTurns=turnCount();visible?.remove();visible=null;draw();}
 });
 if(screen)mutation.observe(screen,{childList:true});
+// Reuse the reward panel and its lifecycle; no modal, queue or new framework.
+globalThis.Route127Notifications=Object.freeze({
+ showNightfall(){dismiss();notice={heading:'🌙 NIGHT HAS FALLEN'};
+  result=['The last light disappears beyond the horizon. Somewhere in the darkness, something howls.','⚠️ Enemies deal 25% more damage after dark.'];
+  noticeTurn=turnSignature();draw();},
+ clearNightfall(){if(notice)dismiss();},
+ nightfallVisible(){return !!notice;}
+});
+const atmospheric=document.createElement('style');atmospheric.textContent=`
+.r127-last-combat.r127-nightfall{background:#171019f5;border-color:#925339;color:#fff;padding:10px 12px;max-height:none;pointer-events:none}
+.r127-nightfall strong{color:#e99662}.r127-nightfall-story{font-style:italic}
+.r127-nightfall-warning{color:#ffd080;font-weight:bold;margin-top:3px}
+@media(max-width:640px){.r127-last-combat.r127-nightfall{font-size:11px;padding:7px 9px}.r127-nightfall strong{font-size:12px}}
+`;document.head.append(atmospheric);
 })();

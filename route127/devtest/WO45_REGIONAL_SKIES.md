@@ -56,4 +56,14 @@ Options → REGIONAL SKY PREVIEW opens a modal with seven regions and DAWN/DAY/D
 
 ## Deployment
 
+## Nightfall amendment
+
+`runtime/nightfall_wo45.js` observes successful `spendTurns` calls and settled commands that write the existing clock directly (horse/Astrid travel). It recognizes crossings of 20:00, including jumps past 20:00 and multi-hour turn spending. Notification display waits until an in-flight command settles. Identical UI refreshes never trigger it. Load/reset establish a new baseline and clear the notice; nighttime loads are silent. The final clock must still be in the night period, so a multi-day jump ending at midday does not announce night during daylight.
+
+The existing combat-rewards panel now exposes a small notification API. It renders the exact requested heading, italic narrative and highlighted 25% warning, with a dark background and orange title. Nightfall has no confirmation/close button, uses `role=status`, and does not capture clicks or change menus. It can remain visible during combat. A signature of existing lifetime turns, available turns and world hour dismisses it on the next actual turn, including Unlimited Turns mode. Nightfall temporarily takes priority over a combat-results panel; there are no stacked duplicate notices. No combat calculations are modified.
+
+PASS: `node route127/devtest/tests/wo45_nightfall.cjs`: 20:00 crossing, jumped crossing, next-night rearming, no same-night repeat, next-turn dismissal, Unlimited Turns, failed turn spend, daytime/dusk exclusions, combat state unchanged, exact message text, no confirmation button, direct travel, and nighttime-load suppression. Live desktop/mobile presentation remains part of browser verification.
+
+## Publishing status
+
 The implementation is prepared for DEVTEST publishing only. PLAYTEST files and all shared artwork remain untouched. The deployed commit and Pages outcome are reported separately after publishing. WO45 must not be promoted to PLAYTEST; graphics defects and remaining browser checks require owner review.

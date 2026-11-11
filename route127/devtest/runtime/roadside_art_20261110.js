@@ -14,6 +14,7 @@ const scenes={
  'THE CRAWLER':()=>file('The Crawler.png'),
  'THE BIG MAN':()=>file('The Big Man.png'),
  'THE BONE COLLECTOR':()=>file('The Bone Collector.png'),
+ 'THE WARDEN':()=>file('Sentry.png'),
  'SECURITY DRONE':()=>file('Security Drone.png'),
  'SOMETHING IN THE DRAIN':()=>file('Something in the Drain - Grate and Claw.png'),
  'THE WAX MUSEUM':()=>file('The Curator.png'),
@@ -38,7 +39,7 @@ function current(){
  if(['HIGHWAY ROBBERS','LOOTERS','PARKING LOT RAIDERS','GANG LOOKOUT','THE HOLLOWED',
  'THE SQUATTERS','GUNSHOP OWNER','RABID RACCOONS','BAT COLONY',
  'SILAS CROWE','RIVET AND CREW'].includes(title))return null;
- let spec=raw==='FERAL BOAR'?()=>file('Tunnel Rats - Wild Boar.png'):scenes[title]||scenes[normalize(origin?.title)];
+ let spec=combat?.r18WardenId?scenes['THE WARDEN']:raw==='FERAL BOAR'?()=>file('Tunnel Rats - Wild Boar.png'):scenes[title]||scenes[normalize(origin?.title)];
  if(!combat&&normalize(origin?.title)==='THE PAINTED ARROWS')return null;
  if(!spec&&/CHEMICAL BURNER/.test(title))spec=()=>[file('Chemical Burner 1.png'),file('Chemical Burner 2.png')];
  if(!spec&&/SENTRY/.test(title))spec=()=>file('Sentry.png');

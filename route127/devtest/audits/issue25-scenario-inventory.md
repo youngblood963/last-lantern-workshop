@@ -11,7 +11,7 @@ The loaded registry and catalog yielded 396 records after expansion, representin
 | early:12 | Broken Motel → The County Offices. Harlan guards Office 204 in a county administration building. | Forced renderer caption, Office 204 choice, original lookup title. |
 | early:46 | The Forgotten Farmhouse → The Forgotten Garden, the title specified in issue #25. | Forced renderer caption, original lookup title, chicken combat definition, East Road alias. |
 | east:30 | The Sentry now resolves lowercase `sentry.png` during approach and the Wall Guards fight. | Actual Fight the Guards choice, combat caption and case-sensitive asset path. Existing multi-target controls remain available. |
-| east:34 | The Warden retains uppercase `Sentry.png` and uses its scenario name as the image caption during combat. | Existing Warden fight and separate case-sensitive asset mapping. |
+| east:34 | The Warden uses `warden.png` and uses its scenario name as the image caption during combat. | Existing Warden fight and separate case-sensitive asset mapping. |
 | east:33 | The Road Reapers title retained under its canonical ID. | Forced caption and existing Fight Both Reapers choice. |
 
 Runtime changes are in `presentation_formatting.js`, `roadside_art_20261110.js`, and `dev_options.js`. The combat art preview exposes The Sentry and The Warden separately. `index.html` versions the scripts and `tests/roadside_sprites.cjs` exercises the live renderer functions in a DOM harness.

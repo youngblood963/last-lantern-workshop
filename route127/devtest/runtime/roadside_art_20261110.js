@@ -15,7 +15,7 @@ const scenes={
  'THE BIG MAN':()=>file('The Big Man.png'),
  'THE BONE COLLECTOR':()=>file('The Bone Collector.png'),
  // These two case-sensitive assets are different characters. Keep the Warden on the original art.
- 'THE WARDEN':()=>file('Sentry.png'),
+ 'THE WARDEN':()=>file('warden.png'),
  'THE SENTRY':()=>file('sentry.png'),
  'THE GATELESS WALL':()=>file('sentry.png'),
  'SECURITY DRONE':()=>file('Security Drone.png'),

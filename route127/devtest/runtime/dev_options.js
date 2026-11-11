@@ -246,7 +246,7 @@
     }
     const encounters={
       'The Sentry':{assets:['sentry.png'],count:1,size:36,positions:[[50,57]]},
-      'The Warden':{assets:['Sentry.png'],count:1,size:36,positions:[[50,57]]},
+      'The Warden':{assets:['warden.png'],count:1,size:36,positions:[[50,57]]},
       'Bat Colony':{asset:'bat_colony.png',count:4,size:27,positions:[[50,30],[31,16],[65,27],[43,37],[72,48]]},
       'Rabid Raccoons':{asset:'rabid_raccoon.png',count:3,size:32,positions:[[50,64],[32,65],[53,63],[69,68]]},
       'Looters':{assets:['looters_1.png','looters_2.png','looters_3.png'],count:3,size:32,positions:[[50,58],[24,60],[51,55],[77,61]]},

@@ -108,7 +108,9 @@
     const along=Math.max(0,Math.min(1,(x*dx+y*dy)/lengthSquared));
     const distance=Math.hypot(x-along*dx,y-along*dy);
     // Keep scattered grains in the track and more residue toward its edges.
-    return distance>5+speck.edge*7||speck.edge<.12;
+    const keep=distance>5+speck.edge*7||speck.edge<.12;
+    if(!keep)surface.refill.push(speck);
+    return keep;
    });
    if(this.reduced||!this.running)this.draw(0);
   }
@@ -120,7 +122,7 @@
   }
   release(){this.pointer.target=0;if(this.reduced||!this.running){this.pointer.strength=0;this.draw(0);}}
   interact(x,y,focused=false,touch=false){const p=this.pointer;p.x=x;p.y=y;p.target=1;p.focused=focused;p.until=touch?performance.now()+1600:0;if(this.reduced||!this.running){p.strength=1;this.draw(0);}else this.schedule();}
-  resize(){if(this.stopped)return;const root=this.root.getBoundingClientRect();
+  resize(){if(this.stopped)return;if(this.effect==='ash')this.state.path=null;const root=this.root.getBoundingClientRect();
    for(const l of this.layers){const r=l.host.getBoundingClientRect();l.width=Math.max(1,r.width);l.height=Math.max(1,r.height);l.x=r.left-root.left;l.y=r.top-root.top;const scale=Math.min(devicePixelRatio||1,1.5,1400/l.width);l.canvas.width=Math.ceil(l.width*scale);l.canvas.height=Math.ceil(l.height*scale);l.context?.setTransform(scale,0,0,scale,0,0);}
    this.draw(0);
   }
@@ -209,7 +211,7 @@
    if(!rect.width||!rect.height)continue;
    let surface=state.soot.get(button);
    if(!surface){
-    surface={specks:[],carry:0};
+    surface={specks:[],refill:[],carry:0};
     state.soot.set(button,surface);
     if(reduced){
      surface.specks=Array.from({length:28},()=>sootGrain(engine));
@@ -221,7 +223,7 @@
     const count=Math.floor(surface.carry);
     surface.carry-=count;
     for(let i=0;i<count&&surface.specks.length<limit;i++){
-     surface.specks.push(sootGrain(engine));
+     surface.specks.push(surface.refill.shift()??sootGrain(engine));
     }
    }
 
@@ -254,7 +256,8 @@
      size:.65+engine.random()*1.95,
      speed:12+engine.random()*28,
      drift:4+engine.random()*13,
-     phase:engine.random()*Math.PI*2
+     phase:engine.random()*Math.PI*2,
+     opacity:.45+engine.random()*.55
     }))
    };
   },
@@ -266,11 +269,13 @@
     const flake=engine.state.flakes[i];
     const x=(flake.x*layer.width+time*flake.drift+Math.sin(time*.8+flake.phase)*13+20)%(layer.width+32)-16;
     const y=(flake.y*layer.height+time*flake.speed)%(layer.height+12)-6;
+    context.globalAlpha=flake.opacity;
     context.fillStyle=engine.period==='night'?'rgba(134,123,112,.48)':'rgba(103,95,88,.36)';
     context.fillRect(x-.5,y-.5,flake.size+1,flake.size+1);
     context.fillStyle='rgba(25,22,20,.78)';
     context.fillRect(x,y,flake.size,flake.size*.76);
    }
+   context.globalAlpha=1;
    if(ui)drawSoot(context,engine,dt);
   }
  });

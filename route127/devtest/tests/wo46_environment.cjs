@@ -127,7 +127,7 @@ root.fire('pointermove',{target:dusty,clientX:200,clientY:255,pointerId:1});
 assert.equal(surface.specks.length,2,'A path clears only nearby grains and leaves residue');
 assert.equal(neighbor.dataset.sootSpecks,'88');
 ash.draw(.05);
-assert(surface.specks.length>2,'Fresh soot fills the track');
+assert(surface.specks.some(s=>s.x===.4&&s.y===.5&&s.edge===.5),'Fresh soot fills the erased track itself');
 surface.specks=[{x:.4,y:.5,edge:.5,size:2}];
 root.fire('pointerdown',{target:dusty,clientX:40,clientY:255,pointerId:2,pointerType:'touch'});
 root.fire('pointermove',{target:dusty,clientX:200,clientY:255,pointerId:2,pointerType:'touch'});

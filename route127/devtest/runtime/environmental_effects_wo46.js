@@ -135,7 +135,7 @@
  let live=null,previewDialog=null;
  function update(){const spec=liveEffect(),root=GraphicalUI.element?.frame,figure=GraphicalUI.element?.figure;if(!spec||!root||!figure||root.hidden){live?.stop();live=null;return;}
   if(live&&(live.effect!==spec.effect||live.root!==root)){live.stop();live=null;}
-  const period=Route127RegionalSky.phase(player.flags.worldHour);if(!live)live=new EnvironmentalEffects(root,figure,{effect:spec.effect,period});else if(live.period!==period){live.clearBeads();live.period=period;}
+  const period=Route127RegionalSky.phase(player.flags.worldHour);if(!live)live=new EnvironmentalEffects(root,figure,{effect:spec.effect,period,buttonDroplets:spec.effect==='rain',buttonLimit:4});else if(live.period!==period){live.clearBeads();live.period=period;}
  }
  function preview(){if(previewDialog?.open)return;live?.stop();live=null;
   const dialog=document.createElement('dialog');previewDialog=dialog;dialog.className='r127-env-preview';dialog.setAttribute('aria-label','Environmental effects preview');
@@ -145,12 +145,12 @@
   const region=select('Weather preview region',Object.entries(Route127RegionalSky.regions).map(([key,row])=>[key,row[2]]));
   const period=select('Weather time of day',['dawn','day','dusk','night'].map(p=>[p,p.toUpperCase()]));
   const layout=select('Preview layout',[['desktop','Full width'],['phone','Phone width (390px)']]);
-  const wetWrap=document.createElement('label'),wet=document.createElement('input');wet.type='checkbox';wet.checked=true;wet.setAttribute('aria-label','Button Droplets');wetWrap.append(wet,document.createTextNode('Button Droplets: ON — first button prototype'));controls.append(wetWrap);
+  const wetWrap=document.createElement('label'),wet=document.createElement('input');wet.type='checkbox';wet.checked=true;wet.setAttribute('aria-label','Button Droplets');wetWrap.append(wet,document.createTextNode('Button Droplets: ON'));controls.append(wetWrap);
   const stage=document.createElement('section');stage.className='r127-env-stage';const figure=document.createElement('figure');figure.className='r127-sky-preview-art';const img=document.createElement('img');img.alt='Environmental region background';figure.append(img);const choices=document.createElement('div');choices.className='r127-env-choices';stage.append(figure,choices);
   const status=document.createElement('p');status.setAttribute('role','status');status.textContent='Preview only — no gameplay or saved progress changes.';
   let controller=null,revision=0,closed=false,mode='playing';
-  function start(){controller?.stop();controller=new EnvironmentalEffects(stage,figure,{effect:encounter.value,period:period.value,buttonDroplets:wet.checked,buttonLimit:1});if(mode==='paused')controller.pause();if(mode==='stopped'){controller.stop();controller=null;}}
-  wet.addEventListener('change',()=>{controller?.setButtonDroplets(wet.checked,1);wetWrap.lastChild.textContent='Button Droplets: '+(wet.checked?'ON':'OFF')+' — first button prototype';});
+  function start(){controller?.stop();controller=new EnvironmentalEffects(stage,figure,{effect:encounter.value,period:period.value,buttonDroplets:wet.checked,buttonLimit:4});if(mode==='paused')controller.pause();if(mode==='stopped'){controller.stop();controller=null;}}
+  wet.addEventListener('change',()=>{controller?.setButtonDroplets(wet.checked,4);wetWrap.lastChild.textContent='Button Droplets: '+(wet.checked?'ON':'OFF');});
   layout.addEventListener('change',()=>{stage.classList.toggle('r127-env-phone',layout.value==='phone');controller?.resize();});
   async function render(){const version=++revision,spec=available.find(d=>d.effect===encounter.value);controller?.stop();controller=null;wetWrap.hidden=encounter.value!=='rain';choices.replaceChildren();
    for(const label of spec.entry.encounter.choices.split(/\s{2,}/).filter(Boolean)){const b=GraphicalUI.button(label,()=>{status.textContent=label+' — visual interaction only; no outcome executed.';},'gfx-choice');choices.append(b);}

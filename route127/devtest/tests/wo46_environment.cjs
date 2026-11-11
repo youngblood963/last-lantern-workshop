@@ -105,8 +105,8 @@ const liveBefore=integration.run('JSON.stringify(player)');
 vm.runInContext(fs.readFileSync(path.resolve(__dirname,'../runtime/environmental_effects_wo46.js'),'utf8'),integration.ctx);
 integration.run('GraphicalUI.sync()');assert.equal(integration.run('Route127Environment.diagnostics().effect'),'rain');
 for(let i=0;i<200;i++){now+=20;const pending=[...frames.values()];frames.clear();for(const fn of pending)fn(now);}
-assert.equal(liveRoot.buttons.filter(b=>b.dataset.wetBeads!==undefined).length,0,'Live pooling awaits owner visual approval');
+assert.equal(liveRoot.buttons.filter(b=>Number(b.dataset.wetBeads)>0).length,4,'All four live choices collect beads');
 integration.run('stage="lanternRoad";GraphicalUI.sync();');assert(liveRoot.buttons.every(b=>b.dataset.wetBeads===undefined));assert.equal(frames.size,0);
 integration.run('stage="encounter";GraphicalUI.sync();loadGame();');assert(liveRoot.buttons.every(b=>b.dataset.wetBeads===undefined));assert.equal(frames.size,0);
 assert.equal(integration.run('JSON.stringify(player)'),liveBefore);
-console.log('PASS #19 shipped live hook: rainfall retained, pooling gated to preview, unrelated-stage/load cleanup, unchanged player data');
+console.log('PASS #19 shipped live hook: rainfall retained, pooling on all four live choices, unrelated-stage/load cleanup, unchanged player data');

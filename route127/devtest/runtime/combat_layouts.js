@@ -116,11 +116,31 @@
   byEncounter.set(encounters[drainIndex],id);
  }
  for(const [id,name,region] of [
-  ['house:yardman','Yardman','CENTRAL'],['seaport:liberation','Seaport Liberation','SEAPORT'],
+  ['house:squatter','House Squatter','CENTRAL'],['seaport:liberation','Seaport Liberation','SEAPORT'],
   ['factory:captors','Daniel’s Captors','INDUSTRIAL']
  ])rows.set(id,{id,name,title:normalize(name),classification:'FIXED',regions:[region],combat:true,variants:id==='seaport:liberation'?
    [{units:[],background:locationArt('seaport_occupied.png'),phase:'both',variant:'Occupied Harbor'}]:[]});
 
+ const scripted=[
+  ['serviceBoss','The Yardman','Service Road','CENTRAL'],
+  ['gateGuards','Solace Gate Guard','Solace Gate','CENTRAL'],
+  ['jenBoss','Raider Captain','Last Call quest'],
+  ['terribleBilly','Terrible Billy','Bounty encounter'],
+  ['r18StationFight','Signal Hunters','Station Nine storyline'],
+  ['r18DepotFight','County Unit 07','County Depot'],
+  ['stationNineSecurity','Station Nine Security Unit','Station Nine garage'],
+  ['r18RedFight','Red’s Fight','Rusty Anchor','SEAPORT'],
+  ['seaportRoadFight','Coast Road Scavenger','Seaport Road','SEAPORT'],
+  ['seaportRoadFight','Harbor Security Drone','Seaport Road','SEAPORT']
+ ];
+ const scriptIds=new Map();
+ for(const [source,name,site,region] of scripted){
+  const key=source==='seaportRoadFight'?source+':'+normalize(name):source;
+  const id='scripted:'+key.toLowerCase().replace(/[^a-z0-9:]+/g,'-');
+  scriptIds.set(key,id);
+  rows.set(id,{id,name,title:normalize(name),classification:'FIXED',site,
+   regions:region?[region]:[],combat:true,variants:[]});
+ }
  const installed=new Map([...rows.values()].flatMap(row=>row.variants.flatMap(v=>
   v.units.map(path=>[assetName(path),path]))));
  const bounds={x:[0,100],y:[0,100],width:[2,150],height:[2,150],scale:[.1,3],z:[0,30]};
@@ -199,7 +219,9 @@
    const slot=FACTORY_ENEMIES[floor]?.indexOf(normalize(c.name))??-1;
    return slot<0?null:{id:'factory:floor:'+floor+':'+slot,phase:'combat'};
   }
-  if(c?.source==='houseBoss')return {id:'house:yardman',phase:'combat'};
+  if(c?.source==='houseBoss')return {id:'house:squatter',phase:'combat'};
+  const scriptedId=scriptIds.get(c?.source==='seaportRoadFight'?c.source+':'+normalize(c.name):c?.source);
+  if(scriptedId)return {id:scriptedId,phase:'combat'};
   if(c?.source==='seaportLiberation')return {id:'seaport:liberation',phase:'combat'};
   if(stage==='wo6FreshMart')return {id:'east:67',phase:'approach'};
   if(stage!=='encounter'&&!(c&&c.source==='encounter'&&['combat','combatItems'].includes(stage)))return null;

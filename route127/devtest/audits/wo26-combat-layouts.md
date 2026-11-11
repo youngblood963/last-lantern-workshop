@@ -16,24 +16,24 @@ The selector takes canonical IDs, names and classifications from the live regist
 
 | Group | Count |
 |---|---:|
-| Active entries shown by default | 209 |
+| Active entries shown by default | 219 |
 | Inactive entries available via filter | 6 |
 | Global | 42 |
-| Fixed | 21 |
-| Central assignments | 39 |
+| Fixed | 31 |
+| Central assignments | 41 |
 | Industrial assignments | 66 |
 | North assignments | 26 |
 | East assignments | 35 |
 | West assignments | 39 |
 | Lowlands assignments | 22 |
-| Seaport assignments | 19 |
+| Seaport assignments | 22 |
 
 | Active entries | Total | Dedicated scene or sprite art | Editable sprite art | Art variants |
 |---|---:|---:|---:|---:|
-| Combat available | 104 | 45 | 27 | 55 |
+| Combat available | 114 | 45 | 27 | 55 |
 | Noncombat | 105 | 15 | 3 | 18 |
 
-All configured file paths resolve in the checkout. The browser checks each assigned image and exposes failures as Art broken. The 149 active entries without dedicated art remain discoverable. Combat entries without a dedicated assignment show Art missing / review. Other unassigned entries show Art unassigned / review because the registry does not distinguish intentional text-only scenes from unfinished art. The default regional background remains available in those previews. Attach Sprite can assign already installed sprite art to a draft without changing combat targets.
+All configured file paths resolve in the checkout. The browser checks each assigned image and exposes failures as Art broken. The 159 active entries without dedicated art remain discoverable. Combat entries without a dedicated assignment show Art missing / review. Other unassigned entries show Art unassigned / review because the registry does not distinguish intentional text-only scenes from unfinished art. The default regional background remains available in those previews. Attach Sprite can assign already installed sprite art to a draft without changing combat targets.
 
 ## Verification and limitations
 

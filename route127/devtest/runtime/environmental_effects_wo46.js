@@ -3,7 +3,7 @@
  'use strict';
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||!/^\/route127\/devtest\/(?:index\.html)?$/.test(location.pathname))return;
  const effects=new Map(),owners=new WeakMap();let sequence=1;
- const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+ const RAIN_VISUAL_SCALE=1.7;
  const style=document.createElement('style');style.textContent=`
  .r127-env-host{position:relative;isolation:isolate}
  .r127-env-canvas,.r127-env-atmosphere{position:absolute;inset:0;width:100%;height:100%;pointer-events:none!important;user-select:none}
@@ -44,9 +44,9 @@
    this.state=effects.get(effect)?.create(this);if(!this.state){this.stop();throw Error('Unknown environmental effect '+effect);}
    this.listen(root,'pointermove',e=>this.approach(e));
    this.listen(root,'pointerdown',e=>this.approach(e,true));
-   this.listen(root,'pointerleave',()=>{if(!this.pointer.focused)this.release();});
-   this.listen(root,'focusin',e=>{if(performance.now()-this.lastPointer<300)return;const b=e.target.closest?.('button');if(b){const r=b.getBoundingClientRect(),box=root.getBoundingClientRect();if(this.effect==='rain'){this.disturbBeads(r.left+r.width/2,r.top+r.height/2,true,b);return;}this.interact(r.left+r.width/2-box.left,r.top+r.height/2-box.top,true);}});
-   this.listen(root,'focusout',()=>{this.pointer.focused=false;this.release();});
+   this.listen(root,'pointerleave',()=>{if(this.effect==='fog'&&!this.pointer.focused)this.release();});
+   this.listen(root,'focusin',e=>{if(performance.now()-this.lastPointer<300)return;const b=e.target.closest?.('button');if(b){const r=b.getBoundingClientRect(),box=root.getBoundingClientRect();if(this.effect!=='fog')return;this.interact(r.left+r.width/2-box.left,r.top+r.height/2-box.top,true);}});
+   this.listen(root,'focusout',()=>{if(this.effect==='fog'){this.pointer.focused=false;this.release();}});
    this.listen(document,'visibilitychange',()=>this.schedule());
    this.listen(this.motion,'change',e=>{this.reduced=e.matches;this.schedule();});
    if(typeof ResizeObserver!=='undefined'){this.observer=new ResizeObserver(()=>this.resize());this.observer.observe(root);this.observer.observe(scenery);}
@@ -56,7 +56,6 @@
   random(){this.randomState=(Math.imul(this.randomState,1664525)+1013904223)>>>0;return this.randomState/4294967296;}
   listen(target,type,fn){target.addEventListener?.(type,fn,{passive:true});this.listeners.push([target,type,fn]);}
   approach(event,touch=false){
-   if(this.effect==='rain'){this.lastPointer=performance.now();this.disturbBeads(event.clientX,event.clientY,touch);return;}
    if(this.effect!=='fog')return;
    this.lastPointer=performance.now();this.pointer.focused=false;
    const root=this.root.getBoundingClientRect();let best=null,distance=110;
@@ -84,27 +83,20 @@
   }
   clearBeads(){for(const b of this.wetButtons.keys())delete b.dataset.wetBeads;this.wetButtons.clear();}
   setButtonDroplets(enabled,limit=1){this.clearBeads();this.buttonDroplets=!!enabled&&this.effect==='rain';this.buttonLimit=limit;this.draw(0);}
-  disturbBeads(x,y,strong=false,focused=null){
-   if(!this.buttonDroplets)return;const time=performance.now();
-   for(const [button,state]of this.wetButtons){const r=button.getBoundingClientRect(),near=x>=r.left-30&&x<=r.right+30&&y>=r.top-30&&y<=r.bottom+30;if(!near&&button!==focused)continue;if(!strong&&time-state.lastDisturb<130)continue;state.lastDisturb=time;
-    for(const bead of state.beads){const dx=r.left+bead.x*r.width-x,dy=r.top+bead.y*r.height-y;if(focused!==button&&Math.hypot(dx,dy)>65)continue;bead.slide=strong?20:9;bead.x=clamp(bead.x+(dx<0?-.012:.012),.025,.975);bead.trail=strong?13:7;}
-   }
-   if(this.reduced||!this.running)this.draw(0);
-  }
   drawBeads(c,dt){
    const buttons=[...this.root.querySelectorAll('.gfx-choice')].slice(0,this.buttonLimit),root=this.root.getBoundingClientRect();
    for(const b of [...this.wetButtons.keys()])if(!buttons.includes(b)){delete b.dataset.wetBeads;this.wetButtons.delete(b);}
    for(const button of buttons){const r=button.getBoundingClientRect();if(!r.width||!r.height)continue;const x=r.left-root.left,y=r.top-root.top,cap=r.width<400?14:20;
-    let s=this.wetButtons.get(button);if(!s){s={beads:[],water:0,lastDisturb:-1000};this.wetButtons.set(button,s);}
-    const make=()=>({x:.035+this.random()*.93,y:this.random()<.72?.04+this.random()*.08:.18+this.random()*.57,radius:1.25+this.random()*1.45,age:0,slide:0,trail:0});
+    let s=this.wetButtons.get(button);if(!s){s={beads:[],water:0};this.wetButtons.set(button,s);}
+    const make=()=>({x:.035+this.random()*.93,y:this.random()<.72?.04+this.random()*.08:.18+this.random()*.57,radius:(1.25+this.random()*1.45)*RAIN_VISUAL_SCALE,age:0,slide:0,trail:0});
     if(this.reduced&&s.beads.length===0)for(let i=0;i<6;i++)s.beads.push(make());
     if(!this.reduced){s.water+=dt*(r.width<400?1.4:2);if(s.water>=1){s.water-=1;if(s.beads.length<cap)s.beads.push(make());}}
     for(const bead of s.beads){if(this.reduced)continue;bead.age+=dt;
-     if(bead.radius>2.5&&bead.age>2.5&&!bead.slide&&this.random()<dt*.1)bead.slide=8+bead.radius*2;
-     if(bead.slide){bead.y+=dt*bead.slide/r.height;bead.slide+=dt*4;bead.trail=Math.min(17,bead.trail+dt*18);}
+     if(bead.radius>2.5*RAIN_VISUAL_SCALE&&bead.age>2.5&&!bead.slide&&this.random()<dt*.1)bead.slide=8+bead.radius*2;
+     if(bead.slide){bead.y+=dt*bead.slide/r.height;bead.slide+=dt*4;bead.trail=Math.min(25,bead.trail+dt*18);}
     }
     // Merge by area, with a strict radius cap so labels never disappear under blobs.
-    for(let i=0;i<s.beads.length;i++)for(let j=s.beads.length-1;j>i;j--){const a=s.beads[i],b=s.beads[j];if(Math.hypot((a.x-b.x)*r.width,(a.y-b.y)*r.height)<(a.radius+b.radius)*.85){const aa=a.radius*a.radius,bb=b.radius*b.radius;a.x=(a.x*aa+b.x*bb)/(aa+bb);a.y=(a.y*aa+b.y*bb)/(aa+bb);a.radius=Math.min(4.6,Math.sqrt(aa+bb));a.age=Math.max(a.age,b.age);s.beads.splice(j,1);}}
+    for(let i=0;i<s.beads.length;i++)for(let j=s.beads.length-1;j>i;j--){const a=s.beads[i],b=s.beads[j];if(Math.hypot((a.x-b.x)*r.width,(a.y-b.y)*r.height)<(a.radius+b.radius)*.85){const aa=a.radius*a.radius,bb=b.radius*b.radius;a.x=(a.x*aa+b.x*bb)/(aa+bb);a.y=(a.y*aa+b.y*bb)/(aa+bb);a.radius=Math.min(6.5,Math.sqrt(aa+bb));a.age=Math.max(a.age,b.age);s.beads.splice(j,1);}}
     s.beads=s.beads.filter(b=>b.y<1.08);const count=String(s.beads.length);if(button.dataset.wetBeads!==count)button.dataset.wetBeads=count;
     c.save();c.beginPath();c.rect(x,y,r.width,r.height);c.clip();
     for(const bead of s.beads){const bx=x+bead.x*r.width,by=y+bead.y*r.height,rad=bead.radius;
@@ -118,9 +110,9 @@
   diagnostics(){return {effect:this.effect,running:this.running,stopped:this.stopped,frame:this.frame!==null,layers:this.layers.length,elapsed:this.elapsed,reducedMotion:this.reduced,clearing:this.pointer.strength};}
  }
  EnvironmentalEffects.register('rain',{
-  create(engine){return {drops:Array.from({length:110},()=>({x:engine.random(),y:engine.random(),length:10+engine.random()*24,speed:300+engine.random()*320,depth:.35+engine.random()*.65})),nextLightning:9+engine.random()*12,flash:0};},
+  create(engine){return {drops:Array.from({length:110},()=>({x:engine.random(),y:engine.random(),length:(10+engine.random()*24)*RAIN_VISUAL_SCALE,speed:300+engine.random()*320,depth:.35+engine.random()*.65})),nextLightning:9+engine.random()*12,flash:0};},
   draw(c,l,e,dt){const ui=l.canvas.dataset.layer==='interface',count=ui?85:(l.width<650?65:110),s=e.state;
-   c.strokeStyle=ui?'#c88861':e.period==='night'?'#bf7658':'#a85232';c.lineWidth=ui?1.1:1.2;
+   c.strokeStyle=ui?'#c88861':e.period==='night'?'#bf7658':'#a85232';c.lineWidth=(ui?1.1:1.2)*RAIN_VISUAL_SCALE;
    for(let i=0;i<count;i++){const p=s.drops[i];let x=(p.x*l.width+e.elapsed*p.speed*.23)%(l.width+55)-25,y=(p.y*l.height+e.elapsed*p.speed)%(l.height+45)-25;c.globalAlpha=(ui?.5:.58)*p.depth;c.beginPath();c.moveTo(x,y);c.lineTo(x-4-p.length*.22,y-p.length);c.stroke();}
    c.globalAlpha=1;
    if(!ui&&!e.reduced){if(e.elapsed>s.nextLightning){s.flash=.07;s.nextLightning=e.elapsed+11+e.random()*17;}s.flash=Math.max(0,s.flash-dt*.19);if(s.flash){c.fillStyle='rgba(231,219,200,'+s.flash+')';c.fillRect(0,0,l.width,l.height);}}
@@ -143,7 +135,7 @@
  let live=null,previewDialog=null;
  function update(){const spec=liveEffect(),root=GraphicalUI.element?.frame,figure=GraphicalUI.element?.figure;if(!spec||!root||!figure||root.hidden){live?.stop();live=null;return;}
   if(live&&(live.effect!==spec.effect||live.root!==root)){live.stop();live=null;}
-  const period=Route127RegionalSky.phase(player.flags.worldHour);if(!live)live=new EnvironmentalEffects(root,figure,{effect:spec.effect,period,buttonDroplets:spec.effect==='rain',buttonLimit:4});else if(live.period!==period){live.clearBeads();live.period=period;}
+  const period=Route127RegionalSky.phase(player.flags.worldHour);if(!live)live=new EnvironmentalEffects(root,figure,{effect:spec.effect,period});else if(live.period!==period){live.clearBeads();live.period=period;}
  }
  function preview(){if(previewDialog?.open)return;live?.stop();live=null;
   const dialog=document.createElement('dialog');previewDialog=dialog;dialog.className='r127-env-preview';dialog.setAttribute('aria-label','Environmental effects preview');

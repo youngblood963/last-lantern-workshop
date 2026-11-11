@@ -1,5 +1,5 @@
-/* Source-controlled DEVTEST sprite layouts from owner export (2026-11-11). */
-/* Full-scene background layouts deliberately withheld pending visual review; original artwork and gameplay scene composition are preserved. */
+/* Source-controlled DEVTEST layouts from owner-exported JSON (2026-11-11). */
+/* Scene objects use their existing regional background and dynamic sky; no image replacements. */
 globalThis.Route127PublishedCombatLayouts={
   "version": 1,
   "scenes": {
@@ -464,6 +464,61 @@ globalThis.Route127PublishedCombatLayouts={
         "height": 82,
         "scale": 1,
         "z": 2,
+        "flip": false
+      }
+    },
+    "early:31/approach/desktop": {
+      "background:the_carousel_horse.png": {
+        "x": 73.21428186228515,
+        "y": 59.39151994799094,
+        "width": 100,
+        "height": 100,
+        "scale": 0.3,
+        "z": 1,
+        "flip": true
+      }
+    },
+    "early:24/approach/desktop": {
+      "background:the_hanging_shoes.png": {
+        "x": 49.776783458838,
+        "y": 31.481481107711414,
+        "width": 100,
+        "height": 100,
+        "scale": 1.01,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "early:66/approach/desktop": {
+      "background:miles_the_courier.png": {
+        "x": 45.38690734679989,
+        "y": 55.55555667686577,
+        "width": 100,
+        "height": 100,
+        "scale": 0.87,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "early:41/approach/desktop": {
+      "background:the_silent_picnic.png": {
+        "x": 49.479168972798604,
+        "y": 76.3227488265012,
+        "width": 100,
+        "height": 100,
+        "scale": 0.42,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "early:25/approach/desktop": {
+      "background:the_last_mail.png": {
+        "x": 64.13690379890461,
+        "y": 71.56084598684251,
+        "width": 100,
+        "height": 100,
+        "scale": 0.56,
+        "z": 1,
         "flip": false
       }
     }

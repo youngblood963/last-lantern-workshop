@@ -25,17 +25,20 @@ ctx.ResizeObserver=class{observe(){}disconnect(){disconnected++;}};
 ctx.performance={now:()=>now};ctx.requestAnimationFrame=fn=>{frames.set(++rafId,fn);return rafId;};ctx.cancelAnimationFrame=id=>frames.delete(id);
 vm.runInContext(fs.readFileSync(path.resolve(__dirname,'../runtime/environmental_effects_wo46.js'),'utf8'),ctx);
 const Controller=run('Route127Environment.Controller'),records=run('Route127Environment.records()');
-assert.equal(records.length,3);
+assert.equal(records.length,4);
+const glassRecord=records.find(x=>x.effect==='glass').entry;
+assert.equal(glassRecord.classification,'REGIONAL');
+assert.deepEqual(Array.from(glassRecord.regions).sort(),['CENTRAL','INDUSTRIAL']);
 const ashRecord=records.find(x=>x.effect==='ash').entry;
 assert.equal(ashRecord.classification,'REGIONAL');
 assert.deepEqual(Array.from(ashRecord.regions).sort(),['INDUSTRIAL','NORTH']);
 assert.equal(records.find(x=>x.effect==='rain').entry.classification,'GLOBAL');
 assert(records.find(x=>x.effect==='fog').entry.regions.includes('LOWLANDS'));
-const expected={ash:['BUY TWO COINS FOR 110 BOLTS','HEAL THE SCAVENGER','THREATEN THE SCAVENGER','FIGHT THE SCAVENGER','SEARCH THE BURNING TRUCK','BACK AWAY'],rain:['SPRINT TO SHELTER','COVER WITH ARMOR','PUSH THROUGH FOR SALVAGE','BACK AWAY'],fog:['COVER FACE WITH CLOTH','WAIT FOR THE WIND','SEARCH THE PLANT STASH','BACK AWAY']};
+const expected={glass:['CROSS CAREFULLY','TAKE THE SAFE DETOUR','CLEAR A PATH WITH TOOL','BACK AWAY'],ash:['BUY TWO COINS FOR 110 BOLTS','HEAL THE SCAVENGER','THREATEN THE SCAVENGER','FIGHT THE SCAVENGER','SEARCH THE BURNING TRUCK','BACK AWAY'],rain:['SPRINT TO SHELTER','COVER WITH ARMOR','PUSH THROUGH FOR SALVAGE','BACK AWAY'],fog:['COVER FACE WITH CLOTH','WAIT FOR THE WIND','SEARCH THE PLANT STASH','BACK AWAY']};
 for(const record of records)assert.deepEqual(Array.from(record.entry.encounter.choices.split(/\s{2,}/)),expected[record.effect]);
 const before=run('JSON.stringify(player)'),logic=records.map(r=>r.entry.encounter.resolve);
 const root=node(),scene=node('figure',{left:0,top:0,width:800,height:400}),button=node('button',{left:250,top:450,width:220,height:50});root.buttons=[button];root.append(scene);
-for(const effect of ['rain','fog','ash'])for(const period of ['dawn','day','dusk','night']){
+for(const effect of ['rain','fog','ash','glass'])for(const period of ['dawn','day','dusk','night']){
  const e=new Controller(root,scene,{effect,period});assert.equal(e.layers.length,2);assert.equal(frames.size,1);
  const frame=[...frames.values()][0];frames.clear();frame(now);assert(draws>0);
  e.pause();assert.equal(frames.size,0);e.play();assert.equal(frames.size,1);e.restart();assert.equal(e.elapsed,0);
@@ -52,7 +55,7 @@ for(let i=0;i<60;i++){const e=new Controller(root,scene,{effect:i%2?'rain':'fog'
 assert.equal(frames.size,0);assert.equal(root.listenerCount(),0);assert.equal(visibility.listenerCount(),0);assert(disconnected>=60);
 assert.equal(run('JSON.stringify(player)'),before);records.forEach((r,i)=>assert.equal(r.entry.encounter.resolve,logic[i]));
 run('GraphicalUI.active=()=>true;stage="encounter";combatState=null;');ctx.__rain=records[0].entry.encounter;run('currentEncounter=()=>__rain;');assert.equal(run('Route127Environment.liveEffect().effect'),'rain');run('stage="lanternRoad";');assert.equal(run('Route127Environment.liveEffect()'),null);run('stage="encounter";TravelerPanels.dialog={};');assert.equal(run('Route127Environment.liveEffect()'),null);
-console.log('PASS WO46: authoritative registry/choices/classifications; 12 effect/time combinations; canvas draws; mouse/touch/focus clearing; pause/play/restart/stop; visibility/reduced motion; replacement and 60 cleanup cycles; no player/resolver mutations; live encounter and unrelated-menu gating');
+console.log('PASS WO46: authoritative registry/choices/classifications; 16 effect/time combinations; canvas draws; mouse/touch/focus clearing; pause/play/restart/stop; visibility/reduced motion; replacement and 60 cleanup cycles; no player/resolver mutations; live encounter and unrelated-menu gating');
 
 // Issue #19: first-button preview proof, reusing the existing rain canvas/loop.
 reduced=false;const second=node('button',{left:500,top:450,width:220,height:50});root.buttons=[button,second];
@@ -152,3 +155,38 @@ integration.run('loadGame()');
 assert.equal(integration.run('Route127Environment.diagnostics()'),null);
 assert.equal(integration.run('JSON.stringify(player)'),liveBefore);
 console.log('PASS WO47: six buttons, regional authority, bounded soot, streak residue/refill, touch/focus, reduced motion, restart, live selection and load cleanup');
+
+
+reduced=false;
+root.buttons=Array.from({length:4},(_,i)=>node('button',{left:20,top:230+i*52,width:340,height:50}));
+const glass=new Controller(root,scene,{effect:'glass',region:'CENTRAL',period:'day'});
+const glassCanvas=glass.layers[0].context;
+let polygons=[],pathPoints=[];
+glassCanvas.beginPath=()=>{pathPoints=[];};
+glassCanvas.moveTo=(x,y)=>pathPoints.push([x,y]);
+glassCanvas.lineTo=(x,y)=>pathPoints.push([x,y]);
+glassCanvas.fill=()=>polygons.push(pathPoints);
+glass.draw(0);
+const centralGeometry=JSON.stringify(polygons);
+assert(polygons.length>20);
+glass.elapsed=1.7;
+polygons=[];
+glass.draw(.05);
+assert.equal(JSON.stringify(polygons),centralGeometry,'Reflection time never changes fixed glass geometry');
+glass.region='INDUSTRIAL';
+polygons=[];
+glass.draw(0);
+assert(polygons.length>20);
+assert.notEqual(JSON.stringify(polygons),centralGeometry,'Industrial has its own roadway placement');
+const crackTarget=root.buttons[3];
+root.fire('pointerdown',{target:crackTarget,clientX:40,clientY:410,pointerType:'touch'});
+assert.equal(glass.state.highlight.button,crackTarget);
+glass.stop();
+assert.equal(root.listenerCount(),0);
+assert.equal(frames.size,0);
+integration.run(`stage='encounter';currentEncounter=()=>RoadScenarioRegistry.entries.find(e=>e.encounter.title==='THE GLASS FIELD').encounter;GraphicalUI.sync();`);
+assert.equal(integration.run('Route127Environment.diagnostics().effect'),'glass');
+integration.run('loadGame()');
+assert.equal(integration.run('Route127Environment.diagnostics()'),null);
+assert.equal(integration.run('JSON.stringify(player)'),liveBefore);
+console.log('PASS WO48: authoritative regional encounter and four choices, fixed geometry, distinct Industrial placement, touch targeting, live gating and teardown');

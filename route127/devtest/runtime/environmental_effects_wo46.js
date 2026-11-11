@@ -28,8 +28,8 @@
 
  class EnvironmentalEffects {
   static register(name,definition){if(!definition?.create||!definition?.draw)throw Error('Weather requires create and draw');effects.set(name,definition);}
-  constructor(root,scenery,{effect,period='day',buttonDroplets=false,buttonLimit=1}={}){
-   owners.get(root)?.stop();owners.set(root,this);this.root=root;this.scenery=scenery;this.effect=effect;this.period=period;
+  constructor(root,scenery,{effect,period='day',region='CENTRAL',buttonDroplets=false,buttonLimit=1}={}){
+   owners.get(root)?.stop();owners.set(root,this);this.root=root;this.scenery=scenery;this.effect=effect;this.period=period;this.region=region;
    this.running=false;this.stopped=false;this.frame=null;this.elapsed=0;this.last=0;this.listeners=[];this.layers=[];
    this.wetButtons=new Map();this.buttonDroplets=buttonDroplets&&effect==='rain';this.buttonLimit=buttonLimit;
    this.randomState=(Date.now()+(sequence++*2654435761))>>>0;
@@ -56,7 +56,7 @@
     });
    }
    this.listen(root,'pointerleave',()=>{if(this.effect==='fog'&&!this.pointer.focused)this.release();});
-   this.listen(root,'focusin',e=>{if(performance.now()-this.lastPointer<300)return;const b=e.target.closest?.('button');if(b){const r=b.getBoundingClientRect(),box=root.getBoundingClientRect();if(this.effect!=='fog')return;this.interact(r.left+r.width/2-box.left,r.top+r.height/2-box.top,true);}});
+   this.listen(root,'focusin',e=>{if(this.effect==='glass'&&(this.reduced||!this.running))this.draw(0);if(performance.now()-this.lastPointer<300)return;const b=e.target.closest?.('button');if(b){const r=b.getBoundingClientRect(),box=root.getBoundingClientRect();if(this.effect!=='fog')return;this.interact(r.left+r.width/2-box.left,r.top+r.height/2-box.top,true);}});
    this.listen(root,'focusout',()=>{if(this.effect==='fog'){this.pointer.focused=false;this.release();}});
    this.listen(document,'visibilitychange',()=>this.schedule());
    this.listen(this.motion,'change',e=>{this.reduced=e.matches;this.schedule();});
@@ -67,6 +67,14 @@
   random(){this.randomState=(Math.imul(this.randomState,1664525)+1013904223)>>>0;return this.randomState/4294967296;}
   listen(target,type,fn){target.addEventListener?.(type,fn,{passive:true});this.listeners.push([target,type,fn]);}
   approach(event,touch=false){
+   if(this.effect==='glass'){
+    const button=event.target?.closest?.('.gfx-choice');
+    if(!button){this.state.highlight=null;return;}
+    const rect=button.getBoundingClientRect();
+    this.state.highlight={button,x:event.clientX-rect.left,y:event.clientY-rect.top,until:performance.now()+650};
+    if(this.reduced||!this.running)this.draw(0);
+    return;
+   }
    if(this.effect==='ash'){
     this.trackSoot(event,touch);
     return;
@@ -137,7 +145,7 @@
    this.frame=requestAnimationFrame(time=>{this.frame=null;const dt=this.last?Math.min(.05,(time-this.last)/1000):0;this.last=time;this.elapsed+=dt;this.draw(dt);this.schedule();});
   }
   draw(dt){if(this.stopped||document.hidden)return;const p=this.pointer;if(p.until&&performance.now()>p.until&&!p.focused){p.until=0;p.target=0;}p.strength+=(p.target-p.strength)*(this.reduced?1:Math.min(1,dt*5));
-   this.atmosphere.style.background=this.effect==='rain'?'rgba(96,37,24,.19)':this.effect==='ash'?'rgba(63,59,54,.12)':'rgba(145,154,111,.07)';
+   this.atmosphere.style.background=this.effect==='rain'?'rgba(96,37,24,.19)':this.effect==='glass'?'transparent':this.effect==='ash'?'rgba(63,59,54,.12)':'rgba(145,154,111,.07)';
    this.atmosphere.style.opacity=this.period==='night'?'.85':'.65';
    for(const layer of this.layers){const c=layer.context;if(!c)continue;c.clearRect(0,0,layer.width,layer.height);effects.get(this.effect).draw(c,layer,this,dt);if(layer.canvas.dataset.layer==='interface'&&this.buttonDroplets)this.drawBeads(c,dt);}
   }
@@ -301,13 +309,157 @@
   }
  });
 
- const descriptors=[{title:'THE RED RAIN',effect:'rain'},{title:'THE LIME FOG',effect:'fog'},{title:'THE BLACK SNOW',effect:'ash'}];
+ // Road outlines in a 500×282 reference space for the existing regional art.
+ const glassRoads={
+  CENTRAL:[
+   [[185,229],[199,218],[222,216],[229,224],[242,228],[237,241],[218,251],[203,246],[177,250]],
+   [[245,175],[257,169],[276,172],[288,180],[305,184],[298,190],[278,192],[265,186],[251,187]],
+   [[320,258],[334,253],[344,258],[357,257],[366,268],[386,273],[382,282],[344,282],[326,273]],
+   [[221,157],[234,155],[246,160],[239,165],[226,164]]
+  ],
+  INDUSTRIAL:[
+   [[197,238],[218,227],[241,228],[255,222],[265,230],[283,239],[275,252],[251,256],[235,264],[207,259]],
+   [[313,211],[330,205],[349,210],[364,217],[374,224],[360,237],[339,234],[327,226]],
+   [[265,174],[276,170],[289,175],[295,182],[283,187],[271,183]]
+  ]
+ };
+ const glassLight={
+  dawn:[231,208,143],day:[222,255,202],dusk:[242,182,99],night:[161,213,195]
+ };
+ const glassFacets=['rgba(26,70,45,.83)','rgba(48,103,62,.75)','rgba(88,137,72,.72)',
+  'rgba(39,93,55,.8)','rgba(109,148,76,.66)','rgba(22,49,36,.86)'];
+ const buttonCracks=[
+  [[.06,0],[.12,.27],[.09,.45],[.18,.68],[.22,1]],
+  [[.12,.27],[.22,.21],[.29,.32],[.36,.28]],
+  [[.18,.68],[.25,.62],[.31,.77]],
+  [[.95,0],[.89,.30],[.91,.53],[.81,.72],[.77,1]],
+  [[.89,.30],[.77,.24],[.72,.35],[.66,.32]],
+  [[.91,.53],[.97,.70],[1,.72]],
+  [[.81,.72],[.72,.68],[.66,.82],[.58,.85]]
+ ];
+
+ function glassLine(context,points,color,width){
+  context.beginPath();
+  context.moveTo(...points[0]);
+  for(let i=1;i<points.length;i++)context.lineTo(...points[i]);
+  context.strokeStyle=color;
+  context.lineWidth=width;
+  context.stroke();
+ }
+
+ function glassPolygon(context,points,color){
+  context.beginPath();
+  context.moveTo(...points[0]);
+  for(let i=1;i<points.length;i++)context.lineTo(...points[i]);
+  context.lineTo(...points[0]);
+  context.fillStyle=color;
+  context.fill();
+ }
+
+ function glassGlint(context,edge,engine,offset,road){
+  const [start,end]=edge;
+  const night=engine.period==='night';
+  const cycle=night?8:4.3;
+  const progress=engine.reduced?.55:(engine.elapsed+offset)%cycle/1.2;
+  if(progress>=1)return;
+  const strength=(engine.reduced?.28:Math.sin(progress*Math.PI))*(night?.46:.87);
+  const t=Math.max(0,progress-.16);
+  const point=q=>[start[0]+(end[0]-start[0])*q,start[1]+(end[1]-start[1])*q];
+  const head=point(progress);
+  const color=glassLight[engine.period]||glassLight.day;
+  glassLine(context,[point(t),head],'rgba('+color.join(',')+','+strength+')',road?2.6:1.35);
+  context.fillStyle='rgba('+color.join(',')+','+strength+')';
+  context.fillRect(head[0]-1,head[1]-1,road?3:2,road?3:2);
+ }
+
+ function drawRoadGlass(context,layer,engine){
+  const patches=glassRoads[engine.region];
+  if(!patches)return;
+  const image=engine.scenery.querySelector?.('img');
+  const scene=layer.host.getBoundingClientRect();
+  const box=image?.getBoundingClientRect()||scene;
+  if(!box.width||!box.height)return;
+  const style=image&&typeof getComputedStyle==='function'?getComputedStyle(image):null;
+  const naturalWidth=image?.naturalWidth||500,naturalHeight=image?.naturalHeight||282;
+  const fit=style?.objectFit;
+  const scale=(fit==='contain'?Math.min:Math.max)(box.width/naturalWidth,box.height/naturalHeight);
+  const width=naturalWidth*scale,height=naturalHeight*scale;
+  const position=(style?.objectPosition||'50% 50%').split(' ');
+  const alignment=value=>value?.endsWith('%')?Number.parseFloat(value)/100:.5;
+  const left=box.left-scene.left+(box.width-width)*alignment(position[0]);
+  const top=box.top-scene.top+(box.height-height)*alignment(position[1]);
+  const project=([x,y])=>[left+x/500*width,top+y/282*height];
+
+  context.save();
+  context.beginPath();
+  context.rect(box.left-scene.left,box.top-scene.top,box.width,box.height);
+  context.clip();
+  for(const [index,patch] of patches.entries()){
+   const points=patch.map(project);
+   const center=project([patch.reduce((sum,p)=>sum+p[0],0)/patch.length,
+    patch.reduce((sum,p)=>sum+p[1],0)/patch.length]);
+   const night=engine.period==='night';
+   context.globalAlpha=night?.78:1;
+   glassPolygon(context,points,'rgba(22,47,32,.65)');
+   for(let i=0;i<points.length;i++){
+    const next=points[(i+1)%points.length];
+    glassPolygon(context,[center,points[i],next],glassFacets[(i+index*3)%glassFacets.length]);
+    glassLine(context,[center,points[i]],i%3===0?'rgba(185,213,132,.62)':'rgba(19,47,27,.71)',i%3===0?1.2:.85);
+   }
+   glassLine(context,[...points,points[0]],night?'rgba(142,191,158,.32)':'rgba(162,195,111,.65)',1.4);
+   glassGlint(context,[points[index%points.length],points[(index+1)%points.length]],engine,index*1.37,true);
+   glassGlint(context,[center,points[(index+3)%points.length]],engine,index*1.37+1.9,true);
+  }
+  context.restore();
+ }
+
+ function drawGlassButtons(context,engine){
+  const bounds=engine.root.getBoundingClientRect();
+  const highlight=engine.state.highlight;
+  const buttons=engine.root.querySelectorAll('.gfx-choice');
+  for(const [index,button] of Array.from(buttons).entries()){
+   const rect=button.getBoundingClientRect();
+   if(!rect.width||!rect.height)continue;
+   const left=rect.left-bounds.left,top=rect.top-bounds.top;
+   const mirror=index%2!==0;
+   const project=([x,y])=>[left+(mirror?1-x:x)*rect.width,top+y*rect.height];
+
+   context.save();
+   context.beginPath();
+   context.rect(left,top,rect.width,rect.height);
+   context.clip();
+   for(const [crackIndex,crack] of buttonCracks.entries()){
+    const points=crack.map(project);
+    const middle=crack[Math.floor(crack.length/2)];
+    const near=highlight?.button===button&&highlight.until>performance.now()&&
+     Math.hypot((mirror?1-middle[0]:middle[0])*rect.width-highlight.x,middle[1]*rect.height-highlight.y)<85;
+    const focused=button.matches?.(':focus-visible')&&(crackIndex===0||crackIndex===3);
+    glassLine(context,points,'rgba(12,22,15,.48)',2.1);
+    glassLine(context,points,near||focused?'rgba(204,232,159,.68)':'rgba(152,181,116,.38)',1);
+    if(crackIndex===index%buttonCracks.length)glassGlint(context,points,engine,index*.87,false);
+   }
+   context.restore();
+  }
+ }
+
+ EnvironmentalEffects.register('glass',{
+  create(){return {highlight:null};},
+  draw(context,layer,engine){
+   if(layer.canvas.dataset.layer==='scenery')drawRoadGlass(context,layer,engine);
+   else drawGlassButtons(context,engine);
+  }
+ });
+
+ const descriptors=[{title:'THE RED RAIN',effect:'rain'},{title:'THE LIME FOG',effect:'fog'},{title:'THE BLACK SNOW',effect:'ash'},{title:'THE GLASS FIELD',effect:'glass'}];
  function records(){return descriptors.map(d=>({...d,entry:RoadScenarioRegistry.entries.find(r=>r.encounter.title===d.title)})).filter(d=>d.entry);}
  function liveEffect(){if(stage!=='encounter'||combatState||!GraphicalUI.active()||TravelerPanels.dialog||Route127MapOverlay.dialog?.open||previewDialog)return null;const current=currentEncounter();return records().find(d=>d.entry.encounter===current)||null;}
  let live=null,previewDialog=null;
  function update(){const spec=liveEffect(),root=GraphicalUI.element?.frame,figure=GraphicalUI.element?.figure;if(!spec||!root||!figure||root.hidden){live?.stop();live=null;return;}
   if(live&&(live.effect!==spec.effect||live.root!==root)){live.stop();live=null;}
-  const period=Route127RegionalSky.phase(player.flags.worldHour);if(!live)live=new EnvironmentalEffects(root,figure,{effect:spec.effect,period,buttonDroplets:spec.effect==='rain',buttonLimit:4});else if(live.period!==period){live.clearBeads();live.clearSoot();live.period=period;}
+  const period=Route127RegionalSky.phase(player.flags.worldHour);
+  const region=spec.effect==='glass'?route127CurrentRegion(lanternState()):'CENTRAL';
+  if(live&&live.region!==region){live.stop();live=null;}
+  if(!live)live=new EnvironmentalEffects(root,figure,{effect:spec.effect,period,region,buttonDroplets:spec.effect==='rain',buttonLimit:4});else if(live.period!==period){live.clearBeads();live.clearSoot();live.period=period;}
  }
  function preview(){if(previewDialog?.open)return;live?.stop();live=null;
   const dialog=document.createElement('dialog');previewDialog=dialog;dialog.className='r127-env-preview';dialog.setAttribute('aria-label','Environmental effects preview');
@@ -321,7 +473,7 @@
   const stage=document.createElement('section');stage.className='r127-env-stage';const figure=document.createElement('figure');figure.className='r127-sky-preview-art';const img=document.createElement('img');img.alt='Environmental region background';figure.append(img);const choices=document.createElement('div');choices.className='r127-env-choices';stage.append(figure,choices);
   const status=document.createElement('p');status.setAttribute('role','status');status.textContent='Preview only — no gameplay or saved progress changes.';
   let controller=null,revision=0,closed=false,mode='playing';
-  function start(){controller?.stop();controller=new EnvironmentalEffects(stage,figure,{effect:encounter.value,period:period.value,buttonDroplets:wet.checked,buttonLimit:4});if(mode==='paused')controller.pause();if(mode==='stopped'){controller.stop();controller=null;}}
+  function start(){controller?.stop();controller=new EnvironmentalEffects(stage,figure,{effect:encounter.value,period:period.value,region:region.value,buttonDroplets:wet.checked,buttonLimit:4});if(mode==='paused')controller.pause();if(mode==='stopped'){controller.stop();controller=null;}}
   wet.addEventListener('change',()=>{controller?.setButtonDroplets(wet.checked,4);wetWrap.lastChild.textContent='Button Droplets: '+(wet.checked?'ON':'OFF');});
   layout.addEventListener('change',()=>{stage.classList.toggle('r127-env-phone',layout.value==='phone');controller?.resize();});
   async function render(){const version=++revision,spec=available.find(d=>d.effect===encounter.value);controller?.stop();controller=null;wetWrap.hidden=encounter.value!=='rain';choices.replaceChildren();

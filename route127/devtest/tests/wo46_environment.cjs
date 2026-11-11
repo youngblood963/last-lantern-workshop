@@ -14,7 +14,8 @@ function node(tag='div',box={left:0,top:0,width:800,height:600}){
   fire(k,e={}){for(const f of listeners.get(k)||[])f(e);},
   listenerCount:()=>[...listeners.values()].reduce((n,s)=>n+s.size,0),
   querySelectorAll(selector){return ['button','.gfx-choice'].includes(selector)?this.buttons||[]:[];},
-  closest(selector){return tag==='button'&&selector==='button'?this:null;}
+  contains(child){return this.buttons?.includes(child)||false;},
+  closest(selector){return tag==='button'&&['button','.gfx-choice'].includes(selector)?this:null;}
  };
 }
 ctx.document.createElement=tag=>node(tag);const visibility=node();
@@ -24,14 +25,17 @@ ctx.ResizeObserver=class{observe(){}disconnect(){disconnected++;}};
 ctx.performance={now:()=>now};ctx.requestAnimationFrame=fn=>{frames.set(++rafId,fn);return rafId;};ctx.cancelAnimationFrame=id=>frames.delete(id);
 vm.runInContext(fs.readFileSync(path.resolve(__dirname,'../runtime/environmental_effects_wo46.js'),'utf8'),ctx);
 const Controller=run('Route127Environment.Controller'),records=run('Route127Environment.records()');
-assert.equal(records.length,2);
+assert.equal(records.length,3);
+const ashRecord=records.find(x=>x.effect==='ash').entry;
+assert.equal(ashRecord.classification,'REGIONAL');
+assert.deepEqual(Array.from(ashRecord.regions).sort(),['INDUSTRIAL','NORTH']);
 assert.equal(records.find(x=>x.effect==='rain').entry.classification,'GLOBAL');
 assert(records.find(x=>x.effect==='fog').entry.regions.includes('LOWLANDS'));
-const expected={rain:['SPRINT TO SHELTER','COVER WITH ARMOR','PUSH THROUGH FOR SALVAGE','BACK AWAY'],fog:['COVER FACE WITH CLOTH','WAIT FOR THE WIND','SEARCH THE PLANT STASH','BACK AWAY']};
+const expected={ash:['BUY TWO COINS FOR 110 BOLTS','HEAL THE SCAVENGER','THREATEN THE SCAVENGER','FIGHT THE SCAVENGER','SEARCH THE BURNING TRUCK','BACK AWAY'],rain:['SPRINT TO SHELTER','COVER WITH ARMOR','PUSH THROUGH FOR SALVAGE','BACK AWAY'],fog:['COVER FACE WITH CLOTH','WAIT FOR THE WIND','SEARCH THE PLANT STASH','BACK AWAY']};
 for(const record of records)assert.deepEqual(Array.from(record.entry.encounter.choices.split(/\s{2,}/)),expected[record.effect]);
 const before=run('JSON.stringify(player)'),logic=records.map(r=>r.entry.encounter.resolve);
 const root=node(),scene=node('figure',{left:0,top:0,width:800,height:400}),button=node('button',{left:250,top:450,width:220,height:50});root.buttons=[button];root.append(scene);
-for(const effect of ['rain','fog'])for(const period of ['dawn','day','dusk','night']){
+for(const effect of ['rain','fog','ash'])for(const period of ['dawn','day','dusk','night']){
  const e=new Controller(root,scene,{effect,period});assert.equal(e.layers.length,2);assert.equal(frames.size,1);
  const frame=[...frames.values()][0];frames.clear();frame(now);assert(draws>0);
  e.pause();assert.equal(frames.size,0);e.play();assert.equal(frames.size,1);e.restart();assert.equal(e.elapsed,0);
@@ -48,7 +52,7 @@ for(let i=0;i<60;i++){const e=new Controller(root,scene,{effect:i%2?'rain':'fog'
 assert.equal(frames.size,0);assert.equal(root.listenerCount(),0);assert.equal(visibility.listenerCount(),0);assert(disconnected>=60);
 assert.equal(run('JSON.stringify(player)'),before);records.forEach((r,i)=>assert.equal(r.entry.encounter.resolve,logic[i]));
 run('GraphicalUI.active=()=>true;stage="encounter";combatState=null;');ctx.__rain=records[0].entry.encounter;run('currentEncounter=()=>__rain;');assert.equal(run('Route127Environment.liveEffect().effect'),'rain');run('stage="lanternRoad";');assert.equal(run('Route127Environment.liveEffect()'),null);run('stage="encounter";TravelerPanels.dialog={};');assert.equal(run('Route127Environment.liveEffect()'),null);
-console.log('PASS WO46: authoritative registry/choices/classifications; 8 effect/time combinations; canvas draws; mouse/touch/focus clearing; pause/play/restart/stop; visibility/reduced motion; replacement and 60 cleanup cycles; no player/resolver mutations; live encounter and unrelated-menu gating');
+console.log('PASS WO46: authoritative registry/choices/classifications; 12 effect/time combinations; canvas draws; mouse/touch/focus clearing; pause/play/restart/stop; visibility/reduced motion; replacement and 60 cleanup cycles; no player/resolver mutations; live encounter and unrelated-menu gating');
 
 // Issue #19: first-button preview proof, reusing the existing rain canvas/loop.
 reduced=false;const second=node('button',{left:500,top:450,width:220,height:50});root.buttons=[button,second];
@@ -110,3 +114,41 @@ integration.run('stage="lanternRoad";GraphicalUI.sync();');assert(liveRoot.butto
 integration.run('stage="encounter";GraphicalUI.sync();loadGame();');assert(liveRoot.buttons.every(b=>b.dataset.wetBeads===undefined));assert.equal(frames.size,0);
 assert.equal(integration.run('JSON.stringify(player)'),liveBefore);
 console.log('PASS #19 shipped live hook: rainfall retained, pooling on all four live choices, unrelated-stage/load cleanup, unchanged player data');
+
+
+root.buttons=Array.from({length:6},()=>node('button',{left:20,top:230,width:340,height:50}));
+const ash=new Controller(root,scene,{effect:'ash',period:'night'});
+for(let i=0;i<100;i++)ash.draw(.05);
+assert(root.buttons.every(b=>Number(b.dataset.sootSpecks)===88));
+const dusty=root.buttons[0],neighbor=root.buttons[1],surface=ash.state.soot.get(dusty);
+surface.specks=[{x:.4,y:.5,edge:.5,size:2},{x:.4,y:.1,edge:.5,size:2},{x:.4,y:.5,edge:.05,size:2}];
+root.fire('pointermove',{target:dusty,clientX:40,clientY:255,pointerId:1});
+root.fire('pointermove',{target:dusty,clientX:200,clientY:255,pointerId:1});
+assert.equal(surface.specks.length,2,'A path clears only nearby grains and leaves residue');
+assert.equal(neighbor.dataset.sootSpecks,'88');
+ash.draw(.05);
+assert(surface.specks.length>2,'Fresh soot fills the track');
+surface.specks=[{x:.4,y:.5,edge:.5,size:2}];
+root.fire('pointerdown',{target:dusty,clientX:40,clientY:255,pointerId:2,pointerType:'touch'});
+root.fire('pointermove',{target:dusty,clientX:200,clientY:255,pointerId:2,pointerType:'touch'});
+assert.equal(surface.specks.length,0);
+surface.specks=[{x:.4,y:.5,edge:.5,size:2}];
+root.fire('focusin',{target:dusty});
+assert.equal(surface.specks.length,0);
+ash.restart();
+assert(root.buttons.every(b=>b.dataset.sootSpecks===undefined));
+ash.stop();
+assert.equal(frames.size,0);
+assert.equal(root.listenerCount(),0);
+reduced=true;
+const stillAsh=new Controller(root,scene,{effect:'ash'});
+assert.equal(frames.size,0);
+assert(root.buttons.every(b=>b.dataset.sootSpecks==='28'));
+stillAsh.stop();
+assert(root.buttons.every(b=>b.dataset.sootSpecks===undefined));
+integration.run(`stage='encounter';currentEncounter=()=>RoadScenarioRegistry.entries.find(e=>e.encounter.title==='THE BLACK SNOW').encounter;GraphicalUI.sync();`);
+assert.equal(integration.run('Route127Environment.diagnostics().effect'),'ash');
+integration.run('loadGame()');
+assert.equal(integration.run('Route127Environment.diagnostics()'),null);
+assert.equal(integration.run('JSON.stringify(player)'),liveBefore);
+console.log('PASS WO47: six buttons, regional authority, bounded soot, streak residue/refill, touch/focus, reduced motion, restart, live selection and load cleanup');

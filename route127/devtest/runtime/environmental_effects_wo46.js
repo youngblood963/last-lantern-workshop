@@ -44,6 +44,17 @@
    this.state=effects.get(effect)?.create(this);if(!this.state){this.stop();throw Error('Unknown environmental effect '+effect);}
    this.listen(root,'pointermove',e=>this.approach(e));
    this.listen(root,'pointerdown',e=>this.approach(e,true));
+   if(this.effect==='ash'){
+    this.listen(root,'pointerleave',()=>{this.state.path=null;});
+    this.listen(root,'pointercancel',()=>{this.state.path=null;});
+    this.listen(root,'pointerup',()=>{this.state.path=null;});
+    this.listen(root,'focusin',event=>{
+     const button=event.target.closest?.('.gfx-choice');
+     if(!button)return;
+     const rect=button.getBoundingClientRect();
+     this.smearSoot(button,{x:rect.width*.12,y:rect.height*.5},{x:rect.width*.48,y:rect.height*.5});
+    });
+   }
    this.listen(root,'pointerleave',()=>{if(this.effect==='fog'&&!this.pointer.focused)this.release();});
    this.listen(root,'focusin',e=>{if(performance.now()-this.lastPointer<300)return;const b=e.target.closest?.('button');if(b){const r=b.getBoundingClientRect(),box=root.getBoundingClientRect();if(this.effect!=='fog')return;this.interact(r.left+r.width/2-box.left,r.top+r.height/2-box.top,true);}});
    this.listen(root,'focusout',()=>{if(this.effect==='fog'){this.pointer.focused=false;this.release();}});
@@ -56,12 +67,56 @@
   random(){this.randomState=(Math.imul(this.randomState,1664525)+1013904223)>>>0;return this.randomState/4294967296;}
   listen(target,type,fn){target.addEventListener?.(type,fn,{passive:true});this.listeners.push([target,type,fn]);}
   approach(event,touch=false){
+   if(this.effect==='ash'){
+    this.trackSoot(event,touch);
+    return;
+   }
    if(this.effect!=='fog')return;
    this.lastPointer=performance.now();this.pointer.focused=false;
    const root=this.root.getBoundingClientRect();let best=null,distance=110;
    for(const b of this.root.querySelectorAll('button')){const r=b.getBoundingClientRect(),dx=Math.max(r.left-event.clientX,0,event.clientX-r.right),dy=Math.max(r.top-event.clientY,0,event.clientY-r.bottom),d=Math.hypot(dx,dy);if(d<distance){distance=d;best=r;}}
    if(best){this.interact(event.clientX-root.left,event.clientY-root.top,false,touch||event.pointerType==='touch');}
    else this.release();
+  }
+  trackSoot(event,down){
+   const button=event.target?.closest?.('.gfx-choice');
+   if(!button||!this.root.contains(button)){
+    this.state.path=null;
+    return;
+   }
+   const rect=button.getBoundingClientRect();
+   const point={x:event.clientX-rect.left,y:event.clientY-rect.top};
+   if(point.x<0||point.y<0||point.x>rect.width||point.y>rect.height){
+    this.state.path=null;
+    return;
+   }
+   const previous=this.state.path;
+   this.state.path={button,point,id:event.pointerId};
+   if(!down&&previous?.button===button&&previous.id===event.pointerId){
+    this.smearSoot(button,previous.point,point);
+   }
+  }
+  smearSoot(button,start,end){
+   const surface=this.state.soot.get(button);
+   if(!surface)return;
+   const rect=button.getBoundingClientRect();
+   const dx=end.x-start.x,dy=end.y-start.y;
+   const lengthSquared=dx*dx+dy*dy;
+   if(lengthSquared<4)return;
+   surface.specks=surface.specks.filter(speck=>{
+    const x=speck.x*rect.width-start.x,y=speck.y*rect.height-start.y;
+    const along=Math.max(0,Math.min(1,(x*dx+y*dy)/lengthSquared));
+    const distance=Math.hypot(x-along*dx,y-along*dy);
+    // Keep scattered grains in the track and more residue toward its edges.
+    return distance>5+speck.edge*7||speck.edge<.12;
+   });
+   if(this.reduced||!this.running)this.draw(0);
+  }
+  clearSoot(){
+   if(this.effect!=='ash'||!this.state)return;
+   for(const button of this.state.soot.keys())delete button.dataset.sootSpecks;
+   this.state.soot.clear();
+   this.state.path=null;
   }
   release(){this.pointer.target=0;if(this.reduced||!this.running){this.pointer.strength=0;this.draw(0);}}
   interact(x,y,focused=false,touch=false){const p=this.pointer;p.x=x;p.y=y;p.target=1;p.focused=focused;p.until=touch?performance.now()+1600:0;if(this.reduced||!this.running){p.strength=1;this.draw(0);}else this.schedule();}
@@ -71,13 +126,13 @@
   }
   play(){if(this.stopped)return;this.running=true;this.last=0;this.schedule();}
   pause(){this.running=false;this.cancel();}
-  restart(){if(this.stopped)return;this.clearBeads();this.elapsed=0;this.state=effects.get(this.effect).create(this);this.pointer.strength=0;this.pointer.target=0;this.play();}
+  restart(){if(this.stopped)return;this.clearBeads();this.clearSoot();this.elapsed=0;this.state=effects.get(this.effect).create(this);this.pointer.strength=0;this.pointer.target=0;this.play();}
   cancel(){if(this.frame!==null){cancelAnimationFrame(this.frame);this.frame=null;}}
   schedule(){if(this.stopped||document.hidden||!this.running){this.cancel();return;}if(this.reduced){this.cancel();this.draw(0);return;}if(this.frame!==null)return;
    this.frame=requestAnimationFrame(time=>{this.frame=null;const dt=this.last?Math.min(.05,(time-this.last)/1000):0;this.last=time;this.elapsed+=dt;this.draw(dt);this.schedule();});
   }
   draw(dt){if(this.stopped||document.hidden)return;const p=this.pointer;if(p.until&&performance.now()>p.until&&!p.focused){p.until=0;p.target=0;}p.strength+=(p.target-p.strength)*(this.reduced?1:Math.min(1,dt*5));
-   this.atmosphere.style.background=this.effect==='rain'?'rgba(96,37,24,.19)':'rgba(145,154,111,.07)';
+   this.atmosphere.style.background=this.effect==='rain'?'rgba(96,37,24,.19)':this.effect==='ash'?'rgba(63,59,54,.12)':'rgba(145,154,111,.07)';
    this.atmosphere.style.opacity=this.period==='night'?'.85':'.65';
    for(const layer of this.layers){const c=layer.context;if(!c)continue;c.clearRect(0,0,layer.width,layer.height);effects.get(this.effect).draw(c,layer,this,dt);if(layer.canvas.dataset.layer==='interface'&&this.buttonDroplets)this.drawBeads(c,dt);}
   }
@@ -106,7 +161,7 @@
     }c.restore();
    }
   }
-  stop(){if(this.stopped)return;this.stopped=true;this.running=false;this.cancel();this.clearBeads();this.observer?.disconnect();for(const [target,type,fn]of this.listeners)target.removeEventListener?.(type,fn);this.listeners=[];for(const l of this.layers)l.canvas.remove();this.layers=[];this.atmosphere?.remove();this.scenery.classList.remove('r127-env-host');this.root.classList.remove('r127-env-host');delete this.root.dataset.environmentEffect;if(owners.get(this.root)===this)owners.delete(this.root);}
+  stop(){if(this.stopped)return;this.stopped=true;this.running=false;this.cancel();this.clearBeads();this.clearSoot();this.observer?.disconnect();for(const [target,type,fn]of this.listeners)target.removeEventListener?.(type,fn);this.listeners=[];for(const l of this.layers)l.canvas.remove();this.layers=[];this.atmosphere?.remove();this.scenery.classList.remove('r127-env-host');this.root.classList.remove('r127-env-host');delete this.root.dataset.environmentEffect;if(owners.get(this.root)===this)owners.delete(this.root);}
   diagnostics(){return {effect:this.effect,running:this.running,stopped:this.stopped,frame:this.frame!==null,layers:this.layers.length,elapsed:this.elapsed,reducedMotion:this.reduced,clearing:this.pointer.strength};}
  }
  EnvironmentalEffects.register('rain',{
@@ -129,13 +184,104 @@
   }
  });
 
- const descriptors=[{title:'THE RED RAIN',effect:'rain'},{title:'THE LIME FOG',effect:'fog'}];
+ function sootGrain(engine){
+  return {
+   x:engine.random(),
+   y:engine.random()<.3?engine.random()*.22:engine.random(),
+   size:1+engine.random()*2.3,
+   edge:engine.random()
+  };
+ }
+
+ function drawSoot(context,engine,dt){
+  const {root,state,reduced}=engine;
+  const bounds=root.getBoundingClientRect();
+  const buttons=new Set(root.querySelectorAll('.gfx-choice'));
+  for(const button of state.soot.keys()){
+   if(buttons.has(button))continue;
+   delete button.dataset.sootSpecks;
+   state.soot.delete(button);
+   if(state.path?.button===button)state.path=null;
+  }
+
+  for(const button of buttons){
+   const rect=button.getBoundingClientRect();
+   if(!rect.width||!rect.height)continue;
+   let surface=state.soot.get(button);
+   if(!surface){
+    surface={specks:[],carry:0};
+    state.soot.set(button,surface);
+    if(reduced){
+     surface.specks=Array.from({length:28},()=>sootGrain(engine));
+    }
+   }
+   const limit=rect.width<400?88:116;
+   if(!reduced){
+    surface.carry+=dt*27;
+    const count=Math.floor(surface.carry);
+    surface.carry-=count;
+    for(let i=0;i<count&&surface.specks.length<limit;i++){
+     surface.specks.push(sootGrain(engine));
+    }
+   }
+
+   const count=String(surface.specks.length);
+   if(button.dataset.sootSpecks!==count)button.dataset.sootSpecks=count;
+   context.save();
+   context.beginPath();
+   context.rect(rect.left-bounds.left,rect.top-bounds.top,rect.width,rect.height);
+   context.clip();
+   for(const speck of surface.specks){
+    const x=rect.left-bounds.left+speck.x*rect.width;
+    const y=rect.top-bounds.top+speck.y*rect.height;
+    context.fillStyle='rgba(124,113,103,.25)';
+    context.fillRect(x-.4,y-.4,speck.size+1,speck.size*.68+1);
+    context.fillStyle='rgba(16,14,13,.62)';
+    context.fillRect(x,y,speck.size,speck.size*.68);
+   }
+   context.restore();
+  }
+ }
+
+ EnvironmentalEffects.register('ash',{
+  create(engine){
+   return {
+    soot:new Map(),
+    path:null,
+    flakes:Array.from({length:96},()=>({
+     x:engine.random(),
+     y:engine.random(),
+     size:.65+engine.random()*1.95,
+     speed:12+engine.random()*28,
+     drift:4+engine.random()*13,
+     phase:engine.random()*Math.PI*2
+    }))
+   };
+  },
+  draw(context,layer,engine,dt){
+   const ui=layer.canvas.dataset.layer==='interface';
+   const limit=engine.reduced?20:ui?48:layer.width<650?64:96;
+   const time=engine.elapsed;
+   for(let i=0;i<limit;i++){
+    const flake=engine.state.flakes[i];
+    const x=(flake.x*layer.width+time*flake.drift+Math.sin(time*.8+flake.phase)*13+20)%(layer.width+32)-16;
+    const y=(flake.y*layer.height+time*flake.speed)%(layer.height+12)-6;
+    context.fillStyle=engine.period==='night'?'rgba(134,123,112,.48)':'rgba(103,95,88,.36)';
+    context.fillRect(x-.5,y-.5,flake.size+1,flake.size+1);
+    context.fillStyle='rgba(25,22,20,.78)';
+    context.fillRect(x,y,flake.size,flake.size*.76);
+   }
+   if(ui)drawSoot(context,engine,dt);
+  }
+ });
+
+ const descriptors=[{title:'THE RED RAIN',effect:'rain'},{title:'THE LIME FOG',effect:'fog'},{title:'THE BLACK SNOW',effect:'ash'}];
  function records(){return descriptors.map(d=>({...d,entry:RoadScenarioRegistry.entries.find(r=>r.encounter.title===d.title)})).filter(d=>d.entry);}
  function liveEffect(){if(stage!=='encounter'||combatState||!GraphicalUI.active()||TravelerPanels.dialog||Route127MapOverlay.dialog?.open||previewDialog)return null;const current=currentEncounter();return records().find(d=>d.entry.encounter===current)||null;}
  let live=null,previewDialog=null;
  function update(){const spec=liveEffect(),root=GraphicalUI.element?.frame,figure=GraphicalUI.element?.figure;if(!spec||!root||!figure||root.hidden){live?.stop();live=null;return;}
   if(live&&(live.effect!==spec.effect||live.root!==root)){live.stop();live=null;}
-  const period=Route127RegionalSky.phase(player.flags.worldHour);if(!live)live=new EnvironmentalEffects(root,figure,{effect:spec.effect,period,buttonDroplets:spec.effect==='rain',buttonLimit:4});else if(live.period!==period){live.clearBeads();live.period=period;}
+  const period=Route127RegionalSky.phase(player.flags.worldHour);if(!live)live=new EnvironmentalEffects(root,figure,{effect:spec.effect,period,buttonDroplets:spec.effect==='rain',buttonLimit:4});else if(live.period!==period){live.clearBeads();live.clearSoot();live.period=period;}
  }
  function preview(){if(previewDialog?.open)return;live?.stop();live=null;
   const dialog=document.createElement('dialog');previewDialog=dialog;dialog.className='r127-env-preview';dialog.setAttribute('aria-label','Environmental effects preview');

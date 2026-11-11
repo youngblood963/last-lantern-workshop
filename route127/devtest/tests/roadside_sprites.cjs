@@ -55,6 +55,12 @@ const {run,flush}=require('./helpers/wo33_dom.cjs')();
   if(count>1)assert.equal(run(`GraphicalUI.element.figure.querySelectorAll(${JSON.stringify(selector)}).filter(n=>!n.hidden).length`),count-1,title+' dead unit');
   else assert.equal(run(`GraphicalUI.element.figure.querySelector(${JSON.stringify(selector)}).hidden`),true,title+' dead solo');
  }
+ run("fixture('THE FORGOTTEN FARMHOUSE')");
+ assert.equal(run('GraphicalUI.element.caption.textContent'),'THE FORGOTTEN FARMHOUSE');
+ assert.equal(run('currentEncounter().title'),'IRRADIATED ROACHES');
+ assert.equal(run('currentEncounter().combat.action'),'FIGHT CHICKENS');
+ assert.equal(run('currentEncounter().combat.enemies.length'),3);
+ assert.equal(run("eastEncounters.find(e=>e.title==='EAST ROAD — IRRADIATED ROACHES').displayName"),'THE FORGOTTEN FARMHOUSE');
  run("fixture('THE HOLLOWED')");
  assert.deepEqual(Array.from(run("GraphicalUI.element.figure.querySelectorAll('.r127-hollowed-unit').map(n=>n.style.scale)")),['1','1']);
  assert.equal(run("GraphicalUI.element.figure.querySelectorAll('.r127-human-hp').length"),0);

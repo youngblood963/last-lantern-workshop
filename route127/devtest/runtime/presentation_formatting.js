@@ -2,6 +2,14 @@
 (function(){
  'use strict';
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||typeof RouteIdentity==='undefined')return;
+ // Keep the legacy title as the encounter key for saves and chicken behavior.
+ const farmhouseName='THE FORGOTTEN FARMHOUSE';
+ for(const encounter of [...encounters,...eastEncounters]){
+  if(/^(?:EAST ROAD — )?IRRADIATED ROACHES$/.test(encounter.title))encounter.displayName=farmhouseName;
+ }
+ for(const entry of [...RoadScenarioRegistry.entries,...RoadScenarioRegistry.regionalCatalog]){
+  if(entry.encounter.displayName===farmhouseName)entry.name=farmhouseName;
+ }
  const suffix=/\s*(?:[-–—|:]\s*)?(?:\[|\()?\s*(?:Forge[ _-]*)?(?:Common|Uncommon|Rare|Epic|Legendary)[ _-]*\d+(?:\s*[\])])?(?=\s|$|[—–,:])/gi;
  const F={
   clean(value){return PlaythroughRepairs.cleanLabel(String(value)).replace(suffix,'').trim();},

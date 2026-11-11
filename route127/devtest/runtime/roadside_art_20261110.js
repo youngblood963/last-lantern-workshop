@@ -10,6 +10,7 @@ const scenes={
  'TUNNEL RATS':()=>typeof player!=='undefined'&&player.flags?.r18TunnelBoarPending?file('Tunnel Rats - Wild Boar.png'):file('Tunnel Rats.png'),
  'FERAL DOG':()=>[file('feral_dog_mother_pups.png'),file('feral_dog_hungry_lone.png',true),file('feral_dog_aggressive_lone.png',true),file('feral_dog_pack_concept.png',true)][typeof r18DogVariant==='function'?r18DogVariant():0],
  'LONE SCAVENGER':()=>[file('Lone Scavenger - Suspicious Scavenger.png'),file('Lone Scavenger - Friendly Scrapper.png'),file('Lone Scavenger - Weary Trader.png')][typeof r18ScavengerVariant==='function'?r18ScavengerVariant():0],
+ 'ROADBLOCK':()=>[file('Spear Robber.png'),file('Pipe Robber.png')],
  'THE STRAY':()=>file('The Stray.png'),
  'THE CRAWLER':()=>file('The Crawler.png'),
  'THE BIG MAN':()=>file('The Big Man.png'),

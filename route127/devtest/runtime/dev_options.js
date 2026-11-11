@@ -322,7 +322,11 @@
     preview.dataset.devtestWandererPreview='true';
     panel.insertBefore(turns,close||null);
     panel.insertBefore(preview,close||null);
-    const combat=this.button('Combat Visual Testing',showCombatPreview);
+    const combat=this.button('Combat Visual Testing',()=>{
+      this.close();
+      if(globalThis.Route127CombatLayoutEditor)Route127CombatLayoutEditor.show(showCombatPreview);
+      else showCombatPreview();
+    });
     combat.dataset.devtestCombatPreview='true';
     panel.insertBefore(combat,close||null);
     const formula=this.button('WO41 Combat Simulator',()=>{

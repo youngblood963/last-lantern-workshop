@@ -18,6 +18,7 @@ const {run,flush}=require('./helpers/wo33_dom.cjs')();
   return true;
  }
  elementPrototype.querySelectorAll=function(selector){
+  if(selector.includes(','))return [...new Set(selector.split(',').flatMap(part=>this.querySelectorAll(part)))];
   return this.children.flatMap(child=>[...(matches(child,selector)?[child]:[]),...child.querySelectorAll(selector)]);
  };
  elementPrototype.querySelector=function(selector){return this.querySelectorAll(selector)[0]||null};
@@ -94,5 +95,20 @@ const {run,flush}=require('./helpers/wo33_dom.cjs')();
  assert.equal(run("GraphicalUI.element.figure.querySelectorAll('.r127-human-unit').length"),1);
  run("combatState.reinforcementsArrived=true;combatState.enemies=[{name:'A',hp:10,maxHp:10},{name:'B',hp:10,maxHp:10}];GraphicalUI.sync();");
  assert.equal(run("GraphicalUI.element.figure.querySelectorAll('.r127-human-unit').length"),2);
+ run(`
+ fixture('BAT COLONY');makeFight('BAT COLONY',4);
+ const layouts=Route127CombatLayouts,id=layouts.activeScene().id;
+ const unit=layouts.unitKey('assets/enemies/bat_colony.png',2);
+ layouts.importJSON(layouts.json({[layouts.sceneKey(id,'combat','desktop')]:{
+  [unit]:{x:47,y:36,width:22,height:34,scale:1.25,z:8,flip:true}
+ }}));
+ GraphicalUI.sync();
+ `);
+ assert.equal(run(`GraphicalUI.element.figure.querySelector('[data-bat-index="2"]').classList.contains('r127-layout-unit')`),true);
+ assert.equal(run(`GraphicalUI.element.figure.querySelector('[data-bat-index="2"]').classList.contains('r127-layout-flipped')`),true);
+ run("combatState.enemies[0].hp=0;GraphicalUI.sync()");
+ assert.equal(run(`GraphicalUI.element.figure.querySelector('[data-bat-index="2"]').classList.contains('r127-layout-unit')`),true);
+ run("fixture('BAT COLONY')");
+ assert.equal(run("GraphicalUI.element.figure.querySelectorAll('.r127-layout-unit').length"),0);
  console.log('PASS live renderer DOM: individual HP, exclusive owner, death removal, lookout wave, no premature ambush art');
 })().catch(error=>{console.error(error);process.exitCode=1});

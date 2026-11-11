@@ -365,7 +365,15 @@ async function r11ClaimBoard(){
  return claim();
 }
 const {r11SteveScene, r11SteveFinish, r11Elephant, r11SteveVictory, r11SteveRoll, r11Prepare} = RoadScenarioRegistry.steve();
-const r11Retreat=handleCombat;handleCombat=function(cmd){if(combatState?.source==='r11Elephant'&&/^(?:b|back|flee|run)/.test(cmd)){combatState=null;add('Steve takes cover behind his sign.','system');r11SteveFinish();return;}return r11Retreat(cmd);};
+// A save made during the retired fight resumes the road without combat or rewards.
+const r11Context=showCurrentContext;
+showCurrentContext=function(...args){
+ if(combatState?.source==='r11Elephant'){
+  combatState=null;
+  return r11SteveFinish();
+ }
+ return r11Context.apply(this,args);
+};
 const r11Choices=renderCurrentChoices;renderCurrentChoices=function(){if(stage==='r11Gambler')return r11GamblerMenu();if(stage==='r11Craft')return r11CraftMenu();if(stage==='r11Drinks')return r11Drinks();if(stage==='r11Board')return r11PortBoard();if(stage==='r11Quest')return r11QuestMenu(player.flags.r11QuestFocus);if(stage==='r11Steve'||stage==='r11SteveReward'){add('Crazy Steve is temporarily unavailable. Returning to your journey.','system');return r11SteveFinish();}return r11Choices();};
 const r11Core=handleCommandCore;
 handleCommandCore=async function(raw){

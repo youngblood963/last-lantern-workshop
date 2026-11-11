@@ -2,13 +2,18 @@
 (function(){
  'use strict';
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||typeof RouteIdentity==='undefined')return;
- // Keep the legacy title as the encounter key for saves and chicken behavior.
- const farmhouseName='THE FORGOTTEN FARMHOUSE';
+ // Legacy titles remain the stable keys for mechanics and saved encounters.
+ const encounterNames={
+  'IRRADIATED ROACHES':'THE FORGOTTEN FARMHOUSE',
+  'THE KNIFE WIND':'THE ROAD REAPERS'
+ };
  for(const encounter of [...encounters,...eastEncounters]){
-  if(/^(?:EAST ROAD — )?IRRADIATED ROACHES$/.test(encounter.title))encounter.displayName=farmhouseName;
+  const name=encounterNames[encounter.title.replace(/^EAST ROAD — /,'')];
+  if(name)encounter.displayName=name;
  }
  for(const entry of [...RoadScenarioRegistry.entries,...RoadScenarioRegistry.regionalCatalog]){
-  if(entry.encounter.displayName===farmhouseName)entry.name=farmhouseName;
+  const name=encounterNames[entry.encounter.title.replace(/^EAST ROAD — /,'')];
+  if(name)entry.name=name;
  }
  const suffix=/\s*(?:[-–—|:]\s*)?(?:\[|\()?\s*(?:Forge[ _-]*)?(?:Common|Uncommon|Rare|Epic|Legendary)[ _-]*\d+(?:\s*[\])])?(?=\s|$|[—–,:])/gi;
  const F={

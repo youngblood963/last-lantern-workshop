@@ -1254,7 +1254,7 @@ function r11SteveScene(branchReturn=null){
  r11SteveFinish();
 }
 function r11SteveFinish(){const back=player.flags.r11SteveReturn;delete player.flags.r11SteveReturn;if(back){stage=back.stage;serviceRoadDepth=back.depth;renderCurrentChoices();}else completeRoadTurn();}
-function r11Elephant(){startCombat({name:'PINK ELEPHANT',level:1,hp:1,min:0,max:1,xp:1,bolts:0,end:'The pink elephant pops like a soap bubble. Steve applauds, then checks behind you.'},'r11Elephant');r6Art('PINK ELEPHANT',[['pink','    __     __'],['pink','  /    \\__/  \\'],['pink',' (  o       o )~~'],['pink','  \\___/\\____/'],['pink','    ||    ||']]);}
+function r11Elephant(){r11SteveFinish();}
 function r11SteveVictory(){ // Do not award late-game Legendary gear while Steve is disabled.
   add('The pink elephant vanishes. Crazy Steve wanders away, still muttering.','system');
   r11SteveFinish();r11Quiet(()=>v49Autosave());

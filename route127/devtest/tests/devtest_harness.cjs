@@ -8,7 +8,10 @@ assert.equal(game.run('document.baseURI'),'http://localhost/route127/playtest/')
 assert.equal(game.run('ROUTE127_ENV.name'),'DEVTEST');
 assert.equal(game.run('ROUTE127_ENV.backend'),false);
 assert.equal(game.run('Object.isFrozen(ROUTE127_ENV)'),true);
-assert.deepEqual(game.scripts.slice(0,3),['devtest/runtime/environment.js','playtest/scenario_registry.js','playtest/app.js']);
+assert(game.scripts.includes('devtest/r11.js'));
+assert.equal(game.run('RoadScenarioRegistry.special'),null);
+assert.equal(game.run('Math.random=()=>0; r11SteveRoll()'),false);
+assert.deepEqual(game.scripts.slice(0,3),['devtest/runtime/environment.js','devtest/scenario_registry.js','playtest/app.js']);
 for(const pathname of ['/route127/playtest/index.html','/route127/production/index.html']){
  assert.throws(()=>create({pathname}),/Devtest bootstrap refused outside its explicit entry/);
 }

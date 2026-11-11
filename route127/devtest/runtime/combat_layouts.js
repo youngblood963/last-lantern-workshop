@@ -38,7 +38,6 @@
   'THE BONE COLLECTOR':['The Bone Collector.png'],
   'SECURITY DRONE':['Security Drone.png'],
   'SOMETHING IN THE DRAIN':['Something in the Drain - Grate and Claw.png'],
-  'DRAINAGE CULVERT':['Something in the Drain - Grate and Claw.png'],
   'THE WAX MUSEUM':['The Curator.png'],
   'THE WRECKERS':['The Wreckers - Pipe.png','The Wreckers - Chain.png'],
   'RATS IN THE PANTRY':['Snarling Rats at a Rusted Sewer Drain.png'],

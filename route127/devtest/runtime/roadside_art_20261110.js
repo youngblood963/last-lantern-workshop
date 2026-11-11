@@ -14,7 +14,9 @@ const scenes={
  'THE CRAWLER':()=>file('The Crawler.png'),
  'THE BIG MAN':()=>file('The Big Man.png'),
  'THE BONE COLLECTOR':()=>file('The Bone Collector.png'),
+ // These two case-sensitive assets are different characters. Keep the Warden on the original art.
  'THE WARDEN':()=>file('Sentry.png'),
+ 'THE SENTRY':()=>file('sentry.png'),
  'SECURITY DRONE':()=>file('Security Drone.png'),
  'SOMETHING IN THE DRAIN':()=>file('Something in the Drain - Grate and Claw.png'),
  'THE WAX MUSEUM':()=>file('The Curator.png'),
@@ -42,7 +44,7 @@ function current(){
  let spec=combat?.r18WardenId?scenes['THE WARDEN']:raw==='FERAL BOAR'?()=>file('Tunnel Rats - Wild Boar.png'):scenes[title]||scenes[normalize(origin?.title)];
  if(!combat&&normalize(origin?.title)==='THE PAINTED ARROWS')return null;
  if(!spec&&/CHEMICAL BURNER/.test(title))spec=()=>[file('Chemical Burner 1.png'),file('Chemical Burner 2.png')];
- if(!spec&&/SENTRY/.test(title))spec=()=>file('Sentry.png');
+ if(!spec&&/SENTRY/.test(title))spec=()=>file('sentry.png');
  if(!spec&&/PIPE ROBBER/.test(title))spec=()=>file('Pipe Robber.png');
  return spec?{title,items:[].concat(spec()).filter(Boolean),combat}:null;
 }

@@ -322,6 +322,6 @@
   }));
  }
  globalThis.Route127CombatLayouts=Object.freeze({
-  rows,installed,root,regionArt,assetName,unitKey,sceneKey,get,local:()=>local,merged,json,save,importJSON,capture,activeScene
+  rows,installed,root,regionArt,assetName,unitKey,sceneKey,get,local:()=>local,published:()=>published,merged,json,save,importJSON,capture,activeScene
  });
 })();

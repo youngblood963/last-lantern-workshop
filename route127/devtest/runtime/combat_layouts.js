@@ -255,6 +255,8 @@
  css.textContent=`
  .r127-layout-attachments{position:absolute;inset:0;z-index:5;pointer-events:none}
  .r127-layout-attachments img{object-fit:contain}
+ /* Miles is a full illustration, not a cropped background tile. */
+ .gfx-frame .gfx-art img[src*="miles_the_courier.png"]{object-fit:contain!important;object-position:center center!important}
  .gfx-frame .gfx-art.r127-layout-has-background{aspect-ratio:16/9;min-height:150px}
  .gfx-frame .gfx-art .r127-layout-unit{position:absolute!important;left:var(--r127-layout-x)!important;top:var(--r127-layout-y)!important;width:var(--r127-layout-width)!important;height:var(--r127-layout-height)!important;transform:translate(-50%,-50%) scale(var(--r127-layout-scale))!important;scale:none!important;z-index:var(--r127-layout-z)!important}
  .gfx-frame .gfx-art .r127-layout-unit:not(.r127-layout-background)>img{transform:none!important}

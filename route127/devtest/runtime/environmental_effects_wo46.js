@@ -326,8 +326,8 @@
  const glassLight={
   dawn:[231,208,143],day:[222,255,202],dusk:[242,182,99],night:[161,213,195]
  };
- const glassFacets=['rgba(26,70,45,.83)','rgba(48,103,62,.75)','rgba(88,137,72,.72)',
-  'rgba(39,93,55,.8)','rgba(109,148,76,.66)','rgba(22,49,36,.86)'];
+ const glassFacets=['rgba(22,72,46,.54)','rgba(46,111,60,.48)','rgba(91,149,72,.49)',
+  'rgba(27,95,50,.48)','rgba(127,164,75,.44)','rgba(18,49,34,.59)'];
  const buttonCracks=[
   [[.06,0],[.12,.27],[.09,.45],[.18,.68],[.22,1]],
   [[.12,.27],[.22,.21],[.29,.32],[.36,.28]],
@@ -400,13 +400,39 @@
     patch.reduce((sum,p)=>sum+p[1],0)/patch.length]);
    const night=engine.period==='night';
    context.globalAlpha=night?.78:1;
-   glassPolygon(context,points,'rgba(22,47,32,.65)');
-   for(let i=0;i<points.length;i++){
-    const next=points[(i+1)%points.length];
-    glassPolygon(context,[center,points[i],next],glassFacets[(i+index*3)%glassFacets.length]);
-    glassLine(context,[center,points[i]],i%3===0?'rgba(185,213,132,.62)':'rgba(19,47,27,.71)',i%3===0?1.2:.85);
+   const rim=[];
+   for(let i=0;i<patch.length;i++){
+    const [x,y]=patch[i],next=patch[(i+1)%patch.length];
+    const dx=next[0]-x,dy=next[1]-y;
+    const length=Math.hypot(dx,dy);
+    rim.push(points[i]);
+    const teeth=Math.max(1,Math.floor(length/5));
+    for(let j=1;j<teeth;j++){
+     const t=j/teeth;
+     const jitter=Math.sin((i+1)*11+j*7)*Math.min(1.8,length*.12);
+     rim.push(project([x+dx*t-dy/length*jitter,y+dy*t+dx/length*jitter]));
+    }
    }
-   glassLine(context,[...points,points[0]],night?'rgba(142,191,158,.32)':'rgba(162,195,111,.65)',1.4);
+   context.save();
+   context.beginPath();
+   context.moveTo(...rim[0]);
+   for(let i=1;i<rim.length;i++)context.lineTo(...rim[i]);
+   context.lineTo(...rim[0]);
+   context.clip();
+   glassPolygon(context,rim,'rgba(22,47,32,.18)');
+   for(let i=0;i<points.length;i++){
+    const a=points[i],b=points[(i+1)%points.length];
+    const weight=.22+.12*Math.sin(i*2.4+index);
+    const split=[center[0]*.42+a[0]*weight+b[0]*(.58-weight),
+     center[1]*.42+a[1]*weight+b[1]*(.58-weight)];
+    const color=(i+index*3)%glassFacets.length;
+    glassPolygon(context,[center,a,split],glassFacets[color]);
+    glassPolygon(context,[a,b,split],glassFacets[(color+2)%glassFacets.length]);
+    glassPolygon(context,[b,center,split],glassFacets[(color+4)%glassFacets.length]);
+    glassLine(context,[a,split,b],i%3===0?'rgba(185,213,132,.55)':'rgba(19,47,27,.57)',i%3===0?1.1:.8);
+   }
+   context.restore();
+   glassLine(context,[...rim,rim[0]],night?'rgba(142,191,158,.32)':'rgba(162,195,111,.59)',1.25);
    glassGlint(context,[points[index%points.length],points[(index+1)%points.length]],engine,index*1.37,true);
    glassGlint(context,[center,points[(index+3)%points.length]],engine,index*1.37+1.9,true);
   }

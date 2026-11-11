@@ -5,7 +5,7 @@ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||!/^\/route127\/devtest\/(?:index\.
 const asset=(name,root=false)=>new URL(root?'../../'+encodeURIComponent(name):'../devtest/assets/enemies/'+encodeURIComponent(name),document.baseURI).href;
 const file=(name,root=false)=>({name,root});
 const scenes={
- 'ROACH NEST':()=>[file('roach_nest_ordinary.png',true),file('roach_nest_contaminated.png'),file('roach_nest_aggressive_swarm.png',true)][typeof r18RoachVariant==='function'?r18RoachVariant():0],
+ 'ROACH NEST':()=>[file('roach_nest_ordinary.png'),file('roach_nest_contaminated.png'),file('roach_nest_aggressive_swarm.png',true)][typeof r18RoachVariant==='function'?r18RoachVariant():0],
  'ROACH SWARM':()=>scenes['ROACH NEST'](),
  'TUNNEL RATS':()=>typeof player!=='undefined'&&player.flags?.r18TunnelBoarPending?file('Tunnel Rats - Wild Boar.png'):file('Tunnel Rats.png'),
  'FERAL DOG':()=>[file('feral_dog_mother_pups.png'),file('feral_dog_hungry_lone.png',true),file('feral_dog_aggressive_lone.png',true),file('feral_dog_pack_concept.png',true)][typeof r18DogVariant==='function'?r18DogVariant():0],
@@ -151,7 +151,7 @@ GraphicalUI.sync=function(...args){
      unit.type='button';
      unit.addEventListener('click',()=>{if(!busy)handleCommand(scene.combat.enemies?.length?'attack '+(i+1):'attack')});
     }
-    const img=document.createElement('img');img.src=asset(f.name,f.root)+'?v=road-repair-1';img.alt='';
+    const img=document.createElement('img');img.src=asset(f.name,f.root)+'?v=wo27-art-fit';img.alt='';
     img.onerror=()=>{img.hidden=true;img.dataset.failed='true';e.frame.classList.add('r127-sprite-failed');e.frame.classList.remove('r127-road-combat-active');console.warn('Missing DEVTEST encounter art',f.name)};
     unit.append(img);layer.append(unit);
    });

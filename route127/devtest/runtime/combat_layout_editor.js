@@ -22,7 +22,7 @@
    while(running<6&&pending.length){
     const file=pending.shift(),img=new Image();running++;status.set(file,'checking');
     const done=result=>{status.set(file,result);running--;refresh();pump();};
-    img.onload=()=>done('working');img.onerror=()=>done('broken');img.src=new URL(file,L.root).href;
+    img.onload=()=>done('working');img.onerror=()=>done('broken');img.src=new URL(file,L.root).href+'?v=wo27-art-fit';
    }
   }
   pump();
@@ -59,7 +59,7 @@
  .r127-layout-editor .layout-unit[aria-pressed=true]{outline:1px dashed #f6c87d}
  .r127-layout-editor .layout-unit img{width:100%;height:100%;min-height:0;object-fit:contain;object-position:center bottom;pointer-events:none}
  .r127-layout-editor .layout-unit span{font-size:11px;white-space:nowrap;background:#421714;border:1px solid #b25044;padding:2px 4px;pointer-events:none}
- .r127-layout-editor .layout-unit.layout-scene-image img{object-fit:cover}
+ .r127-layout-editor .layout-unit.layout-scene-image img{flex:none;object-fit:contain;object-position:center}
  .r127-layout-editor .layout-stage[data-preview=true] .layout-unit{outline:none;pointer-events:none}
  .r127-layout-editor .layout-empty{position:absolute;inset:auto 0 0;background:#130e09dd;padding:8px;text-align:center}
  .r127-layout-editor .layout-fields input[type=number]{width:5.5em}
@@ -201,7 +201,7 @@
    for(const [key,record] of nodes){
     const node=el('button');node.type='button';node.className='layout-unit'+(record.background?' layout-scene-image':'');
     node.setAttribute('aria-label',L.assetName(record.path));record.element=node;
-    const img=el('img');img.draggable=false;img.alt='';img.src=new URL(record.path,L.root).href;
+    const img=el('img');img.draggable=false;img.alt='';img.src=new URL(record.path,L.root).href+'?v=wo27-art-fit';
     img.addEventListener('error',()=>{img.alt='Missing: '+L.assetName(record.path);});
     node.append(img);
     if(phase.value==='combat'&&!record.background)node.append(el('span','HP'));

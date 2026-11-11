@@ -79,6 +79,18 @@ const {run,flush}=require('./helpers/wo33_dom.cjs')();
  assert.equal(run('combatState.name'),'WALL GUARDS');
  assert.equal(run('GraphicalUI.element.caption.textContent'),'THE SENTRY');
  assert.match(run("GraphicalUI.element.figure.querySelector('.r127-road-art').querySelector('img').src"),/\/sentry\.png/);
+ const roachFiles=[
+  '/route127/devtest/assets/enemies/roach_nest_ordinary.png',
+  '/route127/devtest/assets/enemies/roach_nest_contaminated.png',
+  '/roach_nest_aggressive_swarm.png'
+ ];
+ for(const [variant,expected] of roachFiles.entries()){
+  run(`r18RoachVariant=()=>${variant};fixture('ROACH NEST')`);
+  const readArt=()=>run("new URL(GraphicalUI.element.figure.querySelector('.r127-road-art').querySelector('img').src).pathname");
+  assert.equal(readArt(),expected);
+  run("makeFight('ROACH SWARM',1)");
+  assert.equal(readArt(),expected);
+ }
  run("fixture('THE WARDEN')");
  assert.match(run("GraphicalUI.element.figure.querySelector('.r127-road-art').querySelector('img').src"),/warden\.png/);
  assert.equal(run("GraphicalUI.element.figure.querySelectorAll('.r127-road-hp').length"),0);

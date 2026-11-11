@@ -50,7 +50,7 @@
  register('THE HANGING CAGE',sprite('silas_crowe_caged.png'),'approach','Caged');
  register('THE HANGING CAGE',sprite('silas_crowe.png'),'combat','Freed');
  for(const [title,files] of Object.entries({
-  'ROACH NEST':['../../roach_nest_ordinary.png',enemy('roach_nest_contaminated.png'),'../../roach_nest_aggressive_swarm.png'],
+  'ROACH NEST':[enemy('roach_nest_ordinary.png'),enemy('roach_nest_contaminated.png'),'../../roach_nest_aggressive_swarm.png'],
   'FERAL DOG':[enemy('feral_dog_mother_pups.png'),'../../feral_dog_hungry_lone.png','../../feral_dog_aggressive_lone.png','../../feral_dog_pack_concept.png'],
   'LONE SCAVENGER':sprite('Lone Scavenger - Suspicious Scavenger.png','Lone Scavenger - Friendly Scrapper.png','Lone Scavenger - Weary Trader.png'),
   'TUNNEL RATS':sprite('Tunnel Rats.png','Tunnel Rats - Wild Boar.png')

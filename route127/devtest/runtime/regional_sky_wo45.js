@@ -44,6 +44,10 @@
   else{delete figure.dataset.skyPeriod;if(sky)sky.hidden=true;}
  }
  let dialog=null,previousFocus=null;
+ if(typeof FocusedEntry!=='undefined'){
+  const oldKey=FocusedEntry.key;
+  FocusedEntry.key=function(event){if(dialog?.open)return;return oldKey.call(this,event);};
+ }
  function preview(){
   if(dialog?.open)return;
   previousFocus=document.activeElement;dialog=document.createElement('dialog');dialog.className='r127-sky-preview';dialog.setAttribute('aria-label','Regional sky visual preview');
@@ -73,6 +77,17 @@
   if(this.optionsOpen&&!e.settings.querySelector('[data-sky-preview]')){const b=this.button('REGIONAL SKY PREVIEW',preview);b.dataset.skyPreview='true';e.settings.append(b);}
   return result;
  };
+ // The shipped Options button opens TravelerPanels rather than inline settings.
+ if(typeof TravelerPanels!=='undefined'){
+  const oldOptions=TravelerPanels.options;
+  TravelerPanels.options=function(...args){const result=oldOptions.apply(this,args);
+   if(this.which==='options'&&this.body&&!this.body.querySelector('[data-sky-preview]')){
+    const panel=this.body.querySelector('.traveler-detail');
+    if(panel){const b=this.button('Regional Sky Preview',()=>{this.close();preview();});b.dataset.skyPreview='true';panel.appendChild(b);}
+   }
+   return result;
+  };
+ }
  const css=document.createElement('style');css.textContent=`
  .r127-regional-sky{position:absolute;inset:0;background-size:cover;background-position:center;pointer-events:none;z-index:0}
  .r127-regional-sky[hidden]{display:none}

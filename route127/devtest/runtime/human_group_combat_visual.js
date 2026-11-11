@@ -21,7 +21,7 @@ const placements={
  3:[[17,54,1],[50,51,1.06],[83,55,1]],
  raiders:[[28,45,0.83],[50,50,1.12],[83,54,1.02]],
  robbers:[[26,53,1.0],[74,53,1.0]],
- hollowed:[[27,51,1.12],[73,53,1.12]]
+ hollowed:[[34,57,1],[67,59,1]]
 };
 const style=document.createElement('style');style.textContent=`
 .gfx-art{position:relative}
@@ -42,10 +42,10 @@ const style=document.createElement('style');style.textContent=`
 .r127-robber-unit img{max-height:275px;object-position:center bottom}
 
 @media(max-width:600px){.gfx-frame button.r127-human-unit.r127-robber-unit{width:43%}.r127-robber-unit img{max-height:175px}}
-.gfx-frame button.r127-human-unit.r127-hollowed-unit{width:40%;min-height:0!important;z-index:6}
-.r127-hollowed-unit img{max-height:none;transform:scale(1.55);transform-origin:center bottom;object-position:center bottom}
+.gfx-frame button.r127-human-unit.r127-hollowed-unit{width:32%;height:66%;min-height:0!important;z-index:6}
+.r127-hollowed-unit img{object-position:center bottom}
 
-@media(max-width:600px){.gfx-frame button.r127-human-unit.r127-hollowed-unit{width:43%}.r127-hollowed-unit img{max-height:170px;transform:scale(1.2)}}
+@media(max-width:600px){.gfx-frame button.r127-human-unit.r127-hollowed-unit{width:38%}}
 
 .gfx-frame.r127-human-combat-active .gfx-combat{display:none!important}
 .gfx-frame.r127-human-combat-active .gfx-main>.gfx-combat{display:none!important}

@@ -41,6 +41,7 @@ const {run,flush}=require('./helpers/wo33_dom.cjs')();
   ['BAT COLONY','BAT COLONY',4,'.r127-bat-unit','.r127-bat-hp'],
   ['LOOTERS','LOOTERS',3,'.r127-human-unit','.r127-human-hp'],
   ['PARKING LOT RAIDERS','PARKING LOT RAIDERS',3,'.r127-human-unit','.r127-human-hp'],
+  ['THE HOLLOWED','THE HOLLOWED',2,'.r127-hollowed-unit','.r127-human-hp'],
   ['HIGHWAY ROBBERS','HIGHWAY ROBBERS',2,'.r127-human-unit','.r127-human-hp'],
   ['THE WAX MUSEUM','THE CURATOR',1,'.r127-road-unit','.r127-road-hp'],
   ['THE BONE COLLECTOR','THE BONE COLLECTOR',1,'.r127-road-unit','.r127-road-hp'],
@@ -54,6 +55,9 @@ const {run,flush}=require('./helpers/wo33_dom.cjs')();
   if(count>1)assert.equal(run(`GraphicalUI.element.figure.querySelectorAll(${JSON.stringify(selector)}).filter(n=>!n.hidden).length`),count-1,title+' dead unit');
   else assert.equal(run(`GraphicalUI.element.figure.querySelector(${JSON.stringify(selector)}).hidden`),true,title+' dead solo');
  }
+ run("fixture('THE HOLLOWED')");
+ assert.deepEqual(Array.from(run("GraphicalUI.element.figure.querySelectorAll('.r127-hollowed-unit').map(n=>n.style.scale)")),['1','1']);
+ assert.equal(run("GraphicalUI.element.figure.querySelectorAll('.r127-human-hp').length"),0);
  run("fixture('THE PAINTED ARROWS')");
  assert.equal(run("GraphicalUI.element.figure.querySelectorAll('.r127-road-unit').length"),0);
  run("makeFight('ARROW AMBUSH',2)");

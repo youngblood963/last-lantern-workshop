@@ -228,7 +228,7 @@ handleCommandCore=async function(raw){
    if(section==='murphyTalk'&&cmd==='inspect corvette photo'){
      return previousCore.call(this,'inspect corvette photo');
    }
-   if(section==='murphyTalk'&&cmd==='ask about work'){add('MURPHY > Still working on the machines. Check back when there is a new job.','bright');return murphyTalk();}
+   if(section==='murphyTalk'&&cmd==='ask about work'){if(player.flags.murphyQuest==='locked')return smallTalk('murphy');add('MURPHY > Still working on the machines. Check back when there is a new job.','bright');return murphyTalk();}
    if(section==='murphyTalk'&&cmd==='ask about relay station')return previousCore.apply(this,arguments);
  }
  if(at('amii')&&back.includes(cmd)&&section==='amiiTalk'){return v48BankMain();}

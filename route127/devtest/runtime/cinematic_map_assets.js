@@ -105,6 +105,16 @@
   const ys=roadPts.map(p=>p[1]);
   const n=Math.min(...ys),s=Math.max(...ys),scale=(v.height-98)/(s-n),off=48-n*scale;
   const expandY=y=>y*scale+off;
+  // Some generated landmark PNGs contain semi-transparent pixels even in solid buildings.
+// Increase alpha locally (preserving transparent edges) to stop the map showing through them.
+  const defs=svg.querySelector('defs')||make('defs');
+  if(!defs.parentNode)svg.insertBefore(defs,svg.firstChild);
+  if(!svg.querySelector('#route127-landmark-opacity-fix')){
+   const f=make('filter',{id:'route127-landmark-opacity-fix',x:'-15%',y:'-15%',width:'130%',height:'130%', 'color-interpolation-filters':'sRGB'});
+   const transfer=make('feComponentTransfer',{});
+   transfer.append(make('feFuncA',{type:'linear',slope:'1.75',intercept:'-0.25'}));
+   f.append(transfer);defs.append(f);
+  }
   const root=make('g',{'data-cinematic-map':'true','pointer-events':'none'});
   const roads=make('g',{'data-cinematic-roads':'true',opacity:'.82'});
   const places=make('g',{'data-cinematic-landmarks':'true'});
@@ -131,15 +141,18 @@
    const img=make('image',{href:`/route127/devtest/assets/map_landmarks/${file}.png`,
      x,y,width:w,height:h,preserveAspectRatio:'xMidYMid meet','data-place':id});
    img.append(make('title',{}));img.lastChild.textContent=id.replace(/-/g,' ');
+   img.setAttribute('filter','url(#route127-landmark-opacity-fix)');
    places.append(img);
   }
   const f=typeof player!=='undefined'?player?.flags:null;
   for(const item of extra){
    if(!item.ok(f))continue;
    const w=108,h=112;
-   places.append(make('image',{href:`/route127/devtest/assets/map_landmarks/${item.name}.png`,
+   const discoveryImage=make('image',{href:`/route127/devtest/assets/map_landmarks/${item.name}.png`,
      x:item.x-w/2,y:expandY(item.y)-h/2,width:w,height:h,preserveAspectRatio:'xMidYMid meet',
-     'data-discovery-art':item.name}));
+     'data-discovery-art':item.name});
+   discoveryImage.setAttribute('filter','url(#route127-landmark-opacity-fix)');
+   places.append(discoveryImage);
   }
   // Keep player marker clearly above the decorative location imagery.
   const playerDot=svg.querySelector('#lantern-player-marker');

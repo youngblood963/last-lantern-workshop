@@ -1058,7 +1058,7 @@ function loadGame(slot=activeSaveSlot){
   }
   else if(["houseStorage","houseDeposit","houseWithdraw"].includes(stage)){showHouseStorage(stage);}
   else if(stage==="house") arriveHouse();
-  else if(["port55Vendor","port55Pets","port55Kaiden","port55Mia","port55Docks","port55Stop","port55Service","port55Recruit"].includes(stage))port55Resume();
+  else if(["port55Vendor","port55Pets","port55Kaiden","port55Mia","port55Docks","port55Stop","port55Service","port55Recruit","port55PostOffice"].includes(stage))port55Resume();
   else if(["portRoad","seaport","portMarket","portClinic","portDocks","portWatch"].includes(stage))portMenu();
   else if(stage==="mercy"){if(!(typeof port55CasinoRestore==="function"&&port55CasinoRestore())){add("SOLACE","place");showSolaceContext();}}
   else if(stage==="settlement"){ add("SOLACE GATE", "place"); add("The settlement waits beyond the barricade."); add("(P) APPROACH GATE", "system"); }
@@ -2869,7 +2869,7 @@ function renderCurrentChoices(){
   if(stage==="eastEnd")return showFactory();
   if(stage.startsWith("factoryDungeon"))return factoryRender();
   if(stage==="factoryWorkshop")return v49FactoryRoom();
-  if(["port55Vendor","port55Pets","port55Kaiden","port55Mia","port55Docks","port55Stop","port55Service","port55Recruit"].includes(stage))return port55Resume();
+  if(["port55Vendor","port55Pets","port55Kaiden","port55Mia","port55Docks","port55Stop","port55Service","port55Recruit","port55PostOffice"].includes(stage))return port55Resume();
   if(["portRoad","seaport","portMarket","portClinic","portDocks","portWatch"].includes(stage))return portMenu();
   if(stage==="factoryTerminal")return v49Terminal();
   if(stage==="factoryForge")return v49Forge();

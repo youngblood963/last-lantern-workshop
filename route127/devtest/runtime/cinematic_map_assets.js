@@ -92,15 +92,43 @@
   // Remove old compass plaque and field-notes card; the table is now purely cinematic.
   if(note)note.remove();
 
-  // Tabletop props never change map coordinates or its SVG zoom.
-  if(!fig.querySelector('[data-table-lantern]')){
-   const lantern=document.createElement('img');
-   lantern.setAttribute('data-table-lantern','');
-   lantern.src='/route127/devtest/assets/flickering_rusty_lantern.gif';
-   lantern.alt='';lantern.setAttribute('aria-hidden','true');
-   // About 50% wider than the previous 27%-width lantern, moved higher.
-   lantern.style.cssText='position:absolute;left:-9%;top:-10%;width:clamp(260px,40.5%,548px);height:auto;aspect-ratio:1;object-fit:contain;pointer-events:none;z-index:2;filter:drop-shadow(7px 10px 9px #090502a6);';
-   fig.append(lantern);
+  // The static coffee mug replaces the lantern; only its steam is animated.
+  // All props remain outside the map SVG and never alter travel/zoom.
+  if(!fig.querySelector('[data-table-mug]')){
+   if(!document.getElementById('route127-coffee-steam-style')){
+    const sheet=document.createElement('style');sheet.id='route127-coffee-steam-style';
+    sheet.textContent=`
+     .route127-table-mug{position:absolute;left:6%;top:12%;width:clamp(145px,23%,265px);
+       aspect-ratio:1;z-index:2;pointer-events:none;}
+     .route127-table-mug img{display:block;width:100%;height:100%;object-fit:contain;
+       filter:drop-shadow(6px 9px 6px rgba(12,6,3,.55));}
+     .route127-table-mug .steam{position:absolute;left:42%;top:7%;width:19%;height:43%;
+       transform:translate(-50%,-80%);pointer-events:none;opacity:0;
+       background:radial-gradient(ellipse at 50% 70%,rgba(235,229,215,.38),rgba(220,215,203,.16) 34%,transparent 68%);
+       filter:blur(8px);border-radius:50% 45% 55% 50%;
+       animation:route127-steam-rise 4.6s ease-out infinite;}
+     .route127-table-mug .steam:nth-of-type(2){left:51%;animation-delay:-1.7s;animation-duration:5.2s;width:15%;}
+     .route127-table-mug .steam:nth-of-type(3){left:45%;animation-delay:-3.2s;animation-duration:4.9s;width:13%;}
+     @keyframes route127-steam-rise{
+       0%{opacity:0;transform:translate(-50%,-30%) translateX(0) scale(.6,.45)}
+       16%{opacity:.38}
+       50%{opacity:.27;transform:translate(-50%,-90%) translateX(9px) scale(.9,1.1)}
+       82%{opacity:.13}
+       100%{opacity:0;transform:translate(-50%,-155%) translateX(-9px) scale(1.3,1.55)}
+     }
+     @media(prefers-reduced-motion:reduce){.route127-table-mug .steam{display:none!important;}}
+    `;
+    document.head.append(sheet);
+   }
+   const mug=document.createElement('div');
+   mug.className='route127-table-mug';
+   mug.setAttribute('data-table-mug','');
+   mug.setAttribute('aria-hidden','true');
+   const mugImage=document.createElement('img');
+   mugImage.src='/route127/devtest/assets/rusty_smiley_coffee_mug.png';
+   mugImage.alt='';mug.append(mugImage);
+   for(let i=0;i<3;i++){const plume=document.createElement('span');plume.className='steam';mug.append(plume);}
+   fig.append(mug);
    const spider=document.createElement('img');
    spider.setAttribute('data-table-spider','');
    spider.src='/route127/devtest/assets/daddy_longlegs_crawl.gif';

@@ -69,13 +69,14 @@
   'COUNTY WORK TRUCK':'county_work_truck.png',
   'THE LOCKED TOOL CHEST':'locked_tool_chest.png',
   'THE BURNT LIBRARY':'burnt_library.png',
-  'THE BRIDGE TOLL':'bridge_toll.png',
   'A DRESSING IN THE DUST':'tommy_briggs_roadside.png',
   'THE BLADE CART':'runaway_blade_cart.gif',
   'THE DITCH BACKPACK':'abandoned_backpack.png',
  }))register(title,[],'both','Standard',scenery(file));
  // The overturned maintenance cart is a transparent foreground object, not a complete scene.
  register('OVERTURNED MAINTENANCE CART',[],'both','Standard',scenery('overturned_cart_battery.png'),'foreground');
+ // Bridge Toll has its own environment; only the regional sky sits behind its transparent upper area.
+ register('THE BRIDGE TOLL',[],'both','Standard',scenery('bridge_toll.png'),'full-sky');
  // Transparent vehicle: keep regional terrain and dynamic sky behind it.
  register('ABANDONED SEDAN',[],'both','Standard',scenery('abandoned_sedan.png'),'foreground');
  for(const period of ['dawn','day','dusk','night']){

@@ -626,7 +626,7 @@
       "id": "solace--works-junction",
       "a": "solace",
       "b": "works-junction",
-      "distanceTurns": 3,
+      "distanceTurns": 7,
       "region": "east",
       "polyline": [
         [
@@ -648,7 +648,7 @@
       "id": "works-junction--factory",
       "a": "works-junction",
       "b": "factory",
-      "distanceTurns": 3,
+      "distanceTurns": 8,
       "region": "east",
       "polyline": [
         [
@@ -669,7 +669,7 @@
       "id": "old-service-junction--old-service-road",
       "a": "old-service-junction",
       "b": "old-service-road",
-      "distanceTurns": 4,
+      "distanceTurns": 5,
       "region": "early",
       "polyline": [
         [
@@ -727,7 +727,7 @@
       "id": "old-service-junction--iron-pit-arena",
       "a": "old-service-junction",
       "b": "iron-pit-arena",
-      "distanceTurns": 7,
+      "distanceTurns": 13,
       "region": "early",
       "polyline": [
         [
@@ -781,7 +781,7 @@
       "id": "arena-lower-junction--arena-east-junction",
       "a": "arena-lower-junction",
       "b": "arena-east-junction",
-      "distanceTurns": 4,
+      "distanceTurns": 6,
       "region": "east",
       "polyline": [
         [
@@ -831,7 +831,7 @@
       "id": "iron-pit-arena--lowlands",
       "a": "iron-pit-arena",
       "b": "lowlands",
-      "distanceTurns": 6,
+      "distanceTurns": 12,
       "region": "east",
       "polyline": [
         [
@@ -858,7 +858,7 @@
       "id": "arena-lower-junction--factory-west",
       "a": "arena-lower-junction",
       "b": "factory-west",
-      "distanceTurns": 4,
+      "distanceTurns": 7,
       "region": "east",
       "polyline": [
         [
@@ -917,7 +917,7 @@
       "id": "scrap-yard--industrial-road",
       "a": "scrap-yard",
       "b": "industrial-road",
-      "distanceTurns": 5,
+      "distanceTurns": 6,
       "region": "east",
       "polyline": [
         [
@@ -1016,7 +1016,7 @@
       "id": "trade-route--industrial-junction",
       "a": "trade-route",
       "b": "industrial-junction",
-      "distanceTurns": 5,
+      "distanceTurns": 9,
       "region": "early",
       "polyline": [
         [
@@ -1043,7 +1043,7 @@
       "id": "industrial-junction--east-coast-junction",
       "a": "industrial-junction",
       "b": "east-coast-junction",
-      "distanceTurns": 4,
+      "distanceTurns": 8,
       "region": "east",
       "polyline": [
         [
@@ -1070,7 +1070,7 @@
       "id": "industrial-road--factory-east",
       "a": "industrial-road",
       "b": "factory-east",
-      "distanceTurns": 3,
+      "distanceTurns": 4,
       "region": "east",
       "polyline": [
         [
@@ -1187,7 +1187,7 @@
       "id": "east-coast-junction--watchtower-ruins",
       "a": "east-coast-junction",
       "b": "watchtower-ruins",
-      "distanceTurns": 4,
+      "distanceTurns": 10,
       "region": "coast",
       "polyline": [
         [
@@ -1241,7 +1241,7 @@
       "id": "factory-east--east-coast-lower",
       "a": "factory-east",
       "b": "east-coast-lower",
-      "distanceTurns": 4,
+      "distanceTurns": 11,
       "region": "coast",
       "polyline": [
         [
@@ -1291,7 +1291,7 @@
       "id": "factory-west--west-coast-junction",
       "a": "factory-west",
       "b": "west-coast-junction",
-      "distanceTurns": 5,
+      "distanceTurns": 12,
       "region": "coast",
       "polyline": [
         [
@@ -1318,7 +1318,7 @@
       "id": "lowlands--broken-bridge",
       "a": "lowlands",
       "b": "broken-bridge",
-      "distanceTurns": 3,
+      "distanceTurns": 7,
       "region": "coast",
       "polyline": [
         [
@@ -1368,7 +1368,7 @@
       "id": "lowlands--factory-west",
       "a": "lowlands",
       "b": "factory-west",
-      "distanceTurns": 7,
+      "distanceTurns": 15,
       "region": "coast",
       "polyline": [
         [
@@ -1474,7 +1474,7 @@
       "id": "factory--boulder-junction",
       "a": "factory",
       "b": "boulder-junction",
-      "distanceTurns": 3,
+      "distanceTurns": 8,
       "region": "coast",
       "polyline": [
         [
@@ -1499,7 +1499,7 @@
       "id": "boulder-junction--seaport",
       "a": "boulder-junction",
       "b": "seaport",
-      "distanceTurns": 2,
+      "distanceTurns": 12,
       "region": "coast",
       "polyline": [
         [
@@ -1623,7 +1623,7 @@
       "id": "old-service-road--motel-interior-junction",
       "a": "old-service-road",
       "b": "motel-interior-junction",
-      "distanceTurns": 2,
+      "distanceTurns": 4,
       "region": "early",
       "polyline": [
         [
@@ -1720,7 +1720,7 @@
       "id": "trade-junction--east-highway-junction",
       "a": "trade-junction",
       "b": "east-highway-junction",
-      "distanceTurns": 2,
+      "distanceTurns": 4,
       "region": "early",
       "polyline": [
         [

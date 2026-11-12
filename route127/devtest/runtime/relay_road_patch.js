@@ -44,6 +44,15 @@ handleCommandCore=async function(raw){
   PlaythroughRepairs.relayClues(true);
   return;
  }
+ if(!busy&&stage==='mercy'&&mercyLocation==='relay'&&player.flags.relayQuest!=='complete'&&cmd.includes('inspect')){
+  const diagnostic=cmd.includes('monitor')?['monitor','The monitor is dead again. A faint ozone smell hangs around the vents. A signal-conditioning board behind the display is scorched beyond repair.','Look for a replacement on Route 127 just outside the Factory.']:
+   cmd.includes('antenna')?['antenna','A bank of antenna controls is frozen halfway through calibration. The ANTENNA SERVO has seized solid.','Look for a replacement on Old House Road between the House and Solace.']:
+   cmd.includes('cable')?['cables','Most of the cable is brittle but intact, but the SHIELDED FEED COUPLER has burned through at the wall.','Look for a roadside communications cabinet on the road between map Nodes 9 and 32.']:null;
+  if(diagnostic){
+   const [system,description,clue]=diagnostic;
+   add(description);add(clue,'bright');inspectRelaySystem(system);showRelayChoices();return;
+  }
+ }
  if(!busy&&key&&stage==='encounter'&&lanternState()?.pending){
   if(cmd===parts[key].action.toLowerCase())return finish(true);
   if(['back away','leave','back','move on'].includes(cmd))return finish(false);

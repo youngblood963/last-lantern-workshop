@@ -46,7 +46,9 @@
   dialog.style.setProperty('flex-direction','column','important');
   dialog.style.setProperty('box-sizing','border-box','important');
   dialog.style.setProperty('overflow','hidden','important');
-  dialog.style.setProperty('border-color','#39271b','important');
+  // Cinematic tabletop: replace the old gold outer frame with a quiet dark edge.
+  dialog.style.setProperty('border','1px solid #241914','important');
+  dialog.style.setProperty('box-shadow','0 14px 40px #000b','important');
   const body=dialog.querySelector('.route127-map-body');
   if(body){body.style.setProperty('min-height','0','important');body.style.setProperty('flex','1 1 auto','important');}
   // Player-facing map: omit the verbose travel-progress line above the map.
@@ -67,6 +69,8 @@
   fig.style.setProperty('overflow','hidden','important');
   fig.style.setProperty('box-sizing','border-box','important');
   fig.style.setProperty('border','0','important');
+  fig.style.setProperty('box-shadow','none','important');
+  fig.style.setProperty('border-radius','0','important');
   fig.style.setProperty('background','#21140e url("/route127/devtest/assets/picnic_table_background.png") center center / cover no-repeat','important');
   // Subdue legacy decorative grid over the new photo background.
   fig.classList.add('route127-cinematic-picnic');
@@ -81,6 +85,7 @@
   svg.style.setProperty('aspect-ratio',v.width+' / '+v.height,'important');
   svg.style.setProperty('flex','0 1 auto','important');
   svg.style.setProperty('border','0','important');
+  svg.style.setProperty('border-radius','0','important');
   svg.style.setProperty('box-shadow','0 9px 22px #000a','important');
   // Side decorations are outside the map; never intercept controls.
   const note=fig.querySelector('.route127-map-fieldnote');

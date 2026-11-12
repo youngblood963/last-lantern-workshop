@@ -148,17 +148,23 @@
    function appear(){
     if(stopped||!dialog.open||document.hidden){scheduleNext();return;}
     spider.style.display='block';
-    // Traverses only the right-hand tabletop, beginning fully off the lower
-    // edge and ending fully off the upper edge (not on the actual map).
-    const steps=[
-     {offset:0,left:'83%',top:'115%',transform:'translate(-50%,-50%) rotate(-5deg)'},
-     {offset:.15,left:'85%',top:'91%',transform:'translate(-50%,-50%) rotate(3deg)'},
-     {offset:.32,left:'87%',top:'68%',transform:'translate(-50%,-50%) rotate(-4deg)'},
-     {offset:.50,left:'89%',top:'46%',transform:'translate(-50%,-50%) rotate(3deg)'},
-     {offset:.68,left:'91%',top:'23%',transform:'translate(-50%,-50%) rotate(-3deg)'},
-     {offset:.84,left:'93%',top:'2%',transform:'translate(-50%,-50%) rotate(2deg)'},
-     {offset:1,left:'95%',top:'-21%',transform:'translate(-50%,-50%) rotate(-3deg)'}
-    ];
+    // The spider now crosses the paper rather than the coffee cup. Use the
+    // actual on-screen paper bounds so this remains correct at any map size.
+    // CSS positions are relative to the tabletop figure, not the SVG viewBox.
+    const paper=svg.getBoundingClientRect(),table=fig.getBoundingClientRect();
+    const at=(u,v)=>({
+     left:(((paper.left-table.left)+paper.width*u)/table.width*100).toFixed(3)+'%',
+     top:(((paper.top-table.top)+paper.height*v)/table.height*100).toFixed(3)+'%'
+    });
+    // Enter from below the paper near its right edge and leave above-left.
+    // Keep the same image size, movement duration and gentle body wobble.
+    const positions=[[.86,1.18],[.80,.99],[.69,.78],[.57,.58],[.45,.39],[.31,.18],[.18,-.19]];
+    const tilts=[-5,3,-4,3,-3,2,-3];
+    const offsets=[0,.15,.32,.50,.68,.84,1];
+    const steps=positions.map(([x,y],i)=>({
+     offset:offsets[i],...at(x,y),
+     transform:'translate(-50%,-50%) rotate('+tilts[i]+'deg)'
+    }));
     walk=spider.animate(steps,{duration:12000,easing:'linear',fill:'forwards'});
     walk.onfinish=()=>{walk=null;spider.style.display='none';scheduleNext();};
    }

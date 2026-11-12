@@ -133,7 +133,7 @@
   const variant=select(variants,'Variant',[]);
   const background=select(variants,'Background region',['No Background',...regions]);
   const sky=select(variants,'Sky',['Auto','Dawn','Day','Dusk','Night']);
-  const composition=select(variants,'Composition',['Auto','Regional + Sprites','Regional + Foreground','Full Scene','Full Scene + Sky']);
+  const composition=select(variants,'Composition',['Auto','Regional + Sprites','Full Scene','Full Scene + Sky','Large Object + Dirt Road + Sky']);
   const skyNote=el('p');dialog.append(skyNote);
   const device=select(variants,'Layout',['desktop','phone']);
   const canvas=el('div');canvas.className='layout-stage';dialog.append(canvas);
@@ -236,7 +236,7 @@
     records.push({key,path:L.installed.get(key.slice(11)),index:records.length});
    }
    initial=Object.fromEntries(records.map(record=>[record.key,live[record.key]||
-    defaults(row,record.index,spec?.units.length,record.background)]));
+    (record.background&&spec?.composition==='regional-object'?{x:50,y:device.value==='phone'?59.5:58,width:device.value==='phone'?85:80,height:device.value==='phone'?81:84,scale:1,z:5,flip:false}:defaults(row,record.index,spec?.units.length,record.background))]));
    draft=Object.fromEntries(records.map(record=>[record.key,{...saved[record.key]||initial[record.key]}]));
    baseline=JSON.parse(JSON.stringify(draft));
    metadata.textContent=row.name+' · '+row.id+' · '+regionLabel(row)+' · '+(row.combat?'Combat available':'Noncombat')+
@@ -255,15 +255,17 @@
   }
   function paint(){
    canvas.dataset.device=device.value;canvas.dataset.preview=String(preview);
-   const inferred=spec?.composition==='foreground'?'Regional + Foreground':spec?.composition==='full-sky'?'Full Scene + Sky':spec?.background?'Full Scene':'Regional + Sprites';
+   const inferred=spec?.composition==='dirt-road'?'Large Object + Dirt Road + Sky':['foreground','regional-object'].includes(spec?.composition)?'Regional + Sprites':spec?.composition==='full-sky'?'Full Scene + Sky':spec?.background?'Full Scene':'Regional + Sprites';
    const mode=composition.value==='Auto'?inferred:composition.value;
    const full=mode.startsWith('Full Scene');
+   const dirt=mode==='Large Object + Dirt Road + Sky';
    const hour={Dawn:6,Day:12,Dusk:18,Night:22}[sky.value]??(typeof player==='undefined'?12:player.flags.worldHour);
    // Keep a real region for sky selection even when the landscape layer is hidden.
    const skyRegion=background.value==='No Background'?(row?.regions?.[0]||'CENTRAL'):background.value;
    const layers=globalThis.Route127EditorSky?.describe(skyRegion,hour);
    sky.disabled=mode==='Full Scene';
    skyNote.textContent=mode+(sky.disabled?' · Sky preview unavailable for this artwork.':' · '+(layers?.period||'Regional sky unavailable'));
+   if(composition.value==='Auto'&&(!spec||(spec.background&&!spec.composition&&!/\\.gif$/i.test(spec.background))))skyNote.textContent+=' · Composition needs review';
    canvas.replaceChildren();
    function layer(src){
     const img=el('img');img.className='layout-base';img.alt='';img.src=src;canvas.append(img);return img;
@@ -272,7 +274,12 @@
     const skyImage=layer(layers.sky);
     if(layers.period==='dusk')skyImage.style.filter='sepia(.42) hue-rotate(-18deg) saturate(1.4)';
    }
-   if(!full&&background.value!=='No Background'){
+   if(dirt&&background.value!=='No Background'){
+    const road=layer(new URL('../assets/regions/dirt_road_foreground.png',L.root).href);
+    Object.assign(road.style,{top:'50%',bottom:'0',height:'50%',objectFit:'fill'});
+    road.addEventListener('error',()=>{skyNote.textContent+=' · Dirt road image unavailable';});
+   }
+   if(!full&&!dirt&&background.value!=='No Background'){
     const ground=layer(layers?.ground||new URL(L.regionArt(skyRegion),L.root).href);
     ground.addEventListener('error',()=>{const fallback=new URL(L.regionArt(skyRegion),L.root).href;if(ground.src!==fallback)ground.src=fallback;});
    }
@@ -282,6 +289,8 @@
     node.setAttribute('aria-label',L.assetName(record.path));record.element=node;
     const img=el('img');img.draggable=false;img.alt='';img.src=new URL(record.path,L.root).href+'?v=wo27-art-fit';
     img.addEventListener('error',()=>{img.alt='Missing: '+L.assetName(record.path);});
+    if(full&&record.background)img.style.objectFit='cover';
+    if(dirt&&record.background)img.style.objectPosition='center bottom';
     node.append(img);
     if(phase.value==='combat'&&!record.background)node.append(el('span','HP'));
     node.addEventListener('click',()=>{units.value=key;updateFields();});

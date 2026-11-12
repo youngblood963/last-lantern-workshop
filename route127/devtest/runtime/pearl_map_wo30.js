@@ -37,7 +37,7 @@ function addTracingControls(dialog){
  let expandedPosition=[playerX,expandedY(playerY)];
  const guide=svgElement('g',{'data-pearl-guide':'','aria-label':'Road tracing guides'});
  const roads=svgElement('g',{});
- const pearls=svgElement('g',{'pointer-events':'none'});
+ const pearls=svgElement('g',{});
  const costs=svgElement('g',{'pointer-events':'none'});
  guide.append(roads,pearls,costs);
  for(const edge of LANTERN_WORLD_GRAPH.edges){
@@ -67,9 +67,11 @@ function addTracingControls(dialog){
   roads.append(line);
   for(let step=1;step<=edge.distanceTurns;step++){
    const [x,y]=position(step);
-   pearls.append(svgElement('circle',{'data-pearl-step':step,'data-edge':edge.id,
+   const pearl=svgElement('circle',{'data-pearl-step':step,'data-edge':edge.id,
     cx:x,cy:y,r:4,fill:'#e4fff9',stroke:'#12201f','stroke-width':1.5
-   }));
+   });
+   pearl.append(svgElement('title',{},LG_NODES[edge.a].name+' → '+LG_NODES[edge.b].name+' · turn '+step+' of '+edge.distanceTurns));
+   pearls.append(pearl);
   }
   const [x,y]=position(edge.distanceTurns/2);
   costs.append(svgElement('text',{x,y:y-8,'text-anchor':'middle',
@@ -143,9 +145,36 @@ function addTracingControls(dialog){
   }
  });
  const art=svg.querySelector('image');
+ const landscape=svgElement('image',{
+  href:'../devtest/assets/wo34-landscape.webp',width:v.width,height:v.height,
+  preserveAspectRatio:'xMidYMid meet','pointer-events':'none'
+ });
+ landscape.style.display='none';
+ svg.insertBefore(landscape,originalNodes);
+ let useLandscape=false;
+ let hideArtwork=false;
+ function updateArtwork(){
+  if(art)art.style.visibility=hideArtwork||useLandscape?'hidden':'';
+  landscape.style.display=useLandscape&&!hideArtwork?'':'none';
+  svg.style.background=hideArtwork||useLandscape?'#14201f':'';
+ }
+ landscape.addEventListener('error',()=>{
+  landscape.remove();
+  landscapeButton.disabled=true;
+  landscapeButton.textContent='Landscape unavailable';
+  useLandscape=false;
+  updateArtwork();
+ });
+ toggle('Show landscape preview','Show original artwork',active=>{
+  useLandscape=active;
+  updateArtwork();
+  const guides=controls.firstElementChild;
+  if(active&&guides.getAttribute('aria-pressed')==='false')guides.click();
+ });
+ const landscapeButton=controls.lastElementChild;
  toggle('Hide artwork','Show artwork',active=>{
-  if(art)art.style.visibility=active?'hidden':'';
-  svg.style.background=active?'#14201f':'';
+  hideArtwork=active;
+  updateArtwork();
  });
  const report=document.createElement('p');
  report.textContent='Marker clearance under '+minimumGap+' map pixels. Amber: '+crowded.size+

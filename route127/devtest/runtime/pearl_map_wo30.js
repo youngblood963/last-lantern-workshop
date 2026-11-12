@@ -142,15 +142,16 @@ function addTracingControls(dialog){
   if(!shape)continue;
   const [x,y]=v.nodes[node.id];
   const coast=node.id==='seaport';
-  const dx=coast?96:0,dy=coast?-38:-23;
+  // Icons stay above the node; names are displayed below their icons.
+  const dx=coast?96:0,dy=coast?-52:-49;
   names.append(svgElement('line',{x1:x,y1:y,x2:x+dx,y2:y+dy,stroke:'#ead2a5','stroke-width':2}));
   const icon=svgElement('g',{transform:`translate(${x+dx} ${y+dy}) scale(${major.has(node.id)?1:.75})`});
   icon.append(svgElement('path',{d:shape,fill:node.id==='boulder-junction'?'#947c6e':'#433028',
    stroke:'#ffe1a5','stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'}));
   names.append(icon);
-  names.append(svgElement('text',{x:x+dx,y:y+dy-20,'text-anchor':'middle',fill:'#fff0cd',
-   stroke:'#22160f','stroke-width':5,'paint-order':'stroke','font-size':major.has(node.id)?17:14,
-   'font-weight':major.has(node.id)?'bold':'normal'
+  names.append(svgElement('text',{x:x+dx,y:y+dy+37,'text-anchor':'middle',fill:'#fff0cd',
+   stroke:'#22160f','stroke-width':5,'paint-order':'stroke','font-size':major.has(node.id)?19:16,
+   'font-weight':'bold','font-family':'system-ui, sans-serif'
   },node.name));
  }
  originalNodes.insertBefore(names,playerMarker);

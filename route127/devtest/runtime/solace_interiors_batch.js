@@ -80,7 +80,7 @@ function timDialogue(){
  add('TIM > Hey. Settling in alright?','bright');
  const bounty=v52Crime().bounty;
  DevtestMenuModel.publishLabels('solace-dialogue:tim',[
-  'ASK ABOUT WORK',...(bounty>0?['PAY FINE','OFFER BRIBE']:[]),'ASK ABOUT RELAY STATION',
+  'ASK ABOUT WORK',...(player.flags.timHouseBounty==='proof'?['COLLECT BOUNTY']:[]),...(bounty>0?['PAY FINE','OFFER BRIBE']:[]),'ASK ABOUT RELAY STATION',
   ...(player.flags.r18BribePending?.lawman==='Tim'?['CONFIRM BRIBE','CANCEL BRIBE']:[]),
   'NEVER MIND'
  ],'NEVER MIND');
@@ -184,6 +184,17 @@ handleCommandCore=async function(raw){
  if(!inTown()||busy)return previousCore.apply(this,arguments);
  const typed=String(raw??'').trim().toLowerCase();
  const cmd=String(numberedChoices[typed]||currentHotkeys[typed]||typed).trim().toLowerCase();
+ if(mercyLocation==='tim'&&['cleared','done'].includes(player.flags.houseQuest)&&
+    ['accept trouble at the old house','trouble at old house','collect bounty'].includes(cmd)&&
+    (!player.flags.timHouseBounty||player.flags.timHouseBounty==='active')){
+  if(cmd!=='collect bounty'||player.flags.timHouseBounty==='active'){
+   player.flags.timHouseBounty='proof';
+   if(cmd!=='collect bounty'){
+    add('BOUNTY PROOF ACQUIRED — The Old House is already clear. Collect the bounty from Tim.','reward');
+    v49Autosave();return timDialogue();
+   }
+  }
+ }
  const back=['back','b','never mind'];
  if(player.flags.v53Sale){return previousCore.apply(this,arguments);}
  if(player.flags.v48Shop==='sell'&&back.includes(cmd)){
@@ -234,6 +245,7 @@ handleCommandCore=async function(raw){
  if(at('amii')&&back.includes(cmd)&&section==='amiiTalk'){return v48BankMain();}
  if(at('tim')){
    if(cmd==='inspect tim'||cmd==='inspect tim mercer'){return v53TimMenu();}
+   if(cmd==='collect bounty'&&player.flags.timHouseBounty==='proof'){const result=await previousCore.apply(this,arguments);if(player.flags.timHouseBounty==='done')v49Autosave();return result;}
    if(cmd==='collect bounty')return v53TimMenu();
    if(cmd==='ask about work'||cmd==='work')return previousCore.apply(this,arguments);
    if(cmd==='never mind')return v53TimMenu();

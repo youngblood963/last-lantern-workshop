@@ -39,7 +39,7 @@
     'Hector Vale':'hector_vale.png',
     'Nadia Rill':'nadia_rill.png',
     'Rhea Tarrant':'rhea_tarrant.png',
-    Enid:'Enid.png'
+    'Eli Mercer':'eli_mercer.png', Enid:'Enid.png'
   });
   // Shared read-only identity-to-portrait map for Seaport staffed shop visuals.
   globalThis.Route127WandererPortraitFiles = art;

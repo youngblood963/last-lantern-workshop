@@ -42,6 +42,8 @@
   dialog.style.setProperty('max-width','98vw','important');
   dialog.style.setProperty('height','min(94vh,1000px)','important');
   dialog.style.setProperty('max-height','94vh','important');
+  dialog.style.setProperty('display','flex','important');
+  dialog.style.setProperty('flex-direction','column','important');
   dialog.style.setProperty('box-sizing','border-box','important');
   dialog.style.setProperty('overflow','hidden','important');
   const body=dialog.querySelector('.route127-map-body');

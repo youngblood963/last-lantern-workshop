@@ -33,6 +33,10 @@
  };
  const css=document.createElement('style');
  css.textContent=`
+ .gfx-art.r127-bridge-toll-sky{position:relative;isolation:isolate;background:#151820!important}
+ .gfx-art.r127-bridge-toll-sky>.r127-bridge-toll-sky-layer{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;pointer-events:none}
+ .gfx-art.r127-bridge-toll-sky>.gfx-image{position:relative;z-index:1;background:transparent!important}
+ .gfx-art.r127-bridge-toll-sky>.gfx-art-caption{z-index:2}
  .gfx-art .r127-bone-hunters{position:absolute;inset:0;z-index:6;display:flex;
   align-items:flex-end;justify-content:space-evenly;pointer-events:none;overflow:hidden}
  .gfx-art .r127-bone-unit{height:91%;width:45%;display:flex;flex-direction:column;
@@ -53,6 +57,22 @@
   const result=oldSync.apply(this,args);
   try{
    const e=this.element;if(!e?.figure)return result;
+   // Sky-only backdrop for Bridge Toll: its artwork already contains its own ground.
+   const bridgeActive=!e.frame.hidden&&this.preference()==='graphics'&&stage==='encounter'&&
+    (canonical()==='THE BRIDGE TOLL'||alias()==='THE BRIDGE TOLL');
+   let bridgeSky=e.figure.querySelector('.r127-bridge-toll-sky-layer');
+   e.figure.classList.toggle('r127-bridge-toll-sky',bridgeActive);
+   if(bridgeActive){
+    if(!bridgeSky){
+     bridgeSky=document.createElement('div');bridgeSky.className='r127-bridge-toll-sky-layer';
+     bridgeSky.setAttribute('aria-hidden','true');e.figure.insertBefore(bridgeSky,e.img);
+    }
+    const hour=Number(player?.flags?.worldHour)||12;
+    const phase=typeof Route127RegionalSky?.phase==='function'?Route127RegionalSky.phase(hour):'day';
+    const skyFile=phase==='dusk'?'sky_dawn.png':'sky_'+phase+'.png';
+    bridgeSky.style.backgroundImage='url("'+new URL('../assets/regions/'+skyFile,root).href+'")';
+    bridgeSky.style.filter=phase==='dusk'?'sepia(.35) saturate(.85)':'';
+   }else bridgeSky?.remove();
    const encounter=canonical(),combat=typeof combatState!=='undefined'?combatState:null;
    const fighting=['combat','combatItems'].includes(stage)&&combat?.r18BoneHunters===true;
    const approach=stage==='encounter'&&(encounter==='THE BONE FLAGS'||alias()==='THE BONE HUNTERS');

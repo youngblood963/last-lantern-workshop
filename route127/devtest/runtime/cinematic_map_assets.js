@@ -140,7 +140,8 @@
   const show=make('g'); // just a state holder; no new UI clutter
   function sync(){
    const guideOn=!!guides&&guides.style.display!=='none';
-   root.style.display=guideOn?'':'none';
+   const landscapeOn=Array.from(dialog.querySelectorAll('button')).some(b=>b.textContent.trim()==='Show original artwork');
+   root.style.display=guideOn&&landscapeOn?'':'none';
    if(named)named.style.display='none';
   }
   sync();

@@ -43,9 +43,18 @@ function addTracingControls(dialog){
  // The road artwork is independent of pearl and node visibility.
  // Reuse the existing travel polylines; no coordinates or distances are changed.
  const roadSurfaces=svgElement('g',{'data-road-surfaces':'true','pointer-events':'none'});
- const sideStreets=svgElement('g',{});
- const mainHighway=svgElement('g',{});
- roadSurfaces.append(sideStreets,mainHighway);
+ // Paint each MATERIAL in complete passes instead of finishing one road at a time.
+ // This removes the dark 'lifted brush' rings where independent strokes meet.
+ const streetLayers={};
+ for(const type of ['dirt','asphalt','highway']){
+  const group=svgElement('g',{'data-road-material':type});
+  streetLayers[type]=[0,1,2,3].map(pass=>{
+   const layer=svgElement('g',{'data-road-pass':pass});
+   group.append(layer);
+   return layer;
+  });
+  roadSurfaces.append(group);
+ }
  const pearlMarkers=svgElement('g',{'data-pearl-markers':'true'});
  pearlMarkers.append(pearls,costs);
  guide.append(roadSurfaces,roadBeds,roads,pearlMarkers);
@@ -54,34 +63,40 @@ function addTracingControls(dialog){
   'solace--works-junction','works-junction--factory',
   'factory--boulder-junction','boulder-junction--seaport'
  ]);
+ const highwaySequence=[
+  ['house--solace-upper-junction',false],
+  ['solace-upper-junction--solace',false],
+  ['solace--works-junction',false],
+  ['works-junction--factory',false],
+  ['factory--boulder-junction',false],
+  ['boulder-junction--seaport',false]
+ ];
+ const highwayPoints=new Map();
  const paintRoad=(edge,points)=>{
   const highway=route127.has(edge.id);
+  if(highway)highwayPoints.set(edge.id,points);
   const mx=points.reduce((sum,p)=>sum+p[0],0)/points.length;
-  // Branches far to the east/west are dirt; central side streets are gray asphalt.
   const dirt=!highway&&(mx<355||mx>745);
-  const layer=highway?mainHighway:sideStreets;
+  const type=highway?'highway':dirt?'dirt':'asphalt';
   const common={points:points.map(p=>p.join(',')).join(' '),fill:'none',
    'stroke-linejoin':'round','stroke-linecap':'round','pointer-events':'none'};
-  function line(color,width,dash,opacity){
+  function stroke(pass,color,width,opacity){
    const attrs={...common,stroke:color,'stroke-width':width};
-   if(dash)attrs['stroke-dasharray']=dash;
    if(opacity!=null)attrs.opacity=opacity;
-   layer.append(svgElement('polyline',attrs));
+   streetLayers[type][pass].append(svgElement('polyline',attrs));
   }
   if(highway){
-   line('#a18a65',26); // dusty highway shoulders
-   line('#101113',21); // wide blacktop
-   line('#252528',14,null,.55); // subtle asphalt wear
-   line('#f2c646',3,'13 13'); // yellow dashed center
+   stroke(0,'#a18a65',26); // all shoulders join before asphalt is painted
+   stroke(1,'#101113',21);
+   stroke(2,'#252528',14,.55);
   }else if(dirt){
-   line('#463325',17);
-   line('#806145',13);
-   line('#a58a67',6,null,.56);
-   line('#4e3e2b',1.5,'3 18',.65);
+   stroke(0,'#463325',17);
+   stroke(1,'#806145',13);
+   stroke(2,'#a58a67',6,.56);
   }else{
-   line('#2f3030',18);
-   line('#747570',13);
-   line('#a3a19a',5,null,.45);
+   stroke(0,'#2f3030',18);
+   stroke(1,'#747570',13);
+   stroke(2,'#a3a19a',5,.45);
   }
  };
  for(const edge of LANTERN_WORLD_GRAPH.edges){
@@ -131,7 +146,25 @@ function addTracingControls(dialog){
    fill:'#e4fff9',stroke:'#12201f','stroke-width':3,'paint-order':'stroke','font-size':14
   },String(edge.distanceTurns)));
  }
- // Supersede the thin technical traces with the painted road surfaces.
+ // Give Route 127 one uninterrupted centerline instead of six individually
+ // restarted dashed strokes. Endpoints and gameplay routing stay unchanged.
+ const connected=[];
+ for(const [id,reverse] of highwaySequence){
+  const pts=highwayPoints.get(id);
+  if(!pts)continue;
+  const ordered=reverse?[...pts].reverse():pts;
+  if(connected.length&&Math.hypot(connected.at(-1)[0]-ordered[0][0],connected.at(-1)[1]-ordered[0][1])>3){
+   // Guard against unexpected geometry changes rather than drawing a shortcut.
+   continue;
+  }
+  connected.push(...ordered.slice(connected.length?1:0));
+ }
+ if(connected.length>1)streetLayers.highway[3].append(svgElement('polyline',{
+  points:connected.map(p=>p.join(',')).join(' '),fill:'none',
+  stroke:'#f2c646','stroke-width':3,'stroke-dasharray':'13 13',
+  'stroke-linejoin':'round','stroke-linecap':'round','pointer-events':'none'
+ }));
+  // Supersede the thin technical traces with the painted road surfaces.
  roadBeds.style.display='none';
  roads.style.display='none';
  // Check marker clearance in artwork pixels, independent of browser zoom.

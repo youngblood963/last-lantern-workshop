@@ -39,6 +39,11 @@ function finish(take){
 const oldCore=handleCommandCore;
 handleCommandCore=async function(raw){
  const cmd=String(r5Mapped(raw)||'').trim().toLowerCase(),key=pending();
+ if(!busy&&stage==='mercy'&&mercyLocation==='murphy'&&cmd==='ask about relay parts'&&player.flags.relayQuest!=='complete'){
+  add('MURPHY > Johnny has a Power Regulator. The other three components are out on the roads.','bright');
+  PlaythroughRepairs.relayClues(true);
+  return;
+ }
  if(!busy&&key&&stage==='encounter'&&lanternState()?.pending){
   if(cmd===parts[key].action.toLowerCase())return finish(true);
   if(['back away','leave','back','move on'].includes(cmd))return finish(false);
@@ -48,8 +53,8 @@ handleCommandCore=async function(raw){
 if(typeof PlaythroughRepairs!=='undefined'){
  PlaythroughRepairs.rackAvailable=()=>false;
  PlaythroughRepairs.rackChoice=()=>{};
- PlaythroughRepairs.relayClues=function(){
-  if(!active())return;const h=ensureRelayParts();
+ PlaythroughRepairs.relayClues=function(force=false){
+  if(!force&&!active())return;const h=ensureRelayParts();
   for(const [k,where] of [['johnny','Johnny in Solace'],['yard','Old House Road between House and Solace'],['branch','road between map Nodes 9 and 32'],['east','Route 127 just outside the Factory']])
    add((h[k]?'RECOVERED':'NEEDED')+' — '+(parts[k]?.name||'POWER REGULATOR')+': '+where,'system');
  };

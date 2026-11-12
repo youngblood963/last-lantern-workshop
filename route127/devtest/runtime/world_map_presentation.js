@@ -2,7 +2,7 @@
 (()=>{
  'use strict';
  if(!location.pathname.startsWith('/route127/devtest/'))return;
- const overlay=globalThis.Route127MapOverlay;
+ const overlay=typeof Route127MapOverlay!=='undefined'?Route127MapOverlay:globalThis.Route127MapOverlay;
  if(!overlay||typeof overlay.open!=='function')return;
  const original=overlay.open;
  overlay.open=function(...args){

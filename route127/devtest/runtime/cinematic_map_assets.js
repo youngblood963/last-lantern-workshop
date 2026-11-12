@@ -111,7 +111,7 @@
       viewBox:'0 0 100 75',overflow:'hidden',
       transform:`rotate(${spot.angle} ${spot.x} ${spot.y})`});
    // Crop away the bottom 16% of the baked-in asset-name plaques.
-   const img=make('image',{href:`assets/map_roads/${name}.png`,x:0,y:0,width:100,height:89,
+   const img=make('image',{href:`/route127/devtest/assets/map_roads/${name}.png`,x:0,y:0,width:100,height:89,
      preserveAspectRatio:'none'});
    tile.append(img);
    roads.append(tile);
@@ -120,7 +120,7 @@
    const p=v.nodes[id];if(!p)continue;
    const h=w*1.04;
    const x=p[0]+dx-w/2,y=expandY(p[1])+dy-h/2;
-   const img=make('image',{href:`assets/map_landmarks/${file}.png`,
+   const img=make('image',{href:`/route127/devtest/assets/map_landmarks/${file}.png`,
      x,y,width:w,height:h,preserveAspectRatio:'xMidYMid meet','data-place':id});
    img.append(make('title',{}));img.lastChild.textContent=id.replace(/-/g,' ');
    places.append(img);
@@ -129,7 +129,7 @@
   for(const item of extra){
    if(!item.ok(f))continue;
    const w=108,h=112;
-   places.append(make('image',{href:`assets/map_landmarks/${item.name}.png`,
+   places.append(make('image',{href:`/route127/devtest/assets/map_landmarks/${item.name}.png`,
      x:item.x-w/2,y:expandY(item.y)-h/2,width:w,height:h,preserveAspectRatio:'xMidYMid meet',
      'data-discovery-art':item.name}));
   }

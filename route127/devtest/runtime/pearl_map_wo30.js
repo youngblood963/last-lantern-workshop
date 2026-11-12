@@ -40,7 +40,50 @@ function addTracingControls(dialog){
  const roadBeds=svgElement('g',{'pointer-events':'none'});
  const pearls=svgElement('g',{});
  const costs=svgElement('g',{'pointer-events':'none'});
- guide.append(roadBeds,roads,pearls,costs);
+ // The road artwork is independent of pearl and node visibility.
+ // Reuse the existing travel polylines; no coordinates or distances are changed.
+ const roadSurfaces=svgElement('g',{'data-road-surfaces':'true','pointer-events':'none'});
+ const sideStreets=svgElement('g',{});
+ const mainHighway=svgElement('g',{});
+ roadSurfaces.append(sideStreets,mainHighway);
+ const pearlMarkers=svgElement('g',{'data-pearl-markers':'true'});
+ pearlMarkers.append(pearls,costs);
+ guide.append(roadSurfaces,roadBeds,roads,pearlMarkers);
+ const route127=new Set([
+  'house--solace-upper-junction','solace-upper-junction--solace',
+  'solace--works-junction','works-junction--factory',
+  'factory--boulder-junction','boulder-junction--seaport'
+ ]);
+ const paintRoad=(edge,points)=>{
+  const highway=route127.has(edge.id);
+  const mx=points.reduce((sum,p)=>sum+p[0],0)/points.length;
+  // Branches far to the east/west are dirt; central side streets are gray asphalt.
+  const dirt=!highway&&(mx<355||mx>745);
+  const layer=highway?mainHighway:sideStreets;
+  const common={points:points.map(p=>p.join(',')).join(' '),fill:'none',
+   'stroke-linejoin':'round','stroke-linecap':'round','pointer-events':'none'};
+  function line(color,width,dash,opacity){
+   const attrs={...common,stroke:color,'stroke-width':width};
+   if(dash)attrs['stroke-dasharray']=dash;
+   if(opacity!=null)attrs.opacity=opacity;
+   layer.append(svgElement('polyline',attrs));
+  }
+  if(highway){
+   line('#a18a65',26); // dusty highway shoulders
+   line('#101113',21); // wide blacktop
+   line('#252528',14,null,.55); // subtle asphalt wear
+   line('#f2c646',3,'13 13'); // yellow dashed center
+  }else if(dirt){
+   line('#463325',17);
+   line('#806145',13);
+   line('#a58a67',6,null,.56);
+   line('#4e3e2b',1.5,'3 18',.65);
+  }else{
+   line('#2f3030',18);
+   line('#747570',13);
+   line('#a3a19a',5,null,.45);
+  }
+ };
  for(const edge of LANTERN_WORLD_GRAPH.edges){
   const points=(v.edges[edge.id]||edge.polyline.map(([x,y])=>[x*v.width,y*v.height]))
    .map(([x,y])=>[x,expandedY(y)]);
@@ -60,6 +103,7 @@ function addTracingControls(dialog){
   if(edge===activeEdge)expandedPosition=position(travel.stepIndex);
   const open=lanternAllowed(edge);
   const bridge=edge.id==='boulder-junction--seaport'||[edge.a,edge.b].some(id=>['broken-bridge','west-harbor-approach','east-harbor-approach'].includes(id));
+  paintRoad(edge,points);
   const coordinates=points.map(point=>point.join(',')).join(' ');
   roadBeds.append(svgElement('polyline',{points:coordinates,fill:'none',
    stroke:'#21150f','stroke-width':bridge?11:7,'stroke-linejoin':'round','stroke-linecap':'round'
@@ -87,6 +131,9 @@ function addTracingControls(dialog){
    fill:'#e4fff9',stroke:'#12201f','stroke-width':3,'paint-order':'stroke','font-size':14
   },String(edge.distanceTurns)));
  }
+ // Supersede the thin technical traces with the painted road surfaces.
+ roadBeds.style.display='none';
+ roads.style.display='none';
  // Check marker clearance in artwork pixels, independent of browser zoom.
  const minimumGap=12;
  const crowded=new Set();

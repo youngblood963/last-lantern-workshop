@@ -20,10 +20,9 @@
   'TOMMY BRIGGS — POSTAL ENCOUNTER':'tommy_briggs_roadside.png',
   'THE BLADE CART':'runaway_blade_cart.gif',
   'THE DITCH BACKPACK':'abandoned_backpack.png',
-  'TORN BACKPACK':'abandoned_backpack.png'
+  'TORN BACKPACK':'abandoned_backpack.png',
+  'OVERTURNED MAINTENANCE CART':'overturned_cart_battery.png'
  });
- // Overturned maintenance cart art has not reached DEVTEST: intentionally
- // do not point at an absent asset or substitute unrelated art.
  const previousModel=GraphicalUI.model;
  GraphicalUI.model=function(...args){
   const model=previousModel.apply(this,args);

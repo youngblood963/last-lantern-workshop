@@ -14,9 +14,9 @@
  const assetName=path=>decodeURIComponent(new URL(path,root).pathname.split('/').at(-1));
  const unitKey=(path,index)=>index+':'+assetName(path);
  const states=new Map();
- function register(title,units,phase='both',variant='Standard',background=null){
+ function register(title,units,phase='both',variant='Standard',background=null,composition=null){
   const rows=states.get(title)||[];
-  rows.push({units,phase,variant,background});
+  rows.push({units,phase,variant,background,composition});
   states.set(title,rows);
  }
  for(const [title,files] of Object.entries({
@@ -83,7 +83,7 @@
  for(const [title,file] of Object.entries({
   'MAINTENANCE BOX':'maintenance_box.png',
   'CACHE UNDER THE MILEPOST':'milepost_cache.png'
- }))register(title,[],'both','Complete environmental scene',scenery(file));
+ }))register(title,[],'both','Complete environmental scene',scenery(file),'full-sky');
  for(const [variant,file] of [
   ['Burger','old_billboard_burger.png'],
   ['Mechanic','old_billboard_mechanic.png'],
@@ -92,7 +92,7 @@
   ['Soda','old_billboard_soda.png'],
   ['Road workers','old_billboard_road_workers.png'],
   ['Lantern symbol on back','old_billboard_back.png']
- ])register('OLD BILLBOARD',[],'both',variant,scenery(file));
+ ])register('OLD BILLBOARD',[],'both',variant,scenery(file),'foreground');
  register('THE SHATTERED SILO',['silo_king.png','razorback.png','young_boar.png'].map(scenery),'both','Boars',scenery('the_shattered_silo.png'));
 
  const rows=new Map();

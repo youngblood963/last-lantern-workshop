@@ -73,8 +73,9 @@
   'A DRESSING IN THE DUST':'tommy_briggs_roadside.png',
   'THE BLADE CART':'runaway_blade_cart.gif',
   'THE DITCH BACKPACK':'abandoned_backpack.png',
-  'OVERTURNED MAINTENANCE CART':'overturned_cart_battery.png'
  }))register(title,[],'both','Standard',scenery(file));
+ // The overturned maintenance cart is a transparent foreground object, not a complete scene.
+ register('OVERTURNED MAINTENANCE CART',[],'both','Standard',scenery('overturned_cart_battery.png'),'foreground');
  // Transparent vehicle: keep regional terrain and dynamic sky behind it.
  register('ABANDONED SEDAN',[],'both','Standard',scenery('abandoned_sedan.png'),'foreground');
  for(const period of ['dawn','day','dusk','night']){

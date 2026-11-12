@@ -33,7 +33,70 @@ const destination=()=>DESTINATIONS.find(d=>d.id===current()?.id);
 const atDestination=d=>!!d&&(
  (d.stage==='mercy'&&stage==='mercy'&&d.loc.includes(String(mercyLocation||'').toLowerCase()))||
  (d.stages?.includes(stage))||stage===d.stage);
-const owns=d=>player.pack.some(i=>i.type==='quest'&&i.name===d.item&&(Number(i.qty)||0)>0);
+const mailItem=d=>current()?.item||d.item;
+const owns=d=>player.pack.some(i=>i.type==='quest'&&i.name===mailItem(d)&&(Number(i.qty)||0)>0);
+const postalCrime=()=>typeof v52Crime==='function'&&v52Crime().active?.some(x=>x.type==='Mail Tampering'&&x.victim==='Tommy Briggs');
+const blocked=()=>saved().restitutionRequired&&postalCrime();
+const suspendUntil=()=>Number(saved().suspendedUntil)||0;
+const isSuspended=()=>TODAY()<suspendUntil()||blocked();
+const KIND=Object.freeze({letter:'letter',package:'package'});
+function kindFor(d){
+ // Recipients receive a mix; existing legacy assignments without kind stay packages.
+ return Math.random()<.5?KIND.letter:KIND.package;
+}
+const itemFor=(d,kind)=>kind==='letter'?'Sealed Harbor Letter for '+d.name:'Sealed Harbor Package for '+d.name;
+function removeMail(d){
+ const i=player.pack.find(i=>i.type==='quest'&&i.name===mailItem(d)&&i.qty>0);
+ if(!i)return false;
+ i.qty--;if(i.qty<=0)player.pack.splice(player.pack.indexOf(i),1);
+ updateHud();return true;
+}
+function contrabandLoot(kind){
+ // A opened letter carries little physical cargo; packages can contain useful supplies.
+ const r=Math.random();
+ if(kind==='letter'){
+  if(r<.65){const n=2+Math.floor(Math.random()*12);gainBolts(n);
+   add('STOLEN MAIL — '+n+' Bolts tucked into the envelope.','reward');}
+  else add('The letter contains only personal correspondence. No valuables.','system');
+  return;
+ }
+ if(r<.12){
+  const level=Math.max(1,Math.min(50,Math.floor(Number(player.level)||1)));
+  const pool=EQUIPMENT_CATALOG.filter(x=>x.type==='weapon'&&['uncommon','rare'].includes(x.rarity)&&level>=x.minLevel&&level<=x.maxLevel);
+  const chosen=pool[Math.floor(Math.random()*pool.length)];
+  if(chosen){
+   const name=catalogInstanceName(chosen,level);
+   if(!addPack(name,'weapon',1,false,false)){
+    (player.flags.pendingEquipmentDrops||(player.flags.pendingEquipmentDrops=[])).push(name);
+    add('STOLEN WEAPON HELD — '+name+'. Claim it after freeing backpack space.','system');
+   }
+   add('STOLEN MAIL — An unexpectedly valuable weapon: '+name+'.','reward');return;
+  }
+ }
+ if(r<.42){
+  const name=Math.random()<.3?'Reinforced Bandage':'Bandage';
+  if(addPack(name,'consumable',1,false,false))add('STOLEN MAIL — Medical supplies.','reward');
+ }else if(r<.72){
+  const food=['Fresh Carrot','Fresh Potato','Fresh Apple','Fresh Tomato'][Math.floor(Math.random()*4)];
+  if(addPack(food,'consumable',1,false,false))add('STOLEN MAIL — Fresh produce.','reward');
+ }else{
+  const n=10+Math.floor(Math.random()*36);gainBolts(n);
+  add('STOLEN MAIL — '+n+' Bolts hidden in the package.','reward');
+ }
+}
+function tamper(){
+ const q=saved(),d=destination(),job=q.job;
+ if(!d||job?.status!=='active'||!q.tamperPending)return false;
+ delete q.tamperPending;
+ if(!removeMail(d)){add('The sealed mail is missing. Nothing was opened.','system');return true;}
+ q.job=null;q.suspendedUntil=TODAY()+3;q.restitutionRequired=true;
+ if(typeof v52Record==='function')v52Record('Mail Tampering','Tommy Briggs','Opened a Harbor Dispatch '+(job.kind||'package'),100);
+ // A package is not guaranteed to open cleanly. Failed opening still destroys the delivery.
+ if(Math.random()<.8)contrabandLoot(job.kind||'package');
+ else add('The seal breaks, but the contents are crushed and unusable.','danger');
+ add('HARBOR DISPATCH CANCELLED — Three-day suspension and a reported bounty.','danger');
+ save();return true;
+}
 const save=()=>{if(typeof v49Autosave==='function')v49Autosave();};
 const opts=names=>port55Submenu('Post Office — Tommy Briggs',names);
 function office(){
@@ -43,9 +106,12 @@ function office(){
  add('SEAPORT POST OFFICE — TOMMY BRIGGS','place');
  if(job){
   add('HARBOR DISPATCH — '+(dest?.name||'Unknown')+' — '+job.status.toUpperCase(),'bright');
-  if(job.status==='active'&&dest)add('DESTINATION — '+dest.place,'system');
+  if(job.status==='active'&&dest)add('DESTINATION — '+dest.place+' — '+(job.kind||'package').toUpperCase(),'system');
   opts(job.status==='delivered'?['CLAIM DELIVERY REWARD','ASK ABOUT THE POST OFFICE','RETURN TO HARBOR']:
-       ['CANCEL DELIVERY','ASK ABOUT THE POST OFFICE','RETURN TO HARBOR']);
+       ['OPEN SEALED '+(job.kind==='letter'?'LETTER':'PACKAGE'),'CANCEL DELIVERY','ASK ABOUT THE POST OFFICE','RETURN TO HARBOR']);
+ }else if(isSuspended()){
+  add('TOMMY > Postal work is suspended'+(blocked()?' until your Mail Tampering bounty is cleared.': ' until day '+suspendUntil()+'.'),'danger');
+  opts(['ASK ABOUT THE POST OFFICE','RETURN TO HARBOR']);
  }else if(state.lastIssuedDay===TODAY()){
   add('Harbor Dispatch completed for today. New work tomorrow.','system');
   opts(['ASK ABOUT THE POST OFFICE','RETURN TO HARBOR']);
@@ -57,27 +123,26 @@ function office(){
 }
 function issue(d){
  const q=saved();
- if(!open()||!available(d)||q.job||q.lastIssuedDay===TODAY())return false;
- if(!addPack(d.item,'quest',1,true)){add('Backpack full. Make room before taking the parcel.','system');return false;}
- q.lastIssuedDay=TODAY();q.job={id:d.id,status:'active'};
- add('HARBOR DISPATCH ACCEPTED — Deliver the sealed parcel to '+d.name+' ('+d.place+').','reward');
+ if(!open()||!available(d)||q.job||q.lastIssuedDay===TODAY()||isSuspended())return false;
+ const kind=kindFor(d),item=itemFor(d,kind);
+ if(!addPack(item,'quest',1,true)){add('Backpack full. Make room before taking the parcel.','system');return false;}
+ q.lastIssuedDay=TODAY();q.job={id:d.id,status:'active',kind,item};
+ add('HARBOR DISPATCH ACCEPTED — Deliver the sealed '+kind+' to '+d.name+' ('+d.place+').','reward');
  save();return true;
 }
 function deliver(){
  const q=saved(),d=destination();
  if(!open()||!d||q.job?.status!=='active'||!atDestination(d))return false;
  if(!owns(d)){add('The sealed parcel is missing. Nothing was delivered.','system');return true;}
- const item=player.pack.find(i=>i.type==='quest'&&i.name===d.item&&i.qty>0);
- item.qty--;if(item.qty===0)player.pack.splice(player.pack.indexOf(item),1);
- q.job.status='delivered';updateHud();
+ if(!removeMail(d))return false;
+ q.job.status='delivered';
  add('DELIVERED TO '+d.name.toUpperCase()+' — Return to Tommy at the Seaport Post Office to collect payment.','reward');
  save();renderCurrentChoices();return true;
 }
 function cancel(){
  const q=saved(),d=destination();
  if(q.job?.status!=='active')return;
- if(d){const item=player.pack.find(i=>i.type==='quest'&&i.name===d.item&&i.qty>0);
-  if(item){item.qty--;if(item.qty<=0)player.pack.splice(player.pack.indexOf(item),1);updateHud();}}
+ if(d)removeMail(d);
  q.job=null;
  add('TOMMY > I will mark that delivery cancelled. No payment this time. Another assignment will be available tomorrow.','system');
  save();
@@ -92,14 +157,24 @@ function claim(){
 }
 function officeCommand(cmd){
  if(['return to harbor','back','b','return','exit'].includes(cmd)){
+  delete saved().tamperPending;
   stage='seaport';port55Menu();return true;
  }
  if(cmd==='ask about the post office'){
+  delete saved().tamperPending;
   add('TOMMY > One sealed delivery per game day. Routes run through Solace, the Factory and Seaport. Take the parcel to its addressee, then collect your pay here.','bright');
   office();return true;
  }
  if(cmd==='claim delivery reward'){claim();office();return true;}
  if(cmd==='cancel delivery'){cancel();office();return true;}
+ if(cmd==='open sealed package'||cmd==='open sealed letter'){
+  const q=saved();if(q.job?.status==='active'&&owns(destination())){
+   q.tamperPending=true;add('Opening this mail ends the assignment, may reveal loot, and incurs a reported bounty.','danger');
+   opts(['CONFIRM MAIL TAMPERING','CANCEL MAIL TAMPERING']);
+  }else office();return true;
+ }
+ if(cmd==='cancel mail tampering'){delete saved().tamperPending;office();return true;}
+ if(cmd==='confirm mail tampering'){tamper();office();return true;}
  const match=DESTINATIONS.find(d=>available(d)&&cmd==='accept '+d.name.toLowerCase()+' delivery');
  if(match){issue(match);office();return true;}
  office();return true;

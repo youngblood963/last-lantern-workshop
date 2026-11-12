@@ -102,3 +102,25 @@ dialog.route127-map-overlay {
 @media(prefers-reduced-motion:reduce) {
  .route127-map-body .lantern-map * {animation:none!important;transition:none!important;}
 }
+
+/* Small scavenger's field-notes card on the spare right side of the tabletop. */
+.route127-map-fieldnote {
+ position:absolute;z-index:0;right:clamp(13px,5%,74px);top:19%;
+ width:clamp(98px,12%,165px);min-height:122px;
+ box-sizing:border-box;padding:17px 10px;
+ display:flex;flex-direction:column;gap:6px;
+ text-align:center;
+ color:#48321f;
+ background:linear-gradient(140deg,#e4cc9e,#bda071 85%,#9a774e);
+ border:1px solid #614329;
+ box-shadow:2px 7px 14px #000a,inset 0 0 20px #8c684a80;
+ font:600 clamp(10px,.95vw,14px)/1.2 Georgia,serif;
+ letter-spacing:.09em;
+ transform:rotate(7deg);
+ pointer-events:none;
+}
+.route127-map-fieldnote__eyebrow {font:700 9px/1.5 monospace;letter-spacing:.12em}
+.route127-map-fieldnote__line {border-top:1px solid #84613a;margin:4px 0}
+.route127-map-fieldnote__stamp {display:block;margin:7px auto 0;width:68px;height:68px;border:3px double #8f4a35;border-radius:50%;color:#88402a;padding-top:18px;box-sizing:border-box;transform:rotate(-14deg);font:700 10px/1.25 monospace}
+@media(max-width:1100px){.route127-map-fieldnote{right:8px;width:108px;}}
+@media(max-width:820px){.route127-map-fieldnote{display:none;}}

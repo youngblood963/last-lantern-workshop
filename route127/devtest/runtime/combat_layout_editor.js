@@ -9,6 +9,20 @@
   [row.classification,row.site||row.regions.join(' + ')].filter(Boolean).join(' · ');
  const assets=row=>[...new Set(row.variants.flatMap(v=>[...v.units,...(v.background?[v.background]:[])]))];
  const status=new Map();
+ const reviewKey='route127-scenario-reviews-v1';
+ function readReviews(){
+  try{
+   const ids=JSON.parse(localStorage.getItem(reviewKey)||'[]');
+   return new Set(Array.isArray(ids)?ids:[]);
+  }catch{return new Set();}
+ }
+ const progressLabels={green:'🟢 Reviewed / Done',yellow:'🟡 Artwork ready · Needs review',red:'🔴 Missing artwork',checking:'⏳ Checking artwork'};
+ function progress(row,reviews){
+  const art=state(row);
+  if(art==='Checking art')return 'checking';
+  if(art!=='Art present'||(row.combat&&!row.variants.some(v=>v.units.length)))return 'red';
+  return reviews.has(row.id)?'green':'yellow';
+ }
  const state=row=>{
   const files=assets(row);
   if(!files.length)return row.combat?'Art missing / review':'Art unassigned / review';
@@ -99,6 +113,20 @@
   const multi=select(filters,'Sprites',['Any','Multiple sprites']);
   const sort=select(filters,'Sort by',['Name','Region','Artwork']);
   const picker=el('select');picker.className='layout-picker';picker.setAttribute('aria-label','Encounter');dialog.append(picker);
+  let reviews=readReviews();
+  const reviewControls=controls();
+  const reviewStatus=el('span');reviewStatus.setAttribute('role','status');reviewControls.append(reviewStatus);
+  const reviewButton=button(reviewControls,'Mark Reviewed / Done',()=>{
+   if(!row)return;
+   const next=readReviews();
+   if(reviews.has(row.id))next.delete(row.id);
+   else if(progress(row,reviews)==='yellow')next.add(row.id);
+   else return;
+   try{localStorage.setItem(reviewKey,JSON.stringify([...next]));}
+   catch{reviewStatus.textContent='Review status could not be saved in this browser.';return;}
+   reviews=next;
+   rebuildPicker();
+  });
   const metadata=el('p');dialog.append(metadata);
   const variants=controls();
   const phase=select(variants,'State',['approach','combat']);
@@ -146,6 +174,12 @@
     published?'○ Not saved locally · Published in game':'○ Not saved locally';
    removeLocalSave.disabled=!localSaved;
   }
+  function refreshReview(){
+   const current=row?progress(row,reviews):null;
+   reviewStatus.textContent=current?progressLabels[current]:'No scenario selected';
+   reviewButton.textContent=row&&reviews.has(row.id)?'Needs Review':'Mark Reviewed / Done';
+   reviewButton.disabled=!row||(!reviews.has(row.id)&&current!=='yellow');
+  }
   function rebuildPicker(){
    if(closed)return;
    const keep=picker.value||L.activeScene()?.id;
@@ -162,16 +196,20 @@
    });
    const sortKey=row=>sort.value==='Region'?regionLabel(row):sort.value==='Artwork'?state(row):row.name;
    visible.sort((a,b)=>sortKey(a).localeCompare(sortKey(b))||a.name.localeCompare(b.name));
-   options(picker,visible.map(row=>[row.id,row.name+' · '+regionLabel(row)+' · '+state(row)]));
+   options(picker,visible.map(row=>[row.id,progressLabels[progress(row,reviews)]+' · '+row.name+' · '+regionLabel(row)+' · '+state(row)]));
    if(visible.some(row=>row.id===keep))picker.value=keep;
    const active=all.filter(row=>row.classification!=='INACTIVE');
    const counts=['GLOBAL','FIXED',...regions].map(region=>region+' '+active.filter(row=>row.classification===region||row.regions.includes(region)).length);
    const art=['Art present','Art broken','Art missing / review','Art unassigned / review','Checking art'].map(label=>label+' '+active.filter(row=>state(row)===label).length);
    summary.textContent=visible.length+' shown / '+active.length+' active · '+counts.join(' · ')+' | '+art.join(' · ');
+   const totals=['green','yellow','red','checking'].map(key=>progressLabels[key]+' '+active.filter(row=>progress(row,reviews)===key).length);
+   summary.textContent+=' | '+totals.join(' · ');
    if(row?.id!==picker.value)changeScene();
+   else refreshReview();
   }
   function changeScene(){
    row=L.rows.get(picker.value);
+   refreshReview();
    if(!row){nodes.clear();draft={};initial={};baseline={};metadata.textContent='No encounters match these filters.';canvas.replaceChildren();options(units,[]);updateFields();return;}
    const active=L.activeScene();
    phase.value=active?.id===row.id?active.phase:'approach';

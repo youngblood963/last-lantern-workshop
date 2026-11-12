@@ -132,6 +132,9 @@
   const phase=select(variants,'State',['approach','combat']);
   const variant=select(variants,'Variant',[]);
   const background=select(variants,'Background region',regions);
+  const sky=select(variants,'Sky',['Auto','Dawn','Day','Dusk','Night']);
+  const composition=select(variants,'Composition',['Auto','Regional + Sprites','Regional + Foreground','Full Scene','Full Scene + Sky']);
+  const skyNote=el('p');dialog.append(skyNote);
   const device=select(variants,'Layout',['desktop','phone']);
   const canvas=el('div');canvas.className='layout-stage';dialog.append(canvas);
   const attach=controls();
@@ -224,6 +227,7 @@
   }
   function loadDraft(){
    if(!row)return;
+   composition.value='Auto';
    spec=variant.value===''?null:row.variants[Number(variant.value)];
    const records=(spec?.units||[]).map(descriptor);
    if(spec?.background)records.unshift({path:spec.background,key:'background:'+L.assetName(spec.background),background:true});
@@ -239,7 +243,7 @@
     ' · '+(spec?.units.length||0)+' sprites · '+row.variants.length+' variants · '+
     (records.map(record=>L.assetName(record.path)+' ('+(status.get(record.path)||'unchecked')+')').join(', ')||state(row));
    nodes=new Map(records.map(record=>[record.key,record]));
-   options(units,records.map(record=>[record.key,record.background?'Scene artwork':(record.index+1)+' · '+L.assetName(record.path)]));
+   options(units,records.map(record=>[record.key,record.background?(spec?.composition==='foreground'?'Foreground artwork':'Scene artwork'):(record.index+1)+' · '+L.assetName(record.path)]));
    paint();
   }
   function position(node,key){
@@ -251,8 +255,25 @@
   }
   function paint(){
    canvas.dataset.device=device.value;canvas.dataset.preview=String(preview);
-   const bg=el('img');bg.className='layout-base';bg.alt='';bg.src=new URL(L.regionArt(background.value),L.root).href;
-   canvas.replaceChildren(bg);
+   const inferred=spec?.composition==='foreground'?'Regional + Foreground':spec?.composition==='full-sky'?'Full Scene + Sky':spec?.background?'Full Scene':'Regional + Sprites';
+   const mode=composition.value==='Auto'?inferred:composition.value;
+   const full=mode.startsWith('Full Scene');
+   const hour={Dawn:6,Day:12,Dusk:18,Night:22}[sky.value]??(typeof player==='undefined'?12:player.flags.worldHour);
+   const layers=globalThis.Route127EditorSky?.describe(background.value,hour);
+   sky.disabled=mode==='Full Scene';
+   skyNote.textContent=mode+(sky.disabled?' · Sky preview unavailable for this artwork.':' · '+(layers?.period||'Regional sky unavailable'));
+   canvas.replaceChildren();
+   function layer(src){
+    const img=el('img');img.className='layout-base';img.alt='';img.src=src;canvas.append(img);return img;
+   }
+   if(layers&&!sky.disabled){
+    const skyImage=layer(layers.sky);
+    if(layers.period==='dusk')skyImage.style.filter='sepia(.42) hue-rotate(-18deg) saturate(1.4)';
+   }
+   if(!full){
+    const ground=layer(layers?.ground||new URL(L.regionArt(background.value),L.root).href);
+    ground.addEventListener('error',()=>{const fallback=new URL(L.regionArt(background.value),L.root).href;if(ground.src!==fallback)ground.src=fallback;});
+   }
    if(!nodes.size){const empty=el('p',state(row));empty.className='layout-empty';canvas.append(empty);}
    for(const [key,record] of nodes){
     const node=el('button');node.type='button';node.className='layout-unit'+(record.background?' layout-scene-image':'');
@@ -298,6 +319,8 @@
   phase.addEventListener('change',changePhase);
   for(const input of [variant,device])input.addEventListener('change',loadDraft);
   background.addEventListener('change',paint);
+  sky.addEventListener('change',paint);
+  composition.addEventListener('change',paint);
   for(const input of [search,region,classification,combat,coverage,multi,sort])input.addEventListener('input',rebuildPicker);
   button(actions,'Reset Unit',()=>{if(selected()){draft[units.value]={...initial[units.value]};updateFields();}});
   button(actions,'Remove Attached Sprite',()=>{

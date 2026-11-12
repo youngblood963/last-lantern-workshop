@@ -10,7 +10,8 @@
   WEST:['forest_overlay.png','west.png','Forest'],
   NORTH:['northern_ridge_overlay.png','north.png','Northern Ridge'],
   EAST:['farmland_overlay.png','east.png','Farmland'],
-  SEAPORT:['seaport_road_overlay.png','seaport.png','Seaport Road']
+  SEAPORT:['seaport_road_overlay.png','seaport.png','Seaport Coast'],
+  CAUSEWAY:['causeway.png','causeway.png','Causeway']
  });
  const url=file=>new URL(file,base).href;
  const phase=hour=>{const h=((Number(hour??8)%24)+24)%24;return h>=5&&h<7?'dawn':h>=7&&h<18?'day':h>=18&&h<20?'dusk':'night';};
@@ -24,7 +25,7 @@
  }
  function describe(region,hour){
   const row=regions[region];if(!row)return null;
-  const period=phase(hour);return {region,period,overlay:row[0],original:row[1],sky:period==='dusk'?null:'sky_'+period+'.png',title:row[2]};
+  const period=phase(hour);return {region,period,overlay:row[0],original:row[1],sky:period==='dusk'?(region==='CAUSEWAY'?'sky_dawn.png':null):'sky_'+period+'.png',title:row[2]};
  }
  const oldModel=GraphicalUI.model;
  GraphicalUI.model=function(...args){
@@ -33,15 +34,15 @@
   // Exact original-art matching preserves every dedicated location/scenario image.
   if(!scene||!model.art||new URL(model.art,ROUTE127_ASSET_BASE||document.baseURI).href!==url(scene.original))return model;
   const overlay=warm(scene.overlay),sky=scene.sky?warm(scene.sky):null;
-  if(scene.period!=='dusk'&&overlay.ready&&sky.ready){model.art=url(scene.overlay);model.regionalSky=scene;}
+  if(overlay.ready&&sky?.ready){model.art=url(scene.overlay);model.regionalSky=scene;}
   return model;
  };
  function paint(figure,img,scene){
   let sky=figure.querySelector('.r127-regional-sky');
   if(scene&&!sky){sky=document.createElement('div');sky.className='r127-regional-sky';sky.setAttribute('aria-hidden','true');figure.insertBefore(sky,img);}
   figure.classList.toggle('r127-regional-layered',!!scene);
-  if(scene){figure.dataset.skyPeriod=scene.period;sky.style.backgroundImage='url("'+url(scene.sky)+'")';sky.hidden=false;}
-  else{delete figure.dataset.skyPeriod;if(sky)sky.hidden=true;}
+  if(scene){figure.dataset.skyPeriod=scene.period;figure.dataset.skyRegion=scene.region;sky.style.backgroundImage='url("'+url(scene.sky)+'")';sky.hidden=false;}
+  else{delete figure.dataset.skyPeriod;delete figure.dataset.skyRegion;if(sky)sky.hidden=true;}
  }
  let dialog=null,previousFocus=null;
  if(typeof FocusedEntry!=='undefined'){
@@ -91,6 +92,10 @@
  const css=document.createElement('style');css.textContent=`
  .r127-regional-sky{position:absolute;inset:0;background-size:cover;background-position:center;pointer-events:none;z-index:0}
  .r127-regional-sky[hidden]{display:none}
+ /* Causeway art includes a painted sky, so layer the clock's sky state over
+    its upper portion rather than hiding the sky asset behind opaque pixels. */
+ .r127-regional-layered[data-sky-region="CAUSEWAY"] .r127-regional-sky{z-index:2;opacity:.78;mask-image:linear-gradient(to bottom,#000 0%,#000 17%,transparent 48%);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 17%,transparent 48%)}
+ .r127-regional-layered[data-sky-region="CAUSEWAY"][data-sky-period="dusk"] .r127-regional-sky{filter:sepia(.42) hue-rotate(-18deg) saturate(1.4);opacity:.58}
  .gfx-frame .gfx-art.r127-regional-layered>.gfx-image,.r127-sky-preview-art.r127-regional-layered>img{position:relative;z-index:1;background:transparent;object-fit:cover;object-position:center}
  .r127-regional-layered[data-sky-period="dawn"]>img{filter:brightness(.94) saturate(.92) sepia(.16)}
  .r127-regional-layered[data-sky-period="day"]>img{filter:brightness(1.04) saturate(1.02)}
@@ -103,5 +108,5 @@
  .r127-sky-preview-art>img{display:block;width:100%;height:100%;object-fit:cover}
  `;document.head.append(css);
  globalThis.Route127RegionalSky=Object.freeze({regions,phase,describe,preview});
- warm('sky_dawn.png');warm('sky_day.png');warm('sky_night.png');
+ warm('sky_dawn.png');warm('sky_day.png');warm('sky_night.png');warm('causeway.png');
 })();

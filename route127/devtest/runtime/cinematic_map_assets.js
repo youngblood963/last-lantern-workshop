@@ -637,11 +637,15 @@
    pearlToggle.setAttribute('data-pearl-overlay-toggle','');
    pearlToggle.style.cssText='background:#33251a;color:#f3dfb6;border:1px solid #af8858;border-radius:5px;padding:5px 10px;font:600 12px system-ui,sans-serif;cursor:pointer;white-space:nowrap;';
    let pearlsVisible=true;
-   const tracing=svg.querySelector('[data-pearl-guide]');
+   const pearlMarkers=svg.querySelector('[data-pearl-markers]');
+   const nodeMarkers=svg.querySelectorAll('[data-map-node]');
    const originalActive=svg.querySelectorAll('[data-active-road]');
    const refreshPearls=()=>{
-    if(tracing)tracing.style.display=pearlsVisible?'':'none';
-    originalActive.forEach(el=>el.style.display=pearlsVisible?'':'none');
+    // The highway/dirt/asphalt roads stay visible in BOTH modes.
+    // Toggle only pearls, turn costs, and numbered junction nodes.
+    if(pearlMarkers)pearlMarkers.style.display=pearlsVisible?'':'none';
+    nodeMarkers.forEach(el=>el.style.display=pearlsVisible?'':'none');
+    originalActive.forEach(el=>el.style.display='none');
     pearlToggle.textContent=pearlsVisible?'Hide Pearls':'Show Pearls';
     pearlToggle.setAttribute('aria-pressed',String(!pearlsVisible));
     // Keep iconic sites and labels on screen independently of tracing guides.

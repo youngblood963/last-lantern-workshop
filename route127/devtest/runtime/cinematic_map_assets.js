@@ -3,7 +3,15 @@
  'use strict';
  if(!location.pathname.includes('/route127/devtest/'))return;
  const ns='http://www.w3.org/2000/svg';
- const make=(tag,attrs={})=>{const e=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);return e;};
+ const make=(tag,attrs={})=>{
+  const e=document.createElementNS(ns,tag);
+  for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);
+  if(tag==='image'){
+   // Broken-image placeholders must never appear on the world map.
+   e.addEventListener('error',()=>{console.warn('[Route127 map] Image not available:',e.getAttribute('href'));e.remove();},{once:true});
+  }
+  return e;
+ };
  const landmarks=[
   ['old_house','house',112,-64,-68],['abandoned_motel','abandoned-motel',112,-37,-80],
   ['scavenger_camp','scavenger-camp',102,36,-73],['solace','solace',122,12,-92],

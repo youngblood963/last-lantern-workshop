@@ -16,8 +16,15 @@ function addTracingControls(dialog){
  const svg=figure?.querySelector('svg');
  if(!svg||svg.querySelector('[data-pearl-guide]'))return;
  const v=LANTERN_MAP_VISUAL;
- const verticalScale=1.65;
- const originalViewBox=svg.getAttribute('viewBox');
+ // Expand the occupied latitude band within the existing panel.
+ const roadPoints=Object.values(v.edges).flat();
+ const north=Math.min(...roadPoints.map(([,y])=>y));
+ const south=Math.max(...roadPoints.map(([,y])=>y));
+ const topPadding=48;
+ const bottomPadding=50;
+ const verticalScale=(v.height-topPadding-bottomPadding)/(south-north);
+ const verticalOffset=topPadding-north*verticalScale;
+ const expandedY=y=>y*verticalScale+verticalOffset;
  const originalNodes=svgElement('g',{});
  originalNodes.append(...Array.from(svg.children));
  svg.append(originalNodes);
@@ -27,7 +34,7 @@ function addTracingControls(dialog){
  const playerY=Number(playerMarker?.getAttribute('cy'));
  const travel=lanternState();
  const activeEdge=LG_EDGES[travel.currentEdgeId];
- let expandedPosition=[playerX,playerY*verticalScale];
+ let expandedPosition=[playerX,expandedY(playerY)];
  const guide=svgElement('g',{'data-pearl-guide':'','aria-label':'Road tracing guides'});
  const roads=svgElement('g',{});
  const pearls=svgElement('g',{'pointer-events':'none'});
@@ -35,7 +42,7 @@ function addTracingControls(dialog){
  guide.append(roads,pearls,costs);
  for(const edge of LANTERN_WORLD_GRAPH.edges){
   const points=(v.edges[edge.id]||edge.polyline.map(([x,y])=>[x*v.width,y*v.height]))
-   .map(([x,y])=>[x,y*verticalScale]);
+   .map(([x,y])=>[x,expandedY(y)]);
   const segments=points.slice(1).map(([x,y],i)=>Math.hypot(x-points[i][0],y-points[i][1]));
   const length=segments.reduce((sum,segment)=>sum+segment,0);
   function position(step){
@@ -99,7 +106,7 @@ function addTracingControls(dialog){
  guide.append(diagnostics);
  // Layer guides above the artwork and below the existing junctions and marker.
  const firstNode=originalNodes.querySelector('[data-map-node]');
- const guideLayer=svgElement('g',{transform:`scale(1 ${1/verticalScale})`});
+ const guideLayer=svgElement('g',{transform:`matrix(1 0 0 ${1/verticalScale} 0 ${-verticalOffset/verticalScale})`});
  guideLayer.append(guide);
  originalNodes.insertBefore(guideLayer,firstNode);
  const names=svgElement('g',{'pointer-events':'none'});
@@ -124,18 +131,8 @@ function addTracingControls(dialog){
  }
  toggle('Show tracing guides','Hide tracing guides',active=>{
   guide.style.display=names.style.display=active?'':'none';
-  svg.setAttribute('viewBox',active?`0 0 ${v.width} ${v.height*verticalScale}`:originalViewBox);
-  // The regular map fits a fixed-height frame. Give tracing a scrollable,
-  // full-width canvas so the taller viewBox is not scaled back down.
-  if(active){
-   figure.style.setProperty('height','auto','important');
-   svg.style.setProperty('height','auto','important');
-  }else{
-   figure.style.removeProperty('height');
-   svg.style.removeProperty('height');
-  }
-  originalNodes.setAttribute('transform',active?`scale(1 ${verticalScale})`:'');
-  const [x,y]=active?[expandedPosition[0],expandedPosition[1]/verticalScale]:[playerX,playerY];
+  originalNodes.setAttribute('transform',active?`matrix(1 0 0 ${verticalScale} 0 ${verticalOffset})`:'');
+  const [x,y]=active?[expandedPosition[0],(expandedPosition[1]-verticalOffset)/verticalScale]:[playerX,playerY];
   if(playerMarker){
    playerMarker.setAttribute('cx',x);
    playerMarker.setAttribute('cy',y);
@@ -150,13 +147,6 @@ function addTracingControls(dialog){
   if(art)art.style.visibility=active?'hidden':'';
   svg.style.background=active?'#14201f':'';
  });
- toggle('Zoom in','Fit map',active=>{
-  figure.style.overflowX=active?'auto':'';
-  if(active)svg.style.setProperty('width','200%','important');
-  else svg.style.removeProperty('width');
-  svg.style.maxWidth=active?'none':'';
-  if(!active)figure.scrollLeft=0;
- });
  const report=document.createElement('p');
  report.textContent='Marker clearance under '+minimumGap+' map pixels. Amber: '+crowded.size+
   ' markers close to the next turn on the same road. Pink: '+overlaps.size+
@@ -167,6 +157,14 @@ function addTracingControls(dialog){
   const guides=controls.firstElementChild;
   if(active&&guides.getAttribute('aria-pressed')==='false')guides.click();
  });
+ const body=figure.parentElement;
+ body.style.cssText+=';display:flex;flex-direction:column;overflow:hidden';
+ for(const child of body.children)child.style.flexShrink='0';
+ figure.style.setProperty('height','auto','important');
+ figure.style.setProperty('min-height','0','important');
+ figure.style.flex='1 1 0';
+ controls.style.flexShrink='0';
+ report.style.flexShrink='0';
  figure.before(controls,report);
 }
 

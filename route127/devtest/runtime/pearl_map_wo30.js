@@ -42,6 +42,34 @@ function addTracingControls(dialog){
    fill:'#e4fff9',stroke:'#12201f','stroke-width':3,'paint-order':'stroke','font-size':14
   },String(edge.distanceTurns)));
  }
+ // Check marker clearance in artwork pixels, independent of browser zoom.
+ const minimumGap=12;
+ const crowded=new Set();
+ const overlaps=new Set();
+ const dots=Array.from(pearls.children);
+ for(let i=0;i<dots.length;i++){
+  const a=dots[i],edgeA=LG_EDGES[a.getAttribute('data-edge')];
+  const stepA=Number(a.getAttribute('data-pearl-step'));
+  for(let j=i+1;j<dots.length;j++){
+   const b=dots[j],edgeB=LG_EDGES[b.getAttribute('data-edge')];
+   const stepB=Number(b.getAttribute('data-pearl-step'));
+   if(edgeA===edgeB&&stepB!==stepA+1)continue;
+   if(edgeA!==edgeB&&stepA===edgeA.distanceTurns&&stepB===edgeB.distanceTurns&&edgeA.b===edgeB.b)continue;
+   const dx=Number(a.getAttribute('cx'))-Number(b.getAttribute('cx'));
+   const dy=Number(a.getAttribute('cy'))-Number(b.getAttribute('cy'));
+   if(Math.hypot(dx,dy)>=minimumGap)continue;
+   const issues=edgeA===edgeB?crowded:overlaps;
+   issues.add(a);issues.add(b);
+  }
+ }
+ const diagnostics=svgElement('g',{'pointer-events':'none'});
+ for(const dot of new Set([...crowded,...overlaps])){
+  diagnostics.append(svgElement('circle',{
+   cx:dot.getAttribute('cx'),cy:dot.getAttribute('cy'),r:8,fill:'none',
+   stroke:overlaps.has(dot)?'#ff7197':'#ffce78','stroke-width':2
+  }));
+ }
+ guide.append(diagnostics);
  const firstNode=svg.querySelector('[data-map-node]');
  svg.insertBefore(guide,firstNode);
  const names=svgElement('g',{'pointer-events':'none'});
@@ -78,7 +106,17 @@ function addTracingControls(dialog){
   svg.style.maxWidth=active?'none':'';
   if(!active)figure.scrollLeft=0;
  });
- figure.before(controls);
+ const report=document.createElement('p');
+ report.textContent='Marker clearance under '+minimumGap+' map pixels. Amber: '+crowded.size+
+  ' markers close to the next turn on the same road. Pink: '+overlaps.size+
+  ' markers close to another road’s marker.';
+ toggle('Show spacing checks','Hide spacing checks',active=>{
+  diagnostics.style.display=active?'':'none';
+  report.hidden=!active;
+  const guides=controls.firstElementChild;
+  if(active&&guides.getAttribute('aria-pressed')==='false')guides.click();
+ });
+ figure.before(controls,report);
 }
 
 const open=Route127MapOverlay.open;

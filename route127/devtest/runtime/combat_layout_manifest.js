@@ -1,5 +1,5 @@
-/* Source-controlled DEVTEST layouts from owner-exported JSON (2026-11-11). */
-/* Scene objects use their existing regional background and dynamic sky; no image replacements. */
+/* Source-controlled DEVTEST layouts from owner-exported JSON; updated 2026-11-12. */
+/* Published positions are defaults; browser-saved layouts always take precedence. */
 globalThis.Route127PublishedCombatLayouts={
   "version": 1,
   "scenes": {
@@ -454,6 +454,15 @@ globalThis.Route127PublishedCombatLayouts={
         "scale": 1,
         "z": 2,
         "flip": false
+      },
+      "0:feral_dog_mother_pups.png": {
+        "x": 51.5625044348691,
+        "y": 68.35978661107839,
+        "width": 54,
+        "height": 82,
+        "scale": 0.66,
+        "z": 2,
+        "flip": false
       }
     },
     "early:152/approach/desktop": {
@@ -520,6 +529,123 @@ globalThis.Route127PublishedCombatLayouts={
         "scale": 0.56,
         "z": 1,
         "flip": false
+      }
+    },
+    "early:3/approach/desktop": {
+      "background:abandoned_sedan.png": {
+        "x": 54.092255949366255,
+        "y": 74.206336071001,
+        "width": 100,
+        "height": 100,
+        "scale": 0.63,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "east:61/approach/desktop": {
+      "0:culvert_crawler.png": {
+        "x": 54.092255949366255,
+        "y": 71.66665993880538,
+        "width": 54,
+        "height": 79.7,
+        "scale": 0.72,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "house:squatter/combat/desktop": {
+      "background:abandoned_house_interior.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      },
+      "0:house_squatter.png": {
+        "x": 61.30952644510317,
+        "y": 59.36507844400312,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:70/approach/desktop": {
+      "background:overturned_cart_battery.png": {
+        "x": 52.15773908358035,
+        "y": 73.41269989442976,
+        "width": 100,
+        "height": 100,
+        "scale": 0.53,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "east:10/approach/desktop": {
+      "0:bone_hunter_archer.png": {
+        "x": 40.02976144860394,
+        "y": 58.96825404834755,
+        "width": 38,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "1:bone_hunter_spearman.png": {
+        "x": 63.69047639321307,
+        "y": 47.06349694920084,
+        "width": 38,
+        "height": 59,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:8/approach/desktop": {
+      "background:old_billboard_mechanic.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "early:35/approach/desktop": {
+      "background:burnt_library.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "early:52/approach/desktop": {
+      "background:abandoned_backpack.png": {
+        "x": 41.22024209929134,
+        "y": 82.01058114290149,
+        "width": 100,
+        "height": 100,
+        "scale": 0.29,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "early:56/approach/desktop": {
+      "background:locked_tool_chest.png": {
+        "x": 51.86011324427606,
+        "y": 74.7354562897749,
+        "width": 100,
+        "height": 100,
+        "scale": 0.32,
+        "z": 1,
+        "flip": true
       }
     }
   }

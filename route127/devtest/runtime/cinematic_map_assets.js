@@ -63,6 +63,28 @@
   const svg=fig?.querySelector('svg');
   const v=typeof LANTERN_MAP_VISUAL!=='undefined'?LANTERN_MAP_VISUAL:null;
   if(!fig||!svg||!v||svg.querySelector('[data-cinematic-map]'))return;
+  // The old SVG filled the full width and painted its spare width dark teal.
+  // Constrain the SVG itself to the portrait map aspect so the actual tabletop
+  // shows on either side. Inline important beats the legacy !important rules.
+  fig.style.setProperty('display','flex','important');
+  fig.style.setProperty('align-items','center','important');
+  fig.style.setProperty('justify-content','center','important');
+  fig.style.setProperty('position','relative','important');
+  fig.style.setProperty('overflow','hidden','important');
+  fig.style.setProperty('box-sizing','border-box','important');
+  fig.style.setProperty('border','8px ridge #7a5432','important');
+  fig.style.setProperty('background','repeating-linear-gradient(94deg,transparent 0 95px,#13090635 96px 98px,transparent 99px 180px),radial-gradient(ellipse at center,#694c33,#392417 60%,#140c08)','important');
+  svg.style.setProperty('width','auto','important');
+  svg.style.setProperty('height','100%','important');
+  svg.style.setProperty('max-width','100%','important');
+  svg.style.setProperty('aspect-ratio',v.width+' / '+v.height,'important');
+  svg.style.setProperty('flex','0 1 auto','important');
+  svg.style.setProperty('border','4px solid #ad8754','important');
+  svg.style.setProperty('box-shadow','0 0 0 2px #382012,0 12px 29px #000d','important');
+  // Side decorations are outside the map; never intercept controls.
+  const note=fig.querySelector('.route127-map-fieldnote');
+  if(note){note.style.cssText='position:absolute;right:4%;top:18%;z-index:2;pointer-events:none;box-sizing:border-box;width:110px;background:#c6a578;color:#3e2818;border:2px solid #67472b;padding:18px 8px;text-align:center;font:700 11px/1.45 Georgia,serif;box-shadow:4px 6px 15px #0009;transform:rotate(7deg);';}
+
   // Tracing and the approved landscape are the visual foundation.
   const controls=Array.from(dialog.querySelectorAll('button'));
   const clickIfOff=(needle)=>{const b=controls.find(b=>b.textContent.trim().toLowerCase().startsWith(needle));if(b)b.click();};

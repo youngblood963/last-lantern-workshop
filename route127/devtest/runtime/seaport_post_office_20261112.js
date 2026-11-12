@@ -248,5 +248,21 @@ GraphicalUI.model=function(...args){
  }
  return m;
 };
+// Solace keeps its existing tampering/bounty/suspension behavior. Add loot
+// only when an actual legacy Solace parcel or letter was consumed as a crime.
+const previousSolaceCourier=r18CourierCommand;
+r18CourierCommand=function(cmd){
+ const q=r18CourierState(),wasPending=q.tamperPending===true,job=q.job;
+ const kind=job?.destination==='docks'?'package':'letter';
+ const before=job&&wasPending&&cmd==='confirm parcel tampering'&&
+  job.status==='active'&&r18CourierHas(job.destination);
+ const result=previousSolaceCourier.apply(this,arguments);
+ if(before&&q.job!==job&&q.restitutionRequired===true){
+  if(Math.random()<.8)contrabandLoot(kind);
+  else add('The seal tears apart and the contents cannot be salvaged.','danger');
+  if(typeof v49Autosave==='function')v49Autosave();
+ }
+ return result;
+};
 globalThis.Route127HarborDispatch=Object.freeze({destinations:DESTINATIONS.map(x=>x.id),dailyLimit:1,unlocked:open});
 })();

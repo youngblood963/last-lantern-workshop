@@ -91,6 +91,10 @@
     const region=typeof route127CurrentRegion==='function'?route127CurrentRegion(lanternState()):'CENTRAL';
     const regions={CENTRAL:'central',INDUSTRIAL:'industrial',NORTH:'north',EAST:'east',WEST:'west',LOWLANDS:'lowlands',SEAPORT:'seaport'};
     sky.style.backgroundImage='url("'+new URL(period==='dusk'?(regions[region]||'central')+'.png':'sky_'+period+'.png',regionBase).href+'")';
+    if(showingBillboard){
+     const layers=globalThis.Route127EditorSky?.describe(region,player.flags?.worldHour);
+     if(layers)sky.style.backgroundImage='url("'+layers.ground+'"), url("'+layers.sky+'")';
+    }
     e.figure.dataset.newPeriod=period;
    }
    let layer=e.figure.querySelector('.r127-new-figure');

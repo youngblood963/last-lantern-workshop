@@ -37,6 +37,15 @@
   const svg=fig?.querySelector('svg');
   const v=typeof LANTERN_MAP_VISUAL!=='undefined'?LANTERN_MAP_VISUAL:null;
   if(!fig||!svg||!v||svg.querySelector('[data-cinematic-map]'))return;
+  // Use the freed toolbar height for a larger, still fully visible map.
+  dialog.style.setProperty('width','min(98vw,1600px)','important');
+  dialog.style.setProperty('max-width','98vw','important');
+  dialog.style.setProperty('height','min(94vh,1000px)','important');
+  dialog.style.setProperty('max-height','94vh','important');
+  dialog.style.setProperty('box-sizing','border-box','important');
+  dialog.style.setProperty('overflow','hidden','important');
+  const body=dialog.querySelector('.route127-map-body');
+  if(body){body.style.setProperty('min-height','0','important');body.style.setProperty('flex','1 1 auto','important');}
   // The old SVG filled the full width and painted its spare width dark teal.
   // Constrain the SVG itself to the portrait map aspect so the actual tabletop
   // shows on either side. Inline important beats the legacy !important rules.
@@ -67,7 +76,7 @@
    zoomControls.setAttribute('data-map-zoom-controls','');
    zoomControls.setAttribute('role','group');
    zoomControls.setAttribute('aria-label','World map magnification');
-   zoomControls.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:4px 0 5px;font:12px monospace;';
+   zoomControls.style.cssText='position:absolute;left:12px;top:12px;z-index:5;display:flex;align-items:center;gap:5px;padding:4px;border:1px solid #88623b;background:#21160dd9;border-radius:5px;font:12px monospace;';
    let zoom=1,cx=W/2,cy=H/2;
    const box=svg.viewBox.baseVal;
    const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
@@ -92,8 +101,6 @@
    button('⤢','Fit entire map',()=>{cx=W/2;cy=H/2;setZoom(1);});
    const label=document.createElement('span');label.textContent='100%';
    label.style.cssText='color:#e2c79e;min-width:42px;text-align:center;';zoomControls.append(label);
-   const hint=document.createElement('span');hint.textContent='Drag to explore when enlarged';
-   hint.style.cssText='color:#a99578;font-size:11px;';zoomControls.append(hint);
    const originalViewBox=svg.getAttribute('viewBox');
    let start=null;
    svg.addEventListener('pointerdown',e=>{
@@ -115,7 +122,7 @@
    svg.addEventListener('pointercancel',endDrag);
    svg.addEventListener('lostpointercapture',endDrag);
    // Insert magnification controls above the artwork; no map modifications.
-   fig.before(zoomControls);
+   fig.append(zoomControls);
    apply();
   }
   // Tracing and the approved landscape are the visual foundation.
@@ -175,6 +182,9 @@
    artwork.set(item.name,discoveryImage);
   }
 
+  // Normal gameplay is presentation-only. The owner editor is available
+  // separately via DEVTEST ?mapEditor=1 and never appears in the player map.
+  const editorMode=new URLSearchParams(location.search).get('mapEditor')==='1';
   // DEVTEST-only visual placement studio. Saves solely to browser localStorage.
   // Does not edit graph nodes, route pearls, travel distances or game state.
   const storeKey='route127:devtest:landmark-layout:v1';
@@ -332,14 +342,14 @@
   panel.append(editButton,select,editTools,status);
   select.style.display='none';
   // Place before the world map while preserving fit-to-screen presentation.
-  fig.before(panel);
+  if(editorMode)fig.before(panel);
   for(const [name,p] of Object.entries(saved))update(name,p,false);
   let drag=null;
   function toMapPoint(e){
    const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;
    const m=svg.getScreenCTM();return m?pt.matrixTransform(m.inverse()):null;
   }
-  for(const [name,img] of artwork){
+  if(editorMode)for(const [name,img] of artwork){
    img.addEventListener('pointerdown',e=>{
     if(!active||e.button!==0)return;
     e.preventDefault();e.stopPropagation();
@@ -364,7 +374,7 @@
    img.addEventListener('pointercancel',finish);
    img.addEventListener('lostpointercapture',finish);
   }
-  refresh();
+  if(editorMode)refresh();
   // Keep player marker clearly above the decorative location imagery.
   const playerDot=svg.querySelector('#lantern-player-marker');
   if(playerDot)root.append(playerDot);

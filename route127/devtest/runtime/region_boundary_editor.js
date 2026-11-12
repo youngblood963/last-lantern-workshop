@@ -147,12 +147,15 @@ function editor(dialog){
   // Each travel pearl has a stable edge id and turn index.
   const edges=LANTERN_WORLD_GRAPH.edges||[];
   const vs=v.edges||{};
+  const allPts=Object.values(vs).flat();
+  const minY=Math.min(...allPts.map(p=>p[1])),maxY=Math.max(...allPts.map(p=>p[1]));
+  const yScale=(v.height-98)/(maxY-minY),yOffset=48-minY*yScale;
   const samples=points.filter((_,i)=>i%Math.max(1,Math.floor(points.length/30))===0);
   for(const point of samples){
    let best=null;
    for(const edge of edges){
     const path=vs[edge.id];if(!path?.length)continue;
-    const road=path.map(([x,y])=>[x,y]);
+    const road=path.map(([x,y])=>[x,y*yScale+yOffset]);
     const segments=road.slice(1).map((p,i)=>Math.hypot(p[0]-road[i][0],p[1]-road[i][1]));
     const total=segments.reduce((a,b)=>a+b,0);
     let used=0;

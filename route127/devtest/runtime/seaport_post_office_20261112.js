@@ -92,7 +92,7 @@ function tamper(){
  q.job=null;q.suspendedUntil=TODAY()+3;q.restitutionRequired=true;
  if(typeof v52Record==='function')v52Record('Mail Tampering','Tommy Briggs','Opened a Harbor Dispatch '+(job.kind||'package'),100);
  // A package is not guaranteed to open cleanly. Failed opening still destroys the delivery.
- if(Math.random()<.8)contrabandLoot(job.kind||'package');
+ if(Math.random()<.5)contrabandLoot(job.kind||'package');
  else add('The seal breaks, but the contents are crushed and unusable.','danger');
  add('HARBOR DISPATCH CANCELLED — Three-day suspension and a reported bounty.','danger');
  save();return true;
@@ -258,7 +258,7 @@ r18CourierCommand=function(cmd){
   job.status==='active'&&r18CourierHas(job.destination);
  const result=previousSolaceCourier.apply(this,arguments);
  if(before&&q.job!==job&&q.restitutionRequired===true){
-  if(Math.random()<.8)contrabandLoot(kind);
+  if(Math.random()<.5)contrabandLoot(kind);
   else add('The seal tears apart and the contents cannot be salvaged.','danger');
   if(typeof v49Autosave==='function')v49Autosave();
  }

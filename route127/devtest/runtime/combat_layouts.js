@@ -38,6 +38,7 @@
   'THE BONE COLLECTOR':['The Bone Collector.png'],
   'SECURITY DRONE':['Security Drone.png'],
   'SOMETHING IN THE DRAIN':['Something in the Drain - Grate and Claw.png'],
+  'DRAINAGE STALKER':['culvert_crawler.png'],
   'THE WAX MUSEUM':['The Curator.png'],
   'THE WRECKERS':['The Wreckers - Pipe.png','The Wreckers - Chain.png'],
   'RATS IN THE PANTRY':['Snarling Rats at a Rusted Sewer Drain.png'],
@@ -66,6 +67,20 @@
  for(const period of ['dawn','day','dusk','night']){
   register('THE EMPTY BUS SHELTER',[],'approach',period,scenery('empty_bus_shelter_'+period+'.png'));
  }
+ // New noncombat scenes: use their actual art files, not the generic regional background as a fake sprite.
+ for(const [title,file] of Object.entries({
+  'MAINTENANCE BOX':'maintenance_box.png',
+  'CACHE UNDER THE MILEPOST':'milepost_cache.png'
+ }))register(title,[],'both','Complete environmental scene',scenery(file));
+ for(const [variant,file] of [
+  ['Burger','old_billboard_burger.png'],
+  ['Mechanic','old_billboard_mechanic.png'],
+  ['Motel','old_billboard_motel.png'],
+  ['Emergency kit','old_billboard_emergency_kit.png'],
+  ['Soda','old_billboard_soda.png'],
+  ['Road workers','old_billboard_road_workers.png'],
+  ['Lantern symbol on back','old_billboard_back.png']
+ ])register('OLD BILLBOARD',[],'both',variant,scenery(file));
  register('THE SHATTERED SILO',['silo_king.png','razorback.png','young_boar.png'].map(scenery),'both','Boars',scenery('the_shattered_silo.png'));
 
  const rows=new Map();
@@ -120,7 +135,8 @@
   ['house:squatter','House Squatter','CENTRAL'],['seaport:liberation','Seaport Liberation','SEAPORT'],
   ['factory:captors','Daniel’s Captors','INDUSTRIAL']
  ])rows.set(id,{id,name,title:normalize(name),classification:'FIXED',regions:[region],combat:true,variants:id==='seaport:liberation'?
-   [{units:[],background:locationArt('seaport_occupied.png'),phase:'both',variant:'Occupied Harbor'}]:[]});
+   [{units:[],background:locationArt('seaport_occupied.png'),phase:'both',variant:'Occupied Harbor'}]:
+   id==='house:squatter'?[{units:[enemy('house_squatter.png')],background:locationArt('abandoned_house_interior.png'),phase:'combat',variant:'Inside abandoned house'}]:[]});
 
  const scripted=[
   ['serviceBoss','The Yardman','Service Road','CENTRAL'],

@@ -125,6 +125,15 @@ function addTracingControls(dialog){
  toggle('Show tracing guides','Hide tracing guides',active=>{
   guide.style.display=names.style.display=active?'':'none';
   svg.setAttribute('viewBox',active?`0 0 ${v.width} ${v.height*verticalScale}`:originalViewBox);
+  // The regular map fits a fixed-height frame. Give tracing a scrollable,
+  // full-width canvas so the taller viewBox is not scaled back down.
+  if(active){
+   figure.style.setProperty('height','auto','important');
+   svg.style.setProperty('height','auto','important');
+  }else{
+   figure.style.removeProperty('height');
+   svg.style.removeProperty('height');
+  }
   originalNodes.setAttribute('transform',active?`scale(1 ${verticalScale})`:'');
   const [x,y]=active?[expandedPosition[0],expandedPosition[1]/verticalScale]:[playerX,playerY];
   if(playerMarker){
@@ -143,7 +152,8 @@ function addTracingControls(dialog){
  });
  toggle('Zoom in','Fit map',active=>{
   figure.style.overflowX=active?'auto':'';
-  svg.style.width=active?'200%':'';
+  if(active)svg.style.setProperty('width','200%','important');
+  else svg.style.removeProperty('width');
   svg.style.maxWidth=active?'none':'';
   if(!active)figure.scrollLeft=0;
  });

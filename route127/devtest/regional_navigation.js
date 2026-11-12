@@ -14,6 +14,9 @@ const ROUTE127_DRAWN_ROAD_BACKGROUNDS={"house--west-ridge":["NORTH","NORTH","NOR
 const ROUTE127_VALID_BACKGROUNDS=new Set(['CENTRAL','NORTH','WEST','EAST','INDUSTRIAL','LOWLANDS','SEAPORT']);
 function route127DrawnBackground(g){
  if(!g)return null;
+ // The 12-turn crossing is its own VISUAL region; encounter region remains
+ // the existing SEAPORT/coast pool so global and coastal events still work.
+ if(g.currentEdgeId==='boulder-junction--seaport')return 'CAUSEWAY';
  if(g.currentEdgeId){
   const edge=LG_EDGES[g.currentEdgeId],regions=ROUTE127_DRAWN_ROAD_BACKGROUNDS[g.currentEdgeId];
   if(edge&&regions){

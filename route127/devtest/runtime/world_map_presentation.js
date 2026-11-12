@@ -1,19 +1,27 @@
-/* Luna DEVTEST map dressing. Decoration only; never edits navigation geometry. */
+/* Luna DEVTEST map dressing. Decoration only; no gameplay/navigation geometry changes. */
 (()=>{
  'use strict';
  if(!location.pathname.startsWith('/route127/devtest/'))return;
+ // Inject presentation CSS directly so the art stays styled even if the standalone
+ // stylesheet fails to load through the site's publishing/cache layer.
+ if(!document.getElementById('route127-luna-map-theme')){
+  const sheet=document.createElement('style');
+  sheet.id='route127-luna-map-theme';
+  sheet.textContent="/* Luna map presentation — purely visual; DEVTEST only. No map coordinates or gameplay mutations. */\ndialog.route127-map-overlay {\n  background:#16100c;\n  border-color:#a07846;\n  box-shadow:inset 0 0 0 2px #392516,0 0 36px #000b;\n}\n.route127-map-overlay>header {\n  background:linear-gradient(180deg,#38291d,#1c140e);\n  border-bottom:2px solid #8c6039;\n  text-shadow:0 1px 3px #000;\n}\n.route127-map-body {\n  background:repeating-linear-gradient(94deg,transparent 0 92px,#00000010 93px 94px,transparent 95px 174px),\n             radial-gradient(ellipse at 53% 20%,#38291f 0%,#21170f 55%,#130e0b 100%);\n}\n.route127-map-body .lantern-map {\n  position:relative;\n  isolation:isolate;\n  display:flex;\n  align-items:center;\n  justify-content:center;\n  overflow:hidden;\n  border:7px solid #3c2818;\n  border-radius:5px;\n  box-sizing:border-box;\n  background:\n    radial-gradient(ellipse at 53% 52%,#694c33 0%,#45301f 52%,#26190f 100%);\n  box-shadow:inset 0 0 0 2px #937047,inset 0 0 45px #0009,0 3px 10px #0009;\n}\n.route127-map-body .lantern-map::before {\n  content:'';\n  position:absolute;\n  inset:0;\n  pointer-events:none;\n  z-index:0;\n  opacity:.27;\n  background:\n    repeating-linear-gradient(0deg,transparent 0 8px,#140a0738 9px,transparent 10px 58px),\n    repeating-linear-gradient(90deg,transparent 0 75px,#12090331 76px,transparent 77px 152px);\n}\n.route127-map-body .lantern-map svg {\n  position:relative;\n  z-index:1;\n  box-sizing:border-box;\n  width:auto!important;\n  max-width:100%!important;\n  height:100%!important;\n  aspect-ratio:1024/1065;\n  border:5px solid #b38b57;\n  border-radius:2px;\n  background:#1e2b25;\n  box-shadow:0 0 0 2px #3e2a1b,0 0 0 4px #8f693f,0 9px 28px #000e, inset 0 0 20px #1b110d;\n  filter:sepia(.08) contrast(1.035) saturate(.95);\n}\n.route127-map-body .lantern-map [data-pearl-road] {\n  stroke-linejoin:round;\n  stroke-linecap:round;\n  filter:drop-shadow(0 1px 1px #0c0706);\n}\n.route127-map-body .lantern-map [data-pearl-step] {\n  filter:drop-shadow(0 0 2px #123833);\n}\n.route127-map-body .lantern-map .canonical-map-node {\n  filter:drop-shadow(0 2px 2px #000b);\n}\n.route127-map-body .lantern-map #lantern-player-marker {\n  filter:drop-shadow(0 0 7px #ffbb4a);\n}\n.route127-map-body .lantern-map::after {\n  content:'N\\\\A ▲\\\\A W  ✧  E\\\\A ▼\\\\A S';\n  white-space:pre;\n  position:absolute;\n  left:max(14px,calc((100% - 58%) / 9));\n  top:14%;\n  z-index:0;\n  color:#dfc497;\n  text-align:center;\n  font:bold clamp(9px,1.05vw,17px)/1.6 Georgia,serif;\n  letter-spacing:.13em;\n  text-shadow:0 2px 3px #000;\n  border:2px solid #ac8257;\n  border-radius:50% 50% 8px 8px;\n  padding:18px 13px 12px;\n  box-shadow:0 3px 14px #0008,inset 0 0 12px #1b0e04;\n  transform:rotate(-5deg);\n  pointer-events:none;\n}\n@media(min-width:1000px) {\n .route127-map-body .lantern-map {\n   background-image:\n    radial-gradient(circle at 86% 35%,#0008 0 2px,transparent 3px),\n    radial-gradient(circle at 84% 37%,#0007 0 3px,transparent 4px),\n    repeating-linear-gradient(0deg,transparent 0 8px,#140a0738 9px,transparent 10px 58px),\n    radial-gradient(ellipse at 53% 52%,#694c33,#45301f 52%,#26190f);\n }\n}\n@media(max-width:820px) {\n .route127-map-body .lantern-map::after { display:none; }\n .route127-map-body .lantern-map {border-width:3px;}\n .route127-map-body .lantern-map svg {border-width:2px;}\n}\n@media(prefers-reduced-motion:reduce) {\n .route127-map-body .lantern-map * {animation:none!important;transition:none!important;}\n}\n\n/* Small scavenger's field-notes card on the spare right side of the tabletop. */\n.route127-map-fieldnote {\n position:absolute;z-index:0;right:clamp(13px,5%,74px);top:19%;\n width:clamp(98px,12%,165px);min-height:122px;\n box-sizing:border-box;padding:17px 10px;\n display:flex;flex-direction:column;gap:6px;\n text-align:center;\n color:#48321f;\n background:linear-gradient(140deg,#e4cc9e,#bda071 85%,#9a774e);\n border:1px solid #614329;\n box-shadow:2px 7px 14px #000a,inset 0 0 20px #8c684a80;\n font:600 clamp(10px,.95vw,14px)/1.2 Georgia,serif;\n letter-spacing:.09em;\n transform:rotate(7deg);\n pointer-events:none;\n}\n.route127-map-fieldnote__eyebrow {font:700 9px/1.5 monospace;letter-spacing:.12em}\n.route127-map-fieldnote__line {border-top:1px solid #84613a;margin:4px 0}\n.route127-map-fieldnote__stamp {display:block;margin:7px auto 0;width:68px;height:68px;border:3px double #8f4a35;border-radius:50%;color:#88402a;padding-top:18px;box-sizing:border-box;transform:rotate(-14deg);font:700 10px/1.25 monospace}\n@media(max-width:1100px){.route127-map-fieldnote{right:8px;width:108px;}}\n@media(max-width:820px){.route127-map-fieldnote{display:none;}}\n\n/* v2 injected as fallback when CSS file isn't served/cached. */\n.route127-map-body .lantern-map {flex:1 1 auto!important;min-height:0!important;}\n.route127-map-body .lantern-map svg { flex:0 1 auto!important;min-width:0!important; }\n.route127-map-fieldnote { z-index:2!important; }\n.route127-map-body .lantern-map::after { z-index:2!important; }\n";
+  document.head.append(sheet);
+ }
  const overlay=typeof Route127MapOverlay!=='undefined'?Route127MapOverlay:globalThis.Route127MapOverlay;
  if(!overlay||typeof overlay.open!=='function')return;
  const original=overlay.open;
  overlay.open=function(...args){
-   const result=original.apply(this,args);
-   const fig=this.dialog?.querySelector('.lantern-map');
-   if(!fig||fig.querySelector('.route127-map-fieldnote'))return result;
-   const note=document.createElement('div');
-   note.className='route127-map-fieldnote';
-   note.setAttribute('aria-hidden','true');
-   note.innerHTML='<span class="route127-map-fieldnote__eyebrow">FIELD NOTES · 127</span><span class="route127-map-fieldnote__line"></span><span>OLD ROADS</span><span>NEW DANGERS</span><span class="route127-map-fieldnote__stamp">SURVIVE<br>THE ROAD</span>';
-   fig.append(note);
-   return result;
+  const result=original.apply(this,args);
+  const fig=this.dialog?.querySelector('.lantern-map');
+  if(!fig||fig.querySelector('.route127-map-fieldnote'))return result;
+  const note=document.createElement('div');
+  note.className='route127-map-fieldnote';
+  note.setAttribute('aria-hidden','true');
+  note.innerHTML='<span class="route127-map-fieldnote__eyebrow">FIELD NOTES · 127</span><span class="route127-map-fieldnote__line"></span><span>OLD ROADS</span><span>NEW DANGERS</span><span class="route127-map-fieldnote__stamp">SURVIVE<br>THE ROAD</span>';
+  fig.append(note);
+  return result;
  };
 })();

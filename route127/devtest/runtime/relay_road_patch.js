@@ -54,5 +54,18 @@ if(typeof PlaythroughRepairs!=='undefined'){
    add((h[k]?'RECOVERED':'NEEDED')+' — '+(parts[k]?.name||'POWER REGULATOR')+': '+where,'system');
  };
 }
+// Use the same clues for the first reveal and the journal. The shared reveal
+// still points to the former fixed pickup locations.
+revealRelayParts=function(){
+ ensureRelayParts();
+ const f=player.flags;
+ if(f.relayPartsRevealed)return;
+ f.relayPartsRevealed=true;
+ f.relayBranchDiscovered=true;
+ add("The failures are not one problem. They're four.","bright");
+ add('RELAY REPAIR — FOUR COMPONENTS REQUIRED','reward');
+ PlaythroughRepairs.relayClues();
+ add('QUEST UPDATED — All four clues recorded in QUESTS. LOWER ACCESS ROAD UNLOCKED.','reward');
+};
 globalThis.DevtestRelayRoadParts=parts;
 })();

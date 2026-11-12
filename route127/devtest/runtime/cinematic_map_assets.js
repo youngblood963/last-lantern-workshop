@@ -175,7 +175,7 @@
    f.append(transfer);defs.append(f);
   }
   const root=make('g',{'data-cinematic-map':'true','pointer-events':'none'});
-  const roads=make('g',{'data-cinematic-roads':'true',opacity:'.82'});
+  const roads=make('g',{'data-cinematic-roads':'true'});
   const places=make('g',{'data-cinematic-landmarks':'true'});
   root.append(roads,places);
   // Below navigation/pearl layer; landmark art above it but non-clickable.
@@ -190,6 +190,7 @@
    // Crop away the bottom 16% of the baked-in asset-name plaques.
    const img=make('image',{href:`/route127/devtest/assets/map_roads/${name}.png`,x:0,y:0,width:100,height:89,
      preserveAspectRatio:'none'});
+   img.setAttribute('filter','url(#route127-landmark-opacity-fix)');
    tile.append(img);
    roads.append(tile);
   }

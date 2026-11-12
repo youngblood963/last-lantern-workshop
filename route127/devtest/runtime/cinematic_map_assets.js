@@ -21,50 +21,13 @@
   ['boulder_junction','boulder-junction',115,20,-84],
   ['seaport','seaport',126,62,-104]
  ];
- // Curated road decals on top of the landscape, not a full tiled replacement
- // for all 54 actual paths. Existing pearl roads remain the navigation authority.
- const decals=[
-  ['house--solace-upper-junction','paved_straight',90],
-  ['west-ridge--abandoned-motel','paved_curve_left',85],
-  ['east-ridge--scavenger-camp','dirt_curve',90],
-  ['scavenger-camp--trade-junction','dirt_straight',80],
-  ['solace--works-junction','cracked_asphalt',88],
-  ['works-junction--factory','cracked_asphalt',95],
-  ['iron-pit-arena--lowlands','mud_ruts',78],
-  ['works-junction--scrap-yard','gravel_road',87],
-  ['factory-east--east-coast-junction','paved_curve_right',85],
-  ['industrial-junction--east-coast-junction','paved_straight',86],
-  ['lowlands--broken-bridge','wooden_bridge',99],
-  ['broken-bridge--west-coast-junction','collapsed_bridge',102],
-  ['west-coast-junction--west-harbor-approach','makeshift_scrap_bridge',100],
-  ['east-coast-lower--east-harbor-approach','concrete_bridge',105],
-  ['east-harbor-approach--boulder-junction','steel_truss_bridge',105],
-  ['boulder-junction--seaport','concrete_bridge',113],
-  ['east-ridge--northern-ridge','paved_curve_right',80],
-  ['trade-route--industrial-junction','cracked_asphalt',84]
- ];
+ // Road illustration tiles removed at owner's request. Existing gameplay/pearl paths remain.
  const extra=[
   {name:'st_mercy_hospital',x:785,y:485,ok:f=>!!f?.wo4Hospital?.discovered},
   {name:'fresh_mart_grocery',x:844,y:365,ok:f=>!!(f?.wo2?.freshMartClue||f?.wo2State?.freshMartClue||f?.freshMartClue)},
   {name:'ash_cemetery',x:330,y:624,ok:f=>!!f?.r18Ash},
   {name:'station_nine',x:391,y:247,ok:f=>!!f?.r18Station?.facility?.discovered}
  ];
- function mix(p,q,t){return p+(q-p)*t;}
- function midPoint(raw,expandY){
-  if(!raw?.length)return null;
-  const pts=raw.map(([x,y])=>[x,expandY(y)]);
-  const seg=pts.slice(1).map((p,i)=>Math.hypot(p[0]-pts[i][0],p[1]-pts[i][1]));
-  let d=seg.reduce((a,b)=>a+b,0)/2;
-  for(let i=0;i<seg.length;i++){
-   if(d<=seg[i]||i===seg.length-1){
-    const t=seg[i]?d/seg[i]:0;
-    return {x:mix(pts[i][0],pts[i+1][0],t),y:mix(pts[i][1],pts[i+1][1],t),
-      angle:Math.atan2(pts[i+1][1]-pts[i][1],pts[i+1][0]-pts[i][0])*180/Math.PI+90};
-   }
-   d-=seg[i];
-  }
-  return null;
- }
  function draw(){
   const dialog=document.querySelector('dialog.route127-map-overlay[open]');
   const fig=dialog?.querySelector('figure.lantern-map');
@@ -175,25 +138,11 @@
    f.append(transfer);defs.append(f);
   }
   const root=make('g',{'data-cinematic-map':'true','pointer-events':'none'});
-  const roads=make('g',{'data-cinematic-roads':'true'});
   const places=make('g',{'data-cinematic-landmarks':'true'});
-  root.append(roads,places);
+  const artwork=new Map();
+  root.append(places);
   // Below navigation/pearl layer; landmark art above it but non-clickable.
   svg.append(root);
-  for(const [edge,name,w] of decals){
-   const spot=midPoint(v.edges[edge],expandY);
-   if(!spot)continue;
-   const h=w*.72;
-   const tile=make('svg',{x:spot.x-w/2,y:spot.y-h/2,width:w,height:h,
-      viewBox:'0 0 100 75',overflow:'hidden',
-      transform:`rotate(${spot.angle} ${spot.x} ${spot.y})`});
-   // Crop away the bottom 16% of the baked-in asset-name plaques.
-   const img=make('image',{href:`/route127/devtest/assets/map_roads/${name}.png`,x:0,y:0,width:100,height:89,
-     preserveAspectRatio:'none'});
-   img.setAttribute('filter','url(#route127-landmark-opacity-fix)');
-   tile.append(img);
-   roads.append(tile);
-  }
   for(const [file,id,w,dx,dy] of landmarks){
    const p=v.nodes[id];if(!p)continue;
    const h=w*1.04;
@@ -203,6 +152,7 @@
    img.append(make('title',{}));img.lastChild.textContent=id.replace(/-/g,' ');
    img.setAttribute('filter','url(#route127-landmark-opacity-fix)');
    places.append(img);
+   artwork.set(file,img);
   }
   const f=typeof player!=='undefined'?player?.flags:null;
   for(const item of extra){
@@ -213,7 +163,186 @@
      'data-discovery-art':item.name});
    discoveryImage.setAttribute('filter','url(#route127-landmark-opacity-fix)');
    places.append(discoveryImage);
+   artwork.set(item.name,discoveryImage);
   }
+
+  // DEVTEST-only visual placement studio. Saves solely to browser localStorage.
+  // Does not edit graph nodes, route pearls, travel distances or game state.
+  const storeKey='route127:devtest:landmark-layout:v1';
+  const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+  const coords=new Map();
+  for(const [name,img] of artwork){
+   coords.set(name,{x:Number(img.getAttribute('x')),y:Number(img.getAttribute('y')),
+      width:Number(img.getAttribute('width')),height:Number(img.getAttribute('height'))});
+  }
+  const defaults=Object.fromEntries([...coords].map(([name,p])=>[name,{...p}]));
+  function readLayout(){
+   try{
+    const saved=JSON.parse(localStorage.getItem(storeKey)||'{}');
+    if(!saved||typeof saved!=='object'||Array.isArray(saved))return {};
+    const clean={};
+    for(const [name,v] of Object.entries(saved)){
+     if(!coords.has(name)||!v||typeof v!=='object')continue;
+     const x=Number(v.x),y=Number(v.y),width=Number(v.width);
+     if(![x,y,width].every(Number.isFinite))continue;
+     clean[name]={x:clamp(x,-250,vizWidth+250),y:clamp(y,-250,vizHeight+250),width:clamp(width,30,310)};
+    }
+    return clean;
+   }catch(e){console.warn('Map landmark layout could not be read',e);return {};}
+  }
+  const vizWidth=v.width,vizHeight=v.height;
+  const saved=readLayout();
+  function update(name,p,persist=true){
+   const img=artwork.get(name);if(!img||!p)return;
+   const first=defaults[name];
+   const width=clamp(Number(p.width)||first.width,30,310);
+   const height=width*(first.height/first.width);
+   const x=clamp(Number(p.x),-250,vizWidth+250);
+   const y=clamp(Number(p.y),-250,vizHeight+250);
+   if(![x,y].every(Number.isFinite))return;
+   const next={x,y,width,height};
+   for(const prop of ['x','y','width','height'])img.setAttribute(prop,next[prop]);
+   coords.set(name,next);
+   if(persist){
+    const writes=readLayout();
+    writes[name]={x,y,width};
+    try{localStorage.setItem(storeKey,JSON.stringify(writes));}catch(e){status.textContent='Browser storage unavailable — export your layout to keep it.';}
+   }
+  }
+  const panel=document.createElement('div');
+  panel.className='route127-landmark-editor';
+  panel.setAttribute('data-landmark-editor','');
+  panel.style.cssText='display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding:5px 8px;margin:3px 0;color:#e8cc9d;background:#24190f;border:1px solid #725135;font:12px/1.4 monospace;';
+  const editButton=document.createElement('button');
+  editButton.type='button';editButton.textContent='✥ Arrange landmarks';
+  const select=document.createElement('select');
+  select.setAttribute('aria-label','Select landmark to position');
+  select.style.cssText='max-width:180px;background:#352719;color:#ffe4ac;padding:5px;';
+  for(const [name] of artwork){
+   const opt=document.createElement('option');opt.value=name;
+   opt.textContent=name.replaceAll('_',' ').replace(/\b\w/g,ch=>ch.toUpperCase());
+   select.append(opt);
+  }
+  const status=document.createElement('span');status.textContent='Landmark placement is off.';
+  status.style.cssText='color:#e6c99e;flex:1 1 170px;';
+  const editTools=document.createElement('div');
+  editTools.style.cssText='display:none;flex-wrap:wrap;gap:5px;align-items:center;';
+  function btn(label,tip,action){
+   const b=document.createElement('button');b.type='button';b.textContent=label;b.title=tip;
+   b.setAttribute('aria-label',tip);b.addEventListener('click',action);
+   b.style.cssText='min-height:31px;min-width:33px;padding:3px 7px;border:1px solid #92714d;background:#483322;color:#ffe6b5;cursor:pointer;';
+   return b;
+  }
+  const widthField=document.createElement('input');widthField.type='number';widthField.min='30';widthField.max='310';widthField.step='5';
+  widthField.setAttribute('aria-label','Selected landmark width in map pixels');widthField.style.cssText='width:62px;background:#322419;color:#fff0cf;padding:5px;';
+  let active=false;
+  let selected=select.value;
+  const norm=name=>coords.get(name);
+  function refresh(){
+   selected=select.value;
+   widthField.value=Math.round(norm(selected)?.width||100);
+   for(const [name,img] of artwork){
+    img.style.pointerEvents=active?'all':'none';
+    img.style.cursor=active?'move':'';
+    img.style.outline='';
+    img.setAttribute('tabindex',active?'0':'-1');
+    if(active&&name===selected)img.style.filter='drop-shadow(0 0 5px #ffcb68)';
+    else img.style.filter='';
+   }
+   status.textContent=active?'Drag the selected image, or use arrows. Changes save on this device.':'Landmark placement is off.';
+  }
+  function nudge(dx,dy){
+   const p=norm(selected);if(!p)return;
+   update(selected,{...p,x:p.x+dx,y:p.y+dy});refresh();
+  }
+  select.addEventListener('change',refresh);
+  widthField.addEventListener('change',()=>{
+   const p=norm(selected);if(!p)return;
+   const width=clamp(Number(widthField.value)||p.width,30,310);
+   // Resize around the image center, rather than jumping its anchor.
+   const change=width-p.width;
+   update(selected,{...p,width,x:p.x-change/2,y:p.y-change*(p.height/p.width)/2});refresh();
+  });
+  editButton.addEventListener('click',()=>{
+   active=!active;
+   editButton.textContent=active?'✓ Finish arranging':'✥ Arrange landmarks';
+   editTools.style.display=active?'flex':'none';
+   select.style.display=active?'':'none';
+   refresh();
+  });
+  const label=document.createElement('label');label.textContent='Size ';
+  label.append(widthField);
+  editTools.append(label,
+    btn('←','Move landmark left 5 pixels',()=>nudge(-5,0)),
+    btn('↑','Move landmark up 5 pixels',()=>nudge(0,-5)),
+    btn('↓','Move landmark down 5 pixels',()=>nudge(0,5)),
+    btn('→','Move landmark right 5 pixels',()=>nudge(5,0)),
+    btn('Reset one','Reset selected landmark',()=>{update(selected,defaults[selected]);refresh();}),
+    btn('Reset all','Restore all landmark positions',()=>{
+      if(!confirm('Restore every landmark to its starting position?'))return;
+      try{localStorage.removeItem(storeKey);}catch(_){}
+      for(const [name,p] of Object.entries(defaults))update(name,p,false);
+      refresh();
+    }),
+    btn('Export','Download landmark layout JSON',()=>{
+      const file=new Blob([JSON.stringify({version:1,map:'Route 127 DEVTEST',landmarks:Object.fromEntries(coords)},null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(file),link=document.createElement('a');
+      link.href=url;link.download='route127-landmark-layout.json';link.click();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+    })
+  );
+  const importInput=document.createElement('input');importInput.type='file';importInput.accept='.json,application/json';importInput.hidden=true;
+  importInput.addEventListener('change',async()=>{
+   const file=importInput.files?.[0];if(!file)return;
+   try{
+    const data=JSON.parse(await file.text());
+    if(data.version!==1||!data.landmarks||typeof data.landmarks!=='object')throw Error('Unrecognized layout file');
+    let count=0;
+    for(const [name,p] of Object.entries(data.landmarks)){
+     if(!coords.has(name)||!p||![p.x,p.y,p.width].every(Number.isFinite))continue;
+     update(name,p);count++;
+    }
+    refresh();status.textContent='Imported '+count+' landmark positions.';
+   }catch(err){status.textContent='Import failed: '+err.message;}
+   importInput.value='';
+  });
+  editTools.append(btn('Import','Import landmark layout JSON',()=>importInput.click()),importInput);
+  panel.append(editButton,select,editTools,status);
+  select.style.display='none';
+  // Place before the world map while preserving fit-to-screen presentation.
+  fig.before(panel);
+  for(const [name,p] of Object.entries(saved))update(name,p,false);
+  let drag=null;
+  function toMapPoint(e){
+   const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;
+   const m=svg.getScreenCTM();return m?pt.matrixTransform(m.inverse()):null;
+  }
+  for(const [name,img] of artwork){
+   img.addEventListener('pointerdown',e=>{
+    if(!active||e.button!==0)return;
+    e.preventDefault();e.stopPropagation();
+    select.value=name;selected=name;refresh();
+    const point=toMapPoint(e);if(!point)return;
+    const p=norm(name);
+    drag={name,startX:point.x,startY:point.y,x:p.x,y:p.y};
+    img.setPointerCapture(e.pointerId);
+   });
+   img.addEventListener('pointermove',e=>{
+    if(!drag||drag.name!==name)return;
+    e.preventDefault();e.stopPropagation();
+    const point=toMapPoint(e);if(!point)return;
+    update(name,{...norm(name),x:drag.x+point.x-drag.startX,y:drag.y+point.y-drag.startY},false);
+   });
+   const finish=e=>{
+    if(drag?.name!==name)return;
+    e.stopPropagation();
+    const p=norm(name);update(name,p);drag=null;refresh();
+   };
+   img.addEventListener('pointerup',finish);
+   img.addEventListener('pointercancel',finish);
+   img.addEventListener('lostpointercapture',finish);
+  }
+  refresh();
   // Keep player marker clearly above the decorative location imagery.
   const playerDot=svg.querySelector('#lantern-player-marker');
   if(playerDot)root.append(playerDot);

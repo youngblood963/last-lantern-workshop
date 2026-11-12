@@ -65,7 +65,6 @@
   'THE RUST PARADE':'the_rust_parade.png','THE CAROUSEL HORSE':'the_carousel_horse.png',
   'THE WELDED BUS':'the_welded_bus.png','THE MASK MARKET':'the_mask_market.png',
   'THE PAPER STORM':'the_paper_storm.gif','THE FALSE SHOULDER':'the_false_shoulder.gif',
-  'ABANDONED SEDAN':'abandoned_sedan.png',
   'ABANDONED SUPPLY TRUCK':'fresh_meat_butcher.png',
   'COUNTY WORK TRUCK':'county_work_truck.png',
   'THE LOCKED TOOL CHEST':'locked_tool_chest.png',
@@ -76,6 +75,8 @@
   'THE DITCH BACKPACK':'abandoned_backpack.png',
   'OVERTURNED MAINTENANCE CART':'overturned_cart_battery.png'
  }))register(title,[],'both','Standard',scenery(file));
+ // Transparent vehicle: keep regional terrain and dynamic sky behind it.
+ register('ABANDONED SEDAN',[],'both','Standard',scenery('abandoned_sedan.png'),'foreground');
  for(const period of ['dawn','day','dusk','night']){
   register('THE EMPTY BUS SHELTER',[],'approach',period,scenery('empty_bus_shelter_'+period+'.png'));
  }

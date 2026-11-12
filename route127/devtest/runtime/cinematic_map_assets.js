@@ -98,7 +98,7 @@
    if(!document.getElementById('route127-coffee-steam-style')){
     const sheet=document.createElement('style');sheet.id='route127-coffee-steam-style';
     sheet.textContent=`
-     .route127-table-mug{position:absolute;left:6%;top:12%;width:clamp(145px,23%,265px);
+     .route127-table-mug{position:absolute;right:4%;top:11%;width:clamp(195px,31%,345px);
        aspect-ratio:1;z-index:2;pointer-events:none;}
      .route127-table-mug img{display:block;width:100%;height:100%;object-fit:contain;
        filter:drop-shadow(6px 9px 6px rgba(12,6,3,.55));}

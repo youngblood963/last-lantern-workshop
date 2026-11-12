@@ -22,6 +22,9 @@
   ['seaport','seaport',126,62,-104]
  ];
  // Road illustration tiles removed at owner's request. Existing gameplay/pearl paths remain.
+ // Approved landmark placements exported by the owner on November 12, 2026.
+ // Visual positions only; never move gameplay nodes or road coordinates.
+ const permanentLayout={"old_house":[503.0733,140.0092,75],"abandoned_motel":[259.2943,194.4677,85],"scavenger_camp":[671.6514,243.0713,85],"solace":[503.3472,326.1782,85],"iron_pit_arena":[314.5482,480.2044,85],"scrap_yard":[697.8964,554.2357,85],"factory":[493.6226,622.7638,85],"broken_bridge":[188.6528,742.016,85],"watchtower_ruins":[918.7223,691.4123,85],"boulder_junction":[518.0302,783.9252,50],"seaport":[440.3602,975.5252,85],"st_mercy_hospital":[816.5544,296.2352,85],"fresh_mart_grocery":[729.9418,372.9903,85],"ash_cemetery":[116.0933,498.2127,85],"station_nine":[301.0719,87.7492,85]};
  const extra=[
   {name:'st_mercy_hospital',x:785,y:485,ok:f=>!!f?.wo4Hospital?.discovered},
   {name:'fresh_mart_grocery',x:844,y:365,ok:f=>!!f?.wo2?.freshMartClue},
@@ -133,8 +136,11 @@
   if(!defs.parentNode)svg.insertBefore(defs,svg.firstChild);
   if(!svg.querySelector('#route127-landmark-opacity-fix')){
    const f=make('filter',{id:'route127-landmark-opacity-fix',x:'-15%',y:'-15%',width:'130%',height:'130%', 'color-interpolation-filters':'sRGB'});
+   // Darken bright artwork midtones without changing its transparent pixels.
+   // Strengthen alpha so the landscape doesn't shine through solid buildings.
    const transfer=make('feComponentTransfer',{});
-   transfer.append(make('feFuncA',{type:'linear',slope:'1.75',intercept:'-0.25'}));
+   for(const channel of ['R','G','B'])transfer.append(make('feFunc'+channel,{type:'gamma',amplitude:'0.89',exponent:'1.30',offset:'0'}));
+   transfer.append(make('feFuncA',{type:'gamma',amplitude:'1',exponent:'0.28',offset:'0'}));
    f.append(transfer);defs.append(f);
   }
   const root=make('g',{'data-cinematic-map':'true','pointer-events':'none'});
@@ -177,6 +183,16 @@
   for(const [name,img] of artwork){
    coords.set(name,{x:Number(img.getAttribute('x')),y:Number(img.getAttribute('y')),
       width:Number(img.getAttribute('width')),height:Number(img.getAttribute('height'))});
+  }
+  // Permanent owner-approved layout wins on first load, while the editor can
+  // still save subsequent personal refinements in the current browser.
+  for(const [name,values] of Object.entries(permanentLayout)){
+   const img=artwork.get(name);if(!img)continue;
+   const [x,y,width]=values;
+   const h0=Number(img.getAttribute('height')),w0=Number(img.getAttribute('width'));
+   const height=width*(h0/w0);
+   for(const [key,val] of Object.entries({x,y,width,height}))img.setAttribute(key,val);
+   coords.set(name,{x,y,width,height});
   }
   const defaults=Object.fromEntries([...coords].map(([name,p])=>[name,{...p}]));
   function readLayout(){

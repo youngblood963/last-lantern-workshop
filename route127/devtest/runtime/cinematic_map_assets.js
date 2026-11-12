@@ -48,6 +48,10 @@
   dialog.style.setProperty('overflow','hidden','important');
   const body=dialog.querySelector('.route127-map-body');
   if(body){body.style.setProperty('min-height','0','important');body.style.setProperty('flex','1 1 auto','important');}
+  // Player-facing map: omit the verbose travel-progress line above the map.
+  // Travel state, turn counts and navigation remain unchanged elsewhere.
+  const progressLine=body?.querySelector(':scope > p:first-child');
+  if(progressLine)progressLine.style.display='none';
   // The old SVG filled the full width and painted its spare width dark teal.
   // Constrain the SVG itself to the portrait map aspect so the actual tabletop
   // shows on either side. Inline important beats the legacy !important rules.

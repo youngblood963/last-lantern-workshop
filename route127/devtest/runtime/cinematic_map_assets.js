@@ -24,7 +24,7 @@
  // Road illustration tiles removed at owner's request. Existing gameplay/pearl paths remain.
  const extra=[
   {name:'st_mercy_hospital',x:785,y:485,ok:f=>!!f?.wo4Hospital?.discovered},
-  {name:'fresh_mart_grocery',x:844,y:365,ok:f=>!!(f?.wo2?.freshMartClue||f?.wo2State?.freshMartClue||f?.freshMartClue)},
+  {name:'fresh_mart_grocery',x:844,y:365,ok:f=>!!f?.wo2?.freshMartClue},
   {name:'ash_cemetery',x:330,y:624,ok:f=>!!f?.r18Ash},
   {name:'station_nine',x:391,y:247,ok:f=>!!f?.r18Station?.facility?.discovered}
  ];
@@ -155,8 +155,11 @@
    artwork.set(file,img);
   }
   const f=typeof player!=='undefined'?player?.flags:null;
+  const discoveryVisibility=new Map();
   for(const item of extra){
-   if(!item.ok(f))continue;
+   // Keep undiscovered artwork available to the owner's layout editor,
+   // without revealing it on the ordinary player-facing map.
+   discoveryVisibility.set(item.name,!!item.ok(f));
    const w=108,h=112;
    const discoveryImage=make('image',{href:`/route127/devtest/assets/map_landmarks/${item.name}.png`,
      x:item.x-w/2,y:expandY(item.y)-h/2,width:w,height:h,preserveAspectRatio:'xMidYMid meet',
@@ -242,6 +245,9 @@
    selected=select.value;
    widthField.value=Math.round(norm(selected)?.width||100);
    for(const [name,img] of artwork){
+    const discovered=!discoveryVisibility.has(name)||discoveryVisibility.get(name);
+    img.style.display=active||discovered?'':'none';
+    img.style.opacity=active&&!discovered?'0.7':'1';
     img.style.pointerEvents=active?'all':'none';
     img.style.cursor=active?'move':'';
     img.style.outline='';
@@ -249,7 +255,7 @@
     if(active&&name===selected)img.style.filter='drop-shadow(0 0 5px #ffcb68)';
     else img.style.filter='';
    }
-   status.textContent=active?'Drag the selected image, or use arrows. Changes save on this device.':'Landmark placement is off.';
+   status.textContent=active?'Drag or resize any landmark; undiscovered locations are preview-only. Changes save on this device.':'Landmark placement is off.';
   }
   function nudge(dx,dy){
    const p=norm(selected);if(!p)return;

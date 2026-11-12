@@ -12,7 +12,33 @@ function route127RoadRegion(edge){
  const shared=Object.entries(ROUTE127_NODE_REGIONS).filter(([,ids])=>ids.includes(a)&&ids.includes(b)).map(([region])=>region);
  return shared.length===1?shared[0]:edge.primaryRegion||null;
 }
+// Visual/background transitions keyed to EXISTING travel pearls.
+// A boundary is the first pearl on the edge that uses the new region;
+// forward or reverse travel reads the same position, so it cannot flip by direction.
+// These rules affect scenery only, never combat pools, encounters, or navigation.
+const ROUTE127_PEARL_REGION_BOUNDARIES={
+ // House -> Solace is always Central, including its long approach.
+ 'house--solace-upper-junction':[{from:0,region:'CENTRAL'}],
+ 'solace-upper-junction--solace':[{from:0,region:'CENTRAL'}],
+ // Leaving Solace, keep Central scenery for the first three pearls.
+ 'solace--works-junction':[{from:0,region:'CENTRAL'},{from:4,region:'INDUSTRIAL'}],
+ // The Factory does not suddenly become coastal scenery: the harbor begins
+ // only on the final three pearls approaching Boulder Junction.
+ 'factory--boulder-junction':[{from:0,region:'INDUSTRIAL'},{from:6,region:'SEAPORT'}],
+ 'boulder-junction--seaport':[{from:0,region:'SEAPORT'}]
+};
+function route127PearlRegion(g){
+ if(!g?.currentEdgeId)return null;
+ const edge=LG_EDGES[g.currentEdgeId];
+ const boundaries=ROUTE127_PEARL_REGION_BOUNDARIES[edge?.id];
+ if(!boundaries)return null;
+ const pearl=Math.max(0,Math.min(edge.distanceTurns,Number(g.stepIndex)||0));
+ let region=boundaries[0].region;
+ for(const boundary of boundaries)if(pearl>=boundary.from)region=boundary.region;
+ return region;
+}
 function route127CurrentRegion(g){
+ const byPearl=route127PearlRegion(g);if(byPearl)return byPearl;
  const active=route127RoadRegion(LG_EDGES[g?.currentEdgeId]);if(active)return active;
  if(g?.regionalContext&&g.regionalContext.nodeId===g.nodeId&&ROUTE127_NODE_REGIONS[g.regionalContext.region])return g.regionalContext.region;
  // Old saves already record their incoming road for site/quest context.

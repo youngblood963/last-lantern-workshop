@@ -12,8 +12,60 @@ function lanternMark(kind,id){const g=lanternState();if(!g[kind].includes(id))g[
 function lanternCompass(a,b){const x=b[0]-a[0],y=b[1]-a[1];return (Math.abs(y)>Math.abs(x)*.45?(y>0?'south':'north'):'')+(Math.abs(x)>Math.abs(y)*.45?(x>0?'east':'west'):'');}
 function lanternDestination(){const g=lanternState(),e=lanternEdge();return e?LG_NODES[g.direction>0?e.b:e.a].name:LG_NODES[g.nodeId]?.name||'the road';}
 function lanternProgressText(){const g=lanternState(),e=lanternEdge();if(!e)return LG_NODES[g.nodeId].name;const to=g.direction>0?e.b:e.a,from=g.direction>0?e.a:e.b;return `${LG_NODES[e.a].name} ↔ ${LG_NODES[e.b].name} — heading ${lanternCompass(LG_NODES[from].anchor,LG_NODES[to].anchor)} toward ${LG_NODES[to].name}. ${g.direction>0?e.distanceTurns-g.stepIndex:g.stepIndex} / ${e.distanceTurns} movement turns remain.`;}
+// Physical steps can move in a later graph revision. These values are the
+// persistent script slots used by existing quest, XP and patrol save flags.
+const LANTERN_SCRIPT_STEPS = {
+ 'house--solace': [0,1,2,3,4,5,6,7,8,9,10],
+ 'house--solace-upper-junction': [0,1,2,3,4,5,6],
+ 'solace-upper-junction--solace': [6,7,8,9,10],
+ 'solace--works-junction': [0,1,2,3],
+ 'works-junction--factory': [3,4,5,6],
+ 'factory--boulder-junction': [0,1,2,3],
+ 'boulder-junction--seaport': [3,4,5],
+ 'works-junction--scrap-yard': [null,1,2],
+ 'old-service-junction--old-service-road': [null,1,2]
+};
+const LANTERN_COAST_SLOTS = {
+ gamblerCamp: 1, scavengerPatrol: 2, freightSpur: 3, serviceBox: 4,
+ dronePatrol: 4, arrival: 5
+};
+function lanternScriptSlot(edge, step) {
+ return LANTERN_SCRIPT_STEPS[edge.id]?.[step] ?? null;
+}
+function lanternLegacyProgress(edge, step) {
+ for(let index=step;index>=0;index--){
+  const slot=lanternScriptSlot(edge,index);
+  if(slot!==null)return slot;
+ }
+ return step;
+}
+// Append one migration per revision. Its edge tables map old integer steps
+// to new integer steps, including both endpoints and any scripted positions.
+// Change the tables, script slots and graph costs in the same commit.
+const LANTERN_POSITION_MIGRATIONS = [{}];
+function lanternMigratePosition(g, flags, migrations=LANTERN_POSITION_MIGRATIONS) {
+ for(let revision=g.positionRevision??0;revision<migrations.length;revision++){
+  const maps=migrations[revision];
+  const step=(edge,index)=>maps[edge]?.[index]??index;
+  if(g.currentEdgeId)g.stepIndex=step(g.currentEdgeId,g.stepIndex);
+  const seen=new WeakSet();
+  function migrateOrigins(value){
+   if(!value||typeof value!=='object'||seen.has(value))return;
+   seen.add(value);
+   if(typeof value.edge==='string'&&Number.isInteger(value.step)){
+    value.step=step(value.edge,value.step);
+   }
+   for(const [key,child] of Object.entries(value)){
+    if(key!=='wo5LegacyMarker')migrateOrigins(child);
+   }
+  }
+  migrateOrigins(flags);
+  g.positionRevision=revision+1;
+ }
+ return g;
+}
 function lanternProject(){const g=lanternState(),e=lanternQuestEdge();if(!g||!e)return;const savedStep=g.currentEdgeId?g.stepIndex:g.markerContext.step;if(r6Road())r6Road().active=false;roadTurnCharged=true;player.flags.eastReturning=g.direction<0;
- const p=(e.offset||0)+savedStep;
+ const p=e.plot?lanternLegacyProgress(e,savedStep):savedStep;
  if(e.plot==='house'){roadGoal=g.direction>0?'mercy':'house';roadTripLength=10;roadTurn=Math.max(0,(g.direction>0?p:10-p)-1);}
  else{roadGoal='east';roadTripLength=e.plot==='coast'?5:6;roadTurn=Math.max(0,Math.min(roadTripLength-1,p-1));}
 }
@@ -37,7 +89,7 @@ function lanternRoadCompletionMigrate(g,flags=player.flags){
  g.wo5RoadRevision=LANTERN_WORLD_GRAPH.roadCompletion?.revision||1;return g;
 }
 function lanternMigrate(saved){
- let g=lanternState();if(g){if(g.version!==1)throw Error('Unsupported Lantern travel version; original save retained.');return lanternRoadCompletionMigrate(g);}
+ let g=lanternState();if(g){if(g.version!==1)throw Error('Unsupported Lantern travel version; original save retained.');return lanternMigratePosition(lanternRoadCompletionMigrate(g),player.flags);}
  const s=saved||{stage:gameplayStageForSave(),roadGoal,roadTurn,roadTripLength,roadTurnCharged,player};const f=player.flags;
  let node='house';if(f.mercyDiscovered)node='solace';
  if(/^factory|^eastEnd/.test(s.stage))node='factory';if(/^port|^seaport|^r11/.test(s.stage)&&f.seaportRoute?.arrived)node='seaport';
@@ -54,7 +106,7 @@ function lanternMigrate(saved){
  }
  if(q?.active&&q.leg==='coast')f.portRoadCleared=true;
  if(['serviceRoad','relayBranch'].includes(s.stage)&&(s.serviceRoadDepth??serviceRoadDepth)<3){const depth=Math.max(0,s.serviceRoadDepth??serviceRoadDepth),id=s.stage==='serviceRoad'?'works-junction--scrap-yard':'old-service-junction--old-service-road',e=LG_EDGES[id];Object.assign(g,{nodeId:e.a,currentEdgeId:id,stepIndex:Math.round(depth/3*e.distanceTurns),direction:f.branchReturning?-1:1,pending:false,encounterRegion:e.region});lanternMark('discoveredEdges',id);}
- if(q)q.active=false;lanternMark('discoveredNodes',node);lanternRoadCompletionMigrate(g);lanternProject();return g;
+ if(q)q.active=false;lanternMark('discoveredNodes',node);lanternMigratePosition(lanternRoadCompletionMigrate(g),f);lanternProject();return g;
 }
 function lanternSave(){if(typeof v49Autosave==='function')v49Autosave();}
 function lanternNodeMenu(){const g=lanternState();if(g.nodeId==='solace'&&!g.currentEdgeId&&!g.solaceAdmitted)return arriveSettlement();if(g.currentEdgeId)return lanternRoadMenu();stage='lanternNode';const n=LG_NODES[g.nodeId];add(n.name.toUpperCase(),'place');
@@ -73,7 +125,7 @@ function lanternChoose(id){const g=lanternState(),e=LG_EDGES[id];if(g.nodeId==='
 function lanternStep(){const g=lanternState(),e=lanternEdge();if(!e||g.pending)return false;if(!lanternAllowed(e)){add('The harbor passage is blocked in both directions.','danger');return false;}const next=g.stepIndex+g.direction;if(next<0||next>e.distanceTurns)return lanternArrive(g.direction>0?e.b:e.a);if(!spendTurn()){add('NO MOVEMENT TURNS REMAIN. Reverse, inspect the map, or use the existing overnight options.','danger');noTurnsMenu();return false;}
  if(player.flags.r18Station?.restored&&Math.random()<.08)add('STATION NINE > Highway travelers, this is Evelyn Cross. The Tomorrow Network is listening.','bright');
  delete g.wo5LegacyMarker;g.stepIndex=next;g.moveSerial=(g.moveSerial||0)+1;g.sceneId=e.id+':'+next+':'+g.moveSerial;g.pending=true;g.encounterRegion=e.region;g.encounterIndex=null;lanternProject();delete player.encounterDone[roadTurn];moveWanderers();resumeSavedEncounter=false;
- if(e.plot==='coast'){const s=portState(),p=e.offset+g.stepIndex;s.position=p;if(g.direction>0&&p<5&&!s.seen[p]){s.seen[p]=true;gainXp(48);}if(g.direction>0&&[2,4].includes(p)&&!s.cleared[p]){startCombat(p===2?{name:'COAST ROAD SCAVENGER',level:7,hp:72,min:10,max:16,xp:100,bolts:13}:{name:'HARBOR SECURITY DRONE',level:8,hp:92,min:12,max:19,xp:125,bolts:17},'seaportRoadFight');lanternSave();return true;}port55Travel(s);}
+ if(e.plot==='coast'){const s=portState(),p=lanternScriptSlot(e,g.stepIndex);s.position=lanternLegacyProgress(e,g.stepIndex);if(g.direction>0&&p!==null&&p<LANTERN_COAST_SLOTS.arrival&&!s.seen[p]){s.seen[p]=true;gainXp(48);}if(g.direction>0&&[LANTERN_COAST_SLOTS.scavengerPatrol,LANTERN_COAST_SLOTS.dronePatrol].includes(p)&&!s.cleared[p]){startCombat(p===LANTERN_COAST_SLOTS.scavengerPatrol?{name:'COAST ROAD SCAVENGER',level:7,hp:72,min:10,max:16,xp:100,bolts:13}:{name:'HARBOR SECURITY DRONE',level:8,hp:92,min:12,max:19,xp:125,bolts:17},'seaportRoadFight');lanternSave();return true;}port55Travel(s);}
  showEncounter();lanternSave();return true;}
 async function lanternArrive(id){const g=lanternState(),e=lanternEdge();if(id==='seaport'&&!player.flags.portRoadCleared){add('The boulder blocks city entry.','danger');return false;}if(id==='solace')g.approachGate=e?.solaceGate||g.approachGate;if(e&&typeof route127RememberRegion==='function')route127RememberRegion(g,e,id);g.markerContext=e?{edge:e.id,step:g.stepIndex}:null;delete g.wo5LegacyMarker;Object.assign(g,{nodeId:id,currentEdgeId:null,stepIndex:0,pending:false,encounterIndex:null});lanternMark('discoveredNodes',id);if(r6Road())r6Road().active=false;
  if(id==='solace')await arriveSettlement();else if(id==='house')arriveHouse();else if(id==='factory'){g.lastSettlement='factory';r6Crossroads();saveFactoryAutosave();}else if(id==='seaport'){g.lastSettlement='seaport';portArrive();}else lanternNodeMenu();lanternSave();return true;}
@@ -85,7 +137,7 @@ const lgProgress=updateNewQuestRoadProgress;updateNewQuestRoadProgress=function(
 const lgMarkers=questRoadMarkers;questRoadMarkers=function(){if(lanternState()&&(!lanternQuestEdge()||!['house','factory'].includes(lanternQuestEdge().plot)))return [];return lgMarkers();};
 const lgComplete=completeRoadTurn;completeRoadTurn=function(){const g=lanternState();if(!g)return lgComplete();if(!g.pending)return g.currentEdgeId?lanternRoadMenu():lanternNodeMenu();updateNewQuestRoadProgress();g.pending=false;resumeSavedEncounter=false;const e=lanternEdge();if(g.stepIndex===0||g.stepIndex===e.distanceTurns)return lanternArrive(g.stepIndex===0?e.a:e.b);add('──────── TURN COMPLETE ────────','system');lanternRoadMenu();lanternSave();};
 const lgRoadMenu=r6RoadMenu;r6RoadMenu=function(){if(lanternState())return lanternEdge()?lanternRoadMenu():lanternNodeMenu();return lgRoadMenu();};
-const lgRoadQuests=r11RoadQuestOptions;r11RoadQuestOptions=function(){if(!lanternState())return lgRoadQuests();const g=lanternState();if(!g.currentEdgeId&&g.nodeId==='boulder-junction'&&portRecruitUnlocked()&&r11QuestState().shipment==='active')return ['SEARCH FREIGHT SPUR'];const e=lanternQuestEdge();if(!e||e.plot!=='coast'||!portRecruitUnlocked())return [];const p=e.offset+(g.currentEdgeId?g.stepIndex:g.markerContext.step),s=r11QuestState();return [...(s.shipment==='active'&&p===3?['SEARCH FREIGHT SPUR']:[]),...(s.houseRules==='active'&&p===1?['SEARCH GAMBLER CAMP']:[]),...(s.lights==='active'&&p===4?['SEARCH SERVICE BOX']:[])];};
+const lgRoadQuests=r11RoadQuestOptions;r11RoadQuestOptions=function(){if(!lanternState())return lgRoadQuests();const g=lanternState();if(!g.currentEdgeId&&g.nodeId==='boulder-junction'&&portRecruitUnlocked()&&r11QuestState().shipment==='active')return ['SEARCH FREIGHT SPUR'];const e=lanternQuestEdge();if(!e||e.plot!=='coast'||!portRecruitUnlocked())return [];const p=lanternScriptSlot(e,g.currentEdgeId?g.stepIndex:g.markerContext.step),s=r11QuestState();return [...(s.shipment==='active'&&p===LANTERN_COAST_SLOTS.freightSpur?['SEARCH FREIGHT SPUR']:[]),...(s.houseRules==='active'&&p===LANTERN_COAST_SLOTS.gamblerCamp?['SEARCH GAMBLER CAMP']:[]),...(s.lights==='active'&&p===LANTERN_COAST_SLOTS.serviceBox?['SEARCH SERVICE BOX']:[])];};
 const lgSettlement=arriveSettlement;arriveSettlement=async function(){const g=lanternMigrate();add(`SOLACE — ${g.approachGate.toUpperCase()} GATE. All four gates answer to the same watch.`,'place');if(!player.flags.mercyDiscovered){stage='settlement';return lgSettlement();}if(!g.solaceAdmitted){stage='settlement';add('GUARD > Same watch, same questions. State your business before you enter.','bright');add('(P) APPROACH GATE','system');return;}g.lastSettlement='solace';return lgSettlement();};
 // Add road links after the existing menu has registered its choices. A separate
 // queueChoiceLine would clear the town/house/Factory numeric and hotkey bindings.
@@ -98,14 +150,14 @@ startRoadTrip=function(goal){const g=lanternMigrate();if(g.currentEdgeId)return 
 r6Begin=function(){return lanternNodeMenu();};
 const lgClear=portClearRoad;portClearRoad=function(){const g=lanternMigrate();if(g.nodeId!=='boulder-junction'||g.currentEdgeId){add('Place the charge at Boulder Junction, where every harbor approach meets.','system');return;}if(player.flags.portRoadCleared){add('The boulder is already gone. No charge is spent.','system');return lanternNodeMenu();}lgClear();lanternNodeMenu();lanternSave();};
 portMove=function(){const g=lanternMigrate();if(g.nodeId==='seaport')return lanternChoose('boulder-junction--seaport');return lanternNodeMenu();};
-portCombatWin=function(){const e=lanternEdge();if(e?.plot==='coast')portState().cleared[e.offset+lanternState().stepIndex]=true;completeRoadTurn();};
+portCombatWin=function(){const e=lanternEdge();const slot=e?.plot==='coast'?lanternScriptSlot(e,lanternState().stepIndex):null;if(slot!==null)portState().cleared[slot]=true;completeRoadTurn();};
 const lgBlocked=portBlockedMenu;portBlockedMenu=function(){if(lanternState())return lanternNodeMenu();return lgBlocked();};
 const lgSave=saveSnapshot;saveSnapshot=function(){if(player.flags.interfaceUnlocked)lanternMigrate();return lgSave();};
 const lgLoad=loadGame;loadGame=function(slot=activeSaveSlot){
  const originalData=getSaveData(slot);if(!originalData)return lgLoad(slot);
  if(originalData.player?.flags?.lanternTravel&&originalData.player.flags.lanternTravel.version!==1){add('This save uses an unsupported road graph. Load it in its original version; the save has not been altered.','danger');return;}
  let data=originalData;
- if(data.player?.flags?.lanternTravel)lanternRoadCompletionMigrate(data.player.flags.lanternTravel,data.player.flags);
+ if(data.player?.flags?.lanternTravel)lanternMigratePosition(lanternRoadCompletionMigrate(data.player.flags.lanternTravel,data.player.flags),data.player.flags);
  // Migrate before legacy rendering: a saved between-segments menu must never spend
  // an unpaid movement turn just because the old loader redraws an encounter.
  if(!data.player?.flags?.lanternTravel){
@@ -129,7 +181,7 @@ function lanternEncounterChoices(){const options=encounterChoices(currentEncount
 const lgRender=renderCurrentChoices;renderCurrentChoices=function(){if(stage==='encounter'&&lanternState()?.pending)return lanternEncounterChoices();if(stage==='lanternRoad')return lanternRoadMenu();if(stage==='lanternNode')return lanternNodeMenu();if(stage==='lanternGate')return lanternGateMenu(lanternState().selectedGate);return lgRender();};
 function lanternGateMenu(gate){const g=lanternMigrate();g.selectedGate=gate;stage='lanternGate';add(`SOLACE — ${gate.toUpperCase()} GATE`,'place');add(g.solaceAdmitted?'The watch recognizes you. Beyond the gate, the connecting roads remain open.':'The watch is waiting for your answer.','system');r5DirectChoices([...lanternConnections('solace').filter(e=>e.solaceGate===gate).map(e=>'TAKE ROAD TO '+LG_NODES[lanternOther(e,'solace')].name.toUpperCase()),'RETURN TO TOWN']);}
 function lanternAtSite(cmd){const g=lanternState();if(g.nodeId==='scrap-yard'&&cmd==='inspect scrap yard'){stage='serviceRoad';serviceRoadDepth=3;add('SCRAP YARD — COUNTY MAINTENANCE ENCLOSURE','place');add(player.flags.serviceBossDead?'The Yardman is gone. The old motor assemblies remain.':'A heavy wrench scrapes concrete behind the fence. The Yardman still holds this yard.','system');add(serviceRoadChoices(),'system');return true;}if(g.nodeId==='old-service-road'&&cmd==='inspect signal cabinet'){stage='relayBranch';serviceRoadDepth=3;add('OLD SERVICE ROAD — SIGNAL CABINET','place');if(player.flags.relayPartsRevealed)awardRelayPart('branch','SHIELDED FEED COUPLER');else add('The feed hardware means little until you have diagnosed the Relay.','system');add(branchLandmarkChoices(),'system');return true;}return false;}
-function lanternBranchContext(){const e=lanternEdge(),g=lanternState();if(!e||g.pending)return null;const kind=e.id==='works-junction--scrap-yard'?'service':e.id==='old-service-junction--old-service-road'?'lower':null;return kind&&[1,2].includes(g.stepIndex)?{kind,depth:g.stepIndex}:null;}
+function lanternBranchContext(){const e=lanternEdge(),g=lanternState();if(!e||g.pending)return null;const kind=e.id==='works-junction--scrap-yard'?'service':e.id==='old-service-junction--old-service-road'?'lower':null;const depth=lanternScriptSlot(e,g.stepIndex);return kind&&depth!==null?{kind,depth}:null;}
 const lgServiceChoices=serviceRoadChoices;serviceRoadChoices=function(){if(lanternState()?.nodeId==='scrap-yard'&&!lanternEdge())return [!player.flags.serviceBossDead?'CONTINUE UP ROAD — FACE YARDMAN (1 ACTION TURN)':player.flags.relayPartsRevealed&&!ensureRelayParts().yard||!player.flags.maintenanceYardSearched?'SEARCH MAINTENANCE YARD':'', 'BACK TO SCRAP YARD ROADS (FREE)'].filter(Boolean).join('   ');return lgServiceChoices();};
 const lgBranchChoices=branchLandmarkChoices;branchLandmarkChoices=function(){return lanternState()?.nodeId==='old-service-road'&&!lanternEdge()?'BACK TO OLD SERVICE ROAD (FREE)':lgBranchChoices();};
 const lgCore=handleCommandCore;handleCommandCore=async function(raw){const cmd=r5Mapped(raw);if(busy)return;const g=player.flags.interfaceUnlocked?lanternMigrate():lanternState();

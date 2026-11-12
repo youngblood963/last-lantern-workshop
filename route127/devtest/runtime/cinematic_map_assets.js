@@ -622,11 +622,35 @@
   function sync(){
    const guideOn=!!guides&&guides.style.display!=='none';
    const landscapeOn=Array.from(dialog.querySelectorAll('button')).some(b=>b.textContent.trim()==='Show original artwork');
-   root.style.display=guideOn&&landscapeOn?'':'none';
+   // Cinematic artwork and its labels must not disappear when pearl guides are hidden.
+   root.style.display=landscapeOn?'':'none';
    if(named)named.style.display='none';
    positionLabels();
   }
   sync();
+  // Player-facing DEVTEST control: hide only the pearl/road tracing overlay.
+  // The scenic map, cinematic locations and readable labels remain visible.
+  const mapHeader=dialog.querySelector(':scope > header');
+  if(mapHeader){
+   const pearlToggle=document.createElement('button');
+   pearlToggle.type='button';
+   pearlToggle.setAttribute('data-pearl-overlay-toggle','');
+   pearlToggle.style.cssText='background:#33251a;color:#f3dfb6;border:1px solid #af8858;border-radius:5px;padding:5px 10px;font:600 12px system-ui,sans-serif;cursor:pointer;white-space:nowrap;';
+   let pearlsVisible=true;
+   const tracing=svg.querySelector('[data-pearl-guide]');
+   const originalActive=svg.querySelectorAll('[data-active-road]');
+   const refreshPearls=()=>{
+    if(tracing)tracing.style.display=pearlsVisible?'':'none';
+    originalActive.forEach(el=>el.style.display=pearlsVisible?'':'none');
+    pearlToggle.textContent=pearlsVisible?'Hide Pearls':'Show Pearls';
+    pearlToggle.setAttribute('aria-pressed',String(!pearlsVisible));
+    // Keep iconic sites and labels on screen independently of tracing guides.
+    sync();
+   };
+   pearlToggle.addEventListener('click',()=>{pearlsVisible=!pearlsVisible;refreshPearls();});
+   mapHeader.insertBefore(pearlToggle,mapHeader.querySelector('button[aria-label="Close map"]')||null);
+   refreshPearls();
+  }
   dialog.addEventListener('click',e=>{
    if(e.target?.tagName==='BUTTON')queueMicrotask(sync);
   },{signal:(()=>{const a=new AbortController();dialog.addEventListener('close',()=>a.abort(),{once:true});return a.signal;})()});

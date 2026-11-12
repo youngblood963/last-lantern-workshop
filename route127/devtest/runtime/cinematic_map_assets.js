@@ -67,7 +67,14 @@
   fig.style.setProperty('overflow','hidden','important');
   fig.style.setProperty('box-sizing','border-box','important');
   fig.style.setProperty('border','0','important');
-  fig.style.setProperty('background','repeating-linear-gradient(94deg,transparent 0 95px,#13090635 96px 98px,transparent 99px 180px),radial-gradient(ellipse at center,#694c33,#392417 60%,#140c08)','important');
+  fig.style.setProperty('background','#21140e url("/route127/devtest/assets/picnic_table_background.png") center center / cover no-repeat','important');
+  // Subdue legacy decorative grid over the new photo background.
+  fig.classList.add('route127-cinematic-picnic');
+  if(!document.querySelector('#route127-picnic-cleanup-style')){
+   const css=document.createElement('style');css.id='route127-picnic-cleanup-style';
+   css.textContent='.route127-map-body .lantern-map.route127-cinematic-picnic::before{display:none!important;}';
+   document.head.append(css);
+  }
   svg.style.setProperty('width','auto','important');
   svg.style.setProperty('height','100%','important');
   svg.style.setProperty('max-width','100%','important');
@@ -78,6 +85,39 @@
   // Side decorations are outside the map; never intercept controls.
   const note=fig.querySelector('.route127-map-fieldnote');
   if(note){note.style.cssText='position:absolute;right:4%;top:18%;z-index:2;pointer-events:none;box-sizing:border-box;width:110px;background:#c6a578;color:#3e2818;border:2px solid #67472b;padding:18px 8px;text-align:center;font:700 11px/1.45 Georgia,serif;box-shadow:4px 6px 15px #0009;transform:rotate(7deg);';}
+
+  // Atmospheric tabletop assets are decorative and never intercept navigation.
+  // They live outside the map SVG, so enlarging/panning the map won't move them.
+  if(!fig.querySelector('[data-table-lantern]')){
+   const lantern=document.createElement('img');
+   lantern.setAttribute('data-table-lantern','');
+   lantern.src='/route127/devtest/assets/flickering_rusty_lantern.gif';
+   lantern.alt='';lantern.setAttribute('aria-hidden','true');
+   lantern.style.cssText='position:absolute;left:5%;top:25%;width:clamp(145px,18%,255px);height:auto;aspect-ratio:1;object-fit:contain;pointer-events:none;z-index:2;filter:drop-shadow(7px 10px 9px #090502a6);';
+   fig.append(lantern);
+   // Restrict the occasional spider walk to the bottom-right of the table.
+   const spider=document.createElement('img');
+   spider.setAttribute('data-table-spider','');
+   spider.alt='';spider.setAttribute('aria-hidden','true');
+   spider.style.cssText='position:absolute;right:2%;bottom:3%;width:clamp(105px,15%,205px);height:auto;aspect-ratio:1;object-fit:contain;pointer-events:none;z-index:3;display:none;';
+   fig.append(spider);
+   const timers=new Set();let stopped=false,appearance=0;
+   const later=(fn,ms)=>{const id=setTimeout(()=>{timers.delete(id);if(!stopped&&dialog.open)fn();},ms);timers.add(id);};
+   function scheduleNext(){later(()=>{
+    if(Math.random()<0.5)appear();else scheduleNext();
+   },180000+Math.random()*120000);}
+   function appear(){
+    if(stopped||!dialog.open)return;
+    spider.src='/route127/devtest/assets/daddy_longlegs_crawl.gif?walk='+(++appearance);
+    spider.style.display='block';
+    later(()=>{spider.style.display='none';spider.removeAttribute('src');scheduleNext();},11000);
+   }
+   // No repeated crawling; first sighting is early, subsequent visits rare.
+   if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    later(appear,20000+Math.random()*20000);
+   }else{lantern.style.display='none';}
+   dialog.addEventListener('close',()=>{stopped=true;for(const id of timers)clearTimeout(id);timers.clear();},{once:true});
+  }
 
   // Owner-friendly map magnifier. Zoom is SVG viewBox-only; roads, markers,
   // player position and gameplay coordinates always stay together.

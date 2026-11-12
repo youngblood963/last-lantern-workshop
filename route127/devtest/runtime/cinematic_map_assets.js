@@ -119,6 +119,84 @@
    dialog.addEventListener('close',()=>{stopped=true;for(const id of timers)clearTimeout(id);timers.clear();},{once:true});
   }
 
+  // A small paper-corner curl. This overlay tracks the *visible* map boundary,
+  // but never moves the SVG, map nodes, turn pearls, or clickable travel controls.
+  if(!fig.querySelector('[data-paper-wind-corner]')){
+   if(!document.getElementById('route127-map-wind-style')){
+    const sheet=document.createElement('style');
+    sheet.id='route127-map-wind-style';
+    sheet.textContent=`
+     .route127-map-wind-corner {
+      position:absolute;pointer-events:none;z-index:4;opacity:0;
+      width:var(--paper-corner-size,48px);height:var(--paper-corner-size,48px);
+      transform-origin:100% 100%;
+      filter:drop-shadow(-4px -5px 3px rgba(13,7,2,.55));
+      will-change:transform,opacity;
+     }
+     .route127-map-wind-corner::before {
+      content:'';position:absolute;inset:0;
+      clip-path:polygon(100% 0%,0% 100%,100% 100%);
+      background:linear-gradient(135deg,#b49c78 0%,#e0cda5 34%,#8f7555 68%,#60472e 100%);
+      box-shadow:inset 2px 2px 5px rgba(35,20,9,.5);
+     }
+     .route127-map-wind-corner::after {
+      content:'';position:absolute;right:0;bottom:0;width:100%;height:100%;
+      clip-path:polygon(100% 0%,96% 100%,0% 100%);
+      background:linear-gradient(135deg,transparent 25%,rgba(20,12,5,.2) 80%);
+     }
+     .route127-map-wind-corner.is-fluttering {
+      animation:route127-paper-corner-breeze 2600ms ease-in-out both;
+     }
+     @keyframes route127-paper-corner-breeze {
+      0%,100% {opacity:0;transform:rotate(0deg) scale(.12,.12);}
+      9% {opacity:.9;transform:rotate(-1deg) scale(.65,.5);}
+      25% {opacity:1;transform:rotate(-4deg) scale(1,.85);}
+      38% {opacity:.98;transform:rotate(-2deg) scale(.88,.65);}
+      53% {opacity:1;transform:rotate(-6deg) scale(1,.95);}
+      69% {opacity:.9;transform:rotate(-2deg) scale(.8,.6);}
+      84% {opacity:.65;transform:rotate(-.5deg) scale(.45,.4);}
+     }
+     @media(prefers-reduced-motion:reduce) {
+      .route127-map-wind-corner {display:none!important;animation:none!important;}
+     }`;
+    document.head.append(sheet);
+   }
+   const corner=document.createElement('div');
+   corner.className='route127-map-wind-corner';
+   corner.setAttribute('data-paper-wind-corner','');
+   corner.setAttribute('aria-hidden','true');
+   fig.append(corner);
+   let stopped=false,timer=0;
+   const placeCorner=()=>{
+    if(stopped||!fig.isConnected)return;
+    const paper=svg.getBoundingClientRect(),table=fig.getBoundingClientRect();
+    const size=Math.max(26,Math.min(58,paper.width*.055));
+    corner.style.setProperty('--paper-corner-size',size+'px');
+    corner.style.left=(paper.right-table.left-size)+'px';
+    corner.style.top=(paper.bottom-table.top-size)+'px';
+   };
+   placeCorner();
+   const observer=typeof ResizeObserver==='function'?new ResizeObserver(placeCorner):null;
+   observer?.observe(svg);observer?.observe(fig);
+   window.addEventListener('resize',placeCorner);
+   function nextBreeze(){
+    timer=setTimeout(()=>{
+     if(stopped||!dialog.open)return;
+     if(document.hidden){nextBreeze();return;}
+     placeCorner();
+     corner.classList.remove('is-fluttering');
+     void corner.offsetWidth;
+     corner.classList.add('is-fluttering');
+     timer=setTimeout(()=>{corner.classList.remove('is-fluttering');nextBreeze();},2750);
+    },30000+Math.random()*30000);
+   }
+   if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches)nextBreeze();
+   dialog.addEventListener('close',()=>{
+    stopped=true;clearTimeout(timer);observer?.disconnect();
+    window.removeEventListener('resize',placeCorner);
+   },{once:true});
+  }
+
   // Owner-friendly map magnifier. Zoom is SVG viewBox-only; roads, markers,
   // player position and gameplay coordinates always stay together.
   if(!dialog.querySelector('[data-map-zoom-controls]')){

@@ -1,0 +1,104 @@
+/* Luna map presentation — purely visual; DEVTEST only. No map coordinates or gameplay mutations. */
+dialog.route127-map-overlay {
+  background:#16100c;
+  border-color:#a07846;
+  box-shadow:inset 0 0 0 2px #392516,0 0 36px #000b;
+}
+.route127-map-overlay>header {
+  background:linear-gradient(180deg,#38291d,#1c140e);
+  border-bottom:2px solid #8c6039;
+  text-shadow:0 1px 3px #000;
+}
+.route127-map-body {
+  background:repeating-linear-gradient(94deg,transparent 0 92px,#00000010 93px 94px,transparent 95px 174px),
+             radial-gradient(ellipse at 53% 20%,#38291f 0%,#21170f 55%,#130e0b 100%);
+}
+.route127-map-body .lantern-map {
+  position:relative;
+  isolation:isolate;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  border:7px solid #3c2818;
+  border-radius:5px;
+  box-sizing:border-box;
+  background:
+    radial-gradient(ellipse at 53% 52%,#694c33 0%,#45301f 52%,#26190f 100%);
+  box-shadow:inset 0 0 0 2px #937047,inset 0 0 45px #0009,0 3px 10px #0009;
+}
+.route127-map-body .lantern-map::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  opacity:.27;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 8px,#140a0738 9px,transparent 10px 58px),
+    repeating-linear-gradient(90deg,transparent 0 75px,#12090331 76px,transparent 77px 152px);
+}
+.route127-map-body .lantern-map svg {
+  position:relative;
+  z-index:1;
+  box-sizing:border-box;
+  width:auto!important;
+  max-width:100%!important;
+  height:100%!important;
+  aspect-ratio:1024/1065;
+  border:5px solid #b38b57;
+  border-radius:2px;
+  background:#1e2b25;
+  box-shadow:0 0 0 2px #3e2a1b,0 0 0 4px #8f693f,0 9px 28px #000e, inset 0 0 20px #1b110d;
+  filter:sepia(.08) contrast(1.035) saturate(.95);
+}
+.route127-map-body .lantern-map [data-pearl-road] {
+  stroke-linejoin:round;
+  stroke-linecap:round;
+  filter:drop-shadow(0 1px 1px #0c0706);
+}
+.route127-map-body .lantern-map [data-pearl-step] {
+  filter:drop-shadow(0 0 2px #123833);
+}
+.route127-map-body .lantern-map .canonical-map-node {
+  filter:drop-shadow(0 2px 2px #000b);
+}
+.route127-map-body .lantern-map #lantern-player-marker {
+  filter:drop-shadow(0 0 7px #ffbb4a);
+}
+.route127-map-body .lantern-map::after {
+  content:'✧  N  ✧\A  W     E\A     S\A\A ROUTE 127\A THE WASTELAND';
+  white-space:pre;
+  position:absolute;
+  left:max(14px,calc((100% - 58%) / 9));
+  top:14%;
+  z-index:0;
+  color:#dfc497;
+  text-align:center;
+  font:bold clamp(9px,1.05vw,17px)/1.6 Georgia,serif;
+  letter-spacing:.13em;
+  text-shadow:0 2px 3px #000;
+  border:2px solid #ac8257;
+  border-radius:50% 50% 8px 8px;
+  padding:18px 13px 12px;
+  box-shadow:0 3px 14px #0008,inset 0 0 12px #1b0e04;
+  transform:rotate(-5deg);
+  pointer-events:none;
+}
+@media(min-width:1000px) {
+ .route127-map-body .lantern-map {
+   background-image:
+    radial-gradient(circle at 86% 35%,#0008 0 2px,transparent 3px),
+    radial-gradient(circle at 84% 37%,#0007 0 3px,transparent 4px),
+    repeating-linear-gradient(0deg,transparent 0 8px,#140a0738 9px,transparent 10px 58px),
+    radial-gradient(ellipse at 53% 52%,#694c33,#45301f 52%,#26190f);
+ }
+}
+@media(max-width:820px) {
+ .route127-map-body .lantern-map::after { display:none; }
+ .route127-map-body .lantern-map {border-width:3px;}
+ .route127-map-body .lantern-map svg {border-width:2px;}
+}
+@media(prefers-reduced-motion:reduce) {
+ .route127-map-body .lantern-map * {animation:none!important;transition:none!important;}
+}

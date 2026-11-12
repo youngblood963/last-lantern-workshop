@@ -72,7 +72,8 @@
   'THE BRIDGE TOLL':'bridge_toll.png',
   'A DRESSING IN THE DUST':'tommy_briggs_roadside.png',
   'THE BLADE CART':'runaway_blade_cart.gif',
-  'THE DITCH BACKPACK':'abandoned_backpack.png'
+  'THE DITCH BACKPACK':'abandoned_backpack.png',
+  'OVERTURNED MAINTENANCE CART':'overturned_cart_battery.png'
  }))register(title,[],'both','Standard',scenery(file));
  for(const period of ['dawn','day','dusk','night']){
   register('THE EMPTY BUS SHELTER',[],'approach',period,scenery('empty_bus_shelter_'+period+'.png'));

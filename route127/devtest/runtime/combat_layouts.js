@@ -62,17 +62,20 @@
   'THE HANGING SHOES':'the_hanging_shoes.png','THE IRON HARVEST':'the_iron_harvest.png',
   'THE FENCE ARTIST':'the_fence_artist.png','THE SILENT PICNIC':'the_silent_picnic.png',
   'MILES THE COURIER':'miles_the_courier.png','THE LAST MAIL':'the_last_mail.png',
-  'THE RUST PARADE':'the_rust_parade.png','THE CAROUSEL HORSE':'the_carousel_horse.png',
-  'THE WELDED BUS':'the_welded_bus.png','THE MASK MARKET':'the_mask_market.png',
+  'THE RUST PARADE':'the_rust_parade.png',
+ 'THE MASK MARKET':'the_mask_market.png',
   'THE PAPER STORM':'the_paper_storm.gif','THE FALSE SHOULDER':'the_false_shoulder.gif',
   'ABANDONED SUPPLY TRUCK':'fresh_meat_butcher.png',
   'COUNTY WORK TRUCK':'county_work_truck.png',
   'THE LOCKED TOOL CHEST':'locked_tool_chest.png',
-  'THE BURNT LIBRARY':'burnt_library.png',
+
   'A DRESSING IN THE DUST':'tommy_briggs_roadside.png',
   'THE BLADE CART':'runaway_blade_cart.gif',
   'THE DITCH BACKPACK':'abandoned_backpack.png',
  }))register(title,[],'both','Standard',scenery(file));
+ register('THE CAROUSEL HORSE',[],'both','Standard',scenery('the_carousel_horse.png'),'regional-object');
+ register('THE WELDED BUS',[],'both','Standard',scenery('the_welded_bus.png'),'dirt-road');
+ register('THE BURNT LIBRARY',[],'both','Standard',scenery('burnt_library.png'),'dirt-road');
  // The overturned maintenance cart is a transparent foreground object, not a complete scene.
  register('OVERTURNED MAINTENANCE CART',[],'both','Standard',scenery('overturned_cart_battery.png'),'foreground');
  // Bridge Toll has its own environment; only the regional sky sits behind its transparent upper area.
@@ -95,7 +98,7 @@
   ['Soda','old_billboard_soda.png'],
   ['Road workers','old_billboard_road_workers.png'],
   ['Lantern symbol on back','old_billboard_back.png']
- ])register('OLD BILLBOARD',[],'both',variant,scenery(file),'foreground');
+ ])register('OLD BILLBOARD',[],'both',variant,scenery(file),'full-sky');
  register('THE SHATTERED SILO',['silo_king.png','razorback.png','young_boar.png'].map(scenery),'both','Boars',scenery('the_shattered_silo.png'));
 
  const rows=new Map();

@@ -16,13 +16,40 @@ function addTracingControls(dialog){
  const svg=figure?.querySelector('svg');
  if(!svg||svg.querySelector('[data-pearl-guide]'))return;
  const v=LANTERN_MAP_VISUAL;
+ const verticalScale=1.65;
+ const originalViewBox=svg.getAttribute('viewBox');
+ const originalNodes=svgElement('g',{});
+ originalNodes.append(...Array.from(svg.children));
+ svg.append(originalNodes);
+ const playerMarker=originalNodes.querySelector('#lantern-player-marker');
+ const playerLabel=playerMarker?.nextElementSibling;
+ const playerX=Number(playerMarker?.getAttribute('cx'));
+ const playerY=Number(playerMarker?.getAttribute('cy'));
+ const travel=lanternState();
+ const activeEdge=LG_EDGES[travel.currentEdgeId];
+ let expandedPosition=[playerX,playerY*verticalScale];
  const guide=svgElement('g',{'data-pearl-guide':'','aria-label':'Road tracing guides'});
  const roads=svgElement('g',{});
  const pearls=svgElement('g',{'pointer-events':'none'});
  const costs=svgElement('g',{'pointer-events':'none'});
  guide.append(roads,pearls,costs);
  for(const edge of LANTERN_WORLD_GRAPH.edges){
-  const points=v.edges[edge.id]||edge.polyline.map(([x,y])=>[x*v.width,y*v.height]);
+  const points=(v.edges[edge.id]||edge.polyline.map(([x,y])=>[x*v.width,y*v.height]))
+   .map(([x,y])=>[x,y*verticalScale]);
+  const segments=points.slice(1).map(([x,y],i)=>Math.hypot(x-points[i][0],y-points[i][1]));
+  const length=segments.reduce((sum,segment)=>sum+segment,0);
+  function position(step){
+   let remaining=length*Math.max(0,Math.min(step,edge.distanceTurns))/edge.distanceTurns;
+   for(let i=0;i<segments.length;i++){
+    if(remaining<=segments[i]||i===segments.length-1){
+     const fraction=segments[i]?remaining/segments[i]:0;
+     return points[i].map((value,axis)=>value+(points[i+1][axis]-value)*fraction);
+    }
+    remaining-=segments[i];
+   }
+   return points[0];
+  }
+  if(edge===activeEdge)expandedPosition=position(travel.stepIndex);
   const open=lanternAllowed(edge);
   const line=svgElement('polyline',{
    'data-pearl-road':edge.id,points:points.map(point=>point.join(',')).join(' '),
@@ -32,13 +59,13 @@ function addTracingControls(dialog){
   line.append(svgElement('title',{},LG_NODES[edge.a].name+' ↔ '+LG_NODES[edge.b].name+' · '+edge.distanceTurns+' turns'+(open?'':' · blocked')));
   roads.append(line);
   for(let step=1;step<=edge.distanceTurns;step++){
-   const [x,y]=lanternVisualEdgePoint(edge,step);
+   const [x,y]=position(step);
    pearls.append(svgElement('circle',{'data-pearl-step':step,'data-edge':edge.id,
-    cx:x*v.width,cy:y*v.height,r:4,fill:'#e4fff9',stroke:'#12201f','stroke-width':1.5
+    cx:x,cy:y,r:4,fill:'#e4fff9',stroke:'#12201f','stroke-width':1.5
    }));
   }
-  const [x,y]=lanternVisualEdgePoint(edge,edge.distanceTurns/2);
-  costs.append(svgElement('text',{x:x*v.width,y:y*v.height-8,'text-anchor':'middle',
+  const [x,y]=position(edge.distanceTurns/2);
+  costs.append(svgElement('text',{x,y:y-8,'text-anchor':'middle',
    fill:'#e4fff9',stroke:'#12201f','stroke-width':3,'paint-order':'stroke','font-size':14
   },String(edge.distanceTurns)));
  }
@@ -70,8 +97,11 @@ function addTracingControls(dialog){
   }));
  }
  guide.append(diagnostics);
- const firstNode=svg.querySelector('[data-map-node]');
- svg.insertBefore(guide,firstNode);
+ // Layer guides above the artwork and below the existing junctions and marker.
+ const firstNode=originalNodes.querySelector('[data-map-node]');
+ const guideLayer=svgElement('g',{transform:`scale(1 ${1/verticalScale})`});
+ guideLayer.append(guide);
+ originalNodes.insertBefore(guideLayer,firstNode);
  const names=svgElement('g',{'pointer-events':'none'});
  for(const node of LANTERN_WORLD_GRAPH.nodes){
   if(node.kind==='junction')continue;
@@ -82,7 +112,7 @@ function addTracingControls(dialog){
    stroke:'#18140e','stroke-width':4,'paint-order':'stroke','font-size':16
   },node.name));
  }
- svg.insertBefore(names,svg.querySelector('#lantern-player-marker'));
+ originalNodes.insertBefore(names,playerMarker);
  const controls=document.createElement('div');
  controls.style.cssText='display:flex;flex-wrap:wrap;gap:.5rem;margin:.5rem 0';
  function toggle(on,off,apply){
@@ -94,6 +124,17 @@ function addTracingControls(dialog){
  }
  toggle('Show tracing guides','Hide tracing guides',active=>{
   guide.style.display=names.style.display=active?'':'none';
+  svg.setAttribute('viewBox',active?`0 0 ${v.width} ${v.height*verticalScale}`:originalViewBox);
+  originalNodes.setAttribute('transform',active?`scale(1 ${verticalScale})`:'');
+  const [x,y]=active?[expandedPosition[0],expandedPosition[1]/verticalScale]:[playerX,playerY];
+  if(playerMarker){
+   playerMarker.setAttribute('cx',x);
+   playerMarker.setAttribute('cy',y);
+  }
+  if(playerLabel){
+   playerLabel.setAttribute('x',x+15);
+   playerLabel.setAttribute('y',y-16);
+  }
  });
  const art=svg.querySelector('image');
  toggle('Hide artwork','Show artwork',active=>{

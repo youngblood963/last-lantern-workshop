@@ -78,6 +78,18 @@ function officeCommand(cmd){
  if(match){issue(match);office();return true;}
  office();return true;
 }
+// Add handoff to the recipient's real text and graphical menus (Back remains last).
+const originalSubmenu=port55Submenu;
+port55Submenu=function(name,options){
+ const d=destination();
+ if(open()&&d&&current()?.status==='active'&&stage===d.stage&&owns(d)){
+  const rows=options.filter(x=>x!=='DELIVER HARBOR DISPATCH');
+  const back=rows.findIndex(x=>/^RETURN |^BACK$/.test(x));
+  rows.splice(back>=0?back:rows.length,0,'DELIVER HARBOR DISPATCH');
+  return originalSubmenu.call(this,name,rows);
+ }
+ return originalSubmenu.apply(this,arguments);
+};
 // Extend the original Seaport menu after its existing numbered options have been built.
 const originalMenu=port55Menu;
 port55Menu=function(...args){

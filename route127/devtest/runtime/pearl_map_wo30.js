@@ -120,7 +120,7 @@ function addTracingControls(dialog){
  const guideLayer=svgElement('g',{transform:`matrix(1 0 0 ${1/verticalScale} 0 ${-verticalOffset/verticalScale})`});
  guideLayer.append(guide);
  originalNodes.insertBefore(guideLayer,firstNode);
- const names=svgElement('g',{'pointer-events':'none'});
+ const names=svgElement('g',{'pointer-events':'none','data-forge-landmarks':'true'});
  const icons={
   house:'M-18 1 0-15 18 1 13 1 13 15-13 15-13 1Z M-3 15V4H4V15',
   solace:'M-20 14V-7H-13V-13H-7V-7H7V-13H13V-7H20V14H5V4H-5V14Z',

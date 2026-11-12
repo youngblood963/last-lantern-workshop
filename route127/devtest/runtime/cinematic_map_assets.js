@@ -106,6 +106,12 @@
    dialog.style.setProperty('max-height',narrow?'100dvh':'94vh','important');
    dialog.style.setProperty('padding',narrow?'0':'','important');
    dialog.style.setProperty('margin',narrow?'0':'auto','important');
+   // The desktop toolbar installs inline !important sizing, so change that
+   // sizing explicitly instead of relying on a mobile CSS selector to win.
+   const title=dialog.querySelector(':scope > header strong');
+   const zoomBar=dialog.querySelector('[data-map-zoom-controls]');
+   if(title)title.style.setProperty('flex',narrow?'1 1 calc(100% - 62px)':'0 0 auto','important');
+   if(zoomBar)zoomBar.style.setProperty('flex',narrow?'1 1 auto':'0 0 auto','important');
   };
   adaptMapDialog();
   window.addEventListener('resize',adaptMapDialog);
@@ -387,6 +393,7 @@
     header.insertBefore(zoomControls,headerClose||null);
    }else fig.append(zoomControls);
    apply();
+   adaptMapDialog(); // controls now exist; apply mobile toolbar sizing.
   }
   // Tracing and the approved landscape are the visual foundation.
   const controls=Array.from(dialog.querySelectorAll('button'));

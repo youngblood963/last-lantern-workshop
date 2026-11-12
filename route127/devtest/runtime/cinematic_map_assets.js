@@ -72,7 +72,7 @@
   fig.classList.add('route127-cinematic-picnic');
   if(!document.querySelector('#route127-picnic-cleanup-style')){
    const css=document.createElement('style');css.id='route127-picnic-cleanup-style';
-   css.textContent='.route127-map-body .lantern-map.route127-cinematic-picnic::before{display:none!important;}';
+   css.textContent='.route127-map-body .lantern-map.route127-cinematic-picnic::before,.route127-map-body .lantern-map.route127-cinematic-picnic::after{display:none!important;} .route127-map-body .lantern-map.route127-cinematic-picnic .route127-map-fieldnote{display:none!important;}';
    document.head.append(css);
   }
   svg.style.setProperty('width','auto','important');
@@ -84,7 +84,8 @@
   svg.style.setProperty('box-shadow','0 9px 22px #000a','important');
   // Side decorations are outside the map; never intercept controls.
   const note=fig.querySelector('.route127-map-fieldnote');
-  if(note){note.style.cssText='position:absolute;right:4%;top:18%;z-index:2;pointer-events:none;box-sizing:border-box;width:110px;background:#c6a578;color:#3e2818;border:2px solid #67472b;padding:18px 8px;text-align:center;font:700 11px/1.45 Georgia,serif;box-shadow:4px 6px 15px #0009;transform:rotate(7deg);';}
+  // Remove old compass plaque and field-notes card; the table is now purely cinematic.
+  if(note)note.remove();
 
   // Atmospheric tabletop assets are decorative and never intercept navigation.
   // They live outside the map SVG, so enlarging/panning the map won't move them.
@@ -93,7 +94,7 @@
    lantern.setAttribute('data-table-lantern','');
    lantern.src='/route127/devtest/assets/flickering_rusty_lantern.gif';
    lantern.alt='';lantern.setAttribute('aria-hidden','true');
-   lantern.style.cssText='position:absolute;left:5%;top:25%;width:clamp(145px,18%,255px);height:auto;aspect-ratio:1;object-fit:contain;pointer-events:none;z-index:2;filter:drop-shadow(7px 10px 9px #090502a6);';
+   lantern.style.cssText='position:absolute;left:5%;top:25%;width:clamp(205px,27%,365px);height:auto;aspect-ratio:1;object-fit:contain;pointer-events:none;z-index:2;filter:drop-shadow(7px 10px 9px #090502a6);';
    fig.append(lantern);
    // Restrict the occasional spider walk to the bottom-right of the table.
    const spider=document.createElement('img');

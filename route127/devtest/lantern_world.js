@@ -18,12 +18,12 @@ const LANTERN_SCRIPT_STEPS = {
  'house--solace': [0,1,2,3,4,5,6,7,8,9,10],
  'house--solace-upper-junction': [0,1,2,3,4,5,6],
  'solace-upper-junction--solace': [6,7,8,9,10],
- 'solace--works-junction': [0,1,2,3],
- 'works-junction--factory': [3,4,5,6],
- 'factory--boulder-junction': [0,1,2,3],
- 'boulder-junction--seaport': [3,4,5],
+ 'solace--works-junction': [0,null,1,null,null,2,null,3],
+ 'works-junction--factory': [3,null,null,4,null,5,null,null,6],
+ 'factory--boulder-junction': [0,null,null,1,null,2,null,null,3],
+ 'boulder-junction--seaport': [3,null,null,null,null,null,4,null,null,null,null,null,5],
  'works-junction--scrap-yard': [null,1,2],
- 'old-service-junction--old-service-road': [null,1,2]
+ 'old-service-junction--old-service-road': [null,1,null,2,null,null]
 };
 const LANTERN_COAST_SLOTS = {
  gamblerCamp: 1, scavengerPatrol: 2, freightSpur: 3, serviceBox: 4,
@@ -42,7 +42,9 @@ function lanternLegacyProgress(edge, step) {
 // Append one migration per revision. Its edge tables map old integer steps
 // to new integer steps, including both endpoints and any scripted positions.
 // Change the tables, script slots and graph costs in the same commit.
-const LANTERN_POSITION_MIGRATIONS = [{}];
+const LANTERN_POSITION_MIGRATIONS = [{}, {"solace--works-junction":[0,2,5,7],"works-junction--factory":[0,3,5,8],"old-service-junction--old-service-road":[0,1,3,4,5],"old-service-junction--iron-pit-arena":[0,2,4,6,7,9,11,13],"arena-lower-junction--arena-east-junction":[0,2,3,5,6],"iron-pit-arena--lowlands":[0,2,4,6,8,10,12],"arena-lower-junction--factory-west":[0,2,4,5,7],"scrap-yard--industrial-road":[0,1,2,4,5,6],"trade-route--industrial-junction":[0,2,4,5,7,9],"industrial-junction--east-coast-junction":[0,2,4,6,8],"industrial-road--factory-east":[0,1,3,4],"east-coast-junction--watchtower-ruins":[0,3,5,8,10],"factory-east--east-coast-lower":[0,3,6,8,11],"factory-west--west-coast-junction":[0,2,5,7,10,12],"lowlands--broken-bridge":[0,2,5,7],"lowlands--factory-west":[0,2,4,6,9,11,13,15],"factory--boulder-junction":[0,3,5,8],"boulder-junction--seaport":[0,6,12],"old-service-road--motel-interior-junction":[0,2,4],"trade-junction--east-highway-junction":[0,2,4]}];
+// Revision 2 expands 20 geographic roads. Existing save positions are remapped
+// proportionally; logical quest slots above remain attached to named milestones.
 function lanternMigratePosition(g, flags, migrations=LANTERN_POSITION_MIGRATIONS) {
  for(let revision=g.positionRevision??0;revision<migrations.length;revision++){
   const maps=migrations[revision];

@@ -27,6 +27,7 @@ const scenes={
  // The arrow-choice scene is a mystery: reveal these ambushers only after FOLLOW RED ARROW starts combat.
  'ARROW AMBUSH':()=>[file('Painted Arrows - Club Scavenger.png'),file('Painted Arrows - Knife Scavenger.png')],
  'HIGHWAY ROBBERS':()=>[file('Tire Iron Robber.png'),file('Spear Robber.png')],
+ 'THE HIGHWAY HUNTERS':()=>[file('highway_hunter_rifleman.png'),file('highway_hunter_enforcer.png'),file('highway_hunter_tracker.png')],
  'RATS IN THE PANTRY':()=>file('Snarling Rats at a Rusted Sewer Drain.png')
 };
 const normalize=s=>String(s||'').toUpperCase().replace(/^EAST ROAD — /,'').trim();
@@ -35,7 +36,7 @@ function current(){
  const combat=typeof combatState!=='undefined'?combatState:null;
  const encounter=stage==='encounter'&&typeof currentEncounter==='function'?currentEncounter():null;
  const origin=typeof currentEncounter==='function'&&['encounter','combat','combatItems'].includes(stage)?currentEncounter():null;
- const aliases={'SCAVENGER':'LONE SCAVENGER','WRECKERS':'THE WRECKERS','DRAIN CREATURE':'SOMETHING IN THE DRAIN',
+ const aliases={'THE MILK CRATES':'THE HIGHWAY HUNTERS','SCAVENGER':'LONE SCAVENGER','WRECKERS':'THE WRECKERS','DRAIN CREATURE':'SOMETHING IN THE DRAIN',
  'FERAL BOAR':'TUNNEL RATS','PANTRY RAT PACK':'RATS IN THE PANTRY','LARGE CONTAMINATED ROACHES':'ROACH NEST','AGGRESSIVE ROACH SWARM':'ROACH NEST'};
  const raw=normalize(combat?.name||encounter?.title);
  const title=aliases[raw]||raw;

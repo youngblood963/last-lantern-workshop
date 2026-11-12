@@ -93,6 +93,65 @@
   const note=fig.querySelector('.route127-map-fieldnote');
   if(note){note.style.cssText='position:absolute;right:4%;top:18%;z-index:2;pointer-events:none;box-sizing:border-box;width:110px;background:#c6a578;color:#3e2818;border:2px solid #67472b;padding:18px 8px;text-align:center;font:700 11px/1.45 Georgia,serif;box-shadow:4px 6px 15px #0009;transform:rotate(7deg);';}
 
+  // Owner-friendly map magnifier. Zoom is SVG viewBox-only; roads, markers,
+  // player position and gameplay coordinates always stay together.
+  if(!dialog.querySelector('[data-map-zoom-controls]')){
+   const W=v.width,H=v.height;
+   const zoomControls=document.createElement('div');
+   zoomControls.setAttribute('data-map-zoom-controls','');
+   zoomControls.setAttribute('role','group');
+   zoomControls.setAttribute('aria-label','World map magnification');
+   zoomControls.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:4px 0 5px;font:12px monospace;';
+   let zoom=1,cx=W/2,cy=H/2;
+   const box=svg.viewBox.baseVal;
+   const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+   function apply(){
+    const w=W/zoom,h=H/zoom;
+    cx=clamp(cx,w/2,W-w/2);cy=clamp(cy,h/2,H-h/2);
+    svg.setAttribute('viewBox',`${cx-w/2} ${cy-h/2} ${w} ${h}`);
+    label.textContent=Math.round(zoom*100)+'%';
+    svg.style.cursor=zoom>1?'grab':'';
+   }
+   function setZoom(value){
+    zoom=clamp(value,1,3);apply();
+   }
+   function button(labelText,description,action){
+    const b=document.createElement('button');b.type='button';b.textContent=labelText;b.title=description;
+    b.setAttribute('aria-label',description);
+    b.style.cssText='min-width:35px;min-height:30px;background:#3a291a;color:#ffe0a4;border:1px solid #987148;border-radius:4px;font:bold 17px Georgia,serif;cursor:pointer;padding:2px 9px;';
+    b.addEventListener('click',action);zoomControls.append(b);return b;
+   }
+   button('＋','Enlarge map',()=>setZoom(zoom*1.3));
+   button('－','Reduce map',()=>setZoom(zoom/1.3));
+   button('⤢','Fit entire map',()=>{cx=W/2;cy=H/2;setZoom(1);});
+   const label=document.createElement('span');label.textContent='100%';
+   label.style.cssText='color:#e2c79e;min-width:42px;text-align:center;';zoomControls.append(label);
+   const hint=document.createElement('span');hint.textContent='Drag to explore when enlarged';
+   hint.style.cssText='color:#a99578;font-size:11px;';zoomControls.append(hint);
+   const originalViewBox=svg.getAttribute('viewBox');
+   let start=null;
+   svg.addEventListener('pointerdown',e=>{
+    if(zoom<=1||e.button!==0)return;
+    start={x:e.clientX,y:e.clientY,cx,cy};
+    svg.setPointerCapture(e.pointerId);svg.style.cursor='grabbing';
+   });
+   svg.addEventListener('pointermove',e=>{
+    if(!start)return;
+    const rect=svg.getBoundingClientRect();
+    if(!rect.width||!rect.height)return;
+    const w=W/zoom,h=H/zoom;
+    cx=start.cx-(e.clientX-start.x)*w/rect.width;
+    cy=start.cy-(e.clientY-start.y)*h/rect.height;
+    apply();svg.style.cursor='grabbing';
+   });
+   const endDrag=()=>{start=null;svg.style.cursor=zoom>1?'grab':'';};
+   svg.addEventListener('pointerup',endDrag);
+   svg.addEventListener('pointercancel',endDrag);
+   svg.addEventListener('lostpointercapture',endDrag);
+   // Insert magnification controls above the artwork; no map modifications.
+   fig.before(zoomControls);
+   apply();
+  }
   // Tracing and the approved landscape are the visual foundation.
   const controls=Array.from(dialog.querySelectorAll('button'));
   const clickIfOff=(needle)=>{const b=controls.find(b=>b.textContent.trim().toLowerCase().startsWith(needle));if(b)b.click();};

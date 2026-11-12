@@ -15,7 +15,10 @@
  const fixed={
   'MAINTENANCE BOX':'maintenance_box.png',
   'MILEPOST CACHE':'milepost_cache.png',
-  'CACHE UNDER THE MILEPOST':'milepost_cache.png'
+  'CACHE UNDER THE MILEPOST':'milepost_cache.png',
+  'ABANDONED SEDAN':'abandoned_sedan.png',
+  'ABANDONED SUPPLY TRUCK':'fresh_meat_butcher.png',
+  'FRESH MEAT':'fresh_meat_butcher.png'
  };
  // Scene identity is resolved from the original canonical title OR edited encounter display name.
  const name=()=>String(typeof currentEncounter==='function'&&currentEncounter()?
@@ -36,7 +39,7 @@
    const last=seen.length?Number(seen[seen.length-1]):0;
    return reverse?back:fronts[Number.isInteger(last)&&last>=0&&last<fronts.length?last:0];
   }
-  return fixed[name()]||null;
+  return fixed[name()]||fixed[String(currentEncounter()?.title||'').toUpperCase().replace(/^EAST ROAD — /,'').trim()]||null;
  }
  const previousModel=GraphicalUI.model;
  GraphicalUI.model=function(...args){

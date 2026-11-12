@@ -67,6 +67,7 @@
   'THE PAPER STORM':'the_paper_storm.gif','THE FALSE SHOULDER':'the_false_shoulder.gif',
   'ABANDONED SEDAN':'abandoned_sedan.png',
   'ABANDONED SUPPLY TRUCK':'fresh_meat_butcher.png',
+  'COUNTY WORK TRUCK':'county_work_truck.png',
   'THE LOCKED TOOL CHEST':'locked_tool_chest.png',
   'THE BURNT LIBRARY':'burnt_library.png',
   'THE BRIDGE TOLL':'bridge_toll.png',
@@ -167,7 +168,8 @@
   const id='scripted:'+key.toLowerCase().replace(/[^a-z0-9:]+/g,'-');
   scriptIds.set(key,id);
   rows.set(id,{id,name,title:normalize(name),classification:'FIXED',site,
-   regions:region?[region]:[],combat:true,variants:[]});
+   regions:region?[region]:[],combat:true,variants:source==='r18DepotFight'?
+    [{units:[enemy('county_unit_07.png')],background:scenery('county_depot_interior.png'),phase:'combat',variant:'County Depot fight'}]:[]});
  }
  const installed=new Map([...rows.values()].flatMap(row=>row.variants.flatMap(v=>
   v.units.map(path=>[assetName(path),path]))));

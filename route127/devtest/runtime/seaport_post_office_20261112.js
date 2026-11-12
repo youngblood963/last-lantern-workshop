@@ -45,7 +45,7 @@ function office(){
   add('HARBOR DISPATCH — '+(dest?.name||'Unknown')+' — '+job.status.toUpperCase(),'bright');
   if(job.status==='active'&&dest)add('DESTINATION — '+dest.place,'system');
   opts(job.status==='delivered'?['CLAIM DELIVERY REWARD','ASK ABOUT THE POST OFFICE','RETURN TO HARBOR']:
-       ['ASK ABOUT THE POST OFFICE','RETURN TO HARBOR']);
+       ['CANCEL DELIVERY','ASK ABOUT THE POST OFFICE','RETURN TO HARBOR']);
  }else if(state.lastIssuedDay===TODAY()){
   add('Harbor Dispatch completed for today. New work tomorrow.','system');
   opts(['ASK ABOUT THE POST OFFICE','RETURN TO HARBOR']);
@@ -73,6 +73,15 @@ function deliver(){
  add('DELIVERED TO '+d.name.toUpperCase()+' — Return to Tommy at the Seaport Post Office to collect payment.','reward');
  save();renderCurrentChoices();return true;
 }
+function cancel(){
+ const q=saved(),d=destination();
+ if(q.job?.status!=='active')return;
+ if(d){const item=player.pack.find(i=>i.type==='quest'&&i.name===d.item&&i.qty>0);
+  if(item){item.qty--;if(item.qty<=0)player.pack.splice(player.pack.indexOf(item),1);updateHud();}}
+ q.job=null;
+ add('TOMMY > I will mark that delivery cancelled. No payment this time. Another assignment will be available tomorrow.','system');
+ save();
+}
 function claim(){
  const q=saved();if(q.job?.status!=='delivered')return;
  const who=destination()?.name||'recipient';
@@ -90,6 +99,7 @@ function officeCommand(cmd){
   office();return true;
  }
  if(cmd==='claim delivery reward'){claim();office();return true;}
+ if(cmd==='cancel delivery'){cancel();office();return true;}
  const match=DESTINATIONS.find(d=>available(d)&&cmd==='accept '+d.name.toLowerCase()+' delivery');
  if(match){issue(match);office();return true;}
  office();return true;

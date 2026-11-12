@@ -29,6 +29,7 @@
   'THE SQUATTERS':['the_squatters_1.png','the_squatters_2.png','the_squatters_3.png'],
   'GUNSHOP OWNER':['gunshop_owner.png'],
   'HIGHWAY ROBBERS':['Tire Iron Robber.png','Spear Robber.png'],
+  'THE MILK CRATES':['highway_hunter_rifleman.png','highway_hunter_enforcer.png','highway_hunter_tracker.png'],
   'ROADBLOCK':['Spear Robber.png','Pipe Robber.png'],
   'THE GATELESS WALL':['sentry.png'],
   'THE WARDEN':['warden.png'],
@@ -62,7 +63,9 @@
   'MILES THE COURIER':'miles_the_courier.png','THE LAST MAIL':'the_last_mail.png',
   'THE RUST PARADE':'the_rust_parade.png','THE CAROUSEL HORSE':'the_carousel_horse.png',
   'THE WELDED BUS':'the_welded_bus.png','THE MASK MARKET':'the_mask_market.png',
-  'THE PAPER STORM':'the_paper_storm.gif','THE FALSE SHOULDER':'the_false_shoulder.gif'
+  'THE PAPER STORM':'the_paper_storm.gif','THE FALSE SHOULDER':'the_false_shoulder.gif',
+  'ABANDONED SEDAN':'abandoned_sedan.png',
+  'ABANDONED SUPPLY TRUCK':'fresh_meat_butcher.png'
  }))register(title,[],'both','Standard',scenery(file));
  for(const period of ['dawn','day','dusk','night']){
   register('THE EMPTY BUS SHELTER',[],'approach',period,scenery('empty_bus_shelter_'+period+'.png'));

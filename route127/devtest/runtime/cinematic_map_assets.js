@@ -386,6 +386,7 @@
   // Does not edit graph nodes, route pearls, travel distances or game state.
   const storeKey='route127:devtest:landmark-layout:v1';
   const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+  let labelsReady=false;
   const coords=new Map();
   for(const [name,img] of artwork){
    coords.set(name,{x:Number(img.getAttribute('x')),y:Number(img.getAttribute('y')),
@@ -429,6 +430,7 @@
    const next={x,y,width,height};
    for(const prop of ['x','y','width','height'])img.setAttribute(prop,next[prop]);
    coords.set(name,next);
+   if(labelsReady)positionLabels();
    if(persist){
     const writes=readLayout();
     writes[name]={x,y,width};
@@ -478,6 +480,7 @@
     if(active&&name===selected)img.style.filter='drop-shadow(0 0 5px #ffcb68)';
     else img.style.filter='';
    }
+   if(labelsReady)positionLabels();
    status.textContent=active?'Drag or resize any landmark; undiscovered locations are preview-only. Changes save on this device.':'Landmark placement is off.';
   }
   function nudge(dx,dy){
@@ -541,6 +544,45 @@
   // Place before the world map while preserving fit-to-screen presentation.
   if(editorMode)fig.before(panel);
   for(const [name,p] of Object.entries(saved))update(name,p,false);
+  // Current cinematic landmark names: drawn ABOVE the PNG images, not in retired map art.
+  const labelLayer=make('g',{'data-cinematic-location-labels':'true','pointer-events':'none'});
+  root.append(labelLayer);
+  const locationLabels=new Map();
+  const prettyName={
+   old_house:'OLD HOUSE',abandoned_motel:'ABANDONED MOTEL',
+   scavenger_camp:'SCAVENGER CAMP',solace:'SOLACE',
+   iron_pit_arena:'IRON PIT ARENA',scrap_yard:'SCRAP YARD',
+   factory:'FACTORY',broken_bridge:'BROKEN BRIDGE',
+   watchtower_ruins:'WATCHTOWER RUINS',boulder_junction:'BOULDER JUNCTION',
+   seaport:'SEAPORT',st_mercy_hospital:'ST. MERCY HOSPITAL',
+   fresh_mart_grocery:'FRESH MART',ash_cemetery:'ASH CEMETERY',
+   station_nine:'STATION NINE'
+  };
+  for(const [name,img] of artwork){
+   const label=make('text',{
+    'data-cinematic-place-label':name,'text-anchor':'middle',
+    'font-family':'Arial, system-ui, sans-serif','font-size':'18',
+    'font-weight':'800','letter-spacing':'.25',
+    fill:'#fff4d6',stroke:'#20140c','stroke-width':'4.5',
+    'stroke-linejoin':'round','paint-order':'stroke','pointer-events':'none'
+   });
+   label.textContent=prettyName[name]||name.replaceAll('_',' ').toUpperCase();
+   labelLayer.append(label);
+   locationLabels.set(name,label);
+  }
+  function positionLabels(){
+   for(const [name,label] of locationLabels){
+    const p=coords.get(name);if(!p)continue;
+    const baseline=p.y+p.height+19;
+    label.setAttribute('x',Math.max(95,Math.min(v.width-95,p.x+p.width/2)));
+    label.setAttribute('y',Math.min(v.height-12,baseline));
+    const discovered=!discoveryVisibility.has(name)||discoveryVisibility.get(name);
+    label.style.display=(editorMode||discovered)?'':'none';
+    label.style.opacity=editorMode&&!discovered?'.7':'1';
+   }
+  }
+  labelsReady=true;
+  positionLabels();
   let drag=null;
   function toMapPoint(e){
    const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;
@@ -582,6 +624,7 @@
    const landscapeOn=Array.from(dialog.querySelectorAll('button')).some(b=>b.textContent.trim()==='Show original artwork');
    root.style.display=guideOn&&landscapeOn?'':'none';
    if(named)named.style.display='none';
+   positionLabels();
   }
   sync();
   dialog.addEventListener('click',e=>{

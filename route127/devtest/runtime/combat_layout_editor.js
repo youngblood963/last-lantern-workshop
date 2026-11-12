@@ -131,7 +131,7 @@
   const variants=controls();
   const phase=select(variants,'State',['approach','combat']);
   const variant=select(variants,'Variant',[]);
-  const background=select(variants,'Background region',regions);
+  const background=select(variants,'Background region',['No Background',...regions]);
   const sky=select(variants,'Sky',['Auto','Dawn','Day','Dusk','Night']);
   const composition=select(variants,'Composition',['Auto','Regional + Sprites','Regional + Foreground','Full Scene','Full Scene + Sky']);
   const skyNote=el('p');dialog.append(skyNote);
@@ -259,7 +259,9 @@
    const mode=composition.value==='Auto'?inferred:composition.value;
    const full=mode.startsWith('Full Scene');
    const hour={Dawn:6,Day:12,Dusk:18,Night:22}[sky.value]??(typeof player==='undefined'?12:player.flags.worldHour);
-   const layers=globalThis.Route127EditorSky?.describe(background.value,hour);
+   // Keep a real region for sky selection even when the landscape layer is hidden.
+   const skyRegion=background.value==='No Background'?(row?.regions?.[0]||'CENTRAL'):background.value;
+   const layers=globalThis.Route127EditorSky?.describe(skyRegion,hour);
    sky.disabled=mode==='Full Scene';
    skyNote.textContent=mode+(sky.disabled?' · Sky preview unavailable for this artwork.':' · '+(layers?.period||'Regional sky unavailable'));
    canvas.replaceChildren();
@@ -270,9 +272,9 @@
     const skyImage=layer(layers.sky);
     if(layers.period==='dusk')skyImage.style.filter='sepia(.42) hue-rotate(-18deg) saturate(1.4)';
    }
-   if(!full){
-    const ground=layer(layers?.ground||new URL(L.regionArt(background.value),L.root).href);
-    ground.addEventListener('error',()=>{const fallback=new URL(L.regionArt(background.value),L.root).href;if(ground.src!==fallback)ground.src=fallback;});
+   if(!full&&background.value!=='No Background'){
+    const ground=layer(layers?.ground||new URL(L.regionArt(skyRegion),L.root).href);
+    ground.addEventListener('error',()=>{const fallback=new URL(L.regionArt(skyRegion),L.root).href;if(ground.src!==fallback)ground.src=fallback;});
    }
    if(!nodes.size){const empty=el('p',state(row));empty.className='layout-empty';canvas.append(empty);}
    for(const [key,record] of nodes){

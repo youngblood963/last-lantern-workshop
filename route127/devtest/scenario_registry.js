@@ -3076,7 +3076,8 @@ RoadScenarioRegistry.regionalSpec = {
   "east:78": "THE LAST STOP",
   "east:79": "TOMMY BRIGGS — POSTAL ENCOUNTER",
   "east:67": "CLEANUP ON AISLE NINE",
-  "early:60": "STATION NINE DISCOVERY STORYLINE"
+  "early:60": "STATION NINE DISCOVERY STORYLINE",
+  "early:44": "THE HIGHWAY HUNTERS"
  },
  "roadAuthority": "54 Road Assignments sheet, approved design; implemented by WO6. Eastern Coast/COAST normalized to latest EAST code."
 };

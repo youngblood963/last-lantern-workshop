@@ -37,9 +37,10 @@ function addTracingControls(dialog){
  let expandedPosition=[playerX,expandedY(playerY)];
  const guide=svgElement('g',{'data-pearl-guide':'','aria-label':'Road tracing guides'});
  const roads=svgElement('g',{});
+ const roadBeds=svgElement('g',{'pointer-events':'none'});
  const pearls=svgElement('g',{});
  const costs=svgElement('g',{'pointer-events':'none'});
- guide.append(roads,pearls,costs);
+ guide.append(roadBeds,roads,pearls,costs);
  for(const edge of LANTERN_WORLD_GRAPH.edges){
   const points=(v.edges[edge.id]||edge.polyline.map(([x,y])=>[x*v.width,y*v.height]))
    .map(([x,y])=>[x,expandedY(y)]);
@@ -58,13 +59,21 @@ function addTracingControls(dialog){
   }
   if(edge===activeEdge)expandedPosition=position(travel.stepIndex);
   const open=lanternAllowed(edge);
+  const bridge=edge.id==='boulder-junction--seaport'||[edge.a,edge.b].some(id=>['broken-bridge','west-harbor-approach','east-harbor-approach'].includes(id));
+  const coordinates=points.map(point=>point.join(',')).join(' ');
+  roadBeds.append(svgElement('polyline',{points:coordinates,fill:'none',
+   stroke:'#21150f','stroke-width':bridge?11:7,'stroke-linejoin':'round','stroke-linecap':'round'
+  }));
   const line=svgElement('polyline',{
-   'data-pearl-road':edge.id,points:points.map(point=>point.join(',')).join(' '),
-   fill:'none',stroke:open?'#61dbc9':'#ff8e8e','stroke-width':3,
+   'data-pearl-road':edge.id,points:coordinates,
+   fill:'none',stroke:open?(bridge?'#ddbf91':'#c69e64'):'#d67455','stroke-width':bridge?6:3,
    'stroke-dasharray':v.approximateEdges[edge.id]?'8 6':'none'
   });
   line.append(svgElement('title',{},LG_NODES[edge.a].name+' ↔ '+LG_NODES[edge.b].name+' · '+edge.distanceTurns+' turns'+(open?'':' · blocked')));
   roads.append(line);
+  if(bridge)roads.append(svgElement('polyline',{points:coordinates,fill:'none',
+   stroke:'#503a28','stroke-width':3,'stroke-dasharray':'2 6','pointer-events':'none'
+  }));
   for(let step=1;step<=edge.distanceTurns;step++){
    const [x,y]=position(step);
    const pearl=svgElement('circle',{'data-pearl-step':step,'data-edge':edge.id,
@@ -112,13 +121,36 @@ function addTracingControls(dialog){
  guideLayer.append(guide);
  originalNodes.insertBefore(guideLayer,firstNode);
  const names=svgElement('g',{'pointer-events':'none'});
+ const icons={
+  house:'M-18 1 0-15 18 1 13 1 13 15-13 15-13 1Z M-3 15V4H4V15',
+  solace:'M-20 14V-7H-13V-13H-7V-7H7V-13H13V-7H20V14H5V4H-5V14Z',
+  factory:'M-21 15V-3L-9-10V-2L3-10V-2H10V-16H16V-2H21V15Z M-15 6H-9 M-3 6H3 M9 6H15',
+  'boulder-junction':'M-22 13-14-4-6-2 2-14 13-10 22 11 11 15-10 16Z M-14 4-5 7 1-2 10 1 13-8',
+  seaport:'M-22 8H22L15 15H-14Z M-17 7V-3L-9-10-1-3V7 M3 7V-8L11-15 19-8V7 M-20 20Q-13 16-6 20T8 20T22 20',
+  'northern-ridge':'M-22 15-8-8-1 3 9-15 22 15Z M4-5 9-8 14-5',
+  'watchtower-ruins':'M-10 15-6-5-10-5-10-13H10V-5H6L10 15 M-7 7H7',
+  'broken-bridge':'M-21-2H-6L-2 3 M5 2 9-2H21 M-15-1V13 M15-1V13',
+  'abandoned-motel':'M-19 14V-6H19V14Z M-12 0H-5 M2 0H11 M0 14V5H7V14',
+  'scavenger-camp':'M-19 14 0-13 19 14Z M-7 14 0 3 7 14',
+  'iron-pit-arena':'M-19 0-13-10H13L19 0 13 12H-13Z M-13 0H13',
+  'scrap-yard':'M-20 14-16 5-9 4-7-7 2-12 8 0 16 1 20 14Z M-5 2 2 7 9 4',
+  'old-service-road':'M-18 11-9-10H9L18 11Z M0-7V-2 M0 2V7'
+ };
+ const major=new Set(['house','solace','factory','boulder-junction','seaport']);
  for(const node of LANTERN_WORLD_GRAPH.nodes){
-  if(node.kind==='junction')continue;
+  const shape=icons[node.id];
+  if(!shape)continue;
   const [x,y]=v.nodes[node.id];
-  names.append(svgElement('rect',{x:x-18,y:y-18,width:36,height:36,rx:5,
-   fill:'none',stroke:'#ffce78','stroke-width':2}));
-  names.append(svgElement('text',{x,y:y-22,'text-anchor':'middle',fill:'#ffdf99',
-   stroke:'#18140e','stroke-width':4,'paint-order':'stroke','font-size':16
+  const coast=node.id==='seaport';
+  const dx=coast?96:0,dy=coast?-38:-23;
+  names.append(svgElement('line',{x1:x,y1:y,x2:x+dx,y2:y+dy,stroke:'#ead2a5','stroke-width':2}));
+  const icon=svgElement('g',{transform:`translate(${x+dx} ${y+dy}) scale(${major.has(node.id)?1:.75})`});
+  icon.append(svgElement('path',{d:shape,fill:node.id==='boulder-junction'?'#947c6e':'#433028',
+   stroke:'#ffe1a5','stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'}));
+  names.append(icon);
+  names.append(svgElement('text',{x:x+dx,y:y+dy-20,'text-anchor':'middle',fill:'#fff0cd',
+   stroke:'#22160f','stroke-width':5,'paint-order':'stroke','font-size':major.has(node.id)?17:14,
+   'font-weight':major.has(node.id)?'bold':'normal'
   },node.name));
  }
  originalNodes.insertBefore(names,playerMarker);
@@ -175,6 +207,9 @@ function addTracingControls(dialog){
  toggle('Hide artwork','Show artwork',active=>{
   hideArtwork=active;
   updateArtwork();
+ });
+ toggle('Hide turn markers','Show turn markers',active=>{
+  pearls.style.display=costs.style.display=active?'none':'';
  });
  const report=document.createElement('p');
  report.textContent='Marker clearance under '+minimumGap+' map pixels. Amber: '+crowded.size+

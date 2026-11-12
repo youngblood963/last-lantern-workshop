@@ -37,6 +37,7 @@
   'THE CRAWLER':['The Crawler.png'],
   'THE BIG MAN':['The Big Man.png'],
   'THE BONE COLLECTOR':['The Bone Collector.png'],
+  'THE BONE FLAGS':['bone_hunter_archer.png','bone_hunter_spearman.png'],
   'SECURITY DRONE':['Security Drone.png'],
   'SOMETHING IN THE DRAIN':['Something in the Drain - Grate and Claw.png'],
   'DRAINAGE STALKER':['culvert_crawler.png'],
@@ -65,7 +66,13 @@
   'THE WELDED BUS':'the_welded_bus.png','THE MASK MARKET':'the_mask_market.png',
   'THE PAPER STORM':'the_paper_storm.gif','THE FALSE SHOULDER':'the_false_shoulder.gif',
   'ABANDONED SEDAN':'abandoned_sedan.png',
-  'ABANDONED SUPPLY TRUCK':'fresh_meat_butcher.png'
+  'ABANDONED SUPPLY TRUCK':'fresh_meat_butcher.png',
+  'THE LOCKED TOOL CHEST':'locked_tool_chest.png',
+  'THE BURNT LIBRARY':'burnt_library.png',
+  'THE BRIDGE TOLL':'bridge_toll.png',
+  'A DRESSING IN THE DUST':'tommy_briggs_roadside.png',
+  'THE BLADE CART':'runaway_blade_cart.gif',
+  'THE DITCH BACKPACK':'abandoned_backpack.png'
  }))register(title,[],'both','Standard',scenery(file));
  for(const period of ['dawn','day','dusk','night']){
   register('THE EMPTY BUS SHELTER',[],'approach',period,scenery('empty_bus_shelter_'+period+'.png'));

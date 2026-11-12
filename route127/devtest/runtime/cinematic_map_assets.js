@@ -94,7 +94,7 @@
    lantern.src='/route127/devtest/assets/flickering_rusty_lantern.gif';
    lantern.alt='';lantern.setAttribute('aria-hidden','true');
    // About 50% wider than the previous 27%-width lantern, moved higher.
-   lantern.style.cssText='position:absolute;left:0%;top:7%;width:clamp(260px,40.5%,548px);height:auto;aspect-ratio:1;object-fit:contain;pointer-events:none;z-index:2;filter:drop-shadow(7px 10px 9px #090502a6);';
+   lantern.style.cssText='position:absolute;left:-9%;top:-10%;width:clamp(260px,40.5%,548px);height:auto;aspect-ratio:1;object-fit:contain;pointer-events:none;z-index:2;filter:drop-shadow(7px 10px 9px #090502a6);';
    fig.append(lantern);
    const spider=document.createElement('img');
    spider.setAttribute('data-table-spider','');
@@ -223,7 +223,7 @@
    zoomControls.setAttribute('data-map-zoom-controls','');
    zoomControls.setAttribute('role','group');
    zoomControls.setAttribute('aria-label','World map magnification');
-   zoomControls.style.cssText='position:absolute;left:12px;top:12px;z-index:5;display:flex;align-items:center;gap:5px;padding:4px;border:1px solid #88623b;background:#21160dd9;border-radius:5px;font:12px monospace;';
+   zoomControls.style.cssText='display:flex;align-items:center;gap:4px;padding:0 8px;margin-left:12px;border-left:1px solid #765235;font:12px monospace;flex:0 0 auto;';
    let zoom=1,cx=W/2,cy=H/2;
    const box=svg.viewBox.baseVal;
    const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
@@ -268,8 +268,19 @@
    svg.addEventListener('pointerup',endDrag);
    svg.addEventListener('pointercancel',endDrag);
    svg.addEventListener('lostpointercapture',endDrag);
-   // Insert magnification controls above the artwork; no map modifications.
-   fig.append(zoomControls);
+   // Keep zoom controls in the actual map header, beside WORLD MAP.
+   // No controls or UI chrome cover the scenic tabletop now.
+   const header=dialog.querySelector(':scope > header');
+   const headerTitle=header?.querySelector('strong');
+   const headerClose=header?.querySelector('button[aria-label="Close map"]');
+   if(header){
+    header.style.setProperty('display','flex','important');
+    header.style.setProperty('align-items','center','important');
+    header.style.setProperty('gap','8px','important');
+    if(headerTitle)headerTitle.style.setProperty('flex','0 0 auto','important');
+    if(headerClose)headerClose.style.setProperty('margin-left','auto','important');
+    header.insertBefore(zoomControls,headerClose||null);
+   }else fig.append(zoomControls);
    apply();
   }
   // Tracing and the approved landscape are the visual foundation.

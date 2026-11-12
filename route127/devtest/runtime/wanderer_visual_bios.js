@@ -27,6 +27,7 @@ const bios=Object.freeze({
   "Elara Moss": "A cheerful, heavyset cook with curly hair under a yellow scarf, Elara carries a battered cooking pot and wooden spoon. Her stained apron is proof she prefers feeding people to giving speeches about it.",
   "Hector Vale": "An elderly Latino mechanic with silver hair, a mustache and reading glasses, Hector scrutinizes a red fuel can while carrying his heavy tool bag. Every cap and seal gets checked twice in the Industrial Corridor.",
   "Nadia Rill": "A lanky young woman in a bright yellow raincoat and purple hoodie, Nadia listens for life in an old portable radio. A notebook and bag of salvaged electronics keep her search for Station Nine's signal moving.",
+  "Eli Mercer": "Eli \"Wrench\" Mercer is a practical county maintenance mechanic rescued from the depot after Unit 07 is neutralized. Weathered coveralls, heavy work boots and a battered tool kit reflect years of keeping old machines alive. Level 6; exceptional mechanics aptitude (5/5).",
   "Enid": "An older metalworker who turns discarded metal into lasting art. Her scrap bird once filled a roadside chain-link fence; help her finish it and she brings her hard-earned repair skills to the Seaport workforce.",
   "Rhea Tarrant": "An older Indigenous woman with long silver-gray hair, a burgundy jacket, a walking staff and a heavy travel pack, Rhea watches the Lantern Highway with quiet confidence. She knows guarding people can mean simply standing by them."
 });

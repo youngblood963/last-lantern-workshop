@@ -14,9 +14,9 @@
  const assetName=path=>decodeURIComponent(new URL(path,root).pathname.split('/').at(-1));
  const unitKey=(path,index)=>index+':'+assetName(path);
  const states=new Map();
- function register(title,units,phase='both',variant='Standard',background=null,composition=null){
+ function register(title,units,phase='both',variant='Standard',background=null){
   const rows=states.get(title)||[];
-  rows.push({units,phase,variant,background,composition});
+  rows.push({units,phase,variant,background});
   states.set(title,rows);
  }
  for(const [title,files] of Object.entries({
@@ -73,15 +73,15 @@
   'THE BLADE CART':'runaway_blade_cart.gif',
   'THE DITCH BACKPACK':'abandoned_backpack.png',
  }))register(title,[],'both','Standard',scenery(file));
- register('THE CAROUSEL HORSE',[],'both','Standard',scenery('the_carousel_horse.png'),'regional-object');
- register('THE WELDED BUS',[],'both','Standard',scenery('the_welded_bus.png'),'dirt-road');
- register('THE BURNT LIBRARY',[],'both','Standard',scenery('burnt_library.png'),'dirt-road');
+ register('THE CAROUSEL HORSE',[],'both','Standard',scenery('the_carousel_horse.png'));
+ register('THE WELDED BUS',[],'both','Standard',scenery('the_welded_bus.png'));
+ register('THE BURNT LIBRARY',[],'both','Standard',scenery('burnt_library.png'));
  // The overturned maintenance cart is a transparent foreground object, not a complete scene.
- register('OVERTURNED MAINTENANCE CART',[],'both','Standard',scenery('overturned_cart_battery.png'),'foreground');
+ register('OVERTURNED MAINTENANCE CART',[],'both','Standard',scenery('overturned_cart_battery.png'));
  // Bridge Toll has its own environment; only the regional sky sits behind its transparent upper area.
- register('THE BRIDGE TOLL',[],'both','Standard',scenery('bridge_toll.png'),'full-sky');
+ register('THE BRIDGE TOLL',[],'both','Standard',scenery('bridge_toll.png'));
  // Transparent vehicle: keep regional terrain and dynamic sky behind it.
- register('ABANDONED SEDAN',[],'both','Standard',scenery('abandoned_sedan.png'),'foreground');
+ register('ABANDONED SEDAN',[],'both','Standard',scenery('abandoned_sedan.png'));
  for(const period of ['dawn','day','dusk','night']){
   register('THE EMPTY BUS SHELTER',[],'approach',period,scenery('empty_bus_shelter_'+period+'.png'));
  }
@@ -89,7 +89,7 @@
  for(const [title,file] of Object.entries({
   'MAINTENANCE BOX':'maintenance_box.png',
   'CACHE UNDER THE MILEPOST':'milepost_cache.png'
- }))register(title,[],'both','Complete environmental scene',scenery(file),'full-sky');
+ }))register(title,[],'both','Complete environmental scene',scenery(file));
  for(const [variant,file] of [
   ['Burger','old_billboard_burger.png'],
   ['Mechanic','old_billboard_mechanic.png'],
@@ -98,7 +98,7 @@
   ['Soda','old_billboard_soda.png'],
   ['Road workers','old_billboard_road_workers.png'],
   ['Lantern symbol on back','old_billboard_back.png']
- ])register('OLD BILLBOARD',[],'both',variant,scenery(file),'full-sky');
+ ])register('OLD BILLBOARD',[],'both',variant,scenery(file));
  register('THE SHATTERED SILO',['silo_king.png','razorback.png','young_boar.png'].map(scenery),'both','Boars',scenery('the_shattered_silo.png'));
 
  const rows=new Map();

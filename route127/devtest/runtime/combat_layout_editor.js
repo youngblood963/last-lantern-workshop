@@ -10,20 +10,31 @@
  const assets=row=>[...new Set(row.variants.flatMap(v=>[...v.units,...(v.background?[v.background]:[])]))];
  const status=new Map();
  const reviewKey='route127-scenario-reviews-v1';
+ const animatedTitles=new Set(['THE LIME FOG','THE RED RAIN','THE GLASS FIELD']);
+ const animated=row=>animatedTitles.has(row.title)||animatedTitles.has(row.name.toUpperCase());
  function readReviews(){
   try{
    const ids=JSON.parse(localStorage.getItem(reviewKey)||'[]');
-   return new Set(Array.isArray(ids)?ids:[]);
+   const reviews=new Set(Array.isArray(ids)?ids:[]);
+   const seededKey=reviewKey+'-environment-v1';
+   if(!localStorage.getItem(seededKey)){
+    for(const row of L.rows.values())if(animated(row))reviews.add(row.id);
+    localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
+    localStorage.setItem(seededKey,'1');
+   }
+   return reviews;
   }catch{return new Set();}
  }
  const progressLabels={green:'🟢 Reviewed / Done',yellow:'🟡 Artwork ready · Needs review',red:'🔴 Missing artwork',checking:'⏳ Checking artwork'};
  function progress(row,reviews){
+  if(animated(row))return reviews.has(row.id)?'green':'yellow';
   const art=state(row);
   if(art==='Checking art')return 'checking';
   if(art!=='Art present'||(row.combat&&!row.variants.some(v=>v.units.length)))return 'red';
   return reviews.has(row.id)?'green':'yellow';
  }
  const state=row=>{
+  if(animated(row))return 'Art present';
   const files=assets(row);
   if(!files.length)return row.combat?'Art missing / review':'Art unassigned / review';
   if(files.some(file=>status.get(file)==='broken'))return 'Art broken';
@@ -131,10 +142,7 @@
   const variants=controls();
   const phase=select(variants,'State',['approach','combat']);
   const variant=select(variants,'Variant',[]);
-  const background=select(variants,'Background region',['No Background',...regions]);
-  const sky=select(variants,'Sky',['Auto','Dawn','Day','Dusk','Night']);
-  const composition=select(variants,'Composition',['Auto','Regional + Sprites','Full Scene','Full Scene + Sky','Large Object + Dirt Road + Sky']);
-  const skyNote=el('p');dialog.append(skyNote);
+  const background=select(variants,'Background region',regions);
   const device=select(variants,'Layout',['desktop','phone']);
   const canvas=el('div');canvas.className='layout-stage';dialog.append(canvas);
   const attach=controls();
@@ -227,7 +235,6 @@
   }
   function loadDraft(){
    if(!row)return;
-   composition.value='Auto';
    spec=variant.value===''?null:row.variants[Number(variant.value)];
    const records=(spec?.units||[]).map(descriptor);
    if(spec?.background)records.unshift({path:spec.background,key:'background:'+L.assetName(spec.background),background:true});
@@ -236,14 +243,14 @@
     records.push({key,path:L.installed.get(key.slice(11)),index:records.length});
    }
    initial=Object.fromEntries(records.map(record=>[record.key,live[record.key]||
-    (record.background&&spec?.composition==='regional-object'?{x:50,y:device.value==='phone'?59.5:58,width:device.value==='phone'?85:80,height:device.value==='phone'?81:84,scale:1,z:5,flip:false}:defaults(row,record.index,spec?.units.length,record.background))]));
+    defaults(row,record.index,spec?.units.length,record.background)]));
    draft=Object.fromEntries(records.map(record=>[record.key,{...saved[record.key]||initial[record.key]}]));
    baseline=JSON.parse(JSON.stringify(draft));
    metadata.textContent=row.name+' · '+row.id+' · '+regionLabel(row)+' · '+(row.combat?'Combat available':'Noncombat')+
     ' · '+(spec?.units.length||0)+' sprites · '+row.variants.length+' variants · '+
     (records.map(record=>L.assetName(record.path)+' ('+(status.get(record.path)||'unchecked')+')').join(', ')||state(row));
    nodes=new Map(records.map(record=>[record.key,record]));
-   options(units,records.map(record=>[record.key,record.background?(spec?.composition==='foreground'?'Foreground artwork':'Scene artwork'):(record.index+1)+' · '+L.assetName(record.path)]));
+   options(units,records.map(record=>[record.key,record.background?'Scene artwork':(record.index+1)+' · '+L.assetName(record.path)]));
    paint();
   }
   function position(node,key){
@@ -255,42 +262,14 @@
   }
   function paint(){
    canvas.dataset.device=device.value;canvas.dataset.preview=String(preview);
-   const inferred=spec?.composition==='dirt-road'?'Large Object + Dirt Road + Sky':['foreground','regional-object'].includes(spec?.composition)?'Regional + Sprites':spec?.composition==='full-sky'?'Full Scene + Sky':spec?.background?'Full Scene':'Regional + Sprites';
-   const mode=composition.value==='Auto'?inferred:composition.value;
-   const full=mode.startsWith('Full Scene');
-   const dirt=mode==='Large Object + Dirt Road + Sky';
-   const hour={Dawn:6,Day:12,Dusk:18,Night:22}[sky.value]??(typeof player==='undefined'?12:player.flags.worldHour);
-   // Keep a real region for sky selection even when the landscape layer is hidden.
-   const skyRegion=background.value==='No Background'?(row?.regions?.[0]||'CENTRAL'):background.value;
-   const layers=globalThis.Route127EditorSky?.describe(skyRegion,hour);
-   sky.disabled=mode==='Full Scene';
-   skyNote.textContent=mode+(sky.disabled?' · Sky preview unavailable for this artwork.':' · '+(layers?.period||'Regional sky unavailable'));
-   if(composition.value==='Auto'&&(!spec||(spec.background&&!spec.composition&&!/\\.gif$/i.test(spec.background))))skyNote.textContent+=' · Composition needs review';
-   canvas.replaceChildren();
-   function layer(src){
-    const img=el('img');img.className='layout-base';img.alt='';img.src=src;canvas.append(img);return img;
-   }
-   if(layers&&!sky.disabled){
-    const skyImage=layer(layers.sky);
-    if(layers.period==='dusk')skyImage.style.filter='sepia(.42) hue-rotate(-18deg) saturate(1.4)';
-   }
-   if(dirt&&background.value!=='No Background'){
-    const road=layer(new URL('../assets/regions/dirt_road_foreground.png',L.root).href);
-    Object.assign(road.style,{top:'50%',bottom:'0',height:'50%',objectFit:'fill'});
-    road.addEventListener('error',()=>{skyNote.textContent+=' · Dirt road image unavailable';});
-   }
-   if(!full&&!dirt&&background.value!=='No Background'){
-    const ground=layer(layers?.ground||new URL(L.regionArt(skyRegion),L.root).href);
-    ground.addEventListener('error',()=>{const fallback=new URL(L.regionArt(skyRegion),L.root).href;if(ground.src!==fallback)ground.src=fallback;});
-   }
+   const bg=el('img');bg.className='layout-base';bg.alt='';bg.src=new URL(L.regionArt(background.value),L.root).href;
+   canvas.replaceChildren(bg);
    if(!nodes.size){const empty=el('p',state(row));empty.className='layout-empty';canvas.append(empty);}
    for(const [key,record] of nodes){
     const node=el('button');node.type='button';node.className='layout-unit'+(record.background?' layout-scene-image':'');
     node.setAttribute('aria-label',L.assetName(record.path));record.element=node;
     const img=el('img');img.draggable=false;img.alt='';img.src=new URL(record.path,L.root).href+'?v=wo27-art-fit';
     img.addEventListener('error',()=>{img.alt='Missing: '+L.assetName(record.path);});
-    if(full&&record.background)img.style.objectFit='cover';
-    if(dirt&&record.background)img.style.objectPosition='center bottom';
     node.append(img);
     if(phase.value==='combat'&&!record.background)node.append(el('span','HP'));
     node.addEventListener('click',()=>{units.value=key;updateFields();});
@@ -330,8 +309,6 @@
   phase.addEventListener('change',changePhase);
   for(const input of [variant,device])input.addEventListener('change',loadDraft);
   background.addEventListener('change',paint);
-  sky.addEventListener('change',paint);
-  composition.addEventListener('change',paint);
   for(const input of [search,region,classification,combat,coverage,multi,sort])input.addEventListener('input',rebuildPicker);
   button(actions,'Reset Unit',()=>{if(selected()){draft[units.value]={...initial[units.value]};updateFields();}});
   button(actions,'Remove Attached Sprite',()=>{

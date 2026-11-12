@@ -87,37 +87,54 @@
   // Remove old compass plaque and field-notes card; the table is now purely cinematic.
   if(note)note.remove();
 
-  // Atmospheric tabletop assets are decorative and never intercept navigation.
-  // They live outside the map SVG, so enlarging/panning the map won't move them.
+  // Tabletop props never change map coordinates or its SVG zoom.
   if(!fig.querySelector('[data-table-lantern]')){
    const lantern=document.createElement('img');
    lantern.setAttribute('data-table-lantern','');
    lantern.src='/route127/devtest/assets/flickering_rusty_lantern.gif';
    lantern.alt='';lantern.setAttribute('aria-hidden','true');
-   lantern.style.cssText='position:absolute;left:5%;top:25%;width:clamp(205px,27%,365px);height:auto;aspect-ratio:1;object-fit:contain;pointer-events:none;z-index:2;filter:drop-shadow(7px 10px 9px #090502a6);';
+   // About 50% wider than the previous 27%-width lantern, moved higher.
+   lantern.style.cssText='position:absolute;left:0%;top:7%;width:clamp(260px,40.5%,548px);height:auto;aspect-ratio:1;object-fit:contain;pointer-events:none;z-index:2;filter:drop-shadow(7px 10px 9px #090502a6);';
    fig.append(lantern);
-   // Restrict the occasional spider walk to the bottom-right of the table.
    const spider=document.createElement('img');
    spider.setAttribute('data-table-spider','');
+   spider.src='/route127/devtest/assets/daddy_longlegs_crawl.gif';
    spider.alt='';spider.setAttribute('aria-hidden','true');
-   spider.style.cssText='position:absolute;right:2%;bottom:3%;width:clamp(105px,15%,205px);height:auto;aspect-ratio:1;object-fit:contain;pointer-events:none;z-index:3;display:none;';
+   spider.style.cssText='position:absolute;left:77%;top:110%;width:clamp(96px,13%,180px);height:auto;aspect-ratio:1;object-fit:contain;pointer-events:none;z-index:3;display:none;transform:translate(-50%,-50%);will-change:left,top,transform;';
    fig.append(spider);
-   const timers=new Set();let stopped=false,appearance=0;
-   const later=(fn,ms)=>{const id=setTimeout(()=>{timers.delete(id);if(!stopped&&dialog.open)fn();},ms);timers.add(id);};
-   function scheduleNext(){later(()=>{
-    if(Math.random()<0.5)appear();else scheduleNext();
-   },180000+Math.random()*120000);}
-   function appear(){
-    if(stopped||!dialog.open)return;
-    spider.src='/route127/devtest/assets/daddy_longlegs_crawl.gif?walk='+(++appearance);
-    spider.style.display='block';
-    later(()=>{spider.style.display='none';spider.removeAttribute('src');scheduleNext();},11000);
+   const timers=new Set();
+   let stopped=false,walk=null;
+   function later(fn,ms){
+    const id=setTimeout(()=>{timers.delete(id);if(!stopped&&dialog.open)fn();},ms);
+    timers.add(id);
    }
-   // No repeated crawling; first sighting is early, subsequent visits rare.
-   if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-    later(appear,20000+Math.random()*20000);
-   }else{lantern.style.display='none';}
-   dialog.addEventListener('close',()=>{stopped=true;for(const id of timers)clearTimeout(id);timers.clear();},{once:true});
+   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+   function scheduleNext(){
+    later(()=>{if(Math.random()<.5)appear();else scheduleNext();},180000+Math.random()*120000);
+   }
+   function appear(){
+    if(stopped||!dialog.open||document.hidden){scheduleNext();return;}
+    spider.style.display='block';
+    // Traverses only the right-hand tabletop, beginning fully off the lower
+    // edge and ending fully off the upper edge (not on the actual map).
+    const steps=[
+     {offset:0,left:'83%',top:'115%',transform:'translate(-50%,-50%) rotate(-5deg)'},
+     {offset:.15,left:'85%',top:'91%',transform:'translate(-50%,-50%) rotate(3deg)'},
+     {offset:.32,left:'87%',top:'68%',transform:'translate(-50%,-50%) rotate(-4deg)'},
+     {offset:.50,left:'89%',top:'46%',transform:'translate(-50%,-50%) rotate(3deg)'},
+     {offset:.68,left:'91%',top:'23%',transform:'translate(-50%,-50%) rotate(-3deg)'},
+     {offset:.84,left:'93%',top:'2%',transform:'translate(-50%,-50%) rotate(2deg)'},
+     {offset:1,left:'95%',top:'-21%',transform:'translate(-50%,-50%) rotate(-3deg)'}
+    ];
+    walk=spider.animate(steps,{duration:12000,easing:'linear',fill:'forwards'});
+    walk.onfinish=()=>{walk=null;spider.style.display='none';scheduleNext();};
+   }
+   if(!reduced)later(appear,20000+Math.random()*20000);
+   dialog.addEventListener('close',()=>{
+    stopped=true;walk?.cancel();
+    for(const id of timers)clearTimeout(id);
+    timers.clear();
+   },{once:true});
   }
 
   // A small paper-corner curl. This overlay tracks the *visible* map boundary,

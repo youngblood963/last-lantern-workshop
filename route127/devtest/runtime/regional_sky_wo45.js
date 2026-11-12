@@ -27,6 +27,12 @@
   const row=regions[region];if(!row)return null;
   const period=phase(hour);return {region,period,overlay:row[0],original:row[1],sky:period==='dusk'?(region==='CAUSEWAY'?'sky_dawn.png':null):'sky_'+period+'.png',title:row[2]};
  }
+ globalThis.Route127EditorSky=Object.freeze({
+  describe(region,hour){
+   const scene=describe(region,hour);
+   return scene&&{ground:url(scene.overlay),sky:url(scene.sky||'sky_dawn.png'),period:scene.period};
+  }
+ });
  const oldModel=GraphicalUI.model;
  GraphicalUI.model=function(...args){
   const model=oldModel.apply(this,args),g=lanternState();

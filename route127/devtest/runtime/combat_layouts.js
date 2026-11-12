@@ -136,7 +136,7 @@
   ['factory:captors','Daniel’s Captors','INDUSTRIAL']
  ])rows.set(id,{id,name,title:normalize(name),classification:'FIXED',regions:[region],combat:true,variants:id==='seaport:liberation'?
    [{units:[],background:locationArt('seaport_occupied.png'),phase:'both',variant:'Occupied Harbor'}]:
-   id==='house:squatter'?[{units:[enemy('house_squatter.png')],background:locationArt('abandoned_house_interior.png'),phase:'combat',variant:'Inside abandoned house'}]:[]});
+   id==='house:squatter'?[{units:[enemy('house_squatter.png')],background:'../playtest/assets/locations/abandoned_house_interior.png',phase:'combat',variant:'Inside abandoned house'}]:[]});
 
  const scripted=[
   ['serviceBoss','The Yardman','Service Road','CENTRAL'],

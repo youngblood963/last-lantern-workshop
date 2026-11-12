@@ -52,12 +52,17 @@ function removeMail(d){
  updateHud();return true;
 }
 function contrabandLoot(kind){
- // A opened letter carries little physical cargo; packages can contain useful supplies.
+ // Most letters carry little of value; rare cash-filled envelopes are jackpots.
+ // This roll happens only AFTER the separate 50/50 tampering success check.
  const r=Math.random();
  if(kind==='letter'){
-  if(r<.65){const n=2+Math.floor(Math.random()*12);gainBolts(n);
-   add('STOLEN MAIL — '+n+' Bolts tucked into the envelope.','reward');}
-  else add('The letter contains only personal correspondence. No valuables.','system');
+  if(r<.05){
+   const n=200+Math.floor(Math.random()*301);gainBolts(n);
+   add('STOLEN MAIL JACKPOT — '+n+' Bolts hidden inside the envelope!','reward');
+  }else if(r<.70){
+   const n=2+Math.floor(Math.random()*12);gainBolts(n);
+   add('STOLEN MAIL — '+n+' Bolts tucked into the envelope.','reward');
+  }else add('The letter contains only personal correspondence. No valuables.','system');
   return;
  }
  if(r<.12){

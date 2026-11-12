@@ -5,7 +5,7 @@
 (()=>{
 'use strict';
 if(!location.pathname.startsWith('/route127/devtest/'))return;
-const overlay=globalThis.Route127MapOverlay;
+const overlay=typeof Route127MapOverlay!=='undefined'?Route127MapOverlay:globalThis.Route127MapOverlay;
 if(!overlay?.open)return;
 const NS='http://www.w3.org/2000/svg';
 const KEY='route127:devtest:region-boundary-sketch:v1';
@@ -25,7 +25,7 @@ function editor(dialog){
  const fig=dialog.querySelector('.lantern-map');
  const header=dialog.querySelector(':scope > header');
  if(!svg||!fig||!header||svg.querySelector('[data-region-sketch]'))return;
- const v=globalThis.LANTERN_MAP_VISUAL;
+ const v=typeof LANTERN_MAP_VISUAL!=='undefined'?LANTERN_MAP_VISUAL:globalThis.LANTERN_MAP_VISUAL;
  if(!v)return;
  const layer=make('g',{'data-region-sketch':'','pointer-events':'none'});
  const strokes=make('g',{'pointer-events':'none'});

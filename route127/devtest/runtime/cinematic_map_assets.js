@@ -52,6 +52,10 @@
   // Travel state, turn counts and navigation remain unchanged elsewhere.
   const progressLine=body?.querySelector(':scope > p:first-child');
   if(progressLine)progressLine.style.display='none';
+  // Remove the redundant amber/teal instruction caption below the map.
+  // Keep the actual player marker and current-road highlighting intact.
+  const legendLine=Array.from(body?.children||[]).find(el=>el.tagName==='P'&&el.textContent.includes('Amber: your position. Teal: current road.'));
+  if(legendLine)legendLine.style.display='none';
   // The old SVG filled the full width and painted its spare width dark teal.
   // Constrain the SVG itself to the portrait map aspect so the actual tabletop
   // shows on either side. Inline important beats the legacy !important rules.

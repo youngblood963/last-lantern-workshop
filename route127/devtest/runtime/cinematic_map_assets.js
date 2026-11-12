@@ -2,6 +2,55 @@
 (()=>{
  'use strict';
  if(!location.pathname.includes('/route127/devtest/'))return;
+ // Mobile presentation is isolated from the approved desktop tabletop.
+ // No map geometry, landmark coordinates, pearls, or travel state are changed.
+ if(!document.getElementById('route127-mobile-map-style')){
+  const mobileStyle=document.createElement('style');
+  mobileStyle.id='route127-mobile-map-style';
+  mobileStyle.textContent=`
+   @media(max-width:700px){
+    dialog.route127-map-overlay>header{
+     display:flex!important;flex-wrap:wrap!important;align-content:center!important;
+     justify-content:flex-start!important;gap:5px 7px!important;
+     padding:6px 8px!important;min-height:0!important;box-sizing:border-box!important;
+    }
+    dialog.route127-map-overlay>header strong{
+     font-size:clamp(12px,3.4vw,17px)!important;white-space:normal!important;
+     line-height:1.2!important;min-width:0!important;
+     flex:1 1 calc(100% - 62px)!important;
+    }
+    dialog.route127-map-overlay [data-map-zoom-controls]{
+     order:3!important;flex:1 1 auto!important;justify-content:flex-start!important;
+     margin:0!important;padding:0!important;border:0!important;gap:5px!important;
+    }
+    dialog.route127-map-overlay [data-map-zoom-controls] button{
+     min-width:42px!important;min-height:40px!important;padding:4px 8px!important;
+    }
+    dialog.route127-map-overlay [data-pearl-overlay-toggle]{
+     order:4!important;min-height:40px!important;padding:5px 8px!important;
+     font-size:12px!important;
+    }
+    dialog.route127-map-overlay>header button[aria-label="Close map"]{
+     order:2!important;margin-left:auto!important;min-width:40px!important;
+     min-height:40px!important;flex:0 0 auto!important;
+    }
+    .route127-map-body .route127-table-mug,
+    .route127-map-body [data-table-spider]{display:none!important;}
+    .route127-map-body .lantern-map.route127-cinematic-picnic{
+     background:#21140e!important;border:0!important;
+    }
+    .route127-map-body .lantern-map svg{
+     box-shadow:0 4px 12px #0009!important;
+    }
+   }
+   @media(max-width:700px) and (orientation:landscape){
+    dialog.route127-map-overlay>header{padding:3px 7px!important;}
+    dialog.route127-map-overlay [data-map-zoom-controls] button{min-height:34px!important;}
+    dialog.route127-map-overlay [data-pearl-overlay-toggle]{min-height:34px!important;}
+   }
+  `;
+  document.head.append(mobileStyle);
+ }
  const ns='http://www.w3.org/2000/svg';
  const make=(tag,attrs={})=>{
   const e=document.createElementNS(ns,tag);
@@ -46,6 +95,21 @@
   dialog.style.setProperty('flex-direction','column','important');
   dialog.style.setProperty('box-sizing','border-box','important');
   dialog.style.setProperty('overflow','hidden','important');
+  // Mobile gets the full available phone screen; desktops retain the original
+  // large centered dialog. Re-evaluate when the phone rotates.
+  const mobileMedia=window.matchMedia('(max-width:700px)');
+  const adaptMapDialog=()=>{
+   const narrow=mobileMedia.matches;
+   dialog.style.setProperty('width',narrow?'100vw':'min(98vw,1600px)','important');
+   dialog.style.setProperty('max-width',narrow?'100vw':'98vw','important');
+   dialog.style.setProperty('height',narrow?'100dvh':'min(94vh,1000px)','important');
+   dialog.style.setProperty('max-height',narrow?'100dvh':'94vh','important');
+   dialog.style.setProperty('padding',narrow?'0':'','important');
+   dialog.style.setProperty('margin',narrow?'0':'auto','important');
+  };
+  adaptMapDialog();
+  window.addEventListener('resize',adaptMapDialog);
+  dialog.addEventListener('close',()=>window.removeEventListener('resize',adaptMapDialog),{once:true});
   // Cinematic tabletop: replace the old gold outer frame with a quiet dark edge.
   dialog.style.setProperty('border','1px solid #241914','important');
   dialog.style.setProperty('box-shadow','0 14px 40px #000b','important');
@@ -272,6 +336,8 @@
     svg.setAttribute('viewBox',`${cx-w/2} ${cy-h/2} ${w} ${h}`);
     label.textContent=Math.round(zoom*100)+'%';
     svg.style.cursor=zoom>1?'grab':'';
+    // On phones, allow touch drag only while zoomed; normal view remains scroll-safe.
+    svg.style.touchAction=zoom>1?'none':'auto';
    }
    function setZoom(value){
     zoom=clamp(value,1,3);apply();

@@ -317,30 +317,3 @@ dialog.route127-map-overlay[open]{display:flex;flex-direction:column;}
 .full-graphics .gfx-frame[data-layout='crafting'] #screen{height:clamp(110px,20vh,235px);max-height:40vh}
 @media(max-width:640px){.full-graphics .gfx-frame[data-layout='crafting'] #screen{height:clamp(100px,22vh,200px);max-height:35vh}}
 
-/* Mobile: change artwork crop mode only; preserve existing layout dimensions. */
-@media (max-width:760px) {
-  body.full-graphics .gfx-frame .gfx-art .gfx-image {
-    object-fit:contain;
-    object-position:center;
-  }
-}
-
-/* Mobile horizontal containment: do not allow encounter content to widen the game viewport. */
-@media (max-width:760px) {
-  body.full-graphics .terminal-shell:has(.gfx-frame),
-  body.full-graphics .gfx-frame,
-  body.full-graphics .gfx-frame .gfx-layout,
-  body.full-graphics .gfx-frame .gfx-main,
-  body.full-graphics .gfx-frame .gfx-art,
-  body.full-graphics .gfx-frame .gfx-narrative,
-  body.full-graphics .gfx-frame .gfx-choices {
-    box-sizing:border-box;
-    width:100%;
-    min-width:0;
-    max-width:100%;
-  }
-  body.full-graphics .gfx-frame #screen {
-    max-width:100%;
-    overflow-x:auto;
-  }
-}

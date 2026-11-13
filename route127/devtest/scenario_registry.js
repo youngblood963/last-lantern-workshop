@@ -3064,6 +3064,7 @@ RoadScenarioRegistry.regionalSpec = {
   "INACTIVE": 5
  },
  "nameOverrides": {
+  "early:45": "THE ROAD ENFORCER",
   "east:30": "THE SENTRY",
   "early:46": "THE FORGOTTEN GARDEN",
   "east:33": "THE ROAD REAPERS",

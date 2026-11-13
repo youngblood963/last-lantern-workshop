@@ -33,6 +33,7 @@
   if(title==='IRRADIATED ROACHES'||display==='THE FORGOTTEN GARDEN')return {id:'garden',file:asset('scenarios','the_forgotten_garden.png'),layers:'sky'};
   if(title==="MURPHY'S LOST CORVETTE"||display==="MURPHY'S LOST CORVETTE")return {id:'corvette',file:asset('scenarios','murphys_lost_corvette.png'),layers:'road'};
   if(title==='RUINED SIGNAL HUT'||display==='SHATTERED GLASS')return {id:'shattered-glass',file:asset('scenarios','shattered_glass.png'),layers:'road'};
+  if(title==='BROKEN RADIO'||display==='BROKEN RADIO')return {id:'station-nine-radio',file:asset('scenarios','station_nine_discovery.png'),layers:'road'};
   return null;
  }
  const oldModel=GraphicalUI.model;
@@ -60,9 +61,9 @@
  .gfx-art.r127-demo-art[data-demo-id="ridgeline"]>.gfx-image,
  .gfx-art.r127-demo-art[data-demo-id="armory"]>.gfx-image{object-fit:cover}
  .gfx-art.r127-demo-art[data-demo-id="solace-guard"]>.gfx-image{object-fit:cover}
- .gfx-art.r127-demo-art>.r127-demo-guard{position:absolute;z-index:6;left:50%;bottom:0;transform:translateX(-50%);width:auto;max-width:62%;height:90%;object-fit:contain;object-position:center bottom;pointer-events:none;filter:drop-shadow(4px 6px 5px #000a)}
+ .gfx-art.r127-demo-art>.r127-demo-guard{position:absolute;z-index:6;left:50%;top:50%;transform:translate(-50%,-50%);width:54%;height:82%;object-fit:contain;object-position:center;pointer-events:none;filter:drop-shadow(4px 6px 5px #000a)}
  .gfx-art.r127-demo-art[data-demo-period="night"]>.r127-demo-guard{filter:brightness(.65) saturate(.7) hue-rotate(165deg) drop-shadow(4px 6px 5px #000a)}
- @media(max-width:600px){.gfx-art.r127-demo-art>.r127-demo-guard{height:90%;max-width:72%}}
+ /* Guard desktop/phone positions come from the Combat Visual Testing layout manifest. */
  `;
  document.head.append(css);
  const oldSync=GraphicalUI.sync;
@@ -94,9 +95,23 @@
    if(spec.guard){
     if(!guardLayer){guardLayer=document.createElement('img');guardLayer.className='r127-demo-guard';guardLayer.alt='Solace gate guard';guardLayer.draggable=false;guardLayer.src=asset('enemies','solace_gate_guard.png');fig.append(guardLayer);}
    }else guardLayer?.remove();
+   // The overlay isn't one of the generic .r127-human-unit sprites, so apply the
+   // same saved/published Combat Visual Testing positions directly to the guard.
+   if(spec.guard&&guardLayer){
+    const layout=globalThis.Route127CombatLayouts?.get('scripted:gateguards','combat',
+      typeof matchMedia==='function'&&matchMedia('(max-width:600px)').matches?'phone':'desktop')?.['0:solace_gate_guard.png'];
+    if(layout){
+     guardLayer.style.left=layout.x+'%';
+     guardLayer.style.top=layout.y+'%';
+     guardLayer.style.width=layout.width+'%';
+     guardLayer.style.height=layout.height+'%';
+     guardLayer.style.transform='translate(-50%,-50%) scale('+(layout.flip?-layout.scale:layout.scale)+','+layout.scale+')';
+     guardLayer.style.zIndex=String(Math.max(4,layout.z+3));
+    }
+   }
    fig.dataset.demoPeriod=lit?phase:'none';
   }catch(err){console.warn('DEVTEST demo encounter artwork:',err);}
   return result;
  };
- globalThis.Route127DemoArtBatch=Object.freeze({ids:['ridgeline','shed','solace-guard','road-enforcer','armory','garden','corvette','shattered-glass']});
+ globalThis.Route127DemoArtBatch=Object.freeze({ids:['ridgeline','shed','solace-guard','road-enforcer','armory','garden','corvette','shattered-glass','station-nine-radio']});
 })();

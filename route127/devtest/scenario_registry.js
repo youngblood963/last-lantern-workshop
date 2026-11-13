@@ -469,14 +469,32 @@ const beginnerAdditions=[
     "PEEK THROUGH KEYHOLE":()=>{add("Through the keyhole you see a suitcase beside a skeleton. The door remains closed.");if(!player.flags.r18FarmKeyhole){player.flags.r18FarmKeyhole=true;gainXp(Math.max(4,player.level));}return true;},
     "FORCE THE DOOR":()=>{if(player.flags.r18FarmSuitcase){add("The suitcase has already been searched.","system");return true;}r18RetainRoadReward("Cloth","material");player.flags.r18FarmSuitcase=true;gainXp(Math.max(6,player.level));add("Behind the door, a skeleton lies beside a suitcase containing a strip of Cloth.","reward");return true;}
   }),
-  {title:"THE WALKING PEDDLER",minLevel:1,maxLevel:50,exclusive:true,text:"Old Pete pedals a bicycle loaded with tins and pots. His sign reads: PETE'S EMPORIUM — IF I AIN'T GOT IT, YOU DON'T NEED IT.",prompt(){const d=player.flags.r18PeteRepaired?1:0,stock=r18PeteStock();return `BUY APPLE FOR ${4-d} BOLTS   BUY CARROT FOR ${4-d} BOLTS   BUY RATION FOR ${6-d} BOLTS${stock.potato?`   BUY POTATO FOR ${4-d} BOLTS`:""}${stock.equipment&&!stock.equipment.sold?`   BUY ${stock.equipment.name.toUpperCase()} FOR ${stock.equipment.price} BOLTS`:""}   BUY BANDAGE FOR 8 BOLTS   BUY WIRE FOR 5 BOLTS   BUY SCRAP FOR 5 BOLTS${player.flags.r18PeteCompassSold?"":"   BUY COMPASS FOR 45 BOLTS"}   SELL ONE SCRAP FOR 3 BOLTS   SELL ONE WIRE FOR 2 BOLTS   REPAIR BICYCLE   TALK TO PETE   ASK FOR RUMORS   BACK AWAY`;},resolve(cmd){
+  {title:"THE WALKING PEDDLER",minLevel:1,maxLevel:50,exclusive:true,text:"Old Pete pedals a bicycle loaded with tins and pots. His sign reads: PETE'S EMPORIUM — IF I AIN'T GOT IT, YOU DON'T NEED IT.",prompt(){
+    const f=player.flags,visit=roadGoal+':'+roadTurn+':'+dailyRoadTurns;
+    if(f.r18PeteVisit!==visit){f.r18PeteVisit=visit;f.r18PeteMenu='main';}
+    const d=f.r18PeteRepaired?1:0,stock=r18PeteStock();
+    switch(f.r18PeteMenu){
+      case 'wares':return 'BUY FOOD   BUY SUPPLIES   BUY EQUIPMENT   SELL MATERIALS   BACK TO PETE';
+      case 'food':return `BUY APPLE FOR ${4-d} BOLTS   BUY CARROT FOR ${4-d} BOLTS   BUY RATION FOR ${6-d} BOLTS${stock.potato?`   BUY POTATO FOR ${4-d} BOLTS`:""}   BACK TO WARES`;
+      case 'supplies':return 'BUY BANDAGE FOR 8 BOLTS   BUY WIRE FOR 5 BOLTS   BUY SCRAP FOR 5 BOLTS   BACK TO WARES';
+      case 'equipment':return (stock.equipment&&!stock.equipment.sold?`BUY ${stock.equipment.name.toUpperCase()} FOR ${stock.equipment.price} BOLTS   `:'')+'BACK TO WARES';
+      case 'sell':return 'SELL ONE SCRAP FOR 3 BOLTS   SELL ONE WIRE FOR 2 BOLTS   BACK TO WARES';
+      default:return 'BROWSE WARES'+(f.r18PeteCompassSold?'':'   BUY COMPASS FOR 45 BOLTS')+'   REPAIR BICYCLE   TALK TO PETE   ASK FOR RUMORS   BACK AWAY';
+    }
+  },resolve(cmd){
     const f=player.flags,discount=f.r18PeteRepaired?1:0;f.r18PeteMet=true;
+    // Menu navigation is free and remains within this road encounter.
+    const submenu={'browse wares':'wares','buy food':'food','buy supplies':'supplies',
+      'buy equipment':'equipment','sell materials':'sell','back to wares':'wares','back to pete':'main'};
+    if(Object.prototype.hasOwnProperty.call(submenu,cmd)){
+      f.r18PeteMenu=submenu[cmd];return true;
+    }
     if(cmd.includes('buy')){const stock=r18PeteStock(),eq=stock.equipment;if(eq&&!eq.sold&&cmd.startsWith('buy '+eq.name.toLowerCase()+' for ')){if(!roadTrade(eq.name,eq.type,eq.price))return false;eq.sold=true;add('Pete hands you '+eq.name+'.','reward');return true;}let item=cmd.includes('potato')&&stock.potato?'Fresh Potato':cmd.includes('apple')?'Fresh Apple':cmd.includes('carrot')?'Fresh Carrot':cmd.includes('ration')?'Energy Bars':cmd.includes('bandage')?'Bandage':cmd.includes('wire')?'Wire':cmd.includes('scrap')?'Scrap Metal':cmd.includes('compass')?'Old World Pocket Compass':null;if(!item)return false;if(item==='Old World Pocket Compass'&&f.r18PeteCompassSold){add('Pete already sold his one compass.','system');return false;}const type=item==='Old World Pocket Compass'?'valuable':['Wire','Scrap Metal'].includes(item)?'material':'consumable',cost=item==='Old World Pocket Compass'?45:item==='Bandage'?8:['Wire','Scrap Metal'].includes(item)?5:(item==='Energy Bars'?6:4)-discount;if(!roadTrade(item,type,cost))return false;if(item==='Old World Pocket Compass')f.r18PeteCompassSold=true;add('Pete counts '+cost+' Bolts and hands you '+item+'.','reward');return true;}
     if(cmd.includes('sell')){const wire=cmd.includes('wire'),name=wire?'Wire':'Scrap Metal',price=wire?2:3;if(!hasItem(name)){add('You have no '+name+' to sell.','system');return false;}if(findItem(name)?.stolen&&r18SaleDetected(findItem(name),'Old Pete'))return true;if(!removeItem(name))return false;gainBolts(price);add('Pete pays '+price+' Bolts for '+name+'.','reward');return true;}
     if(cmd.includes('rumor')){add(f.r18Station?'PETE > You found that dirt path? Evelyn knows more about radios than anyone I have met.':f.r18Ash?'PETE > The families at Ash Cemetery have been waiting a long time for answers.':"PETE > Listen to travelers. Sometimes a broken radio has more to say than the person carrying it.",'bright');return true;}
     if(cmd.includes('repair')){if(f.r18PeteRepaired){add('The bicycle repair is still holding.','system');return true;}if(!hasItem('Wire')){add('The bicycle repair needs one Wire.','system');return false;}if(!removeItem('Wire'))return false;f.r18PeteRepaired=true;gainXp(Math.max(6,player.level*2));add('You repair the bicycle. Pete promises a one-Bolt discount on his food.','bright');return true;}
     if(cmd.includes('talk')){add(f.r18PeteTalked?'PETE > Still got everything you need. Probably.':'PETE > If I ain’t got it, you don’t need it. Keep your socks dry and your arguments short.','bright');f.r18PeteTalked=true;return true;}
-    if(cmd.includes('back')||cmd.includes('away')){add('Pete pedals off down the highway.');return true;}return false;
+    if(cmd.includes('back')||cmd.includes('away')){f.r18PeteMenu='main';add('Pete pedals off down the highway.');return true;}return false;
   }},
   beginnerEvent("DUST OVER THE SCHOOLYARD","A herd of deer moves among the old swings. A fawn is tangled in chain-link; its mother watches nearby.",{
     "FREE THE FAWN":()=>{add("You carefully untangle the fawn. It hurries back to its mother.");if(!player.flags.r18FawnFreed){player.flags.r18FawnFreed=true;gainXp(Math.max(8,player.level*2));}return true;},

@@ -334,15 +334,6 @@ const eastEncounters = [
 
 
 
-// A separate Powder Monkey encounter. Append after all original eastern entries so
-// existing east:N save identities (including Mud Cannon) never shift.
-eastEncounters.push({
- exclusive:true, title:"THE POWDER MONKEY",
- text:"A jittery bomber with a satchel of explosives argues with a dud grenade beside the road.",
- choices:"TALK DOWN THE BOMBER   SNEAK PAST THE BOMBER   SHOOT THE EXPLOSIVE SATCHEL   FIGHT THE BOMBER   BACK AWAY",
- resolve(cmd){return false;} // Installed by the distinct R5 encounter rework below.
-});
-
 return {encounters, eastEncounters};
 
 },
@@ -803,6 +794,7 @@ function r18HorseScene(){const g=typeof lanternState==='function'?lanternState()
 const r18HorseEncounter=eastEncounters.find(e=>e.title==='THE DUST HORSES');
 if(r18HorseEncounter){r18HorseEncounter.prompt=function(){const q=r18HorseScene();return q.phase==='offer'?`${player.flags.r18HorseOwned?'LEAVE THE HORSE':'CALM THE HORSE   LEAVE THE HORSE'}`:R5_ROAD_REWORK['THE DUST HORSES'].options.join('   ');};r18HorseEncounter.resolve=function(cmd){const q=r18HorseScene(),f=player.flags;if(q.phase==='offer'){if(cmd==='leave the horse'){q.phase='done';add('The horse returns to the herd.','system');return true;}if(cmd==='calm the horse'&&!f.r18HorseOwned){q.phase='done';if(Math.random()<.4){f.r18HorseOwned=true;add('The horse accepts your hand. One free trip is available through Status.','reward');}else add('The horse shies away and runs after the herd.','system');return true;}return false;}const opts=R5_ROAD_REWORK['THE DUST HORSES'].options,i=opts.findIndex(x=>x.toLowerCase()===cmd);if(i<0)return false;if(i===opts.length-1){q.phase='done';add('You leave the herd to find its own way.','system');return true;}const ok=R5_ROAD_REWORK['THE DUST HORSES'].run(i);if(ok){q.phase=i===3?'done':'offer';if(q.phase==='offer')add('A brown horse lingers after the herd escapes.','bright');}return ok;};}
 
+RoadScenarioRegistry.powderMonkeyRow=R5_ROAD_REWORK['THE POWDER MONKEY'];
 return {R5_ROAD_REWORK, r18HorseEncounter, r18HorseScene};
 
 },
@@ -3144,7 +3136,28 @@ RoadScenarioRegistry.installRegions=function(){
  this.regionalValidation={valid:true,total:134,counts,roads:LANTERN_WORLD_GRAPH.edges.length};
  // Filter before category availability, category weights and Corvette priority selection.
  const candidates=r10Candidates;r10Candidates=function(legacyPool,kind){const geography=r10Geography();return candidates(legacyPool,kind).filter(i=>r.wo6Eligible(r.pool(legacyPool)[i],geography));};
- this.wo6InstallFixedSites();this.wo6Installed=true;return this.regionalValidation;
+ // Post-review GLOBAL encounter: append only AFTER validating all 134 historical
+  // IDs. The Powder Monkey is distinct from the Mud Cannon; no prior slot shifts.
+  if(!this.powderMonkeyInstalled){
+   const row=this.powderMonkeyRow;
+   if(!row||!Array.isArray(row.options))throw Error('Powder Monkey rework is unavailable');
+   const bomber={title:'THE POWDER MONKEY',exclusive:true,
+    text:'A jittery bomber with a satchel of explosives argues with a dud grenade beside the road.',
+    choices:row.options.join('   '),
+    resolve(cmd){
+     const index=row.options.findIndex(option=>option.toLowerCase()===cmd);
+     if(index<0)return false;
+     if(index===row.options.length-1){add('You withdraw along the safe approach, leaving the scene untouched.','system');return true;}
+     return row.run(index);
+    }};
+   const index=eastEncounters.push(bomber)-1,id='east:'+index;
+   R10_POOLS.east.combat.push(index);
+   const item={number:null,id,legacyName:bomber.title,name:bomber.title,classification:'GLOBAL',regions:[],authority:'Owner-approved independent bomber encounter',encounter:bomber};
+   this.regionalCatalog.push(item);this.regionalById.set(id,item);this.regionalByTitle.set(r10CanonicalTitle(bomber.title),item);
+   const entry={id,canonicalId:id,name:bomber.title,classification:'GLOBAL',region:'GLOBAL',regions:[],encounter:bomber,references:[{road:'east',category:'combat',index}]};
+   this.entries.push(entry);this.byId[id]=entry;this.powderMonkeyInstalled=true;
+  }
+  this.wo6InstallFixedSites();this.wo6Installed=true;return this.regionalValidation;
 };
 // Legacy pool keys early/east/coast remain untouched; these are geographical codes.
 function r10Geography(){

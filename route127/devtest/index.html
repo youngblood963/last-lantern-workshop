@@ -93,7 +93,6 @@
       else if(e.error||e.message)report((e.message||String(e.error))+' @ '+(e.filename||'?')+':'+(e.lineno||'?'));
     },true);
     window.addEventListener('unhandledrejection',e=>report('Promise rejected: '+String(e.reason)));
-    window.addEventListener('load',()=>{setTimeout(()=>{if(document.querySelector('#signal')?.textContent==='NO SIGNAL')report('Startup did not advance beyond NO SIGNAL; check scripts above.');},4000);});
   })();
   </script>
   <script>

@@ -1,7 +1,7 @@
 {
   "environment": "DEVTEST",
   "source": "route127/devtest/index.html",
-  "sourceSHA256": "e6e81df1237f14604a2d18e66958ca88dbabd0fdcb1e526963fd98a11a1ac2b7",
+  "sourceSHA256": "17ff59b339add60c3fbb0253715f9a97f15ef74cb4b0823ccfd0cb0c3c6ee389",
   "base": "../playtest/",
   "externalCount": 151,
   "inlineCount": 4,
@@ -18,13 +18,13 @@
     },
     {
       "phase": "bootstrap",
-      "inlineSHA256": "ee93817211f16dac7c0eb16e04257341cd03908dcf8eef7c9b08f907040fd022"
+      "inlineSHA256": "7525f3d85d344f045da92db54a3268fbb7c4a00e7f0246c46d9a25acd075dd98"
     },
     {
       "phase": "guarded",
-      "src": "../devtest/scenario_registry.js?v=old-pete-compact-wares-20261112",
+      "src": "../devtest/scenario_registry.js?v=powder-monkey-id-fix-20261113",
       "path": "route127/devtest/scenario_registry.js",
-      "query": "?v=old-pete-compact-wares-20261112"
+      "query": "?v=powder-monkey-id-fix-20261113"
     },
     {
       "phase": "guarded",
@@ -542,9 +542,9 @@
     },
     {
       "phase": "overlay",
-      "src": "../devtest/runtime/forge_workshop_art_20261104.js?v=wo41d-real-renderer-unhide",
+      "src": "../devtest/runtime/forge_workshop_art_20261104.js?v=rusty-cinematic-20261113",
       "path": "route127/devtest/runtime/forge_workshop_art_20261104.js",
-      "query": "?v=wo41d-real-renderer-unhide"
+      "query": "?v=rusty-cinematic-20261113"
     },
     {
       "phase": "overlay",

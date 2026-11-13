@@ -66,8 +66,16 @@ const GraphicalUI={
  schedule(){if(this.scheduled)return;this.scheduled=true;outputQueue=outputQueue.then(()=>{this.scheduled=false;this.sync();});}
 };
 // Hooks observe output and settled transitions; they never regenerate a gameplay menu.
-const wo14Add=add;add=function(text='',cls=''){if(String(cls).includes('place'))GraphicalUI.lastPlace=String(text);const result=wo14Add(text,cls);GraphicalUI.schedule();return result;};
-const wo14Immediate=addImmediate;addImmediate=function(text='',cls=''){const result=wo14Immediate(text,choiceOutputClass(text,cls));GraphicalUI.schedule();return result;};
+// Graphical mode keeps action buttons; hide legacy typed-command echoes only.
+function r127HideGraphicalEcho(line,text,cls){
+ if(!line||!GraphicalUI.active()||!String(cls).split(/\s+/).includes('bright'))return;
+ if(/^>\s*(?:\d+|[a-z])\s*$/i.test(String(text).trim()))line.classList.add('r127-graphical-command-echo');
+}
+const r127EchoStyle=document.createElement('style');
+r127EchoStyle.textContent='.full-graphics .line.r127-graphical-command-echo{display:none!important}';
+document.head.appendChild(r127EchoStyle);
+const wo14Add=add;add=function(text='',cls=''){if(String(cls).includes('place'))GraphicalUI.lastPlace=String(text);const result=wo14Add(text,cls);if(GraphicalUI.active()&&String(cls).split(/\s+/).includes('bright')&&/^>\s*(?:\d+|[a-z])\s*$/i.test(String(text).trim())){const screenLines=screen.querySelectorAll('.line');const line=screenLines[screenLines.length-1];if(line)line.classList.add('r127-graphical-command-echo');}GraphicalUI.schedule();return result;};
+const wo14Immediate=addImmediate;addImmediate=function(text='',cls=''){const result=wo14Immediate(text,choiceOutputClass(text,cls));r127HideGraphicalEcho(result,text,cls);GraphicalUI.schedule();return result;};
 const wo14Hud=updateHud;updateHud=function(...args){const result=wo14Hud(...args);GraphicalUI.sync();return result;};
 const wo14Command=handleCommand;handleCommand=async function(raw){const mode=String(raw).trim().toLowerCase();if(['classic bbs','full graphics'].includes(mode)){GraphicalUI.setMode(mode==='classic bbs'?'classic':'graphics');return;}try{return await wo14Command(raw);}finally{GraphicalUI.schedule();}};
 const wo14Load=loadGame;loadGame=function(...args){const result=wo14Load(...args);GraphicalUI.schedule();return result;};

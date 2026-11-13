@@ -31,6 +31,7 @@
  .r127-road-lab input[type=range]{width:140px;accent-color:#e0a15b;padding:0}
  .r127-road-lab .lab-stage{position:relative;isolation:isolate;overflow:hidden;width:100%;aspect-ratio:16/9;border:2px solid #946c43;background:#1b2530;touch-action:none}
  .r127-road-lab .lab-stage img{position:absolute;display:block;pointer-events:none;user-select:none}
+ .r127-road-lab .lab-stage img[hidden]{display:none!important}
  .r127-road-lab .lab-sky{inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
  .r127-road-lab .lab-road{width:100%;height:100%;left:0;top:0;object-fit:fill;z-index:1}
  .r127-road-lab .lab-subject{width:100%;height:100%;left:0;top:0;object-fit:contain;z-index:2;transform-origin:center;filter:drop-shadow(0 3px 4px #0005)}
@@ -97,6 +98,21 @@
   road.onerror=()=>{status.textContent='Dirt road image failed to load: '+road.src;};
   dlg.addEventListener('close',()=>dlg.remove(),{once:true});
   document.body.append(dlg);load();dlg.showModal();
+ }
+ // Separate Options button, intentionally outside the combat layout/testing editor.
+ if(typeof TravelerPanels!=='undefined'){
+  const original=TravelerPanels.options;
+  TravelerPanels.options=function(...args){
+   const result=original.apply(this,args);
+   if(this.which==='options'&&this.body){
+    const panel=this.body.querySelector('.traveler-detail');
+    if(panel&&!panel.querySelector('[data-sky-road-lab]')){
+     const b=this.button('Sky + Dirt Road Image Lab',()=>{this.close();show();});
+     b.dataset.skyRoadLab='true';panel.append(b);
+    }
+   }
+   return result;
+  };
  }
  globalThis.Route127SkyRoadLab=Object.freeze({show,scenes:scenes.map(([name])=>name)});
 })();

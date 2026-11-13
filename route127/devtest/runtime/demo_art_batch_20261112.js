@@ -32,6 +32,7 @@
   if(title==='THE EMPTY ARMORY'||display==='THE EMPTY ARMORY')return {id:'armory',file:asset('scenarios','the_empty_armory.png'),layers:'none'};
   if(title==='IRRADIATED ROACHES'||display==='THE FORGOTTEN GARDEN')return {id:'garden',file:asset('scenarios','the_forgotten_garden.png'),layers:'sky'};
   if(title==="MURPHY'S LOST CORVETTE"||display==="MURPHY'S LOST CORVETTE")return {id:'corvette',file:asset('scenarios','murphys_lost_corvette.png'),layers:'road'};
+  if(title==='RUINED SIGNAL HUT'||display==='SHATTERED GLASS')return {id:'shattered-glass',file:asset('scenarios','shattered_glass.png'),layers:'road'};
   return null;
  }
  const oldModel=GraphicalUI.model;
@@ -97,5 +98,5 @@
   }catch(err){console.warn('DEVTEST demo encounter artwork:',err);}
   return result;
  };
- globalThis.Route127DemoArtBatch=Object.freeze({ids:['ridgeline','shed','solace-guard','road-enforcer','armory','garden','corvette']});
+ globalThis.Route127DemoArtBatch=Object.freeze({ids:['ridgeline','shed','solace-guard','road-enforcer','armory','garden','corvette','shattered-glass']});
 })();

@@ -16,7 +16,7 @@
   'THE HOLLOW STATUE':{art:'the_hollow_statue.png',backdrop:'standalone'},
   'THE IRON CHOIR':{art:'the_iron_choir.png',backdrop:'sky',id:'east:6',
    units:['iron_choir_valve_raider.png','iron_choir_patrol_raider.png']},
-  'THE SCRAP DUEL':{art:'the_scrap_duel.png',backdrop:'sky',id:'east:0',
+  'THE SCRAP DUEL':{art:'the_scrap_duel.png',backdrop:'sky',id:'east:11',
    units:['hubcap_champion.png']},
   'THE GAS STATION':{art:'the_gas_station.png',backdrop:'road'},
   'THE STRANDED HANDCART':{art:'the_last_stop.png',backdrop:'regional'},

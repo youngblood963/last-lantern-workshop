@@ -30,7 +30,7 @@
   background-size:cover;background-position:center;background-repeat:no-repeat;
  }
  .gfx-art.r127-causeway-scene>.gfx-image{position:relative;z-index:2;background:transparent!important}
- .gfx-art.r127-causeway-scene>.gfx-art-caption{position:relative;z-index:9}
+ .gfx-art.r127-causeway-scene>.gfx-art-caption{z-index:9}
  /* Existing scene-specific backgrounds and combat sprites retain their layers.
     Never alter scene object-fit: the owners' approved layouts take precedence. */
  .gfx-art.r127-causeway-scene[data-causeway-period="dawn"]>.r127-causeway-scene-base{filter:brightness(.91) sepia(.12)}

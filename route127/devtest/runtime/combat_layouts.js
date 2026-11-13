@@ -354,6 +354,16 @@
  .gfx-frame .gfx-art .r127-layout-unit:not(.r127-layout-background)>img{transform:none!important}
  .gfx-frame .gfx-art .r127-layout-unit.r127-layout-flipped:not(.r127-layout-background)>img{transform:scaleX(-1)!important}
  .gfx-frame .gfx-art img.r127-layout-flipped{transform:translate(-50%,-50%) scale(calc(-1 * var(--r127-layout-scale)),var(--r127-layout-scale))!important}
+ /* Light foreground character art only; never darken scenery, captions, or HP bars. */
+ .gfx-frame .gfx-art[data-r127-character-light="dawn"] :is(.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-figure,.r127-npc-combat,.r127-road-unit,.r127-silo-boar) img,
+ .gfx-frame .gfx-art[data-r127-character-light="dawn"] :is(img.r127-bat-unit,img.r127-raccoon-unit,img.r127-human-unit,img.r127-npc-figure,img.r127-npc-combat,img.r127-road-unit,img.r127-silo-boar),
+ .gfx-frame .gfx-art[data-r127-character-light="dawn"] .r127-layout-attachments img{filter:brightness(.94) saturate(.92) sepia(.10)!important}
+ .gfx-frame .gfx-art[data-r127-character-light="dusk"] :is(.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-figure,.r127-npc-combat,.r127-road-unit,.r127-silo-boar) img,
+ .gfx-frame .gfx-art[data-r127-character-light="dusk"] :is(img.r127-bat-unit,img.r127-raccoon-unit,img.r127-human-unit,img.r127-npc-figure,img.r127-npc-combat,img.r127-road-unit,img.r127-silo-boar),
+ .gfx-frame .gfx-art[data-r127-character-light="dusk"] .r127-layout-attachments img{filter:brightness(.78) saturate(.82) sepia(.15)!important}
+ .gfx-frame .gfx-art[data-r127-character-light="night"] :is(.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-figure,.r127-npc-combat,.r127-road-unit,.r127-silo-boar) img,
+ .gfx-frame .gfx-art[data-r127-character-light="night"] :is(img.r127-bat-unit,img.r127-raccoon-unit,img.r127-human-unit,img.r127-npc-figure,img.r127-npc-combat,img.r127-road-unit,img.r127-silo-boar),
+ .gfx-frame .gfx-art[data-r127-character-light="night"] .r127-layout-attachments img{filter:brightness(.62) saturate(.68) sepia(.12) hue-rotate(165deg)!important}
  `;
  document.head.append(css);
  let attachmentLayer=null;
@@ -367,6 +377,8 @@
    e?.figure?.classList.remove('r127-layout-has-background');
    return result;
   }
+  // DAY intentionally has no filter: preserve the original bright character artwork.
+  e.figure.dataset.r127CharacterLight=typeof Route127RegionalSky?.phase==='function'?Route127RegionalSky.phase(player?.flags?.worldHour):'day';
   const device=typeof matchMedia==='function'&&matchMedia('(max-width:600px)').matches?'phone':'desktop';
   const layouts=get(scene.id,scene.phase,device);
   e.figure.classList.toggle('r127-layout-has-background',!!e.img?.src&&!!layouts['background:'+assetName(e.img.src)]);

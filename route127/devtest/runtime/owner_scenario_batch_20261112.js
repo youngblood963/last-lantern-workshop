@@ -33,6 +33,11 @@
  };
  const css=document.createElement('style');
  css.textContent=`
+ /* Only the Runaway Blade Cart GIF: leave room around its moving edges. */
+ body.full-graphics .gfx-frame .gfx-art.r127-blade-cart>.gfx-image{
+  object-fit:contain!important;object-position:center center!important;
+  transform:scale(.80);transform-origin:center center;
+ }
  .gfx-art.r127-bridge-toll-sky{position:relative;isolation:isolate;background:#151820!important}
  .gfx-art.r127-bridge-toll-sky>.r127-bridge-toll-sky-layer{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;pointer-events:none}
  .gfx-art.r127-bridge-toll-sky>.gfx-image{position:relative;z-index:1;background:transparent!important}
@@ -57,6 +62,8 @@
   const result=oldSync.apply(this,args);
   try{
    const e=this.element;if(!e?.figure)return result;
+   e.figure.classList.toggle('r127-blade-cart',!e.frame.hidden&&stage==='encounter'&&
+    (canonical()==='THE BLADE CART'||alias()==='THE BLADE CART'));
    // Sky-only backdrop for Bridge Toll: its artwork already contains its own ground.
    const bridgeActive=!e.frame.hidden&&this.preference()==='graphics'&&stage==='encounter'&&
     (canonical()==='THE BRIDGE TOLL'||alias()==='THE BRIDGE TOLL');

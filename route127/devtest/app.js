@@ -2187,6 +2187,22 @@ function resolveEncounter(cmd) {
     if(cmd.includes('fight')){const level=Math.max(1,Math.min(50,Number(player.level)||1)),ratXp=Number(player.flags.r18TunnelRatXp)||0;delete player.flags.r18TunnelBoarPending;delete player.flags.r18TunnelRatXp;startCombat({name:'FERAL BOAR',level,hp:Math.max(22,Math.floor(baseHpForLevel(level)*.27)),min:3,max:7,xp:Math.max(20,level*6),bolts:0,r18TunnelBoar:true,r18TunnelRatXp:ratXp,r18GuaranteeGear:true,end:'The boar falls beside the drain.'},'encounter');return;}
     add('Choose whether to fight the boar or back away.','system');renderCurrentChoices();return;
   }
+  // Old Pete's browsing and purchases stay within the same encounter.
+  // Do not mark wares as consumed or automatically finish the road turn:
+  // this merchant was historically exclusive, which closed after EVERY purchase.
+  if(e.title==='THE WALKING PEDDLER'&&cmd!=='back away'){
+    const selected=choiceKey(cmd,e);
+    if(!selected){
+      add("That's not an option.","system");add(encounterChoices(e),"system");return;
+    }
+    resultBuffer=[];
+    const resolved=e.resolve(cmd);
+    flushResults();
+    if(stage==='fallen')return;
+    if(!resolved)add("Pete cannot complete that trade.","system");
+    if(stage==='encounter')add(encounterChoices(e),"system");
+    return;
+  }
   if(cmd==="f" && /FIGHT/i.test(e.prompt?e.prompt():e.choices)) cmd=e.combat?.action?.toLowerCase()||"fight";
   if(cmd==="fight"&&/^fight\b/i.test(e.combat?.action||""))cmd=e.combat.action.toLowerCase();
   const spec=e.combat || combatSpecs[e.title];

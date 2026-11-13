@@ -62,7 +62,10 @@ css.textContent=`
 `;
 document.head.append(css);
 
-const scopeRegions=new Set(['CENTRAL','INDUSTRIAL','SEAPORT']);
+// CAUSEWAY is a visual-only Seaport road region. It still needs the same
+// encounter sprite/HP presentation as SEAPORT; otherwise the default boxed
+// combat panel appears with no ambusher artwork on the water crossing.
+const scopeRegions=new Set(['CENTRAL','INDUSTRIAL','SEAPORT','CAUSEWAY']);
 function inScope(){
  if(typeof combatState!=='undefined'&&combatState&&combatState.source!=='encounter')return false;
  return typeof route127CurrentRegion==='function'&&scopeRegions.has(route127CurrentRegion(lanternState()));

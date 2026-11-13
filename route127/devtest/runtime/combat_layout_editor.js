@@ -11,6 +11,9 @@
  const status=new Map();
  const reviewKey='route127-scenario-reviews-v1';
  const animatedTitles=new Set(['THE LIME FOG','THE RED RAIN','THE GLASS FIELD']);
+ // These approved compositions contain the character(s) within a complete scene asset.
+ // A combat encounter does not require separately registered sprites to review its artwork.
+ const embeddedCombatArtwork=new Set(['THE IRON HARVEST','THE DRY FOUNTAIN','IRRADIATED ROACHES']);
  const animated=row=>animatedTitles.has(row.title)||animatedTitles.has(row.name.toUpperCase());
  function readReviews(){
   try{
@@ -38,7 +41,7 @@
   if(animated(row))return reviews.has(row.id)?'green':'yellow';
   const art=state(row);
   if(art==='Checking art')return 'checking';
-  if(art!=='Art present'||(row.combat&&row.title!=='THE IRON HARVEST'&&!row.variants.some(v=>v.units.length)))return 'red';
+  if(art!=='Art present'||(row.combat&&!embeddedCombatArtwork.has(row.title)&&!row.variants.some(v=>v.units.length)))return 'red';
   return reviews.has(row.id)?'green':'yellow';
  }
  const state=row=>{

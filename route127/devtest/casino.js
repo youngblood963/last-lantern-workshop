@@ -22,15 +22,23 @@ function showSteveAnnouncement(){
  const f=player.flags,news=ensureSteveAnnouncements();
  const announcement=STEVE_NEWS.find(row=>row.id==='casino5');
  if(!announcement||player.level<announcement.level||news.seen[announcement.id])return false;
- // Never disturb an encounter being resumed from a save.
  if(!news.queue.includes(announcement.id))news.queue.push(announcement.id);
  news.seen[announcement.id]=true;
  news.queue=news.queue.filter(id=>id!==announcement.id);
  add('CRAZY STEVE — ROADSIDE ANNOUNCEMENT','place');
  add('A wild-eyed man steps onto the shoulder wearing a battered sandwich board. He waves both arms until you look his way.','bright');
+ if(typeof GraphicalUI!=='undefined'&&GraphicalUI.preference()==='graphics'){
+  // Graphical mode stays on this turn-free three-choice scene until Back.
+  // Never start the old elephant / legendary encounter.
+  stage='r127StevePromo';
+  add('Steve grins like he has the greatest news in the wasteland.','bright');
+  add('ASK ABOUT GAMES   ASK ABOUT SANDWICH BOARD   BACK','system');
+  return true;
+ }
+ // Classic BBS retains the original brief, nonblocking announcement.
  add(announcement.message,'bright');
  add('Steve spins around to display the back of his sign: NO REFUNDS. Then he hurries off down the highway.','system');
- return true;
+ return false;
 }
 
 function casinoArt(text){if(player.level<5)return;outputQueue=outputQueue.then(()=>{addImmediate(text,'casino-art system');followOutput()});}

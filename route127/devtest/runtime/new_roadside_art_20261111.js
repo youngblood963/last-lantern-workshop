@@ -89,9 +89,11 @@
     const period=typeof Route127RegionalSky?.phase==='function'?
      Route127RegionalSky.phase(player.flags?.worldHour):'day';
     const region=typeof route127CurrentRegion==='function'?route127CurrentRegion(lanternState()):'CENTRAL';
-    const regions={CENTRAL:'central',INDUSTRIAL:'industrial',NORTH:'north',EAST:'east',WEST:'west',LOWLANDS:'lowlands',SEAPORT:'seaport'};
+    const regions={CENTRAL:'central',INDUSTRIAL:'industrial',NORTH:'north',EAST:'east',WEST:'west',LOWLANDS:'lowlands',SEAPORT:'seaport',CAUSEWAY:'causeway'};
     sky.style.backgroundImage='url("'+new URL(period==='dusk'?(regions[region]||'central')+'.png':'sky_'+period+'.png',regionBase).href+'")';
-    if(showingBillboard){
+    if(showingBillboard||region==='CAUSEWAY'){
+     // The Causeway is an in-road visual region. Keep its scenery behind
+     // roadside scenario artwork instead of falling back to a generic sky.
      const layers=globalThis.Route127EditorSky?.describe(region,player.flags?.worldHour);
      if(layers)sky.style.backgroundImage='url("'+layers.ground+'"), url("'+layers.sky+'")';
     }

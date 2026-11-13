@@ -80,14 +80,16 @@
  .gfx-art.r127-demo-art[data-demo-id="ridgeline"]>.gfx-image,
  .gfx-art.r127-demo-art[data-demo-id="armory"]>.gfx-image{object-fit:cover}
  .gfx-art.r127-demo-art[data-demo-id="solace-guard"]>.gfx-image{object-fit:cover}
- /* Give layered encounter artwork breathing room, preserving complete scenes and combat sprites. */
- .gfx-art.r127-demo-art[data-demo-layers="regional"]>.gfx-image,
- .gfx-art.r127-demo-art[data-demo-layers="road"]>.gfx-image,
- .gfx-art.r127-demo-art[data-demo-layers="sky"]>.gfx-image{
-   object-fit:contain!important;
-   object-position:center center!important;
-   transform:scale(.90);
-   transform-origin:center center;
+ /* Phone-only: give layered encounter artwork breathing room. Desktop remains unchanged. */
+ @media (max-width:760px) {
+  .gfx-art.r127-demo-art[data-demo-layers="regional"]>.gfx-image,
+  .gfx-art.r127-demo-art[data-demo-layers="road"]>.gfx-image,
+  .gfx-art.r127-demo-art[data-demo-layers="sky"]>.gfx-image{
+    object-fit:contain!important;
+    object-position:center center!important;
+    transform:scale(.90);
+    transform-origin:center center;
+  }
  }
 
  .gfx-art.r127-demo-art>.r127-demo-guard{position:absolute;z-index:6;left:50%;top:50%;transform:translate(-50%,-50%);width:54%;height:82%;object-fit:contain;object-position:center;pointer-events:none;filter:drop-shadow(4px 6px 5px #000a)}

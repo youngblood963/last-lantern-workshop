@@ -21,9 +21,9 @@
   'east:33','east:58','scripted:serviceboss','scripted:crazy-steve']);
  const sceneLayers=new Map([
   ['east:21','sky'],['east:6','road'],['east:11','sky'],['early:2','road'],['east:78','none'],
-  ['early:50','sky'],['early:54','sky'],['early:61','road'],['early:9','road'],
-  ['early:64','sky'],['east:33','sky'],['east:58','road'],
-  ['scripted:serviceboss','sky'],['scripted:crazy-steve','sky']
+  ['early:50','none'],['early:54','none'],['early:61','road'],['early:9','road'],
+  ['early:64','none'],['east:33','none'],['east:58','road'],
+  ['scripted:serviceboss','none'],['scripted:crazy-steve','none']
  ]);
  const animated=row=>animatedTitles.has(row.title)||animatedTitles.has(row.name.toUpperCase());
  function readReviews(){

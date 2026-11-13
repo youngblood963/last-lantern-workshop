@@ -1,6 +1,19 @@
 /* DEVTEST-only: location-state artwork for Forge, Boulder Junction and Seaport. No gameplay changes. */
 (function(){
  if(typeof GraphicalUI==='undefined')return;
+ // DEVTEST-only: remove the redundant internal stock/markup narration from
+ // Rusty's menu, while preserving actual prices, stock, funds and trading.
+ // The shared PLAYTEST gameplay file remains untouched.
+ if(typeof add==='function'){
+  const originalAdd=add;
+  add=function(...args){
+   if(stage==='factoryRusty'&&typeof args[0]==='string'&&
+      args[0].startsWith('Merchant funds: ')&&
+      args[0].includes('Entrance station; no travel turns.')&&
+      args[0].includes('Factory markup: 20%'))return;
+   return originalAdd.apply(this,args);
+  };
+ }
  const oldContext=GraphicalUI.context.bind(GraphicalUI);
  GraphicalUI.context=function(){
   const overlayStages=new Set(['inventory','inventoryItem','confirmDrop','quests','interfaceStatus','interfaceMap','interfaceSave','combatItems','r5Loot','r18HorseTravel','corvetteRescue']);
@@ -10,6 +23,7 @@
   if(place==='factoryBench')return 'crafting-workbench';
   if(place==='mercy'&&mercyLocation==='murphy'&&!!player?.flags?.v49MurphyMenu)return 'crafting-workbench';
   if(place==='port55Service'&&player?.flags?.portStaffUI?.role==='workshop')return 'crafting-workbench';
+  if(place==='factoryRusty')return 'factory-rusty';
   if(['factoryWorkshop','factoryTerminal','factoryForge'].includes(place))return 'factory-workshop';
   const g=typeof lanternState==='function'?lanternState():null;
   if(place==='lanternNode'&&g?.nodeId==='boulder-junction'&&!g.currentEdgeId)return 'boulder-junction-art';
@@ -21,6 +35,10 @@
   if(model.location==='crafting-workbench'){
     model.title='Crafting';
     model.art='../devtest/assets/locations/crafting_workbench.png?v=wo41b';
+  }
+  if(model.location==='factory-rusty'){
+   model.title='Rusty — Factory Quartermaster';
+   model.art='../devtest/assets/locations/rusty_workshop.png?v=rusty-cinematic-20261113';
   }
   if(model.location==='factory-workshop'){
    model.title="Forge's Workshop";

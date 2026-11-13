@@ -33,10 +33,12 @@
  };
  const css=document.createElement('style');
  css.textContent=`
- /* Only the Runaway Blade Cart GIF: leave room around its moving edges. */
- body.full-graphics .gfx-frame .gfx-art.r127-blade-cart>.gfx-image{
+ /* Full-scene animated GIFs: fit the whole frame at 95% (desktop + mobile).
+    Target only the primary scenario artwork, not UI animations or combat sprites.
+    The layout editor's explicitly positioned background units keep their own scale. */
+ body.full-graphics .gfx-frame .gfx-art>.gfx-image[src*=".gif"]:not(.r127-layout-unit){
   object-fit:contain!important;object-position:center center!important;
-  transform:scale(.90);transform-origin:center center;
+  transform:scale(.95);transform-origin:center center;
  }
  .gfx-art.r127-bridge-toll-sky{position:relative;isolation:isolate;background:#151820!important}
  .gfx-art.r127-bridge-toll-sky>.r127-bridge-toll-sky-layer{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;pointer-events:none}

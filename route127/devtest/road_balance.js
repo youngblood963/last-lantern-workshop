@@ -14,6 +14,13 @@ function r10Candidates(region,kind){
  const objects=r10Pool(region),pool=R10_POOLS[region]?.[kind]||[];
  return pool.filter(i=>{
   const e=objects[i];if(!e||r10Retired(e.title))return false;
+  // The Forgotten Garden remains GLOBAL across all seven land regions, but
+  // cannot spawn on the water-surrounded Boulder Junction–Seaport Causeway.
+  // Use the same positional boundary as the Causeway's visual background.
+  if(r10CanonicalTitle(e.title)==='IRRADIATED ROACHES'){
+   const g=typeof lanternState==='function'?lanternState():null;
+   if(g?.currentEdgeId==='boulder-junction--seaport'&&Number(g.stepIndex)>2)return false;
+  }
   if(e.title==='THE LIMPING HOUND'&&player.flags.r18HoundAdopted)return false;
   if(e.title==='THE TRAVELER'&&!storyValeRoadAvailable())return false;
   if(e.title==='THE DARK CELLAR'&&player.flags.r18CellarResolved)return false;

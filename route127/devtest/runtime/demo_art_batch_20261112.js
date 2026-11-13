@@ -26,7 +26,7 @@
   if(stage==='r127StevePromo')return {id:'crazy-steve',file:asset('scenarios','crazy_steve.png'),layers:'regional'};
   if(guard())return {id:'solace-guard',file:new URL('../playtest/assets/locations/solace_town_gate.png',root).href,layers:'none',guard:true};
   if(enforcer())return {id:'road-enforcer',file:asset('scenarios','the_road_enforcer.png'),layers:'road'};
-  if(yardman())return {id:'the-yardman',file:asset('scenarios','the_yardman.png'),layers:'regional'};
+  if(yardman())return {id:'the-yardman',file:asset('scenarios','the_yardman.png'),layers:'sky'};
   if(stage!=='encounter')return null;
   const title=norm(encounter()?.title),display=norm(encounter()?.displayName);
   // Owner's latest approved artwork: the first group uses sky only, the
@@ -36,7 +36,7 @@
    'THE KNIFE WIND':{id:'the-road-reapers',folder:'enemies',file:'the_road_reapers.png',layers:'regional'},
    'THE LIMPING HOUND':{id:'the-limping-hound',folder:'scenarios',file:'the_limping_hound.png',layers:'regional'},
    'THE WALKING PEDDLER':{id:'old-pete',folder:'scenarios',file:'old_pete.png',layers:'regional'},
-   'THE TIPPED DELIVERY TRUCK':{id:'delivery-truck',folder:'scenarios',file:'the_tipped_delivery_truck.png',layers:'regional'},
+   'THE TIPPED DELIVERY TRUCK':{id:'delivery-truck',folder:'scenarios',file:'the_tipped_delivery_truck.png',layers:'road'},
    'THE TRAVELER':{id:'traveler-vale',folder:'scenarios',file:'the_traveler_vale.png',layers:'road'},
    'THE SPRAINED RUNNER':{id:'sprained-runner',folder:'scenarios',file:'the_sprained_runner.png',layers:'road'},
    'BROKEN TOLL CREW':{id:'last-patrol',folder:'scenarios',file:'the_last_patrol.png',layers:'road'},

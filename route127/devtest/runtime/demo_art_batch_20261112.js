@@ -22,7 +22,7 @@
  const enforcer=()=>isFight()&&fight()?.r18Enforcer===true;
  const discoveredRabbit=()=>!!(player?.flags?.r18RabbitSeen||player?.flags?.r18RabbitReleased||player?.flags?.r18RabbitAdopted);
  function presentation(){
-  if(guard())return {id:'solace-guard',file:asset('locations','solace_town_gate.png'),layers:'none',guard:true};
+  if(guard())return {id:'solace-guard',file:new URL('../playtest/assets/locations/solace_town_gate.png',root).href,layers:'none',guard:true};
   if(enforcer())return {id:'road-enforcer',file:asset('scenarios','the_road_enforcer.png'),layers:'road'};
   if(stage!=='encounter')return null;
   const title=norm(encounter()?.title),display=norm(encounter()?.displayName);

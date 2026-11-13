@@ -116,7 +116,7 @@
  // These are scene previews, not changes to combat or encounter mechanics.
  register('THE KNIFE WIND',[],'both','The Road Reapers — sky only',enemy('the_road_reapers.png'));
  register('THE LIMPING HOUND',[],'both','Rescue the mastiff — sky only',scenery('the_limping_hound.png'));
- register('THE WALKING PEDDLER',[],'both','Old Pete — sky only',scenery('old_pete..png'));
+ register('THE WALKING PEDDLER',[],'both','Old Pete — sky only',scenery('old_pete.png'));
  register('THE TIPPED DELIVERY TRUCK',[],'both','Delivery truck — sky only',scenery('the_tipped_delivery_truck.png'));
  register('THE TRAVELER',[],'both','Vale — sky and dirt road',scenery('the_traveler_vale.png'));
  register('THE SPRAINED RUNNER',[],'both','Sprained runner — sky and dirt road',scenery('the_sprained_runner.png'));

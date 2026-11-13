@@ -1,74 +1,932 @@
 {
   "environment": "DEVTEST",
-  "source": "route127/playtest/index.html",
-  "sourceSHA256": "5d9c8794b3e35cd1b604112b4295ff97040cbe80cc354bd8eb5c60cf7e57bcdd",
+  "source": "route127/devtest/index.html",
+  "sourceSHA256": "17ff59b339add60c3fbb0253715f9a97f15ef74cb4b0823ccfd0cb0c3c6ee389",
   "base": "../playtest/",
-  "scripts": [
-    "scenario_registry.js?v=wo18",
-    "app.js?v=wo21-yardman",
-    "casino.js?v=r18-completion2",
-    "polish.js?v=wo17",
-    "expansion.js?v=r18-completion2",
-    "crime.js?v=r18-completion2",
-    "consolidation.js?v=r18-completion2",
-    "factory.js?v=wo19",
-    "seaport.js?v=r18-completion2",
-    "wanderer_fix.js?v=r18-completion2",
-    "v55.js?v=wo19",
-    "recruitment.js?v=r18-completion2",
-    "stabilization.js?v=wo17",
-    "final_polish.js?v=wo24",
-    "road_balance.js?v=corvette-guard",
-    "banking_identity.js?v=r18-completion2",
-    "r11.js?v=corvette-guard",
-    "lantern_world_graph.js?v=wo18",
-    "lantern_map_visual.js?v=wo5d-final",
-    "lantern_world.js?v=wo24",
-    "r18_tournaments.js?v=r18-completion2",
-    "r18_ash.js?v=r18-completion2",
-    "r18_fence.js?v=r18-completion2",
-    "r18_residents.js?v=r18-completion2",
-    "r18_completion.js?v=r18-completion2",
-    "corvette_guard.js?v=wo18",
-    "station_nine.js?v=1",
-    "regional_combat.js?v=1",
-    "wanderer_world_expansion.js?v=1",
-    "wo7_roadside.js?v=1",
-    "wo8_autonomous.js?v=1",
-    "legacy_rewards.js?v=wo10",
-    "economy.js?v=wo12",
-    "lifecycle.js?v=wo13",
-    "r15_session.js?v=r18-completion2",
-    "regional_navigation.js?v=wo24",
-    "graphics.js?v=wo26-gates",
-    "traveler_panels.js?v=wo18-combat-panels",
-    "location_lettering.js?v=stencil-1",
-    "input_dialogs.js?v=1",
-    "playthrough_repairs.js?v=wo18",
-    "identity_colors.js?v=1",
-    "road_repairs.js?v=wo24",
-    "casino_menu_graphics.js?v=rps-animated-hands-1",
-    "rps_object_animation.js?v=rps-objects-2",
-    "slots_animated_reels.js?v=slots-animated-1",
-    "rats_animated_race.js?v=rats-race-2",
-    "rat_racing_bet_names.js?v=rat-names-1",
-    "rusty_lantern_bar_graphics.js?v=bar-art-3",
-    "wanderer_live.js?v=portraits50",
-    "legacy_wanderer_profiles.js?v=1",
-    "wanderer_level_stars.js?v=1",
-    "runtime/wanderer_visual_bios.js?v=wo27",
-    "runtime/wanderer_info_panel.js?v=wo27",
-    "runtime/companion_repair.js?v=wo27",
-    "runtime/tim_badge_turnin.js?v=wo27",
-    "runtime/murphy_level_gate.js?v=wo27",
-    "runtime/courier_handoff_rewards.js?v=wo27",
-    "runtime/quest_item_tabs.js?v=wo27",
-    "runtime/journal_cleanup.js?v=wo27",
-    "runtime/solace_hub.js?v=wo27",
-    "runtime/navigation_batch_20261103.js?v=wo27",
-    "runtime/jen_work_menu.js?v=wo27",
-    "runtime/solace_interiors_batch.js?v=wo27",
-    "runtime/save_recovery.js?v=wo27"
-  ],
-  "policy": "Normal gameplay; no backend; no QA activation; private write namespace; existing local data read-only until saved as Devtest fork."
+  "externalCount": 151,
+  "inlineCount": 4,
+  "startup": [
+    {
+      "phase": "bootstrap",
+      "src": "../devtest/runtime/environment.js?v=wo25",
+      "path": "route127/devtest/runtime/environment.js",
+      "query": "?v=wo25"
+    },
+    {
+      "phase": "bootstrap",
+      "inlineSHA256": "96a2776c9e02cda1dc9ca5567772f2079c1da7f6219aec63f7a780ee1f5761a1"
+    },
+    {
+      "phase": "bootstrap",
+      "inlineSHA256": "7525f3d85d344f045da92db54a3268fbb7c4a00e7f0246c46d9a25acd075dd98"
+    },
+    {
+      "phase": "guarded",
+      "src": "../devtest/scenario_registry.js?v=powder-monkey-id-fix-20261113",
+      "path": "route127/devtest/scenario_registry.js",
+      "query": "?v=powder-monkey-id-fix-20261113"
+    },
+    {
+      "phase": "guarded",
+      "src": "app.js?v=steve-promo-menu-2",
+      "path": "route127/playtest/app.js",
+      "query": "?v=steve-promo-menu-2"
+    },
+    {
+      "phase": "guarded",
+      "src": "../devtest/runtime/enemy_scaling_wo33.js?v=2",
+      "path": "route127/devtest/runtime/enemy_scaling_wo33.js",
+      "query": "?v=2"
+    },
+    {
+      "phase": "guarded",
+      "src": "casino.js?v=steve-promo-menu-2",
+      "path": "route127/playtest/casino.js",
+      "query": "?v=steve-promo-menu-2"
+    },
+    {
+      "phase": "guarded",
+      "src": "polish.js?v=wo17",
+      "path": "route127/playtest/polish.js",
+      "query": "?v=wo17"
+    },
+    {
+      "phase": "guarded",
+      "src": "expansion.js?v=r18-completion2",
+      "path": "route127/playtest/expansion.js",
+      "query": "?v=r18-completion2"
+    },
+    {
+      "phase": "guarded",
+      "src": "crime.js?v=r18-completion2",
+      "path": "route127/playtest/crime.js",
+      "query": "?v=r18-completion2"
+    },
+    {
+      "phase": "guarded",
+      "src": "consolidation.js?v=sell-singleton-20261109",
+      "path": "route127/playtest/consolidation.js",
+      "query": "?v=sell-singleton-20261109"
+    },
+    {
+      "phase": "guarded",
+      "src": "factory.js?v=wo19",
+      "path": "route127/playtest/factory.js",
+      "query": "?v=wo19"
+    },
+    {
+      "phase": "guarded",
+      "src": "seaport.js?v=r18-completion2",
+      "path": "route127/playtest/seaport.js",
+      "query": "?v=r18-completion2"
+    },
+    {
+      "phase": "guarded",
+      "src": "wanderer_fix.js?v=r18-completion2",
+      "path": "route127/playtest/wanderer_fix.js",
+      "query": "?v=r18-completion2"
+    },
+    {
+      "phase": "guarded",
+      "src": "v55.js?v=wo19",
+      "path": "route127/playtest/v55.js",
+      "query": "?v=wo19"
+    },
+    {
+      "phase": "guarded",
+      "src": "recruitment.js?v=r18-completion2",
+      "path": "route127/playtest/recruitment.js",
+      "query": "?v=r18-completion2"
+    },
+    {
+      "phase": "guarded",
+      "src": "stabilization.js?v=wo17",
+      "path": "route127/playtest/stabilization.js",
+      "query": "?v=wo17"
+    },
+    {
+      "phase": "guarded",
+      "src": "final_polish.js?v=wo24",
+      "path": "route127/playtest/final_polish.js",
+      "query": "?v=wo24"
+    },
+    {
+      "phase": "guarded",
+      "src": "road_balance.js?v=corvette-guard",
+      "path": "route127/playtest/road_balance.js",
+      "query": "?v=corvette-guard"
+    },
+    {
+      "phase": "guarded",
+      "src": "banking_identity.js?v=r18-completion2",
+      "path": "route127/playtest/banking_identity.js",
+      "query": "?v=r18-completion2"
+    },
+    {
+      "phase": "guarded",
+      "src": "../devtest/r11.js?v=issue24-steve-retired",
+      "path": "route127/devtest/r11.js",
+      "query": "?v=issue24-steve-retired"
+    },
+    {
+      "phase": "guarded",
+      "src": "../devtest/lantern_world_graph.js?v=factory-boulder-encounters-industrial-20261113",
+      "path": "route127/devtest/lantern_world_graph.js",
+      "query": "?v=factory-boulder-encounters-industrial-20261113"
+    },
+    {
+      "phase": "guarded",
+      "src": "../devtest/lantern_map_visual.js?v=wo30-pearl-geometry",
+      "path": "route127/devtest/lantern_map_visual.js",
+      "query": "?v=wo30-pearl-geometry"
+    },
+    {
+      "phase": "guarded",
+      "src": "../devtest/lantern_world.js?v=wo30-devtest-path",
+      "path": "route127/devtest/lantern_world.js",
+      "query": "?v=wo30-devtest-path"
+    },
+    {
+      "phase": "guarded",
+      "src": "r18_tournaments.js?v=r18-completion2",
+      "path": "route127/playtest/r18_tournaments.js",
+      "query": "?v=r18-completion2"
+    },
+    {
+      "phase": "guarded",
+      "src": "r18_ash.js?v=r18-completion2",
+      "path": "route127/playtest/r18_ash.js",
+      "query": "?v=r18-completion2"
+    },
+    {
+      "phase": "guarded",
+      "src": "r18_fence.js?v=r18-completion2",
+      "path": "route127/playtest/r18_fence.js",
+      "query": "?v=r18-completion2"
+    },
+    {
+      "phase": "guarded",
+      "src": "r18_residents.js?v=r18-completion2",
+      "path": "route127/playtest/r18_residents.js",
+      "query": "?v=r18-completion2"
+    },
+    {
+      "phase": "guarded",
+      "src": "r18_completion.js?v=r18-completion2",
+      "path": "route127/playtest/r18_completion.js",
+      "query": "?v=r18-completion2"
+    },
+    {
+      "phase": "guarded",
+      "inlineSHA256": "0796d371b0ed608f765162ab163e6ba76c786a6ef7e89e39b5b40c66cb4c76d8"
+    },
+    {
+      "phase": "guarded",
+      "src": "corvette_guard.js?v=wo18",
+      "path": "route127/playtest/corvette_guard.js",
+      "query": "?v=wo18"
+    },
+    {
+      "phase": "guarded",
+      "src": "station_nine.js?v=1",
+      "path": "route127/playtest/station_nine.js",
+      "query": "?v=1"
+    },
+    {
+      "phase": "guarded",
+      "src": "regional_combat.js?v=bat-multiregion-1",
+      "path": "route127/playtest/regional_combat.js",
+      "query": "?v=bat-multiregion-1"
+    },
+    {
+      "phase": "guarded",
+      "src": "wanderer_world_expansion.js?v=1",
+      "path": "route127/playtest/wanderer_world_expansion.js",
+      "query": "?v=1"
+    },
+    {
+      "phase": "guarded",
+      "src": "wo7_roadside.js?v=1",
+      "path": "route127/playtest/wo7_roadside.js",
+      "query": "?v=1"
+    },
+    {
+      "phase": "guarded",
+      "src": "wo8_autonomous.js?v=taxi-leave-20261113",
+      "path": "route127/playtest/wo8_autonomous.js",
+      "query": "?v=taxi-leave-20261113"
+    },
+    {
+      "phase": "guarded",
+      "src": "legacy_rewards.js?v=wo10",
+      "path": "route127/playtest/legacy_rewards.js",
+      "query": "?v=wo10"
+    },
+    {
+      "phase": "guarded",
+      "src": "economy.js?v=wo12",
+      "path": "route127/playtest/economy.js",
+      "query": "?v=wo12"
+    },
+    {
+      "phase": "guarded",
+      "src": "lifecycle.js?v=wo13",
+      "path": "route127/playtest/lifecycle.js",
+      "query": "?v=wo13"
+    },
+    {
+      "phase": "guarded",
+      "src": "r15_session.js?v=r18-completion2",
+      "path": "route127/playtest/r15_session.js",
+      "query": "?v=r18-completion2"
+    },
+    {
+      "phase": "guarded",
+      "src": "../devtest/regional_navigation.js?v=factory-boulder-industrial-20261113",
+      "path": "route127/devtest/regional_navigation.js",
+      "query": "?v=factory-boulder-industrial-20261113"
+    },
+    {
+      "phase": "guarded",
+      "src": "graphics.js?v=hide-bbs-echo-20261113",
+      "path": "route127/playtest/graphics.js",
+      "query": "?v=hide-bbs-echo-20261113"
+    },
+    {
+      "phase": "guarded",
+      "src": "traveler_panels.js?v=wo18-combat-panels",
+      "path": "route127/playtest/traveler_panels.js",
+      "query": "?v=wo18-combat-panels"
+    },
+    {
+      "phase": "guarded",
+      "src": "location_lettering.js?v=stencil-1",
+      "path": "route127/playtest/location_lettering.js",
+      "query": "?v=stencil-1"
+    },
+    {
+      "phase": "guarded",
+      "src": "input_dialogs.js?v=1",
+      "path": "route127/playtest/input_dialogs.js",
+      "query": "?v=1"
+    },
+    {
+      "phase": "guarded",
+      "src": "playthrough_repairs.js?v=wo18",
+      "path": "route127/playtest/playthrough_repairs.js",
+      "query": "?v=wo18"
+    },
+    {
+      "phase": "guarded",
+      "src": "identity_colors.js?v=1",
+      "path": "route127/playtest/identity_colors.js",
+      "query": "?v=1"
+    },
+    {
+      "phase": "guarded",
+      "src": "road_repairs.js?v=wo24",
+      "path": "route127/playtest/road_repairs.js",
+      "query": "?v=wo24"
+    },
+    {
+      "phase": "guarded",
+      "src": "casino_menu_graphics.js?v=rps-animated-hands-1",
+      "path": "route127/playtest/casino_menu_graphics.js",
+      "query": "?v=rps-animated-hands-1"
+    },
+    {
+      "phase": "guarded",
+      "src": "rps_object_animation.js?v=rps-objects-2",
+      "path": "route127/playtest/rps_object_animation.js",
+      "query": "?v=rps-objects-2"
+    },
+    {
+      "phase": "guarded",
+      "src": "slots_animated_reels.js?v=slots-animated-1",
+      "path": "route127/playtest/slots_animated_reels.js",
+      "query": "?v=slots-animated-1"
+    },
+    {
+      "phase": "guarded",
+      "src": "rats_animated_race.js?v=rats-race-2",
+      "path": "route127/playtest/rats_animated_race.js",
+      "query": "?v=rats-race-2"
+    },
+    {
+      "phase": "guarded",
+      "src": "rat_racing_bet_names.js?v=rat-names-1",
+      "path": "route127/playtest/rat_racing_bet_names.js",
+      "query": "?v=rat-names-1"
+    },
+    {
+      "phase": "guarded",
+      "src": "rusty_lantern_bar_graphics.js?v=bar-art-3",
+      "path": "route127/playtest/rusty_lantern_bar_graphics.js",
+      "query": "?v=bar-art-3"
+    },
+    {
+      "phase": "guarded",
+      "src": "runtime/wanderer_visual_bios.js?v=eli-mercer-20261112",
+      "path": "route127/playtest/runtime/wanderer_visual_bios.js",
+      "query": "?v=eli-mercer-20261112"
+    },
+    {
+      "phase": "guarded",
+      "src": "runtime/wanderer_info_panel.js?v=wo27-name",
+      "path": "route127/playtest/runtime/wanderer_info_panel.js",
+      "query": "?v=wo27-name"
+    },
+    {
+      "phase": "guarded",
+      "src": "runtime/companion_repair.js?v=wo27",
+      "path": "route127/playtest/runtime/companion_repair.js",
+      "query": "?v=wo27"
+    },
+    {
+      "phase": "guarded",
+      "src": "runtime/tim_badge_turnin.js?v=wo27",
+      "path": "route127/playtest/runtime/tim_badge_turnin.js",
+      "query": "?v=wo27"
+    },
+    {
+      "phase": "guarded",
+      "src": "runtime/murphy_level_gate.js?v=wo27",
+      "path": "route127/playtest/runtime/murphy_level_gate.js",
+      "query": "?v=wo27"
+    },
+    {
+      "phase": "guarded",
+      "src": "runtime/courier_handoff_rewards.js?v=wo27",
+      "path": "route127/playtest/runtime/courier_handoff_rewards.js",
+      "query": "?v=wo27"
+    },
+    {
+      "phase": "guarded",
+      "src": "runtime/quest_item_tabs.js?v=wo27",
+      "path": "route127/playtest/runtime/quest_item_tabs.js",
+      "query": "?v=wo27"
+    },
+    {
+      "phase": "guarded",
+      "src": "runtime/journal_cleanup.js?v=wo27",
+      "path": "route127/playtest/runtime/journal_cleanup.js",
+      "query": "?v=wo27"
+    },
+    {
+      "phase": "guarded",
+      "src": "../devtest/runtime/menu_model.js?v=wo39-b",
+      "path": "route127/devtest/runtime/menu_model.js",
+      "query": "?v=wo39-b"
+    },
+    {
+      "phase": "guarded",
+      "src": "../devtest/runtime/solace_hub.js?v=respawn-gate-fix-20261110",
+      "path": "route127/devtest/runtime/solace_hub.js",
+      "query": "?v=respawn-gate-fix-20261110"
+    },
+    {
+      "phase": "guarded",
+      "src": "runtime/navigation_batch_20261103.js?v=wo27",
+      "path": "route127/playtest/runtime/navigation_batch_20261103.js",
+      "query": "?v=wo27"
+    },
+    {
+      "phase": "guarded",
+      "src": "../devtest/runtime/jen_work_menu.js?v=wo38-room",
+      "path": "route127/devtest/runtime/jen_work_menu.js",
+      "query": "?v=wo38-room"
+    },
+    {
+      "phase": "guarded",
+      "src": "../devtest/runtime/solace_interiors_batch.js?v=wo39-armory",
+      "path": "route127/devtest/runtime/solace_interiors_batch.js",
+      "query": "?v=wo39-armory"
+    },
+    {
+      "phase": "guarded",
+      "src": "runtime/save_recovery.js?v=wo27",
+      "path": "route127/playtest/runtime/save_recovery.js",
+      "query": "?v=wo27"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/bat_combat_visual.js?v=road-repair-1",
+      "path": "route127/devtest/runtime/bat_combat_visual.js",
+      "query": "?v=road-repair-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/dev_options.js?v=wo26-layouts",
+      "path": "route127/devtest/runtime/dev_options.js",
+      "query": "?v=wo26-layouts"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/wanderer_live.js?v=eli-mercer-20261112",
+      "path": "route127/devtest/runtime/wanderer_live.js",
+      "query": "?v=eli-mercer-20261112"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/legacy_wanderer_profiles.js?v=2",
+      "path": "route127/devtest/runtime/legacy_wanderer_profiles.js",
+      "query": "?v=2"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/wanderer_level_stars.js?v=1",
+      "path": "route127/devtest/runtime/wanderer_level_stars.js",
+      "query": "?v=1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/relay_road_patch.js?v=relay-diagnostic-clues",
+      "path": "route127/devtest/runtime/relay_road_patch.js",
+      "query": "?v=relay-diagnostic-clues"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/factory_gate_patch.js?v=20261104",
+      "path": "route127/devtest/runtime/factory_gate_patch.js",
+      "query": "?v=20261104"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/encounter_repair_patch.js?v=20261104-b",
+      "path": "route127/devtest/runtime/encounter_repair_patch.js",
+      "query": "?v=20261104-b"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/food_lure_patch.js?v=20261104-b",
+      "path": "route127/devtest/runtime/food_lure_patch.js",
+      "query": "?v=20261104-b"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/tim_bribe_patch.js?v=20261104-b",
+      "path": "route127/devtest/runtime/tim_bribe_patch.js",
+      "query": "?v=20261104-b"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/wanderer_trade_patch.js?v=20261104-b",
+      "path": "route127/devtest/runtime/wanderer_trade_patch.js",
+      "query": "?v=20261104-b"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/crafting_home_patch.js?v=house-south-arrow",
+      "path": "route127/devtest/runtime/crafting_home_patch.js",
+      "query": "?v=house-south-arrow"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/crafting_batch_patch.js?v=20261104-b",
+      "path": "route127/devtest/runtime/crafting_batch_patch.js",
+      "query": "?v=20261104-b"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/blueprint_guard_patch.js?v=20261104-b",
+      "path": "route127/devtest/runtime/blueprint_guard_patch.js",
+      "query": "?v=20261104-b"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/vendor_buyback_patch.js?v=20261104-b",
+      "path": "route127/devtest/runtime/vendor_buyback_patch.js",
+      "query": "?v=20261104-b"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/theft_status_patch.js?v=20261104-b",
+      "path": "route127/devtest/runtime/theft_status_patch.js",
+      "query": "?v=20261104-b"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/wanderer_produce_patch.js?v=20261104",
+      "path": "route127/devtest/runtime/wanderer_produce_patch.js",
+      "query": "?v=20261104"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/factory_stabilization_20261104.js?v=wo39",
+      "path": "route127/devtest/runtime/factory_stabilization_20261104.js",
+      "query": "?v=wo39"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/ui_balance_20261104.js?v=2",
+      "path": "route127/devtest/runtime/ui_balance_20261104.js",
+      "query": "?v=2"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/factory_menu_cleanup_20261104.js?v=wo39",
+      "path": "route127/devtest/runtime/factory_menu_cleanup_20261104.js",
+      "query": "?v=wo39"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/forge_dynamite_handoff_hotfix.js?v=1",
+      "path": "route127/devtest/runtime/forge_dynamite_handoff_hotfix.js",
+      "query": "?v=1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/graphical_output_performance_20261104.js?v=issue24-save-prompt",
+      "path": "route127/devtest/runtime/graphical_output_performance_20261104.js",
+      "query": "?v=issue24-save-prompt"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/forge_workshop_art_20261104.js?v=rusty-cinematic-20261113",
+      "path": "route127/devtest/runtime/forge_workshop_art_20261104.js",
+      "query": "?v=rusty-cinematic-20261113"
+    },
+    {
+      "phase": "overlay",
+      "src": "runtime/wanderer_density_20261105.js?v=wo29",
+      "path": "route127/playtest/runtime/wanderer_density_20261105.js",
+      "query": "?v=wo29"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/presentation_formatting.js?v=issue25-scenario-audit",
+      "path": "route127/devtest/runtime/presentation_formatting.js",
+      "query": "?v=issue25-scenario-audit"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/retire_kings_breaker.js?v=1",
+      "path": "route127/devtest/runtime/retire_kings_breaker.js",
+      "query": "?v=1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/menu_authority.js?v=road-repair-1",
+      "path": "route127/devtest/runtime/menu_authority.js",
+      "query": "?v=road-repair-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/nessa_pet_shop.js?v=wo40",
+      "path": "route127/devtest/runtime/nessa_pet_shop.js",
+      "query": "?v=wo40"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/vendor_price_labels.js?v=1",
+      "path": "route127/devtest/runtime/vendor_price_labels.js",
+      "query": "?v=1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/zero_turn_rescue.js?v=1",
+      "path": "route127/devtest/runtime/zero_turn_rescue.js",
+      "query": "?v=1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/return_last_menu.js?v=wo40",
+      "path": "route127/devtest/runtime/return_last_menu.js",
+      "query": "?v=wo40"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/red_dialogue_cleanup_20261105.js?v=wo40",
+      "path": "route127/devtest/runtime/red_dialogue_cleanup_20261105.js",
+      "query": "?v=wo40"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/mia_small_talk_20261105.js?v=wo45-mia-talk",
+      "path": "route127/devtest/runtime/mia_small_talk_20261105.js",
+      "query": "?v=wo45-mia-talk"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/seaport_casino_art_exit_20261105.js?v=wo40",
+      "path": "route127/devtest/runtime/seaport_casino_art_exit_20261105.js",
+      "query": "?v=wo40"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/shared_inn_room_art_20261105.js?v=wo49",
+      "path": "route127/devtest/runtime/shared_inn_room_art_20261105.js",
+      "query": "?v=wo49"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/seaport_pirates_poker_20261105.js?v=wo50-round-binding",
+      "path": "route127/devtest/runtime/seaport_pirates_poker_20261105.js",
+      "query": "?v=wo50-round-binding"
+    },
+    {
+      "phase": "overlay",
+      "inlineSHA256": "c3d1f77dc347b3514efa6357b7a47161f3413fd3e135dd49ee472b6c75ad5f2d"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/slot_results_20261105.js?v=casino-results-3",
+      "path": "route127/devtest/runtime/slot_results_20261105.js",
+      "query": "?v=casino-results-3"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/seaport_crab_race_visual_20261105.js?v=crab-lanes-lowered-5",
+      "path": "route127/devtest/runtime/seaport_crab_race_visual_20261105.js",
+      "query": "?v=crab-lanes-lowered-5"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/seaport_knife_throwing_visual_20261105.js?v=knife-calibrated-3",
+      "path": "route127/devtest/runtime/seaport_knife_throwing_visual_20261105.js",
+      "query": "?v=knife-calibrated-3"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/seaport_room_chest_20261106.js?v=modal-guard-3",
+      "path": "route127/devtest/runtime/seaport_room_chest_20261106.js",
+      "query": "?v=modal-guard-3"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/shared_room_storage_20261106.js?v=solace-house-1",
+      "path": "route127/devtest/runtime/shared_room_storage_20261106.js",
+      "query": "?v=solace-house-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/backpack_equipment_comparison_20261106.js?v=bag-healing-2",
+      "path": "route127/devtest/runtime/backpack_equipment_comparison_20261106.js",
+      "query": "?v=bag-healing-2"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/storage_backpack_modal_guard_20261106.js?v=room-backpack-1",
+      "path": "route127/devtest/runtime/storage_backpack_modal_guard_20261106.js",
+      "query": "?v=room-backpack-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/combat_result_summary_20261106.js?v=wo45-nightfall-1",
+      "path": "route127/devtest/runtime/combat_result_summary_20261106.js",
+      "query": "?v=wo45-nightfall-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/enemy_reward_compat_wo33.js?v=1",
+      "path": "route127/devtest/runtime/enemy_reward_compat_wo33.js",
+      "query": "?v=1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/raccoon_combat_visual.js?v=road-repair-1",
+      "path": "route127/devtest/runtime/raccoon_combat_visual.js",
+      "query": "?v=road-repair-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/human_group_combat_visual.js?v=issue24-hollowed-fit",
+      "path": "route127/devtest/runtime/human_group_combat_visual.js",
+      "query": "?v=issue24-hollowed-fit"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/road_npc_art_20261109.js?v=road-repair-1",
+      "path": "route127/devtest/runtime/road_npc_art_20261109.js",
+      "query": "?v=road-repair-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/roadside_art_20261110.js?v=highway-hunters-trio-1",
+      "path": "route127/devtest/runtime/roadside_art_20261110.js",
+      "query": "?v=highway-hunters-trio-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/workbench_upgrade_20261110.js?v=workbench-back-fix-2",
+      "path": "route127/devtest/runtime/workbench_upgrade_20261110.js",
+      "query": "?v=workbench-back-fix-2"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/combat_balance_wo43.js?v=balance-round2-20261110",
+      "path": "route127/devtest/runtime/combat_balance_wo43.js",
+      "query": "?v=balance-round2-20261110"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/factory_floor_boss_art_20261109.js?v=factory-scenes-1",
+      "path": "route127/devtest/runtime/factory_floor_boss_art_20261109.js",
+      "query": "?v=factory-scenes-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/regional_sky_wo45.js?v=issue38-sky",
+      "path": "route127/devtest/runtime/regional_sky_wo45.js",
+      "query": "?v=issue38-sky"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/nightfall_wo45.js?v=wo45-1",
+      "path": "route127/devtest/runtime/nightfall_wo45.js",
+      "query": "?v=wo45-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/environmental_effects_wo46.js?v=wo48-glass-2",
+      "path": "route127/devtest/runtime/environmental_effects_wo46.js",
+      "query": "?v=wo48-glass-2"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/empty_bus_shelter_20261110.js?v=bus-scenes-1",
+      "path": "route127/devtest/runtime/empty_bus_shelter_20261110.js",
+      "query": "?v=bus-scenes-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/hanging_shoes_20261110.js?v=shoes-1",
+      "path": "route127/devtest/runtime/hanging_shoes_20261110.js",
+      "query": "?v=shoes-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/iron_harvest_20261110.js?v=harvest-sky-1",
+      "path": "route127/devtest/runtime/iron_harvest_20261110.js",
+      "query": "?v=harvest-sky-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/enid_fence_artist_20261110.js?v=enid-sky-staff-1",
+      "path": "route127/devtest/runtime/enid_fence_artist_20261110.js",
+      "query": "?v=enid-sky-staff-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/silent_picnic_20261110.js?v=picnic-1",
+      "path": "route127/devtest/runtime/silent_picnic_20261110.js",
+      "query": "?v=picnic-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/miles_courier_art_20261110.js?v=miles-1",
+      "path": "route127/devtest/runtime/miles_courier_art_20261110.js",
+      "query": "?v=miles-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/last_mail_20261110.js?v=last-mail-1",
+      "path": "route127/devtest/runtime/last_mail_20261110.js",
+      "query": "?v=last-mail-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/post_office_routes_20261110.js?v=post-routes-1",
+      "path": "route127/devtest/runtime/post_office_routes_20261110.js",
+      "query": "?v=post-routes-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/rust_parade_art_20261110.js?v=rust-parade-1",
+      "path": "route127/devtest/runtime/rust_parade_art_20261110.js",
+      "query": "?v=rust-parade-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/carousel_horse_art_20261110.js?v=carousel-1",
+      "path": "route127/devtest/runtime/carousel_horse_art_20261110.js",
+      "query": "?v=carousel-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/welded_bus_art_20261111.js?v=welded-bus-1",
+      "path": "route127/devtest/runtime/welded_bus_art_20261111.js",
+      "query": "?v=welded-bus-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/shattered_silo_art_20261111.js?v=silo-1",
+      "path": "route127/devtest/runtime/shattered_silo_art_20261111.js",
+      "query": "?v=silo-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/mask_market_art_20261111.js?v=mask-market-1",
+      "path": "route127/devtest/runtime/mask_market_art_20261111.js",
+      "query": "?v=mask-market-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/paper_storm_art_20261111.js?v=paper-storm-1",
+      "path": "route127/devtest/runtime/paper_storm_art_20261111.js",
+      "query": "?v=paper-storm-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/false_shoulder_art_20261111.js?v=false-shoulder-1",
+      "path": "route127/devtest/runtime/false_shoulder_art_20261111.js",
+      "query": "?v=false-shoulder-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/new_roadside_art_20261111.js?v=issue38-sky",
+      "path": "route127/devtest/runtime/new_roadside_art_20261111.js",
+      "query": "?v=issue38-sky"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/combat_layout_manifest.js?v=iron-choir-scrap-duel-last-stop-layouts-20261112",
+      "path": "route127/devtest/runtime/combat_layout_manifest.js",
+      "query": "?v=iron-choir-scrap-duel-last-stop-layouts-20261112"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/combat_layouts.js?v=character-night-lighting-20261113",
+      "path": "route127/devtest/runtime/combat_layouts.js",
+      "query": "?v=character-night-lighting-20261113"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/combat_layout_editor.js?v=station-nine-regional-20261113",
+      "path": "route127/devtest/runtime/combat_layout_editor.js",
+      "query": "?v=station-nine-regional-20261113"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/pearl_map_wo30.js?v=road-join-smoothing-20261112",
+      "path": "route127/devtest/runtime/pearl_map_wo30.js",
+      "query": "?v=road-join-smoothing-20261112"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/world_map_presentation.js?v=luna-fix-2",
+      "path": "route127/devtest/runtime/world_map_presentation.js",
+      "query": "?v=luna-fix-2"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/cinematic_map_assets.js?v=mobile-map-v1-20261112",
+      "path": "route127/devtest/runtime/cinematic_map_assets.js",
+      "query": "?v=mobile-map-v1-20261112"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/county_depot_art_20261112.js?v=county-depot-package-1",
+      "path": "route127/devtest/runtime/county_depot_art_20261112.js",
+      "query": "?v=county-depot-package-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/owner_scenario_batch_20261112.js?v=bridge-toll-sky-20261112",
+      "path": "route127/devtest/runtime/owner_scenario_batch_20261112.js",
+      "query": "?v=bridge-toll-sky-20261112"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/seaport_post_office_20261112.js?v=harbor-dispatch-1",
+      "path": "route127/devtest/runtime/seaport_post_office_20261112.js",
+      "query": "?v=harbor-dispatch-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/region_boundary_editor.js?v=sketch-tool-global-fix-20261112-3",
+      "path": "route127/devtest/runtime/region_boundary_editor.js",
+      "query": "?v=sketch-tool-global-fix-20261112-3"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/sky_road_lab_20261112.js?v=sky-road-lab-1",
+      "path": "route127/devtest/runtime/sky_road_lab_20261112.js",
+      "query": "?v=sky-road-lab-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/approved_sky_road_scenes_20261112.js?v=iron-harvest-road-1",
+      "path": "route127/devtest/runtime/approved_sky_road_scenes_20261112.js",
+      "query": "?v=iron-harvest-road-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/demo_art_batch_20261112.js?v=mobile-layered-art-inset-20261113",
+      "path": "route127/devtest/runtime/demo_art_batch_20261112.js",
+      "query": "?v=mobile-layered-art-inset-20261113"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/owner_art_finish_20261112.js?v=iron-choir-road-20261112-3",
+      "path": "route127/devtest/runtime/owner_art_finish_20261112.js",
+      "query": "?v=iron-choir-road-20261112-3"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/daniel_rescue_cinematics_20261113.js?v=daniel-rescue-cinematic-1",
+      "path": "route127/devtest/runtime/daniel_rescue_cinematics_20261113.js",
+      "query": "?v=daniel-rescue-cinematic-1"
+    }
+  ]
 }

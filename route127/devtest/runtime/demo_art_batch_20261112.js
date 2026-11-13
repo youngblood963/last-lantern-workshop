@@ -20,13 +20,29 @@
  const isFight=()=>['combat','combatItems'].includes(typeof stage==='undefined'?'':stage);
  const guard=()=>isFight()&&fight()?.source==='gateGuards';
  const enforcer=()=>isFight()&&fight()?.r18Enforcer===true;
+ const yardman=()=>isFight()&&(fight()?.source==='serviceBoss'||fight()?.name==='THE YARDMAN');
  const discoveredRabbit=()=>!!(player?.flags?.r18RabbitSeen||player?.flags?.r18RabbitReleased||player?.flags?.r18RabbitAdopted);
  function presentation(){
-  if(stage==='r127StevePromo')return {id:'crazy-steve',file:asset('scenarios','crazy_steve.png'),layers:'road'};
+  if(stage==='r127StevePromo')return {id:'crazy-steve',file:asset('scenarios','crazy_steve.png'),layers:'sky'};
   if(guard())return {id:'solace-guard',file:new URL('../playtest/assets/locations/solace_town_gate.png',root).href,layers:'none',guard:true};
   if(enforcer())return {id:'road-enforcer',file:asset('scenarios','the_road_enforcer.png'),layers:'road'};
+  if(yardman())return {id:'the-yardman',file:asset('scenarios','the_yardman.png'),layers:'sky'};
   if(stage!=='encounter')return null;
   const title=norm(encounter()?.title),display=norm(encounter()?.displayName);
+  // Owner's latest approved artwork: the first group uses sky only, the
+  // second uses sky and dirt foreground. Reapers art lives in enemies,
+  // and Old Pete's current uploaded filename intentionally has two dots.
+  const newlyApproved={
+   'THE KNIFE WIND':{id:'the-road-reapers',folder:'enemies',file:'the_road_reapers.png',layers:'sky'},
+   'THE LIMPING HOUND':{id:'the-limping-hound',folder:'scenarios',file:'the_limping_hound.png',layers:'sky'},
+   'THE WALKING PEDDLER':{id:'old-pete',folder:'scenarios',file:'old_pete..png',layers:'sky'},
+   'THE TIPPED DELIVERY TRUCK':{id:'delivery-truck',folder:'scenarios',file:'the_tipped_delivery_truck.png',layers:'sky'},
+   'THE TRAVELER':{id:'traveler-vale',folder:'scenarios',file:'the_traveler_vale.png',layers:'road'},
+   'THE SPRAINED RUNNER':{id:'sprained-runner',folder:'scenarios',file:'the_sprained_runner.png',layers:'road'},
+   'BROKEN TOLL CREW':{id:'last-patrol',folder:'scenarios',file:'the_last_patrol.png',layers:'road'}
+  };
+  const approved=newlyApproved[title]||newlyApproved[display];
+  if(approved)return {id:approved.id,file:asset(approved.folder,approved.file),layers:approved.layers};
   if(title==='RIDGELINE'||display==='RIDGELINE')return {id:'ridgeline',file:asset('scenarios','ridgeline.gif'),layers:'none'};
   if(title==='SCRATCHING IN THE SHED'||display==='SCRATCHING IN THE SHED')return {id:'shed',file:asset('scenarios',discoveredRabbit()?'scratching_in_the_shed_rabbit.gif':'scratching_in_the_shed_empty.gif'),layers:'road'};
   if(title==='THE DRY FOUNTAIN'||display==='THE ROAD ENFORCER')return {id:'road-enforcer',file:asset('scenarios','the_road_enforcer.png'),layers:'road'};
@@ -114,5 +130,5 @@
   }catch(err){console.warn('DEVTEST demo encounter artwork:',err);}
   return result;
  };
- globalThis.Route127DemoArtBatch=Object.freeze({ids:['ridgeline','shed','solace-guard','road-enforcer','armory','garden','corvette','shattered-glass','station-nine-radio','crazy-steve']});
+ globalThis.Route127DemoArtBatch=Object.freeze({ids:['ridgeline','shed','solace-guard','road-enforcer','armory','garden','corvette','shattered-glass','station-nine-radio','crazy-steve','the-yardman','the-road-reapers','the-limping-hound','old-pete','delivery-truck','traveler-vale','sprained-runner','last-patrol']});
 })();

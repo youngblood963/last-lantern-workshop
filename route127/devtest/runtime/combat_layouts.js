@@ -277,6 +277,8 @@
 
  const selector='.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-figure,.r127-npc-combat,.r127-road-unit,.r127-silo-boar';
  function activeScene(){
+  // The level-five Crazy Steve promotional menu is a standalone graphical stage.
+  if(typeof stage!=='undefined'&&stage==='r127StevePromo')return {id:'scripted:crazy-steve',phase:'approach'};
   const c=typeof combatState==='undefined'?null:combatState;
   if(c?.r18DanielCaptors)return {id:'factory:captors',phase:'combat'};
   if(stage==='factoryDungeonRoom'&&!c){

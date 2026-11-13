@@ -678,6 +678,61 @@ globalThis.Route127PublishedCombatLayouts={
         "z": 1,
         "flip": true
       }
+    },
+    "early:9/approach/desktop": {
+      "background:the_traveler_vale.png": {
+        "x": 28.94345154466278,
+        "y": 53.57142965269199,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "scripted:crazy-steve/approach/desktop": {
+      "background:crazy_steve.png": {
+        "x": 47.2470149144435,
+        "y": 57.936508096695114,
+        "width": 100,
+        "height": 100,
+        "scale": 0.8,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "early:50/approach/desktop": {
+      "background:the_limping_hound.png": {
+        "x": 57.366066385491706,
+        "y": 58.20105937576413,
+        "width": 100,
+        "height": 100,
+        "scale": 0.31,
+        "z": 1,
+        "flip": true
+      }
+    },
+    "east:33/approach/desktop": {
+      "background:the_road_reapers.png": {
+        "x": 50.446433082324,
+        "y": 53.174605257036426,
+        "width": 100,
+        "height": 100,
+        "scale": 0.42,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "early:64/approach/desktop": {
+      "background:old_pete.png": {
+        "x": 70.98214483382736,
+        "y": 70.23809716034131,
+        "width": 100,
+        "height": 100,
+        "scale": 0.59,
+        "z": 1,
+        "flip": false
+      }
     }
   }
 };

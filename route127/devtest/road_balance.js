@@ -19,7 +19,8 @@ function r10Candidates(region,kind){
   // Match the Causeway artwork boundary: Boulder Junction -> Seaport, steps 3–12.
   const g=typeof lanternState==='function'?lanternState():null;
   if(g?.currentEdgeId==='boulder-junction--seaport'&&Number(g.stepIndex)>2&&
-     ['IRRADIATED ROACHES','THE FENCE ARTIST','THE FIGHTING RING','THE FORGOTTEN ARENA','RUINED SIGNAL HUT']
+     ['IRRADIATED ROACHES','THE FENCE ARTIST','THE FIGHTING RING','THE FORGOTTEN ARENA','RUINED SIGNAL HUT',
+      'RIDGELINE','OLD BILLBOARD','THE MASK MARKET','THE SCRAP DUEL','THE MUD CANNON']
       .includes(r10CanonicalTitle(e.title)))return false;
   if(e.title==='THE LIMPING HOUND'&&player.flags.r18HoundAdopted)return false;
   if(e.title==='THE TRAVELER'&&!storyValeRoadAvailable())return false;

@@ -112,6 +112,16 @@
  register("MURPHY'S LOST CORVETTE",[],'both','Blue Corvette — sky + dirt road',scenery('murphys_lost_corvette.png'));
  register('RUINED SIGNAL HUT',[],'both','Shattered Glass — sky + dirt road',scenery('shattered_glass.png'));
  register('BROKEN RADIO',[],'both','Station Nine discovery radio',scenery('station_nine_discovery.png'));
+ // Newly approved 2026-11-12 batch. Keep original registry titles as keys.
+ // These are scene previews, not changes to combat or encounter mechanics.
+ register('THE KNIFE WIND',[],'both','The Road Reapers — sky only',enemy('the_road_reapers.png'));
+ register('THE LIMPING HOUND',[],'both','Rescue the mastiff — sky only',scenery('the_limping_hound.png'));
+ register('THE WALKING PEDDLER',[],'both','Old Pete — sky only',scenery('old_pete..png'));
+ register('THE TIPPED DELIVERY TRUCK',[],'both','Delivery truck — sky only',scenery('the_tipped_delivery_truck.png'));
+ register('THE TRAVELER',[],'both','Vale — sky and dirt road',scenery('the_traveler_vale.png'));
+ register('THE SPRAINED RUNNER',[],'both','Sprained runner — sky and dirt road',scenery('the_sprained_runner.png'));
+ register('BROKEN TOLL CREW',[],'both','The Last Patrol — sky and dirt road',scenery('the_last_patrol.png'));
+
 
 
  const rows=new Map();
@@ -135,6 +145,12 @@
  for(const [id,site] of [['east:67','Industrial Road — Fresh Mart'],['east:81','East Trade Route — St. Mercy Hospital']]){
   if(rows.has(id))rows.get(id).site=site;
  }
+ // Scripted Yardman miniboss uses a separate combat source, not a road pool ID.
+ rows.set('scripted:serviceboss',{id:'scripted:serviceboss',title:'THE YARDMAN',
+  name:'THE YARDMAN',classification:'FIXED',regions:['CENTRAL'],
+  site:'County Maintenance Yard',combat:true,variants:[
+   {units:[],phase:'both',variant:'Yardman cinematic — sky only',background:scenery('the_yardman.png')}
+  ]});
  const bosses=[
   ['SALVAGE KING','factory_salvage_king.png'],['GRINDER','factory_grinder.png'],
   ['THE CHEMIST','factory_chief_chemist.png'],['THE FOREMAN','factory_foreman.png']

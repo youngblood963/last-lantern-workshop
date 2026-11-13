@@ -80,8 +80,10 @@
  .gfx-art.r127-demo-art[data-demo-id="ridgeline"]>.gfx-image,
  .gfx-art.r127-demo-art[data-demo-id="armory"]>.gfx-image{object-fit:cover}
  .gfx-art.r127-demo-art[data-demo-id="solace-guard"]>.gfx-image{object-fit:cover}
- /* Road Reapers only: give the transparent sprite breathing room at the top. */
- .gfx-art.r127-demo-art[data-demo-id="the-road-reapers"]>.gfx-image{
+ /* Give layered encounter artwork breathing room, preserving complete scenes and combat sprites. */
+ .gfx-art.r127-demo-art[data-demo-layers="regional"]>.gfx-image,
+ .gfx-art.r127-demo-art[data-demo-layers="road"]>.gfx-image,
+ .gfx-art.r127-demo-art[data-demo-layers="sky"]>.gfx-image{
    object-fit:contain!important;
    object-position:center center!important;
    transform:scale(.90);
@@ -104,10 +106,11 @@
    fig.classList.toggle('r127-demo-art',active);
    if(!active){
     skyLayer?.remove();roadLayer?.remove();guardLayer?.remove();
-    delete fig.dataset.demoId;delete fig.dataset.demoPeriod;
+    delete fig.dataset.demoId;delete fig.dataset.demoPeriod;delete fig.dataset.demoLayers;
     return result;
    }
    fig.dataset.demoId=spec.id;
+   fig.dataset.demoLayers=spec.layers;
    const lit=spec.layers!=='none';
    const phase=period();
    if(lit){

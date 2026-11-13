@@ -15,10 +15,23 @@ function ensureSteveAnnouncements(){
  for(const row of STEVE_NEWS)if(player.level>=row.level&&!news.seen[row.id]&&!news.queue.includes(row.id))news.queue.push(row.id);
  return news;
 }
-// Crazy Steve was retired from roadside encounters. The separate level-up
-// announcement system must not resurrect him on later road turns.
-// Preserve prior saved announcements and casino features without displaying him.
-function showSteveAnnouncement(){return false;}
+// One-time Level 5 roadside casino promotion only.
+ // This is NOT the retired Steve / pink-elephant encounter, gives no items,
+ // starts no combat, consumes no turns and cannot award the legendary board.
+function showSteveAnnouncement(){
+ const f=player.flags,news=ensureSteveAnnouncements();
+ const announcement=STEVE_NEWS.find(row=>row.id==='casino5');
+ if(!announcement||player.level<announcement.level||news.seen[announcement.id])return false;
+ // Never disturb an encounter being resumed from a save.
+ if(!news.queue.includes(announcement.id))news.queue.push(announcement.id);
+ news.seen[announcement.id]=true;
+ news.queue=news.queue.filter(id=>id!==announcement.id);
+ add('CRAZY STEVE — ROADSIDE ANNOUNCEMENT','place');
+ add('A wild-eyed man steps onto the shoulder wearing a battered sandwich board. He waves both arms until you look his way.','bright');
+ add(announcement.message,'bright');
+ add('Steve spins around to display the back of his sign: NO REFUNDS. Then he hurries off down the highway.','system');
+ return true;
+}
 
 function casinoArt(text){if(player.level<5)return;outputQueue=outputQueue.then(()=>{addImmediate(text,'casino-art system');followOutput()});}
 function cancelCasinoAnimation(){if(casinoAnimation)casinoAnimation.skip=true;}

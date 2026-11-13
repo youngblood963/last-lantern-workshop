@@ -51,6 +51,7 @@
   if(title==='IRRADIATED ROACHES'||display==='THE FORGOTTEN GARDEN')return {id:'garden',file:asset('scenarios','the_forgotten_garden.png'),layers:'sky'};
   if(title==="MURPHY'S LOST CORVETTE"||display==="MURPHY'S LOST CORVETTE")return {id:'corvette',file:asset('scenarios','murphys_lost_corvette.png'),layers:'road'};
   if(title==='RUINED SIGNAL HUT'||display==='SHATTERED GLASS')return {id:'shattered-glass',file:asset('scenarios','shattered_glass.png'),layers:'road'};
+  if(title==='THE DITCH BACKPACK'||display==='THE DITCH')return {id:'ditch-backpack',file:asset('scenarios','abandoned_backpack.png'),layers:'regional'};
   if(title==='BROKEN RADIO'||display==='BROKEN RADIO')return {id:'station-nine-radio',file:asset('scenarios','station_nine_discovery.png'),layers:'regional'};
   return null;
  }

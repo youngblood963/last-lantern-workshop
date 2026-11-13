@@ -31,7 +31,7 @@
   const title=norm(encounter()?.title),display=norm(encounter()?.displayName);
   // Owner's latest approved artwork: the first group uses sky only, the
   // second uses sky and dirt foreground. Reapers art lives in enemies,
-  // and Old Pete's current uploaded filename intentionally has two dots.
+  // and Old Pete's uploaded filename is normalized to old_pete.png.
   const newlyApproved={
    'THE KNIFE WIND':{id:'the-road-reapers',folder:'enemies',file:'the_road_reapers.png',layers:'sky'},
    'THE LIMPING HOUND':{id:'the-limping-hound',folder:'scenarios',file:'the_limping_hound.png',layers:'sky'},

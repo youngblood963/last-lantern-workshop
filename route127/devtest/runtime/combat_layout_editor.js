@@ -20,7 +20,7 @@
  const latestBatch=new Set(['east:38','east:66','east:21','east:6','east:11','early:2','east:78','early:50','early:54','early:61','early:9','early:64',
   'east:33','east:58','scripted:serviceboss','scripted:crazy-steve']);
  const sceneLayers=new Map([
-  ['east:6','sky'],['east:11','sky'],['early:2','road'],['east:78','none'],
+  ['east:21','sky'],['east:6','sky'],['east:11','sky'],['early:2','road'],['east:78','none'],
   ['early:50','sky'],['early:54','sky'],['early:61','road'],['early:9','road'],
   ['early:64','sky'],['east:33','sky'],['east:58','road'],
   ['scripted:serviceboss','sky'],['scripted:crazy-steve','sky']

@@ -10,6 +10,7 @@
   if(place==='factoryBench')return 'crafting-workbench';
   if(place==='mercy'&&mercyLocation==='murphy'&&!!player?.flags?.v49MurphyMenu)return 'crafting-workbench';
   if(place==='port55Service'&&player?.flags?.portStaffUI?.role==='workshop')return 'crafting-workbench';
+  if(place==='factoryRusty')return 'factory-rusty';
   if(['factoryWorkshop','factoryTerminal','factoryForge'].includes(place))return 'factory-workshop';
   const g=typeof lanternState==='function'?lanternState():null;
   if(place==='lanternNode'&&g?.nodeId==='boulder-junction'&&!g.currentEdgeId)return 'boulder-junction-art';
@@ -21,6 +22,9 @@
   if(model.location==='crafting-workbench'){
     model.title='Crafting';
     model.art='../devtest/assets/locations/crafting_workbench.png?v=wo41b';
+  }
+  if(model.location==='factory-rusty'){
+   model.art='../devtest/assets/locations/rusty_workshop.png';
   }
   if(model.location==='factory-workshop'){
    model.title="Forge's Workshop";

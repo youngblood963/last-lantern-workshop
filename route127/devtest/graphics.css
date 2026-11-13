@@ -316,11 +316,3 @@ dialog.route127-map-overlay[open]{display:flex;flex-direction:column;}
 .full-graphics .gfx-frame[data-layout='crafting'] .gfx-art{display:block}
 .full-graphics .gfx-frame[data-layout='crafting'] #screen{height:clamp(110px,20vh,235px);max-height:40vh}
 @media(max-width:640px){.full-graphics .gfx-frame[data-layout='crafting'] #screen{height:clamp(100px,22vh,200px);max-height:35vh}}
-
-/* Mobile scenario artwork: show complete source art (Old Pete, Road Reapers and other scenes) without cover cropping. */
-@media(max-width:760px){
- body.full-graphics .gfx-frame .gfx-art .gfx-image{
-  display:block;width:100%;min-width:0;max-width:100%;height:auto;min-height:0;max-height:none;
-  aspect-ratio:auto;object-fit:contain;object-position:center;
- }
-}

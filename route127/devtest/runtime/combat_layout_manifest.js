@@ -733,6 +733,66 @@ globalThis.Route127PublishedCombatLayouts={
         "z": 1,
         "flip": false
       }
+    },
+    "east:6/combat/desktop": {
+      "background:the_iron_choir.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      },
+      "0:iron_choir_valve_raider.png": {
+        "x": 28.57143343711353,
+        "y": 62.40740553855705,
+        "width": 38,
+        "height": 78.2,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "1:iron_choir_patrol_raider.png": {
+        "x": 76.26488143388103,
+        "y": 60.29100539779674,
+        "width": 38,
+        "height": 78.3,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:11/combat/desktop": {
+      "background:the_scrap_duel.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      },
+      "0:hubcap_champion.png": {
+        "x": 65.25297515144972,
+        "y": 62.53968370103954,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:78/approach/desktop": {
+      "background:the_last_stop.png": {
+        "x": 54.8363091943621,
+        "y": 68.38624577570205,
+        "width": 100,
+        "height": 59,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
     }
   }
 };

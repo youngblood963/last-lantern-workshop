@@ -41,6 +41,9 @@
  .gfx-art.r127-causeway-scene>.gfx-image{position:relative;z-index:2;background:transparent!important;
   object-fit:contain!important;object-position:center center!important;
   transform:scale(.90)!important;transform-origin:center center!important}
+ /* If the normal scene image is itself the Causeway background, don't draw
+    it a second time at 90% scale over our full-bleed composite. */
+ .gfx-art.r127-causeway-scene.r127-causeway-duplicate-base>.gfx-image{visibility:hidden!important}
  .gfx-art.r127-causeway-scene>.gfx-art-caption{z-index:9}
  /* Existing scene-specific backgrounds and combat sprites retain their layers.
     Never alter scene object-fit: the owners' approved layouts take precedence. */
@@ -58,6 +61,9 @@
    if(!e?.figure)return result;
    const figure=e.figure,enabled=!e.frame.hidden&&!figure.hidden&&this.preference()==='graphics'&&eligible();
    figure.classList.toggle('r127-causeway-scene',enabled);
+   const imageUrl=e.img?.currentSrc||e.img?.src||'';
+   const duplicate=enabled&&imageUrl.split(/[?#]/)[0]===causeway;
+   figure.classList.toggle('r127-causeway-duplicate-base',duplicate);
    let layer=figure.querySelector(':scope > .r127-causeway-scene-base');
    let skyLayer=figure.querySelector(':scope > .r127-causeway-scene-sky');
    if(!enabled){

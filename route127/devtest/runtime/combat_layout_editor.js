@@ -56,6 +56,9 @@
  }
  const progressLabels={green:'🟢 Reviewed / Done',yellow:'🟡 Artwork ready · Needs review',red:'🔴 Missing artwork',checking:'⏳ Checking artwork'};
  function progress(row,reviews){
+  // Owner-approved standalone GIF is complete despite its scenario being combat-tagged.
+  // No separate combat sprites are required for this fully illustrated scene.
+  if(row.title==='THE MUD CANNON'&&reviews.has(row.id))return 'green';
   if(animated(row))return reviews.has(row.id)?'green':'yellow';
   const art=state(row);
   if(art==='Checking art')return 'checking';

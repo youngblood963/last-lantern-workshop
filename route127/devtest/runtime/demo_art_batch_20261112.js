@@ -39,7 +39,8 @@
    'THE TIPPED DELIVERY TRUCK':{id:'delivery-truck',folder:'scenarios',file:'the_tipped_delivery_truck.png',layers:'sky'},
    'THE TRAVELER':{id:'traveler-vale',folder:'scenarios',file:'the_traveler_vale.png',layers:'road'},
    'THE SPRAINED RUNNER':{id:'sprained-runner',folder:'scenarios',file:'the_sprained_runner.png',layers:'road'},
-   'BROKEN TOLL CREW':{id:'last-patrol',folder:'scenarios',file:'the_last_patrol.png',layers:'road'}
+   'BROKEN TOLL CREW':{id:'last-patrol',folder:'scenarios',file:'the_last_patrol.png',layers:'road'},
+   'THE LAST PATROL':{id:'last-patrol',folder:'scenarios',file:'the_last_patrol.png',layers:'road'}
   };
   const approved=newlyApproved[title]||newlyApproved[display];
   if(approved)return {id:approved.id,file:asset(approved.folder,approved.file),layers:approved.layers};

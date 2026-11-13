@@ -18,10 +18,10 @@
  // Batch selector is deliberately independent of review state; completed scenes
  // stay in the batch until the owner finishes checking every composition.
  const latestBatch=new Set(['early:50','early:54','early:61','early:9','early:64',
-  'east:33','east:59','scripted:serviceboss','scripted:crazy-steve']);
+  'east:33','east:58','scripted:serviceboss','scripted:crazy-steve']);
  const sceneLayers=new Map([
   ['early:50','sky'],['early:54','sky'],['early:61','road'],['early:9','road'],
-  ['early:64','sky'],['east:33','sky'],['east:59','road'],
+  ['early:64','sky'],['east:33','sky'],['east:58','road'],
   ['scripted:serviceboss','sky'],['scripted:crazy-steve','sky']
  ]);
  const animated=row=>animatedTitles.has(row.title)||animatedTitles.has(row.name.toUpperCase());

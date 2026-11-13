@@ -35,7 +35,7 @@
   const newlyApproved={
    'THE KNIFE WIND':{id:'the-road-reapers',folder:'enemies',file:'the_road_reapers.png',layers:'sky'},
    'THE LIMPING HOUND':{id:'the-limping-hound',folder:'scenarios',file:'the_limping_hound.png',layers:'sky'},
-   'THE WALKING PEDDLER':{id:'old-pete',folder:'scenarios',file:'old_pete..png',layers:'sky'},
+   'THE WALKING PEDDLER':{id:'old-pete',folder:'scenarios',file:'old_pete.png',layers:'sky'},
    'THE TIPPED DELIVERY TRUCK':{id:'delivery-truck',folder:'scenarios',file:'the_tipped_delivery_truck.png',layers:'sky'},
    'THE TRAVELER':{id:'traveler-vale',folder:'scenarios',file:'the_traveler_vale.png',layers:'road'},
    'THE SPRAINED RUNNER':{id:'sprained-runner',folder:'scenarios',file:'the_sprained_runner.png',layers:'road'},

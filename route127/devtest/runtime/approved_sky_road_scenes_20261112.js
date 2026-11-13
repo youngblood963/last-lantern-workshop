@@ -50,6 +50,8 @@
  .gfx-art.r127-approved-road>.r127-approved-sky{z-index:0;background-position:center;background-size:cover;background-repeat:no-repeat}
  .gfx-art.r127-approved-road>.r127-approved-ground{z-index:1;object-fit:fill}
  .gfx-art.r127-approved-road>.gfx-image{position:relative;z-index:2;width:100%;height:100%;object-fit:contain;object-position:center;background:transparent!important}
+ /* The County truck artwork includes its own mud and tire ruts. Lower it slightly so those blend with the road layer. */
+ .gfx-art.r127-approved-road[data-approved-scene="county-truck"]>.gfx-image{transform:translateY(8%)}
  .gfx-art.r127-approved-road>.gfx-art-caption{position:relative;z-index:9}
  /* Hide legacy region/sky and duplicated Rust Parade overlay only for these approved scenes. */
  .gfx-art.r127-approved-road>.r127-bridge-toll-sky-layer,
@@ -81,9 +83,10 @@
    let sky=fig.querySelector(':scope > .r127-approved-sky');
    let road=fig.querySelector(':scope > .r127-approved-ground');
    if(!shown){
-    sky?.remove();road?.remove();delete fig.dataset.approvedPeriod;
+    sky?.remove();road?.remove();delete fig.dataset.approvedPeriod;delete fig.dataset.approvedScene;
     return result;
    }
+   fig.dataset.approvedScene=which==='COUNTY WORK TRUCK'?'county-truck':'other';
    if(!sky){sky=document.createElement('div');sky.className='r127-approved-sky';sky.setAttribute('aria-hidden','true');fig.insertBefore(sky,e.img);}
    if(!road){road=document.createElement('img');road.className='r127-approved-ground';road.src=regional('dirt_road_foreground.png');road.alt='';road.setAttribute('aria-hidden','true');road.draggable=false;fig.insertBefore(road,e.img);}
    const period=typeof Route127RegionalSky?.phase==='function'?Route127RegionalSky.phase(player.flags?.worldHour):'day';

@@ -20,7 +20,8 @@ function r10Candidates(region,kind){
   const g=typeof lanternState==='function'?lanternState():null;
   if(g?.currentEdgeId==='boulder-junction--seaport'&&Number(g.stepIndex)>2&&
      ['IRRADIATED ROACHES','THE FENCE ARTIST','THE FIGHTING RING','THE FORGOTTEN ARENA','RUINED SIGNAL HUT',
-      'RIDGELINE','OLD BILLBOARD','THE MASK MARKET','THE SCRAP DUEL','THE MUD CANNON']
+      'RIDGELINE','OLD BILLBOARD','THE MASK MARKET','THE SCRAP DUEL','THE MUD CANNON',
+      'THE BRIDGE TOLL','THE PAPER STORM']
       .includes(r10CanonicalTitle(e.title)))return false;
   if(e.title==='THE LIMPING HOUND'&&player.flags.r18HoundAdopted)return false;
   if(e.title==='THE TRAVELER'&&!storyValeRoadAvailable())return false;

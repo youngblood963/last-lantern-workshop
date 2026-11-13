@@ -1760,7 +1760,7 @@ function showEncounter() {
   if(typeof lanternState==='function'&&lanternState()?.pending)add(lanternProgressText(),'system');
   else if(activeRoad?.active)add(`ROAD PROGRESS — STEP ${activeRoad.dir>0?activeRoad.pos:activeRoad.n-activeRoad.pos} / ${activeRoad.n} heading ${activeRoad.dir>0?'EAST':'WEST'} toward ${activeRoad.leg==='coast'?(activeRoad.dir>0?'Seaport':'the Factory'):(activeRoad.dir>0?'the Factory':'Solace')}.`,'system');
   else add(`ROAD PROGRESS — STEP ${roadGoal==="east"&&player.flags.eastReturning?roadTripLength-roadTurn-1:Math.min(roadTurn+1,roadTripLength)} / ${roadTripLength} toward ${roadGoal==="mercy"?"Solace":roadGoal==="east"?(player.flags.eastReturning?"Solace":"the Factory"):"the old house"}.`,"system");
-  if(!resumeSavedEncounter)showSteveAnnouncement();
+  if(!resumeSavedEncounter && showSteveAnnouncement())return;
   if(!resumeSavedEncounter && questRoadEvent()) return;
   if(typeof r10PrepareEncounter==='function'&&!r10PrepareEncounter())return;
   resumeSavedEncounter=false;
@@ -2860,6 +2860,7 @@ function renderCurrentChoices(){
   if(stage==="selectNewOverwrite")return add("SAVE 1   SAVE 2   SAVE 3   CANCEL","system");
   if(stage==="confirmNewOverwrite")return add("(Y) CONFIRM OVERWRITE   (N) CANCEL   (B) BACK","system");
   if(stage==="confirmSaveOverwrite")return add("(Y) YES   (N) NO","system");
+  if(stage==='r127StevePromo')return add('ASK ABOUT GAMES   ASK ABOUT SANDWICH BOARD   BACK','system');
   if(stage==="r18HorseTravel")return r18HorseTravelMenu();
   if(stage==="r18Ash")return r18AshMenu();
   if(stage==="r18Tournament")return r18TournamentMenu();
@@ -2924,6 +2925,22 @@ async function handleCommandCore(raw) {
   let cmd = raw.trim().toLowerCase();
   if(cmd==="claim equipment"||cmd==="claim equipment drop"){v555ClaimEquipmentDrop();return;}
   if(busy) return;
+  if(stage==='r127StevePromo'){
+    if(cmd==='ask about games'||cmd==='games'){
+      add("CRAZY STEVE > The Rusty Lantern's got BLACKJACK, SLOTS, AND RAT RACING! My Bolts are on Cheeseburger. Never trust a rat that doesn't appreciate a snack.",'bright');
+      renderCurrentChoices();return;
+    }
+    if(cmd==='ask about sandwich board'||cmd==='sandwich board'||cmd==='board'){
+      add("Steve spins around. The back of his battered sign reads: NO REFUNDS.",'bright');
+      add("CRAZY STEVE > Everybody reads the front. Nobody reads the back until it's too late!",'bright');
+      renderCurrentChoices();return;
+    }
+    if(cmd==='back'||cmd==='b'){
+      add("Steve gives the sandwich board a theatrical shake and hurries off down the highway.",'system');
+      stage='between';showEncounter();return;
+    }
+    renderCurrentChoices();return;
+  }
   if(stage==='encounter'&&player.flags.r18HoundNaming){
     if(cmd==='cancel'){delete player.flags.r18HoundNaming;add('You can name the hound when you are ready.','system');renderCurrentChoices();return;}
     const name=raw.trim().replace(/\s+/g,' ');if(!/^[\p{L}\p{N}][\p{L}\p{N} '\-]{0,23}$/u.test(name)){add('Use 1–24 letters, numbers, spaces, apostrophes or hyphens.','system');return;}

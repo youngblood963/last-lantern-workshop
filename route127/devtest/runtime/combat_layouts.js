@@ -145,12 +145,6 @@
  for(const [id,site] of [['east:67','Industrial Road — Fresh Mart'],['east:81','East Trade Route — St. Mercy Hospital']]){
   if(rows.has(id))rows.get(id).site=site;
  }
- // Scripted Yardman miniboss uses a separate combat source, not a road pool ID.
- rows.set('scripted:serviceboss',{id:'scripted:serviceboss',title:'THE YARDMAN',
-  name:'THE YARDMAN',classification:'FIXED',regions:['CENTRAL'],
-  site:'County Maintenance Yard',combat:true,variants:[
-   {units:[],phase:'both',variant:'Yardman cinematic — sky only',background:scenery('the_yardman.png')}
-  ]});
  const bosses=[
   ['SALVAGE KING','factory_salvage_king.png'],['GRINDER','factory_grinder.png'],
   ['THE CHEMIST','factory_chief_chemist.png'],['THE FOREMAN','factory_foreman.png']
@@ -206,6 +200,15 @@
    regions:region?[region]:[],combat:true,variants:source==='r18DepotFight'?
     [{units:[enemy('county_unit_07.png')],background:scenery('county_depot_interior.png'),phase:'combat',variant:'County Depot fight'}]:[]});
  }
+ // The scripted loop above allocates the canonical serviceBoss row; attach its
+ // cinematic art AFTER that loop so it is not overwritten with an empty variant.
+ const yardmanRow=rows.get('scripted:serviceboss');
+ if(yardmanRow)yardmanRow.variants=[{units:[],phase:'both',variant:'Yardman cinematic — sky only',background:scenery('the_yardman.png')}];
+ // Crazy Steve is a level-five promotional menu, not a random road registry fight.
+ rows.set('scripted:crazy-steve',{id:'scripted:crazy-steve',title:'CRAZY STEVE',
+  name:'Crazy Steve — Casino Announcement',classification:'FIXED',regions:['CENTRAL'],
+  site:'Roadside · Level 5',combat:false,variants:[{units:[],phase:'approach',
+  variant:'Steve introduction — sky only',background:scenery('crazy_steve.png')}]});
  // Existing scripted gate-guard combat: real Solace gate behind a standalone guard sprite.
  const gateGuard=rows.get('scripted:gateguards');
  if(gateGuard)gateGuard.variants=[{units:[enemy('solace_gate_guard.png')],

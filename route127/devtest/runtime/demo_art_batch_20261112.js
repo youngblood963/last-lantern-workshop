@@ -23,20 +23,20 @@
  const yardman=()=>isFight()&&(fight()?.source==='serviceBoss'||fight()?.name==='THE YARDMAN');
  const discoveredRabbit=()=>!!(player?.flags?.r18RabbitSeen||player?.flags?.r18RabbitReleased||player?.flags?.r18RabbitAdopted);
  function presentation(){
-  if(stage==='r127StevePromo')return {id:'crazy-steve',file:asset('scenarios','crazy_steve.png'),layers:'sky'};
+  if(stage==='r127StevePromo')return {id:'crazy-steve',file:asset('scenarios','crazy_steve.png'),layers:'regional'};
   if(guard())return {id:'solace-guard',file:new URL('../playtest/assets/locations/solace_town_gate.png',root).href,layers:'none',guard:true};
   if(enforcer())return {id:'road-enforcer',file:asset('scenarios','the_road_enforcer.png'),layers:'road'};
-  if(yardman())return {id:'the-yardman',file:asset('scenarios','the_yardman.png'),layers:'sky'};
+  if(yardman())return {id:'the-yardman',file:asset('scenarios','the_yardman.png'),layers:'regional'};
   if(stage!=='encounter')return null;
   const title=norm(encounter()?.title),display=norm(encounter()?.displayName);
   // Owner's latest approved artwork: the first group uses sky only, the
   // second uses sky and dirt foreground. Reapers art lives in enemies,
   // and Old Pete's uploaded filename is normalized to old_pete.png.
   const newlyApproved={
-   'THE KNIFE WIND':{id:'the-road-reapers',folder:'enemies',file:'the_road_reapers.png',layers:'sky'},
-   'THE LIMPING HOUND':{id:'the-limping-hound',folder:'scenarios',file:'the_limping_hound.png',layers:'sky'},
-   'THE WALKING PEDDLER':{id:'old-pete',folder:'scenarios',file:'old_pete.png',layers:'sky'},
-   'THE TIPPED DELIVERY TRUCK':{id:'delivery-truck',folder:'scenarios',file:'the_tipped_delivery_truck.png',layers:'sky'},
+   'THE KNIFE WIND':{id:'the-road-reapers',folder:'enemies',file:'the_road_reapers.png',layers:'regional'},
+   'THE LIMPING HOUND':{id:'the-limping-hound',folder:'scenarios',file:'the_limping_hound.png',layers:'regional'},
+   'THE WALKING PEDDLER':{id:'old-pete',folder:'scenarios',file:'old_pete.png',layers:'regional'},
+   'THE TIPPED DELIVERY TRUCK':{id:'delivery-truck',folder:'scenarios',file:'the_tipped_delivery_truck.png',layers:'regional'},
    'THE TRAVELER':{id:'traveler-vale',folder:'scenarios',file:'the_traveler_vale.png',layers:'road'},
    'THE SPRAINED RUNNER':{id:'sprained-runner',folder:'scenarios',file:'the_sprained_runner.png',layers:'road'},
    'BROKEN TOLL CREW':{id:'last-patrol',folder:'scenarios',file:'the_last_patrol.png',layers:'road'},
@@ -107,8 +107,15 @@
     if(skyLayer.dataset.file!==name){skyLayer.style.backgroundImage='url("'+sky(name)+'")';skyLayer.dataset.file=name;}
     skyLayer.style.filter=phase==='dusk'?'sepia(.42) hue-rotate(-18deg) saturate(1.4)':'';
    }else skyLayer?.remove();
-   if(spec.layers==='road'){
-    if(!roadLayer){roadLayer=document.createElement('img');roadLayer.className='r127-demo-road';roadLayer.alt='';roadLayer.draggable=false;roadLayer.setAttribute('aria-hidden','true');roadLayer.src=sky('dirt_road_foreground.png');fig.insertBefore(roadLayer,e.img);}
+   if(spec.layers==='road'||spec.layers==='regional'){
+    if(!roadLayer){roadLayer=document.createElement('img');roadLayer.className='r127-demo-road';roadLayer.alt='';roadLayer.draggable=false;roadLayer.setAttribute('aria-hidden','true');fig.insertBefore(roadLayer,e.img);}
+      if(spec.layers==='regional'){
+     const area=typeof route127CurrentRegion==='function'?route127CurrentRegion(lanternState()):'CENTRAL';
+     const layers=globalThis.Route127EditorSky?.describe(area,player?.flags?.worldHour);
+     const selected=layers?.ground||sky((area||'CENTRAL').toLowerCase()+'.png');
+     if(roadLayer.src!==selected)roadLayer.src=selected;
+     if(layers?.sky)skyLayer.style.backgroundImage='url("'+layers.sky+'")';
+   }else{const selected=sky('dirt_road_foreground.png');if(roadLayer.src!==selected)roadLayer.src=selected;}
    }else roadLayer?.remove();
    if(spec.guard){
     if(!guardLayer){guardLayer=document.createElement('img');guardLayer.className='r127-demo-guard';guardLayer.alt='Solace gate guard';guardLayer.draggable=false;guardLayer.src=asset('enemies','solace_gate_guard.png');fig.append(guardLayer);}

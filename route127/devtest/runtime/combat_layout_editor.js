@@ -22,6 +22,14 @@
     localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
     localStorage.setItem(seededKey,'1');
    }
+   // Owner approved the existing Iron Harvest art and its sky + road composition.
+   // Seed only once; thereafter honor the user's manual green/yellow review changes.
+   const harvestSeed=reviewKey+'-iron-harvest-approved-v1';
+   if(!localStorage.getItem(harvestSeed)){
+    for(const row of L.rows.values())if(row.title==='THE IRON HARVEST')reviews.add(row.id);
+    localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
+    localStorage.setItem(harvestSeed,'1');
+   }
    return reviews;
   }catch{return new Set();}
  }
@@ -30,7 +38,7 @@
   if(animated(row))return reviews.has(row.id)?'green':'yellow';
   const art=state(row);
   if(art==='Checking art')return 'checking';
-  if(art!=='Art present'||(row.combat&&!row.variants.some(v=>v.units.length)))return 'red';
+  if(art!=='Art present'||(row.combat&&row.title!=='THE IRON HARVEST'&&!row.variants.some(v=>v.units.length)))return 'red';
   return reviews.has(row.id)?'green':'yellow';
  }
  const state=row=>{

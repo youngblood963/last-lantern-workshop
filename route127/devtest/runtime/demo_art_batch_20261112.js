@@ -80,6 +80,14 @@
  .gfx-art.r127-demo-art[data-demo-id="ridgeline"]>.gfx-image,
  .gfx-art.r127-demo-art[data-demo-id="armory"]>.gfx-image{object-fit:cover}
  .gfx-art.r127-demo-art[data-demo-id="solace-guard"]>.gfx-image{object-fit:cover}
+ /* Road Reapers only: give the transparent sprite breathing room at the top. */
+ .gfx-art.r127-demo-art[data-demo-id="the-road-reapers"]>.gfx-image{
+   object-fit:contain!important;
+   object-position:center center!important;
+   transform:scale(.90);
+   transform-origin:center center;
+ }
+
  .gfx-art.r127-demo-art>.r127-demo-guard{position:absolute;z-index:6;left:50%;top:50%;transform:translate(-50%,-50%);width:54%;height:82%;object-fit:contain;object-position:center;pointer-events:none;filter:drop-shadow(4px 6px 5px #000a)}
  .gfx-art.r127-demo-art[data-demo-period="night"]>.r127-demo-guard{filter:brightness(.65) saturate(.7) hue-rotate(165deg) drop-shadow(4px 6px 5px #000a)}
  /* Guard desktop/phone positions come from the Combat Visual Testing layout manifest. */

@@ -3,7 +3,7 @@
  'use strict';
  const L=globalThis.Route127CombatLayouts;
  if(!L)return;
- const regions=['CENTRAL','INDUSTRIAL','NORTH','EAST','WEST','LOWLANDS','SEAPORT'];
+ const regions=['CENTRAL','INDUSTRIAL','NORTH','EAST','WEST','LOWLANDS','SEAPORT','CAUSEWAY'];
  const el=(tag,text)=>{const n=document.createElement(tag);if(text)n.textContent=text;return n;};
  const regionLabel=row=>row.classification==='REGIONAL'?row.regions.join(' + '):
   [row.classification,row.site||row.regions.join(' + ')].filter(Boolean).join(' · ');
@@ -113,6 +113,7 @@
  .r127-layout-editor .layout-stage[data-device=phone]{width:min(100%,390px);aspect-ratio:4/3}
  .r127-layout-editor .layout-base{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
  .r127-layout-editor .layout-dirt-road{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
+ .r127-layout-editor .layout-stage .layout-causeway-ground{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;mask-image:linear-gradient(to bottom,transparent 0%,transparent 28%,#000 58%,#000 100%);-webkit-mask-image:linear-gradient(to bottom,transparent 0%,transparent 28%,#000 58%,#000 100%)}
  .r127-layout-editor .layout-stage[data-sky-time=dusk] .layout-base{filter:sepia(.42) hue-rotate(-18deg) saturate(1.4)}
  .r127-layout-editor .layout-stage[data-sky-time=night] .layout-scene-image{filter:brightness(.62) saturate(.68) sepia(.12) hue-rotate(165deg)}
  .r127-layout-editor .layout-stage[data-sky-time=dusk] .layout-scene-image{filter:brightness(.83) saturate(.88) sepia(.18)}
@@ -245,7 +246,7 @@
     if(classification.value==='Active'?row.classification==='INACTIVE':row.classification!==classification.value)return false;
     const chosen=region.value;
     if(chosen==='GLOBAL'&&row.classification!=='GLOBAL')return false;
-    if(!['All regions','GLOBAL'].includes(chosen)&&row.classification!=='GLOBAL'&&!row.regions.includes(chosen.split(' ')[0]))return false;
+    if(!['All regions','GLOBAL'].includes(chosen)&&row.classification!=='GLOBAL'&&!row.regions.includes(chosen.split(' ')[0])&&!(chosen==='CAUSEWAY'&&row.regions.includes('SEAPORT')))return false;
     if(combat.value!=='All'&&(combat.value==='Combat')!==row.combat)return false;
     if(coverage.value!=='All'&&coverage.value!==state(row))return false;
     if(multi.value==='Multiple sprites'&&!row.variants.some(v=>v.units.length>1))return false;
@@ -270,7 +271,8 @@
    if(!row){nodes.clear();draft={};initial={};baseline={};metadata.textContent='No encounters match these filters.';canvas.replaceChildren();options(units,[]);updateFields();return;}
    const active=L.activeScene();
    phase.value=active?.id===row.id?active.phase:'approach';
-   if(row.regions.length)background.value=row.regions[0];
+   if(region.value==='CAUSEWAY')background.value='CAUSEWAY';
+   else if(row.regions.length)background.value=row.regions[0];
    // Steve is a regional sprite, not an airborne sky composition.
    backdrop.value=row.id==='scripted:crazy-steve'?'none':(sceneLayers.get(row.id)||'none');
    changePhase();
@@ -313,16 +315,23 @@
    const layers=backdrop.value;
    const regionalRoot=new URL('../assets/regions/',L.root);
    const bg=el('img');bg.className='layout-base';bg.alt='';
-   bg.src=layers==='none'?new URL(L.regionArt(background.value),L.root).href:
+   const bridge=layers==='none'&&background.value==='CAUSEWAY';
+   bg.src=bridge?new URL('sky_'+(skyTime.value==='dusk'?'dawn':skyTime.value)+'.png',regionalRoot).href:
+    layers==='none'?new URL(L.regionArt(background.value),L.root).href:
     new URL('sky_'+(skyTime.value==='dusk'?'dawn':skyTime.value)+'.png',regionalRoot).href;
    canvas.replaceChildren(bg);
+   if(bridge){
+    const causeway=el('img');causeway.className='layout-causeway-ground';causeway.alt='';
+    causeway.src=new URL(L.regionArt('CAUSEWAY'),L.root).href;
+    canvas.append(causeway);
+   }
    if(layers==='road'){
     const dirt=el('img');dirt.className='layout-dirt-road';dirt.alt='';
     dirt.src=new URL('dirt_road_foreground.png',regionalRoot).href;
     canvas.append(dirt);
    }
-   canvas.dataset.skyTime=layers==='none'?'none':skyTime.value;
-   skyTime.parentElement.hidden=layers==='none';
+   canvas.dataset.skyTime=layers==='none'&&!bridge?'none':skyTime.value;
+   skyTime.parentElement.hidden=layers==='none'&&!bridge;
    background.parentElement.hidden=layers!=='none';
    if(!nodes.size){const empty=el('p',state(row));empty.className='layout-empty';canvas.append(empty);}
    for(const [key,record] of nodes){
@@ -369,6 +378,7 @@
   phase.addEventListener('change',changePhase);
   for(const input of [variant,device])input.addEventListener('change',loadDraft);
   background.addEventListener('change',paint);
+   region.addEventListener('change',()=>{if(region.value==='CAUSEWAY')background.value='CAUSEWAY';paint();});
   skyTime.addEventListener('change',paint);
   backdrop.addEventListener('change',paint);
   for(const input of [search,region,classification,combat,coverage,multi,sort,batch])input.addEventListener('input',rebuildPicker);

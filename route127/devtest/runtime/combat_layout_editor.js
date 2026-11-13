@@ -171,6 +171,7 @@
   const variant=select(variants,'Variant',[]);
   const background=select(variants,'Background region',regions);
   const skyTime=select(variants,'Sky preview',['dawn','day','dusk','night']);
+  skyTime.value='day';
   const device=select(variants,'Layout',['desktop','phone']);
   const canvas=el('div');canvas.className='layout-stage';dialog.append(canvas);
   const attach=controls();

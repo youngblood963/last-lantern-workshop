@@ -22,6 +22,7 @@
  const enforcer=()=>isFight()&&fight()?.r18Enforcer===true;
  const discoveredRabbit=()=>!!(player?.flags?.r18RabbitSeen||player?.flags?.r18RabbitReleased||player?.flags?.r18RabbitAdopted);
  function presentation(){
+  if(stage==='r127StevePromo')return {id:'crazy-steve',file:asset('scenarios','crazy_steve.png'),layers:'road'};
   if(guard())return {id:'solace-guard',file:new URL('../playtest/assets/locations/solace_town_gate.png',root).href,layers:'none',guard:true};
   if(enforcer())return {id:'road-enforcer',file:asset('scenarios','the_road_enforcer.png'),layers:'road'};
   if(stage!=='encounter')return null;
@@ -113,5 +114,5 @@
   }catch(err){console.warn('DEVTEST demo encounter artwork:',err);}
   return result;
  };
- globalThis.Route127DemoArtBatch=Object.freeze({ids:['ridgeline','shed','solace-guard','road-enforcer','armory','garden','corvette','shattered-glass','station-nine-radio']});
+ globalThis.Route127DemoArtBatch=Object.freeze({ids:['ridgeline','shed','solace-guard','road-enforcer','armory','garden','corvette','shattered-glass','station-nine-radio','crazy-steve']});
 })();

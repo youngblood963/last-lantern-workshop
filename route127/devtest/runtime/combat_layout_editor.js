@@ -169,6 +169,11 @@
   const variants=controls();
   const phase=select(variants,'State',['approach','combat']);
   const variant=select(variants,'Variant',[]);
+  // Backdrop is a preview-only choice, independent of the artwork variant.
+  // "None" restores the selected regional background rather than blank sky.
+  const backdrop=select(variants,'Backdrop',[
+   ['none','None — regional background'],['sky','Sky only'],['road','Sky + dirt road']
+  ]);
   const background=select(variants,'Background region',regions);
   const skyTime=select(variants,'Sky preview',['dawn','day','dusk','night']);
   skyTime.value='day';
@@ -255,6 +260,8 @@
    const active=L.activeScene();
    phase.value=active?.id===row.id?active.phase:'approach';
    if(row.regions.length)background.value=row.regions[0];
+   // Steve is a regional sprite, not an airborne sky composition.
+   backdrop.value=row.id==='scripted:crazy-steve'?'none':(sceneLayers.get(row.id)||'none');
    changePhase();
   }
   function changePhase(){
@@ -292,7 +299,7 @@
   }
   function paint(){
    canvas.dataset.device=device.value;canvas.dataset.preview=String(preview);
-   const layers=sceneLayers.get(row?.id);
+   const layers=backdrop.value;
    const regionalRoot=new URL('../assets/regions/',L.root);
    const bg=el('img');bg.className='layout-base';bg.alt='';
    bg.src=new URL(layers?'sky_'+(skyTime.value==='dusk'?'dawn':skyTime.value)+'.png':
@@ -304,8 +311,8 @@
     canvas.append(dirt);
    }
    canvas.dataset.skyTime=layers?skyTime.value:'none';
-   skyTime.parentElement.hidden=!layers;
-   background.parentElement.hidden=!!layers;
+   skyTime.parentElement.hidden=layers==='none';
+   background.parentElement.hidden=layers!=='none';
    if(!nodes.size){const empty=el('p',state(row));empty.className='layout-empty';canvas.append(empty);}
    for(const [key,record] of nodes){
     const node=el('button');node.type='button';node.className='layout-unit'+(record.background?' layout-scene-image':'');
@@ -352,6 +359,7 @@
   for(const input of [variant,device])input.addEventListener('change',loadDraft);
   background.addEventListener('change',paint);
   skyTime.addEventListener('change',paint);
+  backdrop.addEventListener('change',paint);
   for(const input of [search,region,classification,combat,coverage,multi,sort,batch])input.addEventListener('input',rebuildPicker);
   button(actions,'Reset Unit',()=>{if(selected()){draft[units.value]={...initial[units.value]};updateFields();}});
   button(actions,'Remove Attached Sprite',()=>{

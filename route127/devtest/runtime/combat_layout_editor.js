@@ -13,7 +13,17 @@
  const animatedTitles=new Set(['THE LIME FOG','THE RED RAIN','THE GLASS FIELD']);
  // These approved compositions contain the character(s) within a complete scene asset.
  // A combat encounter does not require separately registered sprites to review its artwork.
- const embeddedCombatArtwork=new Set(['THE IRON HARVEST','THE DRY FOUNTAIN','IRRADIATED ROACHES']);
+ const embeddedCombatArtwork=new Set(['THE IRON HARVEST','THE DRY FOUNTAIN','IRRADIATED ROACHES',
+  'THE KNIFE WIND','BROKEN TOLL CREW','THE YARDMAN','THE LAST PATROL']);
+ // Batch selector is deliberately independent of review state; completed scenes
+ // stay in the batch until the owner finishes checking every composition.
+ const latestBatch=new Set(['early:50','early:54','early:61','early:9','early:64',
+  'east:33','east:59','scripted:serviceboss','scripted:crazy-steve']);
+ const sceneLayers=new Map([
+  ['early:50','sky'],['early:54','sky'],['early:61','road'],['early:9','road'],
+  ['early:64','sky'],['east:33','sky'],['east:59','road'],
+  ['scripted:serviceboss','sky'],['scripted:crazy-steve','sky']
+ ]);
  const animated=row=>animatedTitles.has(row.title)||animatedTitles.has(row.name.toUpperCase());
  function readReviews(){
   try{
@@ -91,6 +101,11 @@
  .r127-layout-editor .layout-stage{position:relative;isolation:isolate;width:100%;aspect-ratio:16/9;overflow:hidden;background:#0c0b09;margin:auto}
  .r127-layout-editor .layout-stage[data-device=phone]{width:min(100%,390px);aspect-ratio:4/3}
  .r127-layout-editor .layout-base{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+ .r127-layout-editor .layout-dirt-road{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
+ .r127-layout-editor .layout-stage[data-sky-time=dusk] .layout-base{filter:sepia(.42) hue-rotate(-18deg) saturate(1.4)}
+ .r127-layout-editor .layout-stage[data-sky-time=night] .layout-scene-image{filter:brightness(.62) saturate(.68) sepia(.12) hue-rotate(165deg)}
+ .r127-layout-editor .layout-stage[data-sky-time=dusk] .layout-scene-image{filter:brightness(.83) saturate(.88) sepia(.18)}
+ .r127-layout-editor .layout-stage[data-sky-time=dawn] .layout-scene-image{filter:brightness(.92) saturate(.91) sepia(.13)}
  .r127-layout-editor .layout-unit{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:end;touch-action:none;cursor:grab;transform-origin:center;min-height:0;padding:0;border:0;background:transparent}
  .r127-layout-editor .layout-unit[aria-pressed=true]{outline:1px dashed #f6c87d}
  .r127-layout-editor .layout-unit img{width:100%;height:100%;min-height:0;object-fit:contain;object-position:center bottom;pointer-events:none}
@@ -134,6 +149,7 @@
   const coverage=select(filters,'Artwork',['All','Art present','Art missing / review','Art broken','Art unassigned / review','Checking art']);
   const multi=select(filters,'Sprites',['Any','Multiple sprites']);
   const sort=select(filters,'Sort by',['Name','Region','Artwork']);
+  const batch=select(filters,'Review batch',[['New uploads (9)','New uploads (9)'],['All encounters','All encounters']]);
   const picker=el('select');picker.className='layout-picker';picker.setAttribute('aria-label','Encounter');dialog.append(picker);
   let reviews=readReviews();
   const reviewControls=controls();
@@ -154,6 +170,7 @@
   const phase=select(variants,'State',['approach','combat']);
   const variant=select(variants,'Variant',[]);
   const background=select(variants,'Background region',regions);
+  const skyTime=select(variants,'Sky preview',['dawn','day','dusk','night']);
   const device=select(variants,'Layout',['desktop','phone']);
   const canvas=el('div');canvas.className='layout-stage';dialog.append(canvas);
   const attach=controls();
@@ -207,6 +224,7 @@
    const keep=picker.value||L.activeScene()?.id;
    const term=search.value.trim().toLowerCase(),all=[...L.rows.values()];
    const visible=all.filter(row=>{
+    if(batch.value==='New uploads (9)'&&!latestBatch.has(row.id))return false;
     if(classification.value==='Active'?row.classification==='INACTIVE':row.classification!==classification.value)return false;
     const chosen=region.value;
     if(chosen==='GLOBAL'&&row.classification!=='GLOBAL')return false;
@@ -273,8 +291,20 @@
   }
   function paint(){
    canvas.dataset.device=device.value;canvas.dataset.preview=String(preview);
-   const bg=el('img');bg.className='layout-base';bg.alt='';bg.src=new URL(L.regionArt(background.value),L.root).href;
+   const layers=sceneLayers.get(row?.id);
+   const regionalRoot=new URL('../assets/regions/',L.root);
+   const bg=el('img');bg.className='layout-base';bg.alt='';
+   bg.src=new URL(layers?'sky_'+(skyTime.value==='dusk'?'dawn':skyTime.value)+'.png':
+    L.regionArt(background.value),layers?regionalRoot:L.root).href;
    canvas.replaceChildren(bg);
+   if(layers==='road'){
+    const dirt=el('img');dirt.className='layout-dirt-road';dirt.alt='';
+    dirt.src=new URL('dirt_road_foreground.png',regionalRoot).href;
+    canvas.append(dirt);
+   }
+   canvas.dataset.skyTime=layers?skyTime.value:'none';
+   skyTime.parentElement.hidden=!layers;
+   background.parentElement.hidden=!!layers;
    if(!nodes.size){const empty=el('p',state(row));empty.className='layout-empty';canvas.append(empty);}
    for(const [key,record] of nodes){
     const node=el('button');node.type='button';node.className='layout-unit'+(record.background?' layout-scene-image':'');
@@ -320,7 +350,8 @@
   phase.addEventListener('change',changePhase);
   for(const input of [variant,device])input.addEventListener('change',loadDraft);
   background.addEventListener('change',paint);
-  for(const input of [search,region,classification,combat,coverage,multi,sort])input.addEventListener('input',rebuildPicker);
+  skyTime.addEventListener('change',paint);
+  for(const input of [search,region,classification,combat,coverage,multi,sort,batch])input.addEventListener('input',rebuildPicker);
   button(actions,'Reset Unit',()=>{if(selected()){draft[units.value]={...initial[units.value]};updateFields();}});
   button(actions,'Remove Attached Sprite',()=>{
    const key=units.value;

@@ -44,6 +44,13 @@
     localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
     localStorage.setItem(harvestSeed,'1');
    }
+   // Owner approved The Mud Cannon standalone GIF; mark it complete once per browser.
+   const mudSeed=reviewKey+'-mud-cannon-approved-v1';
+   if(!localStorage.getItem(mudSeed)){
+    for(const row of L.rows.values())if(row.title==='THE MUD CANNON')reviews.add(row.id);
+    localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
+    localStorage.setItem(mudSeed,'1');
+   }
    return reviews;
   }catch{return new Set();}
  }

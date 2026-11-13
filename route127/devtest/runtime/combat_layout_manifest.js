@@ -647,6 +647,37 @@ globalThis.Route127PublishedCombatLayouts={
         "z": 1,
         "flip": true
       }
+    },
+    "scripted:gateguards/combat/desktop": {
+      "background:solace_town_gate.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      },
+      "0:solace_gate_guard.png": {
+        "x": 50.669649623485995,
+        "y": 75.7672072873233,
+        "width": 54,
+        "height": 82,
+        "scale": 0.63,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:60/approach/desktop": {
+      "background:station_nine_discovery.png": {
+        "x": 31.39881079091498,
+        "y": 81.08465166615989,
+        "width": 100,
+        "height": 100,
+        "scale": 0.26,
+        "z": 1,
+        "flip": true
+      }
     }
   }
 };

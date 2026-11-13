@@ -47,7 +47,8 @@
  .r127-daniel-reunion-image{position:absolute;inset:0;width:100%;height:100%;
   object-fit:contain;object-position:center}
  .r127-daniel-reunion-dialog p{margin:10px 2px;font:15px/1.5 Georgia,serif}
- .r127-daniel-reunion-dialog button{display:block;margin:9px 0 0 auto;padding:9px 20px;
+ .r127-daniel-reunion-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:10px}
+ .r127-daniel-reunion-dialog button{display:block;margin:0;padding:9px 20px;
   background:#3c291e;border:1px solid #b28b5a;color:#f5e4cb;font:700 14px system-ui;cursor:pointer}
  `;
  document.head.append(style);
@@ -111,10 +112,16 @@
   stageEl.append(sky,photo);
   const detail=document.createElement('p');
   detail.textContent='At the Factory entrance, Clara finds Daniel alive. They embrace, thank you, and leave together for a safer road.';
+  // Both controls return to the already-rendered Factory room; neither
+  // repeats the rescue, changes quest flags, or awards anything.
+  const actions=document.createElement('div');actions.className='r127-daniel-reunion-actions';
+  const back=document.createElement('button');back.type='button';back.textContent='BACK';
   const close=document.createElement('button');close.type='button';close.textContent='CONTINUE';
+  back.addEventListener('click',()=>dialog.close());
   close.addEventListener('click',()=>dialog.close());
+  actions.append(back,close);
   dialog.addEventListener('close',()=>dialog.remove(),{once:true});
-  dialog.append(heading,stageEl,detail,close);
+  dialog.append(heading,stageEl,detail,actions);
   document.body.append(dialog);dialog.showModal();close.focus();
  }
  window.addEventListener('route127:daniel-reunion',()=>{

@@ -1,4 +1,4 @@
-/* DEVTEST ONLY — Owner-approved seven sky + dirt road scene compositions.
+/* DEVTEST ONLY — Owner-approved sky + dirt road scene compositions.
  * Matches the Sky + Dirt Road Image Lab defaults (sky -> dirt road -> original scene).
  * Never reads/writes lab storage, combat layout storage, save games or quest flags.
  */
@@ -12,7 +12,8 @@
   ['THE MASK MARKET','the_mask_market.png'],
   ['THE RUST PARADE','the_rust_parade.png'],
   ['THE SHATTERED SILO','the_shattered_silo.png'],
-  ['COUNTY WORK TRUCK','county_work_truck.png']
+  ['COUNTY WORK TRUCK','county_work_truck.png'],
+  ['THE IRON HARVEST','the_iron_harvest.png']
  ]);
  const base=new URL('../devtest/',document.baseURI);
  const regions=new URL('../assets/regions/',base);
@@ -21,12 +22,15 @@
  const canonical=()=>String(typeof currentEncounter==='function'?currentEncounter()?.title||'':'').toUpperCase().replace(/^EAST ROAD — /,'').trim();
  const fightSilo=()=>typeof combatState!=='undefined'&&combatState&&['combat','combatItems'].includes(typeof stage==='undefined'?'':stage)&&
   (combatState.r18SiloBoars===true||String(combatState.name||'').toUpperCase()==='SILO KING AND BOARS');
+ const fightHarvest=()=>typeof combatState!=='undefined'&&combatState&&['combat','combatItems'].includes(typeof stage==='undefined'?'':stage)&&
+  (combatState.r18HarvestMachine===true||combatState.name==='DRIVERLESS COMBINE');
  // In the County encounter the depot exterior/interior is different art and MUST stay intact.
  const countyTruck=()=>typeof r18CountyTruckScene==='function'?
   !((r18CountyTruckScene()?.followed)&&player?.flags?.r18CountyMapSeen):true;
  function target(){
   const state=typeof stage==='undefined'?'':stage;
   if(fightSilo())return 'THE SHATTERED SILO';
+  if(fightHarvest())return 'THE IRON HARVEST';
   if(state!=='encounter')return null;
   const title=canonical();
   if(!scenes.has(title))return null;
@@ -60,7 +64,8 @@
  .gfx-art.r127-approved-road>.r127-silo-sky,
  .gfx-art.r127-approved-road>.r127-county-backdrop,
  .gfx-art.r127-approved-road>.r127-rust-parade,
- .gfx-art.r127-approved-road>.r127-regional-sky{display:none!important}
+ .gfx-art.r127-approved-road>.r127-regional-sky,
+ .gfx-art.r127-approved-road>.r127-harvest-sky{display:none!important}
  /* Lighting must affect the ground, art and combat sprites, but not the sky. */
  .gfx-art.r127-approved-road[data-approved-period="dawn"]>.gfx-image,
  .gfx-art.r127-approved-road[data-approved-period="dawn"]>.r127-approved-ground{filter:brightness(.92) saturate(.91) sepia(.13)}

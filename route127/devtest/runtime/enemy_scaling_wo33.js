@@ -4,7 +4,7 @@
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||!/^\/route127\/devtest\/(?:index\.html)?$/.test(location.pathname))throw Error('WO33 requires Devtest');
  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
  const api=globalThis.WO33Combat={
-  version:1, hpTurns:3.6, attackRate:.075,
+  version:2, hpTurns:4.5, attackRate:.085,
   weights:[5,10,20,30,20,10,5],
   level(n){return clamp(Math.floor(Number(n)||1),1,50);},
   distribution(level,region='CENTRAL'){
@@ -42,13 +42,13 @@
    const regionHp={NORTH:.9,WEST:.94,CENTRAL:1,INDUSTRIAL:1.04,LOWLANDS:1.07,EAST:1.07,SEAPORT:1.10}[region]||1;
    const warden=s.r18WardenId?clamp(.35+.6*(level-12)/38,.35,.95):1;
    const wardenAttack=s.r18WardenId?clamp(.30+.70*(level-12)/38,.30,1):1;
-   const turns=tier==='boss'?8:tier==='miniboss'?6:this.hpTurns;
+   const turns=tier==='boss'?12:tier==='miniboss'?9:this.hpTurns;
    // Canonical uncommon weapon, independent of the player's current equipment.
    const hit=9+Math.floor((level-1)*.8),armor=Number(s.armorDef)||0;
    const budget=Math.max(units.length,Math.round(Math.max(2,hit-armor)*turns*(tier==='ordinary'?identity:clamp(identity,.85,1.1))*regionHp*warden));
    const factor=baseHpForLevel(level)/(100+10*(level-1)),referenceArmor=3+Math.floor((level-1)*.35);
    const attacks=units.length===1||s.r18RoadEater||s.r18HarvestMachine?1:units.filter(e=>!e.r18WallGun).length;
-   const rate=this.attackRate*(.80+.20*Math.min(1,(level-1)/7))*(tier==='boss'?.85:tier==='miniboss'?.85:1)*wardenAttack/Math.pow(Math.max(1,attacks),.65);
+   const rate=this.attackRate*(.80+.20*Math.min(1,(level-1)/7))*(tier==='boss'?1.15:tier==='miniboss'?1.10:1)*wardenAttack/Math.pow(Math.max(1,attacks),.65);
    const adjust=(e)=>{
     const lo=Number(e.r18Min??s.min)||1,hi=Math.max(lo,Number(e.r18Max??s.max)||lo);
     const strength=clamp((lo+hi)/14,.65,1.35),mean=referenceArmor+baseHpForLevel(level)*rate*strength/factor;

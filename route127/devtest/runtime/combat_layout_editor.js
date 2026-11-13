@@ -302,15 +302,15 @@
    const layers=backdrop.value;
    const regionalRoot=new URL('../assets/regions/',L.root);
    const bg=el('img');bg.className='layout-base';bg.alt='';
-   bg.src=new URL(layers?'sky_'+(skyTime.value==='dusk'?'dawn':skyTime.value)+'.png':
-    L.regionArt(background.value),layers?regionalRoot:L.root).href;
+   bg.src=layers==='none'?new URL(L.regionArt(background.value),L.root).href:
+    new URL('sky_'+(skyTime.value==='dusk'?'dawn':skyTime.value)+'.png',regionalRoot).href;
    canvas.replaceChildren(bg);
    if(layers==='road'){
     const dirt=el('img');dirt.className='layout-dirt-road';dirt.alt='';
     dirt.src=new URL('dirt_road_foreground.png',regionalRoot).href;
     canvas.append(dirt);
    }
-   canvas.dataset.skyTime=layers?skyTime.value:'none';
+   canvas.dataset.skyTime=layers==='none'?'none':skyTime.value;
    skyTime.parentElement.hidden=layers==='none';
    background.parentElement.hidden=layers!=='none';
    if(!nodes.size){const empty=el('p',state(row));empty.className='layout-empty';canvas.append(empty);}

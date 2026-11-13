@@ -101,6 +101,19 @@
  ])register('OLD BILLBOARD',[],'both',variant,scenery(file));
  register('THE SHATTERED SILO',['silo_king.png','razorback.png','young_boar.png'].map(scenery),'both','Boars',scenery('the_shattered_silo.png'));
 
+ // Newly uploaded owner artwork, DEVTEST Visual Testing registry only.
+ // Use the original canonical titles/save identifiers rather than renaming encounters.
+ register('RIDGELINE',[],'both','Animated landscape',scenery('ridgeline.gif'));
+ register('SCRATCHING IN THE SHED',[],'both','Before discovery — hidden rabbit',scenery('scratching_in_the_shed_empty.gif'));
+ register('SCRATCHING IN THE SHED',[],'both','After discovery — rabbit revealed',scenery('scratching_in_the_shed_rabbit.gif'));
+ register('THE DRY FOUNTAIN',[],'both','The Road Enforcer — sky + dirt road',scenery('the_road_enforcer.png'));
+ register('THE EMPTY ARMORY',[],'both','Full bunker interior',scenery('the_empty_armory.png'));
+ register('IRRADIATED ROACHES',[],'both','The Forgotten Garden — sky only',scenery('the_forgotten_garden.png'));
+ register("MURPHY'S LOST CORVETTE",[],'both','Blue Corvette — sky + dirt road',scenery('murphys_lost_corvette.png'));
+ register('RUINED SIGNAL HUT',[],'both','Shattered Glass — sky + dirt road',scenery('shattered_glass.png'));
+ register('BROKEN RADIO',[],'both','Station Nine discovery radio',scenery('station_nine_discovery.png'));
+
+
  const rows=new Map();
  const byEncounter=new Map();
  const byTitle=new Map();
@@ -177,6 +190,11 @@
    regions:region?[region]:[],combat:true,variants:source==='r18DepotFight'?
     [{units:[enemy('county_unit_07.png')],background:scenery('county_depot_interior.png'),phase:'combat',variant:'County Depot fight'}]:[]});
  }
+ // Existing scripted gate-guard combat: real Solace gate behind a standalone guard sprite.
+ const gateGuard=rows.get('scripted:gateguards');
+ if(gateGuard)gateGuard.variants=[{units:[enemy('solace_gate_guard.png')],
+  background:'../playtest/assets/locations/solace_town_gate.png',
+  phase:'combat',variant:'Solace gate — guard emerges'}];
  const installed=new Map([...rows.values()].flatMap(row=>row.variants.flatMap(v=>
   v.units.map(path=>[assetName(path),path]))));
  const bounds={x:[0,100],y:[0,100],width:[2,150],height:[2,150],scale:[.1,3],z:[0,30]};

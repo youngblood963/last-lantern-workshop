@@ -112,6 +112,22 @@
  register("MURPHY'S LOST CORVETTE",[],'both','Blue Corvette — sky + dirt road',scenery('murphys_lost_corvette.png'));
  register('RUINED SIGNAL HUT',[],'both','Shattered Glass — sky + dirt road',scenery('shattered_glass.png'));
  register('BROKEN RADIO',[],'both','Station Nine discovery radio',scenery('station_nine_discovery.png'));
+ // Owner-approved visual batch: encounter IDs and gameplay definitions are unchanged.
+ // Sky-mode assets use the shared dynamic sky; the gas station additionally uses dirt road.
+ for(const [title,file] of [
+  ['THE MUD CANNON','the_mud_cannon.gif'],
+  ['SHUTTERED ROADSIDE CAFE','the_last_special.png'],
+  ['THE HOLLOW STATUE','the_hollow_statue.png'],
+  ['THE GAS STATION','the_gas_station.png'],
+  ['THE STRANDED HANDCART','the_last_stop.png']
+ ])register(title,[],'both','Owner artwork',scenery(file));
+ register('THE IRON CHOIR',[],'approach','Hanging valves — regional sky',scenery('the_iron_choir.png'));
+ register('THE IRON CHOIR',[enemy('iron_choir_valve_raider.png'),enemy('iron_choir_patrol_raider.png')],
+  'combat','Valve and patrol raiders',scenery('the_iron_choir.png'));
+ register('THE SCRAP DUEL',[],'approach','Hubcap target game — regional sky',scenery('the_scrap_duel.png'));
+ register('THE SCRAP DUEL',[enemy('hubcap_champion.png')],
+  'combat','Hubcap Champion',scenery('the_scrap_duel.png'));
+
  // Newly approved 2026-11-12 batch. Keep original registry titles as keys.
  // These are scene previews, not changes to combat or encounter mechanics.
  register('THE KNIFE WIND',[],'both','The Road Reapers — sky only',enemy('the_road_reapers.png'));

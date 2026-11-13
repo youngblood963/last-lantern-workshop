@@ -13,7 +13,7 @@
   'THE MUD CANNON':{art:'the_mud_cannon.gif',backdrop:'standalone'},
   'SHUTTERED ROADSIDE CAFE':{art:'the_last_special.png',backdrop:'standalone'},
   'THE LAST SPECIAL — ROADHOUSE HASH':{art:'the_last_special.png',backdrop:'standalone'},
-  'THE HOLLOW STATUE':{art:'the_hollow_statue.png',backdrop:'standalone'},
+  'THE HOLLOW STATUE':{art:'the_hollow_statue.png',backdrop:'sky'},
   'THE IRON CHOIR':{art:'the_iron_choir.png',backdrop:'sky',id:'east:6',
    units:['iron_choir_valve_raider.png','iron_choir_patrol_raider.png']},
   'THE SCRAP DUEL':{art:'the_scrap_duel.png',backdrop:'sky',id:'east:11',

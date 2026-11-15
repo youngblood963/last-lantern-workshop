@@ -25,7 +25,7 @@ function paint(r,spinning){
  let el=box.querySelector('.r127-slot-feedback');
  if(!el){el=document.createElement('div');el.className='r127-slot-feedback';el.setAttribute('role','status');el.setAttribute('aria-live','polite');box.prepend(el)}
  let title,detail,kind='ready';
- if(r.status!=='settled'){title='PLACE YOUR WAGER';detail=seaport()?'Bet 10, 20, 50, Custom, or All In.':'Bet 10, 20, 50, Custom, or All In.';}
+ if(r.status!=='settled'){title='PLACE YOUR WAGER';detail=seaport()?'Bet 10, 20, or 50 Bolts.':'Bet 10, 20, or 50 Bolts.';}
  else if(spinning){title='REELS SPINNING…';detail='Wager: '+r.bet+' Bolts';kind='spin';}
  else{
   const winning=r.payout>0;const triple=Array.isArray(r.reels)&&r.reels.length===3&&r.reels.every(x=>x===r.reels[0]);
@@ -81,7 +81,7 @@ GraphicalUI.dispatch=async function(choice){
 const oldCasinoCommand=handleCasinoCommand;
 handleCasinoCommand=function(cmd){
  if(solace()&&casinoRound()?.status==='settled'&&
-    (/^wager [0-9]+$/.test(cmd)||['custom wager','custom','all in'].includes(cmd))){
+    (/^wager (?:10|20|50)$/.test(cmd))){
   casinoOpen('slots');
  }
  return oldCasinoCommand.apply(this,arguments);

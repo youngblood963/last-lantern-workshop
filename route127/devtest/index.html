@@ -462,6 +462,31 @@ GraphicalUI.schedule();
   FocusedEntry.schedule();
 })();
 </script>
+<script>
+/* DEVTEST-only new-game graphics handoff.
+ * After logging coordinates, the original house/roadReady stages are playable
+ * before lanternTravel has been initialized. Do not hide graphics at that point. */
+(()=>{
+  if(typeof GraphicalUI==='undefined')return;
+  const previousEligible=GraphicalUI.eligible;
+  const previousContext=GraphicalUI.context;
+  const houseStages=new Set(['roadReady','house']);
+  const overlays=new Set(['inventory','inventoryItem','confirmDrop','quests','interfaceStatus','interfaceMap','interfaceSave']);
+  GraphicalUI.eligible=function(){
+    if(previousEligible.call(this))return true;
+    if(!player?.flags?.interfaceUnlocked)return false;
+    const actual=overlays.has(stage)?returnStage:stage;
+    return houseStages.has(actual)||houseStages.has(stage);
+  };
+  GraphicalUI.context=function(){
+    const g=typeof lanternState==='function'?lanternState():null;
+    const actual=overlays.has(stage)?returnStage:stage;
+    if(houseStages.has(actual)&&(!g||g.nodeId==='house'))return 'house-interior';
+    return previousContext.call(this);
+  };
+  GraphicalUI.sync();
+})();
+</script>
 </body>
 </html>
 

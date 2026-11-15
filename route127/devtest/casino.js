@@ -115,6 +115,15 @@ function casinoDiceFace(n){const cells=[[' ',' ',' '],[' ',' ',' '],[' ',' ',' '
 const RPS_HANDS={rock:'   ___\n _/   \\_\n|  FIST |\n \\_____/',paper:'| | | | |\n| | | | |\n|  PALM  |\n \\______/',scissors:' \\ /\n  V\n / \\\n| FIST |'};
 function casinoRpsOutcome(playerPick,opponent){if(playerPick===opponent)return 'push';return ({rock:'scissors',paper:'rock',scissors:'paper'})[playerPick]===opponent?'win':'loss';}
 function casinoSlotDraw(rng=Math.random){let roll=rng()*100;for(const s of SLOT_SYMBOLS){roll-=s.weight;if(roll<0)return s.name}return 'BLACKGLASS';}
+// Double each original three-of-a-kind probability without changing reels, art, or multipliers.
+function casinoSlotBoost(reels){
+ if(reels.every(x=>x===reels[0]))return reels;
+ const p=SLOT_SYMBOLS.reduce((sum,s)=>sum+(s.weight/100)**3,0);
+ if(Math.random()>=p/(1-p))return reels;
+ let roll=Math.random()*p;
+ const symbol=SLOT_SYMBOLS.find(s=>(roll-=(s.weight/100)**3)<0)||SLOT_SYMBOLS[SLOT_SYMBOLS.length-1];
+ return [symbol.name,symbol.name,symbol.name];
+}
 function casinoSlotPayout(reels,bet){if(!Array.isArray(reels)||reels.length!==3||!Number.isSafeInteger(bet)||bet<=0)return 0;const symbol=SLOT_SYMBOLS.find(s=>s.name===reels[0]);if(!symbol||!reels.every(x=>x===symbol.name))return 0;const payout=symbol.mult*bet;return Number.isSafeInteger(payout)?payout:0;}
 function casinoDeck(rng=Math.random){const deck=[];for(const suit of ['C','D','H','S'])for(const rank of ['A','2','3','4','5','6','7','8','9','10','J','Q','K'])deck.push({rank,suit});for(let i=deck.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]]}return deck;}
 function casinoCardTotal(cards){let value=0,aces=0;for(const c of cards){if(c.rank==='A'){value+=11;aces++}else value+=['J','Q','K'].includes(c.rank)?10:Number(c.rank)}while(value>21&&aces){value-=10;aces--}return value;}
@@ -127,7 +136,7 @@ function casinoResolve(r){
  if(r.game==='dice'){r.roll=1+Math.floor(Math.random()*6);casinoSettle(r,r.roll===r.pick?r.bet*6:0,`DIE: ${r.roll} — ${r.roll===r.pick?'WIN':'LOSS'}`);casinoAnimate([casinoDiceFace(2),casinoDiceFace(5)],casinoDiceFace(r.roll));}
  if(r.game==='rps'){r.opponent=['rock','paper','scissors'][Math.floor(Math.random()*3)];r.result=casinoRpsOutcome(r.pick,r.opponent);casinoSettle(r,r.result==='win'?r.bet*2:r.result==='push'?r.bet:0,`${r.pick.toUpperCase()} versus ${r.opponent.toUpperCase()} — ${r.result.toUpperCase()}`);casinoAnimate([RPS_HANDS.rock,RPS_HANDS.paper,RPS_HANDS.scissors],`YOU\n${RPS_HANDS[r.pick]}\nOPPONENT\n${RPS_HANDS[r.opponent]}`);}
  if(r.game==='slots'){
-  r.reels=[casinoSlotDraw(),casinoSlotDraw(),casinoSlotDraw()];
+  r.reels=casinoSlotBoost([casinoSlotDraw(),casinoSlotDraw(),casinoSlotDraw()]);
   casinoSettle(r,casinoSlotPayout(r.reels,r.bet),r.reels.join(' / '));
   // Cheeseburger is a once-per-character 5% slot jackpot, never sold or traded.
   // Multiplayer-wide uniqueness is intentionally not claimed without shared ownership infrastructure.

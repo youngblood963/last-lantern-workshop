@@ -17,7 +17,7 @@ const definitions=Object.freeze({
 const sceneStage='r127QuestDiscovery';
 const graphics=()=>GraphicalUI.preference()==='graphics';
 const current=()=>player.flags?.r127QuestDiscovery;
-const active=()=>stage===sceneStage&&current()&&definitions[current().key];
+const active=()=>{const info=current();return stage===sceneStage&&info&&definitions[info.key]?info:null;};
 const stepKey=key=>String(roadGoal)+'|'+String(roadTurn)+'|'+key;
 let dismissed='';
 function sceneChoices(){

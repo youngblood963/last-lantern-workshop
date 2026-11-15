@@ -57,9 +57,7 @@ const stakes=[
  {key:'1',command:'wager 10',label:'Wager 10'},
  {key:'2',command:'wager 20',label:'Wager 20'},
  {key:'3',command:'wager 50',label:'Wager 50'},
- {key:'4',command:'custom wager',label:'Custom'},
- {key:'5',command:'all in',label:'All In'},
- {key:'6',command:'back',label:'Back'}
+ {key:'4',command:'back',label:'Back'}
 ];
 const oldChoices=GraphicalUI.choices;
 GraphicalUI.choices=function(...args){

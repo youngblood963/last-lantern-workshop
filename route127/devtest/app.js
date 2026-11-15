@@ -195,7 +195,12 @@ function add(text = "", cls = "") {
     const paced = finalText && !cls.includes("system") && !cls.includes("reward") && !cls.includes("danger") && !cls.includes("quest-banner");
     if(paced){
       const speed = cls.includes("place") ? 24 : 18;
-      for(const ch of finalText){ div.append(document.createTextNode(ch)); followOutput(); await sleep(speed); }
+      // Update one text node rather than creating a DOM node per character.
+      // Long roadside narratives otherwise produce hundreds of nodes and
+      // cause excess layout work on older iPad/Safari hardware.
+      const animatedText=document.createTextNode('');
+      div.appendChild(animatedText);
+      for(const ch of finalText){ animatedText.appendData(ch); followOutput(); await sleep(speed); }
       await sleep(cls.includes("place") ? 220 : 145);
     } else { div.textContent = finalText; await sleep(finalText ? 45 : 10); }
     applyLevelEvolution(div, finalText, cls);

@@ -435,6 +435,21 @@ GraphicalUI.schedule();
 <script src="../devtest/runtime/solace_quest_discovery_art_20261113.js?v=quest-take-back-2"></script>
 <script src="../devtest/runtime/arena_combatants_20261113.js?v=arena-fighters-1"></script>
 <script src="../devtest/runtime/causeway_scene_backdrop_20261113.js?v=dedupe-causeway-background-4"></script>
+<script>
+/* DEVTEST-only: keep the opening transmission's typed prompts available after HI.
+ * The shared graphics entry modal previously covered HELLO only, while graphics
+ * mode hid the underlying command form during LISTEN and LOG COORDINATES. */
+(()=>{
+  if(typeof FocusedEntry==='undefined')return;
+  const previousDescribe=FocusedEntry.describe;
+  FocusedEntry.describe=function(){
+    if(stage==='listen')return {key:'intro-listen',title:'Continue transmission',label:'Type LISTEN',hint:'The Tomorrow Project is waiting for you to listen.',maxLength:40,format:v=>v};
+    if(stage==='savecoords')return {key:'intro-coordinates',title:'Save the coordinates',label:'Type LOG COORDINATES',hint:'Enter LOG COORDINATES to save the destination and begin your journey.',maxLength:60,format:v=>v};
+    return previousDescribe.call(this);
+  };
+  FocusedEntry.schedule();
+})();
+</script>
 </body>
 </html>
 

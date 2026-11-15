@@ -100,6 +100,7 @@ function casinoWager(cmd,r){
  const m=cmd.match(/^(?:wager|bet)\s+([0-9]+)(?:\s+bolts?)?$/);
  if(!m)return false;const bet=Number(m[1]);
  if(!Number.isSafeInteger(bet)||bet<=0||bet>player.bolts||!Number.isSafeInteger(player.bolts+bet*300))return false;
+  if(r.game==='slots'&&![10,20,50].includes(bet))return false;
 
  if(r.game==='blackjack'&&bet%2!==0)return false;
  r.bet=bet;player.bolts-=bet;r.status='active';updateHud();casinoCheckpoint();return true;
@@ -162,8 +163,8 @@ function handleCasinoCommand(cmd){
  const r=casinoRound();if(!r){casinoMenu();return true;}
  if(r.status==='waiting'&&(r.pick!==null||['slots','blackjack'].includes(r.game))){
   if((r.custom||r.allInEven)&&['b','back'].includes(cmd)){delete r.custom;delete r.allInEven;casinoRender();return true;}
-  if(cmd==='custom wager'||cmd==='custom'||cmd==='c'){r.custom=true;delete r.allInEven;casinoRender();return true;}
-  if(cmd==='all in'||cmd==='a'){delete r.custom;if(r.game==='blackjack'&&player.bolts%2===1){r.allInEven=player.bolts-1;if(r.allInEven<2){delete r.allInEven;add('BLACKJACK needs at least 2 Bolts.','system');}casinoRender();return true;}cmd='wager '+player.bolts;}
+  if(r.game!=='slots'&&(cmd==='custom wager'||cmd==='custom'||cmd==='c')){r.custom=true;delete r.allInEven;casinoRender();return true;}
+  if(r.game!=='slots'&&(cmd==='all in'||cmd==='a')){delete r.custom;if(r.game==='blackjack'&&player.bolts%2===1){r.allInEven=player.bolts-1;if(r.allInEven<2){delete r.allInEven;add('BLACKJACK needs at least 2 Bolts.','system');}casinoRender();return true;}cmd='wager '+player.bolts;}
   if(cmd==='confirm even all in'){if(!r.allInEven||player.bolts!==r.allInEven+1){delete r.allInEven;add('Balance changed; choose ALL IN again.','system');casinoRender();return true;}cmd='wager '+r.allInEven;}
   if(r.custom&&/^[0-9]+$/.test(cmd))cmd='wager '+cmd;
  }
@@ -189,4 +190,4 @@ function casinoRatFrame(positions,winner=null){return positions.map((pos,i)=>`${
 function casinoRatFrames(winner){const paths=[[4,7,8,10],[1,3,6,10],[3,5,2,8],[2,2,5,9]];const frames=[0,1,2,3].map(t=>casinoRatFrame(paths.map(p=>p[t])));const final=casinoRatFrame(paths.map((p,i)=>i===winner?12:Math.min(11,p[3])),winner);return {frames,final};}
 function casinoResolveRats(r){r.winner=casinoRatWinner();casinoSettle(r,r.pick===r.winner?r.bet*4:0,`${CASINO_RATS[r.winner]} WINS — ${r.pick===r.winner?'YOUR RAT WINS':'YOUR RAT LOSES'}`);add('Nibbles bursts ahead. Rustbucket starts slowly and finishes strong. Sir Squeaks-a-Lot doubles back; Cheeseburger stops for a bite.');const art=casinoRatFrames(r.winner);casinoAnimate(art.frames,art.final);}
 
-function casinoWagerMenu(){outputQueue=outputQueue.then(()=>{currentHotkeys={c:'custom wager',a:'all in',b:'back'};numberedChoices={10:'wager 10',20:'wager 20',50:'wager 50'};usedHotkeys=new Set(['c','a','b']);for(const label of ['[10] 10 BOLTS','[20] 20 BOLTS','[50] 50 BOLTS','[C] CUSTOM','[A] ALL IN','[B] BACK'])addImmediate(label,'system');followOutput()});}
+function casinoWagerMenu(){outputQueue=outputQueue.then(()=>{const slots=casinoRound()?.game==='slots';currentHotkeys=slots?{b:'back'}:{c:'custom wager',a:'all in',b:'back'};numberedChoices={10:'wager 10',20:'wager 20',50:'wager 50'};usedHotkeys=new Set(slots?['b']:['c','a','b']);for(const label of (slots?['[10] 10 BOLTS','[20] 20 BOLTS','[50] 50 BOLTS','[B] BACK']:['[10] 10 BOLTS','[20] 20 BOLTS','[50] 50 BOLTS','[C] CUSTOM','[A] ALL IN','[B] BACK']))addImmediate(label,'system');followOutput()});}

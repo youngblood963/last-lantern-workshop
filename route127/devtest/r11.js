@@ -307,7 +307,7 @@ function r11PortBoard(){stage='r11Board';add('SEAPORT — DOCK BULLETIN BOARD','
  add('SHIPPING: Register cargo before unloading. Unmarked crates will be held at the quay.');add('DOCKWORKERS: Check mooring ropes after every squall.');add('MISSING CARGO: Report altered freight manifests to the docks clerk.');add('HARBOR HAZARD: The western freight spur has unstable decking.');add('LOCAL NOTICE: Mia wants her cups back. Kaiden wants everyone to stop blaming the gulls.');r11SharedBoard();r5DirectChoices(['POST A MESSAGE','VIEW BOUNTIES','RETURN TO DOCKS']);
 }
 const r11Docks=r5Docks;r5Docks=function(){if(!portRecruitUnlocked())return r11Docks();stage='port55Docks';add('SEAPORT — HARBOR DOCKS','place');add('A clerk checks water-stained manifests beside the freed quay.','bright');r5DirectChoices(['DOCK BULLETIN BOARD','TALK TO DOCKS CLERK',...(r18CourierEligible('docks')?['DELIVER SEAPORT PARCEL']:[]),...(player.flags.port55PendingRewards?.length?['CLAIM PENDING REWARD']:[]),'RETURN TO SEAPORT']);};
-port55MiaMenu=function(){stage='port55Mia';port55Submenu('The Rusty Anchor — Mia',['SMALL TALK','BUY DRINKS','GAMBLE',player.flags.r6AnchorRoomOwned?'GO TO ROOM':'RENT ROOM — 2000 BOLTS',...(portRecruitUnlocked()?['ASK ABOUT HOUSE RULES']:[]),'RETURN TO HARBOR']);};
+port55MiaMenu=function(){stage='port55Mia';port55Submenu('The Rusty Anchor — Mia',['SMALL TALK','BUY DRINKS','GAMBLE',player.flags.r6AnchorRoomOwned?'GO TO ROOM':'RENT ROOM — 3000 BOLTS',...(portRecruitUnlocked()?['ASK ABOUT HOUSE RULES']:[]),'RETURN TO HARBOR']);};
 function r11Drinks(){stage='r11Drinks';add('MIA — DRINKS','place');r5DirectChoices(['BEER — 5 BOLTS / 5% MAX HP (MIN 5)','SHOT — 9 BOLTS / 9% MAX HP (MIN 10)','HOUSE SPECIAL — 15 BOLTS / 15% MAX HP (MIN 15)','BACK']);}
 const R11_QUESTS={shipment:{name:'The Last Shipment',xp:120,bolts:75,giver:'Docks Clerk'},houseRules:{name:'House Rules',xp:100,bolts:100,giver:'Mia'},lights:{name:'Keeping the Lights On',xp:150,bolts:0,giver:'Kaiden'}};
 function r11QuestState(){return player.flags.r11Quests||(player.flags.r11Quests={});}
@@ -409,7 +409,7 @@ handleCommandCore=async function(raw){
   if(stage==='port55Kaiden'&&cmd==='ask about keeping the lights on')return r11QuestMenu('lights');
   if(stage==='r6Road'&&r11RoadQuest(cmd))return;
   if(stage==='port55Mia'&&cmd==='buy drinks')return r11Drinks();
-  if(stage==='port55Mia'&&/^(?:rent room|room)/.test(cmd)&&!player.flags.r6AnchorRoomOwned&&player.bolts<500){add("MIA > You trying to rip me off? That room costs 500 Bolts, sweetheart. Come back when you've got the money.",'bright');return port55MiaMenu();}
+  if(stage==='port55Mia'&&/^(?:rent room|room)/.test(cmd)&&!player.flags.r6AnchorRoomOwned&&player.bolts<3000){add("MIA > You trying to rip me off? That room costs 3000 Bolts, sweetheart. Come back when you've got the money.",'bright');return port55MiaMenu();}
  }
  const before=player.lifetimeTurns||0;await r11Core(raw);
  if(stage==='port55Kaiden'&&portRecruitUnlocked())r18KaidenChoices();

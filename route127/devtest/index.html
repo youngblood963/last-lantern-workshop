@@ -447,6 +447,18 @@ GraphicalUI.schedule();
     if(stage==='savecoords')return {key:'intro-coordinates',title:'Save the coordinates',label:'Type LOG COORDINATES',hint:'Enter LOG COORDINATES to save the destination and begin your journey.',maxLength:60,format:v=>v};
     return previousDescribe.call(this);
   };
+  // The shared submit handler marks the NEXT prompt as dismissed when the
+  // current prompt changes. Clear that marker only on intro transitions.
+  const previousSubmit=FocusedEntry.submit;
+  FocusedEntry.submit=async function(...args){
+    const before=stage;
+    const result=await previousSubmit.apply(this,args);
+    if((before==='hello'&&stage==='listen')||(before==='listen'&&stage==='savecoords')){
+      this.dismissed=null;
+      this.schedule();
+    }
+    return result;
+  };
   FocusedEntry.schedule();
 })();
 </script>

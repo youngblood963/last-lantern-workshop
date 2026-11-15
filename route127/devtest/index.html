@@ -160,13 +160,11 @@ r6Wager=function(bet){
 // Same native clickable buttons used by the working Solace casino.
 // These choices are derived from the casino round, not an asynchronous
 // terminal output queue (which previously left the slot UI with no buttons).
-// Match Solace: 10 / 20 / 50, Custom, All In, Back.
-// Custom hands off to the existing FocusedEntry wager popup.
-const slotActions=()=>r6Round()?.custom&&r6Round()?.status==='waiting'?['BACK']
- : ['WAGER 10','WAGER 20','WAGER 50','CUSTOM WAGER','ALL IN','BACK'];
+// Slot-only fixed stakes; other casino games retain their own betting menus.
+const slotActions=()=>['WAGER 10','WAGER 20','WAGER 50','BACK'];
 const slotOptions=()=>slotActions().map((command,i)=>({
  key:String(i+1),command:command.toLowerCase(),
- label:command.replace(/^WAGER /,'Wager ').replace(/^PLAY AGAIN$/,'Play Again').replace(/^CUSTOM WAGER$/,'Custom').replace(/^ALL IN$/,'All In')
+ label:command.replace(/^WAGER /,'Wager ')
 }));
 function slotChoices(){
  numberedChoices=Object.fromEntries(slotOptions().map(c=>[c.key,c.command]));
@@ -193,7 +191,7 @@ GraphicalUI.dispatch=async function(choice){
 const originalCasinoCommand=r6CasinoCommand;
 r6CasinoCommand=function(cmd){
  if(isSlot()&&r6Round()?.status==='settled'&&
-   (/^wager [0-9]+$/.test(cmd)||['custom wager','custom','all in'].includes(cmd))){
+   (/^wager (?:10|20|50)$/.test(cmd))){
   r6Open('SLOTS');
  }
  return originalCasinoCommand.apply(this,arguments);
@@ -381,7 +379,7 @@ GraphicalUI.schedule();
 
 
 
-<script src="../devtest/runtime/slot_results_20261105.js?v=casino-results-3"></script>
+<script src="../devtest/runtime/slot_results_20261105.js?v=casino-fixed-stakes-20261115"></script>
 <script src="../devtest/runtime/seaport_crab_race_visual_20261105.js?v=crab-lanes-lowered-5"></script>
 <script src="../devtest/runtime/seaport_knife_throwing_visual_20261105.js?v=knife-calibrated-3"></script>
 <script src="../devtest/runtime/seaport_room_chest_20261106.js?v=modal-guard-3"></script>
@@ -485,6 +483,86 @@ GraphicalUI.schedule();
     return previousContext.call(this);
   };
   GraphicalUI.sync();
+})();
+</script>
+<script id="devtest-slot-stakes-and-odds">
+/* DEVTEST ONLY — fixed slot wagers and doubled matching-symbol odds.
+ * Existing reels, images, animations, multipliers and settlements remain in place.
+ */
+(()=>{
+ 'use strict';
+ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||typeof casinoSlotPayout!=='function'||typeof SLOT_SYMBOLS==='undefined')return;
+ const permitted=new Set([10,20,50]);
+ const solace=()=>stage==='mercy'&&mercyLocation==='casinoGame'&&casinoRound()?.game==='slots';
+ const seaport=()=>stage==='r6Casino'&&r6Round()?.game==='SLOTS';
+ const allowedCommand=cmd=>/^(?:wager|bet) (?:10|20|50)(?: bolts?)?$/.test(cmd);
+ const prohibited=cmd=>/^(?:custom(?: wager)?|all in|c|a|[0-9]+|(?:wager|bet)\s+\d+(?:\s+bolts?)?)$/.test(cmd);
+ // P(triple symbol)=P(symbol)^3. On a calibrated portion of losing
+ // spins, promote to a triple with the natural relative symbol weights.
+ // This doubles the win probability for each of the six symbols.
+ const total=SLOT_SYMBOLS.reduce((sum,s)=>sum+s.weight,0);
+ const triples=SLOT_SYMBOLS.map(s=>Math.pow(s.weight/total,3));
+ const natural=triples.reduce((sum,p)=>sum+p,0);
+ const promote=natural/(1-natural);
+ const originalPayout=casinoSlotPayout;
+ casinoSlotPayout=function(reels,bet){
+  if(Array.isArray(reels)&&reels.length===3&&Number.isSafeInteger(bet)&&bet>0
+     &&!reels.every(v=>v===reels[0])&&Math.random()<promote){
+   let draw=Math.random()*natural;
+   let winner=SLOT_SYMBOLS.length-1;
+   for(let i=0;i<triples.length;i++){draw-=triples[i];if(draw<0){winner=i;break;}}
+   reels.fill(SLOT_SYMBOLS[winner].name);
+  }
+  return originalPayout.apply(this,arguments);
+ };
+ // Restrict the shared Solace wager UI only for slots (not blackjack etc).
+ const oldSolaceMenu=casinoWagerMenu;
+ casinoWagerMenu=function(){
+  if(!solace())return oldSolaceMenu.apply(this,arguments);
+  outputQueue=outputQueue.then(()=>{
+   currentHotkeys={b:'back'};
+   numberedChoices={10:'wager 10',20:'wager 20',50:'wager 50'};
+   usedHotkeys=new Set(['b']);
+   for(const label of ['[10] 10 BOLTS','[20] 20 BOLTS','[50] 50 BOLTS','[B] BACK'])addImmediate(label,'system');
+   followOutput();
+  });
+ };
+ const oldSolaceWager=casinoWager;
+ casinoWager=function(cmd,r){
+  if(r?.game==='slots'&&!allowedCommand(String(cmd).trim().toLowerCase()))return false;
+  return oldSolaceWager.apply(this,arguments);
+ };
+ const oldSolaceCommand=handleCasinoCommand;
+ handleCasinoCommand=function(cmd){
+  cmd=String(cmd).trim().toLowerCase();
+  if(solace()){
+   const r=casinoRound();
+   delete r.custom;delete r.allInEven;
+   if(prohibited(cmd)&&!allowedCommand(cmd)){
+    add('SLOTS — CHOOSE WAGER 10, WAGER 20, OR WAGER 50.','system');
+    casinoRender();return true;
+   }
+  }
+  return oldSolaceCommand.apply(this,arguments);
+ };
+ const oldPortWager=r6Wager;
+ r6Wager=function(bet){
+  if(seaport()&&!permitted.has(bet))return false;
+  return oldPortWager.apply(this,arguments);
+ };
+ const oldPortCommand=r6CasinoCommand;
+ r6CasinoCommand=function(cmd){
+  cmd=String(cmd).trim().toLowerCase();
+  if(seaport()){
+   const r=r6Round();
+   delete r.custom;delete r.allInEven;
+   if(prohibited(cmd)&&!allowedCommand(cmd)){
+    add('SLOTS — CHOOSE WAGER 10, WAGER 20, OR WAGER 50.','system');
+    r6CasinoRender();return true;
+   }
+  }
+  return oldPortCommand.apply(this,arguments);
+ };
 })();
 </script>
 </body>

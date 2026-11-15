@@ -236,7 +236,7 @@ casinoResolve=function(r){
   r.result=x<win?'win':x<win+1/3?'push':'loss';r.opponent=r.result==='win'?beats[r.pick]:r.result==='push'?r.pick:loses[r.pick];casinoSettle(r,r.result==='win'?2*r.bet:r.result==='push'?r.bet:0,`${r.pick} vs ${r.opponent} — ${r.result}`);casinoRender();return;
  }
  if(r.game==='slots'){
-  r.reels=[casinoSlotDraw(),casinoSlotDraw(),casinoSlotDraw()];const p=SLOT_SYMBOLS.reduce((s,a)=>s+(a.weight/100)**3,0);
+  r.reels=casinoSlotBoost([casinoSlotDraw(),casinoSlotDraw(),casinoSlotDraw()]);const p=SLOT_SYMBOLS.reduce((s,a)=>s+(a.weight/100)**3,0);
   if(!r.reels.every(n=>n===r.reels[0])&&r11LuckyConvert(false,p)){
    let x=Math.random()*p;const symbol=SLOT_SYMBOLS.find(a=>(x-=(a.weight/100)**3)<0)||SLOT_SYMBOLS.at(-1);r.reels=[symbol.name,symbol.name,symbol.name];
   }

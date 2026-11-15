@@ -507,9 +507,11 @@ const GEAR={
 // Generated equipment is reconstructed from its stable name before saves load.
 // Non-enumerable entries keep the existing named-gear and quest pools unchanged.
 const EQUIPMENT_QUALITIES=['common','uncommon','rare','epic','legendary'];
+// DEVTEST level-based rarity weights. Legendary remains reserved until approved gear exists.
 const EQUIPMENT_WEIGHTS=[
- [85,15,0,0,0],[75,23,2,0,0],[60,32,7,1,0],
- [45,37,14,3.9,.1],[35,40,19,5.5,.5],[25,40,25,9,1]
+ [100,0,0,0,0], [85,15,0,0,0], [70,25,5,0,0],
+ [55,35,10,0,0], [40,38,20,2,0], [25,40,30,5,0],
+ [15,35,40,9,1], [10,30,43,15,2]
 ];
 function protectedUniqueEquipment(name){return name==="The River Before"||name==="Keeper's Lantern"||name==="Niko's Collar"||name==="Crazy Steve's Sandwich Board"||/^Postman's Vest \(L\d{2} RARE\)$/.test(name);}
 function generatedEquipmentName(type,level,rarity){return `Road ${type==='weapon'?'Weapon':'Armor'} L${String(level).padStart(2,'0')} ${rarity.toUpperCase()}`;}
@@ -557,7 +559,7 @@ function regionalEquipmentBuy(region,wanted){
  if(typeof v49Autosave==='function')v49Autosave();return true;
 }
 function equipmentRarityRoll(level,roll){
- const band=level<=5?0:level<=10?1:level<=20?2:level<=30?3:level<=40?4:5;
+ const band=level<=2?0:level<=7?1:level<=10?2:level<=19?3:level<=29?4:level<=39?5:level<=44?6:7;
  let cumulative=0;for(let i=0;i<EQUIPMENT_QUALITIES.length;i++){cumulative+=EQUIPMENT_WEIGHTS[band][i];if(roll<cumulative)return EQUIPMENT_QUALITIES[i];}
  return 'legendary';
 }

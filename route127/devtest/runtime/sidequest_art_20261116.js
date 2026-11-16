@@ -10,6 +10,17 @@
  const regionAsset=name=>new URL('../assets/regions/'+name,root).href;
  const graphics=()=>GraphicalUI.preference()==='graphics';
  const scene=()=>{
+  // LAST CALL road discoveries are only shown while their exact quest actions
+  // are available; no additional events or quest-state mutations.
+  if(stage==='turnComplete'&&typeof questRoadMarkers==='function'){
+   const actions=questRoadMarkers().map(row=>String(row[1]).toLowerCase());
+   if(player.flags?.jenQuest==='cart'&&actions.includes('search supply cart'))
+    return {name:'last_call_supply_cart.png',title:'LAST CALL — ABANDONED SUPPLY CART',region:'INDUSTRIAL'};
+   if(player.flags?.jenQuest==='raiders'&&actions.includes('search raider checkpoint'))
+    return {name:'last_call_checkpoint.png',title:'LAST CALL — RAIDER CHECKPOINT',region:'INDUSTRIAL'};
+  }
+  if(['combat','combatItems'].includes(stage)&&typeof combatState!=='undefined'&&combatState?.source==='jenBoss')
+   return {name:'last_call_raider_captain.png',assetType:'enemies',title:'LAST CALL — RAIDER CAPTAIN',region:'INDUSTRIAL'};
   if(stage==='r18Fence')return {name:'silas_crowe_fence.png',title:'SILAS THE FENCE',fullscreen:true};
   if(stage==='r11Hollis')return {name:'hollis_reed.png',title:'HOLLIS REED — DOCKS CLERK',region:'SEAPORT'};
   if(stage==='r11Gambler')return {name:'missing_gambler.png',title:'HOUSE RULES — THE MISSING GAMBLER',region:'SEAPORT'};
@@ -20,7 +31,7 @@
  const previousModel=GraphicalUI.model;
  GraphicalUI.model=function(...args){
   const model=previousModel.apply(this,args),s=graphics()?scene():null;
-  if(model?.active&&s){model.art=img(s.name);model.title=s.title;model.regionalSky=null;}
+  if(model?.active&&s){model.art=s.assetType==='enemies'?new URL('assets/enemies/'+s.name,root).href:img(s.name);model.title=s.title;model.regionalSky=null;}
   return model;
  };
  const css=document.createElement('style');css.id='r127-sidequest-art-20261116';

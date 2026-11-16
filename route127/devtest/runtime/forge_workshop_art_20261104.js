@@ -740,7 +740,7 @@
    add('=== SEAPORT ===','place');
    add('SHERIFF KAIDEN — Town Streets','system');
    r5DirectChoices(['TOWN STREETS','HARBOR DOCKS','MARKET AREA','RUSTY ANCHOR',
-    ...(r18FenceAllowed()?['OLD CUSTOMS OFFICE']:[]),
+    ...(r18FenceAllowed()?['SILAS THE FENCE']:[]),
     ...(portRecruitUnlocked()&&r18MilesLocation()==='seaport'?['TALK TO MILES']:[]),
     'RETURN TO ROAD']);
   }else{

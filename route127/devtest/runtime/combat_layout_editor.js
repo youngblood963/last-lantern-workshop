@@ -14,6 +14,7 @@
  // Owner confirmed these Seaport-eligible scenes are complete in Combat Visual Testing.
  const ownerApprovedScenes=new Set(['THE FORGOTTEN ARENA','THE FIGHTING RING']);
  const ownerApproved=row=>ownerApprovedScenes.has(String(row.title||'').toUpperCase())||ownerApprovedScenes.has(String(row.name||'').toUpperCase());
+ const liberationApproved=row=>row.id==='seaport:liberation';
  // These approved compositions contain the character(s) within a complete scene asset.
  // A combat encounter does not require separately registered sprites to review its artwork.
  const embeddedCombatArtwork=new Set(['THE IRON HARVEST','THE DRY FOUNTAIN','IRRADIATED ROACHES',
@@ -61,6 +62,13 @@
     localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
     localStorage.setItem(arenaSeed,'1');
    }
+   // Mark owner-confirmed Seaport Liberation completed once; later manual changes remain possible.
+   const liberationSeed=reviewKey+'-seaport-liberation-approved-20261116';
+   if(!localStorage.getItem(liberationSeed)){
+    for(const row of L.rows.values())if(liberationApproved(row))reviews.add(row.id);
+    localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
+    localStorage.setItem(liberationSeed,'1');
+   }
    return reviews;
   }catch{return new Set();}
  }
@@ -70,6 +78,7 @@
   // No separate combat sprites are required for this fully illustrated scene.
   if(row.title==='THE MUD CANNON'&&reviews.has(row.id))return 'green';
   if(ownerApproved(row))return reviews.has(row.id)?'green':'yellow';
+  if(liberationApproved(row))return reviews.has(row.id)?'green':'yellow';
   if(animated(row))return reviews.has(row.id)?'green':'yellow';
   const art=state(row);
   if(art==='Checking art')return 'checking';

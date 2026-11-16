@@ -485,6 +485,48 @@ GraphicalUI.schedule();
   GraphicalUI.sync();
 })();
 </script>
+<script>
+/* DEVTEST Skip Intro ends at the Old House with the chosen display mode. */
+(()=>{
+  const startSkip=skipIntroForTesting;
+  skipIntroForTesting=function(){
+    startSkip();
+    input.disabled=false;
+    input.focus();
+  };
+
+  const previousCommand=handleCommand;
+  handleCommand=async function(raw){
+    const cmd=String(raw).trim().toLowerCase();
+    if(stage!=='confirmHandle'||!player.flags.wo16SkipNaming||busy||
+       !pendingHandle||!['','y','yes'].includes(cmd)){
+      return previousCommand.call(this,raw);
+    }
+
+    player.handle=pendingHandle;
+    try{
+      if(!r7Identity())throw Error('Character identity was not created.');
+    }catch(error){
+      player.handle='';
+      add('Unable to create your character ID. '+error.message,'danger');
+      return;
+    }
+
+    pendingHandle='';
+    delete player.flags.wo16SkipNaming;
+    player.flags.interfaceUnlocked=true;
+    numberedChoices={};
+    currentHotkeys={};
+    input.placeholder='Command';
+    hud.classList.remove('hidden');
+    utilityPanel.classList.remove('hidden');
+    add('TRAVELER CONFIRMED — '+player.handle,'bright');
+    add('The Solace coordinates are already logged.','system');
+    arriveHouse();
+    updateHud();
+  };
+})();
+</script>
 <script id="devtest-slot-stakes-and-odds">
 /* DEVTEST ONLY — fixed slot wagers and doubled matching-symbol odds.
  * Existing reels, images, animations, multipliers and settlements remain in place.

@@ -10,6 +10,7 @@
  const regionAsset=name=>new URL('../assets/regions/'+name,root).href;
  const graphics=()=>GraphicalUI.preference()==='graphics';
  const scene=()=>{
+  if(stage==='r18Fence')return {name:'silas_crowe_fence.png',title:'SILAS THE FENCE',fullscreen:true};
   if(stage==='r11Hollis')return {name:'hollis_reed.png',title:'HOLLIS REED — DOCKS CLERK',region:'SEAPORT'};
   if(stage==='r11Gambler')return {name:'missing_gambler.png',title:'HOUSE RULES — THE MISSING GAMBLER',region:'SEAPORT'};
   if(['combat','combatItems'].includes(stage)&&typeof combatState!=='undefined'&&combatState?.source==='terribleBilly')
@@ -27,6 +28,7 @@
  .gfx-art.r127-sidequest-art{position:relative;isolation:isolate;overflow:hidden;background:#202326!important}
  .gfx-art.r127-sidequest-art>.r127-sidequest-backdrop{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;background-repeat:no-repeat;pointer-events:none}
  .gfx-art.r127-sidequest-art>.gfx-image{position:relative;z-index:3;max-width:none;width:100%;height:100%;object-fit:contain!important;object-position:center bottom;background:transparent!important;filter:drop-shadow(2px 7px 6px #000a)}
+ .gfx-art.r127-sidequest-art.r127-fence-office>.gfx-image{object-fit:cover!important;object-position:center center!important;filter:none!important}
  .gfx-art.r127-sidequest-art>.gfx-art-caption{z-index:10}
  .gfx-art.r127-sidequest-art>.r127-regional-sky{display:none!important}
  .r127-sidequest-dialog{width:min(960px,96vw);max-height:96dvh;overflow:auto;box-sizing:border-box;border:1px solid #ae8355;background:#17130f;color:#f3dfbf;padding:12px}
@@ -46,8 +48,9 @@
    const e=this.element;if(!e?.figure)return result;
    const active=graphics()&&!e.frame.hidden&&!!scene(),s=active?scene():null;
    e.figure.classList.toggle('r127-sidequest-art',active);
+   e.figure.classList.toggle('r127-fence-office',!!s?.fullscreen);
    let layer=e.figure.querySelector(':scope > .r127-sidequest-backdrop');
-   if(!active){layer?.remove();return result;}
+   if(!active||s?.fullscreen){layer?.remove();return result;}
    if(!layer){layer=document.createElement('div');layer.className='r127-sidequest-backdrop';layer.setAttribute('aria-hidden','true');e.figure.insertBefore(layer,e.img);}
    const info=globalThis.Route127EditorSky?.describe?.(s.region,player?.flags?.worldHour);
    if(info)layer.style.backgroundImage='url("'+info.ground+'"),url("'+info.sky+'")';

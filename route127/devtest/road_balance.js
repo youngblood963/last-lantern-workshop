@@ -18,7 +18,14 @@ function r10Candidates(region,kind){
   // Keep their ordinary eligibility everywhere else, including Seaport roads.
   // Match the Causeway artwork boundary: Boulder Junction -> Seaport, steps 3–12.
   const g=typeof lanternState==='function'?lanternState():null;
-  if(g?.currentEdgeId==='boulder-junction--seaport'&&Number(g.stepIndex)>2&&
+  // Use the same authoritative background classifier as the renderer: a
+  // Causeway scene must not draw a dry-land encounter, in either direction.
+  // The edge/step fallback covers early setup before the renderer is ready.
+  const onCauseway=!!g&&(
+    (typeof route127DrawnBackground==='function'&&route127DrawnBackground(g)==='CAUSEWAY')||
+    (g.currentEdgeId==='boulder-junction--seaport'&&Number(g.stepIndex)>2)
+  );
+  if(onCauseway&&
      ['IRRADIATED ROACHES','THE FENCE ARTIST','THE FIGHTING RING','THE FORGOTTEN ARENA','RUINED SIGNAL HUT',
       'RIDGELINE','OLD BILLBOARD','THE MASK MARKET','THE SCRAP DUEL','THE MUD CANNON',
       'THE BRIDGE TOLL','THE PAPER STORM']

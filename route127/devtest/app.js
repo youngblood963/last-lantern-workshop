@@ -2582,7 +2582,9 @@ function buyJohnny(item){
 function showPurchaseComplete(){player.flags.solaceMenu="purchaseComplete";add("PURCHASE COMPLETE","reward");add("CONTINUE SHOPPING   RETURN TO TOWN","system");}
 function showPersonalQuestOffer(key){
  const intro={jenQuest:["LAST CALL","JEN > My runner was bringing a supply cart back from the Factory road. The cart never arrived, and neither did they. Supplies I can replace. People are harder. Will you look for them?"],johnnyQuest:["A DEAL GONE BAD","JOHNNY > A runner lost my ledger on the road north toward House. Names, debts, promises. Bad hands could turn that book into trouble for half of Solace. Bring it back?"],amiiQuest:["THE MISSING DEPOSIT","AMII > A deposit satchel went missing north of town. Those Bolts belong to people who trusted us. I need it found before I have to tell them. Can you help?"],waynePatientQuest:["THE LAST PATIENT","WAYNE > A patient needs medicine I don't have. An old ambulance on the south gate road toward Factory might still carry it. I'd ask nicely, but we're running out of time. Will you search?" ]}[key];
- add(intro[0],"place");add(intro[1],"bright");add("ACCEPT   DECLINE","system");
+ add(intro[0],"place");add(intro[1],"bright");
+ if(typeof r5DirectChoices==="function")r5DirectChoices(["ACCEPT","DECLINE"]);
+ else add("ACCEPT   DECLINE","system");
 }
 function murphyMainMenu(){
  player.flags.solaceMenu="murphyMain";

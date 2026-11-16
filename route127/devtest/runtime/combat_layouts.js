@@ -339,7 +339,7 @@
   const encounter=typeof currentEncounter==='function'?currentEncounter():null;
   const title=normalize(encounter?.title||c?.name);
   const file=ownerRoadArt.get(title)||ownerRoadArt.get(normalize(c?.name));
-  if(file)model.art=file.startsWith('../')?'../devtest/assets/enemies/'+file:'../devtest/assets/enemies/'+file;
+  if(file)model.art='../devtest/assets/'+(file.startsWith('../scenarios/')?'scenarios/'+file.slice('../scenarios/'.length):'enemies/'+file);
   return model;
  };
 

@@ -152,8 +152,7 @@ const lgRoadQuests=r11RoadQuestOptions;r11RoadQuestOptions=function(){
  const gambler=onCrossing&&g.stepIndex>=9&&g.stepIndex<=11;
  return [
   ...(s.shipment==='active'&&cargo?['SEARCH FREIGHT SPUR']:[]),
-  ...(s.houseRules==='active'&&gambler?['SEARCH GAMBLER CAMP']:[]),
-  ...(s.lights==='active'&&p===LANTERN_COAST_SLOTS.serviceBox?['SEARCH SERVICE BOX']:[])
+  ...(s.houseRules==='active'&&gambler?['SEARCH GAMBLER CAMP']:[])
  ];
 };
 const lgSettlement=arriveSettlement;arriveSettlement=async function(){const g=lanternMigrate();add(`SOLACE — ${g.approachGate.toUpperCase()} GATE. All four gates answer to the same watch.`,'place');if(!player.flags.mercyDiscovered){stage='settlement';return lgSettlement();}if(!g.solaceAdmitted){stage='settlement';add('GUARD > Same watch, same questions. State your business before you enter.','bright');add('(P) APPROACH GATE','system');return;}g.lastSettlement='solace';return lgSettlement();};

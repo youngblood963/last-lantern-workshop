@@ -139,7 +139,23 @@ const lgProgress=updateNewQuestRoadProgress;updateNewQuestRoadProgress=function(
 const lgMarkers=questRoadMarkers;questRoadMarkers=function(){if(lanternState()&&(!lanternQuestEdge()||!['house','factory'].includes(lanternQuestEdge().plot)))return [];return lgMarkers();};
 const lgComplete=completeRoadTurn;completeRoadTurn=function(){const g=lanternState();if(!g)return lgComplete();if(!g.pending)return g.currentEdgeId?lanternRoadMenu():lanternNodeMenu();updateNewQuestRoadProgress();g.pending=false;resumeSavedEncounter=false;const e=lanternEdge();if(g.stepIndex===0||g.stepIndex===e.distanceTurns)return lanternArrive(g.stepIndex===0?e.a:e.b);add('──────── TURN COMPLETE ────────','system');lanternRoadMenu();lanternSave();};
 const lgRoadMenu=r6RoadMenu;r6RoadMenu=function(){if(lanternState())return lanternEdge()?lanternRoadMenu():lanternNodeMenu();return lgRoadMenu();};
-const lgRoadQuests=r11RoadQuestOptions;r11RoadQuestOptions=function(){if(!lanternState())return lgRoadQuests();const g=lanternState();if(!g.currentEdgeId&&g.nodeId==='boulder-junction'&&portRecruitUnlocked()&&r11QuestState().shipment==='active')return ['SEARCH FREIGHT SPUR'];const e=lanternQuestEdge();if(!e||e.plot!=='coast'||!portRecruitUnlocked())return [];const p=lanternScriptSlot(e,g.currentEdgeId?g.stepIndex:g.markerContext.step),s=r11QuestState();return [...(s.shipment==='active'&&p===LANTERN_COAST_SLOTS.freightSpur?['SEARCH FREIGHT SPUR']:[]),...(s.houseRules==='active'&&p===LANTERN_COAST_SLOTS.gamblerCamp?['SEARCH GAMBLER CAMP']:[]),...(s.lights==='active'&&p===LANTERN_COAST_SLOTS.serviceBox?['SEARCH SERVICE BOX']:[])];};
+const lgRoadQuests=r11RoadQuestOptions;r11RoadQuestOptions=function(){
+ if(!lanternState())return lgRoadQuests();
+ const g=lanternState(),e=lanternQuestEdge();
+ if(!e||e.plot!=='coast'||!portRecruitUnlocked())return [];
+ const p=lanternScriptSlot(e,g.currentEdgeId?g.stepIndex:g.markerContext.step),s=r11QuestState();
+ const onCrossing=g.currentEdgeId==='boulder-junction--seaport';
+ // The cargo is actually on the Causeway, not at the Boulder Junction gate.
+ // The gambler appears around the Causeway -> Seaport coastal transition;
+ // allow three neighboring road positions so either direction can find him.
+ const cargo=onCrossing&&g.stepIndex===5;
+ const gambler=onCrossing&&g.stepIndex>=9&&g.stepIndex<=11;
+ return [
+  ...(s.shipment==='active'&&cargo?['SEARCH FREIGHT SPUR']:[]),
+  ...(s.houseRules==='active'&&gambler?['SEARCH GAMBLER CAMP']:[]),
+  ...(s.lights==='active'&&p===LANTERN_COAST_SLOTS.serviceBox?['SEARCH SERVICE BOX']:[])
+ ];
+};
 const lgSettlement=arriveSettlement;arriveSettlement=async function(){const g=lanternMigrate();add(`SOLACE — ${g.approachGate.toUpperCase()} GATE. All four gates answer to the same watch.`,'place');if(!player.flags.mercyDiscovered){stage='settlement';return lgSettlement();}if(!g.solaceAdmitted){stage='settlement';add('GUARD > Same watch, same questions. State your business before you enter.','bright');add('(P) APPROACH GATE','system');return;}g.lastSettlement='solace';return lgSettlement();};
 // Add road links after the existing menu has registered its choices. A separate
 // queueChoiceLine would clear the town/house/Factory numeric and hotkey bindings.

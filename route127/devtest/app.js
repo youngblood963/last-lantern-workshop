@@ -1239,7 +1239,7 @@ function storyRecordValeSighting(){
  const f=player.flags;ws('Vale').met=true;
  if(f.jenFamiliarFaceSeen)return;
  f.jenFamiliarFaceSeen=true;
- add('Vale wears a patched green coat, a silver ring on her left hand, and a weathered map tucked beneath the strap of her pack.');
+ add('Vale has dark hair tied in a long braid, a faded red scarf, a battered pack with a rolled bedroll, and a rifle slung over her shoulder.');
  if(f.jenFamiliarFace==='active')add('CLUE FOUND — A FAMILIAR FACE: You have seen Vale. Return to Jen.','reward');
 }
 function storyValeRoadAvailable(){
@@ -2686,9 +2686,9 @@ function handleSolace(cmd, raw=cmd){
     npcTalk("jen");return;
   }
   if(mercyLocation==="jen"&&(cmd.includes("familiar face")||cmd.includes("tell jen about the familiar"))){
-    if(!f.jenFamiliarFace){f.jenFamiliarFace="active";add("JEN > My old friend Vale passed the south gate. Patched green coat, silver ring on her left hand, always carrying that map. If you see her, tell me how she is doing.","bright");add("QUEST ACCEPTED — A FAMILIAR FACE.","reward");}
+    if(!f.jenFamiliarFace){f.jenFamiliarFace="active";add("JEN > My old friend Vale passed the south gate. Dark braid, faded red scarf, big pack with a bedroll strapped to it. She carries a rifle over her shoulder. If you see her, tell me how she is doing.","bright");add("QUEST ACCEPTED — A FAMILIAR FACE.","reward");}
     else if(f.jenFamiliarFace==="active"&&cmd.includes("tell")){
-      if(!storyHasValeEvidence()){add("JEN > You have not seen Vale yet. Look for the green coat and silver ring; I need news, not a guess.","bright");npcTalk("jen");return;}
+      if(!storyHasValeEvidence()){add("JEN > You have not seen Vale yet. Look for the dark braid, red scarf, and bedroll on her pack; I need news, not a guess.","bright");npcTalk("jen");return;}
       f.jenFamiliarFace="done";gainXp(30);gainBolts(10);updateHud();
       add(player.wandererState?.Vale?.dead?"JEN > Vale did not make it? I needed to know. Thank you for telling me the truth.":"JEN > That is Vale, all right. Thank you for bringing me news of her.","bright");
       add("QUEST COMPLETE — A FAMILIAR FACE. +30 XP, +10 BOLTS.","reward");

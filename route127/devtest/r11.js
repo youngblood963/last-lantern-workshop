@@ -306,10 +306,11 @@ const r11SolaceBoard=showBulletinBoard;showBulletinBoard=function(){r11SolaceBoa
 function r11PortBoard(){stage='r11Board';add('SEAPORT — DOCK BULLETIN BOARD','place');
  add('SHIPPING: Register cargo before unloading. Unmarked crates will be held at the quay.');add('DOCKWORKERS: Check mooring ropes after every squall.');add('MISSING CARGO: Report altered freight manifests to the docks clerk.');add('HARBOR HAZARD: The western freight spur has unstable decking.');add('LOCAL NOTICE: Mia wants her cups back. Kaiden wants everyone to stop blaming the gulls.');r11SharedBoard();r5DirectChoices(['POST A MESSAGE','VIEW BOUNTIES','RETURN TO DOCKS']);
 }
-const r11Docks=r5Docks;r5Docks=function(){if(!portRecruitUnlocked())return r11Docks();stage='port55Docks';add('SEAPORT — HARBOR DOCKS','place');add('A clerk checks water-stained manifests beside the freed quay.','bright');r5DirectChoices(['DOCK BULLETIN BOARD','TALK TO DOCKS CLERK',...(r18CourierEligible('docks')?['DELIVER SEAPORT PARCEL']:[]),...(player.flags.port55PendingRewards?.length?['CLAIM PENDING REWARD']:[]),'RETURN TO SEAPORT']);};
+const r11Docks=r5Docks;r5Docks=function(){if(!portRecruitUnlocked())return r11Docks();stage='port55Docks';add('SEAPORT — HARBOR DOCKS','place');add('Hollis Reed checks water-stained manifests beside the freed quay.','bright');r5DirectChoices(['DOCK BULLETIN BOARD','TALK TO HOLLIS REED',...(r18CourierEligible('docks')?['DELIVER SEAPORT PARCEL']:[]),...(player.flags.port55PendingRewards?.length?['CLAIM PENDING REWARD']:[]),'RETURN TO SEAPORT']);};
+function r11HollisMenu(){stage='r11Hollis';add('HOLLIS REED — DOCKS CLERK','place');add('Hollis sets aside a water-stained manifest and looks up from his ledger.','bright');r5DirectChoices(['ASK ABOUT THE LAST SHIPMENT','BACK']);}
 port55MiaMenu=function(){stage='port55Mia';port55Submenu('The Rusty Anchor — Mia',['SMALL TALK','BUY DRINKS','GAMBLE',player.flags.r6AnchorRoomOwned?'GO TO ROOM':'RENT ROOM — 3000 BOLTS',...(portRecruitUnlocked()?['ASK ABOUT HOUSE RULES']:[]),'RETURN TO HARBOR']);};
 function r11Drinks(){stage='r11Drinks';add('MIA — DRINKS','place');r5DirectChoices(['BEER — 5 BOLTS / 5% MAX HP (MIN 5)','SHOT — 9 BOLTS / 9% MAX HP (MIN 10)','HOUSE SPECIAL — 15 BOLTS / 15% MAX HP (MIN 15)','BACK']);}
-const R11_QUESTS={shipment:{name:'The Last Shipment',xp:120,bolts:75,giver:'Docks Clerk'},houseRules:{name:'House Rules',xp:100,bolts:100,giver:'Mia'},lights:{name:'Keeping the Lights On',xp:150,bolts:0,giver:'Kaiden'}};
+const R11_QUESTS={shipment:{name:'The Last Shipment',xp:120,bolts:75,giver:'Hollis Reed'},houseRules:{name:'House Rules',xp:100,bolts:100,giver:'Mia'},lights:{name:'Keeping the Lights On',xp:150,bolts:0,giver:'Kaiden'}};
 function r11QuestState(){return player.flags.r11Quests||(player.flags.r11Quests={});}
 function r11QuestMenu(key){
  if(!portRecruitUnlocked())return;
@@ -320,7 +321,7 @@ function r11QuestMenu(key){
  else if(state==='done'){add('This job is finished. The harbor remembers your help.','bright');r5DirectChoices(['BACK']);}
  else{add(key==='shipment'?'Search the freight spur on coast segment 3.':key==='houseRules'?'Search the gambler’s camp on coast segment 1.':'Search the service box on coast segment 4.','system');r5DirectChoices(['BACK']);}
 }
-function r11QuestReturn(){const k=player.flags.r11QuestFocus;if(k==='shipment')r5Docks();else if(k==='houseRules')port55MiaMenu();else{stage='port55Kaiden';port55Submenu('Kaiden — Town Lawman',['SMALL TALK','ASK ABOUT KEEPING THE LIGHTS ON','RETURN TO HARBOR']);}}
+function r11QuestReturn(){const k=player.flags.r11QuestFocus;if(k==='shipment')r11HollisMenu();else if(k==='houseRules')port55MiaMenu();else{stage='port55Kaiden';port55Submenu('Kaiden — Town Lawman',['SMALL TALK','ASK ABOUT KEEPING THE LIGHTS ON','RETURN TO HARBOR']);}}
 function r11QuestComplete(key){
  if(!portRecruitUnlocked()||r11QuestState()[key]!=='ready')return;
  r11QuestState()[key]='done';const q=R11_QUESTS[key];gainXp(q.xp);if(q.bolts)gainBolts(q.bolts);
@@ -374,7 +375,7 @@ showCurrentContext=function(...args){
  }
  return r11Context.apply(this,args);
 };
-const r11Choices=renderCurrentChoices;renderCurrentChoices=function(){if(stage==='r11Gambler')return r11GamblerMenu();if(stage==='r11Craft')return r11CraftMenu();if(stage==='r11Drinks')return r11Drinks();if(stage==='r11Board')return r11PortBoard();if(stage==='r11Quest')return r11QuestMenu(player.flags.r11QuestFocus);if(stage==='r11Steve'||stage==='r11SteveReward'){add('Crazy Steve is temporarily unavailable. Returning to your journey.','system');return r11SteveFinish();}return r11Choices();};
+const r11Choices=renderCurrentChoices;renderCurrentChoices=function(){if(stage==='r11Gambler')return r11GamblerMenu();if(stage==='r11Hollis')return r11HollisMenu();if(stage==='r11Craft')return r11CraftMenu();if(stage==='r11Drinks')return r11Drinks();if(stage==='r11Board')return r11PortBoard();if(stage==='r11Quest')return r11QuestMenu(player.flags.r11QuestFocus);if(stage==='r11Steve'||stage==='r11SteveReward'){add('Crazy Steve is temporarily unavailable. Returning to your journey.','system');return r11SteveFinish();}return r11Choices();};
 const r11Core=handleCommandCore;
 handleCommandCore=async function(raw){
  const cmd=r5Mapped(raw);if(busy)return;
@@ -385,6 +386,11 @@ handleCommandCore=async function(raw){
  if(stage==='r11Drinks'){
   if(['back','b'].includes(cmd))return port55MiaMenu();const d=R11_DRINKS[cmd.split(' — ')[0]];
   if(d)Economy.drink(d);return r11Drinks();
+ }
+ if(stage==='r11Hollis'){
+  if(cmd==='ask about the last shipment')return r11QuestMenu('shipment');
+  if(['back','b'].includes(cmd))return r5Docks();
+  return r11HollisMenu();
  }
  if(stage==='r11Quest'){
   if(['back','b'].includes(cmd))return r11QuestReturn();const key=player.flags.r11QuestFocus;if(!portRecruitUnlocked())return port55Menu();
@@ -403,7 +409,7 @@ handleCommandCore=async function(raw){
  if(portRecruitUnlocked()){
   if(stage==='port55Docks'&&cmd==='deliver seaport parcel'&&r18CourierEligible('docks')){r18CourierDeliver('docks');return r5Docks();}
   if(stage==='port55Docks'&&cmd==='dock bulletin board')return r11PortBoard();
-  if(stage==='port55Docks'&&cmd==='talk to docks clerk')return r11QuestMenu('shipment');
+  if(stage==='port55Docks'&&cmd==='talk to hollis reed')return r11HollisMenu();
   if(stage==='port55Mia'&&cmd==='ask about house rules')return r11QuestMenu('houseRules');
   if(stage==='port55Kaiden'&&['pay fine','clear bounty','offer bribe','confirm bribe','cancel bribe'].includes(cmd)){if(player.flags.port55CurrentStop!==port55PatrolName()){delete player.flags.r18BribePending;stage='seaport';add('Kaiden has continued his patrol.','system');return port55Menu();}if(cmd==='pay fine'||cmd==='clear bounty')r18LegalFine('Kaiden');else if(cmd==='offer bribe')r18BribeOffer('Kaiden');else if(cmd==='confirm bribe')r18BribeConfirm('Kaiden');else r18BribeCancel();return r18KaidenChoices();}
   if(stage==='port55Kaiden'&&cmd==='ask about keeping the lights on')return r11QuestMenu('lights');

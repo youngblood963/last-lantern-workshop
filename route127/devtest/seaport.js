@@ -72,12 +72,7 @@ function portMove(direction){if(!portReady()){stage='portObstruction';portBlocke
  if(typeof port55Travel==='function'&&direction>0)port55Travel(s);
  const roadAtmosphere={1:'Rusted freight wagons shelter abandoned bedrolls. Someone fled toward the harbor in a hurry.',2:'Spent cartridges litter a makeshift toll barrier. The coast road is being watched.',3:'Salt wind carries the clatter of harbor chains. A faded Dominion tribute notice is nailed to a post.',4:'Floodlights rake the approaches. Beyond the seawall, armed silhouettes patrol the dock gate.'};
  add(direction>0?roadAtmosphere[s.position]:['','The Factory stacks rise beyond the abandoned freight wagons.','You pass the broken toll barrier, heading west.','The harbor chains fade behind you on the road to Forge.','You leave the harbor floodlights behind and follow the freight line west.'][s.position],'system');
- // Fixed one-time threats: no reload farming, no new enemy or combat framework.
- if(direction>0&&!s.cleared[s.position]&&(s.position===2||s.position===4)){
-  if(player.flags?.equippedPet==='Stray Cat'&&Math.random()<.10){s.cleared[s.position]=true;add('Your stray cat senses danger and leads you around the patrol.','reward');portMenu();return;}
-  const enemy=s.position===2?{name:'COAST ROAD SCAVENGER',level:7,hp:72,min:10,max:16,xp:100,bolts:13,end:'The scavenger retreats from the road.'}:{name:'HARBOR SECURITY DRONE',level:8,hp:92,min:12,max:19,xp:125,bolts:17,end:'The drone crashes into the roadside barrier.'};
-  startCombat(enemy,'seaportRoadFight');return;
- }
+ // These threats now belong to the random SEAPORT encounter pool; legacy clear flags are retained.
  portMenu();
 }
 function portCombatWin(){const s=portState();s.cleared[s.position]=true;stage='portRoad';portMenu();}

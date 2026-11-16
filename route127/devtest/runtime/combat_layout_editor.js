@@ -19,7 +19,8 @@
  // These approved compositions contain the character(s) within a complete scene asset.
  // A combat encounter does not require separately registered sprites to review its artwork.
  const embeddedCombatArtwork=new Set(['THE IRON HARVEST','THE DRY FOUNTAIN','IRRADIATED ROACHES',
-  'THE KNIFE WIND','BROKEN TOLL CREW','THE YARDMAN','THE LAST PATROL']);
+  'THE KNIFE WIND','BROKEN TOLL CREW','THE YARDMAN','THE LAST PATROL',
+  'AGGRESSIVE SEAGULLS','SHIPWRECK SCAVENGERS']);
  // Batch selector is deliberately independent of review state; completed scenes
  // stay in the batch until the owner finishes checking every composition.
  const latestBatch=new Set(['east:38','east:66','east:21','east:6','east:11','early:2','east:78','early:50','early:54','early:61','early:9','early:64',
@@ -121,6 +122,9 @@
   'THE SQUATTERS':[[24,60,32,80,.63],[51,55,32,80,.69],[77,61,32,80,.62]],
   'HIGHWAY ROBBERS':[[26,53,42,80],[74,53,42,80]],
   'THE HOLLOWED':[[34,57,32,66],[67,59,32,66]],
+  'THE CRANE NEST':[[34,45,43,73],[71,61,37,78]],
+  'THE POWDER MONKEY':[[50,54,56,89]],
+  'FREIGHT CAR AMBUSH':[[50,55,76,89]],
   'THE SHATTERED SILO':[[51,67,46,67,1,false,3],[19,70,31,49,1,false,2],[81,76,23,38,1,false,4]]
  };
  function defaults(row,index,total,background){

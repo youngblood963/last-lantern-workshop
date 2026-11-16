@@ -312,6 +312,29 @@
   return {...published[desktop],...local[desktop],...published[scene],...local[scene]};
  }
 
+ // DEVTEST-only live art mapping: the Visual Testing assignments must also appear
+ // in actual encounter play, without editing scenario logic or save identifiers.
+ const ownerRoadArt=new Map([
+  ['LEAKING FREIGHT TANK','toxic_cargo.png'],
+  ['FREIGHT CAR AMBUSH','unauthorized_cargo.png'],
+  ['THE POWDER MONKEY','the_powder_monkey.png'],
+  ['AGGRESSIVE SEAGULLS','aggressive_seagulls.png'],
+  ['SHIPWRECK SCAVENGERS','shipwreck_scavengers.png']
+ ]);
+ const originalRoadModel=GraphicalUI.model;
+ GraphicalUI.model=function(...args){
+  const model=originalRoadModel.apply(this,args);
+  const c=typeof combatState==='undefined'?null:combatState;
+  const onRoad=typeof stage!=='undefined'&&(stage==='encounter'||
+   (['combat','combatItems'].includes(stage)&&c?.source==='encounter'));
+  if(!onRoad)return model;
+  const encounter=typeof currentEncounter==='function'?currentEncounter():null;
+  const title=normalize(encounter?.title);
+  const file=ownerRoadArt.get(title);
+  if(file)model.art='../devtest/assets/enemies/'+file;
+  return model;
+ };
+
  const selector='.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-figure,.r127-npc-combat,.r127-road-unit,.r127-silo-boar';
  function activeScene(){
   // The level-five Crazy Steve promotional menu is a standalone graphical stage.
@@ -407,6 +430,20 @@
    if(layouts[item.key])apply(item.node,layouts[item.key],item.background);
   }
   const attachments=Object.entries(layouts).filter(([key])=>key.startsWith('attachment:'));
+  // The two crane enemies are individual sprites above the regional Lowlands
+  // scenery; each is draggable through the Visual Testing tool and keeps its
+  // own combat HP in the existing combat-status panel.
+  if(rows.get(scene.id)?.title==='THE CRANE NEST'){
+   const files=[enemy('crane_diving_bird.png'),enemy('crane_nest_guard.png')];
+   const positions=[[34,45,43,73],[71,61,37,78]];
+   files.forEach((path,index)=>{
+    const name=assetName(path);
+    if(attachments.some(([key])=>key==='attachment:'+name))return;
+    const [x,y,width,height]=positions[index];
+    attachments.push(['attachment:'+name,layouts[unitKey(path,index)]||
+     {x,y,width,height,scale:1,z:4,flip:false}]);
+   });
+  }
   const signature=scene.id+'/'+scene.phase+'/'+attachments.map(([key])=>key).join('/');
   if(attachmentLayer?.dataset.signature!==signature){
    attachmentLayer?.remove();attachmentLayer=null;

@@ -25,6 +25,8 @@
  // stay in the batch until the owner finishes checking every composition.
  const latestBatch=new Set(['east:38','east:66','east:21','east:6','east:11','early:2','east:78','early:50','early:54','early:61','early:9','early:64',
   'east:33','east:58','scripted:serviceboss','scripted:crazy-steve']);
+ const november16Uploads=new Set(['LEAKING FREIGHT TANK','FREIGHT CAR AMBUSH','THE CRANE NEST',
+  'THE WASHED-OUT SHOULDER','THE POWDER MONKEY','AGGRESSIVE SEAGULLS','SHIPWRECK SCAVENGERS']);
  const sceneLayers=new Map([
   ['east:21','sky'],['east:6','road'],['east:11','sky'],['early:2','road'],['east:78','none'],
   ['early:50','none'],['early:54','road'],['early:61','road'],['early:9','road'],
@@ -194,7 +196,7 @@
   const coverage=select(filters,'Artwork',['All','Art present','Art missing / review','Art broken','Art unassigned / review','Checking art']);
   const multi=select(filters,'Sprites',['Any','Multiple sprites']);
   const sort=select(filters,'Sort by',['Name','Region','Artwork']);
-  const batch=select(filters,'Review batch',[['New uploads (9)','New uploads (9)'],['All encounters','All encounters']]);
+  const batch=select(filters,'Review batch',[['New uploads (Nov 16)','New uploads (Nov 16)'],['New uploads (9)','Previous uploads'],['All encounters','All encounters']]);
   const picker=el('select');picker.className='layout-picker';picker.setAttribute('aria-label','Encounter');dialog.append(picker);
   let reviews=readReviews();
   const reviewControls=controls();
@@ -276,6 +278,7 @@
    const term=search.value.trim().toLowerCase(),all=[...L.rows.values()];
    const visible=all.filter(row=>{
     if(batch.value==='New uploads (9)'&&!latestBatch.has(row.id))return false;
+    if(batch.value==='New uploads (Nov 16)'&&!november16Uploads.has(row.title))return false;
     if(classification.value==='Active'?row.classification==='INACTIVE':row.classification!==classification.value)return false;
     const chosen=region.value;
     if(chosen==='GLOBAL'&&row.classification!=='GLOBAL')return false;

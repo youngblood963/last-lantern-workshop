@@ -3,10 +3,15 @@ const createGame = require('./helpers/wo33_dom.cjs');
 
 async function play(mode, skip) {
   const {run, flush, ids} = createGame();
-  async function command(value, expectedStage) {
+  async function command(value, expectedStage, button) {
     if (run('Boolean(FocusedEntry.dialog)')) {
       run('FocusedEntry.field.value = ' + JSON.stringify(value));
       await run('FocusedEntry.submit()');
+    } else if (mode === 'graphics' && button) {
+      const action = run('FocusedEntry.legacy.children.find(el => el.textContent.toLowerCase() === ' +
+        JSON.stringify(button.toLowerCase()) + ')');
+      assert.ok(action, 'Missing graphical action: ' + button);
+      await action.events.click[0]({preventDefault() {}, stopPropagation() {}});
     } else {
       await run('handleCommand(' + JSON.stringify(value) + ')');
     }
@@ -17,22 +22,24 @@ async function play(mode, skip) {
 
   await flush();
   run('titleScreen(); GraphicalUI.setMode(' + JSON.stringify(mode) + ')');
+  await flush();
+  run('FocusedEntry.sync()');
   if (skip) {
-    await command('skip intro', 'handle');
+    await command(mode === 'classic' ? 'k' : 'skip intro', 'handle', 'Skip Intro');
   } else {
-    await command('new game', 'confirmNewSlot');
-    await command('cancel', 'title');
-    await command('new game', 'confirmNewSlot');
-    await command('', 'wake');
-    await command('look around', 'wake');
-    await command('stand up', 'handle');
+    await command('new game', 'confirmNewSlot', 'New Game');
+    await command('cancel', 'title', 'Cancel');
+    await command('new game', 'confirmNewSlot', 'New Game');
+    await command('', 'wake', 'Confirm');
+    await command('look around', 'wake', 'Look Around');
+    await command('stand up', 'handle', 'Stand Up');
   }
 
   await command('random', 'handle');
   await command('FirstName', 'confirmHandle');
-  await command('change', 'handle');
+  await command('change', 'handle', 'Change Name');
   await command('IntroTester', 'confirmHandle');
-  await command('', skip ? 'house' : 'standing');
+  await command('', skip ? 'house' : 'standing', 'Confirm introtester');
   assert.equal(run('player.handle'), 'introtester');
 
   if (skip) {
@@ -45,8 +52,8 @@ async function play(mode, skip) {
     const bolts = run('player.bolts');
     await command('search room', 'standing');
     assert.equal(run('player.bolts'), bolts);
-    await command('check pack', 'standing');
-    await command('inspect computer', 'hello');
+    await command('check pack', 'standing', 'Check Pack');
+    await command('inspect computer', 'hello', 'Inspect Computer');
     await command('hi', 'listen');
     await command('listen', 'savecoords');
     await command('log coordinates', 'roadReady');

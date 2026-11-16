@@ -3157,6 +3157,25 @@ RoadScenarioRegistry.installRegions=function(){
    const entry={id,canonicalId:id,name:bomber.title,classification:'GLOBAL',region:'GLOBAL',regions:[],encounter:bomber,references:[{road:'east',category:'combat',index}]};
    this.entries.push(entry);this.byId[id]=entry;this.powderMonkeyInstalled=true;
   }
+  // DEVTEST: formerly fixed coast patrols are ordinary random SEAPORT combat.
+  // Append-only IDs preserve historic encounter slots and saved progress.
+  if(!this.coastPatrolRandomInstalled){
+   for(const spec of [
+    {title:'COAST ROAD SCAVENGER',text:'A rifle-carrying scavenger steps out beside a wreck on the coast road.',level:7,hp:72,min:10,max:16,xp:100,bolts:13,end:'The scavenger retreats from the road.'},
+    {title:'HARBOR SECURITY DRONE',text:'A flying harbor security drone sweeps the coast road with its search optic.',level:8,hp:92,min:12,max:19,xp:125,bolts:17,end:'The drone crashes into the roadside barrier.'}
+   ]){
+    const encounter={title:spec.title,exclusive:true,text:spec.text,choices:'FIGHT   TAKE COVER   BACK AWAY',
+     combat:{action:'FIGHT',name:spec.title,level:spec.level,hp:spec.hp,min:spec.min,max:spec.max,xp:spec.xp,bolts:spec.bolts,end:spec.end},
+     resolve(cmd){if(cmd==='take cover'||cmd==='back away'){add(cmd==='take cover'?'You slip past using the roadside wreckage.':'You retreat before the threat closes in.','system');return true;}return false;}};
+    const index=eastEncounters.push(encounter)-1,id='east:'+index;
+    R10_POOLS.east.combat.push(index);
+    const row={number:null,id,legacyName:spec.title,name:spec.title,classification:'REGIONAL',regions:['SEAPORT'],authority:'Owner correction: random coastal patrol',encounter};
+    this.regionalCatalog.push(row);this.regionalById.set(id,row);this.regionalByTitle.set(r10CanonicalTitle(spec.title),row);
+    const entry={id,canonicalId:id,name:spec.title,classification:'REGIONAL',region:'SEAPORT',regions:['SEAPORT'],encounter,references:[{road:'east',category:'combat',index}]};
+    this.entries.push(entry);this.byId[id]=entry;
+   }
+   this.coastPatrolRandomInstalled=true;
+  }
   this.wo6InstallFixedSites();this.wo6Installed=true;return this.regionalValidation;
 };
 // Legacy pool keys early/east/coast remain untouched; these are geographical codes.

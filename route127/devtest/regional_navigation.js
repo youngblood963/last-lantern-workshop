@@ -18,10 +18,10 @@ function route127DrawnBackground(g){
  // the existing SEAPORT/coast pool so global and coastal events still work.
  if(g.currentEdgeId==='boulder-junction--seaport'){
   // Edge orientation is Boulder Junction (a) -> Seaport (b), 12 turns.
-  // Keep the junction and its first two travel pearls in coastal scenery;
-  // the bridge begins at pearl 3. This is positional, so reversing works too.
+  // Coastal approach occupies the first two pearls and final three pearls;
+  // the intervening stretch is the Causeway proper. Direction independent.
   const step=Math.max(0,Math.min(12,Math.trunc(Number(g.stepIndex)||0)));
-  return step<=2?'SEAPORT':'CAUSEWAY';
+  return step<=2||step>=10?'SEAPORT':'CAUSEWAY';
  }
  if(g.currentEdgeId){
   const edge=LG_EDGES[g.currentEdgeId],regions=ROUTE127_DRAWN_ROAD_BACKGROUNDS[g.currentEdgeId];

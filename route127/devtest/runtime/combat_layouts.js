@@ -242,6 +242,13 @@
  // cinematic art AFTER that loop so it is not overwritten with an empty variant.
  // Red fights in the same fully illustrated Rusty Anchor portrait used in dialogue.
  // Overlay his live HP in gameplay; no separate combatant image required.
+ // Reuse the existing Highway Hunters rifleman for the fixed, one-time
+ // Coast Road Scavenger. One sprite, not a new asset or enemy definition.
+ const coastRoadScavenger=rows.get('scripted:seaportroadfight:coast-road-scavenger');
+ if(coastRoadScavenger)coastRoadScavenger.variants=[
+  {units:[enemy('highway_hunter_rifleman.png')],phase:'combat',
+   variant:'Highway Hunter rifleman — reused character artwork'}
+ ];
  const redRow=rows.get('scripted:r18redfight');
  if(redRow)redRow.variants=[{units:[],background:locationArt('rusty_anchor_red.png'),
    phase:'both',variant:'Red portrait — live HP meter in combat'}];
@@ -438,6 +445,14 @@
    if(layouts[item.key])apply(item.node,layouts[item.key],item.background);
   }
   const attachments=Object.entries(layouts).filter(([key])=>key.startsWith('attachment:'));
+  // Scripted Seaport road combat reuses the existing Highway Hunters rifleman.
+  // The placement tool exposes the same sprite as a single adjustable unit.
+  if(scene.id==='scripted:seaportroadfight:coast-road-scavenger'&&scene.phase==='combat'){
+   const path=enemy('highway_hunter_rifleman.png'),name=assetName(path);
+   if(!attachments.some(([key])=>key==='attachment:'+name))
+    attachments.push(['attachment:'+name,layouts[unitKey(path,0)]||
+     {x:50,y:56,width:47,height:82,scale:1,z:4,flip:false}]);
+  }
   // The two crane enemies are individual sprites above the regional Lowlands
   // scenery; each is draggable through the Visual Testing tool and keeps its
   // own combat HP in the existing combat-status panel.

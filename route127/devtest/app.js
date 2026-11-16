@@ -1897,7 +1897,10 @@ function v49Forge(){
     v49Autosave();
     add('FORGE > Here is one practice kit: two Cloth and one Scrap Metal. It stays here on my bench. Insert it and try your hand.','reward');
   }else if(player.flags.v49Kit){add('FORGE > Your practice kit is waiting at the bench.','system');}
-  add((player.flags.r5ChargeJob?'CHECK DYNAMITE   ':'')+'(W) USE WORKBENCH   (T) TERMINAL   (B) BACK','system');
+  const floodlightState=typeof r11QuestState==='function'?r11QuestState().lights:null;
+  if(floodlightState==='active')add('FORGE > Kaiden needs a controller for those dock floodlights? I have a working spare. 100 Bolts, and it is yours.','bright');
+  if(floodlightState==='ready')add('FORGE > You have the controller. Take it straight back to Kaiden.','system');
+  add((player.flags.r5ChargeJob?'CHECK DYNAMITE   ':'')+(floodlightState==='active'?'BUY HARBOR FLOODLIGHT CONTROLLER — 100 BOLTS   ':'')+'(W) USE WORKBENCH   (T) TERMINAL   (B) BACK','system');
 }
 function v49Workbench(){
   stage='factoryBench';
@@ -2005,6 +2008,21 @@ function v49FactoryCommand(cmd){
     v49Terminal();return true;
   }
   if(stage==='factoryForge'){
+    if(['buy harbor floodlight controller','buy floodlight controller','buy controller'].includes(cmd)){
+      if(typeof r11QuestState!=='function'||r11QuestState().lights!=='active'){
+        add('FORGE > That part is not available for a new order.','system');v49Forge();return true;
+      }
+      if(player.bolts<100){add('FORGE > The floodlight controller costs 100 Bolts. You are short.','danger');v49Forge();return true;}
+      if(!addPack('Harbor Floodlight Controller','quest',1,true)){
+        add('FORGE > I cannot hand over the controller right now. Nothing charged.','danger');v49Forge();return true;
+      }
+      player.bolts-=100;
+      r11QuestState().lights='ready';
+      player.flags.r11FloodlightPart=true;
+      updateHud();v49Autosave();
+      add('PURCHASE COMPLETE — HARBOR FLOODLIGHT CONTROLLER. -100 BOLTS. Return to Kaiden in Seaport.','reward');
+      v49Forge();return true;
+    }
     if(['w','workbench','use workbench'].includes(cmd)){v49Workbench();return true;}
     if(['t','terminal'].includes(cmd)){v49Terminal();return true;}
     if(['b','back'].includes(cmd)){v49FactoryRoom();return true;}

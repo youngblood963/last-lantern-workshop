@@ -23,7 +23,7 @@ function r10Candidates(region,kind){
   // The edge/step fallback covers early setup before the renderer is ready.
   const onCauseway=!!g&&(
     (typeof route127DrawnBackground==='function'&&route127DrawnBackground(g)==='CAUSEWAY')||
-    (g.currentEdgeId==='boulder-junction--seaport'&&Number(g.stepIndex)>2)
+    (g.currentEdgeId==='boulder-junction--seaport'&&Number(g.stepIndex)>2&&Number(g.stepIndex)<10)
   );
   if(onCauseway&&
      ['IRRADIATED ROACHES','THE FENCE ARTIST','THE FIGHTING RING','THE FORGOTTEN ARENA','RUINED SIGNAL HUT',

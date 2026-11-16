@@ -3169,6 +3169,7 @@ RoadScenarioRegistry.installRegions=function(){
      resolve(cmd){if(cmd==='take cover'||cmd==='back away'){add(cmd==='take cover'?'You slip past using the roadside wreckage.':'You retreat before the threat closes in.','system');return true;}return false;}};
     const index=eastEncounters.push(encounter)-1,id='east:'+index;
     R10_POOLS.east.combat.push(index);
+    R10_POOLS.coast.combat.push(index); // Coast uses its own curated random pool over eastEncounters.
     const row={number:null,id,legacyName:spec.title,name:spec.title,classification:'REGIONAL',regions:['SEAPORT'],authority:'Owner correction: random coastal patrol',encounter};
     this.regionalCatalog.push(row);this.regionalById.set(id,row);this.regionalByTitle.set(r10CanonicalTitle(spec.title),row);
     const entry={id,canonicalId:id,name:spec.title,classification:'REGIONAL',region:'SEAPORT',regions:['SEAPORT'],encounter,references:[{road:'east',category:'combat',index}]};

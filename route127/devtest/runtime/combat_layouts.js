@@ -154,7 +154,7 @@
  // The washed-out-shoulder GIF was reported uploaded but no matching file was
  // found at the approved filename/path. Keep a visible preview row so the user
  // can spot and correct the unresolved artwork without touching the save ID.
- register('THE WASHED-OUT SHOULDER',[],'both','Washed-out Shoulder — GIF (file unverified)',enemy('the_washed_out_shoulder.gif'));
+ register('THE WASHED-OUT SHOULDER',[],'both','Washed-out Shoulder — animated scene',scenery('the_washed_out_shoulder.gif'));
 
  const rows=new Map();
  const byEncounter=new Map();
@@ -322,6 +322,7 @@
  // in actual encounter play, without editing scenario logic or save identifiers.
  const ownerRoadArt=new Map([
   ['LEAKING FREIGHT TANK','toxic_cargo.png'],
+  ['THE WASHED-OUT SHOULDER','../scenarios/the_washed_out_shoulder.gif'],
   ['FREIGHT CAR AMBUSH','unauthorized_cargo.png'],
   ['MALFUNCTIONING FORKLIFT','unauthorized_cargo.png'],
   ['THE POWDER MONKEY','the_powder_monkey.png'],
@@ -338,7 +339,7 @@
   const encounter=typeof currentEncounter==='function'?currentEncounter():null;
   const title=normalize(encounter?.title||c?.name);
   const file=ownerRoadArt.get(title)||ownerRoadArt.get(normalize(c?.name));
-  if(file)model.art='../devtest/assets/enemies/'+file;
+  if(file)model.art=file.startsWith('../')?'../devtest/assets/enemies/'+file:'../devtest/assets/enemies/'+file;
   return model;
  };
 

@@ -174,6 +174,12 @@
    combat:!!fight,variants:states.get(title)||[]
   });
  }
+ // Combat names differ from their saved encounter titles in the reworked scenes.
+ for(const [combatName,encounterTitle] of [
+  ['MALFUNCTIONING FORKLIFT','FREIGHT CAR AMBUSH'],
+  ['CRANE NEST BIRDS','THE CRANE NEST'],
+  ['POWDER MONKEY WITH KNIFE','THE POWDER MONKEY']
+ ])if(byTitle.has(encounterTitle))byTitle.set(combatName,byTitle.get(encounterTitle));
  for(const [id,site] of [['east:67','Industrial Road — Fresh Mart'],['east:81','East Trade Route — St. Mercy Hospital']]){
   if(rows.has(id))rows.get(id).site=site;
  }
@@ -317,6 +323,7 @@
  const ownerRoadArt=new Map([
   ['LEAKING FREIGHT TANK','toxic_cargo.png'],
   ['FREIGHT CAR AMBUSH','unauthorized_cargo.png'],
+  ['MALFUNCTIONING FORKLIFT','unauthorized_cargo.png'],
   ['THE POWDER MONKEY','the_powder_monkey.png'],
   ['AGGRESSIVE SEAGULLS','aggressive_seagulls.png'],
   ['SHIPWRECK SCAVENGERS','shipwreck_scavengers.png']
@@ -329,8 +336,8 @@
    (['combat','combatItems'].includes(stage)&&c?.source==='encounter'));
   if(!onRoad)return model;
   const encounter=typeof currentEncounter==='function'?currentEncounter():null;
-  const title=normalize(encounter?.title);
-  const file=ownerRoadArt.get(title);
+  const title=normalize(encounter?.title||c?.name);
+  const file=ownerRoadArt.get(title)||ownerRoadArt.get(normalize(c?.name));
   if(file)model.art='../devtest/assets/enemies/'+file;
   return model;
  };

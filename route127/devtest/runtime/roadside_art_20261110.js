@@ -127,7 +127,10 @@ GraphicalUI.sync=function(...args){
  const result=old.apply(this,args);
  try{
   const e=this.element;if(!e?.figure)return result;
-  e.frame.classList.toggle('r127-route-scene',inScope()&&['encounter','combat','combatItems'].includes(stage));
+  const roadStage=['encounter','combat','combatItems'].includes(stage);
+  const encounterCombat=stage==='encounter'||combatState?.source==='encounter';
+  const scene=roadStage&&encounterCombat&&!e.frame.hidden&&this.preference()==='graphics'?current():null;
+  e.frame.classList.toggle('r127-route-scene',roadStage&&(inScope()||!!scene?.items.length));
   e.frame.classList.toggle('r127-sprite-failed',!!e.figure.querySelector('img[data-failed="true"]'));
   if(inScope()&&stage==='encounter')e.caption.textContent=currentEncounter()?.displayName||currentEncounter()?.title||e.caption.textContent;
   if(inScope()&&['combat','combatItems'].includes(stage)&&combatState?.source==='encounter'){
@@ -138,7 +141,6 @@ GraphicalUI.sync=function(...args){
    }
   }
   let layer=e.figure.querySelector('.r127-road-art');
-  const scene=inScope()&&!e.frame.hidden&&this.preference()==='graphics'?current():null;
   // Dedicated HP-linked sprite layers already own these combat visuals.
   const combat=typeof combatState!=='undefined'?combatState:null;
   if(scene&&combat&&['HIGHWAY ROBBERS'].includes(scene.title))scene.items=[];

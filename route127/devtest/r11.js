@@ -319,7 +319,7 @@ function r11QuestMenu(key){
  if(!state){add(intro[key]);r5DirectChoices(['ACCEPT QUEST','BACK']);}
  else if(state==='ready'){add('You have what you need. Report what happened.','system');r5DirectChoices(['COMPLETE QUEST','BACK']);}
  else if(state==='done'){add('This job is finished. The harbor remembers your help.','bright');r5DirectChoices(['BACK']);}
- else{add(key==='shipment'?'Search the freight spur on coast segment 3.':key==='houseRules'?'Search the gambler’s camp on coast segment 1.':'Search the service box on coast segment 4.','system');r5DirectChoices(['BACK']);}
+ else{add(key==='shipment'?'Search the abandoned loading area on the Causeway, between Boulder Junction and Seaport.':key==='houseRules'?'Search the gambler’s camp on the coastal approach to Seaport, near the Causeway.':'Search the service box on coast segment 4.','system');r5DirectChoices(['BACK']);}
 }
 function r11QuestReturn(){const k=player.flags.r11QuestFocus;if(k==='shipment')r11HollisMenu();else if(k==='houseRules')port55MiaMenu();else{stage='port55Kaiden';port55Submenu('Kaiden — Town Lawman',['SMALL TALK','ASK ABOUT KEEPING THE LIGHTS ON','RETURN TO HARBOR']);}}
 function r11QuestComplete(key){
@@ -334,13 +334,13 @@ const r11RoadMenu=r6RoadMenu;r6RoadMenu=function(){r11RoadMenu();if(stage==='r6R
 function r11RoadQuest(cmd){
  if(!r11RoadQuestOptions().map(s=>s.toLowerCase()).includes(cmd))return false;
  if(!spendTurn()){add('Searching takes one turn. No turns remain.','danger');return true;}
- if(cmd==='search freight spur'){r11QuestState().shipment='ready';add('The relief crates are intact behind a false loading wall. You recover a manifest with the forged destination. The clerk can redirect a crew now.','reward');r6RoadMenu();}
+ if(cmd==='search freight spur'){r11QuestState().shipment='ready';add('The relief crates are intact behind a false loading wall. You recover a manifest with the forged destination. Hollis can redirect a crew now.','reward');r6RoadMenu();if(typeof window!=='undefined')window.dispatchEvent(new Event('route127:last-shipment-discovered'));}
  if(cmd==='search service box'){r11QuestState().lights='ready';add('You isolate a live lead, then free two intact switching components. Reserved for Kaiden; no pack space needed.','reward');r6RoadMenu();}
  if(cmd==='search gambler camp')r11GamblerMenu();
  updateHud();r11Quiet(()=>v49Autosave());return true;
 }
 function r11GamblerMenu(){stage='r11Gambler';add('The missing gambler shelters beside a broken handcart. He fled after losing his wages, afraid Mia would have him beaten. He offers his last few Bolts.','bright');r5DirectChoices(['TAKE WHAT HE CAN PAY','ASK HIM TO WORK IT OFF','FORGIVE THE DEBT AND SEND HIM HOME']);}
-const r11Quests=showQuests;showQuests=function(){r11Quests();if(!portRecruitUnlocked())return;for(const [k,state]of Object.entries(r11QuestState())){add(`${state==='done'?'COMPLETE':'SIDE QUEST'} — ${R11_QUESTS[k].name}`,'place');add(state==='ready'?'Report to '+R11_QUESTS[k].giver:state==='done'?'Completed.':k==='shipment'?'Search the freight spur on coast segment 3.':k==='houseRules'?'Search the gambler camp on coast segment 1.':'Search the service box on coast segment 4.','system');}};
+const r11Quests=showQuests;showQuests=function(){r11Quests();if(!portRecruitUnlocked())return;for(const [k,state]of Object.entries(r11QuestState())){add(`${state==='done'?'COMPLETE':'SIDE QUEST'} — ${R11_QUESTS[k].name}`,'place');add(state==='ready'?'Report to '+R11_QUESTS[k].giver:state==='done'?'Completed.':k==='shipment'?'Search the abandoned loading area on the Causeway, between Boulder Junction and Seaport.':k==='houseRules'?'Search the coastal approach to Seaport for the gambler camp.':'Search the service box on coast segment 4.','system');}};
 // Local ownership prototype. No server/global authority is fabricated.
 const R11_LEGEND_KEY='route127-local-legendary-r11-v1';
 function r11LegendDB(){try{const db=JSON.parse(localStorage.getItem(R11_LEGEND_KEY)||'null');if(db&&db.version===1&&Array.isArray(db.announcements))return db;}catch{}return {version:1,board:null,announcements:[]};}

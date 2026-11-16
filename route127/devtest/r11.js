@@ -315,7 +315,7 @@ function r11QuestState(){return player.flags.r11Quests||(player.flags.r11Quests=
 function r11QuestMenu(key){
  if(!portRecruitUnlocked())return;
  stage='r11Quest';player.flags.r11QuestFocus=key;const q=R11_QUESTS[key],state=r11QuestState()[key];add(q.giver.toUpperCase()+' — '+q.name.toUpperCase(),'place');
- const intro={shipment:'The relief cargo was signed over to an empty freight spur. Find the redirected crates and the duplicate manifest before the harbor blames its own workers.',houseRules:'A gambler left owing Mia money, but his room still holds everything he owns. Find his camp by the western freight wagons. Ask why he vanished before deciding what to do.',lights:'The quay lamps keep cutting out. Recover electrical parts from the freight-line service box, then bring them to Kaiden so the harbor can work after dusk.'};
+ const intro={shipment:'The relief cargo was signed over to an empty freight spur. Find the redirected crates and the duplicate manifest before the harbor blames its own workers.',houseRules:'A gambler left owing Mia money, but his room still holds everything he owns. Look for his camp on the coastal approach to Seaport, near the Causeway. Ask why he vanished before deciding what to do.',lights:'The quay lamps keep cutting out. Recover electrical parts from the freight-line service box, then bring them to Kaiden so the harbor can work after dusk.'};
  if(!state){add(intro[key]);r5DirectChoices(['ACCEPT QUEST','BACK']);}
  else if(state==='ready'){add('You have what you need. Report what happened.','system');r5DirectChoices(['COMPLETE QUEST','BACK']);}
  else if(state==='done'){add('This job is finished. The harbor remembers your help.','bright');r5DirectChoices(['BACK']);}

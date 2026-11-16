@@ -19,7 +19,7 @@
  function warm(file){
   if(assets.has(file))return assets.get(file);
   const record={ready:false,failed:false},image=new Image();assets.set(file,record);
-  image.onload=async()=>{try{if(image.decode)await image.decode();}catch{}record.ready=true;GraphicalUI.sync();};
+  image.onload=async()=>{try{if(image.decode)await image.decode();}catch{record.failed=true;return;}record.ready=true;GraphicalUI.sync();};
   image.onerror=()=>{record.failed=true;console.warn('WO45 regional asset failed:',file);};
   image.src=url(file);return record;
  }
@@ -33,15 +33,18 @@
    return scene&&{ground:url(scene.overlay),sky:url(scene.sky||'sky_dawn.png'),period:scene.period};
   }
  });
- const oldModel=GraphicalUI.model;
- GraphicalUI.model=function(...args){
-  const model=oldModel.apply(this,args),g=lanternState();
-  const region=route127CurrentRegion(g),scene=describe(region,player.flags.worldHour);
+ function applyRegionalSky(model,region,hour){
+  const scene=describe(region,hour);
   // Exact original-art matching preserves every dedicated location/scenario image.
   if(!scene||!model.art||new URL(model.art,ROUTE127_ASSET_BASE||document.baseURI).href!==url(scene.original))return model;
   const overlay=warm(scene.overlay),sky=scene.sky?warm(scene.sky):null;
+  if(region==='CAUSEWAY'&&(!overlay.ready||!sky?.ready))model.causewayBacking=true;
   if(overlay.ready&&sky?.ready){model.art=url(scene.overlay);model.regionalSky=scene;}
   return model;
+ };
+ const oldModel=GraphicalUI.model;
+ GraphicalUI.model=function(...args){
+  return applyRegionalSky(oldModel.apply(this,args),route127CurrentRegion(lanternState()),player.flags.worldHour);
  };
  function paint(figure,img,scene){
   let sky=figure.querySelector('.r127-regional-sky');
@@ -80,7 +83,9 @@
  }
  const oldSync=GraphicalUI.sync;
  GraphicalUI.sync=function(...args){const result=oldSync.apply(this,args),e=this.element;if(!e?.figure)return result;
-  paint(e.figure,e.img,this.model().regionalSky||null);
+  const model=this.model();
+  e.figure.classList.toggle('r127-causeway-backing',!!model.causewayBacking);
+  paint(e.figure,e.img,model.regionalSky||null);
   if(this.optionsOpen&&!e.settings.querySelector('[data-sky-preview]')){const b=this.button('REGIONAL SKY PREVIEW',preview);b.dataset.skyPreview='true';e.settings.append(b);}
   return result;
  };
@@ -96,6 +101,7 @@
   };
  }
  const css=document.createElement('style');css.textContent=`
+ .gfx-art.r127-causeway-backing>.gfx-image{background:linear-gradient(#55788e,#a9bdc3 53%,#40535b)!important}
  .r127-regional-sky{position:absolute;inset:0;background-size:cover;background-position:center;pointer-events:none;z-index:0}
  .r127-regional-sky[hidden]{display:none}
  /* Causeway art includes a painted sky, so layer the clock's sky state over
@@ -113,6 +119,6 @@
  .r127-sky-preview-art{position:relative;margin:10px 0;background:#080a09;aspect-ratio:1670/942;overflow:hidden}
  .r127-sky-preview-art>img{display:block;width:100%;height:100%;object-fit:cover}
  `;document.head.append(css);
- globalThis.Route127RegionalSky=Object.freeze({regions,phase,describe,preview});
+ globalThis.Route127RegionalSky=Object.freeze({regions,phase,describe,preview,applyRegionalSky});
  warm('sky_dawn.png');warm('sky_day.png');warm('sky_night.png');warm('causeway.png');
 })();

@@ -19,6 +19,27 @@
  const regions=new URL('../assets/regions/',base);
  const scenario=file=>new URL('assets/scenarios/'+file,base).href;
  const regional=file=>new URL(file,regions).href;
+ const roadUrl=regional('dirt_road_foreground.png');
+ const ready=new Map();
+ function preload(url){
+  if(ready.has(url))return ready.get(url);
+  const state={loaded:false},image=new Image();
+  ready.set(url,state);
+  image.onload=async()=>{
+   try{if(image.decode)await image.decode();}
+   catch{return;}
+   state.loaded=true;
+   GraphicalUI.sync();
+  };
+  image.src=url;
+  return state;
+ }
+ function composition(){
+  const period=Route127RegionalSky.phase(player.flags?.worldHour);
+  const skyUrl=regional(period==='dusk'?'sky_dawn.png':'sky_'+period+'.png');
+  const sky=preload(skyUrl),road=preload(roadUrl);
+  return {period,skyUrl,loaded:sky.loaded&&road.loaded};
+ }
  const canonical=()=>String(typeof currentEncounter==='function'?currentEncounter()?.title||'':'').toUpperCase().replace(/^EAST ROAD — /,'').trim();
  const fightSilo=()=>typeof combatState!=='undefined'&&combatState&&['combat','combatItems'].includes(typeof stage==='undefined'?'':stage)&&
   (combatState.r18SiloBoars===true||String(combatState.name||'').toUpperCase()==='SILO KING AND BOARS');
@@ -42,6 +63,17 @@
   const model=previousModel.apply(this,args);
   const name=target();
   if(!name||!model?.active)return model;
+  if(!composition().loaded){
+   const region=route127CurrentRegion(lanternState());
+   const scene=Route127RegionalSky.describe(region,player.flags?.worldHour);
+   if(scene){
+    model.art=regional(scene.original);
+    model.regionalSky=null;
+    Route127RegionalSky.applyRegionalSky(model,region,player.flags?.worldHour);
+   }
+   return model;
+  }
+  model.causewayBacking=false;
   model.art=scenario(scenes.get(name));
   model.regionalSky=null;
   return model;
@@ -83,7 +115,8 @@
   try{
    const e=this.element;if(!e?.figure)return result;
    const fig=e.figure,which=target();
-   const shown=!!which&&!e.frame.hidden&&!fig.hidden&&this.preference()==='graphics';
+   const layers=which&&!e.frame.hidden&&!fig.hidden&&this.preference()==='graphics'?composition():null;
+   const shown=!!layers?.loaded;
    fig.classList.toggle('r127-approved-road',shown);
    let sky=fig.querySelector(':scope > .r127-approved-sky');
    let road=fig.querySelector(':scope > .r127-approved-ground');
@@ -93,12 +126,9 @@
    }
    fig.dataset.approvedScene=which==='COUNTY WORK TRUCK'?'county-truck':'other';
    if(!sky){sky=document.createElement('div');sky.className='r127-approved-sky';sky.setAttribute('aria-hidden','true');fig.insertBefore(sky,e.img);}
-   if(!road){road=document.createElement('img');road.className='r127-approved-ground';road.src=regional('dirt_road_foreground.png');road.alt='';road.setAttribute('aria-hidden','true');road.draggable=false;fig.insertBefore(road,e.img);}
-   const period=typeof Route127RegionalSky?.phase==='function'?Route127RegionalSky.phase(player.flags?.worldHour):'day';
-   const skyFile=period==='dusk'?'sky_dawn.png':'sky_'+period+'.png';
-   const skyUrl=regional(skyFile);
-   // Match the approved lab preview. Only dusk needs a tint on its dawn sky.
-   if(sky.dataset.file!==skyFile){sky.style.backgroundImage='url("'+skyUrl+'")';sky.dataset.file=skyFile;}
+   if(!road){road=document.createElement('img');road.className='r127-approved-ground';road.src=roadUrl;road.alt='';road.setAttribute('aria-hidden','true');road.draggable=false;fig.insertBefore(road,e.img);}
+   const {period,skyUrl}=layers;
+   if(sky.dataset.url!==skyUrl){sky.style.backgroundImage='url("'+skyUrl+'")';sky.dataset.url=skyUrl;}
    sky.style.filter=period==='dusk'?'sepia(.42) hue-rotate(-18deg) saturate(1.4)':'';
    fig.dataset.approvedPeriod=period;
   }catch(error){console.warn('DEVTEST approved sky-road scenes:',error);}

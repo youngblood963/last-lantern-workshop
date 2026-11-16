@@ -140,6 +140,22 @@
 
 
 
+ // November 16 owner uploads. These are DEVTEST combat-visual tool registrations;
+ // keep original encounter IDs and gameplay choices intact.
+ // Assets were uploaded into assets/enemies/ (including environmental compositions).
+ register('LEAKING FREIGHT TANK',[],'both','Toxic Cargo — full scene / sky overlay',enemy('toxic_cargo.png'));
+ register('FREIGHT CAR AMBUSH',[enemy('unauthorized_cargo.png')],'both','Unauthorized Cargo — forklift');
+ register('THE CRANE NEST',sprite('crane_diving_bird.png','crane_nest_guard.png'),'both','Two crane birds — independent placement');
+ register('THE POWDER MONKEY',[enemy('the_powder_monkey.png')],'both','Powder Monkey — individual sprite');
+ // A single full-scene composition shows all five birds; do not duplicate the
+ // five-bird image as five sprites. Gameplay still tracks five separate enemies.
+ register('AGGRESSIVE SEAGULLS',[],'both','Five gulls — one cinematic composition',enemy('aggressive_seagulls.png'));
+ register('SHIPWRECK SCAVENGERS',[],'both','Two scavengers and shipwreck — one composition',enemy('shipwreck_scavengers.png'));
+ // The washed-out-shoulder GIF was reported uploaded but no matching file was
+ // found at the approved filename/path. Keep a visible preview row so the user
+ // can spot and correct the unresolved artwork without touching the save ID.
+ register('THE WASHED-OUT SHOULDER',[],'both','Washed-out Shoulder — GIF (file unverified)',enemy('the_washed_out_shoulder.gif'));
+
  const rows=new Map();
  const byEncounter=new Map();
  const byTitle=new Map();

@@ -218,6 +218,11 @@
  }
  // The scripted loop above allocates the canonical serviceBoss row; attach its
  // cinematic art AFTER that loop so it is not overwritten with an empty variant.
+ // Red fights in the same fully illustrated Rusty Anchor portrait used in dialogue.
+ // Overlay his live HP in gameplay; no separate combatant image required.
+ const redRow=rows.get('scripted:r18redfight');
+ if(redRow)redRow.variants=[{units:[],background:locationArt('rusty_anchor_red.png'),
+   phase:'both',variant:'Red portrait — live HP meter in combat'}];
  const yardmanRow=rows.get('scripted:serviceboss');
  if(yardmanRow)yardmanRow.variants=[{units:[],phase:'both',variant:'Yardman cinematic — sky only',background:scenery('the_yardman.png')}];
  // Crazy Steve is a level-five promotional menu, not a random road registry fight.

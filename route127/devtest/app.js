@@ -2373,7 +2373,7 @@ function showDrinkMenu(){
 }
 function showGambleMenu(){casinoMenu();}
 function npcTalk(name){
-  const n=name.toLowerCase(); mercyLocation=n;player.flags.solaceMenu="dialogue";
+  const n=name.toLowerCase(); mercyLocation=n;player.flags.solaceMenu="dialogue";if(n==="tim")delete player.flags.r127TimBountyOpen;
   if(n==="jen"){player.flags.jenInDialogue=true;storyValeReunion();r18FoodSync();}
   const handins={jen:["jenQuest","Jen's Supply Crate"],johnny:["johnnyQuest","Johnny's Ledger"],amii:["amiiQuest","Bank Satchel"],wayne:["waynePatientQuest","Clinic Medicine"]};
   if(handins[n]&&player.flags[handins[n][0]]==="recovered")add(`DELIVER ${handins[n][1].toUpperCase()} — available now`,"reward");

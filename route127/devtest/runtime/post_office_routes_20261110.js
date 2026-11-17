@@ -262,8 +262,38 @@
   RouteIdentity.npc['Hollis Reed']='Hollis Reed';
   RouteIdentity.npc.Red='Elias “Red” Harper';
  }
+ // Reuse the game's canonical mail-tampering command (including the
+ // Harbor Dispatch loot wrapper loaded later). Restore the backpack's town
+ // context and hotkeys afterward; never teleport the player to the office.
+ function tamperCarriedMail(){
+  const q=r18CourierState(),job=q.job,x=map[job?.destination];
+  if(q.phase!=='service'||job?.status!=='active'||!x||!letter(x))return false;
+  const previous={
+   stage,mercyLocation,solaceMenu:player.flags.solaceMenu,
+   numberedChoices,currentHotkeys,usedHotkeys,reservedChoiceKeys
+  };
+  try{
+   q.tamperPending=true;
+   r18CourierCommand('confirm parcel tampering');
+  }finally{
+   stage=previous.stage;
+   mercyLocation=previous.mercyLocation;
+   player.flags.solaceMenu=previous.solaceMenu;
+   numberedChoices=previous.numberedChoices;
+   currentHotkeys=previous.currentHotkeys;
+   usedHotkeys=previous.usedHotkeys;
+   reservedChoiceKeys=previous.reservedChoiceKeys;
+  }
+  const done=q.job!==job&&q.restitutionRequired===true;
+  if(done&&typeof v49Autosave==='function')v49Autosave();
+  return done;
+ }
  globalThis.Route127PostOfficeRoutes=Object.freeze({
   routes:ROUTES.map(({id,name,place})=>({id,name,place})),
-  dailyLimit:POSTAL_LIMIT
+  dailyLimit:POSTAL_LIMIT,
+  activeMail:()=>{const q=r18CourierState(),x=map[q.job?.destination];
+   return q.phase==='service'&&q.job?.status==='active'&&x&&letter(x)?
+    {item:x.item,recipient:x.name}:null;},
+  tamperCarriedMail
  });
 })();

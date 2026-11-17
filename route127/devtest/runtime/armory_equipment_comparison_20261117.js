@@ -94,15 +94,27 @@
   const seen=new Set();
   for(const b of buyButtons){
    const label=b.querySelector('.gfx-choice-label')?.textContent?.trim()||'';
-   const requested=label.replace(/^buy\s+/i,'').trim();
-   // Menu labels are uppercased; the gear catalog keeps mixed-case keys.
-   const name=(player.flags?.regionalEquipment?.solace?.slots||[]).find(slot=>slot.name.toLowerCase()===requested.toLowerCase())?.name||
-    Object.keys(GEAR).find(key=>key.toLowerCase()===requested.toLowerCase())||requested;
+   // Display labels may include formatted prices ("Buy Crowbar — 1,501 Bolts")
+   // and rarity tags. Resolve against the actual command / live shop stock,
+   // never the decorative text, so hovering can find the correct GEAR stats.
+   const command=String(b.dataset.command||'').trim();
+   const labelName=label.replace(/^buy\\s+/i,'')
+    .replace(/\\s+[—–-]\\s*[\\d,]+\\s*bolts.*$/i,'')
+    .replace(/\\s*\\[(?:common|uncommon|rare|epic|legendary)\\].*$/i,'').trim();
+   const commandName=String([...Object.entries(numberedChoices||{})]
+    .find(([key])=>key===b.querySelector('.gfx-choice-key')?.textContent?.trim())?.[1]||'')
+    .replace(/^buy\\s+/i,'').trim();
+   const stock=(player.flags?.regionalEquipment?.solace?.slots||[]);
+   const candidates=[commandName,labelName].filter(Boolean);
+   const found=stock.find(slot=>candidates.some(v=>slot.name.toLowerCase()===v.toLowerCase()))||
+    stock.find(slot=>candidates.some(v=>v.toLowerCase().startsWith(slot.name.toLowerCase())));
+   const name=found?.name||Object.keys(GEAR).find(key=>candidates.some(v=>v.toLowerCase()===key.toLowerCase()))||labelName;
    const gear=def(name);
    if(!gear||!['weapon','armor'].includes(gear.type))continue;
    seen.add(name);
    const wrap=document.createElement('div');wrap.className='r127-armory-buy-wrap';
    b.parentNode.insertBefore(wrap,b);wrap.appendChild(b);
+   b.removeAttribute('title'); // Prevent browser's tiny native buy-price tooltip masking the comparison.
    b.setAttribute('aria-description','Hover or focus to compare with equipped gear. Use the Compare button on touch devices.');
    b.addEventListener('mouseenter',()=>show(name,b));
    b.addEventListener('focus',()=>show(name,b));
@@ -122,7 +134,7 @@
   if(selectedName&&!seen.has(selectedName))hide(true);
   else if(panel&&!panel.hidden){
    const current=[...choices.querySelectorAll('.r127-armory-buy-wrap')].find(w=>
-    (w.querySelector('.gfx-choice-label')?.textContent||'').trim().toLowerCase()==='buy '+selectedName.toLowerCase());
+    (w.querySelector('.gfx-choice-label')?.textContent||'').toLowerCase().includes(selectedName.toLowerCase()));
    if(current)anchor=current.querySelector(pinned?'.r127-armory-info':'.gfx-choice');
    place();
   }

@@ -203,12 +203,18 @@
  const priorChoices=GraphicalUI.choices;
  GraphicalUI.choices=function(...args){
   const x=nearRecipient();
-  if(x&&!currentHotkeys.mail)currentHotkeys.mail='deliver mail to '+x.id;
-  if(!x&&currentHotkeys.mail?.startsWith('deliver mail to '))delete currentHotkeys.mail;
+  // Mail is an ordinary numbered menu action, not a special "MAIL" hotkey.
+  if(currentHotkeys.mail?.startsWith('deliver mail to '))delete currentHotkeys.mail;
   const rows=priorChoices.apply(this,args);
   if(!x||rows.some(r=>r.command==='deliver mail to '+x.id))return rows;
-  return [...rows,{key:'mail',command:'deliver mail to '+x.id,
-    label:'DELIVER MAIL TO '+x.name.toUpperCase()}];
+  const used=new Set([...Object.keys(numberedChoices||{}),...rows.map(r=>String(r.key))]);
+  let number=1;while(used.has(String(number)))number++;
+  const key=String(number),command='deliver mail to '+x.id;
+  numberedChoices[key]=command;
+  const next={key,command,label:'DELIVER MAIL TO '+x.name.toUpperCase()};
+  const back=rows.findIndex(r=>/^(?:back|return|leave|exit)(?: |$)/i.test(String(r.label||r.command||'')));
+  if(back<0)return [...rows,next];
+  return [...rows.slice(0,back),next,...rows.slice(back)];
  };
  const priorCore=handleCommandCore;
  handleCommandCore=async function(raw){

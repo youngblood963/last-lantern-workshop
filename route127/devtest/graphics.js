@@ -96,29 +96,31 @@ const GraphicalUI={
     e.settings.appendChild(this.node('h2','','DISPLAY OPTIONS'));
     // DEVTEST-only escape hatch deliberately bypasses gameplay input queues.
     // Never let a stalled narration hold the player's save hostage.
-    const activeRoach=()=>{
+    // Always show the emergency action in DEVTEST. The graphical road
+    // engine can be in a stage other than legacy "encounter".
+    e.settings.appendChild(this.button('ESCAPE STUCK ROAD ENCOUNTER',()=>{
+      const g=typeof lanternState==='function'?lanternState():null;
+      const legacyEncounter=stage==='encounter'||stage==='between';
+      if(!g?.pending&&!legacyEncounter){
+        alert('No pending road encounter to escape. Your save was not changed.');
+        return;
+      }
       try{
-        return ['encounter','between'].includes(stage)&&
-          ['ROACH NEST','EAST ROAD — ROACH NEST'].includes(currentEncounter()?.title);
-      }catch(_){return false;}
-    };
-    if(activeRoach()){
-      e.settings.appendChild(this.button('ESCAPE STUCK ROACH ENCOUNTER',()=>{
-        if(!activeRoach())return;
-        try {
-          const stored=localStorage.getItem(FACTORY_AUTOSAVE_KEY);
-          if(stored)localStorage.setItem('route127_devtest_roach_rescue_backup_20261117',stored);
-        }catch(error){console.warn('Roach rescue backup unavailable',error);}
-        busy=false;input.disabled=false;commandProcessing=false;
-        // A partially queued narration must not overwrite the rescued menu.
-        outputQueue=Promise.resolve();
-        resultBuffer=null;numberedChoices={};currentHotkeys={};
-        add('DEVTEST RECOVERY — You leave the Roach Nest behind. No extra turn charged.','system');
-        completeRoadTurn();
-        v49RollingAutosave('ROACH NEST RECOVERED');
-        this.optionsOpen=false;this.sync();
-      },'gfx-roach-rescue'));
-    }
+        const stored=localStorage.getItem(FACTORY_AUTOSAVE_KEY);
+        if(stored)localStorage.setItem('route127_devtest_road_rescue_backup_20261117',stored);
+      }catch(error){console.warn('Road rescue backup unavailable',error);}
+      busy=false;input.disabled=false;commandProcessing=false;
+      outputQueue=Promise.resolve();
+      resultBuffer=null;numberedChoices={};currentHotkeys={};
+      this.optionsOpen=false;
+      add('DEVTEST RECOVERY — You leave the stalled road encounter behind.','system');
+      // The graph's completeRoadTurn clears its pending flag and preserves
+      // movement position. Do not use advanceRoad/spendTurn.
+      if(g?.pending)completeRoadTurn();
+      else {stage='turnComplete';completeRoadTurn();}
+      v49RollingAutosave('ROAD ENCOUNTER RECOVERED');
+      this.sync();
+    },'gfx-roach-rescue'));
     e.settings.appendChild(this.button('CLASSIC BBS',()=>this.setMode('classic')));
     e.settings.appendChild(this.button('CLOSE OPTIONS',()=>{this.optionsOpen=false;this.sync();}));
   }

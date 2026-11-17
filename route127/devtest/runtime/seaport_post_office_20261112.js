@@ -269,5 +269,18 @@ r18CourierCommand=function(cmd){
  }
  return result;
 };
-globalThis.Route127HarborDispatch=Object.freeze({destinations:DESTINATIONS.map(x=>x.id),dailyLimit:1,unlocked:open});
+// Backpack tampering uses the SAME crime, suspension, loot and item-consumption
+// path as Tommy's in-office confirmation, without changing scene/navigation.
+function tamperCarriedMail(){
+ const q=saved(),d=destination();
+ if(!d||q.job?.status!=='active'||!owns(d))return false;
+ q.tamperPending=true;
+ return tamper();
+}
+globalThis.Route127HarborDispatch=Object.freeze({
+ destinations:DESTINATIONS.map(x=>x.id),dailyLimit:1,unlocked:open,
+ tamperCarriedMail,
+ activeMail:()=>{const d=destination();return d&&saved().job?.status==='active'&&owns(d)?
+  {item:mailItem(d),recipient:d.name}:null;}
+});
 })();

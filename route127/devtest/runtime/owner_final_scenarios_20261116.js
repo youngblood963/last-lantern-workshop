@@ -80,11 +80,37 @@
   @media(max-width:600px){.gfx-art.r127-final-encounter>.r127-final-sprites .r127-final-unit{height:79%;width:42%}.gfx-art.r127-final-encounter>.r127-final-sprites .r127-final-unit.r127-final-freight{height:90%;width:98%}}
  `;
  document.head.append(style);
+ // Shipwreck Scavengers is one full cinematic painting, NOT separate sprites.
+ // Keep its entire width visible, filling any letterboxing with time-of-day sky.
+ const shipwreckStyle=document.createElement('style');
+ shipwreckStyle.id='r127-shipwreck-full-scene-fit';
+ shipwreckStyle.textContent=`
+  .gfx-art.r127-shipwreck-full{position:relative;isolation:isolate;overflow:hidden}
+  .gfx-art.r127-shipwreck-full>.r127-shipwreck-sky{position:absolute;inset:0;z-index:0;background-position:center;background-size:cover;pointer-events:none}
+  .gfx-frame .gfx-art.r127-shipwreck-full>.gfx-image[src*="shipwreck_scavengers.png"]{
+   position:relative;z-index:1;display:block;width:100%!important;height:100%!important;
+   object-fit:contain!important;object-position:center center!important;background:transparent!important;
+   transform:none!important;max-width:100%!important;max-height:100%!important;
+  }
+  .gfx-art.r127-shipwreck-full>.gfx-art-caption{position:relative;z-index:9}
+ `;
+ document.head.append(shipwreckStyle);
  const priorSync=GraphicalUI.sync;
  GraphicalUI.sync=function(...args){
   const result=priorSync.apply(this,args);
   try{
    const e=this.element;if(!e?.figure)return result;
+   const wreckActive=!e.frame.hidden&&this.preference()==='graphics'&&
+    /shipwreck_scavengers\.png(?:[?#]|$)/i.test(e.img?.src||'');
+   e.figure.classList.toggle('r127-shipwreck-full',wreckActive);
+   let wreckSky=e.figure.querySelector(':scope > .r127-shipwreck-sky');
+   if(wreckActive){
+    if(!wreckSky){
+     wreckSky=document.createElement('div');wreckSky.className='r127-shipwreck-sky';
+     wreckSky.setAttribute('aria-hidden','true');e.figure.insertBefore(wreckSky,e.img);
+    }
+    wreckSky.style.backgroundImage='url("'+regional(skyName())+'")';
+   }else wreckSky?.remove();
    const target=selection(),on=!!target&&!e.frame.hidden&&this.preference()==='graphics';
    const figure=e.figure;
    figure.classList.toggle('r127-final-encounter',on);

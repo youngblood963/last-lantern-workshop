@@ -44,3 +44,7 @@ R14 currently provides a Basic Auth gate, an older static client, and same-origi
 PLAYTEST uses the same adapter in local staging. Hosted production requires a separate approved API route, profile storage and session settings.
 
 Direct route and entrypoint fixtures: 11 passed. Hosted verification remains pending Cloudflare route setup and deployment.
+
+### Direct-route continuity fixture
+
+The live direct DEVTEST endpoint returned a GitHub Pages 404 on November 17, 2026, while the existing development Worker responded to its health check. The hosted route remains unverified. Run `node --test tests/direct-save-continuity.test.mjs` from the backend directory. The real Worker with disposable SQLite passed fresh level-1 creation, independent login cookies, cross-session save/load, a preserved pending tournament result, an idempotent retry and a stale revision conflict. This exercises the API and does not verify browser rendering or a physical device.

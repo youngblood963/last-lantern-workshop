@@ -94,7 +94,10 @@
   const seen=new Set();
   for(const b of buyButtons){
    const label=b.querySelector('.gfx-choice-label')?.textContent?.trim()||'';
-   const name=label.replace(/^buy\s+/i,'').trim();
+   const requested=label.replace(/^buy\s+/i,'').trim();
+   // Menu labels are uppercased; the gear catalog keeps mixed-case keys.
+   const name=(player.flags?.regionalEquipment?.solace?.slots||[]).find(slot=>slot.name.toLowerCase()===requested.toLowerCase())?.name||
+    Object.keys(GEAR).find(key=>key.toLowerCase()===requested.toLowerCase())||requested;
    const gear=def(name);
    if(!gear||!['weapon','armor'].includes(gear.type))continue;
    seen.add(name);

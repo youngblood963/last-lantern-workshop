@@ -43,36 +43,12 @@ const GraphicalUI={
  statuses(){const c=combatState;if(!c)return [];const rows=[];for(const [key,label]of [['r18RatBleed','Bite bleeding'],['r18PowderBleed','Shrapnel bleeding'],['r18RatGuardBreak','Guard weakened']])if(c[key]>0)rows.push(label+': '+c[key]+' exchanges');if(c.wo3Cover)rows.push('Container cover ready');if(c.wo3LightShot)rows.push('Drone floodlight disabled');if(c.r18PowderGrenadePending)rows.push('Grenade readied');return rows;},
  nav(model){const result=[];if(player.flags.interfaceUnlocked){result.push(['map','Map','map'],['inventory','Backpack','pack'],['status','Character','person']);const craft=model.choices.find(c=>/^(crafting recipes|use workbench|crafting|recipes)$/.test(c.command));if(craft)result.push([craft.key,'Crafting','tool']);result.push(['quests','Journal','book']);}return result;},
  async dispatch(choice){
-  // Encounter buttons must execute their actual command. Other queued menus
-  // can remap numeric keys after the buttons are drawn.
-  const encounter=stage==='encounter'&&typeof currentEncounter==='function'&&!!currentEncounter();
-  const current=this.choices().find(c=>c.key===choice.key&&c.command===choice.command);
-  const command=String(current?.command||choice.command||'').trim().toLowerCase();
-  if(!current&&!encounter){this.sync();return false;}
-  if(encounter){
-   const options=encounterChoices(currentEncounter()).split(/\s{2,}/).filter(Boolean).map(choiceCommand);
-   if(!options.includes(command)){this.sync();return false;}
-  }
-  if(busy){
-   // A stalled narration must not permanently lock an ordinary road event.
-   // Never unlock combat, quest prompts, or any other game state.
-   if(!encounter||combatState)return false;
-   try{await Promise.race([outputQueue,new Promise(resolve=>setTimeout(resolve,2000))]);}
-   catch(error){console.warn('Encounter output queue error:',error);}
-   if(busy){busy=false;input.disabled=false;console.warn('Recovered stale encounter busy lock');}
-  }
+  const current=this.choices().find(c=>c.key===choice?.key&&c.command===choice?.command);
+  if(!current){this.sync();return false;}
+  if(busy||commandProcessing)return false;
+  const encounter=stage==='encounter'&&!!currentEncounter();
   this.navOpen=false;
-  try{await handleCommand(encounter?command:current.key);}
-  catch(error){
-   console.error('DEVTEST encounter command error:',{stage,command},error);
-   if(encounter){
-    add('ACTION ERROR — '+command.toUpperCase()+'. Your progress is intact.','danger');
-    if(command==='back away'&&stage==='encounter'){
-     add('You retreat from the encounter.','system');
-     completeRoadTurn();
-    }
-   }
-  }
+  await handleCommand(encounter?current.command:current.key);
   this.sync();return true;
  },
  node(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;},
@@ -94,37 +70,10 @@ const GraphicalUI={
   e.nav.replaceChildren();for(const [command,label,icon]of this.nav(m)){const b=this.button('',async()=>{if(busy)return;this.navOpen=false;await handleCommand(command);this.sync();},'gfx-nav-button');b.appendChild(this.icon(icon));b.appendChild(this.node('span','',label));e.nav.appendChild(b);}const opts=this.button('',()=>{this.optionsOpen=!this.optionsOpen;this.sync();},'gfx-nav-button');opts.setAttribute('aria-expanded',String(this.optionsOpen));opts.appendChild(this.icon('gear'));opts.appendChild(this.node('span','','Options'));e.nav.appendChild(opts);
   e.settings.hidden=!this.optionsOpen;e.settings.replaceChildren();if(this.optionsOpen){
     e.settings.appendChild(this.node('h2','','DISPLAY OPTIONS'));
-    // DEVTEST-only escape hatch deliberately bypasses gameplay input queues.
-    // Never let a stalled narration hold the player's save hostage.
-    // Always show the emergency action in DEVTEST. The graphical road
-    // engine can be in a stage other than legacy "encounter".
-    e.settings.appendChild(this.button('ESCAPE STUCK ROAD ENCOUNTER',()=>{
-      const g=typeof lanternState==='function'?lanternState():null;
-      const legacyEncounter=stage==='encounter'||stage==='between';
-      if(!g?.pending&&!legacyEncounter){
-        alert('No pending road encounter to escape. Your save was not changed.');
-        return;
-      }
-      try{
-        const stored=localStorage.getItem(FACTORY_AUTOSAVE_KEY);
-        if(stored)localStorage.setItem('route127_devtest_road_rescue_backup_20261117',stored);
-      }catch(error){console.warn('Road rescue backup unavailable',error);}
-      busy=false;input.disabled=false;commandProcessing=false;
-      outputQueue=Promise.resolve();
-      resultBuffer=null;numberedChoices={};currentHotkeys={};
-      this.optionsOpen=false;
-      add('DEVTEST RECOVERY — You leave the stalled road encounter behind.','system');
-      // The graph's completeRoadTurn clears its pending flag and preserves
-      // movement position. Do not use advanceRoad/spendTurn.
-      if(g?.pending)completeRoadTurn();
-      else {stage='turnComplete';completeRoadTurn();}
-      v49RollingAutosave('ROAD ENCOUNTER RECOVERED');
-      this.sync();
-    },'gfx-roach-rescue'));
     e.settings.appendChild(this.button('CLASSIC BBS',()=>this.setMode('classic')));
     e.settings.appendChild(this.button('CLOSE OPTIONS',()=>{this.optionsOpen=false;this.sync();}));
   }
-  e.choices.replaceChildren();e.choices.style.setProperty('--gfx-choice-rows',String(Math.max(1,Math.ceil(m.choices.length/2))));for(const [i,c]of m.choices.entries()){const b=this.button('',()=>this.dispatch(c),'gfx-choice');b.disabled=!!busy&&!(stage==='encounter'&&!combatState);if(c.label!==c.command){b.classList.add('gfx-road-choice');b.setAttribute('title',c.label);b.setAttribute('aria-label',c.key+' '+c.label);}b.appendChild(this.node('span','gfx-choice-key',c.key.toUpperCase()));b.appendChild(this.node('span','gfx-choice-label',c.label));b.appendChild(this.node('span','gfx-choice-arrow','›'));e.choices.appendChild(b);}
+  e.choices.replaceChildren();e.choices.style.setProperty('--gfx-choice-rows',String(Math.max(1,Math.ceil(m.choices.length/2))));for(const [i,c]of m.choices.entries()){const b=this.button('',()=>this.dispatch(c),'gfx-choice');b.disabled=!!busy;if(c.label!==c.command){b.classList.add('gfx-road-choice');b.setAttribute('title',c.label);b.setAttribute('aria-label',c.key+' '+c.label);}b.appendChild(this.node('span','gfx-choice-key',c.key.toUpperCase()));b.appendChild(this.node('span','gfx-choice-label',c.label));b.appendChild(this.node('span','gfx-choice-arrow','›'));e.choices.appendChild(b);}
  }finally{this.rendering=false;}},
  schedule(){if(this.scheduled)return;this.scheduled=true;outputQueue=outputQueue.then(()=>{this.scheduled=false;this.sync();});}
 };

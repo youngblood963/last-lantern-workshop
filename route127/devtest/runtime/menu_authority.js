@@ -65,9 +65,7 @@
  // command is sent directly, so old numeric-choice maps cannot remap it.
  const dispatch=GraphicalUI.dispatch;
  GraphicalUI.dispatch=async function(choice){
-  // Road encounter dispatch has its own guarded stale-busy recovery in
-  // graphics.js. The menu authority must not silently block every button
-  // before that recovery runs (notably Roach Nest).
+  // The encounter renderer dispatches its current command directly.
   const isEncounter=stage==='encounter'&&typeof currentEncounter==='function'&&!!currentEncounter();
   if(isEncounter)return dispatch.call(this,choice);
   if(busy)return false;

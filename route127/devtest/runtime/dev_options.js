@@ -302,6 +302,58 @@
     document.body.append(dialog);changeEncounter();dialog.showModal();close.focus();
   }
 
+  const roachTitle=/^(?:EAST ROAD — )?ROACH NEST$/;
+  const recoveryBackup='route127_devtest_roach_nest_recovery_backup';
+  function recoverableRoachAutosave(){
+    const live=lanternState();
+    if(!live?.pending||!live.currentEdgeId||combatState)return null;
+    const raw=localStorage.getItem(FACTORY_AUTOSAVE_KEY);
+    const data=JSON.parse(raw||'null');
+    const saved=data?.player?.flags?.lanternTravel;
+    if(!saved?.pending||data.combatState||
+       !['encounter','between','lanternRoad'].includes(data.stage)||
+       data.player.handle!==player.handle||data.player.characterId!==player.characterId||
+       ['currentEdgeId','stepIndex','direction','sceneId'].some(key=>saved[key]!==live[key])||
+       !Number.isInteger(saved.encounterIndex)||
+       !roachTitle.test(r10Pool(saved.encounterRegion||lanternEdge().region)[saved.encounterIndex]?.title||''))return null;
+    return {raw,data,saved};
+  }
+  function offerRoachRecovery(panel,close,options){
+    try{if(!recoverableRoachAutosave())return;}catch{return;}
+    const status=el('p','dw-note');
+    status.setAttribute('role','status');
+    const rescue=options.button('Escape Stuck Roach Nest',()=>{
+      try{
+        const checkpoint=recoverableRoachAutosave();
+        if(!checkpoint){status.textContent='The matching Roach Nest autosave is unavailable.';return;}
+        if(!confirm('Leave Roach Nest at the current road position? Your existing autosave will be backed up.'))return;
+        const {raw,data,saved}=checkpoint;
+        const backup=recoveryBackup+':'+(saved.sceneId||data.savedAt);
+        if(localStorage.getItem(backup)===null)localStorage.setItem(backup,raw);
+        if(localStorage.getItem(backup)!==raw)throw Error('Original autosave could not be backed up.');
+        saved.pending=false;
+        saved.encounterIndex=null;
+        data.stage='lanternRoad';
+        delete data.player.flags.devFoodChoice;
+        delete data.player.flags.devFoodSelected;
+        localStorage.setItem(FACTORY_AUTOSAVE_KEY,JSON.stringify(data));
+      }catch(error){
+        status.textContent='Recovery could not be saved. '+error.message;
+        return;
+      }
+      options.close();
+      busy=false;
+      commandProcessing=false;
+      input.disabled=false;
+      resultBuffer=null;
+      outputQueue=Promise.resolve();
+      loadGame('auto');
+      add('ROACH NEST RECOVERED — Continue from the same road position.','system');
+    });
+    panel.insertBefore(rescue,close||null);
+    panel.insertBefore(status,close||null);
+  }
+
   const originalOptions=TravelerPanels.options;
   TravelerPanels.options=function(...args){
     const result=originalOptions.apply(this,args);
@@ -309,6 +361,7 @@
     const panel=this.body.querySelector('.traveler-detail');
     if(!panel)return result;
     const close=[...panel.querySelectorAll('button')].find(btn=>btn.textContent==='Close');
+    offerRoachRecovery(panel,close,this);
     const turns=this.button('Unlimited Turns: '+(testMode?'ON':'OFF'),()=>{
       testMode=!testMode;
       updateHud();

@@ -6,12 +6,12 @@ const food=()=>player.pack.filter(i=>i.qty>0&&
 const prior=resolveEncounter;
 resolveEncounter=function(cmd){
  const title=currentEncounter()?.title,c=String(cmd).toLowerCase();
- if(['ROACH NEST','TUNNEL RATS'].includes(title)&&
+ if(/^(?:EAST ROAD — )?TUNNEL RATS$/.test(title)&&
     (/lure them away|throw food/.test(c))&&!player.flags.devFoodSelected){
   if(!food().length){add('You need an edible item to distract them.','system');renderCurrentChoices();return;}
   player.flags.devFoodChoice=c;
   add('CHOOSE FOOD TO SACRIFICE','place');
-  v53Choices(food().map(i=>'USE FOOD — '+i.name.toUpperCase()).concat('CANCEL FOOD'));
+  v53Choices(food().map(i=>'USE FOOD: '+i.name.toUpperCase()).concat('CANCEL FOOD'));
   return;
  }
  return prior.apply(this,arguments);
@@ -19,12 +19,17 @@ resolveEncounter=function(cmd){
 const oldCore=handleCommandCore;
 handleCommandCore=async function(raw){
  const chosen=player.flags.devFoodChoice;
+ if(chosen&&!/^(?:EAST ROAD — )?TUNNEL RATS$/.test(currentEncounter()?.title||'')){
+  delete player.flags.devFoodChoice;
+  if(stage==='encounter')renderCurrentChoices();
+  return oldCore.apply(this,arguments);
+ }
  if(!busy&&chosen&&stage==='encounter'){
   const cmd=String(r5Mapped(raw)||'').trim().toLowerCase();
   if(cmd==='cancel food'){delete player.flags.devFoodChoice;renderCurrentChoices();return;}
-  if(cmd.startsWith('use food — ')){
-   const i=food().find(i=>i.name.toLowerCase()===cmd.slice('use food — '.length));
-   if(!i){add('That food is unavailable.','system');return;}
+  if(cmd.startsWith('use food: ')){
+   const i=food().find(i=>i.name.toLowerCase()===cmd.slice('use food: '.length));
+   if(!i){add('That food is unavailable.','system');renderCurrentChoices();return;}
    delete player.flags.devFoodChoice;
    const oldHas=hasItem,oldRemove=removeItem;
    hasItem=function(name){return name==='Energy Bars'?true:oldHas.apply(this,arguments);};
@@ -39,7 +44,7 @@ handleCommandCore=async function(raw){
 const oldRender=renderCurrentChoices;
 renderCurrentChoices=function(...a){
  if(player.flags.devFoodChoice&&stage==='encounter'){
-  v53Choices(food().map(i=>'USE FOOD — '+i.name.toUpperCase()).concat('CANCEL FOOD'));return;
+  v53Choices(food().map(i=>'USE FOOD: '+i.name.toUpperCase()).concat('CANCEL FOOD'));return;
  }
  return oldRender.apply(this,a);
 };

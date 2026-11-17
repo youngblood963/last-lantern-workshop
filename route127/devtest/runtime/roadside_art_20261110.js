@@ -71,7 +71,7 @@ function inScope(){
  return typeof route127CurrentRegion==='function'&&scopeRegions.has(route127CurrentRegion(lanternState()));
 }
 function scenarioChoices(){
- if(stage!=='encounter'||!inScope()||player.flags?.r18HoundNaming)return null;
+ if(stage!=='encounter'||!inScope()||player.flags?.r18HoundNaming||(player.flags?.devFoodChoice&&/TUNNEL RATS$/.test(currentEncounter()?.title||'')))return null;
  const encounter=currentEncounter();if(!encounter)return null;
  const labels=encounterChoices(encounter).split(/\s{2,}/).filter(Boolean);
  if(typeof questRoadMarkers==='function')labels.push(...questRoadMarkers().map(row=>row[1]));

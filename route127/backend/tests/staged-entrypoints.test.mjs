@@ -9,11 +9,11 @@ const publicOrigin='https://lastlanternworkshop.com';
 
 for(const [client,origin,search,enabled] of [
  ['devtest','https://localhost:8787','?cloud=1',true],
- ['devtest',privateOrigin,'?cloud=1',true],
+ ['devtest',privateOrigin,'?cloud=1',false],
  ['playtest','https://localhost:8788','?cloud=1',true],
  ['playtest','https://localhost:8787','?cloud=1',false],
  ['devtest','https://localhost:8788','?cloud=1',false],
- ['devtest',publicOrigin,'?cloud=1',false],
+ ['devtest',publicOrigin,'?cloud=1',true],
  ['playtest',publicOrigin,'?cloud=1',false],
  ['playtest',privateOrigin,'?cloud=1',false],
  ['devtest','https://localhost:8787','?cloud=1&offline=1',false],
@@ -24,11 +24,12 @@ for(const [client,origin,search,enabled] of [
   const document={
    currentScript:{dataset:{route127Client:client},src:origin+'/route127/runtime/cloud-save-bootstrap.js'},
    head:{append(node){scripts.push(node);}},
-   createElement(){return {};}
+   createElement(){return {dataset:{}};}
   };
   runInNewContext(source,{document,location:{origin,search,pathname:'/route127/'+client+'/'},
    ROUTE127_ENV:{name:client.toUpperCase()},URL,URLSearchParams});
   assert.deepEqual(scripts.map(node=>node.src),
-   enabled?[origin+'/route127/online-game/cloud-dev.js?v=wo61-stage']:[]);
+   enabled?[origin+'/route127/online-game/cloud-dev.js?v=wo61-direct']:[]);
+  assert.equal(scripts[0]?.dataset.apiPrefix,enabled&&origin===publicOrigin?'/route127/devtest/api/':undefined);
  });
 }

@@ -1,13 +1,6 @@
 import {timingSafeEqual} from 'node:crypto';
 
 const policy="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'";
-function devtestPolicy(path,env){
- if(!/^\/route127\/devtest\/(?:index\.html)?$/.test(path)||!env.WO61_DEVTEST_SCRIPT_HASHES)return policy;
- const hashes=env.WO61_DEVTEST_SCRIPT_HASHES.split(' ');
- if(!hashes.every(hash=>/^sha256-[A-Za-z0-9+/]{43}=$/.test(hash)))return policy;
- return policy.replace("script-src 'self'","script-src 'self' "+hashes.map(hash=>"'"+hash+"'").join(' '))
-  .replace("base-uri 'none'","base-uri 'self'");
-}
 function protectedResponse(body,status,challenge=false){
  const headers={'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'};
  if(challenge)headers['WWW-Authenticate']='Basic realm="Route 127 private playtest", charset="UTF-8"';
@@ -39,7 +32,7 @@ export default {async fetch(request,env){
  const result=path.startsWith('/api/')?await env.API.fetch(request):await env.ASSETS.fetch(request);
  const headers=new Headers(result.headers);
  headers.set('Cache-Control','no-store');
- headers.set('Content-Security-Policy',devtestPolicy(path,env));
+ headers.set('Content-Security-Policy',policy);
  headers.set('X-Content-Type-Options','nosniff');
  headers.set('Referrer-Policy','no-referrer');
  headers.set('X-Frame-Options','DENY');

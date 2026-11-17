@@ -64,7 +64,13 @@ async function session(env,req){
 }
 async function character(env,account){return env.DB.prepare('SELECT id,name FROM r127_characters WHERE account_id=?').bind(account).first();}
 async function handle(req,env){
- const url=new URL(req.url),path=url.pathname;
+ const url=new URL(req.url);
+ let path=url.pathname;
+ if(path.startsWith('/route127/devtest/api/')){
+  if(env.WO61_DIRECT_DEVTEST!=='true'||url.origin!=='https://lastlanternworkshop.com')
+   return response({error:'Not found'},404);
+  path=path.slice('/route127/devtest'.length);
+ }
  if(env.ENVIRONMENT!=='development')return response({error:'Development backend disabled'},503);
  if(!path.startsWith('/api/')){
   if(!env.ASSETS)return response({error:'Not found'},404);

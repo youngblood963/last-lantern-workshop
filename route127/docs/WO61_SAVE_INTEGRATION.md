@@ -27,21 +27,20 @@ Baseline 03b4e07146ddc6cb3bcc40895a93a8b9e7058abd. Owner decision: start fresh f
 - Current-source Node 24 fixture run: **10 passed** (six Worker/SQLite tests and four R13 adapter tests). Covered auth, ownership, idempotency, competing updates, 503, outage recovery, bank/casino journals, and local road command continuation.
 - Read-only development health: **PASS**. Historic hosted auth/save evidence is in [R12 live verification](R12_LIVE_API_VERIFICATION.md). Current D1 binding, secret metadata, live private current-client browser flow and physical devices were not reverified.
 - Authority: **missing in the audited R12 contract**. Server-issued identity is implemented, but House → Solace authority and account-based multi-player presence are **unverified**. Legacy presence is not safe for production identity.
-- Candidate wiring: both entrypoints load the same guarded [bootstrap](../runtime/cloud-save-bootstrap.js). Private DEVTEST / local DEVTEST port 8787 and local PLAYTEST port 8788 require explicit `?cloud=1`. Public origins are rejected. Use distinct local database files and bindings; the browser origin restriction alone is not a database isolation boundary. Ten VM gate scenarios cover the allowed staging entries, mismatched environments, public origins and offline/default launch.
+- Candidate wiring: both entrypoints load the same guarded [bootstrap](../runtime/cloud-save-bootstrap.js). Hosted DEVTEST and local DEVTEST port 8787 plus local PLAYTEST port 8788 require explicit `?cloud=1`. Hosted PLAYTEST and the R14 gateway are excluded. Use distinct local database files and bindings; the browser origin restriction alone is not a database isolation boundary. Ten VM gate scenarios cover the allowed staging entries, mismatched environments, public origins and offline/default launch.
 - Current DEVTEST/PLAYTEST cross-device integration, reload/arena regression, separate QA profile and deployment: **pending**. No PLAYTEST deployment or save mutation performed.
 
 Staged test command from `route127/backend`: `node --test --test-isolation=none tests/*.test.mjs`. Re-run result: **20 passed**. The bootstrap gate fixtures are not full browser or cross-device acceptance.
 
-## Private DEVTEST Cloudflare bundle
+## Direct Cloudflare routing and R14 retirement
 
-The existing R14 Worker requires tester authentication for both assets and API. Its stock assets directory serves the older R13 client. From a full PR checkout, build the additive current-client bundle:
+R14 currently provides a Basic Auth gate, an older static client, and same-origin forwarding via its API service binding. The R12 Worker, through its existing D1 binding, owns account authentication, session cookies and revisioned saves. The replacement browser path is the current DEVTEST page on the normal site with `?cloud=1`, with direct Cloudflare Worker routing on the same origin.
 
-```sh
-node route127/private-playtest/prepare-wo61.mjs /absolute/path/to/new-private-bundle
-```
+1. Confirm that lastlanternworkshop.com is proxied through a Cloudflare zone under the owner's control. Configure only the Worker Route `lastlanternworkshop.com/route127/devtest/api/*` on `route127-r12-dev-api` and set its deployed `WO61_DIRECT_DEVTEST=true`. Leave the existing D1 binding and secret in place. The candidate leaves the flag off by default and requires the exact hosted origin. Keep the normal site origin serving the static game routes. If the zone is not proxied, resolve that routing dependency before enabling hosted cloud mode.
+2. Verify that same-origin health works, anonymous save access is denied, foreign Origin writes are denied, and normal account sign-in, fresh save creation and cross-device load work. Review current DEVTEST registration exposure and rate-limit monitoring before enabling the route. Keep production persistence disabled until separate production storage, session isolation and owner approval are in place.
+3. After replacement passes and the owner approves retirement, disable the R14 Worker endpoint `route127-r14-private-playtest`, remove any routes explicitly assigned to that Worker, then retire its `TESTER_ACCESS_HASHES`, static asset binding and `API` service binding. Retain the R12 Worker, the `route127-dev` D1 database and the backend auth secret. Confirm actual dashboard route assignments before removal.
+4. Roll back by disabling the direct flag and removing only the new DEVTEST API route. R14 remains available during verification. No live deployment, gateway removal or data migration is part of this candidate.
 
-The generated configuration still targets `route127-r14-private-playtest` and binds `API` to `route127-r12-dev-api`. It retains the legacy root client and packages the current DEVTEST entry with its shared runtime and assets. The gateway narrowly permits hashed inline scripts and a same-origin base on the DEVTEST entry. The stock routes keep their original policy. Deployment requires Cloudflare deploy access and a valid configured tester credential. Use the generated Wrangler config only against the private gateway, and record the previous Worker version before deploying for rollback.
+PLAYTEST uses the same adapter in local staging. Hosted production requires a separate approved API route, profile storage and session settings.
 
-After deployment, visit `/route127/devtest/?cloud=1` on the private worker and authenticate at both gates. Use a fresh development account and click Start fresh. Play and save on desktop, then sign in on mobile and compare the loaded character. Verify a pending road encounter and tournament acknowledgment before enabling broader testing.
-
-Fixture evidence: bundle paths, archive/backend source exclusions, unauthenticated 401, route-specific CSP and same-origin API delegation passed. The deployed gateway returned an unauthenticated 401. Actual current-build deployment and signed-in browser acceptance are pending.
+Direct route and entrypoint fixtures: 11 passed. Hosted verification remains pending Cloudflare route setup and deployment.

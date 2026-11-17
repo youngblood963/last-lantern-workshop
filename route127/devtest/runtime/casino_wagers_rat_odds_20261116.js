@@ -96,5 +96,18 @@ GraphicalUI.choices=function(...args){
   return {...row,label:CASINO_RATS[i]+' · '+Math.round(odds[i]*100)+'% / '+returns[i]+'x'};
  });
 };
+// The graphical numeric entry must reflect the wager cap too, rather
+// than suggesting the player's entire balance is an acceptable custom bet.
+if(typeof FocusedEntry!=='undefined'){
+ const prevDescribe=FocusedEntry.describe;
+ FocusedEntry.describe=function(...args){
+  const d=prevDescribe.apply(this,args),r=stage==='r6Casino'?r6Round():stage==='mercy'&&mercyLocation==='casinoGame'?casinoRound():null;
+  if(d&&r?.status==='waiting'&&r.custom&&!slots(r)){
+   return {...d,max:Math.min(MAX,player.bolts),
+    hint:'Maximum 1,000 Bolts.'+(r.game==='blackjack'?' Even-numbered bets only.':'')};
+  }
+  return d;
+ };
+}
 globalThis.Route127CasinoWagerPolicy={maximum:MAX,ratOdds:[...odds],ratReturns:[...returns]};
 })();

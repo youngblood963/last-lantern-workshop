@@ -174,7 +174,8 @@ GraphicalUI.sync=function(...args){
  if(!e?.figure)return result;
  const shown=!!active()&&this.preference()==='graphics'&&!e.frame.hidden;
  e.figure.classList.toggle('r127-spectating',shown);
- const phase=typeof Route127RegionalSky?.phase==='function'?Route127RegionalSky.phase(player.flags.worldHour):'day';
+ const hour=((Number(player?.flags?.worldHour??8)%24)+24)%24;
+ const phase=hour>=20||hour<5?'night':hour>=18?'dusk':hour>=7?'day':'dawn';
  e.figure.classList.toggle('r127-arena-night',shown&&phase==='night');
  let layer=e.figure.querySelector(':scope > .r127-spectator-layer');
  if(!shown||!session.fighters){layer?.remove();return result;}

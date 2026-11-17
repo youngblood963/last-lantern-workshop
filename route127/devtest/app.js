@@ -1074,6 +1074,15 @@ function loadGame(slot=activeSaveSlot){
     if(w){add(`ROAD TURN ${dailyRoadTurns} — WANDERER`,"place");showWanderer(w,"road");}
     else {stage="between";resumeSavedEncounter=true;showEncounter();}
   }
+  else if(stage==="encounter" && slot==="auto" &&
+          ["ROACH NEST","EAST ROAD — ROACH NEST"].includes(currentEncounter()?.title)){
+    // DEVTEST one-time stuck-save rescue: leave the already-charged road
+    // encounter without losing player inventory, quests, position or turns.
+    // Do not reroll the road, consume a turn, or alter other encounters.
+    add("DEVTEST RECOVERY — You leave the roach-infested van behind.","system");
+    completeRoadTurn();
+    v49RollingAutosave("ROACH NEST RECOVERED");
+  }
   else if(stage==="encounter" || stage==="between" || stage==="combat"){
     // Restore the same road event, rather than rolling a new wanderer on load.
     stage="between";resumeSavedEncounter=!!roadTurnCharged;showEncounter();

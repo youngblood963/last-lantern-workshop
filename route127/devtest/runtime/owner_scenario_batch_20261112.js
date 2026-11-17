@@ -13,7 +13,6 @@
  const alias=()=>String(typeof currentEncounter==='function'?
   (currentEncounter()?.displayName||''):'').toUpperCase().trim();
  const artByTitle=Object.freeze({
-  'THE LOCKED TOOL CHEST':'locked_tool_chest.png',
   'THE BURNT LIBRARY':'burnt_library.png',
   'THE BRIDGE TOLL':'bridge_toll.png',
   'A DRESSING IN THE DUST':'tommy_briggs_roadside.png',
@@ -31,8 +30,55 @@
   if(file){model.art=scenario(file);model.regionalSky=null;}
   return model;
  };
+ // Keep the regional terrain and sky in the primary renderer. The chest
+ // is a foreground prop and can finish loading independently of the road.
+ let chestImage,chestState='idle',chestTimer,chestDeadline;
+ function paintChest(e){
+  const active=!e.frame.hidden&&!e.figure.hidden&&stage==='encounter'&&
+   [canonical(),alias()].some(title=>['THE LOCKED TOOL CHEST','LOCKED TOOLBOX','THE LOCKED TOOLBOX'].includes(title));
+  let status=e.figure.querySelector('.r127-tool-chest-status');
+  if(!active){
+   chestImage?.remove();status?.remove();
+   clearTimeout(chestTimer);chestTimer=null;
+   return;
+  }
+  if(!chestImage){
+   chestImage=document.createElement('img');
+   chestImage.className='r127-tool-chest-prop';
+   chestImage.alt='Locked red tool chest';
+   chestImage.decoding='async';
+   chestState='pending';
+   const settle=state=>{
+    chestState=state;
+    clearTimeout(chestDeadline);
+    GraphicalUI.schedule();
+   };
+   chestDeadline=setTimeout(()=>settle('failed'),15000);
+   chestImage.onload=()=>settle('ready');
+   chestImage.onerror=()=>settle('failed');
+   chestImage.src=scenario('locked_tool_chest.png');
+  }
+  if(chestState==='ready'&&chestImage.parentNode!==e.figure)e.figure.append(chestImage);
+  if(chestState==='pending'&&!chestTimer&&!status){
+   chestTimer=setTimeout(()=>{chestTimer=null;showChestStatus(e,'Loading scene artwork…');},400);
+  }else if(chestState!=='pending'){
+   clearTimeout(chestTimer);chestTimer=null;
+   if(chestState==='failed')showChestStatus(e,'Scene artwork unavailable');
+   else status?.remove();
+  }
+ }
+ function showChestStatus(e,text){
+  let status=e.figure.querySelector('.r127-tool-chest-status');
+  if(!status){
+   status=document.createElement('span');status.className='r127-tool-chest-status';
+   status.setAttribute('role','status');e.figure.append(status);
+  }
+  if(status.textContent!==text)status.textContent=text;
+ }
  const css=document.createElement('style');
  css.textContent=`
+ .gfx-art>.r127-tool-chest-prop{position:absolute;z-index:5;left:50%;bottom:8%;width:44%;height:52%;transform:translateX(-50%);object-fit:contain;object-position:center bottom;pointer-events:none}
+ .gfx-art>.r127-tool-chest-status{position:absolute;z-index:7;right:8px;top:8px;padding:5px 8px;border-radius:4px;background:#191510e8;color:#fff5df;font-size:.8rem;pointer-events:none}
  /* Full-scene animated GIFs: fit the whole frame at 95% (desktop + mobile).
     Target only the primary scenario artwork, not UI animations or combat sprites.
     The layout editor's explicitly positioned background units keep their own scale. */
@@ -64,6 +110,7 @@
   const result=oldSync.apply(this,args);
   try{
    const e=this.element;if(!e?.figure)return result;
+   paintChest(e);
    e.figure.classList.toggle('r127-blade-cart',!e.frame.hidden&&stage==='encounter'&&
     (canonical()==='THE BLADE CART'||alias()==='THE BLADE CART'));
    // Sky-only backdrop for Bridge Toll: its artwork already contains its own ground.

@@ -53,6 +53,8 @@ function start(){
  if(timer){clearInterval(timer);timer=0;}
  if(!session.fighters)session.fighters=pick();
  session.mode='fight';session.turn=Math.floor(Math.random()*2);session.effect=null;session.result='';
+ // While the automatic exhibition runs, hide the old betting/venue buttons.
+ numberedChoices={};currentHotkeys={};
  add('The referee rings the bell. Two fighters step into the arena!','bright');
  GraphicalUI.schedule();
  timer=setInterval(()=>{

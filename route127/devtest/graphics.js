@@ -87,7 +87,7 @@ document.head.appendChild(r127EchoStyle);
   for(const line of screen.children){
    if(!line.classList?.contains('line'))continue;
    const contents=(line.textContent||'').trim();
-   const command=/^>\\s*(?:\\d{1,2}|[a-z])\\s*$/i.test(contents);
+   const command=/^>\s*(?:\d{1,2}|[a-z])\s*$/i.test(contents);
    line.classList.toggle('r127-graphical-command-echo',command);
   }
  }

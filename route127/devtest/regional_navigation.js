@@ -18,10 +18,12 @@ function route127DrawnBackground(g){
  // the existing SEAPORT/coast pool so global and coastal events still work.
  if(g.currentEdgeId==='boulder-junction--seaport'){
   // Edge orientation is Boulder Junction (a) -> Seaport (b), 12 turns.
-  // Coastal approach occupies the first two pearls and final three pearls;
-  // the intervening stretch is the Causeway proper. Direction independent.
+  // The harbor gate is a separate Seaport town scene. When departing it
+  // (step 12, reverse direction), show the Causeway immediately instead of
+  // several Seaport road frames. Keep the first two pearls near Boulder as
+  // their existing coastal approach; encounters still use the coast pool.
   const step=Math.max(0,Math.min(12,Math.trunc(Number(g.stepIndex)||0)));
-  return step<=2||step>=10?'SEAPORT':'CAUSEWAY';
+  return step<=2?'SEAPORT':'CAUSEWAY';
  }
  if(g.currentEdgeId){
   const edge=LG_EDGES[g.currentEdgeId],regions=ROUTE127_DRAWN_ROAD_BACKGROUNDS[g.currentEdgeId];

@@ -2221,6 +2221,9 @@ function resolveEncounter(cmd) {
   // Do not mark wares as consumed or automatically finish the road turn:
   // this merchant was historically exclusive, which closed after EVERY purchase.
   if(e.title==='THE WALKING PEDDLER'&&cmd!=='back away'){
+    // Some older graphical menus still dispatch TRADE for Browse Wares.
+    // Map it to Pete's real submenu before validating encounter choices.
+    if(cmd==='trade')cmd='browse wares';
     const selected=choiceKey(cmd,e);
     if(!selected){
       add("That's not an option.","system");add(encounterChoices(e),"system");return;

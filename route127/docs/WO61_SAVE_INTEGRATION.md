@@ -31,3 +31,17 @@ Baseline 03b4e07146ddc6cb3bcc40895a93a8b9e7058abd. Owner decision: start fresh f
 - Current DEVTEST/PLAYTEST cross-device integration, reload/arena regression, separate QA profile and deployment: **pending**. No PLAYTEST deployment or save mutation performed.
 
 Staged test command from `route127/backend`: `node --test --test-isolation=none tests/*.test.mjs`. Re-run result: **20 passed**. The bootstrap gate fixtures are not full browser or cross-device acceptance.
+
+## Private DEVTEST Cloudflare bundle
+
+The existing R14 Worker requires tester authentication for both assets and API. Its stock assets directory serves the older R13 client. From a full PR checkout, build the additive current-client bundle:
+
+```sh
+node route127/private-playtest/prepare-wo61.mjs /absolute/path/to/new-private-bundle
+```
+
+The generated configuration still targets `route127-r14-private-playtest` and binds `API` to `route127-r12-dev-api`. It retains the legacy root client and packages the current DEVTEST entry with its shared runtime and assets. The gateway narrowly permits hashed inline scripts and a same-origin base on the DEVTEST entry. The stock routes keep their original policy. Deployment requires Cloudflare deploy access and a valid configured tester credential. Use the generated Wrangler config only against the private gateway, and record the previous Worker version before deploying for rollback.
+
+After deployment, visit `/route127/devtest/?cloud=1` on the private worker and authenticate at both gates. Use a fresh development account and click Start fresh. Play and save on desktop, then sign in on mobile and compare the loaded character. Verify a pending road encounter and tournament acknowledgment before enabling broader testing.
+
+Fixture evidence: bundle paths, archive/backend source exclusions, unauthenticated 401, route-specific CSP and same-origin API delegation passed. The deployed gateway returned an unauthenticated 401. Actual current-build deployment and signed-in browser acceptance are pending.

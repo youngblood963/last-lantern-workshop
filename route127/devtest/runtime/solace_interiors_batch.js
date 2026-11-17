@@ -15,7 +15,32 @@ const publishClinic=()=>DevtestMenuModel.publishLabels('solace-clinic',[
 ],'(B) BACK');
 const clinicRoot=()=>{section='clinicMain';player.flags.solaceMenu='clinic';add('LAST CHANCE CLINIC','place');return publishClinic();};
 const murphyRoot=()=>{section='murphyMain';player.flags.v49MurphyMenu='';murphyMainMenu();};
-const murphyTalk=()=>{section='murphyTalk';player.flags.solaceMenu='murphyTalk';menu('solace-murphy-talk','MURPHY — SMALL TALK',['ASK ABOUT WORK','INSPECT CORVETTE PHOTO','ASK ABOUT RELAY STATION',backLabel]);};
+const murphyBeltReady=()=>player.flags.murphyQuest==='found'&&
+ (player.pack||[]).some(i=>i.name==='Usable Serpentine Belt'&&i.type==='quest'&&i.qty>0);
+const murphyTalk=()=>{section='murphyTalk';player.flags.solaceMenu='murphyTalk';menu('solace-murphy-talk','MURPHY — SMALL TALK',[
+ ...(murphyBeltReady()?['RETURN SERPENTINE BELT']:[]),
+ 'ASK ABOUT WORK','INSPECT CORVETTE PHOTO','ASK ABOUT RELAY STATION',backLabel]);};
+function murphyReturnBelt(){
+ if(!murphyBeltReady()){
+  add('MURPHY > No belt to turn in yet.','system');
+  return murphyTalk();
+ }
+ // Remove first, then mark the quest done. A repeat visit cannot pay twice.
+ if(!removeItem('Usable Serpentine Belt')){
+  add('MURPHY > Could not take the belt. Keep it safe.','system');
+  return murphyTalk();
+ }
+ player.flags.murphyQuest='done';
+ add('Murphy bends the belt, checks the ribs, then actually smiles.');
+ add("MURPHY > That's one good belt. Knew there had to be one left out there.",'bright');
+ add('QUEST COMPLETE — ONE GOOD BELT','place');
+ gainXp(120);gainBolts(35);
+ if(!hasItem('Reinforced Work Vest')&&player.armor!=='Reinforced Work Vest')
+  addPack('Reinforced Work Vest','armor');
+ updateHud();
+ if(typeof v49Autosave==='function')v49Autosave();
+ return murphyTalk();
+}
 const johnnyTalk=()=>{section='johnnyTalk';npcTalk('johnny');};
 const clinicTalk=()=>{section='clinicTalk';npcTalk('wayne');};
 const amiiTalk=()=>{section='amiiTalk';npcTalk('amii');};
@@ -222,6 +247,7 @@ handleCommandCore=async function(raw){
      if(stage==='r11Craft')return previousCore.apply(this,arguments);
      if(section==='murphyMain')return previousCore.apply(this,arguments);
    }
+   if(cmd==='return serpentine belt')return murphyReturnBelt();
    if(cmd==='crafting recipes'){section='murphyRecipes';return shopList();}
    if(cmd==='crafting'){section='murphyCraft';return r11CraftMenu('murphy');}
    if(cmd==='small talk'||cmd==='small talk murphy'||cmd==='talk'){return murphyTalk();}

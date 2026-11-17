@@ -23,7 +23,7 @@ const scenes={
  'SOMETHING IN THE DRAIN':()=>file('Something in the Drain - Grate and Claw.png'),
  'THE WAX MUSEUM':()=>file('The Curator.png'),
  'THE CURATOR':()=>file('The Curator.png'),
- 'THE WRECKERS':()=>[file('The Wreckers - Pipe.png'),file('The Wreckers - Chain.png')],
+ 'THE WRECKERS':()=>[file('Lone Scavenger - Friendly Scrapper.png'),file('The Wreckers - Chain.png')],
  // The arrow-choice scene is a mystery: reveal these ambushers only after FOLLOW RED ARROW starts combat.
  'ARROW AMBUSH':()=>[file('Painted Arrows - Club Scavenger.png'),file('Painted Arrows - Knife Scavenger.png')],
  'HIGHWAY ROBBERS':()=>[file('Tire Iron Robber.png'),file('Spear Robber.png')],

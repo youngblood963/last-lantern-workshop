@@ -1,4 +1,4 @@
-/* DEVTEST ONLY — exclude Maintenance Box and Fighting Ring on Causeway.
+/* DEVTEST ONLY — exclude Maintenance Box and both arenas on Causeway.
  * CAUSEWAY is a scenic overlay on the coastal encounter pool. Exclude
  * only these encounters at selection time; preserve their canonical identities,
  * mechanics, art, and eligibility everywhere else. Existing pending
@@ -10,7 +10,7 @@
    ||typeof r10Candidates!=='function'
    ||typeof r10Pool!=='function'
    ||typeof route127CurrentRegion!=='function')return;
- const excluded=new Set(['MAINTENANCE BOX','THE FIGHTING RING']);
+ const excluded=new Set(['MAINTENANCE BOX','THE FIGHTING RING','THE FORGOTTEN ARENA']);
  const previous=r10Candidates;
  r10Candidates=function(legacyPool,kind){
   const candidates=previous.apply(this,arguments);

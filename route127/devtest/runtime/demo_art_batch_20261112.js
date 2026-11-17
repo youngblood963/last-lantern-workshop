@@ -92,6 +92,14 @@
  .gfx-art.r127-demo-art[data-demo-layers="regional"]>.gfx-image:not(.r127-layout-unit){
   transform:scale(.95);transform-origin:center center;
  }
+ /* The Road Enforcer is a transparent full-figure cutout, not a full-bleed scene.
+    Scale the actual image within the artwork viewport so the head and feet remain visible. */
+ .gfx-frame .gfx-art.r127-demo-art[data-demo-id="road-enforcer"]>.gfx-image{
+  display:block!important;position:relative!important;
+  width:76%!important;height:88%!important;max-width:76%!important;max-height:88%!important;
+  margin:3% auto 0!important;object-fit:contain!important;object-position:center center!important;
+  transform:none!important;top:auto!important;left:auto!important;right:auto!important;
+ }
  .gfx-art.r127-demo-art>.gfx-art-caption{position:relative;z-index:9}
  .gfx-art.r127-demo-art[data-demo-period="dawn"]>.gfx-image,
  .gfx-art.r127-demo-art[data-demo-period="dawn"]>.r127-demo-road{filter:brightness(.92) saturate(.91) sepia(.13)}

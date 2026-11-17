@@ -15,7 +15,7 @@
   {id:'wayne',name:'Wayne',place:'Solace — Clinic',item:'Sealed Letter for Wayne'},
   {id:'amii',name:'Amii',place:'Solace — Bank',item:'Sealed Letter for Amii'},
   {id:'mara',name:'Mara',place:'Solace — Armory',item:'Sealed Letter for Mara'},
-  {id:'docks',name:'Seaport Dockmaster',place:'Seaport — Docks',item:'Sealed Parcel for Seaport Docks'},
+  {id:'docks',name:'Hollis Reed',place:'Seaport — Harbor Docks',item:'Sealed Parcel for Seaport Docks'},
   {id:'kaiden',name:'Kaiden',place:'Seaport — Patrol',item:'Sealed Letter for Kaiden'},
   {id:'mia',name:'Mia',place:'Seaport — Rusty Anchor',item:'Sealed Letter for Mia'},
   {id:'nessa',name:'Nessa',place:'Seaport — Pet Vendor',item:'Sealed Letter for Nessa'},
@@ -27,8 +27,15 @@
  const NEW_JOB='ACCEPT NEXT DELIVERY';
  const unlocked=()=>player.flags.r18Courier?.phase==='service';
  const freed=()=>player.flags.seaport55?.freed===true;
- const available=x=>(!['docks','kaiden','mia','nessa','red'].includes(x.id)||freed())&&
-  (x.id!=='red'||!player.flags.r18Red?.dead);
+ // Do not assign mail to a recipient in a settlement or storyline the player
+ // cannot yet access. Saved delivery IDs and old quest item names stay intact.
+ const available=x=>{
+  if(['docks','kaiden','mia','nessa','red'].includes(x.id)&&!freed())return false;
+  if(x.id==='red'&&player.flags.r18Red?.dead)return false;
+  if(x.id==='forge'&&!(player.flags.devForgeTalked||player.flags.r5ForgeBriefed||
+      player.flags.v49FactoryMet||player.flags.relayQuest==='complete'))return false;
+  return true;
+ };
  // Three non-selectable destinations are generated once and stored with the save.
  // Existing jobs and today's issued count survive migration from the old menu.
  const daily=()=>{
@@ -252,6 +259,7 @@
  // Register the permanent Seaport residents as named blue NPCs, not wanderers.
  if(typeof RouteIdentity!=='undefined'&&RouteIdentity.npc){
   RouteIdentity.npc.Caleb='Caleb “Dockhand” Reed';
+  RouteIdentity.npc['Hollis Reed']='Hollis Reed';
   RouteIdentity.npc.Red='Elias “Red” Harper';
  }
  globalThis.Route127PostOfficeRoutes=Object.freeze({

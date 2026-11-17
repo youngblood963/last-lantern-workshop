@@ -41,7 +41,9 @@ async function scene({food = false, persisted = false, title = 'ROACH NEST'} = {
   return {run,flush,ids,click};
 }
 
-(async()=>{
+module.exports=scene;
+
+if(require.main===module)(async()=>{
   const fresh=await scene({food:true});
   await fresh.click('lure them away');
   assert.equal(fresh.run('stage'),'lanternRoad');

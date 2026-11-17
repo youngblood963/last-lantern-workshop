@@ -69,6 +69,7 @@ function draw(){
 function update(){
  if(!GraphicalUI.active())return;
  if(notice){if(turnSignature()!==noticeTurn){dismiss();}else{draw();return;}}
+ if(globalThis.Route127ScenarioResults?.ownsCombat()){previousCombat=false;dismiss();return;}
  if(combatState){previousCombat=true;dismiss();return;}
  // A new movement/game turn ends the reward display automatically. This
  // comparison is made against the turn count when the result was displayed,

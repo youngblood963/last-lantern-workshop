@@ -763,6 +763,17 @@ globalThis.Route127PublishedCombatLayouts={
         "flip": false
       }
     },
+    "east:11/approach/desktop": {
+      "background:the_scrap_duel.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 0.76,
+        "z": 1,
+        "flip": false
+      }
+    },
     "east:11/combat/desktop": {
       "background:the_scrap_duel.png": {
         "x": 50,

@@ -1,7 +1,7 @@
 {
   "environment": "DEVTEST",
   "source": "route127/devtest/index.html",
-  "sourceSHA256": "6f04b79bf7aa590d33acfeafd0ce526f8c3f7b7961b913e7f54b770c47bc2f3c",
+  "sourceSHA256": "aea14d8c9848ea74a47096db28629425d9db45465486c4ed537f566fb6b32eb5",
   "base": "../playtest/",
   "externalCount": 165,
   "inlineCount": 9,
@@ -882,9 +882,9 @@
     },
     {
       "phase": "overlay",
-      "src": "../devtest/runtime/owner_scenario_batch_20261112.js?v=wo58-shared-loader",
+      "src": "../devtest/runtime/owner_scenario_batch_20261112.js?v=wo63",
       "path": "route127/devtest/runtime/owner_scenario_batch_20261112.js",
-      "query": "?v=wo58-shared-loader"
+      "query": "?v=wo63"
     },
     {
       "phase": "overlay",
@@ -912,9 +912,9 @@
     },
     {
       "phase": "overlay",
-      "src": "../devtest/runtime/demo_art_batch_20261112.js?v=wo58-shared-loader",
+      "src": "../devtest/runtime/demo_art_batch_20261112.js?v=wo63",
       "path": "route127/devtest/runtime/demo_art_batch_20261112.js",
-      "query": "?v=wo58-shared-loader"
+      "query": "?v=wo63"
     },
     {
       "phase": "overlay",
@@ -1028,9 +1028,9 @@
     },
     {
       "phase": "overlay",
-      "src": "../runtime/cloud-save-bootstrap.js?v=wo62",
+      "src": "../runtime/cloud-save-bootstrap.js?v=wo63",
       "path": "route127/runtime/cloud-save-bootstrap.js",
-      "query": "?v=wo62"
+      "query": "?v=wo63"
     }
   ]
 }

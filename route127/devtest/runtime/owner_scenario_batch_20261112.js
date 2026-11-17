@@ -19,8 +19,7 @@
   'TOMMY BRIGGS — POSTAL ENCOUNTER':'tommy_briggs_roadside.png',
   'THE BLADE CART':'runaway_blade_cart.gif',
   'THE DITCH BACKPACK':'abandoned_backpack.png',
-  'TORN BACKPACK':'abandoned_backpack.png',
-  'OVERTURNED MAINTENANCE CART':'overturned_cart_battery.png'
+  'TORN BACKPACK':'abandoned_backpack.png'
  });
  const previousModel=GraphicalUI.model;
  GraphicalUI.model=function(...args){

@@ -55,21 +55,55 @@
  <p id="cloud-status" role="status">Checking session…</p>`;
   document.body.prepend(bar);
  }else document.body.append(loginTemplate.content.cloneNode(true));
- const el=id=>document.getElementById(id),status=t=>{el('cloud-status').textContent=t;};
  const loginDialog=loginTemplate&&document.querySelector('.cloud-login');
- const dock=loginTemplate&&document.querySelector('.cloud-controls');
- if(loginDialog)loginDialog.addEventListener('cancel',event=>event.preventDefault());
+ const accountPanel=loginTemplate&&document.querySelector('.cloud-account');
+ const notice=loginTemplate&&document.querySelector('.cloud-notice');
+ // Options rebuilds its body when opened. Keep references even while the account section is detached.
+ const controls=loginTemplate&&Object.fromEntries(
+  [...loginDialog.querySelectorAll('[id]'),...accountPanel.querySelectorAll('[id]')].map(node=>[node.id,node]));
+ const el=id=>controls?.[id]||document.getElementById(id);
+ let noticeTimer;
+ function status(message, duration=6500){
+  el('cloud-status').textContent=message;
+  if(!notice||loginDialog.open)return;
+  clearTimeout(noticeTimer);
+  notice.textContent=duration?message:'';
+  if(duration)noticeTimer=setTimeout(()=>{notice.textContent='';},duration);
+ }
+ if(loginDialog){
+  loginDialog.addEventListener('cancel',event=>event.preventDefault());
+  const options=TravelerPanels.options;
+  TravelerPanels.options=function(...args){
+   const result=options.apply(this,args);
+   if(!account||loginDialog.open)return result;
+   const panel=this.body?.querySelector('.traveler-detail');
+   if(!panel)return result;
+   if(this.which==='options'){
+    accountPanel.hidden=false;
+    const close=[...panel.children].find(node=>node.matches('button')&&node.textContent==='Close');
+    panel.insertBefore(accountPanel,close||null);
+   }else if(this.which==='menu'){
+    panel.append(this.button('Options',()=>{
+     this.close();
+     this.open('options');
+    }));
+   }
+   return result;
+  };
+ }
  function showLogin(show){
   if(!loginDialog)return;
   const feedback=el('cloud-feedback');
   if(show){
+   clearTimeout(noticeTimer);
+   notice.textContent='';
+   if(TravelerPanels.which==='options')TravelerPanels.close();
    loginDialog.querySelector('.cloud-login-feedback').append(feedback);
-   dock.hidden=true;
+   accountPanel.hidden=true;
    if(!loginDialog.open)loginDialog.showModal();
   }else{
-   dock.append(feedback);
+   accountPanel.append(feedback);
    if(loginDialog.open)loginDialog.close();
-   dock.hidden=false;
   }
  }
  showLogin(true);
@@ -117,7 +151,7 @@
   storage.setItem(KEY+account+':base',String(revision));
   el('cloud-server').hidden=true;el('cloud-retry').hidden=true;
   showLogin(false);
-  status(loginTemplate?'Cloud character loaded.':'Cloud character loaded. Automatic development backups enabled. Revision '+revision+'.');
+  status(loginTemplate?'Cloud character loaded.':'Cloud character loaded. Automatic development backups enabled. Revision '+revision+'.',0);
  }
  async function flush(){
   if(!ready||busy||blocked||!character)return;
@@ -132,12 +166,12 @@
    const r=await api('save',pending);revision=r.revision;
    last=JSON.stringify({...pending.snapshot,savedAt:''});storage.removeItem(pendingKey());storage.setItem(KEY+account+':base',String(revision));
    if(JSON.stringify({...capture(),savedAt:''})===last)storage.removeItem(latestKey());else schedule();
-   el('cloud-retry').hidden=true;status(loginTemplate?'Cloud saved ✓':'Cloud backup saved. Revision '+revision+'.');
+   el('cloud-retry').hidden=true;status(loginTemplate?'Cloud Saved ✓':'Cloud backup saved. Revision '+revision+'.',2800);
   }catch(e){
-   if(e.status===409){el('cloud-server').hidden=false;blocked=true;ready=false;status(loginTemplate?'Newer cloud save found. Progress kept on this device.':'Cloud save conflict. Local progress retained. Export or keep this browser’s local save, then load cloud to continue.');}
+   if(e.status===409){el('cloud-server').hidden=false;blocked=true;ready=false;status(loginTemplate?'Newer cloud save found. Recovery is in Options → Account.':'Cloud save conflict. Local progress retained. Export or keep this browser’s local save, then load cloud to continue.');}
    else if(e.status===403){el('cloud-auth').hidden=false;blocked=true;ready=false;status('Signed-in account changed. Local progress retained; sign in to the correct account and load cloud.');}
    else if(e.status===401){ready=false;el('cloud-auth').hidden=false;status('Session expired. Local progress and pending backup retained; sign in again.');}
-   else status(loginTemplate?'Cloud save unavailable. Progress kept on this device.':'Cloud unavailable: '+e.message+' Local saves retained; retry will use the same request ID.');
+   else status(loginTemplate?'Cloud save unavailable. Retry in Options → Account.':'Cloud unavailable: '+e.message+' Local saves retained; retry will use the same request ID.');
    if(loginTemplate&&[401,403].includes(e.status)){
     el('cloud-server').hidden=true;
     el('cloud-out').hidden=true;
@@ -232,7 +266,9 @@
    const backup={pending:storage.getItem(pendingKey()),latest:storage.getItem(latestKey()),current:saveSnapshot()};
    storage.setItem(pendingKey()+':conflict:'+Date.now(),JSON.stringify(backup));
    // Fetch and validate/load before clearing active recovery records.
-   restore(await api('save'));storage.removeItem(pendingKey());storage.removeItem(latestKey());
+   const cloud=await api('save');
+   if(loginTemplate&&TravelerPanels.which==='options')TravelerPanels.close();
+   restore(cloud);storage.removeItem(pendingKey());storage.removeItem(latestKey());
   }catch(e){ready=false;blocked=true;status('Could not load server version: '+e.message+'. Recovery retained.');}
   finally{busy=false;loading=false;}
  });

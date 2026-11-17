@@ -63,7 +63,7 @@
 .cloud-login-feedback { margin-top: .75rem; }
 .cloud-login-feedback #cloud-status { width: 100%; }
 
-.cloud-login button, .cloud-controls button {
+.cloud-login button {
   padding: .35rem .65rem;
   color: inherit;
   font: inherit;
@@ -75,9 +75,10 @@
 
 .cloud-login button { min-height: 44px; }
 .cloud-login button:disabled { opacity: .65; cursor: wait; }
-.cloud-login :focus-visible, .cloud-controls :focus-visible { outline: 2px solid #ffc778; outline-offset: 2px; }
+.cloud-login :focus-visible { outline: 2px solid #ffc778; outline-offset: 2px; }
 
-.cloud-controls {
+.cloud-notice {
+  pointer-events: none;
   position: fixed;
   z-index: 30;
   right: max(.5rem, env(safe-area-inset-right));
@@ -91,3 +92,12 @@
   border-radius: 3px;
   font-size: .75rem;
 }
+
+.cloud-notice:empty { display: none; }
+
+.cloud-account {
+  padding-top: .65rem;
+  border-top: 1px solid #624a34;
+}
+
+.cloud-account h2 { margin: 0 0 .45rem; }

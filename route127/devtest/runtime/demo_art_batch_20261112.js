@@ -33,6 +33,7 @@
   // second uses sky and dirt foreground. Reapers art lives in enemies,
   // and Old Pete's uploaded filename is normalized to old_pete.png.
   const newlyApproved={
+   'OVERTURNED MAINTENANCE CART':{id:'maintenance-cart',folder:'scenarios',file:'overturned_cart_battery.png',layers:'regional'},
    'THE KNIFE WIND':{id:'the-road-reapers',folder:'enemies',file:'the_road_reapers.png',layers:'regional'},
    'THE LIMPING HOUND':{id:'the-limping-hound',folder:'scenarios',file:'the_limping_hound.png',layers:'regional'},
    'THE WALKING PEDDLER':{id:'old-pete',folder:'scenarios',file:'old_pete.png',layers:'regional'},
@@ -83,6 +84,14 @@
  .gfx-art.r127-demo-art>.r127-demo-sky{z-index:0;background-size:cover;background-position:center}
  .gfx-art.r127-demo-art>.r127-demo-road{z-index:1;object-fit:fill}
  .gfx-art.r127-demo-art>.gfx-image{position:relative;z-index:2;width:100%;height:100%;object-fit:contain;object-position:center;background:transparent!important}
+ /* Transparent regional foregrounds must fit inside their full image box.
+    Combat Visual Testing can still position and scale that box. */
+ .gfx-frame .gfx-art.r127-demo-art[data-demo-layers="regional"]>.gfx-image{
+  object-fit:contain;object-position:center center;
+ }
+ .gfx-art.r127-demo-art[data-demo-layers="regional"]>.gfx-image:not(.r127-layout-unit){
+  transform:scale(.95);transform-origin:center center;
+ }
  .gfx-art.r127-demo-art>.gfx-art-caption{position:relative;z-index:9}
  .gfx-art.r127-demo-art[data-demo-period="dawn"]>.gfx-image,
  .gfx-art.r127-demo-art[data-demo-period="dawn"]>.r127-demo-road{filter:brightness(.92) saturate(.91) sepia(.13)}
@@ -95,7 +104,6 @@
  .gfx-art.r127-demo-art[data-demo-id="solace-guard"]>.gfx-image{object-fit:cover}
  /* Phone-only: give layered encounter artwork breathing room. Desktop remains unchanged. */
  @media (max-width:760px) {
-  .gfx-art.r127-demo-art[data-demo-layers="regional"]>.gfx-image,
   .gfx-art.r127-demo-art[data-demo-layers="road"]>.gfx-image,
   .gfx-art.r127-demo-art[data-demo-layers="sky"]>.gfx-image{
     object-fit:contain!important;
@@ -165,5 +173,5 @@
   }catch(err){console.warn('DEVTEST demo encounter artwork:',err);}
   return result;
  };
- globalThis.Route127DemoArtBatch=Object.freeze({ids:['ridgeline','shed','solace-guard','road-enforcer','armory','garden','corvette','shattered-glass','station-nine-radio','crazy-steve','the-yardman','the-road-reapers','the-limping-hound','old-pete','delivery-truck','traveler-vale','sprained-runner','last-patrol']});
+ globalThis.Route127DemoArtBatch=Object.freeze({ids:['ridgeline','shed','solace-guard','road-enforcer','armory','garden','corvette','shattered-glass','station-nine-radio','crazy-steve','the-yardman','the-road-reapers','maintenance-cart','the-limping-hound','old-pete','delivery-truck','traveler-vale','sprained-runner','last-patrol']});
 })();

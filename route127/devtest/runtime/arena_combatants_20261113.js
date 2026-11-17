@@ -73,8 +73,8 @@
    const e=this.element;if(!e?.figure)return result;
    const state=current(),shown=!!state&&!e.frame.hidden&&this.preference()==='graphics';
    e.figure.classList.toggle('r127-arena-stage',shown);
-   const period=typeof Route127RegionalSky?.phase==='function'
-    ?Route127RegionalSky.phase(player?.flags?.worldHour):'day';
+   const hour=((Number(player?.flags?.worldHour??8)%24)+24)%24;
+   const period=hour>=20||hour<5?'night':hour>=18?'dusk':hour>=7?'day':'dawn';
    e.figure.classList.toggle('r127-arena-night',shown&&period==='night');
    let layer=e.figure.querySelector(':scope > .r127-arena-fighter');
    const fighting=shown&&!!state.combat;

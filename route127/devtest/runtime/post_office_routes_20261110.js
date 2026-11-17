@@ -24,16 +24,34 @@
  ]);
  const map=Object.fromEntries(ROUTES.map(x=>[x.id,x]));
  const POSTAL_LIMIT=3;
+ const NEW_JOB='ACCEPT NEXT DELIVERY';
  const unlocked=()=>player.flags.r18Courier?.phase==='service';
  const freed=()=>player.flags.seaport55?.freed===true;
  const available=x=>(!['docks','kaiden','mia','nessa','red'].includes(x.id)||freed())&&
   (x.id!=='red'||!player.flags.r18Red?.dead);
+ // Three non-selectable destinations are generated once and stored with the save.
+ // Existing jobs and today's issued count survive migration from the old menu.
  const daily=()=>{
-  const q=r18CourierState(),now=Number(day)||1;
-  if(!q.route127Daily||q.route127Daily.day!==now){
+  const q=r18CourierState(),now=Math.max(1,Number(day)||1);
+  if(!q.route127Daily||q.route127Daily.day!==now)
    q.route127Daily={day:now,issued:0};
+  const d=q.route127Daily;
+  if(!Array.isArray(d.routes)||d.routes.length!==POSTAL_LIMIT){
+   const candidates=ROUTES.filter(available).map(x=>x.id);
+   // Seed a fresh set on first visit and persist: reopening the office never rerolls it.
+   for(let i=candidates.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [candidates[i],candidates[j]]=[candidates[j],candidates[i]];
+   }
+   const kept=q.job?.destination;
+   const chosen=(kept&&d.issued>0&&map[kept]?[kept]:[]);
+   d.routes=[...chosen,...candidates.filter(id=>!chosen.includes(id))].slice(0,POSTAL_LIMIT);
+   if(d.routes.length<POSTAL_LIMIT){
+    add('The post office needs three eligible recipients to issue its full route sheet.','system');
+   }
+   if(typeof v49Autosave==='function')v49Autosave();
   }
-  return q.route127Daily;
+  return d;
  };
  const currentJob=()=>unlocked()?r18CourierState().job:null;
  const letter=x=>player.pack.some(i=>i.type==='quest'&&i.name===x.item&&i.qty>0);
@@ -81,8 +99,11 @@
   return true;
  };
  function accept(id){
-  const x=map[id],q=r18CourierState(),d=daily();
-  if(!unlocked()||!x||!available(x)){add('This route is not available.','system');return;}
+  const q=r18CourierState(),d=daily();
+  const assigned=d.routes?.[d.issued];
+  const x=map[assigned];
+  if(id!==assigned){add('Miles assigns the delivery destination. You cannot choose a route.','system');return;}
+  if(!unlocked()||!x||!available(x)){add('No eligible delivery assignment is available.','system');return;}
   if(q.job){add('Finish your current delivery before accepting another.','system');return;}
   if(d.issued>=POSTAL_LIMIT){
    add('All three deliveries for today have been issued. New routes are available tomorrow.','system');return;
@@ -131,7 +152,14 @@
    add('No new routes until tomorrow.','system');
    options=[];
   }else{
-   options=ROUTES.filter(available).map(x=>'ACCEPT '+x.name.toUpperCase()+' DELIVERY');
+   const assigned=map[d.routes?.[d.issued]];
+   if(assigned&&available(assigned)){
+    add('NEXT ASSIGNMENT — '+assigned.name.toUpperCase()+' ('+assigned.place+').','bright');
+    options=[NEW_JOB];
+   }else{
+    add('Miles has no available route for this slot.','system');
+    options=[];
+   }
   }
   v53Choices([...options,'ASK ABOUT DELIVERIES','RETURN TO TOWN']);
  };
@@ -141,7 +169,9 @@
   cmd=String(cmd||'').trim().toLowerCase();
   const target=ROUTES.find(x=>cmd==='accept '+x.name.toLowerCase()+' delivery'||
     cmd==='accept '+x.id+' delivery'||x.id==='docks'&&cmd==='accept seaport delivery');
-  if(target){accept(target.id);return r18CourierMenu();}
+  if(cmd===NEW_JOB.toLowerCase()){accept(daily().routes?.[daily().issued]);return r18CourierMenu();}
+  // Old recipient-specific commands are no longer valid, including manual text input.
+  if(target){add('MILES > I issue the route. You do not choose the destination.','system');return r18CourierMenu();}
   if(cmd==='claim delivery reward'){claim();return r18CourierMenu();}
   if(cmd==='ask about deliveries'){
    const d=daily();
@@ -195,7 +225,7 @@
   }
   if(stage==='mercy'&&mercyLocation==='postOffice'&&unlocked()&&
     (/^accept .* delivery$/.test(cmd)||[
-     'claim delivery reward','ask about deliveries','open sealed parcel',
+     'accept next delivery','claim delivery reward','ask about deliveries','open sealed parcel',
      'confirm parcel tampering','cancel parcel tampering'
     ].includes(cmd))){
    return r18CourierCommand(cmd);

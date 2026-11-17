@@ -3206,9 +3206,14 @@ RoadScenarioRegistry.installRegions=function(){
 // Legacy pool keys early/east/coast remain untouched; these are geographical codes.
 function r10Geography(){
  const g=typeof lanternState==='function'?lanternState():null,e=typeof lanternEdge==='function'?lanternEdge():null;
- // CAUSEWAY is a separate encounter eligibility zone on the bridge, never a
- // member of the seven WO6 region tags or the normal SEAPORT coast selection.
- if(g?.currentEdgeId&&typeof route127DrawnBackground==='function'&&route127DrawnBackground(g)==='CAUSEWAY')return 'CAUSEWAY';
+ // Select from the ACTUAL region at this movement step, not the edge's
+ // primaryRegion (which may differ across owner-drawn boundary transitions).
+ // CAUSEWAY remains its own eighth eligibility zone, separate from SEAPORT.
+ // This changes only fresh random draws; pending/saved encounter IDs are kept.
+ if(g?.currentEdgeId&&typeof route127DrawnBackground==='function'){
+  const drawn=route127DrawnBackground(g);
+  if(drawn==='CAUSEWAY'||spec.regions.includes(drawn))return drawn;
+ }
  if(e?.primaryRegion)return e.primaryRegion;
  // Old pre-Lantern saves are projected by their existing main-road context only.
  // No invented region boundaries: these exact canonical routes have approved tags.

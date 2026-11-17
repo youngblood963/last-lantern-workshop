@@ -474,17 +474,17 @@ const beginnerAdditions=[
     if(f.r18PeteVisit!==visit){f.r18PeteVisit=visit;f.r18PeteMenu='main';}
     const d=f.r18PeteRepaired?1:0,stock=r18PeteStock();
     switch(f.r18PeteMenu){
-      case 'wares':return 'BUY FOOD   BUY SUPPLIES   BUY EQUIPMENT   SELL MATERIALS   BACK TO PETE';
+      case 'wares':return 'BUY FOOD   BUY SUPPLIES   BUY EQUIPMENT'+(f.r18PeteCompassSold?'':'   BUY COMPASS FOR 45 BOLTS')+'   SELL MATERIALS   BACK TO PETE';
       case 'food':return `BUY APPLE FOR ${4-d} BOLTS   BUY CARROT FOR ${4-d} BOLTS   BUY RATION FOR ${6-d} BOLTS${stock.potato?`   BUY POTATO FOR ${4-d} BOLTS`:""}   BACK TO WARES`;
       case 'supplies':return 'BUY BANDAGE FOR 8 BOLTS   BUY WIRE FOR 5 BOLTS   BUY SCRAP FOR 5 BOLTS   BACK TO WARES';
       case 'equipment':return (stock.equipment&&!stock.equipment.sold?`BUY ${stock.equipment.name.toUpperCase()} FOR ${stock.equipment.price} BOLTS   `:'')+'BACK TO WARES';
       case 'sell':return 'SELL ONE SCRAP FOR 3 BOLTS   SELL ONE WIRE FOR 2 BOLTS   BACK TO WARES';
-      default:return 'BROWSE WARES'+(f.r18PeteCompassSold?'':'   BUY COMPASS FOR 45 BOLTS')+'   REPAIR BICYCLE   TALK TO PETE   ASK FOR RUMORS   BACK AWAY';
+      default:return 'BROWSE WARES   REPAIR BICYCLE   TALK TO PETE   ASK FOR RUMORS   BACK AWAY';
     }
   },resolve(cmd){
     const f=player.flags,discount=f.r18PeteRepaired?1:0;f.r18PeteMet=true;
     // Menu navigation is free and remains within this road encounter.
-    const submenu={'browse wares':'wares','buy food':'food','buy supplies':'supplies',
+    const submenu={'browse wares':'wares','trade':'wares','buy food':'food','buy supplies':'supplies',
       'buy equipment':'equipment','sell materials':'sell','back to wares':'wares','back to pete':'main'};
     if(Object.prototype.hasOwnProperty.call(submenu,cmd)){
       f.r18PeteMenu=submenu[cmd];return true;

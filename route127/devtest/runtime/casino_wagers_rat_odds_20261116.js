@@ -22,7 +22,8 @@ r6Wager=function(bet){
 // The same six-button menu in either non-slot casino.
 const oldMenu=casinoWagerMenu;
 casinoWagerMenu=function(){
- const r=stage==='r6Casino'?r6Round():casinoRound();
+ const spectator=stage==='r127ArenaLobby'&&globalThis.Route127ArenaSpectator?.wagerOpen?.();
+ const r=spectator?{game:'arena-exhibition'}:stage==='r6Casino'?r6Round():casinoRound();
  if(!r||slots(r))return oldMenu.apply(this,arguments);
  outputQueue=outputQueue.then(()=>{
   currentHotkeys={c:'custom wager',b:'back'};

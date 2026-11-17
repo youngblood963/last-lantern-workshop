@@ -227,12 +227,10 @@
   ['r18DepotFight','County Unit 07','County Depot'],
   ['stationNineSecurity','Station Nine Security Unit','Station Nine garage'],
   ['r18RedFight','Red’s Fight','Rusty Anchor','SEAPORT'],
-  ['seaportRoadFight','Coast Road Scavenger','Seaport Road','SEAPORT'],
-  ['seaportRoadFight','Harbor Security Drone','Seaport Road','SEAPORT']
  ];
  const scriptIds=new Map();
  for(const [source,name,site,region] of scripted){
-  const key=source==='seaportRoadFight'?source+':'+normalize(name):source;
+  const key=source;
   const id='scripted:'+key.toLowerCase().replace(/[^a-z0-9:]+/g,'-');
   scriptIds.set(key,id);
   rows.set(id,{id,name,title:normalize(name),classification:'FIXED',site,
@@ -243,13 +241,14 @@
  // cinematic art AFTER that loop so it is not overwritten with an empty variant.
  // Red fights in the same fully illustrated Rusty Anchor portrait used in dialogue.
  // Overlay his live HP in gameplay; no separate combatant image required.
- // Reuse the existing Highway Hunters rifleman for the fixed, one-time
- // Coast Road Scavenger. One sprite, not a new asset or enemy definition.
- const coastRoadScavenger=rows.get('scripted:seaportroadfight:coast-road-scavenger');
- if(coastRoadScavenger)coastRoadScavenger.variants=[
-  {units:[enemy('highway_hunter_rifleman.png')],phase:'combat',
-   variant:'Highway Hunter rifleman — reused character artwork'}
- ];
+ // Coast Road Scavenger is now a random SEAPORT encounter.
+ // Keep its previously selected Highway Hunters rifleman artwork.
+ for(const row of rows.values()){
+  if(row.title==='COAST ROAD SCAVENGER'&&row.classification==='REGIONAL'){
+   row.variants=[{units:[enemy('highway_hunter_rifleman.png')],phase:'combat',
+    variant:'Highway Hunter rifleman — reused character artwork'}];
+  }
+ }
  const redRow=rows.get('scripted:r18redfight');
  if(redRow)redRow.variants=[{units:[],background:locationArt('rusty_anchor_red.png'),
    phase:'both',variant:'Red portrait — live HP meter in combat'}];
@@ -371,7 +370,7 @@
    return slot<0?null:{id:'factory:floor:'+floor+':'+slot,phase:'combat'};
   }
   if(c?.source==='houseBoss')return {id:'house:squatter',phase:'combat'};
-  const scriptedId=scriptIds.get(c?.source==='seaportRoadFight'?c.source+':'+normalize(c.name):c?.source);
+  const scriptedId=scriptIds.get(c?.source);
   if(scriptedId)return {id:scriptedId,phase:'combat'};
   if(c?.source==='seaportLiberation')return {id:'seaport:liberation',phase:'combat'};
   if(stage==='wo6FreshMart')return {id:'east:67',phase:'approach'};

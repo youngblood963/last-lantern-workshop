@@ -6,6 +6,7 @@
  const roadCombat=new Set(['encounter','roadWanderer','jenBoss','terribleBilly','seaportRoadFight']);
  const encounterStages=new Set(['encounter','wandererRoad']);
  const questNotice=/^(?:NEW (?:MAIN )?QUEST|QUEST (?:UPDATED|COMPLETED?|ADDED)|MAIN QUEST COMPLETE|BOUNTY PROOF ACQUIRED)\b/i;
+ const discovery=/^(?:STATION NINE DISCOVERED|EVIDENCE LOGGED|LOCATION DISCOVERED)\b/i;
  const retreat=/^(?:back(?: away| off)?|walk away|withdraw|retreat|flee|run)$/i;
  const actionWord=/^(?:search|scavenge|salvage)\b/i;
  const combatStart=new WeakMap();
@@ -69,9 +70,22 @@
   function dismiss(){
    if(dialog!==node)return;
    dialog=null;
+   window.removeEventListener('resize',position);
+   window.removeEventListener('scroll',position,true);
    node.remove();
    if(GraphicalUI.active())GraphicalUI.element?.choices?.querySelector('button')?.focus();
    else input.focus();
+  }
+  function position(){
+   const figure=GraphicalUI.active()?GraphicalUI.element?.figure:null;
+   const rect=figure&&!figure.hidden?figure.getBoundingClientRect():null;
+   if(!rect||rect.bottom<120||rect.top>window.innerHeight-40){
+    node.style.removeProperty('--r127-result-bottom');
+    node.style.removeProperty('--r127-result-center');
+    return;
+   }
+   node.style.setProperty('--r127-result-bottom',Math.max(12,window.innerHeight-rect.bottom+12)+'px');
+   node.style.setProperty('--r127-result-center',(rect.left+rect.width/2)+'px');
   }
   proceed.addEventListener('click',dismiss);
   node.addEventListener('cancel',event=>{event.preventDefault();dismiss();});
@@ -84,13 +98,16 @@
    throw error;
   }
   dialog=node;
-  proceed.focus();
+  position();
+  window.addEventListener('resize',position);
+  window.addEventListener('scroll',position,true);
+  proceed.focus({preventScroll:true});
  }
 
  const previousAdd=add;
  add=function(text='',cls=''){
   if(action&&typeof text==='string'){
-   if(questNotice.test(text))action.quest.add(text);
+   if(questNotice.test(text)||discovery.test(text))action.quest.add(text);
    else if(!action.completed&&text.trim()&&/^(?:|bright|danger|man|woman)$/.test(cls)&&
       !/^(?:> |[+−-]\d+ HP$|(?:TARGET|GROUP TOTAL|YOU DEAL)\b)/i.test(text)){
     action.story.push(text);
@@ -133,15 +150,17 @@
    const finishedRoad=current.completed&&!lanternState()?.pending&&
       !encounterStages.has(stage)&&!combatState;
    if(!finishedRoad&&stage!=='fallen')return;
+   const changes=describeChanges(current.before,snapshot());
+   const withdrew=retreat.test(command);
+   const meaningful=changes.length||current.quest.size||stage==='fallen'||(combat&&!withdrew);
+   // Preserve the already-resolved road destination even when no panel is needed.
+   v49Autosave();
+   if(!meaningful)return;
    const heading=stage==='fallen'?'Defeated':
-     retreat.test(command)?'Retreated':
+     withdrew?'Retreated':
      combat?'Combat victory':
      current.quest.size?'Quest updated':
      actionWord.test(command)?'Scavenging complete':'Encounter resolved';
-   const changes=describeChanges(current.before,snapshot());
-   // Keep the engine's completed destination as the save state. Reload resumes
-   // there directly, so it cannot repeat the resolution or its rewards.
-   v49Autosave();
    try{
     showResult(title,heading,[...new Set(current.story.slice(-4)),...current.quest],changes);
    }catch(error){

@@ -14,22 +14,6 @@ function r10Candidates(region,kind){
  const objects=r10Pool(region),pool=R10_POOLS[region]?.[kind]||[];
  return pool.filter(i=>{
   const e=objects[i];if(!e||r10Retired(e.title))return false;
-  // On the water-surrounded Causeway, exclude landlocked scenes only.
-  // Keep their ordinary eligibility everywhere else, including Seaport roads.
-  // Match the Causeway artwork boundary: Boulder Junction -> Seaport, steps 3–12.
-  const g=typeof lanternState==='function'?lanternState():null;
-  // Use the same authoritative background classifier as the renderer: a
-  // Causeway scene must not draw a dry-land encounter, in either direction.
-  // The edge/step fallback covers early setup before the renderer is ready.
-  const onCauseway=!!g&&(
-    (typeof route127DrawnBackground==='function'&&route127DrawnBackground(g)==='CAUSEWAY')||
-    (g.currentEdgeId==='boulder-junction--seaport'&&Number(g.stepIndex)>2&&Number(g.stepIndex)<10)
-  );
-  if(onCauseway&&
-     ['IRRADIATED ROACHES','THE FENCE ARTIST','THE FIGHTING RING','THE FORGOTTEN ARENA','RUINED SIGNAL HUT',
-      'RIDGELINE','OLD BILLBOARD','THE MASK MARKET','THE SCRAP DUEL','THE MUD CANNON',
-      'THE BRIDGE TOLL','THE PAPER STORM']
-      .includes(r10CanonicalTitle(e.title)))return false;
   if(e.title==='THE LIMPING HOUND'&&player.flags.r18HoundAdopted)return false;
   if(e.title==='THE TRAVELER'&&!storyValeRoadAvailable())return false;
   if(e.title==='THE DARK CELLAR'&&player.flags.r18CellarResolved)return false;

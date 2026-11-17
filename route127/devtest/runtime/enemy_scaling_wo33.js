@@ -36,7 +36,7 @@
    if(this.exception(s,source)||s.wo33)return s;
    const authored=this.level(s.level),region=this.region(source),tier=this.tier(s,source);
    // Scripted Wardens retain their documented +8/minimum-12 level exception.
-   const level=fixedLevel??(s.r18WardenId?authored:tier==='ordinary'?this.sample(player.level,region):this.level(Math.max(authored,this.level(player.level)+1)));
+   const level=fixedLevel??(s.r18TunnelRat?this.level(player.level):s.r18WardenId?authored:tier==='ordinary'?this.sample(player.level,region):this.level(Math.max(authored,this.level(player.level)+1)));
    const units=s.enemies?.length?s.enemies:[s],total=units.reduce((n,e)=>n+Math.max(1,Number(e.hp)||1),0);
    const identity=clamp(total/(baseHpForLevel(authored)*.30),.75,1.4);
    const regionHp={NORTH:.9,WEST:.94,CENTRAL:1,INDUSTRIAL:1.04,LOWLANDS:1.07,EAST:1.07,SEAPORT:1.10}[region]||1;
@@ -53,7 +53,7 @@
     const lo=Number(e.r18Min??s.min)||1,hi=Math.max(lo,Number(e.r18Max??s.max)||lo);
     const strength=clamp((lo+hi)/14,.65,1.35),mean=referenceArmor+baseHpForLevel(level)*rate*strength/factor;
     const spread=clamp((hi-lo)/Math.max(2,lo+hi),.12,.45);
-    return {...e,level,hp:Math.max(1,Math.round(budget*Math.max(1,Number(e.hp)||1)/total)),r18Min:Math.max(1,Math.round(mean*(1-spread))),r18Max:Math.max(1,Math.round(mean*(1+spread)))};
+    return {...e,level,hp:Math.max(1,Math.round(budget*Math.max(1,Number(e.hp)||1)/total)),r18Min:s.r18TunnelRat?lo:Math.max(1,Math.round(mean*(1-spread))),r18Max:s.r18TunnelRat?hi:Math.max(1,Math.round(mean*(1+spread)))};
    };
    const scaled=units.map(adjust),original={...s,enemies:s.enemies?.map(e=>({...e,maxHp:e.hp})),maxHp:s.hp};
    const result={...s,level,hp:scaled.reduce((n,e)=>n+e.hp,0),min:scaled[0].r18Min,max:scaled[0].r18Max,r18LevelPressure:false,

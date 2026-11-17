@@ -1,7 +1,7 @@
 {
   "environment": "DEVTEST",
   "source": "route127/devtest/index.html",
-  "sourceSHA256": "c5eb8a8080944b5c050cee3107cd9d4877843f24f2c7cdaa5a1c2d6c5245fe2e",
+  "sourceSHA256": "425939c523b6c5a610fa80f337837c020bc7dc340944e13ad206528579c7d68f",
   "base": "../playtest/",
   "externalCount": 165,
   "inlineCount": 9,
@@ -18,25 +18,25 @@
     },
     {
       "phase": "bootstrap",
-      "inlineSHA256": "ceb5198dabbae7d2bc5456d45547a9a87a457592ee48c836e13960ea822a7816"
+      "inlineSHA256": "2379c88a63f3b881e02bea5869e13c09677827138e7d32868cb8aeffce473d7a"
     },
     {
       "phase": "guarded",
-      "src": "../devtest/scenario_registry.js?v=per-step-regions-wo53-fix",
+      "src": "../devtest/scenario_registry.js?v=wo66",
       "path": "route127/devtest/scenario_registry.js",
-      "query": "?v=per-step-regions-wo53-fix"
+      "query": "?v=wo66"
     },
     {
       "phase": "guarded",
-      "src": "app.js?v=wo53-road-resume",
+      "src": "app.js?v=wo66",
       "path": "route127/playtest/app.js",
-      "query": "?v=wo53-road-resume"
+      "query": "?v=wo66"
     },
     {
       "phase": "guarded",
-      "src": "../devtest/runtime/enemy_scaling_wo33.js?v=wo33-load-refresh-20261113",
+      "src": "../devtest/runtime/enemy_scaling_wo33.js?v=wo66",
       "path": "route127/devtest/runtime/enemy_scaling_wo33.js",
-      "query": "?v=wo33-load-refresh-20261113"
+      "query": "?v=wo66"
     },
     {
       "phase": "guarded",
@@ -112,9 +112,9 @@
     },
     {
       "phase": "guarded",
-      "src": "road_balance.js?v=causeway-no-title-filter-20261117",
+      "src": "road_balance.js?v=wo66",
       "path": "route127/playtest/road_balance.js",
-      "query": "?v=causeway-no-title-filter-20261117"
+      "query": "?v=wo66"
     },
     {
       "phase": "guarded",
@@ -248,9 +248,9 @@
     },
     {
       "phase": "guarded",
-      "src": "../devtest/graphics.js?v=wo58-shared-loader",
+      "src": "../devtest/graphics.js?v=wo66",
       "path": "route127/devtest/graphics.js",
-      "query": "?v=wo58-shared-loader"
+      "query": "?v=wo66"
     },
     {
       "phase": "guarded",
@@ -702,9 +702,9 @@
     },
     {
       "phase": "overlay",
-      "src": "../devtest/runtime/roadside_art_20261110.js?v=wreckers-friendly-scrapper-20261117",
+      "src": "../devtest/runtime/roadside_art_20261110.js?v=wo66",
       "path": "route127/devtest/runtime/roadside_art_20261110.js",
-      "query": "?v=wreckers-friendly-scrapper-20261117"
+      "query": "?v=wo66"
     },
     {
       "phase": "overlay",

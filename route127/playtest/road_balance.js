@@ -45,9 +45,20 @@ function r10Category(available,rng=Math.random){
  for(const k of kinds){roll-=R10_WEIGHTS[k];if(roll<0)return k;}
  return kinds[kinds.length-1];
 }
+// The last filter covers aliases and any candidates supplied by later gameplay hooks.
+function r10SelectionCandidates(region,kind){
+ const registry=RoadScenarioRegistry,objects=r10Pool(region);
+ const geography=r10Geography(),seen=new Set();
+ return r10Candidates(region,kind).filter(i=>{
+  const encounter=objects[i],title=r10CanonicalTitle(encounter?.title);
+  if(!encounter||seen.has(title)||!registry.wo6Eligible(encounter,geography))return false;
+  seen.add(title);
+  return true;
+ });
+}
 function r10Pick(region,kind,rng=Math.random){
- const objects=r10Pool(region),candidates=r10Candidates(region,kind);
- if(typeof RoadScenarioRegistry!=='undefined'&&RoadScenarioRegistry.wo3Installed){const priority=RoadScenarioRegistry.wo3Pick(region,kind,candidates,rng);if(priority!==undefined)return priority;}
+ const objects=r10Pool(region),candidates=r10SelectionCandidates(region,kind);
+ if(typeof RoadScenarioRegistry!=='undefined'&&RoadScenarioRegistry.wo3Installed){const priority=RoadScenarioRegistry.wo3Pick(region,kind,candidates,rng);if(candidates.includes(priority))return priority;}
  const history=player.flags.r10UnifiedHistory||[];
  const fresh=candidates.filter(i=>!history.some(t=>r10CanonicalTitle(t)===r10CanonicalTitle(objects[i].title)));
  const pool=fresh.length?fresh:candidates;
@@ -66,7 +77,7 @@ function r10PrepareEncounter(){
  else player.flags.r10RecruitDrySegments=0;
  // Every ordinary road segment selects an encounter; no empty travel roll.
  const region=r10Region(),available={wanderer:eligible.length>0};
- for(const k of ['combat','exploration','salvage','environment'])available[k]=r10Candidates(region,k).length>0;
+ for(const k of ['combat','exploration','salvage','environment'])available[k]=r10SelectionCandidates(region,k).length>0;
  const kind=r10Category(available);player.flags.r10LastRoadCategory=kind;
  if(!kind){add('No eligible road encounter is available. You return to the road menu.','system');completeRoadTurn();return false;}
  if(kind==='wanderer'){
@@ -75,6 +86,11 @@ function r10PrepareEncounter(){
   return false;
  }
  const index=r10Pick(region,kind),q=r6Road();
+ if(index===null){
+  add('No eligible road encounter is available. You return to the road menu.','system');
+  completeRoadTurn();
+  return false;
+ }
  if(q?.active)q.index=index;
  roadEncounterOrder[currentRoadEncounterIndex()]=index;
  r10Remember(region,kind,index);return true;

@@ -2255,7 +2255,12 @@ function resolveEncounter(cmd) {
       const level=Math.max(1,Math.min(50,Number(player.level)||1)),hp=Math.max(10,Math.floor(baseHpForLevel(level)*.11));
       fight={...spec,level,hp:hp*3,xp:Math.max(20,level*6),bolts:0,enemies:[{name:"ROOSTER",hp:Math.ceil(hp*1.2),bolts:0,r18Min:2,r18Max:4},{name:"HEN",hp:Math.floor(hp*.9),bolts:0,r18Min:1,r18Max:3},{name:"SCRAPPER",hp:hp*3-Math.ceil(hp*1.2)-Math.floor(hp*.9),bolts:0,r18Min:1,r18Max:3}]};
     }
-    if(e.title==='TUNNEL RATS'||e.title==='EAST ROAD — TUNNEL RATS')fight={...spec,level:player.level,hp:Math.max(18,Math.floor(baseHpForLevel(player.level)*.2)),xp:Math.max(18,player.level*5),bolts:0,r18TunnelRat:true};
+    if(spec.r18TunnelRat){
+      const level=Math.max(1,Math.min(50,Number(player.level)||1));
+      const each=Math.max(9,Math.floor(baseHpForLevel(level)*.1));
+      fight={...spec,level,hp:each*2,xp:Math.max(18,level*5),
+        enemies:spec.enemies.map(rat=>({...rat,hp:each}))};
+    }
     if(e.title==="RATS IN THE PANTRY"||e.title==="EAST ROAD — RATS IN THE PANTRY"){
       const level=Math.max(1,Math.min(50,Number(player.level)||1)),hp=Math.max(12,Math.floor(baseHpForLevel(level)*.14));
       fight={...spec,level,hp:hp*3,xp:Math.max(30,level*8),bolts:0,enemies:[{name:"ALPHA RAT",hp,bolts:0},{name:"SCAVENGER RAT",hp,bolts:0},{name:"GNAWER RAT",hp,bolts:0}]};

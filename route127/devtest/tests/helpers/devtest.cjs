@@ -27,7 +27,7 @@ module.exports=function createDevtest({pathname='/route127/devtest/index.html',s
      assert.equal(url.origin,location.origin,'Test entry must use local scripts');
      const file=path.resolve(root,'..'+url.pathname);
      assert(file.startsWith(root+path.sep),'Script must stay under route127');
-     document.currentScript={src:url.href};scripts.push(path.relative(root,file));
+     document.currentScript={src:url.href,dataset:Object.fromEntries([...match[1].matchAll(/data-([\w-]+)="([^"]*)"/g)].map(([,key,value])=>[key.replace(/-([a-z])/g,(_,letter)=>letter.toUpperCase()),value]))};scripts.push(path.relative(root,file));
      vm.runInContext(fs.readFileSync(file,'utf8'),ctx,{filename:file});
     }else{document.currentScript=null;run(match[2]);}
    }finally{document.currentScript=previous;}

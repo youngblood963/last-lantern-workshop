@@ -542,7 +542,7 @@ const encounterLevels={"THE STRAY":2,"THE BIG MAN":50,"HIGHWAY ROBBERS":4,"ROACH
 const combatSpecs={
   "SALT ON THE ROAD":{name:"CHAIR MAN",level:4,hp:32,min:5,max:9,xp:30,bolts:0,end:"The angry man retreats, shouting that the chair was his."},
   "THE STRAY":{name:"THE STRAY",level:2,hp:20,min:2,max:5,xp:22,bolts:6,end:"The scavenger finally breaks and runs, dropping a small pouch behind."},
-  "TUNNEL RATS":{name:"TUNNEL RATS",level:2,hp:24,min:3,max:6,xp:22,bolts:0,r18TunnelRat:true,end:"The last of the rats scatters into the drain."},
+  "TUNNEL RATS":{name:"TUNNEL RATS",level:2,hp:24,min:2,max:4,xp:22,bolts:0,r18TunnelRat:true,enemies:[{name:"TUNNEL RAT 1",hp:12,bolts:0},{name:"TUNNEL RAT 2",hp:12,bolts:0}],end:"The last of the rats scatters into the drain."},
   "FERAL DOG":{name:"FERAL DOG",level:3,hp:22,min:4,max:8,xp:24,bolts:0,end:"The dog finally backs away and disappears into the brush."},
   "LONE SCAVENGER":{name:"SCAVENGER",level:3,hp:26,min:4,max:8,xp:25,bolts:8,end:"The scavenger gives ground and finally bolts into the weeds."},
   "HIGHWAY ROBBERS":{name:"HIGHWAY ROBBERS",level:4,hp:30,min:5,max:9,xp:24,bolts:9,enemies:[{name:"TIRE IRON ROBBER",hp:16,bolts:4},{name:"SPEAR ROBBER",hp:14,bolts:5}],end:"Both robbers are defeated."},

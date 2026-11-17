@@ -9,6 +9,7 @@ module.exports=function(){
   .replace("this._text=t;}}","this._text=t;}appendData(text){this._text+=text;}}")
   .replace("location:{search:","location:{pathname:'/route127/devtest/index.html',search:")
   .replace('style={setProperty(){}}','style={setProperty(){},removeProperty(){},getPropertyValue(){return ""}}')
+  .replace('currentScript:{src:', 'currentScript:{dataset:{},src:')
   .replace('vm.createContext({document,','vm.createContext({document,Image:class {},')
   .replace('performance:{now:()=>0}', 'MutationObserver:class{observe(){} disconnect(){}},performance:{now:()=>0}');
  const entry=fs.readFileSync(path.resolve(__dirname,'../../index.html'),'utf8');

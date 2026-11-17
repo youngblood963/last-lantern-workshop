@@ -151,9 +151,10 @@ GraphicalUI.sync=function(...args){
   if(layer?.dataset.key!==key){
    layer?.remove();layer=document.createElement('div');layer.className='r127-road-art'+(scene.items.length===1?' single':'');layer.dataset.key=key;
    scene.items.forEach((f,i)=>{
-    const unit=document.createElement(scene.combat?'button':'div');
+    const interactive=!!scene.combat&&(!scene.combat.r18TunnelRat||completeUnits);
+    const unit=document.createElement(interactive?'button':'div');
     unit.className='r127-road-unit';unit.style.width=(scene.items.length===1?'54%':'38%');
-    if(scene.combat){
+    if(interactive){
      unit.type='button';
      unit.addEventListener('click',()=>{if(!busy)handleCommand(scene.combat.enemies?.length?'attack '+(i+1):'attack')});
     }

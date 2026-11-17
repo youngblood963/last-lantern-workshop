@@ -71,45 +71,42 @@ function r127HideGraphicalEcho(line,text,cls){
  if(!line||!GraphicalUI.active()||!String(cls).split(/\s+/).includes('bright'))return;
  if(/^>\s*(?:\d+|[a-z])\s*$/i.test(String(text).trim()))line.classList.add('r127-graphical-command-echo');
 }
+// Graphical-only transcript cleanup. Preserve underlying BBS lines for Classic.
 const r127EchoStyle=document.createElement('style');
 r127EchoStyle.textContent=[
- '.full-graphics .gfx-narrative .line.r127-graphical-command-echo{display:none!important}',
- // Graphical location plates already identify the place; the BBS headings
- // remain in the DOM and are fully visible when Classic BBS is selected.
- '.full-graphics .gfx-narrative .line.place{display:none!important}'
+ 'body.full-graphics #screen > .line.place,',
+ 'body.full-graphics #screen > .line.r127-graphical-redundant,',
+ 'body.full-graphics #screen > .line.r127-graphical-command-echo',
+ '{display:none!important}'
 ].join(' ');
 document.head.appendChild(r127EchoStyle);
- // Both queued typewriter output and instant graphical rows may echo a
- // numeric/letter command. Filter the visual log only, never game output.
- // The original line stays intact for Classic BBS and for menu registration.
- function r127ClassifyGraphicalLine(line){
-  if(!line?.classList?.contains('line'))return;
-  // Only command acknowledgements such as >3, > 2 or > B. Never
-  // suppress prose, rewards, warnings or character dialogue.
-  const command=/^>\s*(?:\d{1,2}|[a-z])\s*$/i.test((line.textContent||'').trim());
-  line.classList.toggle('r127-graphical-command-echo',command);
- }
- // Follow newly appended/typed rows without rescanning the whole transcript
- // on every character; that matters for older mobile hardware.
- const r127NarrativeObserver=new MutationObserver(records=>{
-  const changed=new Set();
-  for(const record of records){
-   const parent=record.target.nodeType===1?record.target:record.target.parentElement;
-   const line=parent?.closest?.('.line');
-   if(line)changed.add(line);
-   if(record.type==='childList'){
-    for(const node of record.addedNodes){
-     if(node.nodeType===1){
-      if(node.classList?.contains('line'))changed.add(node);
-      else for(const nested of node.querySelectorAll?.('.line')||[])changed.add(nested);
-     }
-    }
-   }
+function r127CleanGraphicalLine(line){
+ if(!line?.classList?.contains('line'))return;
+ const value=(line.textContent||'').trim();
+ // Only single action acknowledgements, not dialogue or narrative.
+ const command=/^>\s*(?:\d{1,2}|[a-z])\s*$/i.test(value);
+ // Some towns emit the location plate as a generic system/bright line
+ // instead of a "place" line. Exclude quest/reward/warning text explicitly.
+ const location=/^(?:SEAPORT|SOLACE|FACTORY|INDUSTRIAL|CENTRAL|LOWLANDS|CAUSEWAY|NORTH|EAST|WEST|RUSTY LANTERN|RUSTY ANCHOR|SCRAP YARD|ROUTE 127)\s*[—–-]\s*[A-Z0-9][A-Z0-9 '&’()./-]{1,75}$/.test(value)
+   &&!/\b(?:QUEST|REWARD|WARNING|BOUNTY|XP|BOLTS|DAMAGE|HP|WANDERER)\b/.test(value);
+ line.classList.toggle('r127-graphical-command-echo',command);
+ line.classList.toggle('r127-graphical-redundant',location);
+}
+const r127NarrativeObserver=new MutationObserver(records=>{
+ const changed=new Set();
+ for(const record of records){
+  const parent=record.target.nodeType===1?record.target:record.target.parentElement;
+  const line=parent?.closest?.('.line');if(line)changed.add(line);
+  if(record.type==='childList')for(const node of record.addedNodes){
+   if(node.nodeType!==1)continue;
+   if(node.classList?.contains('line'))changed.add(node);
+   else for(const nested of node.querySelectorAll?.('.line')||[])changed.add(nested);
   }
-  for(const line of changed)r127ClassifyGraphicalLine(line);
- });
- r127NarrativeObserver.observe(screen,{childList:true,subtree:true,characterData:true});
- for(const line of screen.children)r127ClassifyGraphicalLine(line);
+ }
+ for(const line of changed)r127CleanGraphicalLine(line);
+});
+r127NarrativeObserver.observe(screen,{childList:true,subtree:true,characterData:true});
+for(const line of screen.children)r127CleanGraphicalLine(line);
 
 const wo14Add=add;add=function(text='',cls=''){if(String(cls).includes('place'))GraphicalUI.lastPlace=String(text);const result=wo14Add(text,cls);if(GraphicalUI.active()&&String(cls).split(/\s+/).includes('bright')&&/^>\s*(?:\d+|[a-z])\s*$/i.test(String(text).trim())){outputQueue=outputQueue.then(()=>{const line=screen.lastElementChild;if(line?.classList.contains('line'))line.classList.add('r127-graphical-command-echo');});}GraphicalUI.schedule();return result;};
 const wo14Immediate=addImmediate;addImmediate=function(text='',cls=''){const result=wo14Immediate(text,choiceOutputClass(text,cls));r127HideGraphicalEcho(result,text,cls);GraphicalUI.schedule();return result;};

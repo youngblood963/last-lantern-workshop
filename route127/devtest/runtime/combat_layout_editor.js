@@ -16,6 +16,7 @@
  const ownerApproved=row=>ownerApprovedScenes.has(String(row.title||'').toUpperCase())||ownerApprovedScenes.has(String(row.name||'').toUpperCase());
  const liberationApproved=row=>row.id==='seaport:liberation';
  const redApproved=row=>row.id==='scripted:r18redfight';
+ const factoryBossApproved=row=>/^factory:boss:[0-3]$/.test(row.id);
  // These approved compositions contain the character(s) within a complete scene asset.
  // A combat encounter does not require separately registered sprites to review its artwork.
  const embeddedCombatArtwork=new Set(['THE IRON HARVEST','THE DRY FOUNTAIN','IRRADIATED ROACHES',
@@ -80,6 +81,14 @@
     localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
     localStorage.setItem(redSeed,'1');
    }
+   // One-time Factory boss cinematic artwork approved by owner.
+   // Seed once, retaining the owner's ability to change review status manually.
+   const factoryBossSeed=reviewKey+'-factory-bosses-approved-20261116';
+   if(!localStorage.getItem(factoryBossSeed)){
+    for(const row of L.rows.values())if(factoryBossApproved(row))reviews.add(row.id);
+    localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
+    localStorage.setItem(factoryBossSeed,'1');
+   }
    return reviews;
   }catch{return new Set();}
  }
@@ -91,6 +100,7 @@
   if(ownerApproved(row))return reviews.has(row.id)?'green':'yellow';
   if(liberationApproved(row))return reviews.has(row.id)?'green':'yellow';
   if(redApproved(row))return reviews.has(row.id)?'green':'yellow';
+  if(factoryBossApproved(row))return reviews.has(row.id)?'green':'yellow';
   if(animated(row))return reviews.has(row.id)?'green':'yellow';
   const art=state(row);
   if(art==='Checking art')return 'checking';

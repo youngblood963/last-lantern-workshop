@@ -45,12 +45,33 @@ const johnnyTalk=()=>{section='johnnyTalk';npcTalk('johnny');};
 const clinicTalk=()=>{section='clinicTalk';npcTalk('wayne');};
 const amiiTalk=()=>{section='amiiTalk';npcTalk('amii');};
 const timTalk=()=>{section='timTalk';npcTalk('tim');};
+// Blueprints cost half the market price of the finished item. Players still
+// need to acquire materials, pay crafting costs and wait for completion.
+const murphyBlueprintKeys=['ironReaper','reinforcedPipe','temperedPipe','keeperCoat','widowmaker'];
+function murphyBlueprintPrice(key){
+ const recipe=CRAFT_RECIPES[key];
+ if(!recipe)return 0;
+ let itemName=recipe.name;
+ // Widowmaker is a level-qualified catalog weapon, not a base GEAR entry.
+ if(!GEAR[itemName]&&recipe.catalogId){
+  const def=EQUIPMENT_CATALOG.find(row=>row.id===recipe.catalogId);
+  if(def){
+   const lvl=Math.min(def.maxLevel,Math.max(def.minLevel,Math.floor(Number(player.level)||1)));
+   itemName=catalogInstanceName(def,lvl);
+  }
+ }
+ // Economy.value() is also the current retail calculation for Solace gear.
+ const finished=typeof Economy!=='undefined'&&typeof Economy.value==='function'?
+  Economy.value(itemName):0;
+ return finished>0?Math.max(1,Math.round(finished*.5)):0;
+}
 function shopList(){
   const f=player.flags;
   const learned=k=>!!f.r11Learned?.[k]||(!!f.v49RecipeBandage&&k==='bandage');
   const choices=[];
   add('MURPHY — BLUEPRINTS FOR SALE','place');
-  for(const [key,price] of [['ironReaper',75],['reinforcedPipe',50],['temperedPipe',65],['keeperCoat',150],['widowmaker',200]]){
+  for(const key of murphyBlueprintKeys){
+    const price=murphyBlueprintPrice(key);
     const r=CRAFT_RECIPES[key];if(!r)continue;
     add(r.name+' — '+(learned(key)?'LEARNED':price+' BOLTS'),r.rarity||GEAR[r.name]?.rarity||'system');
     if(!learned(key))choices.push('LEARN '+r.name.toUpperCase());
@@ -253,12 +274,12 @@ handleCommandCore=async function(raw){
    if(cmd==='small talk'||cmd==='small talk murphy'||cmd==='talk'){return murphyTalk();}
    if(section==='murphyRecipes'&&cmd.startsWith('learn ')){
      const key=Object.keys(CRAFT_RECIPES).find(k=>CRAFT_RECIPES[k].name.toLowerCase()===cmd.slice(6));
-     const prices={ironReaper:75,reinforcedPipe:50,temperedPipe:65,keeperCoat:150,widowmaker:200};
-     if(key&&prices[key]!=null){
+     const price=key&&murphyBlueprintKeys.includes(key)?murphyBlueprintPrice(key):0;
+     if(price>0){
       const learned=player.flags.r11Learned||(player.flags.r11Learned={});
       if(learned[key])add('Blueprint already learned.','system');
-      else if(player.bolts<prices[key])add('Not enough Bolts.','system');
-      else{player.bolts-=prices[key];learned[key]=true;updateHud();v49Autosave();add('BLUEPRINT LEARNED — '+CRAFT_RECIPES[key].name,'reward');}
+      else if(player.bolts<price)add('Not enough Bolts.','system');
+      else{player.bolts-=price;learned[key]=true;updateHud();v49Autosave();add('BLUEPRINT LEARNED — '+CRAFT_RECIPES[key].name,'reward');}
       return shopList();
      }
    }

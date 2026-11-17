@@ -248,6 +248,12 @@
   }
   return model;
  };
+ // The shared identity-color renderer loads before this DEVTEST adapter.
+ // Register the permanent Seaport residents as named blue NPCs, not wanderers.
+ if(typeof RouteIdentity!=='undefined'&&RouteIdentity.npc){
+  RouteIdentity.npc.Caleb='Caleb “Dockhand” Reed';
+  RouteIdentity.npc.Red='Elias “Red” Harper';
+ }
  globalThis.Route127PostOfficeRoutes=Object.freeze({
   routes:ROUTES.map(({id,name,place})=>({id,name,place})),
   dailyLimit:POSTAL_LIMIT

@@ -4,7 +4,7 @@
  */
 (()=>{
 'use strict';
-if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||typeof GraphicalUI==='undefined'||
+if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||typeof GraphicalUI==='undefined'||
    typeof r6Round!=='function'||typeof r6Throw!=='function')return;
 const base='../devtest/assets/locations/';
 const art=(name)=>new URL(base+name,document.baseURI).href;

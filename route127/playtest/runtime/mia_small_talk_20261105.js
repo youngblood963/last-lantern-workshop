@@ -3,7 +3,7 @@
  */
 (()=>{
  'use strict';
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST' ||
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST' ||
     typeof port55MiaMenu!=='function' || typeof r11QuestMenu!=='function')return;
 
  port55MiaMenu=function(){

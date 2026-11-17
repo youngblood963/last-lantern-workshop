@@ -1,16 +1,38 @@
 /* DEVTEST: home crafting, ordinary craft resale, rarity gates. */
 (()=>{'use strict';if(!location.pathname.includes('/route127/playtest/'))return;
+// Seaport's liberation reward has a stable inventory name and authored combat stats.
+GEAR['Harbor Guard Cutlass']??={type:'weapon',rarity:'rare',min:19,max:26,
+ description:'A cutlass awarded for liberating Seaport.'};
 const oldSell=v48SellPrice;
 v48SellPrice=function(item){
+ if(!v48Ordinary(item)||item.unique||item.protected||protectedUniqueEquipment(item.name)||
+    GEAR[item.name]?.questOnly||GEAR[item.name]?.rarity==='legendary')return 0;
  const result=oldSell.apply(this,arguments);
- if(result>0||!item||!v48Ordinary(item))return result;
+ if(result>0)return result;
  const values={'Reinforced Bandage':8,'Wasteland Stew':5,'Roadhouse Hash':4,'Preserved Meat':3,'Preserved Vegetables':3};
- return values[item.name]||0;
+ if(Object.hasOwn(values,item.name))return values[item.name];
+ // Unpriced ingredients registered for cooking use the existing low-tier food payout.
+ return ['material','consumable'].includes(item.type)&&r18FoodKind(item.name)?V48_LOOT_PRICES['Raw Rat Meat']:0;
 };
-const oldHouse=showHouseChoices;
+const appendChoices=lanternAppendChoices;
+lanternAppendChoices=function(labels){
+ if(stage==='house'&&labels.length===1&&labels[0]==='EXPLORE ROADS')return;
+ return appendChoices.apply(this,arguments);
+};
+const canRestAtHouse=()=>player.flags.houseQuest!=='active';
+const solaceExit='↓ S — SOLACE';
 showHouseChoices=function(){
- if(!player.flags.houseOwned)return oldHouse.apply(this,arguments);
- r5DirectChoices(['OPEN STORAGE BOX','CRAFTING','HEAD SOUTH — SOLACE']);
+ ensureHousing();
+ const quest=player.flags.houseQuest;
+ const choices=player.flags.houseOwned?['OPEN STORAGE BOX','CRAFTING']:['SEARCH BATHROOM CABINET','CHECK FIREPLACE'];
+ if(!player.flags.houseOwned){
+  if(quest==='active')choices.push('INVESTIGATE OCCUPATION');
+  if(quest==='cleared')choices.push('LIFT FLOORBOARD');
+  choices.push('CHECK PACK');
+ }
+ if(canRestAtHouse())choices.push('REST');
+ r5DirectChoices([...choices,solaceExit]);
+ outputQueue=outputQueue.then(()=>{if(stage==='house')delete currentHotkeys.b;});
 };
 const oldMenu=r11CraftMenu,oldCraft=r11CraftCommand;
 r11CraftMenu=function(where){
@@ -31,6 +53,20 @@ r11CraftCommand=function(cmd){
 const oldCore=handleCommandCore;
 handleCommandCore=async function(raw){
  const cmd=String(r5Mapped(raw)||'').trim().toLowerCase();
+ if(!busy&&stage==='house'&&[solaceExit.toLowerCase(),'head to solace'].includes(cmd))return oldCore.call(this,'head south — solace');
+ if(!busy&&stage==='house'&&cmd==='rest'){
+  if(!canRestAtHouse()){
+   add('The house is occupied. You cannot rest here yet.','system');
+   return showHouseChoices();
+  }
+  // The inn handler uses this location to select its shared rest branch.
+  const location=mercyLocation;
+  mercyLocation='jenRoom';
+  try{handleInnRoom('rest');}
+  finally{mercyLocation=location;}
+  v49Autosave();
+  return showHouseChoices();
+ }
  if(!busy&&stage==='house'&&player.flags.houseOwned&&cmd==='crafting'){
   return r11CraftMenu('home');
  }

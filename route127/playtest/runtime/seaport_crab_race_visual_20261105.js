@@ -4,7 +4,7 @@
  */
 (()=>{
 'use strict';
-if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||typeof GraphicalUI==='undefined'||typeof r6Round!=='function')return;
+if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||typeof GraphicalUI==='undefined'||typeof r6Round!=='function')return;
 const atRace=()=>stage==='r6Casino'&&r6Round()?.game==='CRAB RACING';
 const graphical=()=>GraphicalUI.preference()==='graphics';
 const enabled=()=>graphical()&&atRace();

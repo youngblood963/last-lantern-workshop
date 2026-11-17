@@ -1,0 +1,147 @@
+/* DEVTEST ONLY — owner image batch 2026-11-12.
+ * Visual wiring only: no quest, RNG, save, combat stats, time, or reward changes.
+ * Seaport Post Office is deliberately NOT unlocked here; it requires the Tommy quest.
+ */
+(()=>{
+ 'use strict';
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||typeof GraphicalUI==='undefined')return;
+ const root=new URL('../devtest/',document.baseURI);
+ const scenario=name=>new URL('assets/scenarios/'+name,root).href;
+ const enemies=name=>new URL('assets/enemies/'+name,root).href;
+ const canonical=()=>String(typeof currentEncounter==='function'?
+  (currentEncounter()?.title||''):'').toUpperCase().replace(/^EAST ROAD — /,'').trim();
+ const alias=()=>String(typeof currentEncounter==='function'?
+  (currentEncounter()?.displayName||''):'').toUpperCase().trim();
+ const artByTitle=Object.freeze({
+  'THE BURNT LIBRARY':'burnt_library.png',
+  'THE BRIDGE TOLL':'bridge_toll.png',
+  'A DRESSING IN THE DUST':'tommy_briggs_roadside.png',
+  'TOMMY BRIGGS — POSTAL ENCOUNTER':'tommy_briggs_roadside.png',
+  'THE BLADE CART':'runaway_blade_cart.gif',
+  'THE DITCH BACKPACK':'abandoned_backpack.png',
+  'TORN BACKPACK':'abandoned_backpack.png'
+ });
+ const previousModel=GraphicalUI.model;
+ GraphicalUI.model=function(...args){
+  const model=previousModel.apply(this,args);
+  if(!model.active||typeof stage==='undefined'||stage!=='encounter')return model;
+  const title=canonical(),file=artByTitle[title]||artByTitle[alias()];
+  if(file){model.art=scenario(file);model.regionalSky=null;}
+  return model;
+ };
+ // Keep the regional terrain and sky in the primary renderer. The chest
+ // is a foreground prop and can finish loading independently of the road.
+ let chestImage;
+ function paintChest(e){
+  const active=!e.frame.hidden&&!e.figure.hidden&&stage==='encounter'&&
+   [canonical(),alias()].some(title=>['THE LOCKED TOOL CHEST','LOCKED TOOLBOX','THE LOCKED TOOLBOX'].includes(title));
+  const url=scenario('locked_tool_chest.png');
+  if(!active||!GraphicalUI.sceneArtworkReady(url)){
+   chestImage?.remove();
+   chestImage=null;
+   return;
+  }
+  if(chestImage?.parentNode===e.figure)return;
+  chestImage=document.createElement('img');
+  chestImage.className='r127-tool-chest-prop';
+  chestImage.alt='Locked red tool chest';
+  chestImage.src=url;
+  e.figure.append(chestImage);
+ }
+ const css=document.createElement('style');
+ css.textContent=`
+ .gfx-art>.r127-tool-chest-prop{position:absolute;z-index:5;left:50%;bottom:8%;width:44%;height:52%;transform:translateX(-50%);object-fit:contain;object-position:center bottom;pointer-events:none}
+ /* Full-scene animated GIFs: fit the whole frame at 95% (desktop + mobile).
+    Target only the primary scenario artwork, not UI animations or combat sprites.
+    The layout editor's explicitly positioned background units keep their own scale. */
+ body.full-graphics .gfx-frame .gfx-art>.gfx-image[src*=".gif"]:not(.r127-layout-unit){
+  object-fit:contain!important;object-position:center center!important;
+  transform:scale(.95);transform-origin:center center;
+ }
+ .gfx-art.r127-bridge-toll-sky{position:relative;isolation:isolate;background:#151820!important}
+ .gfx-art.r127-bridge-toll-sky>.r127-bridge-toll-sky-layer{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;pointer-events:none}
+ .gfx-art.r127-bridge-toll-sky>.gfx-image{position:relative;z-index:1;background:transparent!important}
+ .gfx-art.r127-bridge-toll-sky>.gfx-art-caption{z-index:2}
+ .gfx-art .r127-bone-hunters{position:absolute;inset:0;z-index:6;display:flex;
+  align-items:flex-end;justify-content:space-evenly;pointer-events:none;overflow:hidden}
+ .gfx-art .r127-bone-unit{height:91%;width:45%;display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-end;border:0;background:none;padding:0;
+  box-shadow:none;pointer-events:none}
+ .gfx-art button.r127-bone-unit{pointer-events:auto;cursor:pointer}
+ .gfx-art .r127-bone-unit img{display:block;width:100%;height:calc(100% - 34px);
+  object-fit:contain;object-position:center bottom;filter:drop-shadow(3px 6px 5px #000a)}
+ .gfx-art .r127-bone-hp{min-height:26px;box-sizing:border-box;display:block;flex:none;
+  border:1px solid #aa413b;background:#32100e;color:#ffaaa4;border-radius:4px;
+  padding:4px 8px;font:700 clamp(12px,1.45vw,17px)/1 sans-serif;white-space:nowrap}
+ .gfx-frame.r127-bone-fight .gfx-combat{display:none!important}
+ @media(max-width:600px){.gfx-art .r127-bone-unit{width:49%;height:83%}}
+ `;
+ document.head.append(css);
+ const oldSync=GraphicalUI.sync;
+ GraphicalUI.sync=function(...args){
+  const result=oldSync.apply(this,args);
+  try{
+   const e=this.element;if(!e?.figure)return result;
+   paintChest(e);
+   e.figure.classList.toggle('r127-blade-cart',!e.frame.hidden&&stage==='encounter'&&
+    (canonical()==='THE BLADE CART'||alias()==='THE BLADE CART'));
+   // Sky-only backdrop for Bridge Toll: its artwork already contains its own ground.
+   const bridgeActive=!e.frame.hidden&&this.preference()==='graphics'&&stage==='encounter'&&
+    (canonical()==='THE BRIDGE TOLL'||alias()==='THE BRIDGE TOLL');
+   let bridgeSky=e.figure.querySelector('.r127-bridge-toll-sky-layer');
+   e.figure.classList.toggle('r127-bridge-toll-sky',bridgeActive);
+   if(bridgeActive){
+    if(!bridgeSky){
+     bridgeSky=document.createElement('div');bridgeSky.className='r127-bridge-toll-sky-layer';
+     bridgeSky.setAttribute('aria-hidden','true');e.figure.insertBefore(bridgeSky,e.img);
+    }
+    const hour=Number(player?.flags?.worldHour)||12;
+    const phase=typeof Route127RegionalSky?.phase==='function'?Route127RegionalSky.phase(hour):'day';
+    const skyFile=phase==='dusk'?'sky_dawn.png':'sky_'+phase+'.png';
+    bridgeSky.style.backgroundImage='url("'+new URL('../assets/regions/'+skyFile,root).href+'")';
+    bridgeSky.style.filter=phase==='dusk'?'sepia(.35) saturate(.85)':'';
+   }else bridgeSky?.remove();
+   const encounter=canonical(),combat=typeof combatState!=='undefined'?combatState:null;
+   const fighting=['combat','combatItems'].includes(stage)&&combat?.r18BoneHunters===true;
+   const approach=stage==='encounter'&&(encounter==='THE BONE FLAGS'||alias()==='THE BONE HUNTERS');
+   const active=!e.frame.hidden&&this.preference()==='graphics'&&(approach||fighting);
+   let layer=e.figure.querySelector('.r127-bone-hunters');
+   if(!active){layer?.remove();e.frame.classList.remove('r127-bone-fight');return result;}
+   if(!layer){
+    layer=document.createElement('div');layer.className='r127-bone-hunters';
+    for(const [i,file] of ['bone_hunter_archer.png','bone_hunter_spearman.png'].entries()){
+     const unit=document.createElement('div');unit.className='r127-bone-unit';unit.dataset.enemy=String(i);
+     const img=document.createElement('img');img.src=enemies(file);img.alt='';
+     img.onerror=()=>{layer.remove();e.frame.classList.remove('r127-bone-fight');
+      console.warn('Missing Bone Hunter sprite',file);};
+     unit.append(img);
+     const hp=document.createElement('span');hp.className='r127-bone-hp';hp.hidden=true;
+     unit.append(hp);layer.append(unit);
+    }
+    e.figure.append(layer);
+   }
+   const pair=Array.isArray(combat?.enemies)?combat.enemies:[];
+   e.frame.classList.toggle('r127-bone-fight',fighting&&pair.length===2);
+   [...layer.children].forEach((unit,i)=>{
+    const fighter=pair[i],hp=unit.querySelector('.r127-bone-hp');
+    unit.hidden=!!fighting&&(!fighter||fighter.hp<=0);
+    hp.hidden=!fighting||!fighter;
+    if(fighting&&fighter){
+     const current=Math.max(0,Number(fighter.hp)||0);
+     const max=Math.max(current,Number(fighter.maxHp)||current||1);
+     hp.textContent=current+'/'+max+' HP';
+     if(unit.tagName!=='BUTTON'){
+      const button=document.createElement('button');
+      button.type='button';button.className=unit.className;button.dataset.enemy=unit.dataset.enemy;
+      while(unit.firstChild)button.append(unit.firstChild);
+      unit.replaceWith(button);unit=button;
+      button.addEventListener('click',()=>{if(typeof busy!=='undefined'&&busy)return;
+       if(typeof handleCommand==='function')handleCommand('attack '+(i+1));});
+     }
+     unit.setAttribute('aria-label','Attack '+fighter.name+'; '+hp.textContent);
+    }
+   });
+  }catch(err){console.warn('DEVTEST owner scenario art:',err);}
+  return result;
+ };
+})();

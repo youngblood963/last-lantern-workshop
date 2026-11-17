@@ -4,7 +4,7 @@
  */
 (()=>{
  'use strict';
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||!globalThis.SeaportRoomChest||
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||!globalThis.SeaportRoomChest||
     typeof handleInnRoom!=='function'||typeof showHouseStorage!=='function')return;
  const graphical=()=>typeof GraphicalUI!=='undefined'&&GraphicalUI.preference()==='graphics';
  const solace={

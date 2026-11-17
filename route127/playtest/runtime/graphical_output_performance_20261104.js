@@ -60,7 +60,10 @@ function instantRow(rawText='',rawCls=''){
  return div;
 }
 add=function(text='',cls=''){
- if(!graphical())return previousAdd.apply(this,arguments);
+ if(stage==='confirmNewSlot' && text==='EXISTING SAVE DATA DETECTED.' && !newestSave()){
+  text='NO SAVE FOUND.';
+ }
+ if(!graphical())return previousAdd.call(this,text,cls);
  // WO43: restore the original terminal typewriter for dialogue and story
  // prose. Menus, rewards, and status lines stay immediate so navigation and
  // combat are responsive; Classic BBS remains exactly as it was.
@@ -86,7 +89,10 @@ add=function(text='',cls=''){
 };
 typeLine=async function(text='',cls='',speed=18){
  if(!graphical())return previousTypeLine.apply(this,arguments);
- instantRow(text,cls);
+ // Keep direct story/dialogue typing visible in graphics mode, at a capped
+ // pace suitable for mobile. The opening intro still uses its original speeds.
+ // Menu/system/status text remains immediate through add()/queueChoiceLine().
+ return previousTypeLine.call(this,text,cls,Math.min(Math.max(8,Number(speed)||18),14));
 };
 queueChoiceLine=function(text){
  if(!graphical())return previousQueueChoiceLine.apply(this,arguments);

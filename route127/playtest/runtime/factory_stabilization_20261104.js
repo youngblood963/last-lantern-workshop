@@ -115,7 +115,7 @@ v49Forge=function(){
  }else if(f.v49Kit&&!f.v49RecipeBandage){
   if(first)add('FORGE > Your practice kit is waiting at the workbench.','system');
  }
- add('(W) USE WORKBENCH   (T) TERMINAL   (B) BACK','system');
+ // The Factory menu controller below this adapter publishes Forge's actions.
  f.devForgeTalked=true;
  if(first&&f.relayQuest==='complete'){
   add('MAIN OBJECTIVE COMPLETE — TALK TO FORGE','reward');

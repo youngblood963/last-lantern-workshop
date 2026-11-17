@@ -21,3 +21,11 @@ Local Chromium passed graphical registration, creation, returning account login,
 The hosted PLAYTEST and DEVTEST pages and public homepage returned HTTP 200. R14 still presented its existing HTTP 401 access challenge. Live records, routes, bindings and Worker deployments were left in place.
 
 Before switching the hosted PLAYTEST entry, verify the authenticated R14 expedition flow and its existing authoritative records from the intended replacement entry. Confirm compatibility for representative live snapshots across both clients. Then enable the verified hosted PLAYTEST login and route, confirm existing accounts can resume, and retire only the R14 gateway service once those checks pass. Preserve the shared API Worker, D1 database, secrets and browser save recovery.
+
+## Owner-approved live promotion
+
+The amended WO65 supersedes the staging hold above. Existing expedition test records stay in D1. The current PLAYTEST and DEVTEST client sources contain no R15 expedition endpoint calls, so the release uses the existing character API directly and needs no gateway or expedition migration.
+
+The PLAYTEST startup now loads the promoted scenario catalog, regional travel and map, encounter graphics and layout data, arena and quests, balance, inventory, crafting, casino and shop fixes. Approved media continues to use the installed artwork URLs. The QA Options package, zero-turn rescue, region and combat editors, sky lab, preview buttons and Steve gear removal utility stay out of the released game.
+
+PLAYTEST and DEVTEST share one cloud account, character and save revision on the existing Worker route. Browser recovery journals have separate namespaces. Normal PLAYTEST starts with cloud login; the explicit local path remains available under `?offline=1`. Hosted PLAYTEST no longer offers transfer from legacy slots. The local staging URL still uses `?cloud=1` on port 8788.

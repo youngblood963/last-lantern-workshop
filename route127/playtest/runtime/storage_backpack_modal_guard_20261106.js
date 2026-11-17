@@ -4,7 +4,7 @@
  */
 (()=>{
  'use strict';
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||
     typeof TravelerPanels==='undefined'||!globalThis.SeaportRoomChest)return;
  const oldOpen=TravelerPanels.open;
  TravelerPanels.open=function(...args){

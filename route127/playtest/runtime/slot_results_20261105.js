@@ -1,6 +1,6 @@
 /* DEVTEST only — graphical slot outcomes for Solace and Seaport. */
 (()=>{'use strict';
-if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||typeof GraphicalUI==='undefined')return;
+if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||typeof GraphicalUI==='undefined')return;
 const solace=()=>stage==='mercy'&&mercyLocation==='casinoGame'&&casinoRound()?.game==='slots';
 const seaport=()=>stage==='r6Casino'&&r6Round()?.game==='SLOTS';
 const on=()=>GraphicalUI.preference()==='graphics'&&(solace()||seaport());
@@ -25,7 +25,7 @@ function paint(r,spinning){
  let el=box.querySelector('.r127-slot-feedback');
  if(!el){el=document.createElement('div');el.className='r127-slot-feedback';el.setAttribute('role','status');el.setAttribute('aria-live','polite');box.prepend(el)}
  let title,detail,kind='ready';
- if(r.status!=='settled'){title='PLACE YOUR WAGER';detail=seaport()?'Bet 10, 20, 50, Custom, or All In.':'Bet 10, 20, 50, Custom, or All In.';}
+ if(r.status!=='settled'){title='PLACE YOUR WAGER';detail=seaport()?'Bet 10, 20, or 50 Bolts.':'Bet 10, 20, or 50 Bolts.';}
  else if(spinning){title='REELS SPINNING…';detail='Wager: '+r.bet+' Bolts';kind='spin';}
  else{
   const winning=r.payout>0;const triple=Array.isArray(r.reels)&&r.reels.length===3&&r.reels.every(x=>x===r.reels[0]);
@@ -57,9 +57,7 @@ const stakes=[
  {key:'1',command:'wager 10',label:'Wager 10'},
  {key:'2',command:'wager 20',label:'Wager 20'},
  {key:'3',command:'wager 50',label:'Wager 50'},
- {key:'4',command:'custom wager',label:'Custom'},
- {key:'5',command:'all in',label:'All In'},
- {key:'6',command:'back',label:'Back'}
+ {key:'4',command:'back',label:'Back'}
 ];
 const oldChoices=GraphicalUI.choices;
 GraphicalUI.choices=function(...args){
@@ -81,7 +79,7 @@ GraphicalUI.dispatch=async function(choice){
 const oldCasinoCommand=handleCasinoCommand;
 handleCasinoCommand=function(cmd){
  if(solace()&&casinoRound()?.status==='settled'&&
-    (/^wager [0-9]+$/.test(cmd)||['custom wager','custom','all in'].includes(cmd))){
+    (/^wager (?:10|20|50)$/.test(cmd))){
   casinoOpen('slots');
  }
  return oldCasinoCommand.apply(this,arguments);

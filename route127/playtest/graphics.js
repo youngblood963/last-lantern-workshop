@@ -3,51 +3,108 @@
 // Resolve images beside this script, even when the host serves a nested URL.
 const ROUTE127_ASSET_BASE=typeof document.currentScript?.src==='string'&&document.currentScript.src
  ? new URL('.',document.currentScript.src).href:null;
+const OLD_HOUSE_ART='../playtest/assets/locations/abandoned_house_interior.png';
+let oldHouseArtReady=false;
 const ROUTE127_ART={
+ 'house-interior':{title:'Old House',path:OLD_HOUSE_ART},
  'northern-ridge':{file:'grand_city_preview.png',title:'Grand City — Northern Ridge preview'},
  'solace':{file:'solace.png',title:'Solace'},'seaport':{file:'seaport.png',title:'Seaport'},
- 'factory':{file:'factory.png',title:'Factory'},'scrap-yard':{file:'scrapyard_dark.png',title:'Scrap Yard'},
+ 'factory-workshop':{file:'forge_workshop.png',title:"Forge's Workshop"},'factory':{file:'factory.png',title:'Factory'},'scrap-yard':{file:'scrapyard_dark.png',title:'Scrap Yard'},
  'ash-cemetery':{file:'riverdale_cemetery.png',title:'Ash Cemetery'},'station-nine':{file:'station_nine.png',title:'Station Nine'},
  'abandoned-motel':{file:'abandoned_motel.png',title:'Abandoned Motel'},'scavenger-camp':{file:'scavenger_camp.png',title:'Scavenger Camp'},
  'watchtower-ruins':{file:'watchtower_ruins.png',title:'Watchtower Ruins'},'fresh-mart':{file:'fresh_mart.png',title:'Fresh Mart'},
  'st-mercy-hospital':{file:'st_mercy_hospital.png',title:'St. Mercy Hospital'},'iron-pit-arena':{file:'iron_pit_arena.png',title:'Iron Pit Arena'},
  'broken-bridge':{file:'broken_bridge_preview.png',title:'Broken Bridge — exterior preview'},
- 'solace-bank':{file:'solace_amii_bank.png',title:'Solace Savings & Loan'},
- 'solace-murphy':{file:'solace_murphy_garage.png',title:"Murphy's Motor Works"},
- 'solace-tim':{file:'solace_tim.png',title:'Tim — Solace Lawman'},
- 'solace-johnny':{file:'solace_johnny_shop.png',title:"Johnny's Trading Post"},
- 'house-interior':{file:'abandoned_house_interior.png',title:'Abandoned House'},
- 'solace-wayne':{file:'solace_wayne_clinic.png',title:'Last Chance Clinic'},
- 'solace-mara':{file:'solace_mara_armory.png',title:'Scrap & Steel Armory'},
- 'solace-relay':{file:'solace_relay_station.png',title:'Relay Station'},
- 'solace-gate':{file:'solace_town_gate.png',title:'Solace Town Gate'}
+ 'rusty-anchor':{file:'rusty_anchor.png',title:'The Rusty Anchor'}
 };
 // WO24 shared image paths; dedicated art still wins in model().
+function route127HouseScene(place,g){
+ return !g?.currentEdgeId&&(!g||g.nodeId==='house')&&
+  (['house','roadReady','houseStorage','houseDeposit','houseWithdraw'].includes(place)||
+   (place==='r11Craft'&&player.flags.r11Bench==='home')||
+   (place==='combat'&&combatState?.source==='houseBoss'));
+}
 function route127RegionalArt(g){return '../assets/regions/'+route127CurrentRegion(g).toLowerCase()+'.png';}
+// Only current-frame dependencies participate in the artwork status.
+function createSceneArtworkLoader(ui){
+ const cache=new Map();
+ let used=new Set(),active=new Set(),notice,timer;
+ function request(url){
+  const key=new URL(url,ROUTE127_ASSET_BASE||document.baseURI).href;
+  let entry=cache.get(key);
+  if(!entry){
+   const image=new Image();
+   entry={state:'pending',since:Date.now()};
+   cache.set(key,entry);
+   const settle=state=>{
+    if(entry.state!=='pending')return;
+    clearTimeout(deadline);
+    image.onload=image.onerror=null;
+    entry.state=state;
+    if(active.has(entry)||used.has(entry))ui.schedule();
+   };
+   const deadline=setTimeout(()=>settle('failed'),15000);
+   image.onload=()=>image.decode?image.decode().then(()=>settle('ready'),()=>settle('failed')):settle('ready');
+   image.onerror=()=>settle('failed');
+   image.src=key;
+  }else{
+   cache.delete(key);
+   cache.set(key,entry);
+  }
+  used.add(entry);
+  return entry.state==='ready';
+ }
+ return {
+  request,
+  begin(){
+   used=new Set();
+   // Allow the presentation layers to register dependencies after base sync.
+   Promise.resolve().then(()=>{
+    clearTimeout(timer);
+    const e=ui.element;
+    active=e&&!e.frame.hidden&&!e.figure.hidden?used:new Set();
+    for(const [key,entry] of cache){
+     if(cache.size<=32)break;
+     if(!active.has(entry)&&entry.state!=='pending')cache.delete(key);
+    }
+    const pending=[...active].filter(entry=>entry.state==='pending');
+    const delay=pending.length?400-(Date.now()-Math.min(...pending.map(entry=>entry.since))):Infinity;
+    const message=[...active].some(entry=>entry.state==='failed')?'Scene artwork unavailable':
+     delay<=0?'Loading scene artwork…':'';
+    if(message&&e){
+     if(!notice){
+      notice=document.createElement('span');
+      notice.setAttribute('role','status');
+      Object.assign(notice.style,{position:'absolute',top:'8px',right:'8px',zIndex:12,
+       background:'#191510eb',color:'#fff5df',padding:'5px 8px',borderRadius:'4px',
+       fontSize:'.8rem',pointerEvents:'none'});
+     }
+     if(notice.parentNode!==e.figure)e.figure.append(notice);
+     if(notice.textContent!==message)notice.textContent=message;
+    }else notice?.remove();
+    if(delay>0&&Number.isFinite(delay)&&!message)timer=setTimeout(()=>ui.schedule(),delay);
+   });
+  }
+ };
+}
 const GraphicalUI={
+ sceneArtworkReady(url){return sceneArtwork.request(url);},
+ displaysArtwork(url){return this.element?.img.getAttribute('src')===new URL(url,ROUTE127_ASSET_BASE||document.baseURI).href;},
  element:null,home:null,lastPlace:'',preferred:null,modeKey:'route127-display-mode',optionsOpen:false,navOpen:false,rendering:false,
  preference(){if(this.preferred)return this.preferred;try{return localStorage.getItem(this.modeKey)==='classic'?'classic':'graphics';}catch{return 'graphics';}},
  eligible(){const g=typeof lanternState==='function'?lanternState():null;if(!g||['title','wake','wakeNamed','standing','handle','confirmHandle','hello','listen','savecoords','confirmNewSlot','selectNewOverwrite','confirmNewOverwrite'].includes(stage))return false;return !!(g.currentEdgeId||g.discoveredEdges?.length||g.nodeId!=='house'||player.flags.mercyDiscovered);},
  active(){return this.eligible()&&this.preference()==='graphics';},
  setMode(mode){if(!['classic','graphics'].includes(mode))return false;this.preferred=mode;try{localStorage.setItem(this.modeKey,mode);}catch{}this.optionsOpen=false;this.navOpen=false;this.sync();return true;},
  context(){const overlays=new Set(['inventory','inventoryItem','confirmDrop','quests','interfaceStatus','interfaceMap','interfaceSave','combatItems','r5Loot','r18HorseTravel','corvetteRescue']);let place=overlays.has(stage)?returnStage:stage;const g=typeof lanternState==='function'?lanternState():null,c=combatState;
+  if(route127HouseScene(place,g))return 'house-interior';
   if(/^r18Ash/.test(place)||c?.source==='r18AshFight')return 'ash-cemetery';
   if(/^stationNine|^r18Station/.test(place)||['stationNineSecurity','r18StationFight'].includes(c?.source))return 'station-nine';
   if(place==='wo6FreshMart')return 'fresh-mart';if(place==='wo4Hospital'||c?.source==='wo4HospitalEntrance')return 'st-mercy-hospital';
-  // Dedicated Solace interiors use the current town sublocation; the base Solace art remains the fallback.
-  if(place==='house'||(place==='roadReady'&&g?.nodeId==='house'))return 'house-interior';
-  // The world-map gate menu has its own stage and does not use mercyLocation.
-  // All four Solace compass gates share the owner's approved gate artwork.
-  if(place==='lanternGate'&&g?.nodeId==='solace')return 'solace-gate';
-  if(place==='settlement'||c?.source==='gateGuards')return 'solace-gate';
-  if(place==='mercy'){
-   const interiors={amii:'solace-bank',murphy:'solace-murphy',johnny:'solace-johnny',wayne:'solace-wayne',mara:'solace-mara',relay:'solace-relay',tim:'solace-tim',gate:'solace-gate',eastGate:'solace-gate'};
-   if(interiors[mercyLocation])return interiors[mercyLocation];
-   return 'solace';
-  }
-  if(c?.source==='jenBoss')return 'solace';
+  if(place==='port55Mia'||(place==='mercy'&&player.flags?.port55Casino))return 'rusty-anchor';
+  if(place==='mercy'||place==='settlement'||c?.source==='gateGuards'||c?.source==='jenBoss')return 'solace';
   if(/^port|^seaport/.test(place)||/^seaport/.test(c?.source||''))return 'seaport';
-  if(/^factory/.test(place)||c?.source==='factoryFight')return 'factory';
+  if(['factoryWorkshop','factoryTerminal','factoryForge','factoryBench'].includes(place))return 'factory-workshop';
+   if(/^factory/.test(place)||c?.source==='factoryFight')return 'factory';
   if(place==='serviceRoad'&&serviceRoadDepth>=3||c?.source==='serviceBoss')return 'scrap-yard';
   if(g?.currentEdgeId)return null;
   return ROUTE127_ART[g?.nodeId]?g.nodeId:null;
@@ -55,11 +112,19 @@ const GraphicalUI={
  choices(){const rows=[],used=new Set();for(const [key,value]of Object.entries(numberedChoices||{})){if(!value)continue;const command=String(value);rows.push({key,command,label:route127RoadChoiceLabel(command)});used.add(command);}
   for(const [key,value]of Object.entries(currentHotkeys||{})){const command=String(value);if(!command||used.has(command))continue;rows.push({key,command,label:route127RoadChoiceLabel(command)});used.add(command);}return rows;},
  layout(){if(combatState)return 'combat';if(['inventory','inventoryItem','confirmDrop','r5Loot'].includes(stage))return 'inventory';if(stage==='interfaceMap')return 'map';if(stage==='interfaceStatus')return 'character';if(stage==='quests')return 'journal';if(/Craft|craft|Bench|Forge|Recipes/.test(stage))return 'crafting';if(stage==='mercy'&&mercyLocation!=='town'||/^r11Talk|^r18Fence|^port55Talk/.test(stage))return 'dialogue';if(stage==='mercy'||/^port|^seaport/.test(stage))return 'town';return 'highway';},
- model(){const id=this.context(),art=ROUTE127_ART[id],g=typeof lanternState==='function'?lanternState():null;return {active:this.active(),eligible:this.eligible(),layout:this.layout(),location:id,title:art?.title||(g?.currentEdgeId?(lanternEdge()?.name||'Route 127'):LG_NODES[g?.nodeId]?.name||'Route 127'),art:art?'assets/locations/'+art.file:route127RegionalArt(g),choices:this.choices(),hp:Number(player.hp)||0,maxHp:Number(player.maxHp)||1,level:Number(player.level)||1,xp:Number(player.xp)||0,nextXp:Number(player.nextXp)||1,bolts:Number(player.bolts)||0,turns:Number(player.turns)||0,maxTurns:Number(player.maxTurns)||150,pack:packSlotsUsed(),capacity:player.packMax,time:timePhase(),enemies:combatState?(combatState.enemies?.length?combatState.enemies:[combatState]).map(e=>({name:e.name,hp:e.hp,maxHp:e.maxHp||e.hp})):[]};},
+ model(){const id=this.context(),art=ROUTE127_ART[id],g=typeof lanternState==='function'?lanternState():null;return {active:this.active(),eligible:this.eligible(),layout:this.layout(),location:id,title:art?.title||(g?.currentEdgeId?(lanternEdge()?.name||'Route 127'):LG_NODES[g?.nodeId]?.name||'Route 127'),art:art?.path&&oldHouseArtReady?art.path:art?.file?'assets/locations/'+art.file:route127RegionalArt(g),choices:this.choices(),hp:Number(player.hp)||0,maxHp:Number(player.maxHp)||1,level:Number(player.level)||1,xp:Number(player.xp)||0,nextXp:Number(player.nextXp)||1,bolts:Number(player.bolts)||0,turns:Number(player.turns)||0,maxTurns:Number(player.maxTurns)||150,pack:packSlotsUsed(),capacity:player.packMax,time:timePhase(),enemies:combatState?(combatState.enemies?.length?combatState.enemies:[combatState]).map(e=>({name:e.name,hp:e.hp,maxHp:e.maxHp||e.hp})):[]};},
  preview(){const g=typeof lanternState==='function'?lanternState():null;if(!g||g.currentEdgeId)return '';if(g.nodeId==='northern-ridge')return 'Grand City rises above the northern approach: lamps glow behind repaired walls, and smoke curls from roofs where people are building a life again. The city interior remains beyond this preview.';if(g.nodeId==='broken-bridge')return 'The ruined span ends above the dark water. Weathered roads lead back into the wasteland; the territory across the broken crossing remains inaccessible.';return '';},
  statuses(){const c=combatState;if(!c)return [];const rows=[];for(const [key,label]of [['r18RatBleed','Bite bleeding'],['r18PowderBleed','Shrapnel bleeding'],['r18RatGuardBreak','Guard weakened']])if(c[key]>0)rows.push(label+': '+c[key]+' exchanges');if(c.wo3Cover)rows.push('Container cover ready');if(c.wo3LightShot)rows.push('Drone floodlight disabled');if(c.r18PowderGrenadePending)rows.push('Grenade readied');return rows;},
  nav(model){const result=[];if(player.flags.interfaceUnlocked){result.push(['map','Map','map'],['inventory','Backpack','pack'],['status','Character','person']);const craft=model.choices.find(c=>/^(crafting recipes|use workbench|crafting|recipes)$/.test(c.command));if(craft)result.push([craft.key,'Crafting','tool']);result.push(['quests','Journal','book']);}return result;},
- async dispatch(choice){if(busy)return false;const current=this.choices().find(c=>c.key===choice.key&&c.command===choice.command);if(!current){this.sync();return false;}this.navOpen=false;await handleCommand(current.key);this.sync();return true;},
+ async dispatch(choice){
+  const current=this.choices().find(c=>c.key===choice?.key&&c.command===choice?.command);
+  if(!current){this.sync();return false;}
+  if(busy||commandProcessing)return false;
+  const encounter=stage==='encounter'&&!!currentEncounter();
+  this.navOpen=false;
+  await handleCommand(encounter?current.command:current.key);
+  this.sync();return true;
+ },
  node(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;},
  icon(kind){const paths={map:'M3 5l6-2 6 2 6-2v16l-6 2-6-2-6 2z M9 3v16 M15 5v16',pack:'M7 8V5a5 5 0 0110 0v3 M5 8h14l2 13H3z M8 12v5h8v-5z',person:'M8 6a4 4 0 108 0 4 4 0 00-8 0 M3 22v-5a9 9 0 0118 0v5',tool:'M14 3a6 6 0 00-6 8L2 18l4 4 7-7a6 6 0 008-7l-4 4-4-4 4-4z',book:'M12 5C8 1 3 3 2 4v17c4-2 7-2 10 0 3-2 6-2 10 0V4c-4-2-7-2-10 1z M12 5v16',gear:'M12 2v4 M12 18v4 M2 12h4 M18 12h4 M5 5l3 3 M16 16l3 3 M5 19l3-3 M16 8l3-3 M7 12a5 5 0 1010 0 5 5 0 00-10 0'};const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),p=document.createElementNS('http://www.w3.org/2000/svg','path');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');p.setAttribute('d',paths[kind]||paths.gear);svg.appendChild(p);return svg;},
  button(label,fn,cls=''){const b=this.node('button',cls,label);b.type='button';b.addEventListener('click',fn);return b;},
@@ -67,31 +132,86 @@ const GraphicalUI={
   const frame=this.node('section','gfx-frame');frame.setAttribute('aria-label','Route 127 graphical interface');frame.hidden=true;
   const header=this.node('header','gfx-header metal');const brand=this.node('div','gfx-brand');brand.appendChild(this.node('strong','gfx-wordmark','ROUTE 127'));brand.appendChild(this.node('span','gfx-tagline','BOLTS • SURVIVE • EXPLORE • REBUILD'));header.appendChild(brand);header.appendChild(this.node('p','gfx-motto','SOME ROADS\nNEVER DIE'));const stats=this.node('div','gfx-stats');header.appendChild(stats);frame.appendChild(header);
   const bar=this.node('div','gfx-mobile-bar');const toggle=this.button('☰ MENU',()=>{this.navOpen=!this.navOpen;this.sync();},'gfx-menu-toggle');toggle.setAttribute('aria-controls','gfx-navigation');bar.appendChild(toggle);const where=this.node('span','gfx-current-location');bar.appendChild(where);frame.appendChild(bar);
-  const layout=this.node('div','gfx-layout'),nav=this.node('nav','gfx-nav metal');nav.id='gfx-navigation';nav.setAttribute('aria-label','Player navigation');layout.appendChild(nav);const main=this.node('div','gfx-main');const figure=this.node('figure','gfx-art metal'),img=this.node('img','gfx-image');img.alt='';img.decoding='async';img.addEventListener('load',()=>{if(!img.getAttribute('src'))return;img.hidden=false;figure.classList.remove('gfx-neutral');figure.classList.remove('gfx-art-failed');figure.dataset.loadState='loaded';});img.addEventListener('error',()=>{if(!img.getAttribute('src'))return;
-   // Missing approved artwork must never leave a blank game panel while image files are being installed.
-   const source=img.getAttribute('src')||'';
-   if(/\/assets\/locations\/solace_(?:amii_bank|murphy_garage|tim|johnny_shop|wayne_clinic|mara_armory|relay_station|town_gate)\.png$|\/assets\/locations\/abandoned_house_interior\.png$/.test(source)){
-    const fallback=new URL('assets/locations/solace.png',ROUTE127_ASSET_BASE||document.baseURI).href;
-    if(source!==fallback){img.src=fallback;return;}
-   }
-   img.hidden=true;figure.classList.add('gfx-neutral');figure.classList.add('gfx-art-failed');figure.dataset.loadState='error';});const caption=this.node('figcaption','gfx-art-caption');figure.appendChild(img);figure.appendChild(caption);const artError=this.node('div','gfx-art-error','Location artwork could not be loaded. ');artError.appendChild(this.button('Retry artwork',()=>{if(!img.getAttribute('src'))return;img.hidden=false;figure.dataset.loadState='loading';const source=img.getAttribute('src');img.removeAttribute('src');img.src=source;},'gfx-art-retry'));figure.appendChild(artError);main.appendChild(figure);const enemies=this.node('section','gfx-combat metal');enemies.setAttribute('aria-label','Combat status');main.appendChild(enemies);const narrative=this.node('section','gfx-narrative metal');narrative.setAttribute('aria-label','Game narrative and dialogue');main.appendChild(narrative);const choices=this.node('div','gfx-choices');choices.setAttribute('aria-label','Available game actions');main.appendChild(choices);const settings=this.node('section','gfx-settings metal');settings.hidden=true;settings.setAttribute('aria-label','Display options');main.appendChild(settings);layout.appendChild(main);frame.appendChild(layout);shell.insertBefore(frame,this.home);
+  const layout=this.node('div','gfx-layout'),nav=this.node('nav','gfx-nav metal');nav.id='gfx-navigation';nav.setAttribute('aria-label','Player navigation');layout.appendChild(nav);const main=this.node('div','gfx-main');const figure=this.node('figure','gfx-art metal'),img=this.node('img','gfx-image');img.alt='';img.decoding='async';img.addEventListener('load',()=>{if(!img.getAttribute('src'))return;img.hidden=false;figure.classList.remove('gfx-neutral');figure.classList.remove('gfx-art-failed');figure.dataset.loadState='loaded';});img.addEventListener('error',()=>{if(!img.getAttribute('src'))return;img.hidden=true;figure.classList.add('gfx-neutral');figure.classList.add('gfx-art-failed');figure.dataset.loadState='error';});const caption=this.node('figcaption','gfx-art-caption');figure.appendChild(img);figure.appendChild(caption);const artError=this.node('div','gfx-art-error','Location artwork could not be loaded. ');artError.appendChild(this.button('Retry artwork',()=>{if(!img.getAttribute('src'))return;img.hidden=false;figure.dataset.loadState='loading';const source=img.getAttribute('src');img.removeAttribute('src');img.src=source;},'gfx-art-retry'));figure.appendChild(artError);main.appendChild(figure);const enemies=this.node('section','gfx-combat metal');enemies.setAttribute('aria-label','Combat status');main.appendChild(enemies);const narrative=this.node('section','gfx-narrative metal');narrative.setAttribute('aria-label','Game narrative and dialogue');main.appendChild(narrative);const choices=this.node('div','gfx-choices');choices.setAttribute('aria-label','Available game actions');main.appendChild(choices);const settings=this.node('section','gfx-settings metal');settings.hidden=true;settings.setAttribute('aria-label','Display options');main.appendChild(settings);layout.appendChild(main);frame.appendChild(layout);shell.insertBefore(frame,this.home);
   const classic=this.button('FULL GRAPHICS',()=>this.setMode(this.preference()==='classic'?'graphics':'classic'),'gfx-classic-switch');classic.hidden=true;shell.appendChild(classic);
   this.element={frame,header,stats,nav,main,figure,img,caption,enemies,narrative,choices,settings,classic,where,toggle};this.sync();
  },
  meter(label,value,max,kind){const row=this.node('div','gfx-stat '+kind);row.appendChild(this.node('span','gfx-stat-label',label));const meter=this.node('span','gfx-meter');meter.setAttribute('role','meter');meter.setAttribute('aria-label',label);meter.setAttribute('aria-valuemin','0');meter.setAttribute('aria-valuemax',String(max));meter.setAttribute('aria-valuenow',String(value));const fill=this.node('i');fill.style.width=Math.max(0,Math.min(100,value/Math.max(1,max)*100))+'%';meter.appendChild(fill);meter.appendChild(this.node('b','',value+' / '+max));row.appendChild(meter);return row;},
- sync(){if(!this.element||this.rendering)return;this.rendering=true;try{const m=this.model(),e=this.element;e.frame.hidden=!m.active;e.classic.hidden=m.active;e.classic.textContent=this.preference()==='classic'?'DISPLAY: CLASSIC BBS — SWITCH TO GRAPHICS':'DISPLAY: GRAPHICS — SWITCH TO CLASSIC BBS';document.body.classList.toggle('full-graphics',m.active);if(!m.active){if(screen.parentNode!==this.home)this.home.insertBefore(screen,this.home.firstChild);this.home.hidden=false;return;}if(screen.parentNode!==e.narrative)e.narrative.appendChild(screen);this.home.hidden=true;e.frame.dataset.layout=m.layout;e.frame.dataset.checkpoint=m.location==='solace'?'solace':'';e.frame.classList.toggle('nav-open',this.navOpen);e.toggle.setAttribute('aria-expanded',String(this.navOpen));e.where.textContent=m.title;e.caption.textContent=m.title;
-  const source=m.art?(ROUTE127_ASSET_BASE?new URL(m.art,ROUTE127_ASSET_BASE).href:m.art):'';if(e.img.getAttribute('src')!==source){if(source){e.img.hidden=false;e.figure.dataset.loadState='loading';e.figure.classList.remove('gfx-art-failed');e.img.src=source;e.img.alt=m.title+' — approved environment artwork';}else{e.img.hidden=true;e.img.removeAttribute('src');e.img.alt='';e.figure.classList.remove('gfx-art-failed');e.figure.dataset.loadState='none';}}e.figure.classList.toggle('gfx-neutral',!m.art||e.img.hidden);e.figure.hidden=['map','inventory','character','journal','crafting'].includes(m.layout);e.enemies.hidden=!m.enemies.length;
+ sync(){if(!this.element||this.rendering)return;this.rendering=true;try{sceneArtwork.begin();const m=this.model(),e=this.element;
+ if(m.active&&m.art&&/\/assets\/(?:scenarios|enemies)\//.test(new URL(m.art,ROUTE127_ASSET_BASE||document.baseURI).pathname)&&!this.sceneArtworkReady(m.art)){
+  m.art=route127RegionalArt(lanternState());m.regionalSky=null;m.causewayBacking=false;
+ }e.frame.hidden=!m.active;e.classic.hidden=m.active;e.classic.textContent=this.preference()==='classic'?'DISPLAY: CLASSIC BBS — SWITCH TO GRAPHICS':'DISPLAY: GRAPHICS — SWITCH TO CLASSIC BBS';document.body.classList.toggle('full-graphics',m.active);if(!m.active){if(screen.parentNode!==this.home)this.home.insertBefore(screen,this.home.firstChild);this.home.hidden=false;return;}if(screen.parentNode!==e.narrative)e.narrative.appendChild(screen);this.home.hidden=true;e.frame.dataset.layout=m.layout;e.frame.dataset.checkpoint=m.location==='solace'?'solace':'';e.frame.classList.toggle('nav-open',this.navOpen);e.toggle.setAttribute('aria-expanded',String(this.navOpen));e.where.textContent=m.title;e.caption.textContent=m.title;
+  const source=m.art?(ROUTE127_ASSET_BASE?new URL(m.art,ROUTE127_ASSET_BASE).href:m.art):'';if(e.img.getAttribute('src')!==source){if(source){e.img.hidden=false;e.figure.dataset.loadState='loading';e.figure.classList.remove('gfx-art-failed');e.img.src=source;e.img.alt=m.title+' — approved environment artwork';}else{e.img.hidden=true;e.img.removeAttribute('src');e.img.alt='';e.figure.classList.remove('gfx-art-failed');e.figure.dataset.loadState='none';}}e.figure.classList.toggle('gfx-neutral',!m.art||e.img.hidden);e.figure.hidden=['map','inventory','character','journal'].includes(m.layout);e.enemies.hidden=!m.enemies.length;
   e.stats.replaceChildren(this.node('strong','gfx-level','LV '+m.level),this.meter('HP',m.hp,m.maxHp,'hp'),this.meter('TURNS',m.turns,m.maxTurns,'turns'),this.meter('XP',m.xp,m.nextXp,'xp'),this.node('span','gfx-economy',m.bolts+' BOLTS · PACK '+m.pack+'/'+m.capacity+' · '+m.time));
   e.enemies.replaceChildren();for(const enemy of m.enemies){const row=this.node('div','gfx-enemy');row.appendChild(this.node('strong','',enemy.name));row.appendChild(this.meter('HP',enemy.hp,enemy.maxHp,'hp'));e.enemies.appendChild(row);}for(const status of this.statuses())e.enemies.appendChild(this.node('p','gfx-effect',status));
   e.nav.replaceChildren();for(const [command,label,icon]of this.nav(m)){const b=this.button('',async()=>{if(busy)return;this.navOpen=false;await handleCommand(command);this.sync();},'gfx-nav-button');b.appendChild(this.icon(icon));b.appendChild(this.node('span','',label));e.nav.appendChild(b);}const opts=this.button('',()=>{this.optionsOpen=!this.optionsOpen;this.sync();},'gfx-nav-button');opts.setAttribute('aria-expanded',String(this.optionsOpen));opts.appendChild(this.icon('gear'));opts.appendChild(this.node('span','','Options'));e.nav.appendChild(opts);
-  e.settings.hidden=!this.optionsOpen;e.settings.replaceChildren();if(this.optionsOpen){e.settings.appendChild(this.node('h2','','DISPLAY OPTIONS'));e.settings.appendChild(this.button('CLASSIC BBS',()=>this.setMode('classic')));e.settings.appendChild(this.button('CLOSE OPTIONS',()=>{this.optionsOpen=false;this.sync();}));}
-  e.choices.replaceChildren();e.choices.style.setProperty('--gfx-choice-rows',String(Math.max(1,Math.ceil(m.choices.length/2))));for(const [i,c]of m.choices.entries()){const b=this.button('',()=>this.dispatch(c),'gfx-choice');b.disabled=!!busy;if(c.label!==c.command){b.classList.add('gfx-road-choice');b.setAttribute('title',c.label);b.setAttribute('aria-label',c.key+' '+c.label);}b.appendChild(this.node('span','gfx-choice-key',c.key.toUpperCase()));b.appendChild(this.node('span','gfx-choice-label',c.label));b.appendChild(this.node('span','gfx-choice-arrow','›'));e.choices.appendChild(b);}
+  e.settings.hidden=!this.optionsOpen;e.settings.replaceChildren();if(this.optionsOpen){
+    e.settings.appendChild(this.node('h2','','DISPLAY OPTIONS'));
+    e.settings.appendChild(this.button('CLASSIC BBS',()=>this.setMode('classic')));
+    e.settings.appendChild(this.button('CLOSE OPTIONS',()=>{this.optionsOpen=false;this.sync();}));
+  }
+  e.choices.replaceChildren();e.choices.style.setProperty('--gfx-choice-rows',String(Math.max(1,Math.ceil(m.choices.length/2))));for(const [i,c]of m.choices.entries()){const b=this.button('',()=>this.dispatch(c),'gfx-choice');b.disabled=!!busy;if(c.label!==c.command){b.classList.add('gfx-road-choice');b.setAttribute('title',c.label);b.setAttribute('aria-label',c.key+' '+c.label);}b.appendChild(this.node('span','gfx-choice-key',c.key.toUpperCase()));b.appendChild(this.node('span','gfx-choice-label',c.label));b.appendChild(this.node('span','gfx-choice-arrow','›'));e.choices.appendChild(b);globalThis.Route127ShopComparison?.bind(b,c);}
  }finally{this.rendering=false;}},
  schedule(){if(this.scheduled)return;this.scheduled=true;outputQueue=outputQueue.then(()=>{this.scheduled=false;this.sync();});}
 };
+const sceneArtwork=createSceneArtworkLoader(GraphicalUI);
+
+// Decode the shared house backdrop before replacing the regional image.
+if(typeof Image==='function'){
+ const houseImage=new Image();
+ houseImage.onload=()=>{
+  const ready=()=>{oldHouseArtReady=true;GraphicalUI.schedule();};
+  if(typeof houseImage.decode==='function')houseImage.decode().then(ready,()=>{});
+  else ready();
+ };
+ houseImage.src=new URL(OLD_HOUSE_ART,ROUTE127_ASSET_BASE||document.baseURI).href;
+}
+
 // Hooks observe output and settled transitions; they never regenerate a gameplay menu.
-const wo14Add=add;add=function(text='',cls=''){if(String(cls).includes('place'))GraphicalUI.lastPlace=String(text);const result=wo14Add(text,cls);GraphicalUI.schedule();return result;};
-const wo14Immediate=addImmediate;addImmediate=function(text='',cls=''){const result=wo14Immediate(text,choiceOutputClass(text,cls));GraphicalUI.schedule();return result;};
+// Graphical mode keeps action buttons; hide legacy typed-command echoes only.
+function r127HideGraphicalEcho(line,text,cls){
+ if(!line||!GraphicalUI.active()||!String(cls).split(/\s+/).includes('bright'))return;
+ if(/^>\s*(?:\d+|[a-z])\s*$/i.test(String(text).trim()))line.classList.add('r127-graphical-command-echo');
+}
+// Graphical-only transcript cleanup. Preserve underlying BBS lines for Classic.
+const r127EchoStyle=document.createElement('style');
+r127EchoStyle.textContent=[
+ 'body.full-graphics #screen > .line.place,',
+ 'body.full-graphics #screen > .line.r127-graphical-redundant,',
+ 'body.full-graphics #screen > .line.r127-graphical-command-echo',
+ '{display:none!important}'
+].join(' ');
+document.head.appendChild(r127EchoStyle);
+function r127CleanGraphicalLine(line){
+ if(!line?.classList?.contains('line'))return;
+ const value=(line.textContent||'').trim();
+ // Only single action acknowledgements, not dialogue or narrative.
+ const command=/^>\s*(?:\d{1,2}|[a-z])\s*$/i.test(value);
+ // Some towns emit the location plate as a generic system/bright line
+ // instead of a "place" line. Exclude quest/reward/warning text explicitly.
+ const location=/^(?:SEAPORT|SOLACE|FACTORY|INDUSTRIAL|CENTRAL|LOWLANDS|CAUSEWAY|NORTH|EAST|WEST|RUSTY LANTERN|RUSTY ANCHOR|SCRAP YARD|ROUTE 127)\s*[—–-]\s*[A-Z0-9][A-Z0-9 '&’()./-]{1,75}$/.test(value)
+   &&!/\b(?:QUEST|REWARD|WARNING|BOUNTY|XP|BOLTS|DAMAGE|HP|WANDERER)\b/.test(value);
+ line.classList.toggle('r127-graphical-command-echo',command);
+ line.classList.toggle('r127-graphical-redundant',location);
+}
+const r127NarrativeObserver=new MutationObserver(records=>{
+ const changed=new Set();
+ for(const record of records){
+  const parent=record.target.nodeType===1?record.target:record.target.parentElement;
+  const line=parent?.closest?.('.line');if(line)changed.add(line);
+  if(record.type==='childList')for(const node of record.addedNodes){
+   if(node.nodeType!==1)continue;
+   if(node.classList?.contains('line'))changed.add(node);
+   else for(const nested of node.querySelectorAll?.('.line')||[])changed.add(nested);
+  }
+ }
+ for(const line of changed)r127CleanGraphicalLine(line);
+});
+r127NarrativeObserver.observe(screen,{childList:true,subtree:true,characterData:true});
+for(const line of screen.children)r127CleanGraphicalLine(line);
+
+const wo14Add=add;add=function(text='',cls=''){if(String(cls).includes('place'))GraphicalUI.lastPlace=String(text);const result=wo14Add(text,cls);if(GraphicalUI.active()&&String(cls).split(/\s+/).includes('bright')&&/^>\s*(?:\d+|[a-z])\s*$/i.test(String(text).trim())){outputQueue=outputQueue.then(()=>{const line=screen.lastElementChild;if(line?.classList.contains('line'))line.classList.add('r127-graphical-command-echo');});}GraphicalUI.schedule();return result;};
+const wo14Immediate=addImmediate;addImmediate=function(text='',cls=''){const result=wo14Immediate(text,choiceOutputClass(text,cls));r127HideGraphicalEcho(result,text,cls);GraphicalUI.schedule();return result;};
 const wo14Hud=updateHud;updateHud=function(...args){const result=wo14Hud(...args);GraphicalUI.sync();return result;};
 const wo14Command=handleCommand;handleCommand=async function(raw){const mode=String(raw).trim().toLowerCase();if(['classic bbs','full graphics'].includes(mode)){GraphicalUI.setMode(mode==='classic bbs'?'classic':'graphics');return;}try{return await wo14Command(raw);}finally{GraphicalUI.schedule();}};
 const wo14Load=loadGame;loadGame=function(...args){const result=wo14Load(...args);GraphicalUI.schedule();return result;};
@@ -121,13 +241,13 @@ const Route127MapOverlay={
   const g=lanternState();if(!g)return false;
   this.previousFocus=document.activeElement;
   const dialog=document.createElement('dialog');dialog.className='route127-map-overlay';
-  dialog.setAttribute('aria-label','Route 127 world map');
+  dialog.setAttribute('aria-label','Lantern Highway world map');
   const header=document.createElement('header');
-  const title=document.createElement('strong');title.textContent='ROUTE 127 — WORLD MAP';header.appendChild(title);
+  const title=document.createElement('strong');title.textContent='LANTERN HIGHWAY — WORLD MAP';header.appendChild(title);
   const close=document.createElement('button');close.type='button';close.textContent='X';close.setAttribute('aria-label','Close map');close.addEventListener('click',()=>this.close());header.appendChild(close);dialog.appendChild(header);
   const body=document.createElement('div');body.className='route127-map-body';dialog.appendChild(body);
   const position=document.createElement('p');position.textContent=g.currentEdgeId?lanternProgressText():'YOU ARE HERE — '+LG_NODES[g.nodeId].name;body.appendChild(position);
-  const v=LANTERN_MAP_VISUAL,W=v.width,H=v.height,figure=document.createElement('figure');figure.className='lantern-map';figure.setAttribute('aria-label','Approved Route 127 map with current position');const p=lanternMarker();const paths=LANTERN_WORLD_GRAPH.edges.filter(e=>e.id===g.currentEdgeId).map(e=>`<polyline data-active-road="${e.id}" points="${v.edges[e.id].map(q=>q.join(',')).join(' ')}" fill="none" stroke="${lanternAllowed(e)?'#37bdae':'#ef7777'}" stroke-width="2" ${v.approximateEdges[e.id]?'stroke-dasharray="5 6"':''} opacity=".65"><title>${LG_NODES[e.a].name} to ${LG_NODES[e.b].name}: ${e.distanceTurns} turns</title></polyline>`).join('');const dots=LANTERN_WORLD_GRAPH.nodes.map((n,index)=>{const q=v.nodes[n.id],number=index+1;return `<g class="canonical-map-node" data-map-node="${n.id}" data-node-number="${number}" role="img" aria-label="Node ${number}: ${n.name}"><circle cx="${q[0]}" cy="${q[1]}" r="16" fill="#10181f" stroke="#10181f" stroke-width="3"/><circle cx="${q[0]}" cy="${q[1]}" r="13" fill="#10181f" stroke="${g.discoveredNodes.includes(n.id)?'#ffd487':'#aebdc7'}" stroke-width="2"/><text x="${q[0]}" y="${q[1]+4}" text-anchor="middle" fill="#f6e8c7" font-size="12" font-family="monospace" font-weight="bold">${number}</text><title>Node ${number}: ${n.name}${n.futureInterior?' — exterior only':''}</title></g>`;}).join('');figure.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="You are here: ${g.currentEdgeId?lanternProgressText():LG_NODES[g.nodeId].name}"><image href="${v.image||LANTERN_WORLD_GRAPH.image}" width="${W}" height="${H}"/>${paths}${dots}${r18StationMapMarker()}${lanternVisualSiteMarker(player.flags.r18Ash,'ASH CEMETERY')}<circle id="lantern-player-marker" cx="${p[0]*W}" cy="${p[1]*H}" r="20" fill="none" stroke="#ffbd4a" stroke-width="3"/><text x="${p[0]*W+15}" y="${p[1]*H-16}" fill="#ffcf70" stroke="#10151c" stroke-width="5" paint-order="stroke" font-size="20" font-weight="bold">YOU ARE HERE</text></svg>`;body.appendChild(figure);
+  const v=LANTERN_MAP_VISUAL,W=v.width,H=v.height,figure=document.createElement('figure');figure.className='lantern-map';figure.setAttribute('aria-label','Approved Lantern Highway map with current position');const p=lanternMarker();const paths=LANTERN_WORLD_GRAPH.edges.filter(e=>e.id===g.currentEdgeId).map(e=>`<polyline data-active-road="${e.id}" points="${v.edges[e.id].map(q=>q.join(',')).join(' ')}" fill="none" stroke="${lanternAllowed(e)?'#37bdae':'#ef7777'}" stroke-width="2" ${v.approximateEdges[e.id]?'stroke-dasharray="5 6"':''} opacity=".65"><title>${LG_NODES[e.a].name} to ${LG_NODES[e.b].name}: ${e.distanceTurns} turns</title></polyline>`).join('');const dots=LANTERN_WORLD_GRAPH.nodes.map((n,index)=>{const q=v.nodes[n.id],number=index+1;return `<g class="canonical-map-node" data-map-node="${n.id}" data-node-number="${number}" role="img" aria-label="Node ${number}: ${n.name}"><circle cx="${q[0]}" cy="${q[1]}" r="16" fill="#10181f" stroke="#10181f" stroke-width="3"/><circle cx="${q[0]}" cy="${q[1]}" r="13" fill="#10181f" stroke="${g.discoveredNodes.includes(n.id)?'#ffd487':'#aebdc7'}" stroke-width="2"/><text x="${q[0]}" y="${q[1]+4}" text-anchor="middle" fill="#f6e8c7" font-size="12" font-family="monospace" font-weight="bold">${number}</text><title>Node ${number}: ${n.name}${n.futureInterior?' — exterior only':''}</title></g>`;}).join('');figure.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="You are here: ${g.currentEdgeId?lanternProgressText():LG_NODES[g.nodeId].name}"><image href="${v.image||LANTERN_WORLD_GRAPH.image}" width="${W}" height="${H}"/>${paths}${dots}${r18StationMapMarker()}${lanternVisualSiteMarker(player.flags.r18Ash,'ASH CEMETERY')}<circle id="lantern-player-marker" cx="${p[0]*W}" cy="${p[1]*H}" r="20" fill="none" stroke="#ffbd4a" stroke-width="3"/><text x="${p[0]*W+15}" y="${p[1]*H-16}" fill="#ffcf70" stroke="#10151c" stroke-width="5" paint-order="stroke" font-size="20" font-weight="bold">YOU ARE HERE</text></svg>`;body.appendChild(figure);
   const legend=document.createElement('p');legend.textContent='Amber: your position. Teal: current road. Close with X or Escape.';body.appendChild(legend);
   dialog.addEventListener('cancel',event=>{event.preventDefault();this.close();});
   document.body.appendChild(dialog);this.dialog=dialog;dialog.showModal();close.focus();return true;

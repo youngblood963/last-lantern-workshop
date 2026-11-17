@@ -4,7 +4,7 @@
  */
 (()=>{
  'use strict';
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||
     typeof r18RedAllowed!=='function'||typeof r18RedState!=='function'||
     typeof GraphicalUI==='undefined')return;
 
@@ -24,9 +24,7 @@
       ...(player.flags.r18RedPosterSeen&&!q.outcome?[q.posterOpen?'DISCUSS THE WANTED POSTER':'SHOW THE WANTED POSTER']:[]),
       'RETURN TO MIA'];
   r5DirectChoices(options);
-  // A previous conversation may leave a legacy B hotkey in the same menu.
-  // The explicit RETURN button provides the only visible exit.
-  if(currentHotkeys?.b==='back')delete currentHotkeys.b;
+
  }
  function redIntro(){
   const q=r18RedState();
@@ -113,10 +111,52 @@
  const priorModel=GraphicalUI.model;
  GraphicalUI.model=function(...args){
   const model=priorModel.apply(this,args);
-  if(stage==='r18Red'){
-   model.title='The Rusty Anchor — Red';
+  if(stage==='r18Red'||(
+     (stage==='combat'||stage==='combatItems')&&
+     typeof combatState!=='undefined'&&combatState?.source==='r18RedFight')){
+   model.title=stage==='r18Red'?'The Rusty Anchor — Red':'RED’S FIGHT — THE RUSTY ANCHOR';
+   // Red already has a complete scene portrait. Reuse it for the fight.
    model.art='../devtest/assets/locations/rusty_anchor_red.png?v=wo44-red-portrait';
   }
   return model;
+ };
+ // Add one health meter directly to Red's existing portrait during his fight.
+ // Use combatState as the authority; no extra combat sprite, damage or save data.
+ const meterStyle=document.createElement('style');
+ meterStyle.id='r127-red-fight-health';
+ meterStyle.textContent=`
+ .gfx-art .r127-red-fight-hp{position:absolute;z-index:12;left:50%;bottom:11%;transform:translateX(-50%);
+  box-sizing:border-box;width:min(72%,330px);padding:7px 10px;background:#110e0de8;
+  border:1px solid #a97858;border-radius:4px;color:#f7e3cf;pointer-events:none;
+  font:700 12px/1.3 system-ui,sans-serif;text-align:center;letter-spacing:.04em;
+  box-shadow:0 2px 14px #000b}
+ .gfx-art .r127-red-fight-hp-track{height:12px;margin-top:5px;background:#320e0d;border:1px solid #7e4b42;border-radius:3px;overflow:hidden}
+ .gfx-art .r127-red-fight-hp-fill{height:100%;background:linear-gradient(180deg,#e84538,#9e160e);transition:width .18s linear}
+ `;
+ document.head.append(meterStyle);
+ const originalSync=GraphicalUI.sync;
+ GraphicalUI.sync=function(...args){
+  const result=originalSync.apply(this,args);
+  try{
+   const figure=this.element?.figure;
+   if(!figure)return result;
+   const combat=typeof combatState!=='undefined'?combatState:null;
+   const redFight=this.active()&&!!combat&&combat.source==='r18RedFight'&&
+     (stage==='combat'||stage==='combatItems');
+   let meter=figure.querySelector(':scope > .r127-red-fight-hp');
+   if(!redFight){meter?.remove();return result;}
+   if(!meter){
+    meter=document.createElement('div');meter.className='r127-red-fight-hp';
+    const label=document.createElement('div');label.className='r127-red-fight-hp-label';
+    const track=document.createElement('div');track.className='r127-red-fight-hp-track';
+    const fill=document.createElement('div');fill.className='r127-red-fight-hp-fill';
+    track.append(fill);meter.append(label,track);figure.append(meter);
+   }
+   const hp=Math.max(0,Number(combat.hp)||0);
+   const max=Math.max(1,Number(combat.maxHp)||hp||1);
+   meter.querySelector('.r127-red-fight-hp-label').textContent='RED  ·  '+Math.ceil(hp)+' / '+Math.ceil(max)+' HP';
+   meter.querySelector('.r127-red-fight-hp-fill').style.width=(Math.min(100,hp/max*100))+'%';
+  }catch(err){console.warn('Red fight health overlay:',err);}
+  return result;
  };
 })();

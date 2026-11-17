@@ -209,7 +209,7 @@ function r11RestoreCasinoLedger(force=false){
  // Carry only casino debits/credits across a rollback, never unrelated quest earnings.
  const balance=player.bolts+(db.net||0)-(player.flags.r11CasinoNet||0);if(!Number.isSafeInteger(balance))throw Error('Casino journal balance requires recovery.');
  player.bolts=Math.max(0,balance);player.flags.r11CasinoSeq=db.seq;player.flags.r11CasinoNet=db.net||0;player.flags.r6Game=db.r6Game;player.flags.casino=db.casino;
- if(db.cheeseburgerOwned&&!player.flags.cheeseburgerOwned){player.flags.cheeseburgerOwned=true;const owned=player.flags.ownedPets||(player.flags.ownedPets=[]);if(!owned.includes('Cheeseburger'))owned.push('Cheeseburger');player.packMax+=6;}
+ if(db.cheeseburgerOwned&&!player.flags.cheeseburgerOwned&&!player.flags.r127CheeseburgerRetired){player.flags.cheeseburgerOwned=true;const owned=player.flags.ownedPets||(player.flags.ownedPets=[]);if(!owned.includes('Cheeseburger'))owned.push('Cheeseburger');player.packMax+=6;}
 }
 // Fixed-odds games can express a true relative probability bonus without changing skill rules.
 const R11_LUCK_GAMES=['dice','rps','rats','slots','CRAB RACING'];
@@ -236,13 +236,13 @@ casinoResolve=function(r){
   r.result=x<win?'win':x<win+1/3?'push':'loss';r.opponent=r.result==='win'?beats[r.pick]:r.result==='push'?r.pick:loses[r.pick];casinoSettle(r,r.result==='win'?2*r.bet:r.result==='push'?r.bet:0,`${r.pick} vs ${r.opponent} — ${r.result}`);casinoRender();return;
  }
  if(r.game==='slots'){
-  r.reels=[casinoSlotDraw(),casinoSlotDraw(),casinoSlotDraw()];const p=SLOT_SYMBOLS.reduce((s,a)=>s+(a.weight/100)**3,0);
+  r.reels=casinoSlotBoost([casinoSlotDraw(),casinoSlotDraw(),casinoSlotDraw()]);const p=SLOT_SYMBOLS.reduce((s,a)=>s+(a.weight/100)**3,0);
   if(!r.reels.every(n=>n===r.reels[0])&&r11LuckyConvert(false,p)){
    let x=Math.random()*p;const symbol=SLOT_SYMBOLS.find(a=>(x-=(a.weight/100)**3)<0)||SLOT_SYMBOLS.at(-1);r.reels=[symbol.name,symbol.name,symbol.name];
   }
   casinoSettle(r,casinoSlotPayout(r.reels,r.bet),r.reels.join(' / '));
   // Preserve the independent once-per-character pet jackpot.
-  if(!player.flags.cheeseburgerOwned&&Math.random()<.05){player.flags.cheeseburgerOwned=true;const owned=player.flags.ownedPets||(player.flags.ownedPets=[]);if(!owned.includes('Cheeseburger'))owned.push('Cheeseburger');player.packMax+=6;add('CHEESEBURGER joins your companions. +6 backpack slots.','legendary');casinoCheckpoint();}
+  if(!player.flags.cheeseburgerOwned&&!player.flags.r127CheeseburgerRetired&&Math.random()<.05){player.flags.cheeseburgerOwned=true;const owned=player.flags.ownedPets||(player.flags.ownedPets=[]);if(!owned.includes('Cheeseburger'))owned.push('Cheeseburger');player.packMax+=6;add('CHEESEBURGER joins your companions. +6 backpack slots.','legendary');casinoCheckpoint();}
   casinoAnimate(['[ ? ] [ ? ] [ ? ]'],r.reels.map(s=>'['+s+']').join(' '));casinoRender();return;
  }
  return r11CasinoResolve(r);
@@ -306,45 +306,46 @@ const r11SolaceBoard=showBulletinBoard;showBulletinBoard=function(){r11SolaceBoa
 function r11PortBoard(){stage='r11Board';add('SEAPORT — DOCK BULLETIN BOARD','place');
  add('SHIPPING: Register cargo before unloading. Unmarked crates will be held at the quay.');add('DOCKWORKERS: Check mooring ropes after every squall.');add('MISSING CARGO: Report altered freight manifests to the docks clerk.');add('HARBOR HAZARD: The western freight spur has unstable decking.');add('LOCAL NOTICE: Mia wants her cups back. Kaiden wants everyone to stop blaming the gulls.');r11SharedBoard();r5DirectChoices(['POST A MESSAGE','VIEW BOUNTIES','RETURN TO DOCKS']);
 }
-const r11Docks=r5Docks;r5Docks=function(){if(!portRecruitUnlocked())return r11Docks();stage='port55Docks';add('SEAPORT — HARBOR DOCKS','place');add('A clerk checks water-stained manifests beside the freed quay.','bright');r5DirectChoices(['DOCK BULLETIN BOARD','TALK TO DOCKS CLERK',...(r18CourierEligible('docks')?['DELIVER SEAPORT PARCEL']:[]),...(player.flags.port55PendingRewards?.length?['CLAIM PENDING REWARD']:[]),'RETURN TO SEAPORT']);};
-port55MiaMenu=function(){stage='port55Mia';port55Submenu('The Rusty Anchor — Mia',['SMALL TALK','BUY DRINKS','GAMBLE',player.flags.r6AnchorRoomOwned?'GO TO ROOM':'RENT ROOM — 2000 BOLTS',...(portRecruitUnlocked()?['ASK ABOUT HOUSE RULES']:[]),'RETURN TO HARBOR']);};
+const r11Docks=r5Docks;r5Docks=function(){if(!portRecruitUnlocked())return r11Docks();stage='port55Docks';add('SEAPORT — HARBOR DOCKS','place');add('Hollis Reed checks water-stained manifests beside the freed quay.','bright');r5DirectChoices(['DOCK BULLETIN BOARD','TALK TO HOLLIS REED',...(r18CourierEligible('docks')?['DELIVER SEAPORT PARCEL']:[]),...(player.flags.port55PendingRewards?.length?['CLAIM PENDING REWARD']:[]),'RETURN TO SEAPORT']);};
+function r11HollisMenu(){stage='r11Hollis';add('HOLLIS REED — DOCKS CLERK','place');add('Hollis sets aside a water-stained manifest and looks up from his ledger.','bright');r5DirectChoices(['ASK ABOUT THE LAST SHIPMENT','BACK']);}
+port55MiaMenu=function(){stage='port55Mia';port55Submenu('The Rusty Anchor — Mia',['SMALL TALK','BUY DRINKS','GAMBLE',player.flags.r6AnchorRoomOwned?'GO TO ROOM':'RENT ROOM — 3000 BOLTS',...(portRecruitUnlocked()?['ASK ABOUT HOUSE RULES']:[]),'RETURN TO HARBOR']);};
 function r11Drinks(){stage='r11Drinks';add('MIA — DRINKS','place');r5DirectChoices(['BEER — 5 BOLTS / 5% MAX HP (MIN 5)','SHOT — 9 BOLTS / 9% MAX HP (MIN 10)','HOUSE SPECIAL — 15 BOLTS / 15% MAX HP (MIN 15)','BACK']);}
-const R11_QUESTS={shipment:{name:'The Last Shipment',xp:120,bolts:75,giver:'Docks Clerk'},houseRules:{name:'House Rules',xp:100,bolts:100,giver:'Mia'},lights:{name:'Keeping the Lights On',xp:150,bolts:0,giver:'Kaiden'}};
+const R11_QUESTS={shipment:{name:'The Last Shipment',xp:120,bolts:75,giver:'Hollis Reed'},houseRules:{name:'House Rules',xp:100,bolts:100,giver:'Mia'},lights:{name:'Keeping the Lights On',xp:150,bolts:0,giver:'Kaiden'}};
 function r11QuestState(){return player.flags.r11Quests||(player.flags.r11Quests={});}
 function r11QuestMenu(key){
  if(!portRecruitUnlocked())return;
  stage='r11Quest';player.flags.r11QuestFocus=key;const q=R11_QUESTS[key],state=r11QuestState()[key];add(q.giver.toUpperCase()+' — '+q.name.toUpperCase(),'place');
- const intro={shipment:'The relief cargo was signed over to an empty freight spur. Find the redirected crates and the duplicate manifest before the harbor blames its own workers.',houseRules:'A gambler left owing Mia money, but his room still holds everything he owns. Find his camp by the western freight wagons. Ask why he vanished before deciding what to do.',lights:'The quay lamps keep cutting out. Recover electrical parts from the freight-line service box, then bring them to Kaiden so the harbor can work after dusk.'};
+ const intro={shipment:'The relief cargo was signed over to an empty freight spur. Find the redirected crates and the duplicate manifest before the harbor blames its own workers.',houseRules:'A gambler left owing Mia money, but his room still holds everything he owns. Look for his camp on the coastal approach to Seaport, near the Causeway. Ask why he vanished before deciding what to do.',lights:'The harbor still has power, but the outer dock security floodlights are down. Forge at the Factory has a replacement floodlight controller. Buy one from him and bring it back so the harbor can watch its approaches after dark.'};
  if(!state){add(intro[key]);r5DirectChoices(['ACCEPT QUEST','BACK']);}
  else if(state==='ready'){add('You have what you need. Report what happened.','system');r5DirectChoices(['COMPLETE QUEST','BACK']);}
  else if(state==='done'){add('This job is finished. The harbor remembers your help.','bright');r5DirectChoices(['BACK']);}
- else{add(key==='shipment'?'Search the freight spur on coast segment 3.':key==='houseRules'?'Search the gambler’s camp on coast segment 1.':'Search the service box on coast segment 4.','system');r5DirectChoices(['BACK']);}
+ else{add(key==='shipment'?'Search the abandoned loading area on the Causeway, between Boulder Junction and Seaport.':key==='houseRules'?'Search the gambler’s camp on the coastal approach to Seaport, near the Causeway.':'Visit Forge at the Factory and buy his replacement harbor floodlight controller for 100 Bolts.','system');r5DirectChoices(['BACK']);}
 }
-function r11QuestReturn(){const k=player.flags.r11QuestFocus;if(k==='shipment')r5Docks();else if(k==='houseRules')port55MiaMenu();else{stage='port55Kaiden';port55Submenu('Kaiden — Town Lawman',['SMALL TALK','ASK ABOUT KEEPING THE LIGHTS ON','RETURN TO HARBOR']);}}
+function r11QuestReturn(){const k=player.flags.r11QuestFocus;if(k==='shipment')r11HollisMenu();else if(k==='houseRules')port55MiaMenu();else{stage='port55Kaiden';port55Submenu('Kaiden — Town Lawman',['SMALL TALK','ASK ABOUT KEEPING THE LIGHTS ON','RETURN TO HARBOR']);}}
 function r11QuestComplete(key){
  if(!portRecruitUnlocked()||r11QuestState()[key]!=='ready')return;
  r11QuestState()[key]='done';const q=R11_QUESTS[key];gainXp(q.xp);if(q.bolts)gainBolts(q.bolts);
- if(key==='lights'){if(!addPack('Uncommon Electrical Parts','material',2,true))(player.stash||(player.stash=[])).push({name:'Uncommon Electrical Parts',type:'material',qty:2});add('Kaiden fits the recovered components. Lamps come on along the quay; two spare Uncommon Electrical Parts are yours.','reward');}
+ if(key==='lights'){player.pack=player.pack.filter(i=>i.name!=='Harbor Floodlight Controller');delete player.flags.r11FloodlightPart; if(!addPack('Uncommon Electrical Parts','material',2,true))(player.stash||(player.stash=[])).push({name:'Uncommon Electrical Parts',type:'material',qty:2});add('Kaiden has the new controller fitted. The harbor security floodlights sweep the dark water again. Two spare Uncommon Electrical Parts are yours.','reward');}
  if(key==='houseRules')add(player.flags.r11GamblerChoice==='forgive'?"MIA > You gave him a chance to come back. I can live with that. Here's your fee.":player.flags.r11GamblerChoice==='work'?"MIA > He offered to work it off? Good. I'll find him a broom.":"MIA > He paid what he could. Next time he wants a room, he talks to me first.",'bright');
  add('QUEST COMPLETE — '+q.name,'reward');r11Quiet(()=>v49Autosave());r11QuestReturn();
 }
-function r11RoadQuestOptions(){if(!portRecruitUnlocked()||!r6Road()?.active||r6Road().leg!=='coast')return [];const q=r6Road(),s=r11QuestState();return [...(s.shipment==='active'&&q.pos===3?['SEARCH FREIGHT SPUR']:[]),...(s.houseRules==='active'&&q.pos===1?['SEARCH GAMBLER CAMP']:[]),...(s.lights==='active'&&q.pos===4?['SEARCH SERVICE BOX']:[])];}
+function r11RoadQuestOptions(){if(!portRecruitUnlocked()||!r6Road()?.active||r6Road().leg!=='coast')return [];const q=r6Road(),s=r11QuestState();return [...(s.shipment==='active'&&q.pos===3?['SEARCH FREIGHT SPUR']:[]),...(s.houseRules==='active'&&q.pos===1?['SEARCH GAMBLER CAMP']:[])];}
 const r11RoadMenu=r6RoadMenu;r6RoadMenu=function(){r11RoadMenu();if(stage==='r6Road'){const extra=r11RoadQuestOptions();if(extra.length)r5DirectChoices(['CONTINUE '+(r6Road().dir>0?'EAST':'WEST'),'REVERSE DIRECTION','INSPECT ROAD',...extra]);}};
 function r11RoadQuest(cmd){
  if(!r11RoadQuestOptions().map(s=>s.toLowerCase()).includes(cmd))return false;
  if(!spendTurn()){add('Searching takes one turn. No turns remain.','danger');return true;}
- if(cmd==='search freight spur'){r11QuestState().shipment='ready';add('The relief crates are intact behind a false loading wall. You recover a manifest with the forged destination. The clerk can redirect a crew now.','reward');r6RoadMenu();}
- if(cmd==='search service box'){r11QuestState().lights='ready';add('You isolate a live lead, then free two intact switching components. Reserved for Kaiden; no pack space needed.','reward');r6RoadMenu();}
+ if(cmd==='search freight spur'){r11QuestState().shipment='ready';add('The relief crates are intact behind a false loading wall. You recover a manifest with the forged destination. Hollis can redirect a crew now.','reward');r6RoadMenu();if(typeof window!=='undefined')window.dispatchEvent(new Event('route127:last-shipment-discovered'));}
  if(cmd==='search gambler camp')r11GamblerMenu();
  updateHud();r11Quiet(()=>v49Autosave());return true;
 }
 function r11GamblerMenu(){stage='r11Gambler';add('The missing gambler shelters beside a broken handcart. He fled after losing his wages, afraid Mia would have him beaten. He offers his last few Bolts.','bright');r5DirectChoices(['TAKE WHAT HE CAN PAY','ASK HIM TO WORK IT OFF','FORGIVE THE DEBT AND SEND HIM HOME']);}
-const r11Quests=showQuests;showQuests=function(){r11Quests();if(!portRecruitUnlocked())return;for(const [k,state]of Object.entries(r11QuestState())){add(`${state==='done'?'COMPLETE':'SIDE QUEST'} — ${R11_QUESTS[k].name}`,'place');add(state==='ready'?'Report to '+R11_QUESTS[k].giver:state==='done'?'Completed.':k==='shipment'?'Search the freight spur on coast segment 3.':k==='houseRules'?'Search the gambler camp on coast segment 1.':'Search the service box on coast segment 4.','system');}};
+const r11Quests=showQuests;showQuests=function(){r11Quests();if(!portRecruitUnlocked())return;for(const [k,state]of Object.entries(r11QuestState())){add(`${state==='done'?'COMPLETE':'SIDE QUEST'} — ${R11_QUESTS[k].name}`,'place');add(state==='ready'?'Report to '+R11_QUESTS[k].giver:state==='done'?'Completed.':k==='shipment'?'Search the abandoned loading area on the Causeway, between Boulder Junction and Seaport.':k==='houseRules'?'Search the coastal approach to Seaport for the gambler camp.':'Visit Forge at the Factory and buy his replacement harbor floodlight controller for 100 Bolts.','system');}};
 // Local ownership prototype. No server/global authority is fabricated.
 const R11_LEGEND_KEY='route127-local-legendary-r11-v1';
 function r11LegendDB(){try{const db=JSON.parse(localStorage.getItem(R11_LEGEND_KEY)||'null');if(db&&db.version===1&&Array.isArray(db.announcements))return db;}catch{}return {version:1,board:null,announcements:[]};}
-function r11OwnsBoard(){const row=r11LegendDB().board;return !!row&&row.owner===player.characterId&&row.token===player.flags.r11BoardToken;}
+function r11OwnsBoard(){if(player.flags?.r127SteveBoardRetired)return false;const row=r11LegendDB().board;return !!row&&row.owner===player.characterId&&row.token===player.flags.r11BoardToken;}
 function r11ValidateBoard(){
+ if(player.flags?.r127SteveBoardRetired)return;
  const row=r11LegendDB().board,owner=row&&row.owner===player.characterId;
  if(owner)player.flags.r11BoardToken=row.token;
  const arrays=[...new Set([player.pack,player.stash,player.houseStorage,player.rustyRoomChest,player.flags.r6AnchorRoomChest,player.flags.r5LootQueue].filter(Boolean))];
@@ -365,19 +366,31 @@ async function r11ClaimBoard(){
  return claim();
 }
 const {r11SteveScene, r11SteveFinish, r11Elephant, r11SteveVictory, r11SteveRoll, r11Prepare} = RoadScenarioRegistry.steve();
-const r11Retreat=handleCombat;handleCombat=function(cmd){if(combatState?.source==='r11Elephant'&&/^(?:b|back|flee|run)/.test(cmd)){combatState=null;add('Steve takes cover behind his sign.','system');r11SteveFinish();return;}return r11Retreat(cmd);};
-const r11Choices=renderCurrentChoices;renderCurrentChoices=function(){if(stage==='r11Gambler')return r11GamblerMenu();if(stage==='r11Craft')return r11CraftMenu();if(stage==='r11Drinks')return r11Drinks();if(stage==='r11Board')return r11PortBoard();if(stage==='r11Quest')return r11QuestMenu(player.flags.r11QuestFocus);if(stage==='r11Steve')return r11SteveScene(player.flags.r11SteveReturn);if(stage==='r11SteveReward')return add('CLAIM STEVE REWARD','system');return r11Choices();};
+// A save made during the retired fight resumes the road without combat or rewards.
+const r11Context=showCurrentContext;
+showCurrentContext=function(...args){
+ if(combatState?.source==='r11Elephant'){
+  combatState=null;
+  return r11SteveFinish();
+ }
+ return r11Context.apply(this,args);
+};
+const r11Choices=renderCurrentChoices;renderCurrentChoices=function(){if(stage==='r11Gambler')return r11GamblerMenu();if(stage==='r11Hollis')return r11HollisMenu();if(stage==='r11Craft')return r11CraftMenu();if(stage==='r11Drinks')return r11Drinks();if(stage==='r11Board')return r11PortBoard();if(stage==='r11Quest')return r11QuestMenu(player.flags.r11QuestFocus);if(stage==='r11Steve'||stage==='r11SteveReward'){add('Crazy Steve is temporarily unavailable. Returning to your journey.','system');return r11SteveFinish();}return r11Choices();};
 const r11Core=handleCommandCore;
 handleCommandCore=async function(raw){
  const cmd=r5Mapped(raw);if(busy)return;
  if(/^save(?: |$)|^load(?: |$)|^testing(?: |$)|^test off$/.test(cmd))return r11Core(raw);
  if(stage==='r11Craft')return r11CraftCommand(cmd);
  if(stage==='mercy'&&mercyLocation==='murphy'&&player.flags.v49MurphyMenu==='recipe'&&['i','insert','insert materials','start','c','check','collect','collect result'].includes(cmd)){const key=player.flags.v49MurphyJob?.key||player.flags.v49MurphyRecipe;r11CraftMenu('murphy');return r11CraftCommand(['i','insert','insert materials','start'].includes(cmd)?'craft '+(CRAFT_RECIPES[key]?.name||'').toLowerCase():'collect craft');}
- if(stage==='r11Steve'){if(cmd==='leave steve alone')return r11SteveFinish();if(['ask about the elephants','fight the elephants'].includes(cmd))return r11Elephant();return renderCurrentChoices();}
- if(stage==='r11SteveReward'&&cmd==='claim steve reward')return r11SteveVictory();
+ if(stage==='r11Steve'||stage==='r11SteveReward'){add('Crazy Steve is temporarily unavailable. Returning to your journey.','system');return r11SteveFinish();}
  if(stage==='r11Drinks'){
   if(['back','b'].includes(cmd))return port55MiaMenu();const d=R11_DRINKS[cmd.split(' — ')[0]];
   if(d)Economy.drink(d);return r11Drinks();
+ }
+ if(stage==='r11Hollis'){
+  if(cmd==='ask about the last shipment')return r11QuestMenu('shipment');
+  if(['back','b'].includes(cmd))return r5Docks();
+  return r11HollisMenu();
  }
  if(stage==='r11Quest'){
   if(['back','b'].includes(cmd))return r11QuestReturn();const key=player.flags.r11QuestFocus;if(!portRecruitUnlocked())return port55Menu();
@@ -396,13 +409,13 @@ handleCommandCore=async function(raw){
  if(portRecruitUnlocked()){
   if(stage==='port55Docks'&&cmd==='deliver seaport parcel'&&r18CourierEligible('docks')){r18CourierDeliver('docks');return r5Docks();}
   if(stage==='port55Docks'&&cmd==='dock bulletin board')return r11PortBoard();
-  if(stage==='port55Docks'&&cmd==='talk to docks clerk')return r11QuestMenu('shipment');
+  if(stage==='port55Docks'&&cmd==='talk to hollis reed')return r11HollisMenu();
   if(stage==='port55Mia'&&cmd==='ask about house rules')return r11QuestMenu('houseRules');
   if(stage==='port55Kaiden'&&['pay fine','clear bounty','offer bribe','confirm bribe','cancel bribe'].includes(cmd)){if(player.flags.port55CurrentStop!==port55PatrolName()){delete player.flags.r18BribePending;stage='seaport';add('Kaiden has continued his patrol.','system');return port55Menu();}if(cmd==='pay fine'||cmd==='clear bounty')r18LegalFine('Kaiden');else if(cmd==='offer bribe')r18BribeOffer('Kaiden');else if(cmd==='confirm bribe')r18BribeConfirm('Kaiden');else r18BribeCancel();return r18KaidenChoices();}
   if(stage==='port55Kaiden'&&cmd==='ask about keeping the lights on')return r11QuestMenu('lights');
   if(stage==='r6Road'&&r11RoadQuest(cmd))return;
   if(stage==='port55Mia'&&cmd==='buy drinks')return r11Drinks();
-  if(stage==='port55Mia'&&/^(?:rent room|room)/.test(cmd)&&!player.flags.r6AnchorRoomOwned&&player.bolts<500){add("MIA > You trying to rip me off? That room costs 500 Bolts, sweetheart. Come back when you've got the money.",'bright');return port55MiaMenu();}
+  if(stage==='port55Mia'&&/^(?:rent room|room)/.test(cmd)&&!player.flags.r6AnchorRoomOwned&&player.bolts<3000){add("MIA > You trying to rip me off? That room costs 3000 Bolts, sweetheart. Come back when you've got the money.",'bright');return port55MiaMenu();}
  }
  const before=player.lifetimeTurns||0;await r11Core(raw);
  if(stage==='port55Kaiden'&&portRecruitUnlocked())r18KaidenChoices();

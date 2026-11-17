@@ -5,7 +5,7 @@
  */
 (()=>{
  'use strict';
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||typeof GraphicalUI==='undefined')return;
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||typeof GraphicalUI==='undefined')return;
  const providers=new Map();
  let registrationOrder=0;
  const LEVEL=Object.freeze({devtest:400,graphics:300,r11:200,original:100});
@@ -29,9 +29,12 @@
  }
  let chosenOwner=null;
  const upstream=GraphicalUI.choices;
- const baseChoices=function(){return dedupe(upstream.apply(GraphicalUI,arguments));};
+ const baseChoices=function(){
+  const roadside=globalThis.Route127RoadsidePresentation?.choices();
+  return dedupe(roadside||upstream.apply(GraphicalUI,arguments));
+ };
  function resolve(){
-  const base=baseChoices();
+  const base=DevtestMenuModel.project(baseChoices());
   chosenOwner=null;
   if(!GraphicalUI.active())return base;
   const context=Object.freeze({
@@ -62,6 +65,9 @@
  // command is sent directly, so old numeric-choice maps cannot remap it.
  const dispatch=GraphicalUI.dispatch;
  GraphicalUI.dispatch=async function(choice){
+  // The encounter renderer dispatches its current command directly.
+  const isEncounter=stage==='encounter'&&typeof currentEncounter==='function'&&!!currentEncounter();
+  if(isEncounter)return dispatch.call(this,choice);
   if(busy)return false;
   const live=this.choices().find(x=>x.key===choice?.key&&x.command===choice?.command);
   if(!live){this.sync();return false;}
@@ -72,23 +78,6 @@
   await handleCommand(live.command);
   this.sync();return true;
  };
- // Explicit first-party Devtest menu ownership is opt-in. Unknown menus
- // retain the already established engine/rendered choices (fallback).
- // First registered owner: the repaired Devtest Kaiden dialogue. R11 quest
- // stage is intentionally NOT claimed; its own Accept/Complete actions work.
- register('devtest-kaiden',{
-  level:'devtest',
-  supports:ctx=>ctx.stage==='port55Kaiden'&&ctx.player.flags?.seaport55?.freed===true,
-  choices:ctx=>{
-   const commands=ctx.base.map(c=>norm(c.command));
-   // Reject any stale composite menu; never invent a command.
-   const valid=new Set(['ask about seaport','small talk','view bounties',
-     'pay fine','offer bribe','how is seaport holding up?',
-     'ask about keeping the lights on','confirm bribe','cancel bribe','back']);
-   if(commands.some(cmd=>!valid.has(cmd)))return null;
-   return ctx.base.map(c=>c.command);
-  }
- });
  globalThis.Route127MenuAuthority=Object.freeze({
   priority:LEVEL,register,resolve,
   diagnose:()=>({stage,providers:[...providers.values()].map(p=>({id:p.id,priority:p.priority})),choices:resolve().map(x=>({key:x.key,command:x.command}))})

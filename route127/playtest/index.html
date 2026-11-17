@@ -1,19 +1,22 @@
 <!doctype html>
+  <!-- WO41 workbench deployment retry: fresh Pages publish, no gameplay changes. -->
 <html lang="en">
 <head>
+  <script src="../devtest/runtime/environment.js?v=wo65-release" data-route127-environment="playtest"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Route 127 R15 — Unified Development</title>
+  <title>Route 127 — PLAYTEST</title>
   <link rel="stylesheet" href="styles.css?v=r15">
-  <link rel="stylesheet" href="graphics.css?v=wo25-nine-only">
-  <link rel="stylesheet" href="casino_menu_graphics.css?v=casino-menu-1">
-  <link rel="stylesheet" href="traveler_panels.css?v=wo18">
-  <link rel="stylesheet" href="input_dialogs.css?v=1">
-<link rel="stylesheet" href="identity_colors.css?v=1">
-<link rel="stylesheet" href="runtime/casino_narrative.css?v=wo28">
-<link rel="stylesheet" href="runtime/ui_stabilization_20261104.css?v=wo49-shared-room">
-<link rel="stylesheet" href="runtime/nessa_pet_shop.css?v=1">
-  <script src="../devtest/runtime/environment.js?v=wo65" data-route127-environment="playtest"></script>
+  <link rel="stylesheet" href="graphics.css?v=mobile-art-contain-20261113-final">
+  <link rel="stylesheet" href="runtime/world_map_presentation.css?v=luna-first-pass-1">
+  <link rel="stylesheet" href="../devtest/runtime/casino_narrative.css?v=1">
+  <link rel="stylesheet" href="../playtest/casino_menu_graphics.css?v=casino-menu-1">
+  <link rel="stylesheet" href="../playtest/traveler_panels.css?v=wo18">
+  <link rel="stylesheet" href="../playtest/input_dialogs.css?v=1">
+<link rel="stylesheet" href="../playtest/identity_colors.css?v=1">
+<link rel="stylesheet" href="../devtest/runtime/ui_stabilization_20261104.css?v=wo49-shared-room">
+<link rel="stylesheet" href="../devtest/runtime/nessa_pet_shop.css?v=1">
+  <link rel="stylesheet" href="../devtest/runtime/scenario_results_wo52.css?v=wo59">
   <link rel="stylesheet" href="../devtest/runtime/cloud-login.css?v=wo65">
 </head>
 <body>
@@ -65,114 +68,696 @@
     </div>
   </main>
 
-  <script src="scenario_registry.js?v=wo18"></script>
-  <script src="app.js?v=wo21-yardman"></script>
-<script src="runtime/enemy_scaling_wo33.js?v=wo33-playtest-1"></script>
-  <script src="casino.js?v=r18-completion2"></script>
-  <script src="polish.js?v=wo17"></script>
-  <script src="expansion.js?v=r18-completion2"></script>
-  <script src="crime.js?v=r18-completion2"></script>
-<script src="consolidation.js?v=r18-completion2"></script>
-<script src="factory.js?v=wo19"></script>
-<script src="seaport.js?v=r18-completion2"></script>
-<script src="wanderer_fix.js?v=r18-completion2"></script>
-<script src="v55.js?v=wo19"></script>
-<script src="recruitment.js?v=r18-completion2"></script>
-<script src="stabilization.js?v=wo17"></script>
-<script src="final_polish.js?v=wo24"></script>
-<script src="road_balance.js?v=corvette-guard"></script>
-<script src="banking_identity.js?v=r18-completion2"></script>
-<script src="r11.js?v=corvette-guard"></script>
-<script src="lantern_world_graph.js?v=wo18"></script>
-<script src="lantern_map_visual.js?v=wo5d-final"></script>
-<script src="lantern_world.js?v=wo24"></script>
-<script src="r18_tournaments.js?v=r18-completion2"></script>
-<script src="r18_ash.js?v=r18-completion2"></script>
-<script src="r18_fence.js?v=r18-completion2"></script>
-<script src="r18_residents.js?v=r18-completion2"></script>
-<script src="r18_completion.js?v=r18-completion2"></script>
+  <script>
+  (()=>{
+    let first=null;
+    function report(message){
+      if(first)return;first=String(message).slice(0,360);
+      const show=()=>{
+        if(document.getElementById('playtest-startup-error'))return;
+        const box=document.createElement('div');box.id='playtest-startup-error';
+        box.setAttribute('role','alert');
+        box.style.cssText='position:fixed;z-index:2147483647;top:8px;left:8px;right:8px;padding:12px;background:#270d0d;color:#fff;border:2px solid #f88;font:14px/1.4 monospace;white-space:pre-wrap';
+        box.textContent='PLAYTEST STARTUP ERROR (your save is untouched):\\n'+first;
+        (document.body||document.documentElement).appendChild(box);
+      };
+      if(document.body)show();else document.addEventListener('DOMContentLoaded',show,{once:true});
+    }
+    window.addEventListener('error',e=>{
+      if(e.target&&e.target!==window&&e.target.tagName==='SCRIPT')report('Script failed to load: '+(e.target.getAttribute('src')||'inline'));
+      else if(e.error||e.message)report((e.message||String(e.error))+' @ '+(e.filename||'?')+':'+(e.lineno||'?'));
+    },true);
+    window.addEventListener('unhandledrejection',e=>report('Promise rejected: '+String(e.reason)));
+  })();
+  </script>
+  <script src="scenario_registry.js?v=per-step-regions-wo53-fix-wo65"></script>
+<script src="app.js?v=wo53-road-resume-wo65"></script>
+<script src="runtime/enemy_scaling_wo33.js?v=wo33-load-refresh-20261113-wo65"></script>
+<script src="casino.js?v=steve-promo-menu-2-wo65"></script>
+<script src="polish.js?v=wo17-wo65"></script>
+<script src="expansion.js?v=r18-completion2-wo65"></script>
+<script src="crime.js?v=sidequest-scenes-20261116-wo65"></script>
+<script src="consolidation.js?v=sell-singleton-20261109-wo65"></script>
+<script src="factory.js?v=wo19-wo65"></script>
+<script src="seaport.js?v=r18-completion2-wo65"></script>
+<script src="wanderer_fix.js?v=r18-completion2-wo65"></script>
+<script src="v55.js?v=wo19-wo65"></script>
+<script src="recruitment.js?v=r18-completion2-wo65"></script>
+<script src="stabilization.js?v=wo17-wo65"></script>
+<script src="final_polish.js?v=wo24-wo65"></script>
+<script src="road_balance.js?v=causeway-no-title-filter-20261117-wo65"></script>
+<script src="banking_identity.js?v=r18-completion2-wo65"></script>
+<script src="r11.js?v=steve-gear-retirement-20261117-wo65"></script>
+<script src="lantern_world_graph.js?v=factory-boulder-encounters-industrial-20261113-wo65"></script>
+<script src="lantern_map_visual.js?v=wo30-pearl-geometry-wo65"></script>
+<script src="lantern_world.js?v=forge-lights-20261116-wo65"></script>
+<script src="r18_tournaments.js?v=wo60-wo65"></script>
+<script src="r18_ash.js?v=r18-completion2-wo65"></script>
+<script src="r18_fence.js?v=silas-empty-inventory-note-20261116-wo65"></script>
+<script src="r18_residents.js?v=r18-completion2-wo65"></script>
+<script src="r18_completion.js?v=r18-completion2-wo65"></script>
 <script>RoadScenarioRegistry.wo2();RoadScenarioRegistry.wo3();RoadScenarioRegistry.wo4();RoadScenarioRegistry.finalize();RoadScenarioRegistry.installRegions();</script>
-<script src="corvette_guard.js?v=wo18"></script>
-<script src="station_nine.js?v=1"></script>
-<script src="regional_combat.js?v=bat-multiregion-1"></script>
-<script src="wanderer_world_expansion.js?v=1"></script>
-<script src="wo7_roadside.js?v=1"></script>
-<script src="wo8_autonomous.js?v=1"></script>
-<script src="legacy_rewards.js?v=wo10"></script>
-<script src="economy.js?v=wo12"></script>
-<script src="lifecycle.js?v=wo13"></script>
-<script src="r15_session.js?v=wo65"></script>
-<script src="regional_navigation.js?v=wo24"></script>
-<script src="graphics.js?v=wo26-gates"></script>
-<script src="traveler_panels.js?v=wo18-combat-panels"></script>
-<script src="location_lettering.js?v=stencil-1"></script>
-<script src="input_dialogs.js?v=1"></script>
-<script src="playthrough_repairs.js?v=wo18"></script>
-<script src="identity_colors.js?v=1"></script>
-<script src="road_repairs.js?v=wo24"></script>
-<script src="casino_menu_graphics.js?v=rps-animated-hands-1"></script>
-  <script src="rps_object_animation.js?v=rps-objects-2"></script>
-  <script src="slots_animated_reels.js?v=solace-background-20261105"></script>
-  <script src="rats_animated_race.js?v=rats-race-2"></script>
-  <script src="rat_racing_bet_names.js?v=rat-names-1"></script>
-  <script src="rusty_lantern_bar_graphics.js?v=bar-art-3"></script>
-<script src="wanderer_live.js?v=portraits50"></script>
-<script src="legacy_wanderer_profiles.js?v=1"></script>
-<script src="wanderer_level_stars.js?v=1"></script>
-<script src="runtime/wanderer_visual_bios.js?v=wo27"></script>
-<script src="runtime/wanderer_info_panel.js?v=wo27"></script>
-<script src="runtime/companion_repair.js?v=wo27"></script>
-<script src="runtime/tim_badge_turnin.js?v=wo27"></script>
-<script src="runtime/murphy_level_gate.js?v=wo27"></script>
-<script src="runtime/courier_handoff_rewards.js?v=wo27"></script>
-<script src="runtime/quest_item_tabs.js?v=wo27"></script>
-<script src="runtime/journal_cleanup.js?v=wo27"></script>
-<script src="runtime/solace_hub.js?v=wo27"></script>
-<script src="runtime/navigation_batch_20261103.js?v=wo27"></script>
-<script src="runtime/jen_work_menu.js?v=wo27"></script>
-<script src="runtime/solace_interiors_batch.js?v=wo27"></script>
-<script src="runtime/save_recovery.js?v=wo27"></script>
-<script src="runtime/relay_road_patch.js?v=wo28"></script>
-<script src="runtime/factory_gate_patch.js?v=wo28"></script>
-<script src="runtime/encounter_repair_patch.js?v=wo28"></script>
-<script src="runtime/food_lure_patch.js?v=wo28"></script>
-<script src="runtime/tim_bribe_patch.js?v=wo28"></script>
-<script src="runtime/wanderer_trade_patch.js?v=wo28"></script>
-<script src="runtime/crafting_home_patch.js?v=wo28"></script>
-<script src="runtime/crafting_batch_patch.js?v=wo28"></script>
-<script src="runtime/blueprint_guard_patch.js?v=wo28"></script>
-<script src="runtime/vendor_buyback_patch.js?v=wo28"></script>
-<script src="runtime/theft_status_patch.js?v=wo28"></script>
-<script src="runtime/wanderer_produce_patch.js?v=wo28"></script>
-<script src="runtime/factory_stabilization_20261104.js?v=wo28"></script>
-<script src="runtime/ui_balance_20261104.js?v=wo28"></script>
-<script src="runtime/factory_menu_cleanup_20261104.js?v=wo28"></script>
-<script src="runtime/forge_dynamite_handoff_hotfix.js?v=wo28"></script>
-<script src="runtime/graphical_output_performance_20261104.js?v=wo43-typewriter-playtest"></script>
-<script src="runtime/forge_workshop_art_20261104.js?v=kaiden-quest-menu-2-playtest"></script>
-<script src="runtime/wanderer_density_20261105.js?v=wo29"></script>
-<script src="runtime/presentation_formatting.js?v=wo31"></script>
-<script src="runtime/retire_kings_breaker.js?v=1"></script>
-<script src="runtime/menu_authority.js?v=2"></script>
-<script src="runtime/nessa_pet_shop.js?v=1"></script>
-<script src="runtime/vendor_price_labels.js?v=1"></script>
-<script src="runtime/return_last_menu.js?v=wo40-global-menu-order"></script>
-<script src="runtime/red_dialogue_cleanup_20261105.js?v=red-npc-blue-2"></script>
-<script src="runtime/mia_small_talk_20261105.js?v=wo45-mia-talk"></script>
-<script src="runtime/seaport_casino_art_exit_20261105.js?v=wo48"></script>
-<script src="runtime/shared_inn_room_art_20261105.js?v=wo49"></script>
-<script src="runtime/seaport_pirates_poker_20261105.js?v=wo50-round-binding"></script>
-<script src="runtime/seaport_slots_20261105.js?v=slot-animated-1"></script>
-<script src="runtime/slot_results_20261105.js?v=casino-results-3"></script>
-<script src="runtime/seaport_crab_race_visual_20261105.js?v=crab-lanes-lowered-5"></script>
-<script src="runtime/seaport_knife_throwing_visual_20261105.js?v=knife-calibrated-3"></script>
-<script src="runtime/red_single_exit_20261106.js?v=single-exits-room-2"></script>
-<script src="runtime/seaport_room_chest_20261106.js?v=modal-guard-3"></script>
-<script src="runtime/shared_room_storage_20261106.js?v=solace-house-1"></script>
-<script src="runtime/backpack_equipment_comparison_20261106.js?v=bag-healing-2"></script>
-<script src="runtime/storage_backpack_modal_guard_20261106.js?v=room-backpack-1"></script>
-<script src="runtime/combat_result_summary_20261106.js?v=combat-results-auto-dismiss-2"></script>
-<script src="runtime/enemy_reward_compat_wo33.js?v=wo33-playtest-1"></script>
+<script src="corvette_guard.js?v=silas-murphy-engine-gate-20261116-wo65"></script>
+<script src="station_nine.js?v=1-wo65"></script>
+<script src="regional_combat.js?v=bat-multiregion-1-wo65"></script>
+<script src="wanderer_world_expansion.js?v=1-wo65"></script>
+<script src="wo7_roadside.js?v=1-wo65"></script>
+<script src="wo8_autonomous.js?v=taxi-leave-20261113-wo65"></script>
+<script src="legacy_rewards.js?v=wo10-wo65"></script>
+<script src="economy.js?v=wo12-wo65"></script>
+<script src="lifecycle.js?v=wo13-wo65"></script>
+<script src="r15_session.js?v=r18-completion2-wo65"></script>
+<script src="regional_navigation.js?v=seaport-exit-causeway-20261116-wo65"></script>
+<script src="graphics.js?v=wo58-shared-loader-wo65"></script>
+<script src="traveler_panels.js?v=wo53-wo65"></script>
+<script src="location_lettering.js?v=stencil-1-wo65"></script>
+<script src="input_dialogs.js?v=1-wo65"></script>
+<script src="playthrough_repairs.js?v=wo18-wo65"></script>
+<script src="identity_colors.js?v=1-wo65"></script>
+<script src="road_repairs.js?v=wo24-wo65"></script>
+<script src="casino_menu_graphics.js?v=rps-animated-hands-1-wo65"></script>
+<script src="rps_object_animation.js?v=rps-objects-2-wo65"></script>
+<script src="slots_animated_reels.js?v=slots-animated-1-wo65"></script>
+<script src="rats_animated_race.js?v=rats-race-2-wo65"></script>
+<script src="rat_racing_bet_names.js?v=rat-names-1-wo65"></script>
+<script src="rusty_lantern_bar_graphics.js?v=bar-art-3-wo65"></script>
+<script src="runtime/wanderer_visual_bios.js?v=eli-mercer-20261112-wo65"></script>
+<script src="runtime/wanderer_info_panel.js?v=wo27-name-wo65"></script>
+<script src="runtime/companion_repair.js?v=wo27-wo65"></script>
+<script src="runtime/tim_badge_turnin.js?v=wo27-wo65"></script>
+<script src="runtime/murphy_level_gate.js?v=wo27-wo65"></script>
+<script src="runtime/courier_handoff_rewards.js?v=wo27-wo65"></script>
+<script src="runtime/quest_item_tabs.js?v=wo27-wo65"></script>
+<script src="runtime/journal_cleanup.js?v=wo27-wo65"></script>
+<script src="runtime/menu_model.js?v=wo39-b-wo65"></script>
+<script src="runtime/solace_hub.js?v=rusty-lantern-root-20261117-wo65"></script>
+<script src="runtime/navigation_batch_20261103.js?v=wo27-wo65"></script>
+<script src="runtime/jen_work_menu.js?v=wo38-room-wo65"></script>
+<script src="runtime/solace_interiors_batch.js?v=blueprints-half-market-price-20261117-wo65"></script>
+<script src="runtime/save_recovery.js?v=wo27-wo65"></script>
+<script src="runtime/bat_combat_visual.js?v=road-repair-1-wo65"></script>
+
+<script src="runtime/wanderer_live.js?v=eli-mercer-20261112-wo65"></script>
+<script src="runtime/legacy_wanderer_profiles.js?v=2-wo65"></script>
+<script src="runtime/wanderer_level_stars.js?v=1-wo65"></script>
+<script src="runtime/relay_road_patch.js?v=relay-diagnostic-clues-wo65"></script>
+<script src="runtime/factory_gate_patch.js?v=20261104-wo65"></script>
+<script src="runtime/encounter_repair_patch.js?v=20261104-b-wo65"></script>
+<script src="runtime/food_lure_patch.js?v=wo51-food-menu-wo65"></script>
+<script src="runtime/tim_bribe_patch.js?v=20261104-b-wo65"></script>
+<script src="runtime/wanderer_trade_patch.js?v=20261104-b-wo65"></script>
+<script src="runtime/crafting_home_patch.js?v=wo57-old-house-rest-wo65"></script>
+<script src="runtime/crafting_batch_patch.js?v=20261104-b-wo65"></script>
+<script src="runtime/blueprint_guard_patch.js?v=20261104-b-wo65"></script>
+<script src="runtime/vendor_buyback_patch.js?v=wo55-sale-save-wo65"></script>
+<script src="runtime/theft_status_patch.js?v=20261104-b-wo65"></script>
+<script src="runtime/wanderer_produce_patch.js?v=20261104-wo65"></script>
+<script src="runtime/factory_stabilization_20261104.js?v=wo39-wo65"></script>
+<script src="runtime/ui_balance_20261104.js?v=2-wo65"></script>
+<script src="runtime/factory_menu_cleanup_20261104.js?v=kaiden-floodlight-20261117-wo65"></script>
+<script src="runtime/forge_dynamite_handoff_hotfix.js?v=1-wo65"></script>
+<script src="runtime/graphical_output_performance_20261104.js?v=gradual-text-20261115-wo65"></script>
+<script src="runtime/forge_workshop_art_20261104.js?v=silas-fence-scene-art-20261116-wo65"></script>
+<script src="runtime/wanderer_density_20261105.js?v=wo29-wo65"></script>
+<script src="runtime/presentation_formatting.js?v=issue25-scenario-audit-wo65"></script>
+<script src="runtime/retire_kings_breaker.js?v=1-wo65"></script>
+<script src="runtime/menu_authority.js?v=wo51-dispatch-wo65"></script>
+<script src="runtime/nessa_pet_shop.js?v=wo40-wo65"></script>
+<script src="runtime/vendor_price_labels.js?v=1-wo65"></script>
+
+<script src="runtime/return_last_menu.js?v=wo40-wo65"></script>
+<script src="runtime/red_dialogue_cleanup_20261105.js?v=red-fight-hp-20261116-wo65"></script>
+<script src="runtime/mia_small_talk_20261105.js?v=wo45-mia-talk-wo65"></script>
+<script src="runtime/seaport_casino_art_exit_20261105.js?v=wo40-wo65"></script>
+<script src="runtime/shared_inn_room_art_20261105.js?v=wo49-wo65"></script>
+<script src="runtime/seaport_pirates_poker_20261105.js?v=wo50-round-binding-wo65"></script>
+
+<script id="seaport-slots-20261105">
+/* DEVTEST: Seaport slot machine reuses Solace odds, payouts, and reel spin technique. */
+(function(){
+'use strict';
+if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||typeof GraphicalUI==='undefined'||typeof r6Round!=='function'||typeof casinoSlotDraw!=='function')return;
+const names=['SCRAP','BOLTS','LANTERN','SKULL','RAT','BLACKGLASS'];
+const base='../devtest/assets/locations/slots/';
+const asset=f=>typeof ROUTE127_ASSET_BASE!=='undefined'&&ROUTE127_ASSET_BASE?new URL(base+f,ROUTE127_ASSET_BASE).href:base+f;
+const wall=asset('seaport_slots_background.png'),cabinet=asset('seaport_slot_machine.png'),strip=asset('seaport_slot_reel_strip.png?v=wo-slots-reels-final-20261105');
+const isSlot=()=>stage==='r6Casino'&&r6Round()?.game==='SLOTS'&&player.flags?.port55Casino;
+const enabled=()=>GraphicalUI.preference()==='graphics'&&isSlot();
+const d=R6_GAMES.indexOf("CAPTAIN'S DICE");if(d!==-1&&!R6_GAMES.includes('SLOTS'))R6_GAMES.splice(d,1,'SLOTS');
+const wager=r6Wager;
+r6Wager=function(bet){
+ if(!isSlot())return wager.apply(this,arguments);
+ if(!Number.isSafeInteger(bet)||bet<1||bet>Math.floor((Number.MAX_SAFE_INTEGER-player.bolts)/300))return false;
+ const round=r6Round(),ok=wager.apply(this,arguments);
+ if(!ok)return false;
+ round.reels=[casinoSlotDraw(),casinoSlotDraw(),casinoSlotDraw()];
+ r6Settle(casinoSlotPayout(round.reels,bet),round.reels.join(' / '));
+ r6CasinoRender();return true;
+};
+// Same native clickable buttons used by the working Solace casino.
+// These choices are derived from the casino round, not an asynchronous
+// terminal output queue (which previously left the slot UI with no buttons).
+// Slot-only fixed stakes; other casino games retain their own betting menus.
+const slotActions=()=>['WAGER 10','WAGER 20','WAGER 50','BACK'];
+const slotOptions=()=>slotActions().map((command,i)=>({
+ key:String(i+1),command:command.toLowerCase(),
+ label:command.replace(/^WAGER /,'Wager ')
+}));
+function slotChoices(){
+ numberedChoices=Object.fromEntries(slotOptions().map(c=>[c.key,c.command]));
+ currentHotkeys={b:'back'};
+ GraphicalUI.schedule();
+}
+const oldChoices=GraphicalUI.choices;
+GraphicalUI.choices=function(){
+ return enabled()?slotOptions():oldChoices.call(this);
+};
+// Native button component, but dispatch the resolved command itself so
+// stale numbered-choice registrations cannot route a click elsewhere.
+const oldDispatch=GraphicalUI.dispatch;
+GraphicalUI.dispatch=async function(choice){
+ if(!enabled())return oldDispatch.call(this,choice);
+ const current=slotOptions().find(c=>c.key===choice.key&&c.command===choice.command);
+ if(!current||busy)return false;
+ this.navOpen=false;
+ await handleCommand(current.command);
+ this.sync();
+ return true;
+};
+// On a settled Seaport spin, choosing a wager starts the next round directly.
+const originalCasinoCommand=r6CasinoCommand;
+r6CasinoCommand=function(cmd){
+ if(isSlot()&&r6Round()?.status==='settled'&&
+   (/^wager (?:10|20|50)$/.test(cmd))){
+  r6Open('SLOTS');
+ }
+ return originalCasinoCommand.apply(this,arguments);
+};
+const render=r6CasinoRender;
+r6CasinoRender=function(){
+ if(!isSlot())return render.apply(this,arguments);
+ const r=r6Round();
+ add('RUSTY ANCHOR — SLOTS','place');
+ if(r.status==='waiting'){
+  add('Match three: Bolt 10x / Crab 18x / Compass 28x / Chest 50x / Anchor 70x / Mermaid 300x.','system');
+  slotChoices();
+ }else if(r.status==='settled'){
+  add('WAGER '+r.bet+' / RETURN '+r.payout+' / NET '+(r.payout-r.bet)+' Bolts','reward');
+  slotChoices();
+ }else render.apply(this,arguments);
+};
+const model=GraphicalUI.model;
+GraphicalUI.model=function(){
+ const m=model.apply(this,arguments);
+ if(enabled()){m.layout='seaport-slots';m.art='';m.title='Rusty Anchor — Slots'}
+ return m;
+};
+const style=document.createElement('style');
+style.textContent=[
+ 'body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-main{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden;gap:6px}',
+ 'body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-art{display:block!important;position:relative;flex:1 1 0;min-height:150px;overflow:hidden;background:#241b17 url("'+wall+'") center/cover no-repeat!important}',
+ 'body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-art-caption,body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-art-error,body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-image{display:none!important}',
+ 'body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-narrative{flex:0 0 auto;max-height:68px;overflow:auto}',
+ 'body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-choices{flex:0 0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;max-height:125px;overflow-y:auto}',
+ 'body.full-graphics .gfx-frame[data-layout="seaport-slots"] .gfx-choice{min-width:0;min-height:40px;padding:3px 7px}',
+ '.r127-seaport-slot-stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none;isolation:isolate}',
+ '.r127-seaport-slot-cabinet{position:relative;height:100%;max-width:100%;aspect-ratio:3/2;flex:none;background:url("'+cabinet+'") center/100% 100% no-repeat;filter:drop-shadow(0 5px 10px #000b)}',
+ '.r127-seaport-slot-window{position:absolute;top:29%;height:36.5%;width:16%;overflow:hidden;border-radius:6px;background:#a38865;box-shadow:inset 0 0 8px 3px #120a08}',
+ '.r127-seaport-slot-window[data-reel="0"]{left:23.7%}',
+ '.r127-seaport-slot-window[data-reel="1"]{left:42.5%}',
+ '.r127-seaport-slot-window[data-reel="2"]{left:59.8%}',
+ '.r127-seaport-slot-scroll{position:absolute;left:0;top:0;width:100%;will-change:transform}',
+ '.r127-seaport-slot-symbol{width:100%;background-repeat:no-repeat;background-position-x:center;box-sizing:border-box}',
+ '.r127-seaport-slot-glass{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#0007,transparent 18%,#fff2 50%,transparent 82%,#0007);box-shadow:inset 0 7px 9px #180e09,inset 0 -7px 9px #180e09}',
+ '.r127-seaport-slot-stage.win .r127-seaport-slot-window{filter:brightness(1.23)}',
+ '@media(prefers-reduced-motion:reduce){.r127-seaport-slot-scroll{will-change:auto}}'
+].join('\n');
+document.head.appendChild(style);
+let key='',running=[];
+function stop(){running.forEach(a=>{try{a.cancel()}catch(e){}});running=[]}
+function create(figure){
+ const scene=document.createElement('div');scene.className='r127-seaport-slot-stage';scene.setAttribute('role','img');scene.setAttribute('aria-label','Rusty Anchor slot machine');
+ const machine=document.createElement('div');machine.className='r127-seaport-slot-cabinet';
+ for(let i=0;i<3;i++){
+  const windowEl=document.createElement('div');windowEl.className='r127-seaport-slot-window';windowEl.dataset.reel=i;
+  const scroll=document.createElement('div');scroll.className='r127-seaport-slot-scroll';
+  // Repeat six equal-height view cells. Source artwork icons have uneven
+  // natural centers, so each cell crops its own icon without stretching.
+  for(let copy=0;copy<5;copy++)for(let index=0;index<6;index++){
+   const cell=document.createElement('div');
+   cell.className='r127-seaport-slot-symbol';cell.dataset.symbol=String(index);
+   cell.style.backgroundImage='url("'+strip+'")';
+   scroll.appendChild(cell);
+  }
+  const glass=document.createElement('div');glass.className='r127-seaport-slot-glass';
+  windowEl.append(scroll,glass);machine.append(windowEl);
+ }
+ scene.append(machine);figure.append(scene);return scene;
+}
+// The new 1024 x 1536 image has six pictograms with slightly uneven
+// visual-center spacing. Align every icon to the center of its equal-height
+// cell instead of assuming the artwork was a perfect 6 x 256 sprite grid.
+const artworkCenters=[157,383,621,857,1063,1321];
+const artworkRatio=1024/1536;
+function cellHeight(win){return win.getBoundingClientRect().height/3}
+function sizeCells(win){
+ const cell=cellHeight(win),fullHeight=cell*6,fullWidth=fullHeight*artworkRatio;
+ for(const icon of win.querySelectorAll('.r127-seaport-slot-symbol')){
+  const idx=Number(icon.dataset.symbol);
+  icon.style.height=cell+'px';
+  icon.style.backgroundSize=fullWidth+'px '+fullHeight+'px';
+  icon.style.backgroundPositionY=(cell/2-artworkCenters[idx]*fullHeight/1536)+'px';
+ }
+}
+function top(win,index,loop){
+ const cell=cellHeight(win),height=win.getBoundingClientRect().height;
+ return height/2-((loop*6+index+.5)*cell);
+}
+function pose(scene,ids){
+ [...scene.querySelectorAll('.r127-seaport-slot-window')].forEach((win,i)=>{
+  sizeCells(win);
+  // Loop 2 leaves full preceding/following cells; no visible strip ends.
+  win.querySelector('.r127-seaport-slot-scroll').style.transform=
+    'translate3d(0,'+top(win,ids[i],2)+'px,0)';
+ });
+}
+function spin(scene,reels){
+ const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+ const wins=[...scene.querySelectorAll('.r127-seaport-slot-window')];
+ if(reduced||!Element.prototype.animate){pose(scene,reels.map(x=>names.indexOf(x)));return}
+ wins.forEach((w,i)=>{
+  sizeCells(w);
+  const s=w.querySelector('.r127-seaport-slot-scroll'),from=top(w,0,1),to=top(w,names.indexOf(reels[i]),3);
+  s.style.transform='translate3d(0,'+to+'px,0)';
+  running.push(s.animate([{transform:'translate3d(0,'+from+'px,0)'},{transform:'translate3d(0,'+to+'px,0)'}],{duration:1450+i*420,easing:'cubic-bezier(.16,.82,.28,1)',fill:'none'}));
+ });
+}
+function refresh(){
+ const figure=GraphicalUI.element?.figure;if(!figure)return;
+ let scene=figure.querySelector('.r127-seaport-slot-stage');
+ if(!enabled()){if(scene)scene.remove();key='';stop();return}
+ if(!scene){scene=create(figure);key=''}
+ const r=r6Round(),reels=Array.isArray(r.reels)&&r.reels.length===3?r.reels:null;
+ const next=r.id+':'+r.status+':'+(reels?reels.join('/'):'');
+ if(next===key)return;key=next;stop();
+ if(r.status==='settled'&&reels&&reels.every(x=>names.includes(x))){
+  scene.classList.toggle('win',reels.every(x=>x===reels[0]));scene.setAttribute('aria-label','Rusty Anchor: '+reels.join(', '));
+  pose(scene,[0,0,0]);
+  requestAnimationFrame(()=>{if(scene.isConnected&&enabled()&&key===next)spin(scene,reels)});
+ }else{scene.classList.remove('win');pose(scene,[0,2,1]);scene.setAttribute('aria-label','Rusty Anchor slots ready')}
+}
+const sync=GraphicalUI.sync;
+GraphicalUI.sync=function(){const result=sync.apply(this,arguments);refresh();return result};
+GraphicalUI.schedule();
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="runtime/slot_results_20261105.js?v=casino-fixed-stakes-20261115-wo65"></script>
+<script src="runtime/seaport_crab_race_visual_20261105.js?v=crab-lanes-lowered-5-wo65"></script>
+<script src="runtime/seaport_knife_throwing_visual_20261105.js?v=knife-calibrated-3-wo65"></script>
+<script src="runtime/seaport_room_chest_20261106.js?v=modal-guard-3-wo65"></script>
+<script src="runtime/shared_room_storage_20261106.js?v=solace-house-1-wo65"></script>
+<script src="runtime/backpack_equipment_comparison_20261106.js?v=bag-healing-2-wo65"></script>
+<script src="runtime/storage_backpack_modal_guard_20261106.js?v=room-backpack-1-wo65"></script>
+<script src="runtime/combat_result_summary_20261106.js?v=wo52-wo65"></script>
+<script src="runtime/enemy_reward_compat_wo33.js?v=1-wo65"></script>
+<script src="runtime/raccoon_combat_visual.js?v=road-repair-1-wo65"></script>
+<script src="runtime/human_group_combat_visual.js?v=issue24-hollowed-fit-wo65"></script>
+<script src="runtime/road_npc_art_20261109.js?v=road-repair-1-wo65"></script>
+<script src="runtime/roadside_art_20261110.js?v=wreckers-friendly-scrapper-20261117-wo65"></script>
+<script src="runtime/workbench_upgrade_20261110.js?v=workbench-back-fix-2-wo65"></script>
+<script src="runtime/combat_balance_wo43.js?v=wo54-shop-range-wo65"></script>
+<script src="runtime/factory_floor_boss_art_20261109.js?v=factory-scenes-1-wo65"></script>
+<!-- DEVTEST GitHub Pages fresh publishing trigger: Murphy Workbench artwork 2026-11-10. No gameplay changes. -->
+<script src="runtime/regional_sky_wo45.js?v=issue48-background-fallback-wo65"></script>
+<script src="runtime/nightfall_wo45.js?v=wo45-1-wo65"></script>
+<script src="runtime/environmental_effects_wo46.js?v=wo48-glass-2-wo65"></script>
+<script src="runtime/empty_bus_shelter_20261110.js?v=bus-scenes-1-wo65"></script>
+<script src="runtime/hanging_shoes_20261110.js?v=shoes-1-wo65"></script>
+<script src="runtime/iron_harvest_20261110.js?v=harvest-sky-1-wo65"></script>
+<script src="runtime/enid_fence_artist_20261110.js?v=enid-sky-staff-1-wo65"></script>
+<script src="runtime/silent_picnic_20261110.js?v=picnic-1-wo65"></script>
+<script src="runtime/miles_courier_art_20261110.js?v=miles-1-wo65"></script>
+<script src="runtime/last_mail_20261110.js?v=last-mail-1-wo65"></script>
+<script src="runtime/post_office_routes_20261110.js?v=backpack-mail-tampering-20261117-wo65"></script>
+<script src="runtime/rust_parade_art_20261110.js?v=rust-parade-1-wo65"></script>
+<script src="runtime/carousel_horse_art_20261110.js?v=carousel-1-wo65"></script>
+<script src="runtime/welded_bus_art_20261111.js?v=welded-bus-1-wo65"></script>
+<script src="runtime/shattered_silo_art_20261111.js?v=silo-1-wo65"></script>
+<script src="runtime/mask_market_art_20261111.js?v=wo58-shared-loader-wo65"></script>
+<script src="runtime/paper_storm_art_20261111.js?v=paper-storm-1-wo65"></script>
+<script src="runtime/false_shoulder_art_20261111.js?v=false-shoulder-1-wo65"></script>
+<script src="runtime/new_roadside_art_20261111.js?v=causeway-scenario-art-20261113-wo65"></script>
+<script src="runtime/combat_layout_manifest.js?v=scrap-duel-fit-20261117-wo65"></script>
+<script src="runtime/combat_layouts.js?v=wreckers-friendly-scrapper-20261117-wo65"></script>
+
+<script src="runtime/pearl_map_wo30.js?v=road-join-smoothing-20261112-wo65"></script>
+<script src="runtime/world_map_presentation.js?v=luna-fix-2-wo65"></script>
+<script src="runtime/cinematic_map_assets.js?v=mobile-map-v1-20261112-wo65"></script>
+<script src="runtime/county_depot_art_20261112.js?v=county-depot-package-1-wo65"></script>
+<script src="runtime/owner_scenario_batch_20261112.js?v=wo63-wo65"></script>
+<script src="runtime/seaport_post_office_20261112.js?v=backpack-mail-tampering-20261117-wo65"></script>
+
+
+<script src="runtime/approved_sky_road_scenes_20261112.js?v=wo58-shared-loader-wo65"></script>
+<script src="runtime/demo_art_batch_20261112.js?v=wo63-wo65"></script>
+<script src="runtime/owner_art_finish_20261112.js?v=iron-choir-road-20261112-3-wo65"></script>
+<script src="runtime/daniel_rescue_cinematics_20261113.js?v=daniel-reunion-controls-2-wo65"></script>
+<script src="runtime/solace_quest_discovery_art_20261113.js?v=quest-discovery-state-fix-20261115-wo65"></script>
+<script src="runtime/arena_combatants_20261113.js?v=wo60-wo65"></script>
+<script src="runtime/causeway_scene_backdrop_20261113.js?v=preserve-scenario-layout-transform-20261116-wo65"></script>
+<script src="runtime/sidequest_art_20261116.js?v=silas-correct-location-art-20261116-wo65"></script>
+<script src="runtime/owner_final_scenarios_20261116.js?v=toxic-cargo-fit-20261116-wo65"></script>
+<script src="runtime/silas_fence_navigation_fix_20261116.js?v=silas-fence-choices-engine-gated-2-wo65"></script>
+<script src="runtime/graphical_transcript_display_guard_20261116.js?v=graphics-redundant-lines-guard-v1-wo65"></script>
+<script src="runtime/casino_wagers_rat_odds_20261116.js?v=arena-shared-wagers-20261116-wo65"></script>
+<script src="runtime/arena_spectator_exhibitions_20261116.js?v=wo60-lobby-restore-wo65"></script>
+<script>
+/* DEVTEST-only: keep the opening transmission's typed prompts available after HI.
+ * The shared graphics entry modal previously covered HELLO only, while graphics
+ * mode hid the underlying command form during LISTEN and LOG COORDINATES. */
+(()=>{
+  if(typeof FocusedEntry==='undefined')return;
+  const previousDescribe=FocusedEntry.describe;
+  FocusedEntry.describe=function(){
+    if(stage==='listen')return {key:'intro-listen',title:'Continue transmission',label:'Type LISTEN',hint:'The Tomorrow Project is waiting for you to listen.',maxLength:40,format:v=>v};
+    if(stage==='savecoords')return {key:'intro-coordinates',title:'Save the coordinates',label:'Type LOG COORDINATES',hint:'Enter LOG COORDINATES to save the destination and begin your journey.',maxLength:60,format:v=>v};
+    return previousDescribe.call(this);
+  };
+  // The shared submit handler marks the NEXT prompt as dismissed when the
+  // current prompt changes. Clear that marker only on intro transitions.
+  const previousSubmit=FocusedEntry.submit;
+  FocusedEntry.submit=async function(...args){
+    const before=stage;
+    const result=await previousSubmit.apply(this,args);
+    if((before==='hello'&&stage==='listen')||(before==='listen'&&stage==='savecoords')){
+      this.dismissed=null;
+      this.schedule();
+    }
+    return result;
+  };
+  FocusedEntry.schedule();
+})();
+</script>
+<script>
+/* DEVTEST-only new-game graphics handoff.
+ * After logging coordinates, the original house/roadReady stages are playable
+ * before lanternTravel has been initialized. Do not hide graphics at that point. */
+(()=>{
+  if(typeof GraphicalUI==='undefined')return;
+  const previousEligible=GraphicalUI.eligible;
+  const overlays=new Set(['inventory','inventoryItem','confirmDrop','quests','interfaceStatus','interfaceMap','interfaceSave']);
+  GraphicalUI.eligible=function(){
+    if(previousEligible.call(this))return true;
+    if(!player?.flags?.interfaceUnlocked)return false;
+    return route127HouseScene(overlays.has(stage)?returnStage:stage,lanternState());
+  };
+  GraphicalUI.sync();
+})();
+</script>
+<script id="playtest-slot-stakes-and-odds">
+/* DEVTEST ONLY — fixed slot wagers and doubled matching-symbol odds.
+ * Existing reels, images, animations, multipliers and settlements remain in place.
+ */
+(()=>{
+ 'use strict';
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||typeof casinoSlotPayout!=='function'||typeof SLOT_SYMBOLS==='undefined')return;
+ const permitted=new Set([10,20,50]);
+ const solace=()=>stage==='mercy'&&mercyLocation==='casinoGame'&&casinoRound()?.game==='slots';
+ const seaport=()=>stage==='r6Casino'&&r6Round()?.game==='SLOTS';
+ const allowedCommand=cmd=>/^(?:wager|bet) (?:10|20|50)(?: bolts?)?$/.test(cmd);
+ const prohibited=cmd=>/^(?:custom(?: wager)?|all in|c|a|[0-9]+|(?:wager|bet)\s+\d+(?:\s+bolts?)?)$/.test(cmd);
+ // P(triple symbol)=P(symbol)^3. On a calibrated portion of losing
+ // spins, promote to a triple with the natural relative symbol weights.
+ // This doubles the win probability for each of the six symbols.
+ const total=SLOT_SYMBOLS.reduce((sum,s)=>sum+s.weight,0);
+ const triples=SLOT_SYMBOLS.map(s=>Math.pow(s.weight/total,3));
+ const natural=triples.reduce((sum,p)=>sum+p,0);
+ const promote=natural/(1-natural);
+ const originalPayout=casinoSlotPayout;
+ casinoSlotPayout=function(reels,bet){
+  if(Array.isArray(reels)&&reels.length===3&&Number.isSafeInteger(bet)&&bet>0
+     &&!reels.every(v=>v===reels[0])&&Math.random()<promote){
+   let draw=Math.random()*natural;
+   let winner=SLOT_SYMBOLS.length-1;
+   for(let i=0;i<triples.length;i++){draw-=triples[i];if(draw<0){winner=i;break;}}
+   reels.fill(SLOT_SYMBOLS[winner].name);
+  }
+  return originalPayout.apply(this,arguments);
+ };
+ // Restrict the shared Solace wager UI only for slots (not blackjack etc).
+ const oldSolaceMenu=casinoWagerMenu;
+ casinoWagerMenu=function(){
+  if(!solace())return oldSolaceMenu.apply(this,arguments);
+  outputQueue=outputQueue.then(()=>{
+   currentHotkeys={b:'back'};
+   numberedChoices={10:'wager 10',20:'wager 20',50:'wager 50'};
+   usedHotkeys=new Set(['b']);
+   for(const label of ['[10] 10 BOLTS','[20] 20 BOLTS','[50] 50 BOLTS','[B] BACK'])addImmediate(label,'system');
+   followOutput();
+  });
+ };
+ const oldSolaceWager=casinoWager;
+ casinoWager=function(cmd,r){
+  if(r?.game==='slots'&&!allowedCommand(String(cmd).trim().toLowerCase()))return false;
+  return oldSolaceWager.apply(this,arguments);
+ };
+ const oldSolaceCommand=handleCasinoCommand;
+ handleCasinoCommand=function(cmd){
+  cmd=String(cmd).trim().toLowerCase();
+  if(solace()){
+   const r=casinoRound();
+   delete r.custom;delete r.allInEven;
+   if(prohibited(cmd)&&!allowedCommand(cmd)){
+    add('SLOTS — CHOOSE WAGER 10, WAGER 20, OR WAGER 50.','system');
+    casinoRender();return true;
+   }
+  }
+  return oldSolaceCommand.apply(this,arguments);
+ };
+ const oldPortWager=r6Wager;
+ r6Wager=function(bet){
+  if(seaport()&&!permitted.has(bet))return false;
+  return oldPortWager.apply(this,arguments);
+ };
+ const oldPortCommand=r6CasinoCommand;
+ r6CasinoCommand=function(cmd){
+  cmd=String(cmd).trim().toLowerCase();
+  if(seaport()){
+   const r=r6Round();
+   delete r.custom;delete r.allInEven;
+   if(prohibited(cmd)&&!allowedCommand(cmd)){
+    add('SLOTS — CHOOSE WAGER 10, WAGER 20, OR WAGER 50.','system');
+    r6CasinoRender();return true;
+   }
+  }
+  return oldPortCommand.apply(this,arguments);
+ };
+})();
+</script>
+<script src="runtime/scenario_results_wo52.js?v=wo59-wo65"></script>
+<script src="runtime/solace_shop_art_restore_20261117.js?v=1-wo65"></script>
+<script src="runtime/mail_backpack_tampering_20261117.js?v=1-wo65"></script>
+<script src="runtime/armory_equipment_comparison_20261117.js?v=wo55-shop-inspection-wo65"></script>
+
+<script>
+/* DEVTEST recovery for an encounter already charged to the current road step. */
+(()=>{
+'use strict';
+if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST')return;
+
+const resumeCommand='resume road event';
+const skipCommand='skip stalled event';
+const pendingRoad=()=>stage==='lanternRoad'&&lanternEdge()&&lanternState()?.pending;
+const originalRoadMenu=lanternRoadMenu;
+lanternRoadMenu=function(...args){
+ if(!lanternEdge()||!lanternState()?.pending)return originalRoadMenu.apply(this,args);
+ stage='lanternRoad';
+ add(lanternProgressText(),'system');
+ r5DirectChoices([resumeCommand.toUpperCase(),skipCommand.toUpperCase()]);
+};
+
+function restore(){
+ if(!pendingRoad()||busy||combatState)return false;
+ const g=lanternState();
+ try{
+  if(g.encounterIndex!=null&&(!Number.isInteger(g.encounterIndex)||
+     !r10Pool(g.encounterRegion||lanternEdge().region)[g.encounterIndex])){
+   throw Error('Saved encounter index is unavailable in '+(g.encounterRegion||lanternEdge().region));
+  }
+  resumeSavedEncounter=Number.isInteger(g.encounterIndex);
+  roadTurnCharged=true;
+  stage='between';
+  showEncounter();
+  if(stage==='between')throw Error('Encounter did not open a gameplay menu.');
+  return true;
+ }catch(error){
+  resumeSavedEncounter=false;
+  console.error('[DEVTEST road] Resume Road Event failed',error);
+  if(!!lanternState()?.pending){
+   add('This road event could not be reopened. Use Skip Stalled Event to recover this step.','danger');
+   lanternRoadMenu();
+  }
+  return false;
+ }finally{
+  GraphicalUI.schedule();
+ }
+}
+
+function skipStalledEvent(){
+ if(!pendingRoad()||busy||combatState)return false;
+ if(!confirm('Back up this DEVTEST save and skip the current event? This spends no additional turns.'))return false;
+ try{
+  const cloud=document.body.classList.contains('r127-cloud-game');
+  const snapshot=saveSnapshot();
+  const key='route127_devtest_stalled_road_backup_'+(cloud?snapshot.player.characterId+'_':'')+Date.now();
+  const raw=cloud?JSON.stringify(snapshot):localStorage.getItem(FACTORY_AUTOSAVE_KEY);
+  if(!raw)throw Error('No autosave found for backup.');
+  localStorage.setItem(key,raw);
+  if(localStorage.getItem(key)!==raw)throw Error('Autosave backup verification failed.');
+  const g=lanternState();
+  snapshot.stage='lanternRoad';
+  Object.assign(snapshot.player.flags.lanternTravel,{pending:false,encounterIndex:null});
+  for(const flag of ['devFoodChoice','devFoodSelected','r127StalledRoadEvent']){
+   delete snapshot.player.flags[flag];
+  }
+  const updated=JSON.stringify({...snapshot,manualSlot:activeSaveSlot});
+  if(!cloud){
+   localStorage.setItem(FACTORY_AUTOSAVE_KEY,updated);
+   if(localStorage.getItem(FACTORY_AUTOSAVE_KEY)!==updated)throw Error('Recovered save could not be verified.');
+  }
+  Object.assign(g,{pending:false,encounterIndex:null});
+  for(const flag of ['devFoodChoice','devFoodSelected','r127StalledRoadEvent'])delete player.flags[flag];
+  resumeSavedEncounter=false;
+  lanternRoadMenu();
+  if(cloud)v49Autosave();
+  return true;
+ }catch(error){
+  console.error('[DEVTEST road] Skip Stalled Event failed',error);
+  add('Recovery failed: '+error.message,'danger');
+  if(pendingRoad())lanternRoadMenu();
+  return false;
+ }finally{
+  GraphicalUI.schedule();
+ }
+}
+
+const previousLoad=loadGame;
+loadGame=function(slot=activeSaveSlot){
+ const read=getSaveData;
+ getSaveData=function(which){
+  const data=read(which);
+  const graph=data?.player?.flags?.lanternTravel;
+  if(which===slot&&graph?.currentEdgeId&&graph.pending&&
+     !data.combatState&&['between','encounter'].includes(data.stage)){
+   return {...data,stage:'lanternRoad'};
+  }
+  return data;
+ };
+ let result;
+ try{
+  result=previousLoad.call(this,slot);
+ }finally{
+  getSaveData=read;
+ }
+ if(pendingRoad()&&Number.isInteger(lanternState().encounterIndex))restore();
+ return result;
+};
+
+const previousCommand=handleCommand;
+handleCommand=async function(raw){
+ if(!pendingRoad())return previousCommand.apply(this,arguments);
+ const command=String(r5Mapped(raw)||raw).trim().toLowerCase();
+ if(command===resumeCommand)return restore();
+ if(command===skipCommand)return skipStalledEvent();
+ if(command==='continue road'||command==='reverse direction')return lanternRoadMenu();
+ return previousCommand.apply(this,arguments);
+};
+const previousChoices=GraphicalUI.choices;
+GraphicalUI.choices=function(...args){
+ if(!pendingRoad()||combatState)return previousChoices.apply(this,args);
+ return [
+  {key:'1',command:resumeCommand,label:'Resume Road Event'},
+  {key:'2',command:skipCommand,label:'Skip Stalled Event (no extra turn)'}
+ ];
+};
+const previousDispatch=GraphicalUI.dispatch;
+GraphicalUI.dispatch=async function(choice){
+ if(!pendingRoad()||![resumeCommand,skipCommand].includes(choice?.command)){
+  return previousDispatch.apply(this,arguments);
+ }
+ if(busy||commandProcessing||combatState)return false;
+ const result=await handleCommand(choice.command);
+ this.sync();
+ return result;
+};
+globalThis.Route127RoadLoadRecovery=Object.freeze({restore,skipStalledEvent});
+})();
+</script>
 <template id="route127-cloud-login">
   <dialog class="cloud-login" aria-labelledby="cloud-login-title">
     <section class="cloud-login-frame">
@@ -195,15 +780,12 @@
       <button type="button" id="cloud-retry" class="traveler-button" hidden>Retry save</button>
       <button type="button" id="cloud-server" class="traveler-button" hidden>Restore saved version</button>
       <button type="button" id="cloud-local" class="traveler-button" hidden>Continue on this device</button>
-      <a id="cloud-offline" href="?offline=1" hidden>Open browser save</a>
-      <button type="button" id="cloud-legacy" class="traveler-button" hidden>Copy browser character</button>
-      <button type="button" id="cloud-new" class="traveler-button" hidden>Create new character</button>
       <button type="button" id="cloud-out" class="traveler-button" hidden>Sign out</button>
     </div>
   </section>
   <div class="cloud-notice" role="status" aria-atomic="true"></div>
 </template>
-<script src="../runtime/cloud-save-bootstrap.js?v=wo65" data-route127-client="playtest"></script>
+<script src="../runtime/cloud-save-bootstrap.js?v=wo65-release" data-route127-client="playtest"></script>
 </body>
 </html>
 

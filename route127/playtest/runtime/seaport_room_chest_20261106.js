@@ -4,7 +4,7 @@
  */
 (()=>{
 'use strict';
-if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||typeof r6RoomCommand!=='function'||
+if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||typeof r6RoomCommand!=='function'||
    typeof GraphicalUI==='undefined')return;
 const inRoom=()=>stage==='r6Room'&&player.flags?.r6AnchorRoomOwned&&
     typeof portRecruitUnlocked==='function'&&portRecruitUnlocked();

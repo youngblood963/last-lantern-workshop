@@ -3,13 +3,18 @@
  'use strict';
  const playtest=document.currentScript?.dataset.route127Environment==='playtest';
  const params=new URLSearchParams(location.search);
- if(playtest&&(!/^https:\/\/(?:localhost|127\.0\.0\.1):8788$/.test(location.origin)||
-  !/^\/route127\/playtest\/(?:index\.html)?$/.test(location.pathname)||
-  params.get('cloud')!=='1'||params.get('offline')==='1'))return;
+ if(playtest&&!/^\/route127\/playtest\/(?:index\.html)?$/.test(location.pathname))return;
  if(!playtest&&!/^\/route127\/devtest\/(?:index\.html)?$/.test(location.pathname))
   throw new Error('Devtest bootstrap refused outside its explicit entry');
- const environment=Object.freeze({name:playtest?'PLAYTEST':'DEVTEST',engine:'../playtest/',backend:false,qa:false,
+ const releaseCloud=playtest&&params.get('offline')!=='1'&&(
+  location.origin==='https://lastlanternworkshop.com'||
+  (/^https:\/\/(?:localhost|127\.0\.0\.1):8788$/.test(location.origin)&&params.get('cloud')==='1'));
+ const environment=Object.freeze({name:playtest?'PLAYTEST':'DEVTEST',engine:'../playtest/',backend:releaseCloud,qa:false,
   storagePrefix:playtest?'route127:playtest:cloud:v1:':'route127:devtest:v1:'});
+ if(playtest&&!releaseCloud){
+  Object.defineProperty(globalThis,'ROUTE127_ENV',{value:environment,writable:false,configurable:false});
+  return;
+ }
  Object.defineProperty(window,'ROUTE127_QA_BUILD',{value:false,writable:false,configurable:false});
  // Read old same-origin characters without modifying them. Every write, including
  // identity/ledger housekeeping by the unchanged engine, goes to the private fork.

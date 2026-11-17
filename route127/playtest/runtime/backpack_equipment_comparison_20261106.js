@@ -3,7 +3,7 @@
  */
 (()=>{
  'use strict';
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||typeof TravelerPanels==='undefined'||typeof GEAR==='undefined')return;
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||typeof TravelerPanels==='undefined'||typeof GEAR==='undefined')return;
  const oldInventory=TravelerPanels.inventory;
  const css=document.createElement('style');css.dataset.r127BagCompare='v1';
  css.textContent=`

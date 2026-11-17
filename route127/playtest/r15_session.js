@@ -1,6 +1,6 @@
 /* R15 offline resume uses existing snapshots and keys. Online resume belongs to cloud-dev. */
 (() => {
- const online=globalThis.ROUTE127_ENV?.name==='PLAYTEST'||document.querySelector('script[src^="cloud-dev.js"]')&&new URLSearchParams(location.search).get('offline')!=='1';
+ const online=globalThis.ROUTE127_ENV?.backend===true||document.querySelector('script[src^="cloud-dev.js"]')&&new URLSearchParams(location.search).get('offline')!=='1';
  if(online)return;
  const previous=handleCommand;
  handleCommand=async function(raw){

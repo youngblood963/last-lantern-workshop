@@ -1,7 +1,17 @@
 /* WO31: Devtest-only display formatting. Never change persistence or commands. */
 (function(){
  'use strict';
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||typeof RouteIdentity==='undefined')return;
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||typeof RouteIdentity==='undefined')return;
+ // Legacy titles remain the stable keys for mechanics and saved encounters.
+ const encounterNames={
+  'early:12':'THE COUNTY OFFICES',
+  'early:46':'THE FORGOTTEN GARDEN',
+  'east:33':'THE ROAD REAPERS'
+ };
+ for(const entry of [...RoadScenarioRegistry.entries,...RoadScenarioRegistry.regionalCatalog]){
+  const name=encounterNames[entry.canonicalId||entry.id];
+  if(name)entry.name=entry.encounter.displayName=name;
+ }
  const suffix=/\s*(?:[-–—|:]\s*)?(?:\[|\()?\s*(?:Forge[ _-]*)?(?:Common|Uncommon|Rare|Epic|Legendary)[ _-]*\d+(?:\s*[\])])?(?=\s|$|[—–,:])/gi;
  const F={
   clean(value){return PlaythroughRepairs.cleanLabel(String(value)).replace(suffix,'').trim();},

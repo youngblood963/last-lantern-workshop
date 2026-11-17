@@ -39,6 +39,20 @@ function finish(take){
 const oldCore=handleCommandCore;
 handleCommandCore=async function(raw){
  const cmd=String(r5Mapped(raw)||'').trim().toLowerCase(),key=pending();
+ if(!busy&&stage==='mercy'&&mercyLocation==='murphy'&&cmd==='ask about relay parts'&&player.flags.relayQuest!=='complete'){
+  add('MURPHY > Johnny has a Power Regulator. The other three components are out on the roads.','bright');
+  PlaythroughRepairs.relayClues(true);
+  return;
+ }
+ if(!busy&&stage==='mercy'&&mercyLocation==='relay'&&player.flags.relayQuest!=='complete'&&cmd.includes('inspect')){
+  const diagnostic=cmd.includes('monitor')?['monitor','The monitor is dead again. A faint ozone smell hangs around the vents. A signal-conditioning board behind the display is scorched beyond repair.','Look for a replacement on Route 127 just outside the Factory.']:
+   cmd.includes('antenna')?['antenna','A bank of antenna controls is frozen halfway through calibration. The ANTENNA SERVO has seized solid.','Look for a replacement on Old House Road between the House and Solace.']:
+   cmd.includes('cable')?['cables','Most of the cable is brittle but intact, but the SHIELDED FEED COUPLER has burned through at the wall.','Look for a roadside communications cabinet on the road between map Nodes 9 and 32.']:null;
+  if(diagnostic){
+   const [system,description,clue]=diagnostic;
+   add(description);add(clue,'bright');inspectRelaySystem(system);showRelayChoices();return;
+  }
+ }
  if(!busy&&key&&stage==='encounter'&&lanternState()?.pending){
   if(cmd===parts[key].action.toLowerCase())return finish(true);
   if(['back away','leave','back','move on'].includes(cmd))return finish(false);
@@ -48,11 +62,24 @@ handleCommandCore=async function(raw){
 if(typeof PlaythroughRepairs!=='undefined'){
  PlaythroughRepairs.rackAvailable=()=>false;
  PlaythroughRepairs.rackChoice=()=>{};
- PlaythroughRepairs.relayClues=function(){
-  if(!active())return;const h=ensureRelayParts();
+ PlaythroughRepairs.relayClues=function(force=false){
+  if(!force&&!active())return;const h=ensureRelayParts();
   for(const [k,where] of [['johnny','Johnny in Solace'],['yard','Old House Road between House and Solace'],['branch','road between map Nodes 9 and 32'],['east','Route 127 just outside the Factory']])
    add((h[k]?'RECOVERED':'NEEDED')+' — '+(parts[k]?.name||'POWER REGULATOR')+': '+where,'system');
  };
 }
+// Use the same clues for the first reveal and the journal. The shared reveal
+// still points to the former fixed pickup locations.
+revealRelayParts=function(){
+ ensureRelayParts();
+ const f=player.flags;
+ if(f.relayPartsRevealed)return;
+ f.relayPartsRevealed=true;
+ f.relayBranchDiscovered=true;
+ add("The failures are not one problem. They're four.","bright");
+ add('RELAY REPAIR — FOUR COMPONENTS REQUIRED','reward');
+ PlaythroughRepairs.relayClues();
+ add('QUEST UPDATED — All four clues recorded in QUESTS. LOWER ACCESS ROAD UNLOCKED.','reward');
+};
 globalThis.DevtestRelayRoadParts=parts;
 })();

@@ -41,7 +41,8 @@ const RoadScenarioRegistry = {
    }
    entry.references.push({road,category,index});
   }
-  this.special={id:'special:steve',name:"CRAZY STEVE'S PINK ELEPHANTS",region:'GLOBAL',category:'special',scene:r11SteveScene,combat:r11Elephant};
+  // Retired completely: do not publish Crazy Steve as an eligible special encounter.
+  this.special=null;
   this.wanderers=wanderers.map(w=>({id:'wanderer:'+w.name,name:w.name,region:'GLOBAL',category:'wanderer',npc:w}));
   this.ready=true;
  },
@@ -151,7 +152,20 @@ const encounters = [
    if(cmd.includes("move")||cmd.includes("leave")){add("You leave the culvert undisturbed.");return true;}return false;
   }},
   {title:"ROACH NEST",exclusive:true,text:"A rusted delivery van rocks on its dead suspension as roaches pour from underneath.",description(){const scenes=["Ordinary large roaches crowd the delivery van, drawn to a torn food carton.","Several unusually large contaminated roaches swarm around leaking containers beneath the van.","An aggressive roach swarm surges from the delivery van across the road."];return scenes[r18RoachVariant()];},choices:"FIGHT SWARM   LURE THEM AWAY   SEARCH VAN   BACK AWAY",combat:{action:"FIGHT SWARM",name:"ROACH SWARM",level:2,hp:20,min:2,max:5,xp:25,bolts:0,r18RoachNest:true,end:"The surviving roaches scatter beneath the van."},resolve(cmd){
-   if(cmd.includes("lure")){if(!hasItem("Energy Bars")){add("You need food to lure the swarm away.","system");return false;}removeItem("Energy Bars");gainXp(Math.max(8,player.level*2));add("You toss the ration away from the road. The roaches follow it into the weeds.");return true;}
+   if(cmd.includes("lure")){
+     // Use one ordinary food item, not exclusively an Energy Bar. Never
+     // consume quest, protected, unique, medicine, or non-food supplies.
+     const foods=['Energy Bars','Canned Meat','Fresh Apple','Fresh Pear','Fresh Berries',
+      'Fresh Carrot','Fresh Potato','Fresh Tomato','Fresh Cabbage','Preserved Vegetables',
+      'Preserved Meat','Wasteland Stew','Roadhouse Hash','Wild Honey'];
+     const food=(player.pack||[]).find(i=>i.qty>0&&i.type==='consumable'&&
+      !i.protected&&!i.questOnly&&!i.unique&&!i.equipped&&foods.includes(i.name));
+     if(!food){add("You don't have any food to lure the roaches away.","system");return false;}
+     if(!removeItem(food.name)){add("That food is no longer available.","system");return false;}
+     gainXp(Math.max(8,player.level*2));
+     add('You toss 1 '+food.name+' away from the road. The roaches follow it toward the wreckage.');
+     return true;
+    }
    if(cmd.includes("search")){if(!addPack("Scrap Metal","material"))return false;if(Math.random()<.3){roadHurt(4);add("A roach bites as you recover a piece of metal from the van.","danger");}else add("You reach the van's cargo and recover Scrap Metal without disturbing the swarm.");gainXp(Math.max(7,player.level*2));return true;}
    if(cmd.includes("back")||cmd.includes("away")){add("You leave the van to the roaches.");return true;}return false;
   }},
@@ -174,8 +188,8 @@ const encounters = [
     if(v===2&&cmd.includes("watch")){gainXp(Math.max(6,player.level*2));add("You spot his hand reaching toward your pack. Caught, he mutters an apology and slips away.");return true;}
     if(v===2&&cmd.includes("trade")){const item=player.pack.find(i=>i.qty>0&&!['key','quest'].includes(i.type)&&i.name!==player.weapon&&i.name!==player.armor&&i.name!==player.accessory&&!protectedUniqueEquipment(i.name)&&!i.protected&&!i.unique&&GEAR[i.name]?.rarity!=='legendary');if(item&&Math.random()<.5){item.qty--;if(item.qty<=0)player.pack=player.pack.filter(i=>i!==item);updateHud();add("While showing you his parts, he slips away with one "+item.name+".","danger");}else add("You keep a close hand on your pack; the stranger moves along without taking anything.");return true;}return false;
   }},
-  { exclusive:true, title:"GANG LOOKOUT", text:"A teenager in a patched road vest watches from an overpass with a hunting knife and a whistle. You spot him a second before he can signal whoever is nearby.", choices:"RUSH HIM   SNEAK AROUND   INTIMIDATE",
-    resolve(cmd){ if(cmd.includes("rush")){roadHurt(10);gainXp(23);gainBolts(5);add("You reach him before the whistle does. He bolts, dropping a small hardware pouch.");} else if(cmd.includes("sneak")){add("You vanish through the drainage weeds before he gets a clean look at you.");} else if(cmd.includes("intimidate")){gainXp(16);add("You point the pipe at the whistle. He thinks better of testing you.");} else return false; return true;} },
+  { exclusive:true, title:"GANG LOOKOUT", text:"A teenager in a patched road vest watches from an overpass with a hunting knife and a whistle. You spot her a second before she can signal whoever is nearby.", choices:"RUSH HER   SNEAK AROUND   INTIMIDATE",
+    resolve(cmd){ if(cmd.includes("rush")){roadHurt(10);gainXp(23);gainBolts(5);add("You reach her before the whistle does. She bolts, dropping a small hardware pouch.");} else if(cmd.includes("sneak")){add("You vanish through the drainage weeds before she gets a clean look at you.");} else if(cmd.includes("intimidate")){gainXp(16);add("You point the pipe at the whistle. She thinks better of testing you.");} else return false; return true;} },
   {exclusive:true,title:"THE CRAWLER",text:"A territorial survivor crawls from beneath an overturned station wagon, keeping one hand on a knife. 'This highway and every wreck on it belongs to me.'",choices:"TALK TO HIM   TRADE FOR WIRE   ARGUE ABOUT THE ROAD   FIGHT   RETREAT",resolve(cmd){
    if(cmd.includes("talk")){const lines=["He says he has slept beneath the wagon for years and knows every crack in the shoulder.","He complains about scavengers who leave sharp scrap where travelers step.","He taps the wagon and declares it the finest shelter on the highway."];add(lines[Math.floor(Math.random()*lines.length)]);gainXp(Math.max(4,player.level));return true;}
    if(cmd.includes("trade")){if(player.bolts<4){add("He wants 4 Bolts for a coil of Wire.","system");return false;}if(!addPack("Wire","material"))return false;player.bolts-=4;updateHud();add("He accepts 4 Bolts and hands you the Wire.");return true;}
@@ -321,7 +335,7 @@ const eastEncounters = [
   {exclusive:true, title:"THE KNIFE WIND", text:"A narrow canyon funnels sand sharp enough to strip paint.", choices:"COVER FACE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("face") && !cmd.includes("cover")) return false; roadHurt(8);gainBolts(12);addPack("Cloth","material");gainXp(25);add("You emerge scratched but recover a lost pack wedged in the rock.");return true;}},
   {exclusive:true, title:"THE WARDEN", text:"An armored enforcer orders everyone on the highway to kneel. His equipment is far beyond yours.", choices:"HIDE FROM WARDEN   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("warden") && !cmd.includes("hide")) return false; gainXp(35);add("You disappear into a drainage crack and wait for his patrol to pass.");return true;}},
   {exclusive:true, title:"THE OIL DERRICK", text:"A pumpjack moves slowly despite its broken drive belt. The ground trembles beneath it.", choices:"SEARCH SHED   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("shed") && !cmd.includes("search")) return false; roadHurt(7);gainBolts(14);addPack("Wire","material");gainXp(24);add("The shed holds old maintenance tools and a salvage tin.");return true;}},
-  {exclusive:true, title:"THE CRANE NEST", text:"Giant birds have nested in the cab of a construction crane. Something shiny hangs from the nest.", choices:"CLIMB CRANE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("crane") && !cmd.includes("climb")) return false; roadHurt(13);gainBolts(20);gainXp(29);add("You retrieve a cache while the birds circle overhead.");return true;}},
+  {exclusive:true, title:"THE CRANE NEST", text:"Two fierce marsh cranes guard a sprawling nest among the reeds of the Lowlands. Something shiny glints beneath the woven grass.", choices:"SEARCH NEST   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("crane") && !cmd.includes("climb")) return false; roadHurt(13);gainBolts(20);gainXp(29);add("You retrieve a cache while the birds circle overhead.");return true;}},
   {exclusive:true, title:"THE COLD FOUNDRY", text:"A foundry floor is littered with unfinished iron castings and shattered molds.", choices:"SEARCH MOLDS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("molds") && !cmd.includes("search")) return false; roadHurt(5);gainBolts(11);addPack("Scrap Metal","material");gainXp(24);add("You find a usable metal bracket beneath the slag.");return true;}},
   {exclusive:true, title:"THE MUD CANNON", text:"A pressurized pipe erupts from a flooded excavation, hurling mud across the highway.", choices:"CLOSE VALVE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("valve") && !cmd.includes("close")) return false; roadHurt(9);gainBolts(11);addPack("Wire","material");gainXp(26);add("You shut it down and recover the crew’s forgotten tools.");return true;}},
   {exclusive:true, title:"THE HANGING CAGE", text:"A steel cage swings from a highway gantry. The door is open, and a locked chest sits inside.", choices:"REACH CHEST   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("chest") && !cmd.includes("reach")) return false; roadHurt(12);gainBolts(22);gainXp(29);add("You retrieve the chest as the cable starts to fray.");return true;}},
@@ -468,14 +482,32 @@ const beginnerAdditions=[
     "PEEK THROUGH KEYHOLE":()=>{add("Through the keyhole you see a suitcase beside a skeleton. The door remains closed.");if(!player.flags.r18FarmKeyhole){player.flags.r18FarmKeyhole=true;gainXp(Math.max(4,player.level));}return true;},
     "FORCE THE DOOR":()=>{if(player.flags.r18FarmSuitcase){add("The suitcase has already been searched.","system");return true;}r18RetainRoadReward("Cloth","material");player.flags.r18FarmSuitcase=true;gainXp(Math.max(6,player.level));add("Behind the door, a skeleton lies beside a suitcase containing a strip of Cloth.","reward");return true;}
   }),
-  {title:"THE WALKING PEDDLER",minLevel:1,maxLevel:50,exclusive:true,text:"Old Pete pedals a bicycle loaded with tins and pots. His sign reads: PETE'S EMPORIUM — IF I AIN'T GOT IT, YOU DON'T NEED IT.",prompt(){const d=player.flags.r18PeteRepaired?1:0,stock=r18PeteStock();return `BUY APPLE FOR ${4-d} BOLTS   BUY CARROT FOR ${4-d} BOLTS   BUY RATION FOR ${6-d} BOLTS${stock.potato?`   BUY POTATO FOR ${4-d} BOLTS`:""}${stock.equipment&&!stock.equipment.sold?`   BUY ${stock.equipment.name.toUpperCase()} FOR ${stock.equipment.price} BOLTS`:""}   BUY BANDAGE FOR 8 BOLTS   BUY WIRE FOR 5 BOLTS   BUY SCRAP FOR 5 BOLTS${player.flags.r18PeteCompassSold?"":"   BUY COMPASS FOR 45 BOLTS"}   SELL ONE SCRAP FOR 3 BOLTS   SELL ONE WIRE FOR 2 BOLTS   REPAIR BICYCLE   TALK TO PETE   ASK FOR RUMORS   BACK AWAY`;},resolve(cmd){
+  {title:"THE WALKING PEDDLER",minLevel:1,maxLevel:50,exclusive:true,text:"Old Pete pedals a bicycle loaded with tins and pots. His sign reads: PETE'S EMPORIUM — IF I AIN'T GOT IT, YOU DON'T NEED IT.",prompt(){
+    const f=player.flags,visit=roadGoal+':'+roadTurn+':'+dailyRoadTurns;
+    if(f.r18PeteVisit!==visit){f.r18PeteVisit=visit;f.r18PeteMenu='main';}
+    const d=f.r18PeteRepaired?1:0,stock=r18PeteStock();
+    switch(f.r18PeteMenu){
+      case 'wares':return 'BUY FOOD   BUY SUPPLIES   BUY EQUIPMENT'+(f.r18PeteCompassSold?'':'   BUY COMPASS FOR 45 BOLTS')+'   SELL MATERIALS   BACK TO PETE';
+      case 'food':return `BUY APPLE FOR ${4-d} BOLTS   BUY CARROT FOR ${4-d} BOLTS   BUY RATION FOR ${6-d} BOLTS${stock.potato?`   BUY POTATO FOR ${4-d} BOLTS`:""}   BACK TO WARES`;
+      case 'supplies':return 'BUY BANDAGE FOR 8 BOLTS   BUY WIRE FOR 5 BOLTS   BUY SCRAP FOR 5 BOLTS   BACK TO WARES';
+      case 'equipment':return (stock.equipment&&!stock.equipment.sold?`BUY ${stock.equipment.name.toUpperCase()} FOR ${stock.equipment.price} BOLTS   `:'')+'BACK TO WARES';
+      case 'sell':return 'SELL ONE SCRAP FOR 3 BOLTS   SELL ONE WIRE FOR 2 BOLTS   BACK TO WARES';
+      default:return 'BROWSE WARES   REPAIR BICYCLE   TALK TO PETE   ASK FOR RUMORS   BACK AWAY';
+    }
+  },resolve(cmd){
     const f=player.flags,discount=f.r18PeteRepaired?1:0;f.r18PeteMet=true;
+    // Menu navigation is free and remains within this road encounter.
+    const submenu={'browse wares':'wares','trade':'wares','buy food':'food','buy supplies':'supplies',
+      'buy equipment':'equipment','sell materials':'sell','back to wares':'wares','back to pete':'main'};
+    if(Object.prototype.hasOwnProperty.call(submenu,cmd)){
+      f.r18PeteMenu=submenu[cmd];return true;
+    }
     if(cmd.includes('buy')){const stock=r18PeteStock(),eq=stock.equipment;if(eq&&!eq.sold&&cmd.startsWith('buy '+eq.name.toLowerCase()+' for ')){if(!roadTrade(eq.name,eq.type,eq.price))return false;eq.sold=true;add('Pete hands you '+eq.name+'.','reward');return true;}let item=cmd.includes('potato')&&stock.potato?'Fresh Potato':cmd.includes('apple')?'Fresh Apple':cmd.includes('carrot')?'Fresh Carrot':cmd.includes('ration')?'Energy Bars':cmd.includes('bandage')?'Bandage':cmd.includes('wire')?'Wire':cmd.includes('scrap')?'Scrap Metal':cmd.includes('compass')?'Old World Pocket Compass':null;if(!item)return false;if(item==='Old World Pocket Compass'&&f.r18PeteCompassSold){add('Pete already sold his one compass.','system');return false;}const type=item==='Old World Pocket Compass'?'valuable':['Wire','Scrap Metal'].includes(item)?'material':'consumable',cost=item==='Old World Pocket Compass'?45:item==='Bandage'?8:['Wire','Scrap Metal'].includes(item)?5:(item==='Energy Bars'?6:4)-discount;if(!roadTrade(item,type,cost))return false;if(item==='Old World Pocket Compass')f.r18PeteCompassSold=true;add('Pete counts '+cost+' Bolts and hands you '+item+'.','reward');return true;}
     if(cmd.includes('sell')){const wire=cmd.includes('wire'),name=wire?'Wire':'Scrap Metal',price=wire?2:3;if(!hasItem(name)){add('You have no '+name+' to sell.','system');return false;}if(findItem(name)?.stolen&&r18SaleDetected(findItem(name),'Old Pete'))return true;if(!removeItem(name))return false;gainBolts(price);add('Pete pays '+price+' Bolts for '+name+'.','reward');return true;}
     if(cmd.includes('rumor')){add(f.r18Station?'PETE > You found that dirt path? Evelyn knows more about radios than anyone I have met.':f.r18Ash?'PETE > The families at Ash Cemetery have been waiting a long time for answers.':"PETE > Listen to travelers. Sometimes a broken radio has more to say than the person carrying it.",'bright');return true;}
     if(cmd.includes('repair')){if(f.r18PeteRepaired){add('The bicycle repair is still holding.','system');return true;}if(!hasItem('Wire')){add('The bicycle repair needs one Wire.','system');return false;}if(!removeItem('Wire'))return false;f.r18PeteRepaired=true;gainXp(Math.max(6,player.level*2));add('You repair the bicycle. Pete promises a one-Bolt discount on his food.','bright');return true;}
     if(cmd.includes('talk')){add(f.r18PeteTalked?'PETE > Still got everything you need. Probably.':'PETE > If I ain’t got it, you don’t need it. Keep your socks dry and your arguments short.','bright');f.r18PeteTalked=true;return true;}
-    if(cmd.includes('back')||cmd.includes('away')){add('Pete pedals off down the highway.');return true;}return false;
+    if(cmd.includes('back')||cmd.includes('away')){f.r18PeteMenu='main';add('Pete pedals off down the highway.');return true;}return false;
   }},
   beginnerEvent("DUST OVER THE SCHOOLYARD","A herd of deer moves among the old swings. A fawn is tangled in chain-link; its mother watches nearby.",{
     "FREE THE FAWN":()=>{add("You carefully untangle the fawn. It hurries back to its mother.");if(!player.flags.r18FawnFreed){player.flags.r18FawnFreed=true;gainXp(Math.max(8,player.level*2));}return true;},
@@ -549,7 +581,12 @@ const R5_ROAD_REWORK={
   if(n===1){add('A faded wanted poster names Elias “Red” Harper. The charges are old; the truth is less clear.','bright');if(!player.flags.r18RedPosterSeen){player.flags.r18RedPosterSeen=true;gainXp(Math.max(6,player.level));}return true;}
   r18RetainRoadReward('Cloth','material');add('You recover a dry scrap of Cloth caught beneath the papers.','reward');return true;
  }},
- 'THE MUD CANNON':{options:['TALK DOWN THE BOMBER','SNEAK PAST THE BOMBER','SHOOT THE EXPLOSIVE SATCHEL','FIGHT THE BOMBER','BACK AWAY'],run(n){
+ 'THE MUD CANNON':{options:['CLOSE THE PRESSURE VALVE','TAKE COVER BEHIND THE BARRIER','SALVAGE THE PIPE FITTINGS','BACK AWAY'],run(n){
+   if(n===0){roadHurt(6);gainBolts(14);r18RetainRoadReward('Wire','material');gainXp(Math.max(16,player.level*3));add('You force the pressure valve shut. The mud jet dies, leaving a maintenance kit and spare Wire in the flooded trench.','reward');return true;}
+   if(n===1){gainXp(Math.max(8,player.level*2));add('You duck behind a concrete barrier. The cannon roars overhead until its pressure finally drops. You slip away clean.','bright');return true;}
+   roadHurt(9);gainBolts(18);r18RetainRoadReward('Scrap Metal','material');gainXp(Math.max(18,player.level*3));add('You wrench loose the pipe fittings between blasts. Mud knocks you off your feet, but you escape with useful Scrap Metal and Bolts.','reward');return true;
+  }},
+  'THE POWDER MONKEY':{options:['TALK DOWN THE BOMBER','SNEAK PAST THE BOMBER','SHOOT THE EXPLOSIVE SATCHEL','FIGHT THE BOMBER','BACK AWAY'],run(n){
   if(n===0&&Math.random()<.45){add('The bomber calms down and shares a weathered plan and spare components.','bright');r18PowderAward(true);gainXp(Math.max(6,player.level));return true;}
   if(n===1&&Math.random()<.6){add('You slip past while the bomber argues with a dud grenade.','bright');gainXp(Math.max(6,player.level));return true;}
   let weakened=false;if(n===2){const weapon=(typeof GEAR!=='undefined'&&GEAR[player.weapon]?.subtype?GEAR[player.weapon]:EQUIPMENT_CATALOG.find(e=>e.name===player.weapon));if(!weapon||!/rifle|revolver|pistol|shotgun|crossbow|smg/i.test(weapon.subtype||'')){add('Equip a ranged weapon to shoot the satchel.','system');return false;}weakened=true;add('The satchel bursts. The bomber abandons the explosives and draws a knife.','danger');}
@@ -764,12 +801,13 @@ const R5_ROAD_REWORK={
   if(n===2){r18TheftCaught('The Curator');add('The Curator catches you touching the exhibit.','danger');}r18WaxFight();return true;
  }}
 };
-for(const e of [...encounters,...eastEncounters]){const row=R5_ROAD_REWORK[e.title];if(!row)continue;if(e.title==='THE LAST ORCHARD')e.text='A healthy apple tree stands behind a metal-spike fence. A sign reads: ONE APPLE PER TRAVELER. PLEASE LEAVE SOME FOR THE NEXT PERSON. Traveler notes hang beside a broken section of fence.';if(e.title==='THE WELDED BUS')e.text='An armored yellow school bus rests beside the road. Elderly Mr. Pickens checks a route sheet while mannequins occupy the seats.';if(e.title==='THE RAIN BARREL')e.text='Plants survive inside a ruined greenhouse. A rain barrel is full of glass marbles, and a nearby crate is marked for the grower.';if(e.title==='THE KNIFE WIND')e.text='A scythe-bearing road Reaper blocks the cut while his chain-armed partner waits beside a leaking motorcycle.';if(e.title==='THE MILK CRATES')e.text='Three armed hunters block the shoulder. One holds up a photograph and asks whether you have seen the person in it.';if(e.title==='THE QUARRY LIFT')e.text='Three chain-armed scavengers wait near a suspended steel beam above the quarry approach.';if(e.title==='THE DRY FOUNTAIN')e.text='An armored mercenary stands beside a dry fountain, controlling the road with a professional calm.';if(e.title==='THE GARDEN GNOMES')e.text='Painted garden gnomes face an empty window. Thin lines disappear beneath the smallest statue.';if(e.title==='THE WARDEN')e.text='A Dominion Warden in a mirrored visor watches the road, rifle held ready and a stun baton at their belt.';if(e.title==='THE FENCE ARTIST')e.text='An older metalworker named Enid weaves a giant scrap bird into a chain-link fence.';if(e.title==='THE HANGING CAGE')e.text='Two cages hang from a highway gantry. One contains a chest; the other holds a man calling himself Silas Crowe.';if(e.title==='THE STEEL ORCHARD')e.text='An elderly woman named Martha tends an orchard of metal trees hung with keepsakes.';if(e.title==='THE PAPER STORM')e.text='A gust scatters old court records and a faded wanted poster across the highway.';if(e.title==='THE SALT MINERS')e.text='Six enslaved workers drag salt sleds beneath the watch of the Saltmaster and an overseer.';if(e.title==='THE GRINDER CREW')e.text='Rivet and a salvage crew feed old vehicles into a hand-powered crusher.';if(e.title==='THE ROAD EATER')e.text='A pre-collapse tunneling machine breaks through the pavement, its cutting wheel grinding against the road.';if(e.title==='THE MUD CANNON')e.text='A jittery bomber with a satchel of explosives argues with a dud grenade beside the road.';if(e.title==='THE HOLLOW STATUE')e.text='A fallen concrete worker lies across the road. Clara Bennett searches nearby.';if(e.title==='THE BLACK SNOW')e.text='Ash drifts over fresh footprints leading to a wounded scavenger sheltering near a burning truck.';if(e.title==='THE GATELESS WALL')e.text='Two guards watch a toll post at a broken wall. One mans a mounted machine gun.';e.choices=row.options.join('   ');e.exclusive=true;e.resolve=function(cmd){const index=row.options.findIndex(n=>n.toLowerCase()===cmd);if(index<0)return false;if(index===row.options.length-1){add('You withdraw along the safe approach, leaving the scene untouched.','system');return true;}return row.run(index);};}
+for(const e of [...encounters,...eastEncounters]){const row=R5_ROAD_REWORK[e.title];if(!row)continue;if(e.title==='THE LAST ORCHARD')e.text='A healthy apple tree stands behind a metal-spike fence. A sign reads: ONE APPLE PER TRAVELER. PLEASE LEAVE SOME FOR THE NEXT PERSON. Traveler notes hang beside a broken section of fence.';if(e.title==='THE WELDED BUS')e.text='An armored yellow school bus rests beside the road. Elderly Mr. Pickens checks a route sheet while mannequins occupy the seats.';if(e.title==='THE RAIN BARREL')e.text='Plants survive inside a ruined greenhouse. A rain barrel is full of glass marbles, and a nearby crate is marked for the grower.';if(e.title==='THE KNIFE WIND')e.text='A scythe-bearing road Reaper blocks the cut while his chain-armed partner waits beside a leaking motorcycle.';if(e.title==='THE MILK CRATES')e.text='Three armed hunters block the shoulder. One holds up a photograph and asks whether you have seen the person in it.';if(e.title==='THE QUARRY LIFT')e.text='Three chain-armed scavengers wait near a suspended steel beam above the quarry approach.';if(e.title==='THE DRY FOUNTAIN')e.text='An armored mercenary stands beside a dry fountain, controlling the road with a professional calm.';if(e.title==='THE GARDEN GNOMES')e.text='Painted garden gnomes face an empty window. Thin lines disappear beneath the smallest statue.';if(e.title==='THE WARDEN')e.text='A Dominion Warden in a mirrored visor watches the road, rifle held ready and a stun baton at their belt.';if(e.title==='THE FENCE ARTIST')e.text='An older metalworker named Enid weaves a giant scrap bird into a chain-link fence.';if(e.title==='THE HANGING CAGE')e.text='Two cages hang from a highway gantry. One contains a chest; the other holds a man calling himself Silas Crowe.';if(e.title==='THE STEEL ORCHARD')e.text='An elderly woman named Martha tends an orchard of metal trees hung with keepsakes.';if(e.title==='THE PAPER STORM')e.text='A gust scatters old court records and a faded wanted poster across the highway.';if(e.title==='THE SALT MINERS')e.text='Six enslaved workers drag salt sleds beneath the watch of the Saltmaster and an overseer.';if(e.title==='THE GRINDER CREW')e.text='Rivet and a salvage crew feed old vehicles into a hand-powered crusher.';if(e.title==='THE ROAD EATER')e.text='A pre-collapse tunneling machine breaks through the pavement, its cutting wheel grinding against the road.';if(e.title==='THE MUD CANNON')e.text='A pressurized pipe bursts from a flooded excavation and blasts thick mud across the road. A rusted valve, concrete barrier and loose fittings lie beside the trench.';if(e.title==='THE POWDER MONKEY')e.text='A jittery bomber with a satchel of explosives argues with a dud grenade beside the road.';if(e.title==='THE HOLLOW STATUE')e.text='A fallen concrete worker lies across the road. Clara Bennett searches nearby.';if(e.title==='THE BLACK SNOW')e.text='Ash drifts over fresh footprints leading to a wounded scavenger sheltering near a burning truck.';if(e.title==='THE GATELESS WALL')e.text='Two guards watch a toll post at a broken wall. One mans a mounted machine gun.';e.choices=row.options.join('   ');e.exclusive=true;e.resolve=function(cmd){const index=row.options.findIndex(n=>n.toLowerCase()===cmd);if(index<0)return false;if(index===row.options.length-1){add('You withdraw along the safe approach, leaving the scene untouched.','system');return true;}return row.run(index);};}
 // The horse offer stays within this encounter until it is accepted or declined.
 function r18HorseScene(){const g=typeof lanternState==='function'?lanternState():null,id=g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`;if(player.flags.r18HorseScene?.id!==id)player.flags.r18HorseScene={id,phase:'herd'};return player.flags.r18HorseScene;}
 const r18HorseEncounter=eastEncounters.find(e=>e.title==='THE DUST HORSES');
 if(r18HorseEncounter){r18HorseEncounter.prompt=function(){const q=r18HorseScene();return q.phase==='offer'?`${player.flags.r18HorseOwned?'LEAVE THE HORSE':'CALM THE HORSE   LEAVE THE HORSE'}`:R5_ROAD_REWORK['THE DUST HORSES'].options.join('   ');};r18HorseEncounter.resolve=function(cmd){const q=r18HorseScene(),f=player.flags;if(q.phase==='offer'){if(cmd==='leave the horse'){q.phase='done';add('The horse returns to the herd.','system');return true;}if(cmd==='calm the horse'&&!f.r18HorseOwned){q.phase='done';if(Math.random()<.4){f.r18HorseOwned=true;add('The horse accepts your hand. One free trip is available through Status.','reward');}else add('The horse shies away and runs after the herd.','system');return true;}return false;}const opts=R5_ROAD_REWORK['THE DUST HORSES'].options,i=opts.findIndex(x=>x.toLowerCase()===cmd);if(i<0)return false;if(i===opts.length-1){q.phase='done';add('You leave the herd to find its own way.','system');return true;}const ok=R5_ROAD_REWORK['THE DUST HORSES'].run(i);if(ok){q.phase=i===3?'done':'offer';if(q.phase==='offer')add('A brown horse lingers after the herd escapes.','bright');}return ok;};}
 
+RoadScenarioRegistry.powderMonkeyRow=R5_ROAD_REWORK['THE POWDER MONKEY'];
 return {R5_ROAD_REWORK, r18HorseEncounter, r18HorseScene};
 
 },
@@ -1039,6 +1077,10 @@ for(const [kind,titles] of Object.entries(R10_EARLY_TITLES)){
  // Geographic neutral early discoveries also fit the road out of Solace.
  R10_POOLS.east[kind]=R10_POOLS.early[kind].map(i=>eastEncounters.push(encounters[i])-1);
 }
+// Causeway-approved Abandoned Sedan reuses its existing eastern scenario index.
+// No pool entry is duplicated or reindexed, preserving existing road saves.
+const causewaySedanIndex=eastEncounters.findIndex(e=>e.title==='ABANDONED SEDAN');
+if(causewaySedanIndex>=0&&!R10_POOLS.coast.exploration.includes(causewaySedanIndex))R10_POOLS.coast.exploration.push(causewaySedanIndex);
 // Mid-road versions reuse established enemy types and the existing multi-enemy engine.
 R10_POOLS.east.combat=['HIGHWAY ROBBERS','THE CRAWLER','THE WRECKERS','GANG LOOKOUT','SECURITY DRONE','SOMETHING IN THE DRAIN','FERAL DOG','LONE SCAVENGER'].map((title,j)=>{
  const original=encounters.find(e=>e.title===title),base=combatSpecs[title];
@@ -1127,7 +1169,7 @@ if(r18CraneNestIndex>=0&&!R10_POOLS.east.combat.includes(r18CraneNestIndex))R10_
 const r18SiloIndex=eastEncounters.findIndex(e=>e.title==='THE SHATTERED SILO');
 if(r18SiloIndex>=0&&!R10_POOLS.east.combat.includes(r18SiloIndex))R10_POOLS.east.combat.push(r18SiloIndex);
 const r18GardenIndex=encounters.findIndex(e=>e.title==='IRRADIATED ROACHES');
-if(r18GardenIndex>=0){let i=eastEncounters.findIndex(e=>e.title==='EAST ROAD — IRRADIATED ROACHES');if(i<0)i=eastEncounters.push({...encounters[r18GardenIndex],title:'EAST ROAD — IRRADIATED ROACHES'})-1;if(!R10_POOLS.east.combat.includes(i))R10_POOLS.east.combat.push(i);}
+if(r18GardenIndex>=0){let i=eastEncounters.findIndex(e=>e.title==='EAST ROAD — IRRADIATED ROACHES');if(i<0)i=eastEncounters.push({...encounters[r18GardenIndex],title:'EAST ROAD — IRRADIATED ROACHES',displayName:'THE FORGOTTEN GARDEN'})-1;if(!R10_POOLS.east.combat.includes(i))R10_POOLS.east.combat.push(i);}
 const r18TarPoolIndex=eastEncounters.findIndex(e=>e.title==='THE TAR POOL');
 if(r18TarPoolIndex>=0&&!R10_POOLS.east.salvage.includes(r18TarPoolIndex))R10_POOLS.east.salvage.push(r18TarPoolIndex);
 const r18ReapersIndex=eastEncounters.findIndex(e=>e.title==='THE KNIFE WIND');
@@ -1173,7 +1215,9 @@ const r18LibraryIndex=encounters.findIndex(e=>e.title==='THE BURNT LIBRARY');
 if(r18LibraryIndex>=0){if(!R10_POOLS.early.exploration.includes(r18LibraryIndex))R10_POOLS.early.exploration.push(r18LibraryIndex);let i=eastEncounters.findIndex(e=>e.title==='THE BURNT LIBRARY');if(i<0)i=eastEncounters.push(encounters[r18LibraryIndex])-1;if(!R10_POOLS.east.exploration.includes(i))R10_POOLS.east.exploration.push(i);}
 const r18ChapelIndex=eastEncounters.findIndex(e=>e.title==='THE SUNKEN CHAPEL');
 if(r18ChapelIndex>=0&&!R10_POOLS.east.exploration.includes(r18ChapelIndex))R10_POOLS.east.exploration.push(r18ChapelIndex);
-const r18BomberIndex=eastEncounters.findIndex(e=>e.title==='THE MUD CANNON');
+const r18MudIndex=eastEncounters.findIndex(e=>e.title==='THE MUD CANNON');
+if(r18MudIndex>=0){for(const kind of Object.keys(R10_POOLS.east))R10_POOLS.east[kind]=R10_POOLS.east[kind].filter(i=>i!==r18MudIndex);R10_POOLS.east.environment.push(r18MudIndex);}
+const r18BomberIndex=eastEncounters.findIndex(e=>e.title==='THE POWDER MONKEY');
 if(r18BomberIndex>=0&&!R10_POOLS.east.combat.includes(r18BomberIndex))R10_POOLS.east.combat.push(r18BomberIndex);
 const r18PicnicIndex=encounters.findIndex(e=>e.title==='THE SILENT PICNIC');
 if(r18PicnicIndex>=0){if(!R10_POOLS.early.exploration.includes(r18PicnicIndex))R10_POOLS.early.exploration.push(r18PicnicIndex);let i=eastEncounters.findIndex(e=>e.title==='THE SILENT PICNIC');if(i<0)i=eastEncounters.push(encounters[r18PicnicIndex])-1;if(!R10_POOLS.east.exploration.includes(i))R10_POOLS.east.exploration.push(i);}
@@ -1247,12 +1291,18 @@ const r18Rivet=eastEncounters.find(e=>e.title==='THE GRINDER CREW');if(r18Rivet)
 // BEGIN steve — formerly r11.js
 steve(){
 function r11SteveScene(branchReturn=null){
- player.flags.r11SteveReturn=branchReturn;stage='r11Steve';add("CRAZY STEVE'S PINK ELEPHANTS",'place');add('Crazy Steve staggers across the road in an old wooden sandwich board. He points wildly at something the size of a wheelbarrow.');add("CRAZY STEVE > YOU SEE 'EM?! TELL ME YOU SEE 'EM! THE PINK ELEPHANTS! THEY'RE EVERYWHERE!",'bright');r5DirectChoices(['ASK ABOUT THE ELEPHANTS','FIGHT THE ELEPHANTS','LEAVE STEVE ALONE']);
+ // Removed encounter: hard guard even if an older save, devtool or cached
+ // caller invokes this scene directly. Never present Steve's old menu.
+ player.flags.r11SteveReturn=branchReturn;
+ r11SteveFinish();
 }
 function r11SteveFinish(){const back=player.flags.r11SteveReturn;delete player.flags.r11SteveReturn;if(back){stage=back.stage;serviceRoadDepth=back.depth;renderCurrentChoices();}else completeRoadTurn();}
-function r11Elephant(){startCombat({name:'PINK ELEPHANT',level:1,hp:1,min:0,max:1,xp:1,bolts:0,end:'The pink elephant pops like a soap bubble. Steve applauds, then checks behind you.'},'r11Elephant');r6Art('PINK ELEPHANT',[['pink','    __     __'],['pink','  /    \\__/  \\'],['pink',' (  o       o )~~'],['pink','  \\___/\\____/'],['pink','    ||    ||']]);}
-function r11SteveVictory(){stage='r11SteveReward';outputQueue=outputQueue.then(async()=>{try{const won=await r11ClaimBoard();add(won?'CRAZY STEVE > THANK YOU! Take the board! It attracts them!':"CRAZY STEVE > I already gave the board away! They said there could only be one. THE ELEPHANTS KNOW.",'bright');if(won)add('LEGENDARY — '+R11_BOARD+' — DEF 15 / MAX HP +20', 'legendary');r11SteveFinish();r11Quiet(()=>v49Autosave());}catch(e){add('Steve cannot secure the reward right now. CLAIM STEVE REWARD to retry.','danger');}});}
-function r11SteveRoll(){return Math.random()<.01;}
+function r11Elephant(){r11SteveFinish();}
+function r11SteveVictory(){ // Do not award late-game Legendary gear while Steve is disabled.
+  add('The pink elephant vanishes. Crazy Steve wanders away, still muttering.','system');
+  r11SteveFinish();r11Quiet(()=>v49Autosave());
+}
+function r11SteveRoll(){return false;} // Late-game special disabled for now; preserved for future reactivation.
 const r11Prepare=r10PrepareEncounter;r10PrepareEncounter=function(){if(!resumeSavedEncounter&&r11SteveRoll()){player.flags.r10LastRoadCategory='special';r11SteveScene();return false;}return r11Prepare();};
 
 return {r11SteveScene, r11SteveFinish, r11Elephant, r11SteveVictory, r11SteveRoll, r11Prepare};
@@ -1915,7 +1965,7 @@ RoadScenarioRegistry.regionalSpec = {
    "legacyName": "THE CRANE NEST",
    "classification": "REGIONAL",
    "regions": [
-    "SEAPORT"
+    "LOWLANDS"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -2093,6 +2143,7 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 41,
    "id": "east:62",
    "legacyName": "CARGO HIJACKERS",
+   "causeway": true,
    "classification": "REGIONAL",
    "regions": [
     "SEAPORT",
@@ -2115,6 +2166,7 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 43,
    "id": "east:64",
    "legacyName": "SCRAP CRAB NEST",
+   "causeway": true,
    "classification": "REGIONAL",
    "regions": [
     "SEAPORT",
@@ -2144,6 +2196,7 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 46,
    "id": "early:3",
    "legacyName": "ABANDONED SEDAN",
+   "causeway": true,
    "classification": "REGIONAL",
    "regions": [
     "NORTH",
@@ -2666,6 +2719,7 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 97,
    "id": "east:69",
    "legacyName": "CACHE UNDER THE MILEPOST",
+   "causeway": true,
    "classification": "REGIONAL",
    "regions": [
     "NORTH",
@@ -2938,6 +2992,7 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 124,
    "id": "east:72",
    "legacyName": "THE SINKING CAUSEWAY",
+   "causeway": true,
    "classification": "REGIONAL",
    "regions": [
     "NORTH",
@@ -3000,6 +3055,7 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 130,
    "id": "east:78",
    "legacyName": "THE STRANDED HANDCART",
+   "causeway": true,
    "classification": "REGIONAL",
    "regions": [
     "WEST",
@@ -3057,6 +3113,10 @@ RoadScenarioRegistry.regionalSpec = {
   "INACTIVE": 5
  },
  "nameOverrides": {
+  "early:45": "THE ROAD ENFORCER",
+  "east:30": "THE SENTRY",
+  "early:46": "THE FORGOTTEN GARDEN",
+  "east:33": "THE ROAD REAPERS",
   "east:10": "THE BONE HUNTERS",
   "east:75": "WILD BEAR",
   "east:77": "THE BROKEN BRIDGE DISCOVERY",
@@ -3066,7 +3126,8 @@ RoadScenarioRegistry.regionalSpec = {
   "east:78": "THE LAST STOP",
   "east:79": "TOMMY BRIGGS — POSTAL ENCOUNTER",
   "east:67": "CLEANUP ON AISLE NINE",
-  "early:60": "STATION NINE DISCOVERY STORYLINE"
+  "early:60": "STATION NINE DISCOVERY STORYLINE",
+  "early:44": "THE HIGHWAY HUNTERS"
  },
  "roadAuthority": "54 Road Assignments sheet, approved design; implemented by WO6. Eastern Coast/COAST normalized to latest EAST code."
 };
@@ -3081,6 +3142,7 @@ RoadScenarioRegistry.installRegions=function(){
   numbers.add(row.number);ids.add(row.id);if(!Object.prototype.hasOwnProperty.call(counts,row.classification))throw Error('Invalid classification '+row.id);counts[row.classification]++;
   if(row.regions.some(x=>!allowed.has(x))||new Set(row.regions).size!==row.regions.length)throw Error('Invalid regional assignment '+row.id);
   if(row.classification==='REGIONAL'&&!row.regions.length)throw Error('Missing regional assignment '+row.id);
+   if(row.causeway!==undefined&&row.causeway!==true)throw Error('Invalid Causeway approval '+row.id);
   const [pool,index]=row.id.split(':'),encounter=(pool==='early'?encounters:eastEncounters)[Number(index)];
   if(!encounter||r10CanonicalTitle(encounter.title)!==row.legacyName)throw Error('Review ID/name mismatch '+row.id);
   const item={...row,encounter};byReview.set(row.number,item);byCanonicalId.set(row.id,item);byTitle.set(r10CanonicalTitle(encounter.title),item);
@@ -3090,7 +3152,7 @@ RoadScenarioRegistry.installRegions=function(){
  for(const e of LANTERN_WORLD_GRAPH.edges)if(!allowed.has(e.primaryRegion)||(e.transitionRegion&&!allowed.has(e.transitionRegion)))throw Error('Missing/invalid geographical road tag '+e.id);
  for(const entry of this.entries){
   const item=byTitle.get(r10CanonicalTitle(entry.encounter.title));if(!item)throw Error('Active encounter missing regional review '+entry.id);
-  Object.assign(entry,{reviewNumber:item.number,canonicalId:item.id,classification:item.classification,regions:[...item.regions],region:item.classification==='REGIONAL'?item.regions.join('+'):item.classification});
+  Object.assign(entry,{reviewNumber:item.number,canonicalId:item.id,classification:item.classification,regions:[...item.regions],causeway:item.causeway===true,region:item.classification==='REGIONAL'?item.regions.join('+'):item.classification});
   const display=spec.nameOverrides[item.id];if(display)entry.encounter.displayName=display;entry.name=entry.encounter.displayName||entry.encounter.title;
  }
  this.regionalCatalog=spec.encounters.map(row=>{const item=byReview.get(row.number);return {...row,name:item.encounter.displayName||item.encounter.title,encounter:item.encounter};});
@@ -3098,11 +3160,60 @@ RoadScenarioRegistry.installRegions=function(){
  this.regionalValidation={valid:true,total:134,counts,roads:LANTERN_WORLD_GRAPH.edges.length};
  // Filter before category availability, category weights and Corvette priority selection.
  const candidates=r10Candidates;r10Candidates=function(legacyPool,kind){const geography=r10Geography();return candidates(legacyPool,kind).filter(i=>r.wo6Eligible(r.pool(legacyPool)[i],geography));};
- this.wo6InstallFixedSites();this.wo6Installed=true;return this.regionalValidation;
+ // Post-review GLOBAL encounter: append only AFTER validating all 134 historical
+  // IDs. The Powder Monkey is distinct from the Mud Cannon; no prior slot shifts.
+  if(!this.powderMonkeyInstalled){
+   const row=this.powderMonkeyRow;
+   if(!row||!Array.isArray(row.options))throw Error('Powder Monkey rework is unavailable');
+   const bomber={title:'THE POWDER MONKEY',exclusive:true,
+    text:'A jittery bomber with a satchel of explosives argues with a dud grenade beside the road.',
+    choices:row.options.join('   '),
+    resolve(cmd){
+     const index=row.options.findIndex(option=>option.toLowerCase()===cmd);
+     if(index<0)return false;
+     if(index===row.options.length-1){add('You withdraw along the safe approach, leaving the scene untouched.','system');return true;}
+     return row.run(index);
+    }};
+   const index=eastEncounters.push(bomber)-1,id='east:'+index;
+   R10_POOLS.east.combat.push(index);
+   const item={number:null,id,legacyName:bomber.title,name:bomber.title,classification:'GLOBAL',regions:[],authority:'Owner-approved independent bomber encounter',encounter:bomber};
+   this.regionalCatalog.push(item);this.regionalById.set(id,item);this.regionalByTitle.set(r10CanonicalTitle(bomber.title),item);
+   const entry={id,canonicalId:id,name:bomber.title,classification:'GLOBAL',region:'GLOBAL',regions:[],encounter:bomber,references:[{road:'east',category:'combat',index}]};
+   this.entries.push(entry);this.byId[id]=entry;this.powderMonkeyInstalled=true;
+  }
+  // DEVTEST: formerly fixed coast patrols are ordinary random SEAPORT combat.
+  // Append-only IDs preserve historic encounter slots and saved progress.
+  if(!this.coastPatrolRandomInstalled){
+   for(const spec of [
+    {title:'COAST ROAD SCAVENGER',text:'A rifle-carrying scavenger steps out beside a wreck on the coast road.',level:7,hp:72,min:10,max:16,xp:100,bolts:13,end:'The scavenger retreats from the road.'},
+    {title:'HARBOR SECURITY DRONE',text:'A flying harbor security drone sweeps the coast road with its search optic.',level:8,hp:92,min:12,max:19,xp:125,bolts:17,end:'The drone crashes into the roadside barrier.'}
+   ]){
+    const encounter={title:spec.title,exclusive:true,text:spec.text,choices:'FIGHT   TAKE COVER   BACK AWAY',
+     combat:{action:'FIGHT',name:spec.title,level:spec.level,hp:spec.hp,min:spec.min,max:spec.max,xp:spec.xp,bolts:spec.bolts,end:spec.end},
+     resolve(cmd){if(cmd==='take cover'||cmd==='back away'){add(cmd==='take cover'?'You slip past using the roadside wreckage.':'You retreat before the threat closes in.','system');return true;}return false;}};
+    const index=eastEncounters.push(encounter)-1,id='east:'+index;
+    R10_POOLS.east.combat.push(index);
+    R10_POOLS.coast.combat.push(index); // Coast uses its own curated random pool over eastEncounters.
+    const row={number:null,id,legacyName:spec.title,name:spec.title,classification:'REGIONAL',regions:['SEAPORT'],causeway:true,authority:'Owner correction: random coastal patrol',encounter};
+    this.regionalCatalog.push(row);this.regionalById.set(id,row);this.regionalByTitle.set(r10CanonicalTitle(spec.title),row);
+    const entry={id,canonicalId:id,name:spec.title,classification:'REGIONAL',region:'SEAPORT',regions:['SEAPORT'],causeway:true,encounter,references:[{road:'east',category:'combat',index}]};
+    this.entries.push(entry);this.byId[id]=entry;
+   }
+   this.coastPatrolRandomInstalled=true;
+  }
+  this.wo6InstallFixedSites();this.wo6Installed=true;return this.regionalValidation;
 };
 // Legacy pool keys early/east/coast remain untouched; these are geographical codes.
 function r10Geography(){
  const g=typeof lanternState==='function'?lanternState():null,e=typeof lanternEdge==='function'?lanternEdge():null;
+ // Select from the ACTUAL region at this movement step, not the edge's
+ // primaryRegion (which may differ across owner-drawn boundary transitions).
+ // CAUSEWAY remains its own eighth eligibility zone, separate from SEAPORT.
+ // This changes only fresh random draws; pending/saved encounter IDs are kept.
+ if(g?.currentEdgeId&&typeof route127DrawnBackground==='function'){
+  const drawn=route127DrawnBackground(g);
+  if(drawn==='CAUSEWAY'||RoadScenarioRegistry.regionalSpec.regions.includes(drawn))return drawn;
+ }
  if(e?.primaryRegion)return e.primaryRegion;
  // Old pre-Lantern saves are projected by their existing main-road context only.
  // No invented region boundaries: these exact canonical routes have approved tags.
@@ -3115,6 +3226,10 @@ function r10Geography(){
 }
 RoadScenarioRegistry.wo6Eligible=function(encounter,geography){
  const item=this.regionalByTitle.get(r10CanonicalTitle(encounter?.title));
+ // Explicit per-encounter approval, including formerly GLOBAL scenes. The
+ // seven historical region memberships remain unchanged and do not grant
+ // access to the eighth Causeway zone.
+ if(geography==='CAUSEWAY')return item?.causeway===true;
  return !!item&&(item.classification==='GLOBAL'||item.classification==='REGIONAL'&&item.regions.includes(geography));
 };
 RoadScenarioRegistry.wo6FreshAvailable=function(){const g=lanternState();return !!g&&!g.currentEdgeId&&g.nodeId==='industrial-road';};

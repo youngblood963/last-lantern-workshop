@@ -11,8 +11,10 @@
  const hostedDev=origin==='https://lastlanternworkshop.com';
  const dev=client==='devtest'&&/^\/route127\/devtest\/(?:index\.html)?$/.test(location.pathname)&&
   globalThis.ROUTE127_ENV?.name==='DEVTEST'&&(hostedDev||local(8787));
- // Release compatibility is local staging only. Its runner must use a separate DB.
- const release=client==='playtest'&&/^\/route127\/playtest\/(?:index\.html)?$/.test(location.pathname)&&local(8788)&&params.get('cloud')==='1'&&globalThis.ROUTE127_ENV?.name==='PLAYTEST';
+ // Hosted clients deliberately use one account and character through the existing save route.
+ const release=client==='playtest'&&/^\/route127\/playtest\/(?:index\.html)?$/.test(location.pathname)&&
+  globalThis.ROUTE127_ENV?.name==='PLAYTEST'&&globalThis.ROUTE127_ENV.backend===true&&
+  (hostedDev||local(8788));
  if(!dev&&!release)return;
 
  const adapter=document.createElement('script');

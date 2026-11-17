@@ -1,6 +1,6 @@
 /* Preserve pre-WO33 reward valuation despite repaired combat statistics. */
 (()=>{
- 'use strict';if(!/^\/route127\/playtest\/(?:index\.html)?$/.test(location.pathname))throw Error('WO33 requires Playtest');
+ 'use strict';if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST')throw Error('WO33 requires Devtest');
  const purse=Economy.purse;
  Economy.purse=function(c,e,...rest){
   const old=c.wo33?.original;

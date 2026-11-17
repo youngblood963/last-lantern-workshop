@@ -4,7 +4,7 @@
  */
 (()=>{
  'use strict';
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||typeof GraphicalUI==='undefined')return;
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||typeof GraphicalUI==='undefined')return;
  // Read the authoritative round object: Seaport's casino can be restored
  // without the transient port55Casino navigation flag being populated.
  const pokerRound=()=>typeof r6Round==='function'?r6Round():player.flags?.r6Game;

@@ -1,71 +1,226 @@
 /* Route 127 DEVTEST: Solace interiors menu consolidation. No map/backend changes. */
 (()=>{'use strict';
-if(!/(?:^|\/)route127\/(?:playtest|devtest)\/(?:index\.html)?$/.test(location.pathname))return;
-let section='',murphyWork=false;
+if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST')return;
+let section='';
 const inTown=()=>stage==='mercy';
 const at=n=>inTown()&&mercyLocation===n;
-const menu=(title,choices)=>{add(title,'place');v53Choices(choices);};
+const menu=(id,title,choices,navigation='BACK')=>{
+ add(title,'place');
+ DevtestMenuModel.publishLabels(id,choices,navigation);
+};
 const backLabel='BACK';
 const johnnyRoot=()=>{section='johnnyMain';johnnyMainMenu();};
-const clinicRoot=()=>{section='clinicMain';player.flags.solaceMenu='clinic';menu('LAST CHANCE CLINIC',['TREAT WOUNDS — 2% MAX HP PER BOLT (MIN 5)','BUY BANDAGE — 8 BOLTS','SELL ITEMS','SMALL TALK WAYNE',backLabel]);};
-const murphyRoot=()=>{section='murphyMain';player.flags.v49MurphyMenu='';murphyWork=false;murphyMainMenu();};
-const murphyTalk=()=>{section='murphyTalk';player.flags.solaceMenu='murphyTalk';menu('MURPHY — SMALL TALK',['ASK ABOUT WORK','INSPECT CORVETTE PHOTO','ASK ABOUT RELAY STATION',backLabel]);};
+const publishClinic=()=>DevtestMenuModel.publishLabels('solace-clinic',[
+ 'TREAT WOUNDS — 2% MAX HP PER BOLT (MIN 5)','BUY BANDAGE — 8 BOLTS','SELL ITEMS','SMALL TALK WAYNE','(B) BACK'
+],'(B) BACK');
+const clinicRoot=()=>{section='clinicMain';player.flags.solaceMenu='clinic';add('LAST CHANCE CLINIC','place');return publishClinic();};
+const murphyRoot=()=>{section='murphyMain';player.flags.v49MurphyMenu='';murphyMainMenu();};
+const murphyBeltReady=()=>player.flags.murphyQuest==='found'&&
+ (player.pack||[]).some(i=>i.name==='Usable Serpentine Belt'&&i.type==='quest'&&i.qty>0);
+const murphyTalk=()=>{section='murphyTalk';player.flags.solaceMenu='murphyTalk';menu('solace-murphy-talk','MURPHY — SMALL TALK',[
+ ...(murphyBeltReady()?['RETURN SERPENTINE BELT']:[]),
+ 'ASK ABOUT WORK','INSPECT CORVETTE PHOTO','ASK ABOUT RELAY STATION',backLabel]);};
+function murphyReturnBelt(){
+ if(!murphyBeltReady()){
+  add('MURPHY > No belt to turn in yet.','system');
+  return murphyTalk();
+ }
+ // Remove first, then mark the quest done. A repeat visit cannot pay twice.
+ if(!removeItem('Usable Serpentine Belt')){
+  add('MURPHY > Could not take the belt. Keep it safe.','system');
+  return murphyTalk();
+ }
+ player.flags.murphyQuest='done';
+ add('Murphy bends the belt, checks the ribs, then actually smiles.');
+ add("MURPHY > That's one good belt. Knew there had to be one left out there.",'bright');
+ add('QUEST COMPLETE — ONE GOOD BELT','place');
+ gainXp(120);gainBolts(35);
+ if(!hasItem('Reinforced Work Vest')&&player.armor!=='Reinforced Work Vest')
+  addPack('Reinforced Work Vest','armor');
+ updateHud();
+ if(typeof v49Autosave==='function')v49Autosave();
+ return murphyTalk();
+}
 const johnnyTalk=()=>{section='johnnyTalk';npcTalk('johnny');};
 const clinicTalk=()=>{section='clinicTalk';npcTalk('wayne');};
 const amiiTalk=()=>{section='amiiTalk';npcTalk('amii');};
 const timTalk=()=>{section='timTalk';npcTalk('tim');};
+// Blueprints cost half the market price of the finished item. Players still
+// need to acquire materials, pay crafting costs and wait for completion.
+const murphyBlueprintKeys=['ironReaper','reinforcedPipe','temperedPipe','keeperCoat','widowmaker'];
+function murphyBlueprintPrice(key){
+ const recipe=CRAFT_RECIPES[key];
+ if(!recipe)return 0;
+ let itemName=recipe.name;
+ // Widowmaker is a level-qualified catalog weapon, not a base GEAR entry.
+ if(!GEAR[itemName]&&recipe.catalogId){
+  const def=EQUIPMENT_CATALOG.find(row=>row.id===recipe.catalogId);
+  if(def){
+   const lvl=Math.min(def.maxLevel,Math.max(def.minLevel,Math.floor(Number(player.level)||1)));
+   itemName=catalogInstanceName(def,lvl);
+  }
+ }
+ // Economy.value() is also the current retail calculation for Solace gear.
+ const finished=typeof Economy!=='undefined'&&typeof Economy.value==='function'?
+  Economy.value(itemName):0;
+ return finished>0?Math.max(1,Math.round(finished*.5)):0;
+}
 function shopList(){
   const f=player.flags;
   const learned=k=>!!f.r11Learned?.[k]||(!!f.v49RecipeBandage&&k==='bandage');
   const choices=[];
   add('MURPHY — BLUEPRINTS FOR SALE','place');
-  for(const [key,price] of [['ironReaper',75],['reinforcedPipe',50],['temperedPipe',65],['keeperCoat',150],['widowmaker',200]]){
+  for(const key of murphyBlueprintKeys){
+    const price=murphyBlueprintPrice(key);
     const r=CRAFT_RECIPES[key];if(!r)continue;
     add(r.name+' — '+(learned(key)?'LEARNED':price+' BOLTS'),r.rarity||GEAR[r.name]?.rarity||'system');
     if(!learned(key))choices.push('LEARN '+r.name.toUpperCase());
   }
   if(!choices.length)add('No new blueprints available.','system');
-  v53Choices([...choices,backLabel]);
+  DevtestMenuModel.publishLabels('solace-blueprints',[...choices,backLabel],backLabel);
 }
-const originalAdd=add;
-add=function(value='',cls=''){
-  const s=String(value);
-  if(inTown()&&cls.includes('system')){
-    // Keep original command handlers; streamline only their offered choices.
-    if(at('johnny')&&s.includes('BUY ENERGY BAR')&&s.includes('BUY TENT')){
-      const parts=s.split(/\s{2,}/).filter(x=>!['SMALL TALK','BUY','SELL ITEMS','SELL ALL SCRAP'].includes(x.trim().toUpperCase()));
-      return originalAdd(parts.join('   '),cls);
-    }
-    if(at('mara')&&s.includes('BUY ')&&s.includes('(B) BACK'))return originalAdd(s.replace('(B) BACK','SELL ITEMS   (B) BACK'),cls);
-    if(at('mara')&&s.includes('SMALL TALK')&&s.includes('SELL ITEMS')&&s.includes('TOWN'))return;
-    if(at('johnny')&&s.includes('ASK ABOUT LOST LEDGER')&&s.includes('ASK ABOUT DEALS'))
-      return originalAdd(['ASK ABOUT LOST LEDGER','ASK ABOUT ROAD',...(player.flags.relayPartsRevealed&&player.flags.relayQuest!=='complete'?['ASK ABOUT RELAY PARTS']:[]),'(B) BACK'].join('   '),cls);
-    if(at('wayne')&&s.includes('ASK ABOUT LAST PATIENT')&&s.includes('ASK ABOUT INJURIES'))
-      return originalAdd('ASK ABOUT LAST PATIENT   ASK ABOUT OLD HOUSE   (B) BACK',cls);
-    if(at('wayne')&&s.includes('TREAT WOUNDS')&&s.includes('BUY BANDAGE')&&s.includes('BUY   SELL ITEMS'))
-      return originalAdd('TREAT WOUNDS — 2% MAX HP PER BOLT (MIN 5)   BUY BANDAGE — 8 BOLTS   SELL ITEMS   SMALL TALK WAYNE   (B) BACK',cls);
-    if(at('amii')&&s.includes('ASK ABOUT MISSING DEPOSIT')&&s.includes('ASK ABOUT BANKING')&&s.includes('ASK ABOUT SOLACE'))
-      return originalAdd('ASK ABOUT MISSING DEPOSIT   ASK ABOUT BANKING   ASK ABOUT NIKO AND ALEX   (B) BACK',cls);
-    if(at('tim')&&s.includes('ASK ABOUT SOLACE')&&s.includes('VIEW BOUNTIES')&&s.includes('COLLECT BOUNTY')){
-      const wanted=v52Crime().bounty>0;
-      return originalAdd(['ASK ABOUT WORK',...(wanted?['PAY FINE','OFFER BRIBE']:[]),'ASK ABOUT RELAY STATION',...(player.flags.r18BribePending?.lawman==='Tim'?['CONFIRM BRIBE','CANCEL BRIBE']:[]),'NEVER MIND'].join('   '),cls);
-    }
-  }
-  return originalAdd(value,cls);
-};
 // Source-level menus whose old handlers are still called on menu redraws.
-const previousMurphyMain=murphyMainMenu;
-murphyMainMenu=function(){section='murphyMain';player.flags.solaceMenu='murphyMain';player.flags.v49MurphyMenu='';menu("MURPHY'S WORKSHOP",['CRAFTING RECIPES','CRAFTING','SMALL TALK',backLabel]);};
-const previousJohnnyMain=johnnyMainMenu;
-johnnyMainMenu=function(...args){section='johnnyMain';return previousJohnnyMain.apply(this,args);};
-const previousJohnnyShop=johnnyShop;
-johnnyShop=function(...args){section='johnnyStock';return previousJohnnyShop.apply(this,args);};
+murphyMainMenu=function(){section='murphyMain';player.flags.solaceMenu='murphyMain';player.flags.v49MurphyMenu='';menu('solace-murphy',"MURPHY'S WORKSHOP",['CRAFTING RECIPES','CRAFTING','SMALL TALK',backLabel]);};
+johnnyMainMenu=function(){
+  section='johnnyMain';
+  player.flags.solaceMenu="johnnyMain";
+  add("JOHNNY'S TRADING POST","place");
+  add("JOHNNY > Buying, selling, or talking? Pick your poison.","bright");
+  DevtestMenuModel.publishLabels('solace-johnny',["VIEW STOCK","SELL ITEMS","TALK",...(player.flags.r18MarthaSettled?["OLD WORLD COUNTER"]:[]),"(B) BACK"], "(B) BACK");
+};
+johnnyShop=function(){
+  section='johnnyStock';
+  ensureVendorStock();player.flags.solaceMenu="shop";
+  add("JOHNNY'S STOCK — PERSONAL DAILY SELECTION","place");
+  add(`ENERGY BAR — RESTORE 10% MAX HP — ${johnnyPrice("Energy Bars")} BOLTS`,"system");add(`BANDAGE — RESTORE 25% MAX HP — ${johnnyPrice("Bandage")} BOLTS`,"system");
+  add(`BATTERED FLASHLIGHT — 20 BOLTS`,"system");
+  add(`TENT — ${johnnyPrice("Tent")} BOLTS — one use for overnight camp.`,"system");
+  if(!player.flags.backpackUpgrade)add(`16-SLOT BACKPACK — ${V48_BACKPACK_PRICE} BOLTS`,"system");
+  const scrap=findItem("Scrap Metal"),sq=scrap?scrap.qty:0;add(`SCRAP: ${sq} — ${sq*4} BOLTS. Stock refreshes at daily refill.`,"system");
+  DevtestMenuModel.publishLabels('solace-johnny-stock',["BUY ENERGY BAR","BUY BANDAGE","BUY BATTERED FLASHLIGHT",...(player.flags.relayPartsRevealed&&player.flags.relayQuest!=="complete"?["ASK ABOUT RELAY PARTS"]:[]),"BUY TENT",...(player.flags.r18MarthaSettled?["OLD WORLD COUNTER"]:[]),...(!player.flags.backpackUpgrade?["BUY 16-SLOT BACKPACK"]:[]),"(B) BACK"], "(B) BACK");
+};
+const npcMenus={
+ johnny:{
+  intro:'Johnny folds his arms, wearing the expression of a man who could turn this conversation into a sale.',
+  notice:["johnnyQuest","Johnny's Ledger"],
+  choices:()=>['ASK ABOUT LOST LEDGER','ASK ABOUT ROAD',
+   ...(player.flags.relayPartsRevealed&&player.flags.relayQuest!=='complete'?['ASK ABOUT RELAY PARTS']:[])]
+ },
+ wayne:{
+  intro:"Wayne looks up like he's already preparing a sarcastic diagnosis.",
+  choices:()=>['ASK ABOUT LAST PATIENT','ASK ABOUT OLD HOUSE']
+ },
+ amii:{
+  intro:'Amii smiles. Niko thumps his tail. Alex continues conducting a background check with his eyes.',
+  notice:['amiiQuest','Bank Satchel'],
+  choices:()=>['ASK ABOUT MISSING DEPOSIT','ASK ABOUT BANKING','ASK ABOUT NIKO AND ALEX']
+ }
+};
+function timDialogue(){
+ section='timTalk';mercyLocation='tim';player.flags.solaceMenu='dialogue';
+ const spots=["near Solace's gate, checking a repaired hinge","outside Murphy's Motor Works, talking quietly over the sound of tools","at the end of The Rusty Lantern Tavern with a tin cup in one hand","near the bank, scratching Niko behind the ears"];
+ const spot=spots[Math.floor(Math.random()*spots.length)];
+ add('TIM','place');
+ v48NpcIntro('tim',`You find Tim ${spot}.`);
+ v48NpcIntro('tim_hair',"His red hair has gone gray around the temples, but he's still moving like there are six things left to do before dark.");
+ add('TIM > Hey. Settling in alright?','bright');
+ const bounty=v52Crime().bounty;
+ DevtestMenuModel.publishLabels('solace-dialogue:tim',[
+  'ASK ABOUT WORK',...(player.flags.timHouseBounty==='proof'?['COLLECT BOUNTY']:[]),...(bounty>0?['PAY FINE','OFFER BRIBE']:[]),'ASK ABOUT RELAY STATION',
+  ...(player.flags.r18BribePending?.lawman==='Tim'?['CONFIRM BRIBE','CANCEL BRIBE']:[]),
+  'NEVER MIND'
+ ],'NEVER MIND');
+ add(`TIM > Your outstanding bounty is ${bounty} Bolts. Type PAY FINE to clear it.`,'system');
+}
 const previousNpc=npcTalk;
-npcTalk=function(name,...args){if(['johnny','wayne','amii','tim'].includes(name))section=name+'Talk';return previousNpc.call(this,name,...args);};
-const previousArmory=v50Armory;
-v50Armory=function(...args){section='armory';return previousArmory.apply(this,args);};
-const previousEquip=showEquipmentShop;
-showEquipmentShop=function(...args){section='armory';return previousEquip.apply(this,args);};
+npcTalk=function(name,...args){
+ const npc=name.toLowerCase();
+ if(inTown()&&npc==='tim')return timDialogue();
+ if(!inTown()||!Object.hasOwn(npcMenus,npc))return previousNpc.call(this,name,...args);
+ const {intro,notice,choices}=npcMenus[npc];
+ section=npc+'Talk';mercyLocation=npc;player.flags.solaceMenu='dialogue';
+ if(notice&&player.flags[notice[0]]==='recovered')add('DELIVER '+notice[1].toUpperCase()+' — available now','reward');
+ add(npc.toUpperCase(),'place');
+ v48NpcIntro(npc,intro);
+ DevtestMenuModel.publishLabels('solace-dialogue:'+npc,[...choices(),'(B) BACK'],'(B) BACK');
+};
+const previousSmallTalk=smallTalk;
+smallTalk=function(name,...args){
+ if(inTown()&&name==='tim'&&!['locked','found'].includes(player.flags.timQuest)){
+  townWandererFocus=null;mercyLocation=name;
+  v50OldSmallTalk(name);
+  return npcTalk(name);
+ }
+ if(!inTown()||!Object.hasOwn(npcMenus,name))return previousSmallTalk.call(this,name,...args);
+ townWandererFocus=null;mercyLocation=name;
+ v50OldSmallTalk(name);
+ npcTalk(name);
+ if(name==='wayne')offerHouseQuest();
+};
+function roomMenu(){
+ mercyLocation='jenRoom';
+ add('THE RUSTY LANTERN','place');
+ add(`${player.name||'PLAYER'}'S ROOM`,'place');
+ DevtestMenuModel.publishLabels('solace-room',['REST','CHEST','LOOK AROUND','RETURN'],'RETURN');
+}
+const previousInnRoom=handleInnRoom;
+handleInnRoom=function(cmd){
+ if(at('jenRoomChest')&&player.flags.rustyRoomOwned&&['back','b','return'].includes(cmd))return roomMenu();
+ return previousInnRoom.apply(this,arguments);
+};
+const previousSolace=handleSolace;
+handleSolace=function(cmd,...args){
+ if(at('jen')&&['rent room','buy room','room'].includes(cmd)&&
+    !player.flags.pendingQuest&&!player.flags.pendingQuestOffer){
+  if(!player.flags.rustyRoomOwned){
+   if(player.bolts<2000){add('JEN > A room of your own costs 2000 Bolts.','system');return;}
+   player.bolts-=2000;player.flags.rustyRoomOwned=true;
+   updateHud();add('ROOM PURCHASED — 2000 BOLTS','reward');
+  }
+  return roomMenu();
+ }
+ if(!inTown()||!['clinic','wayne','last chance clinic'].includes(cmd)||
+    player.flags.pendingQuest||player.flags.pendingQuestOffer)
+  return previousSolace.call(this,cmd,...args);
+ section='clinicMain';player.flags.solaceMenu='clinic';mercyLocation='wayne';
+ add('LAST CHANCE CLINIC','place');
+ showWanderersAt('wayne');
+ if(!player.flags.visited_wayne){
+  player.flags.visited_wayne=true;
+  add("Clean bandages, boiled instruments, labeled jars. Someone here knows what they're doing.");
+  add('A tiny word has been scratched into the underside of one metal shelf: SEX.','system');
+  add('Wayne notices you noticing it and says absolutely nothing.');
+  add(`WAYNE > You're at ${player.hp}/${player.maxHp} HP. I've seen worse. Usually attached to smarter decisions.`,'bright');
+ }else add('WAYNE > Try not to bleed on the floor.','bright');
+ publishClinic();
+};
+const previousRender=renderCurrentChoices;
+renderCurrentChoices=function(...args){
+ if(at('mara')&&player.flags.solaceMenu==='equipment'&&player.flags.v48Shop!=='sell'&&
+    !player.flags.v53Sale&&!player.flags.pendingQuest&&!player.flags.pendingQuestOffer&&!townWandererFocus)
+  return showEquipmentShop();
+ if(at('wayne')&&player.flags.solaceMenu==='clinic'&&player.flags.v48Shop!=='sell'&&
+    !player.flags.pendingQuest&&!player.flags.pendingQuestOffer&&!townWandererFocus)
+  return publishClinic();
+ return previousRender.apply(this,args);
+};
+showEquipmentShop=function(){
+ section='armory';
+ player.flags.solaceMenu='equipment';
+ add('SCRAP & STEEL ARMORY — MARA — DAILY EQUIPMENT','place');
+ const stock=regionalEquipmentStock('solace');
+ for(const slot of stock.slots)add(regionalEquipmentText(slot,'solace'),GEAR[slot.name]?.rarity||'system');
+ DevtestMenuModel.publishLabels('solace-armory',[
+  ...stock.slots.filter(slot=>!slot.sold).map(slot=>'BUY '+slot.name.toUpperCase()),
+  'SELL ITEMS','(B) BACK'
+ ],'(B) BACK');
+};
+v50Armory=function(){
+ mercyLocation='mara';currentTownWanderer=null;townWandererFocus=null;player.flags.solaceMenu='equipment';
+ add('MARA — SCRAP & STEEL ARMORY','place');
+ add('An older woman with scarred hands checks a blade against the light. MARA > Buy something that keeps you alive. Keep the speeches short.');
+ return showEquipmentShop();
+};
 const oldBar=mercyMenu;
 mercyMenu=function(...args){section='';return oldBar.apply(this,args);};
 // In DEVTEST the action router owns submenu navigation, not the legacy handlers.
@@ -75,6 +230,17 @@ handleCommandCore=async function(raw){
  if(!inTown()||busy)return previousCore.apply(this,arguments);
  const typed=String(raw??'').trim().toLowerCase();
  const cmd=String(numberedChoices[typed]||currentHotkeys[typed]||typed).trim().toLowerCase();
+ if(mercyLocation==='tim'&&['cleared','done'].includes(player.flags.houseQuest)&&
+    ['accept trouble at the old house','trouble at old house','collect bounty'].includes(cmd)&&
+    (!player.flags.timHouseBounty||player.flags.timHouseBounty==='active')){
+  if(cmd!=='collect bounty'||player.flags.timHouseBounty==='active'){
+   player.flags.timHouseBounty='proof';
+   if(cmd!=='collect bounty'){
+    add('BOUNTY PROOF ACQUIRED — The Old House is already clear. Collect the bounty from Tim.','reward');
+    v49Autosave();return timDialogue();
+   }
+  }
+ }
  const back=['back','b','never mind'];
  if(player.flags.v53Sale){return previousCore.apply(this,arguments);}
  if(player.flags.v48Shop==='sell'&&back.includes(cmd)){
@@ -102,29 +268,31 @@ handleCommandCore=async function(raw){
      if(stage==='r11Craft')return previousCore.apply(this,arguments);
      if(section==='murphyMain')return previousCore.apply(this,arguments);
    }
+   if(cmd==='return serpentine belt')return murphyReturnBelt();
    if(cmd==='crafting recipes'){section='murphyRecipes';return shopList();}
    if(cmd==='crafting'){section='murphyCraft';return r11CraftMenu('murphy');}
    if(cmd==='small talk'||cmd==='small talk murphy'||cmd==='talk'){return murphyTalk();}
    if(section==='murphyRecipes'&&cmd.startsWith('learn ')){
      const key=Object.keys(CRAFT_RECIPES).find(k=>CRAFT_RECIPES[k].name.toLowerCase()===cmd.slice(6));
-     const prices={ironReaper:75,reinforcedPipe:50,temperedPipe:65,keeperCoat:150,widowmaker:200};
-     if(key&&prices[key]!=null){
+     const price=key&&murphyBlueprintKeys.includes(key)?murphyBlueprintPrice(key):0;
+     if(price>0){
       const learned=player.flags.r11Learned||(player.flags.r11Learned={});
       if(learned[key])add('Blueprint already learned.','system');
-      else if(player.bolts<prices[key])add('Not enough Bolts.','system');
-      else{player.bolts-=prices[key];learned[key]=true;updateHud();v49Autosave();add('BLUEPRINT LEARNED — '+CRAFT_RECIPES[key].name,'reward');}
+      else if(player.bolts<price)add('Not enough Bolts.','system');
+      else{player.bolts-=price;learned[key]=true;updateHud();v49Autosave();add('BLUEPRINT LEARNED — '+CRAFT_RECIPES[key].name,'reward');}
       return shopList();
      }
    }
    if(section==='murphyTalk'&&cmd==='inspect corvette photo'){
      return previousCore.call(this,'inspect corvette photo');
    }
-   if(section==='murphyTalk'&&cmd==='ask about work'){add('MURPHY > Still working on the machines. Check back when there is a new job.','bright');return murphyTalk();}
+   if(section==='murphyTalk'&&cmd==='ask about work'){if(player.flags.murphyQuest==='locked')return smallTalk('murphy');add('MURPHY > Still working on the machines. Check back when there is a new job.','bright');return murphyTalk();}
    if(section==='murphyTalk'&&cmd==='ask about relay station')return previousCore.apply(this,arguments);
  }
  if(at('amii')&&back.includes(cmd)&&section==='amiiTalk'){return v48BankMain();}
  if(at('tim')){
    if(cmd==='inspect tim'||cmd==='inspect tim mercer'){return v53TimMenu();}
+   if(cmd==='collect bounty'&&player.flags.timHouseBounty==='proof'){const result=await previousCore.apply(this,arguments);if(player.flags.timHouseBounty==='done')v49Autosave();return result;}
    if(cmd==='collect bounty')return v53TimMenu();
    if(cmd==='ask about work'||cmd==='work')return previousCore.apply(this,arguments);
    if(cmd==='never mind')return v53TimMenu();
@@ -135,11 +303,10 @@ handleCommandCore=async function(raw){
  }
  return previousCore.apply(this,arguments);
 };
-const previousTim=v53TimMenu;
 v53TimMenu=function(){
  section='timMain';mercyLocation='tim';townWandererFocus=null;player.flags.solaceMenu='tim53';
  const wanted=v52Crime().bounty>0;
- menu('TIM — SOLACE',['TALK TIM',...(typeof r18CourierEligible==='function'&&r18CourierEligible('tim')?['DELIVER TIM LETTER']:[]),...(player.flags.r18ClaraMet&&player.flags.r18DanielQuest!=='done'?['ASK ABOUT DANIEL']:[]),...(wanted?['PAY FINE','OFFER BRIBE']:[]),...(player.flags.r18BribePending?.lawman==='Tim'?['CONFIRM BRIBE','CANCEL BRIBE']:[]),'TOWN']);
+ menu('solace-tim','TIM — SOLACE',['TALK TIM',...(typeof r18CourierEligible==='function'&&r18CourierEligible('tim')?['DELIVER TIM LETTER']:[]),...(player.flags.r18ClaraMet&&player.flags.r18DanielQuest!=='done'?['ASK ABOUT DANIEL']:[]),...(wanted?['PAY FINE','OFFER BRIBE']:[]),...(player.flags.r18BribePending?.lawman==='Tim'?['CONFIRM BRIBE','CANCEL BRIBE']:[]),'TOWN'],'TOWN');
 };
 // Reward eligible NPC bounty targets at defeat, independently of reopening Tim.
 const oldCombat=handleCombat;

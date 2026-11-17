@@ -1,11 +1,30 @@
 /* DEVTEST-only: location-state artwork for Forge, Boulder Junction and Seaport. No gameplay changes. */
 (function(){
  if(typeof GraphicalUI==='undefined')return;
+ // DEVTEST-only: remove the redundant internal stock/markup narration from
+ // Rusty's menu, while preserving actual prices, stock, funds and trading.
+ // The shared PLAYTEST gameplay file remains untouched.
+ if(typeof add==='function'){
+  const originalAdd=add;
+  add=function(...args){
+   if(stage==='factoryRusty'&&typeof args[0]==='string'&&
+      args[0].startsWith('Merchant funds: ')&&
+      args[0].includes('Entrance station; no travel turns.')&&
+      args[0].includes('Factory markup: 20%'))return;
+   return originalAdd.apply(this,args);
+  };
+ }
  const oldContext=GraphicalUI.context.bind(GraphicalUI);
  GraphicalUI.context=function(){
   const overlayStages=new Set(['inventory','inventoryItem','confirmDrop','quests','interfaceStatus','interfaceMap','interfaceSave','combatItems','r5Loot','r18HorseTravel','corvetteRescue']);
   const place=overlayStages.has(stage)?returnStage:stage;
-  if(['factoryWorkshop','factoryTerminal','factoryForge','factoryBench'].includes(place))return 'factory-workshop';
+  // Explicit context for crafting: the map-node fallback can otherwise leave the art blank.
+  if(place==='r11Craft')return 'crafting-workbench'; // Stage alone identifies the craft screen; restored saves may omit r11Bench.
+  if(place==='factoryBench')return 'crafting-workbench';
+  if(place==='mercy'&&mercyLocation==='murphy'&&!!player?.flags?.v49MurphyMenu)return 'crafting-workbench';
+  if(place==='port55Service'&&player?.flags?.portStaffUI?.role==='workshop')return 'crafting-workbench';
+  if(place==='factoryRusty')return 'factory-rusty';
+  if(['factoryWorkshop','factoryTerminal','factoryForge'].includes(place))return 'factory-workshop';
   const g=typeof lanternState==='function'?lanternState():null;
   if(place==='lanternNode'&&g?.nodeId==='boulder-junction'&&!g.currentEdgeId)return 'boulder-junction-art';
   return oldContext();
@@ -13,6 +32,14 @@
  const oldModel=GraphicalUI.model.bind(GraphicalUI);
  GraphicalUI.model=function(){
   const model=oldModel();
+  if(model.location==='crafting-workbench'){
+    model.title='Crafting';
+    model.art='../devtest/assets/locations/crafting_workbench.png?v=wo41b';
+  }
+  if(model.location==='factory-rusty'){
+   model.title='Rusty — Factory Quartermaster';
+   model.art='../devtest/assets/locations/rusty_workshop.png?v=rusty-cinematic-20261113';
+  }
   if(model.location==='factory-workshop'){
    model.title="Forge's Workshop";
    model.art='../devtest/assets/locations/forge_workshop.png';
@@ -95,8 +122,54 @@
    model.art='../devtest/assets/locations/sheriff_kaiden.png';
    model.title='Sheriff Kaiden';
   }
+  // Silas's existing scene art is separate from Seaport's town backgrounds.
+  // r18Fence is not one of the usual port55 stages, so map it explicitly.
+  if(currentStage==='r18Fence'&&
+     !!player.flags?.seaport55?.freed&&player.flags?.r18SilasOutcome==='released'){
+   model.art='../devtest/assets/locations/silas_crowe_fence.png';
+   model.title='Silas the Fence';
+  }
+  // Shared crafting art: one image for all four existing crafting locations.
+  // Preserve gameplay, menus, scenery for non-crafting pages and staff overlays.
+  const craftingStage=String(stage||'');
+  const bench=String(player?.flags?.r11Bench||'').toLowerCase();
+  const craftingHere=(craftingStage==='r11Craft'&&['home','murphy','factory','seaport','port'].includes(bench))||
+    craftingStage==='factoryBench'||
+    (craftingStage==='mercy'&&mercyLocation==='murphy'&&!!player?.flags?.v49MurphyMenu)||
+    (craftingStage==='port55Service'&&player?.flags?.portStaffUI?.role==='workshop');
+  if(craftingHere){
+    model.title='Crafting';
+    model.art='../devtest/assets/locations/crafting_workbench.png?v=wo41-shared';
+  }
   return model;
  };
+ // DEVTEST loads the shared playtest/graphics.js through its <base> element.
+ // That shared renderer intentionally hides the illustration for layout='crafting'.
+ // Earlier changes to devtest/graphics.js and devtest/graphics.css had no effect
+ // because those files are not loaded by the actual DEVTEST entry point.
+ // Preserve the shared renderer and reveal ONLY our registered Workbench image.
+ const workbenchSync=GraphicalUI.sync;
+ GraphicalUI.sync=function(...args){
+   const result=workbenchSync.apply(this,args);
+   const el=this.element;
+   if(stage==='r11Craft' && el?.figure && el?.img &&
+      /\/crafting_workbench\.png(?:\?|$)/.test(el.img.getAttribute('src')||'')){
+     el.figure.hidden=false;
+   }
+   return result;
+ };
+ // The shared stylesheet likewise comes from playtest: its crafting layout
+ // allots a tall scrolling text panel and can squeeze the image to zero.
+ // Scope the space correction strictly to DEVTEST crafting.
+ const benchStyle=document.createElement('style');
+ benchStyle.textContent=`
+ body.full-graphics .gfx-frame[data-layout="crafting"] .gfx-art:not([hidden]){min-height:clamp(130px,28dvh,280px)}
+ body.full-graphics .gfx-frame[data-layout="crafting"] #screen{height:clamp(100px,17dvh,185px);max-height:32dvh}
+ @media(max-width:760px){
+  body.full-graphics .gfx-frame[data-layout="crafting"] .gfx-art:not([hidden]){min-height:130px}
+  body.full-graphics .gfx-frame[data-layout="crafting"] #screen{height:clamp(95px,18dvh,155px);max-height:30dvh}
+ }`;
+ document.head.append(benchStyle);
  if(typeof GraphicalUI.schedule==='function')GraphicalUI.schedule();
 })();
 
@@ -106,8 +179,12 @@
  */
 (function(){
  'use strict';
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST')return;
- const baseSubmenu=port55Submenu;
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST')return;
+ const originalSubmenu=port55Submenu;
+ const baseSubmenu=(title,choices)=>DevtestMenuModel.publishQueued(
+  'seaport:kaiden:'+title,choices,'BACK',
+  labels=>originalSubmenu(title,labels),{direct:true}
+ );
  let page='main';
  const liberated=()=>player.flags?.seaport55?.freed===true;
  const wanted=()=>typeof v52Crime==='function'&&Number(v52Crime().bounty)>0;
@@ -142,7 +219,7 @@
  port55Submenu=function(name,choices){
   if(stage==='port55Kaiden'&&liberated())
    return menu(returningFromLights?'small-talk':'main');
-  return baseSubmenu.apply(this,arguments);
+  return originalSubmenu.apply(this,arguments);
  };
  // The older R11 post-command hook still emits a DIFFERENT Kaiden menu,
  // including the quest on the top level. Redirect it to this menu owner.
@@ -332,32 +409,6 @@
  'use strict';
  if(!location.pathname.includes('/route127/playtest/')||typeof PORT_STAFF_ROLES==='undefined')return;
  PORT_STAFF_ROLES.armory={name:'Armory',job:'Armorer',skill:'trading'};
- // Market Area is the Armory's only entrance. The existing main Seaport
- // menu builds its options from PORT_STAFF_ROLES, so hide the Armory only
- // during that one synchronous render (keep it registered for all staffing).
- const previousMenu=port55Menu;
- port55Menu=function(...args){
-  const armory=PORT_STAFF_ROLES.armory,originalAdd=add;
-  try{
-   delete PORT_STAFF_ROLES.armory;
-   // Rename the one real exit in both Classic and graphical menus.
-   add=function(value,cls){
-    if(typeof value==='string'&&/^\\[\\d+\\] RETURN WEST$/.test(value))
-     value=value.replace('RETURN WEST','RETURN TO ROAD');
-    return originalAdd(value,cls);
-   };
-   const result=previousMenu.apply(this,args);
-   for(const [key,value] of Object.entries(numberedChoices||{})){
-    if(value==='return west')numberedChoices[key]='return to road';
-   }
-   // No second exit through a stray Back hotkey on this top-level menu.
-   if(currentHotkeys?.b==='back')delete currentHotkeys.b;
-   return result;
-  }finally{
-   add=originalAdd;
-   PORT_STAFF_ROLES.armory=armory;
-  }
- };
  const priorRoadExitCommand=port55Command;
  port55Command=function(cmd){
   if(stage==='seaport'&&cmd==='return to road')
@@ -494,7 +545,7 @@
  * ASSIGN <name> -> CONFIRM ASSIGNMENT transaction. No save changes. */
 (function(){
  'use strict';
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||
     !location.pathname.includes('/route127/playtest/'))return;
 
  const earlierRender=portStaffRender;
@@ -614,7 +665,7 @@
  * graphical sidebar), and heal stale sessions that already used that route. */
 (function(){
  'use strict';
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST')return;
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST')return;
  const oldService=portStaffServiceCommand;
  portStaffServiceCommand=function(cmd){
   if(stage==='port55Service'&&player.flags?.portStaffUI?.role==='workshop'&&
@@ -638,27 +689,13 @@
  }
 })();
 
-/* DEVTEST: keep exactly one top-level Seaport road exit in graphics. */
-(function(){
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST')return;
- const prior=GraphicalUI.choices;
- GraphicalUI.choices=function(...args){
-  const rows=prior.apply(this,args);
-  if(stage!=='seaport'||!this.active())return rows;
-  const exiting=c=>['return west','return to road','back','b','leave','west'].includes(String(c).toLowerCase());
-  const chosen=rows.find(r=>['back','b'].includes(String(r.command).toLowerCase()))||rows.find(r=>exiting(r.command));
-  const remaining=rows.filter(r=>!exiting(r.command));
-  if(chosen)remaining.push({...chosen,label:'RETURN TO ROAD'});
-  return remaining;
- };
-})();
 /* DEVTEST liberated Seaport visiting wanderers.
  * Global wanderers can drift into Seaport after liberation, even if they are
  * not hired. Town Streets hosts the visitor; existing road roster and save
  * locations remain authoritative. No duplicate wanderers or new save fields. */
 (function(){
  'use strict';
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST')return;
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST')return;
  const liberated=()=>player.flags?.seaport55?.freed===true;
  const eligible=w=>w&&!portIsHired(w.name)&&wandererAlive(w);
  function enable(){
@@ -700,16 +737,38 @@
   if(liberated())initialVisitor();
   return origArrive.apply(this,args);
  };
- const origMenu=port55Menu;
- port55Menu=function(...args){
+ port55Menu=function(){
   enable();
-  // Also populate an existing liberated save when its player is already
-  // inside Seaport and the new visitor feature is first loaded.
-  if(liberated())initialVisitor();
-  // Narration before options: later add() calls clear graphical choice state.
-  if(liberated()&&visitor())
-   add('A traveler has been seen in the Town Streets.','system');
-  return origMenu.apply(this,args);
+  const q=port55State();
+  if(q.freed){
+   initialVisitor();
+   if(visitor())add('A traveler has been seen in the Town Streets.','system');
+   portRecruitIntro();port55PatrolTick();
+   add('=== SEAPORT ===','place');
+   add('SHERIFF KAIDEN — Town Streets','system');
+   r5DirectChoices(['TOWN STREETS','HARBOR DOCKS','MARKET AREA','RUSTY ANCHOR',
+    ...(r18FenceAllowed()?['SILAS THE FENCE']:[]),
+    ...(portRecruitUnlocked()&&r18MilesLocation()==='seaport'?['TALK TO MILES']:[]),
+    'RETURN TO ROAD']);
+  }else{
+   add('=== OCCUPIED SEAPORT ===','place');
+   add(q.stage==='free'?'The enforcers are defeated. The survivors are still chained at the docks.':
+    'Dominion-backed fishermen hold the harbor.','system');
+   r5DirectChoices(['HARBOR DOCKS','RETURN TO ROAD']);
+  }
+  r5Scene('seaport');
+ };
+ const occupiedDocks=r5Docks;
+ r5Docks=function(){
+  if(!portRecruitUnlocked())return occupiedDocks();
+  stage='port55Docks';
+  add('SEAPORT — HARBOR DOCKS','place');
+  add('A clerk checks water-stained manifests beside the freed quay.','bright');
+  r5DirectChoices(['DOCK BULLETIN BOARD','TALK TO DOCKS CLERK',
+   ...(r18CourierEligible('docks')?['DELIVER SEAPORT PARCEL']:[]),
+   ...(player.flags.port55PendingRewards?.length?['CLAIM PENDING REWARD']:[]),
+   ...(r18CalebAvailable()?['TALK TO CALEB']:[]),
+   'RETURN TO SEAPORT']);
  };
  const origStopMenu=port55StopMenu;
  port55StopMenu=function(...args){
@@ -883,7 +942,7 @@
  */
 (function(){
  'use strict';
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST')return;
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST')return;
  const market=()=>stage==='port55Stop'&&player.flags?.port55CurrentStop==='Market Area';
  const full=name=>(typeof RouteIdentity!=='undefined'?RouteIdentity.wanderer?.[name]:null)||name;
  const roleKey=cmd=>Object.keys(PORT_STAFF_ROLES).find(role=>
@@ -932,7 +991,7 @@
  * numbered exit already handles returning. Keep the original hotkey and
  * command mappings intact for Classic BBS and keyboard navigation. */
 (function(){
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||typeof GraphicalUI==='undefined')return;
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||typeof GraphicalUI==='undefined')return;
  const previousChoices=GraphicalUI.choices;
  GraphicalUI.choices=function(...args){
   const rows=previousChoices.apply(this,args);
@@ -945,6 +1004,7 @@
    return rows.filter(r=>!(String(r.key).toLowerCase()==='b'&&
      /^back$/i.test(String(r.command||'').trim())));
   }
+  if(rows.some(row=>row.id?.startsWith('seaport:')))return rows;
   const exits=rows.filter(r=>/^\d+$/.test(String(r.key))&&
    /^(?:back|return(?: to (?:seaport|harbor|town|road|market|docks|previous menu))?|leave(?: (?:area|shop|store))?)$/i.test(String(r.command||'').trim()));
   if(!exits.length)return rows;
@@ -955,7 +1015,7 @@
 
 /* DEVTEST presentation: location plates are neutral, wanderers stay green. */
 (function(){
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||typeof GraphicalUI==='undefined')return;
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||typeof GraphicalUI==='undefined')return;
  const oldSync=GraphicalUI.sync;
  GraphicalUI.sync=function(...args){
   const r=oldSync.apply(this,args),caption=this.element?.caption;
@@ -975,7 +1035,7 @@
  * global bounty, fine, bribe and liberation dialogue are reused unchanged. */
 (function(){
  'use strict';
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST')return;
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST')return;
  const formerName=port55PatrolName,formerTick=port55PatrolTick;
  port55PatrolName=function(...args){
   return player.flags?.seaport55?.freed===true?'Town Streets':formerName.apply(this,args);
@@ -999,17 +1059,5 @@
   try{return previousStopMenu.apply(this,args);}
   finally{add=priorAdd;}
  };
- // Replace the old changing-patrol announcement, not the town logic.
- const formerMenu=port55Menu;
- port55Menu=function(...args){
-  const priorAdd=add;
-  add=function(message,...extra){
-   if(player.flags?.seaport55?.freed===true&&
-      String(message).startsWith('KAIDEN PATROL — '))
-    message='SHERIFF KAIDEN — Town Streets';
-   return priorAdd.call(this,message,...extra);
-  };
-  try{return formerMenu.apply(this,args);}
-  finally{add=priorAdd;}
- };
+
 })();

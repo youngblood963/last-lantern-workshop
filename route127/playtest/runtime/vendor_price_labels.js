@@ -4,7 +4,7 @@
  */
 (()=>{
  'use strict';
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST'||typeof GraphicalUI==='undefined')return;
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||typeof GraphicalUI==='undefined')return;
  const nativeChoices=GraphicalUI.choices;
  const norm=v=>String(v||'').trim().toLowerCase();
  const money=(command,amount)=>{

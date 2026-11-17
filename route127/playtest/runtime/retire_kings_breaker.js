@@ -5,7 +5,7 @@
  */
 (function(){
  'use strict';
- if(globalThis.ROUTE127_ENV?.name==='DEVTEST')return;
+ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST')return;
  if(typeof FACTORY_BOSS_LOOT==='undefined'||!Array.isArray(FACTORY_BOSS_LOOT[0]))return;
  const pool=FACTORY_BOSS_LOOT[0];
  for(let i=pool.length-1;i>=0;i--)if(pool[i]?.name==="King's Breaker")pool.splice(i,1);

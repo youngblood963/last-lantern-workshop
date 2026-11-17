@@ -1064,6 +1064,10 @@ for(const [kind,titles] of Object.entries(R10_EARLY_TITLES)){
  // Geographic neutral early discoveries also fit the road out of Solace.
  R10_POOLS.east[kind]=R10_POOLS.early[kind].map(i=>eastEncounters.push(encounters[i])-1);
 }
+// Causeway-approved Abandoned Sedan reuses its existing eastern scenario index.
+// No pool entry is duplicated or reindexed, preserving existing road saves.
+const causewaySedanIndex=eastEncounters.findIndex(e=>e.title==='ABANDONED SEDAN');
+if(causewaySedanIndex>=0&&!R10_POOLS.coast.exploration.includes(causewaySedanIndex))R10_POOLS.coast.exploration.push(causewaySedanIndex);
 // Mid-road versions reuse established enemy types and the existing multi-enemy engine.
 R10_POOLS.east.combat=['HIGHWAY ROBBERS','THE CRAWLER','THE WRECKERS','GANG LOOKOUT','SECURITY DRONE','SOMETHING IN THE DRAIN','FERAL DOG','LONE SCAVENGER'].map((title,j)=>{
  const original=encounters.find(e=>e.title===title),base=combatSpecs[title];

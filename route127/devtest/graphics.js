@@ -92,7 +92,36 @@ const GraphicalUI={
   e.stats.replaceChildren(this.node('strong','gfx-level','LV '+m.level),this.meter('HP',m.hp,m.maxHp,'hp'),this.meter('TURNS',m.turns,m.maxTurns,'turns'),this.meter('XP',m.xp,m.nextXp,'xp'),this.node('span','gfx-economy',m.bolts+' BOLTS · PACK '+m.pack+'/'+m.capacity+' · '+m.time));
   e.enemies.replaceChildren();for(const enemy of m.enemies){const row=this.node('div','gfx-enemy');row.appendChild(this.node('strong','',enemy.name));row.appendChild(this.meter('HP',enemy.hp,enemy.maxHp,'hp'));e.enemies.appendChild(row);}for(const status of this.statuses())e.enemies.appendChild(this.node('p','gfx-effect',status));
   e.nav.replaceChildren();for(const [command,label,icon]of this.nav(m)){const b=this.button('',async()=>{if(busy)return;this.navOpen=false;await handleCommand(command);this.sync();},'gfx-nav-button');b.appendChild(this.icon(icon));b.appendChild(this.node('span','',label));e.nav.appendChild(b);}const opts=this.button('',()=>{this.optionsOpen=!this.optionsOpen;this.sync();},'gfx-nav-button');opts.setAttribute('aria-expanded',String(this.optionsOpen));opts.appendChild(this.icon('gear'));opts.appendChild(this.node('span','','Options'));e.nav.appendChild(opts);
-  e.settings.hidden=!this.optionsOpen;e.settings.replaceChildren();if(this.optionsOpen){e.settings.appendChild(this.node('h2','','DISPLAY OPTIONS'));e.settings.appendChild(this.button('CLASSIC BBS',()=>this.setMode('classic')));e.settings.appendChild(this.button('CLOSE OPTIONS',()=>{this.optionsOpen=false;this.sync();}));}
+  e.settings.hidden=!this.optionsOpen;e.settings.replaceChildren();if(this.optionsOpen){
+    e.settings.appendChild(this.node('h2','','DISPLAY OPTIONS'));
+    // DEVTEST-only escape hatch deliberately bypasses gameplay input queues.
+    // Never let a stalled narration hold the player's save hostage.
+    const activeRoach=()=>{
+      try{
+        return ['encounter','between'].includes(stage)&&
+          ['ROACH NEST','EAST ROAD — ROACH NEST'].includes(currentEncounter()?.title);
+      }catch(_){return false;}
+    };
+    if(activeRoach()){
+      e.settings.appendChild(this.button('ESCAPE STUCK ROACH ENCOUNTER',()=>{
+        if(!activeRoach())return;
+        try {
+          const stored=localStorage.getItem(FACTORY_AUTOSAVE_KEY);
+          if(stored)localStorage.setItem('route127_devtest_roach_rescue_backup_20261117',stored);
+        }catch(error){console.warn('Roach rescue backup unavailable',error);}
+        busy=false;input.disabled=false;commandProcessing=false;
+        // A partially queued narration must not overwrite the rescued menu.
+        outputQueue=Promise.resolve();
+        resultBuffer=null;numberedChoices={};currentHotkeys={};
+        add('DEVTEST RECOVERY — You leave the Roach Nest behind. No extra turn charged.','system');
+        completeRoadTurn();
+        v49RollingAutosave('ROACH NEST RECOVERED');
+        this.optionsOpen=false;this.sync();
+      },'gfx-roach-rescue'));
+    }
+    e.settings.appendChild(this.button('CLASSIC BBS',()=>this.setMode('classic')));
+    e.settings.appendChild(this.button('CLOSE OPTIONS',()=>{this.optionsOpen=false;this.sync();}));
+  }
   e.choices.replaceChildren();e.choices.style.setProperty('--gfx-choice-rows',String(Math.max(1,Math.ceil(m.choices.length/2))));for(const [i,c]of m.choices.entries()){const b=this.button('',()=>this.dispatch(c),'gfx-choice');b.disabled=!!busy&&!(stage==='encounter'&&!combatState);if(c.label!==c.command){b.classList.add('gfx-road-choice');b.setAttribute('title',c.label);b.setAttribute('aria-label',c.key+' '+c.label);}b.appendChild(this.node('span','gfx-choice-key',c.key.toUpperCase()));b.appendChild(this.node('span','gfx-choice-label',c.label));b.appendChild(this.node('span','gfx-choice-arrow','›'));e.choices.appendChild(b);}
  }finally{this.rendering=false;}},
  schedule(){if(this.scheduled)return;this.scheduled=true;outputQueue=outputQueue.then(()=>{this.scheduled=false;this.sync();});}

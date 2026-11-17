@@ -13,6 +13,8 @@
 <link rel="stylesheet" href="runtime/casino_narrative.css?v=wo28">
 <link rel="stylesheet" href="runtime/ui_stabilization_20261104.css?v=wo49-shared-room">
 <link rel="stylesheet" href="runtime/nessa_pet_shop.css?v=1">
+  <script src="../devtest/runtime/environment.js?v=wo65" data-route127-environment="playtest"></script>
+  <link rel="stylesheet" href="../devtest/runtime/cloud-login.css?v=wo65">
 </head>
 <body>
   <main class="terminal-shell">
@@ -99,7 +101,7 @@
 <script src="legacy_rewards.js?v=wo10"></script>
 <script src="economy.js?v=wo12"></script>
 <script src="lifecycle.js?v=wo13"></script>
-<script src="r15_session.js?v=r18-completion2"></script>
+<script src="r15_session.js?v=wo65"></script>
 <script src="regional_navigation.js?v=wo24"></script>
 <script src="graphics.js?v=wo26-gates"></script>
 <script src="traveler_panels.js?v=wo18-combat-panels"></script>
@@ -171,6 +173,37 @@
 <script src="runtime/storage_backpack_modal_guard_20261106.js?v=room-backpack-1"></script>
 <script src="runtime/combat_result_summary_20261106.js?v=combat-results-auto-dismiss-2"></script>
 <script src="runtime/enemy_reward_compat_wo33.js?v=wo33-playtest-1"></script>
+<template id="route127-cloud-login">
+  <dialog class="cloud-login" aria-labelledby="cloud-login-title">
+    <section class="cloud-login-frame">
+      <h1 id="cloud-login-title" class="cloud-login-brand"><span>Route 127</span></h1>
+      <form id="cloud-auth">
+        <label>Account <input name="login" autocomplete="username" required minlength="3" maxlength="64" autofocus></label>
+        <label>Password <input name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128"></label>
+        <div class="cloud-login-actions">
+          <button type="submit" name="action" value="login">Sign in</button>
+          <button type="submit" name="action" value="register">Register</button>
+        </div>
+      </form>
+      <div class="cloud-login-feedback"></div>
+    </section>
+  </dialog>
+  <section class="cloud-account" hidden>
+    <h2>Account</h2>
+    <div id="cloud-feedback">
+      <span id="cloud-status" role="status">Checking session…</span>
+      <button type="button" id="cloud-retry" class="traveler-button" hidden>Retry save</button>
+      <button type="button" id="cloud-server" class="traveler-button" hidden>Restore saved version</button>
+      <button type="button" id="cloud-local" class="traveler-button" hidden>Continue on this device</button>
+      <a id="cloud-offline" href="?offline=1" hidden>Open browser save</a>
+      <button type="button" id="cloud-legacy" class="traveler-button" hidden>Copy browser character</button>
+      <button type="button" id="cloud-new" class="traveler-button" hidden>Create new character</button>
+      <button type="button" id="cloud-out" class="traveler-button" hidden>Sign out</button>
+    </div>
+  </section>
+  <div class="cloud-notice" role="status" aria-atomic="true"></div>
+</template>
+<script src="../runtime/cloud-save-bootstrap.js?v=wo65" data-route127-client="playtest"></script>
 </body>
 </html>
 

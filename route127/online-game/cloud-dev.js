@@ -5,6 +5,7 @@
  const apiPrefix=document.currentScript?.dataset.apiPrefix==='/route127/devtest/api/'?'/route127/devtest/api/':'/api/';
  const template=document.getElementById('route127-cloud-login');
  const loginTemplate=template?.tagName==='TEMPLATE'?template:null;
+ const playtest=loginTemplate&&globalThis.ROUTE127_ENV?.name==='PLAYTEST';
  const storage=localStorage, KEY='r127-dev-pending:';
  let account=null, character=null, revision=0, ready=false, busy=false, blocked=false;
  let last='',timer=null,creating=false,loading=false,started=false,authEpoch=0;
@@ -378,9 +379,14 @@
     if(marker&&(marker.account!==account||marker.characterId!==character?.id))storage.removeItem(deviceKey);
    }catch{storage.removeItem(deviceKey);}
    el('cloud-server').hidden=true;el('cloud-retry').hidden=true;el('cloud-local').hidden=true;
+   if(playtest){
+    el('cloud-offline').hidden=true;
+    el('cloud-legacy').hidden=true;
+    el('cloud-new').hidden=true;
+   }
    status(character?'Loading your character…':'Starting character creation…');
    if(character)await resume();
-   else await startCharacter();
+   else if(!playtest||!offerLegacyCharacter())await startCharacter();
    return;
   }
   el('cloud-link').hidden=!!character;el('cloud-resume').hidden=!character;
@@ -400,6 +406,49 @@
    if(loginTemplate)for(const button of form.querySelectorAll('button'))button.disabled=false;
   }
  });
+ let legacyCharacter=null;
+ function offerLegacyCharacter(){
+  if(storage.getItem(KEY+account+':creation'))return false;
+  const save=newestSave()?.data;
+  if(!save?.player?.handle)return false;
+  const name=save.player.handle;
+  // The existing Worker accepts the current snapshot format and character name rules.
+  const compatible=save.version===38&&save.player.flags&&!Array.isArray(save.player.flags)&&
+   typeof save.stage==='string'&&!['title','wake','handle','confirmHandle'].includes(save.stage)&&
+   /^[A-Za-z][A-Za-z0-9 '-]{2,19}$/.test(name)&&! / {2}|'{2}|-{2}/.test(name)&&name===name.trim();
+  legacyCharacter=compatible?save:null;
+  el('cloud-legacy').hidden=!compatible;
+  el('cloud-offline').hidden=false;
+  el('cloud-new').hidden=false;
+  status(compatible?'Copy '+name+' to this account or create a new character. The browser save stays available.':
+   'This browser save needs the local game to load it. You can return to it without creating a cloud character.');
+  return true;
+ }
+ if(playtest){
+  el('cloud-legacy').addEventListener('click',async()=>{
+   if(!legacyCharacter||!account||character||busy||signingIn)return;
+   if(!confirm('Copy '+legacyCharacter.player.handle+' to this cloud account? Your browser save will stay available.'))return;
+   busy=true;
+   try{
+    const snapshot=journals(legacyCharacter,legacyCharacter.player.characterId);
+    storage.setItem(KEY+account+':creation',JSON.stringify(snapshot));
+    restore(await api('character',{snapshot}));
+    storage.removeItem(KEY+account+':creation');
+    el('cloud-offline').hidden=true;
+    el('cloud-legacy').hidden=true;
+    el('cloud-new').hidden=true;
+   }catch(error){
+    status('Copy could not be confirmed: '+error.message+'. Sign in again to check or retry. The browser save is intact.');
+   }finally{busy=false;}
+  });
+  el('cloud-new').addEventListener('click',async()=>{
+   if(busy||signingIn||character||!account)return;
+   el('cloud-offline').hidden=true;
+   el('cloud-legacy').hidden=true;
+   el('cloud-new').hidden=true;
+   await startCharacter();
+  });
+ }
  async function startCharacter(){
   if(busy||character||!account)return;
   const draft=storage.getItem(KEY+account+':creation');
@@ -440,7 +489,7 @@
   if(loginTemplate)busy=true;
   try{await api('logout',{});authEpoch++;ready=false;account=null;character=null;el('cloud-auth').hidden=false;
    if(loginTemplate)storage.removeItem(deviceKey);
-   for(const id of ['cloud-out','cloud-link','cloud-resume','cloud-retry','cloud-server','cloud-local']){const control=el(id);if(control)control.hidden=true;}
+   for(const id of ['cloud-out','cloud-link','cloud-resume','cloud-retry','cloud-server','cloud-local','cloud-legacy','cloud-new','cloud-offline']){const control=el(id);if(control)control.hidden=true;}
    showLogin(true);
    status(loginTemplate?'Signed out.':'Signed out. Local progress retained.');
   }catch(e){status(e.message);}

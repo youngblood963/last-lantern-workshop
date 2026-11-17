@@ -12,11 +12,11 @@
  const dev=client==='devtest'&&/^\/route127\/devtest\/(?:index\.html)?$/.test(location.pathname)&&
   globalThis.ROUTE127_ENV?.name==='DEVTEST'&&(hostedDev||local(8787));
  // Release compatibility is local staging only. Its runner must use a separate DB.
- const release=client==='playtest'&&/^\/route127\/playtest\/(?:index\.html)?$/.test(location.pathname)&&local(8788)&&params.get('cloud')==='1';
+ const release=client==='playtest'&&/^\/route127\/playtest\/(?:index\.html)?$/.test(location.pathname)&&local(8788)&&params.get('cloud')==='1'&&globalThis.ROUTE127_ENV?.name==='PLAYTEST';
  if(!dev&&!release)return;
 
  const adapter=document.createElement('script');
- const version=dev&&document.getElementById?.('route127-cloud-login')?'wo64':'wo61-direct';
+ const version=release?'wo65':dev&&document.getElementById?.('route127-cloud-login')?'wo64':'wo61-direct';
  adapter.src=new URL('../online-game/cloud-dev.js?v='+version,script.src).href;
  if(hostedDev)adapter.dataset.apiPrefix='/route127/devtest/api/';
  adapter.onerror=()=>{

@@ -43,7 +43,7 @@
  <label>Password <input name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128"></label>
  <button type="submit" name="action" value="login">Sign in</button>
  <button type="submit" name="action" value="register">Register</button></form>
- <button id="cloud-link" hidden>Create new character</button>
+ <button id="cloud-link" hidden>Start fresh / Create new character</button>
  <button id="cloud-resume" hidden>Load cloud character</button>
  <button id="cloud-retry" hidden>Retry pending save</button>
  <button id="cloud-server" hidden>Use cloud version; retain local recovery copy</button>
@@ -147,7 +147,7 @@
   el('cloud-auth').hidden=true;el('cloud-out').hidden=false;
   el('cloud-link').hidden=!!character;el('cloud-resume').hidden=!character;
   if(character)await resume();
-  else status('Signed in. Create your one persistent character. Existing offline slots are preserved.');
+  else status('Signed in. Start fresh to create your one persistent cloud character. Local characters will not be imported.');
  }
  el('cloud-auth').addEventListener('submit',async e=>{
   e.preventDefault();if(busy||loading){status('Wait for the current cloud operation to finish.');return;}ready=false;const attempt=++authEpoch;

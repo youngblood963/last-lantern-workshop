@@ -1,0 +1,27 @@
+/* WO61 staged wiring for the existing R13 account and snapshot adapter. */
+(()=>{
+ 'use strict';
+ const script=document.currentScript;
+ const client=script?.dataset.route127Client;
+ const params=new URLSearchParams(location.search);
+ if(params.get('cloud')!=='1'||params.get('offline')==='1')return;
+
+ const origin=location.origin;
+ const local=(port)=>origin==='https://localhost:'+port||origin==='https://127.0.0.1:'+port;
+ const privateDev=origin==='https://route127-r14-private-playtest.youngblood963.workers.dev';
+ const dev=client==='devtest'&&/^\/route127\/devtest\/(?:index\.html)?$/.test(location.pathname)&&
+  globalThis.ROUTE127_ENV?.name==='DEVTEST'&&(privateDev||local(8787));
+ // Release compatibility is local staging only. Its runner must use a separate DB.
+ const release=client==='playtest'&&/^\/route127\/playtest\/(?:index\.html)?$/.test(location.pathname)&&local(8788);
+ if(!dev&&!release)return;
+
+ const adapter=document.createElement('script');
+ adapter.src=new URL('../online-game/cloud-dev.js?v=wo61-stage',script.src).href;
+ adapter.onerror=()=>{
+  const message=document.createElement('p');
+  message.setAttribute('role','status');
+  message.textContent='Cloud adapter could not load. Reload before creating or loading a cloud character.';
+  document.body.prepend(message);
+ };
+ document.head.append(adapter);
+})();

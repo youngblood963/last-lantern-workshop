@@ -2,6 +2,7 @@
 (() => {
  'use strict';
  if(new URLSearchParams(location.search).get('offline')==='1')return;
+ const apiPrefix=document.currentScript?.dataset.apiPrefix==='/route127/devtest/api/'?'/route127/devtest/api/':'/api/';
  const storage=localStorage, KEY='r127-dev-pending:';
  let account=null, character=null, revision=0, ready=false, busy=false, blocked=false;
  let last='',timer=null,creating=false,loading=false,started=false,authEpoch=0;
@@ -52,7 +53,7 @@
  document.body.prepend(bar);
  const el=id=>document.getElementById(id),status=t=>{el('cloud-status').textContent=t;};
  async function api(path,data){
-  const r=await fetch('/api/'+path,{method:data?'POST':'GET',credentials:'same-origin',
+  const r=await fetch(apiPrefix+path,{method:data?'POST':'GET',credentials:'same-origin',
    headers:data?{'Content-Type':'application/json'}:{},body:data?JSON.stringify(data):undefined,
    signal:AbortSignal.timeout(15000)});
   const b=await r.json();if(!r.ok)throw Object.assign(Error(b.error||'Request failed'),{status:r.status});return b;

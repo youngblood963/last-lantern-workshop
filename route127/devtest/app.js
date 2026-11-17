@@ -2212,6 +2212,14 @@ function isPathChoice(e,key){
 }
 function resolveEncounter(cmd) {
   const e = currentEncounter();
+  // Roach Nest always offers a safe, unconditional exit. Older menu
+  // renderers may dispatch the single-letter B or the full label.
+  if((e.title==='ROACH NEST'||e.title==='EAST ROAD — ROACH NEST') &&
+     (cmd==='b'||cmd==='back'||cmd==='back away')){
+    add('You leave the van to the roaches.');
+    completeRoadTurn();
+    return;
+  }
   if((e.title==='TUNNEL RATS'||e.title==='EAST ROAD — TUNNEL RATS')&&player.flags.r18TunnelBoarPending){
     if(cmd.includes('back')||cmd.includes('away')){delete player.flags.r18TunnelBoarPending;delete player.flags.r18TunnelRatXp;add('You retreat from the boar and leave the drain behind.');completeRoadTurn();return;}
     if(cmd.includes('fight')){const level=Math.max(1,Math.min(50,Number(player.level)||1)),ratXp=Number(player.flags.r18TunnelRatXp)||0;delete player.flags.r18TunnelBoarPending;delete player.flags.r18TunnelRatXp;startCombat({name:'FERAL BOAR',level,hp:Math.max(22,Math.floor(baseHpForLevel(level)*.27)),min:3,max:7,xp:Math.max(20,level*6),bolts:0,r18TunnelBoar:true,r18TunnelRatXp:ratXp,r18GuaranteeGear:true,end:'The boar falls beside the drain.'},'encounter');return;}
@@ -2284,7 +2292,14 @@ function resolveEncounter(cmd) {
   if(key && done.has(key)){ add("You've already done that here.","system"); add(encounterChoices(e),"system"); return; }
   resultBuffer=[];
   const resolved=e.resolve(cmd);
-  if(!resolved){ resultBuffer=null; add("That's not an option.","system"); add(encounterChoices(e),"system"); return; }
+  if(!resolved){
+    // Preserve scenario-specific failure explanations (e.g. no food for roaches)
+    // rather than silently dropping them with the result buffer.
+    if(resultBuffer && resultBuffer.length) flushResults();
+    else resultBuffer=null;
+    add(encounterChoices(e),"system");
+    return;
+  }
   flushResults();
   if(stage==="fallen")return;
   // A choice may enter a real fight; do not also finish the road turn.
@@ -2305,6 +2320,9 @@ function resolveEncounter(cmd) {
         const line=hotkeyLine(remaining);
         addImmediate(line,"system"); followOutput();
       }
+    }).catch(err=>{
+      console.error('Encounter choice render failed',err);
+    }).finally(()=>{
       busy=false; input.disabled=false; input.focus();
     });
     return;

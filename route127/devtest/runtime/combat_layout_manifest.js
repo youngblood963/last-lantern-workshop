@@ -1,4 +1,4 @@
-/* Source-controlled DEVTEST layouts from owner-exported JSON; updated 2026-11-12. */
+/* Source-controlled DEVTEST layouts from owner-exported Seaport.json, updated 2026-11-16. */
 /* Published positions are defaults; browser-saved layouts always take precedence. */
 globalThis.Route127PublishedCombatLayouts={
   "version": 1,
@@ -791,6 +791,134 @@ globalThis.Route127PublishedCombatLayouts={
         "height": 59,
         "scale": 1,
         "z": 1,
+        "flip": false
+      }
+    },
+    "early:171/approach/desktop": {
+      "background:aggressive_seagulls.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "east:158/approach/desktop": {
+      "0:the_powder_monkey.png": {
+        "x": 68.08035250525117,
+        "y": 74.23809968328929,
+        "width": 56,
+        "height": 89,
+        "scale": 0.52,
+        "z": 2,
+        "flip": true
+      }
+    },
+    "east:57/approach/desktop": {
+      "0:unauthorized_cargo.png": {
+        "x": 50,
+        "y": 55,
+        "width": 76,
+        "height": 89,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:159/combat/desktop": {
+      "0:highway_hunter_rifleman.png": {
+        "x": 24.925593540173928,
+        "y": 27.089946022032603,
+        "width": 54,
+        "height": 23.4,
+        "scale": 1,
+        "z": 2,
+        "flip": true
+      }
+    },
+    "early:169/approach/desktop": {
+      "0:dockside_pirate_1.png": {
+        "x": 64.13690096058839,
+        "y": 56.71957574510475,
+        "width": 31.666666666666668,
+        "height": 82,
+        "scale": 0.51,
+        "z": 2,
+        "flip": false
+      },
+      "1:dockside_pirate_2.png": {
+        "x": 44.568450480294196,
+        "y": 54.603175604344436,
+        "width": 31.666666666666668,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "2:dockside_pirate_3.png": {
+        "x": 24.255952431636597,
+        "y": 23.783072694305595,
+        "width": 31.666666666666668,
+        "height": 82,
+        "scale": 0.27,
+        "z": 2,
+        "flip": true
+      }
+    },
+    "east:60/approach/desktop": {
+      "0:floodlight_drone_active.gif": {
+        "x": 56.696428115270606,
+        "y": 45.74074055385571,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:160/approach/desktop": {
+      "0:harbour_security_drone.png": {
+        "x": 53.6458285436747,
+        "y": 20.476189274786677,
+        "width": 54,
+        "height": 82,
+        "scale": 0.58,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:64/approach/desktop": {
+      "0:scrap_crab_nest.png": {
+        "x": 75.00000851494868,
+        "y": 65.3174645624204,
+        "width": 54,
+        "height": 82,
+        "scale": 0.8,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:63/approach/desktop": {
+      "0:tactical_sniper.png": {
+        "x": 64.73214412424832,
+        "y": 56.71957574510475,
+        "width": 54,
+        "height": 82,
+        "scale": 0.3,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:62/approach/desktop": {
+      "0:crab_trap.png": {
+        "x": 61.23511714696087,
+        "y": 58.306873327727004,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
         "flip": false
       }
     }

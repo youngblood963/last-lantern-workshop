@@ -16,7 +16,7 @@ const DESTINATIONS=Object.freeze([
  {id:'amii',name:'Amii',place:'Solace — Bank',stage:'mercy',loc:['amii','bank'],item:'Harbor Dispatch — Amii'},
  {id:'mara',name:'Mara',place:'Solace — Armory',stage:'mercy',loc:['mara','armory'],item:'Harbor Dispatch — Mara'},
  {id:'forge',name:'Forge',place:'Factory — Workshop',stages:['factoryWorkshop','factoryForge','factoryTerminal'],item:'Harbor Dispatch — Forge'},
- {id:'docks',name:'Harbor Dockmaster',place:'Seaport — Harbor Docks',stage:'port55Docks',item:'Harbor Dispatch — Docks'},
+ {id:'docks',name:'Hollis Reed',place:'Seaport — Harbor Docks',stage:'port55Docks',item:'Harbor Dispatch — Docks'},
  {id:'kaiden',name:'Kaiden',place:'Seaport — Patrol',stage:'port55Kaiden',item:'Harbor Dispatch — Kaiden'},
  {id:'mia',name:'Mia',place:'Seaport — Rusty Anchor',stage:'port55Mia',item:'Harbor Dispatch — Mia'},
  {id:'nessa',name:'Nessa',place:'Seaport — Pet Vendor',stage:'port55Vendor',item:'Harbor Dispatch — Nessa'},

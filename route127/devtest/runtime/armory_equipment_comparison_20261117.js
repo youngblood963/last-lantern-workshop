@@ -5,7 +5,7 @@
 
  const normalize=value=>String(value||'').trim().toLowerCase();
  const money=value=>value.toLocaleString('en-US')+' Bolts';
- let panel,selected,anchor,pinned=false;
+ let panel,selected,anchor,pinned=false,inspect=false,toggle,shop;
 
  function offer(command){
   const match=/^buy (.+)$/i.exec(normalize(command));
@@ -96,9 +96,6 @@
   const item=offer(choice.command);
   if(!item)return;
   button.removeAttribute('title');
-  const wrap=GraphicalUI.node('div','r127-armory-buy-wrap');
-  button.parentNode.insertBefore(wrap,button);
-  wrap.appendChild(button);
   let hover=false,focus=false;
   const preview=()=>{if(!pinned)show(item,button,false);};
   const dismiss=()=>{if(!pinned&&!hover&&!focus&&anchor===button)hide();};
@@ -106,19 +103,38 @@
   button.addEventListener('pointerleave',()=>{hover=false;dismiss();});
   button.addEventListener('focus',()=>{focus=true;preview();});
   button.addEventListener('blur',()=>{focus=false;dismiss();});
-  const info=GraphicalUI.button('Compare',()=>{
-   if(pinned&&selected===item.name)hide();else show(item,info,true);
-  },'r127-armory-info');
-  info.setAttribute('aria-label','Compare '+item.name);
-  wrap.appendChild(info);
-  if(pinned&&selected===item.name)anchor=info;
+  button.addEventListener('click',event=>{
+   if(!inspect)return;
+   event.preventDefault();
+   event.stopImmediatePropagation();
+   show(item,button,true);
+  },true);
+  if(pinned&&selected===item.name)anchor=button;
  }
  const sync=GraphicalUI.sync;
  GraphicalUI.sync=function(...args){
   const result=sync.apply(this,args);
-  if(selected&&(!anchor?.isConnected||!this.active()))hide();
+  const choices=this.element?.choices;
+  const inShop=this.active()&&choices&&this.choices().some(choice=>offer(choice.command));
+  const context=inShop?[stage,mercyLocation,player.flags.portStaffUI?.role].join(':'):null;
+  if(context!==shop){hide();inspect=false;shop=context;}
+  if(selected&&!anchor?.isConnected)hide();
+  if(!inShop){if(toggle)toggle.hidden=true;return result;}
+  if(!toggle){
+   toggle=this.button('',()=>{
+    inspect=!inspect;
+    hide();
+    toggle.textContent=inspect?'Exit inspection mode':'Inspect equipment';
+    toggle.setAttribute('aria-pressed',String(inspect));
+   },'r127-shop-inspect');
+  }
+  toggle.textContent=inspect?'Exit inspection mode':'Inspect equipment';
+  toggle.setAttribute('aria-pressed',String(inspect));
+  toggle.hidden=false;
+  if(toggle.parentNode!==choices.parentNode)choices.parentNode.insertBefore(toggle,choices);
   return result;
  };
+
  const command=handleCommand;
  handleCommand=async function(raw){
   const match=/^inspect\s+(.+)$/i.exec(String(raw).trim());
@@ -142,9 +158,8 @@
 
  const css=document.createElement('style');
  css.textContent=`
- .gfx-choices .r127-armory-buy-wrap{display:flex;gap:4px;min-width:0}
- .gfx-choices .r127-armory-buy-wrap>.gfx-choice{flex:1;min-width:0}
- .r127-armory-info{background:#392b1e;border:1px solid #99744a;border-radius:4px;color:#efd4a4;padding:6px;min-height:44px;cursor:pointer}
+ .r127-shop-inspect{display:none;background:#392b1e;border:1px solid #99744a;border-radius:4px;color:#efd4a4;padding:8px;min-height:44px}
+ @media(any-pointer:coarse){.r127-shop-inspect:not([hidden]){display:block}}
  .r127-armory-compare{position:fixed;z-index:1000;width:min(430px,calc(100vw - 16px));box-sizing:border-box;overflow:auto;padding:12px;border:1px solid #c39a5e;border-radius:6px;background:#191510;color:#f2e7ce;font:14px/1.4 system-ui,sans-serif;pointer-events:none}
  .r127-armory-compare[hidden]{display:none}
  .r127-armory-compare.r127-compare-pinned{position:static;max-height:none!important;pointer-events:auto}

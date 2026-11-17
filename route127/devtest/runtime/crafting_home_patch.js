@@ -1,11 +1,18 @@
 /* DEVTEST: home crafting, ordinary craft resale, rarity gates. */
 (()=>{'use strict';if(!location.pathname.includes('/route127/devtest/'))return;
+// Seaport's liberation reward has a stable inventory name and authored combat stats.
+GEAR['Harbor Guard Cutlass']??={type:'weapon',rarity:'rare',min:19,max:26,
+ description:'A cutlass awarded for liberating Seaport.'};
 const oldSell=v48SellPrice;
 v48SellPrice=function(item){
+ if(!v48Ordinary(item)||item.unique||item.protected||protectedUniqueEquipment(item.name)||
+    GEAR[item.name]?.questOnly||GEAR[item.name]?.rarity==='legendary')return 0;
  const result=oldSell.apply(this,arguments);
- if(result>0||!item||!v48Ordinary(item))return result;
+ if(result>0)return result;
  const values={'Reinforced Bandage':8,'Wasteland Stew':5,'Roadhouse Hash':4,'Preserved Meat':3,'Preserved Vegetables':3};
- return values[item.name]||0;
+ if(Object.hasOwn(values,item.name))return values[item.name];
+ // Unpriced ingredients registered for cooking use the existing low-tier food payout.
+ return ['material','consumable'].includes(item.type)&&r18FoodKind(item.name)?V48_LOOT_PRICES['Raw Rat Meat']:0;
 };
 const appendChoices=lanternAppendChoices;
 lanternAppendChoices=function(labels){

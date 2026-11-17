@@ -6,7 +6,7 @@ const rarity=i=>GEAR[i.name]?.rarity||'common';
 const base=v53SaleCommand;
 v53SaleCommand=function(cmd){
  const q=player.flags.v53Sale,shop=mercyLocation;
- if(cmd!=='confirm sale'||q?.merchant||!shops.has(shop))return base.apply(this,arguments);
+ if(cmd!=='confirm sale'||!q||q.merchant||!shops.has(shop))return base.apply(this,arguments);
  const item=player.pack.find(i=>i.name===q.name&&i.type===q.type&&!!i.stolen===!!q.stolen);
  const oldQty=item?.qty||0,before=player.bolts,copy=item&&{...item};
  const result=base.apply(this,arguments);
@@ -19,6 +19,7 @@ v53SaleCommand=function(cmd){
    else stock.push({...copy,qty:sold,buybackPrice:Math.max(1,q.unit*2)});
   }
  }
+ if(copy&&player.bolts>before)v49Autosave();
  return result;
 };
 function menu(){

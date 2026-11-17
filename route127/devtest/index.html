@@ -11,7 +11,7 @@
   <script src="../devtest/runtime/environment.js?v=wo25"></script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Route 127 — DEVTEST (local saves)</title>
+  <title>Route 127 — DEVTEST</title>
   <link rel="stylesheet" href="styles.css?v=r15">
   <link rel="stylesheet" href="graphics.css?v=mobile-art-contain-20261113-final">
   <link rel="stylesheet" href="runtime/world_map_presentation.css?v=luna-first-pass-1">
@@ -23,6 +23,7 @@
 <link rel="stylesheet" href="../devtest/runtime/ui_stabilization_20261104.css?v=wo49-shared-room">
 <link rel="stylesheet" href="../devtest/runtime/nessa_pet_shop.css?v=1">
   <link rel="stylesheet" href="../devtest/runtime/scenario_results_wo52.css?v=wo59">
+  <link rel="stylesheet" href="../devtest/runtime/cloud-login.css?v=wo62">
 </head>
 <body>
   <main class="terminal-shell">
@@ -788,7 +789,31 @@ GraphicalUI.dispatch=async function(choice){
 globalThis.Route127RoadLoadRecovery=Object.freeze({restore,skipStalledEvent});
 })();
 </script>
-<script src="../runtime/cloud-save-bootstrap.js?v=wo61-direct" data-route127-client="devtest"></script>
+<template id="route127-cloud-login">
+  <dialog class="cloud-login" aria-labelledby="cloud-login-title">
+    <section class="cloud-login-frame">
+      <h1 id="cloud-login-title" class="cloud-login-brand"><span>Route 127</span></h1>
+      <form id="cloud-auth">
+        <label>Account <input name="login" autocomplete="username" required minlength="3" maxlength="64" autofocus></label>
+        <label>Password <input name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128"></label>
+        <div class="cloud-login-actions">
+          <button type="submit" name="action" value="login">Sign in</button>
+          <button type="submit" name="action" value="register">Register</button>
+        </div>
+      </form>
+      <div class="cloud-login-feedback"></div>
+    </section>
+  </dialog>
+  <aside class="cloud-controls" aria-label="Cloud account" hidden>
+    <div id="cloud-feedback">
+      <span id="cloud-status" role="status">Checking session…</span>
+      <button type="button" id="cloud-retry" hidden>Retry save</button>
+      <button type="button" id="cloud-server" hidden>Restore saved version</button>
+      <button type="button" id="cloud-out" hidden>Sign out</button>
+    </div>
+  </aside>
+</template>
+<script src="../runtime/cloud-save-bootstrap.js?v=wo62" data-route127-client="devtest"></script>
 </body>
 </html>
 

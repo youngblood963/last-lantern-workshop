@@ -3,6 +3,8 @@
  'use strict';
  if(new URLSearchParams(location.search).get('offline')==='1')return;
  const apiPrefix=document.currentScript?.dataset.apiPrefix==='/route127/devtest/api/'?'/route127/devtest/api/':'/api/';
+ const template=document.getElementById('route127-cloud-login');
+ const loginTemplate=template?.tagName==='TEMPLATE'?template:null;
  const storage=localStorage, KEY='r127-dev-pending:';
  let account=null, character=null, revision=0, ready=false, busy=false, blocked=false;
  let last='',timer=null,creating=false,loading=false,started=false,authEpoch=0;
@@ -32,13 +34,14 @@
   try{const s=journals(saveSnapshot(),player.characterId);
    storage.setItem(KEY+account+':creation',JSON.stringify(s));
    restore(await api('character',{snapshot:s}));
-   storage.removeItem(KEY+account+':creation');el('cloud-link').hidden=true;
+   storage.removeItem(KEY+account+':creation');if(!loginTemplate)el('cloud-link').hidden=true;
   }catch(e){ready=false;blocked=true;status('Character creation not confirmed: '+e.message+' Sign in again to recover; your draft is retained.');}
   finally{creating=false;busy=false;}
  }
- const bar=document.createElement('section');
- bar.id='cloud-dev';bar.style.cssText='padding:10px;border:1px solid #cf9a55;color:#eee;background:#181818';
- bar.innerHTML=`<strong>ROUTE 127 R13 — ONLINE DEVELOPMENT</strong>
+ if(!loginTemplate){
+  const bar=document.createElement('section');
+  bar.id='cloud-dev';bar.style.cssText='padding:10px;border:1px solid #cf9a55;color:#eee;background:#181818';
+  bar.innerHTML=`<strong>ROUTE 127 R13 — ONLINE DEVELOPMENT</strong>
  <p>One account, one cloud character. Gameplay is not server-authoritative. Offline QA: open this page with ?offline=1.</p>
  <form id="cloud-auth"><label>Account <input name="login" autocomplete="username" required minlength="3" maxlength="64"></label>
  <label>Password <input name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128"></label>
@@ -50,8 +53,26 @@
  <button id="cloud-server" hidden>Use cloud version; retain local recovery copy</button>
  <button id="cloud-out" hidden>Sign out</button>
  <p id="cloud-status" role="status">Checking session…</p>`;
- document.body.prepend(bar);
+  document.body.prepend(bar);
+ }else document.body.append(loginTemplate.content.cloneNode(true));
  const el=id=>document.getElementById(id),status=t=>{el('cloud-status').textContent=t;};
+ const loginDialog=loginTemplate&&document.querySelector('.cloud-login');
+ const dock=loginTemplate&&document.querySelector('.cloud-controls');
+ if(loginDialog)loginDialog.addEventListener('cancel',event=>event.preventDefault());
+ function showLogin(show){
+  if(!loginDialog)return;
+  const feedback=el('cloud-feedback');
+  if(show){
+   loginDialog.querySelector('.cloud-login-feedback').append(feedback);
+   dock.hidden=true;
+   if(!loginDialog.open)loginDialog.showModal();
+  }else{
+   dock.append(feedback);
+   if(loginDialog.open)loginDialog.close();
+   dock.hidden=false;
+  }
+ }
+ showLogin(true);
  async function api(path,data){
   const r=await fetch(apiPrefix+path,{method:data?'POST':'GET',credentials:'same-origin',
    headers:data?{'Content-Type':'application/json'}:{},body:data?JSON.stringify(data):undefined,
@@ -95,7 +116,8 @@
   activeSaveSlot=0;last=JSON.stringify({...capture(),savedAt:''});blocked=false;ready=true;
   storage.setItem(KEY+account+':base',String(revision));
   el('cloud-server').hidden=true;el('cloud-retry').hidden=true;
-  status('Cloud character loaded. Automatic development backups enabled. Revision '+revision+'.');
+  showLogin(false);
+  status(loginTemplate?'Cloud character loaded.':'Cloud character loaded. Automatic development backups enabled. Revision '+revision+'.');
  }
  async function flush(){
   if(!ready||busy||blocked||!character)return;
@@ -110,13 +132,18 @@
    const r=await api('save',pending);revision=r.revision;
    last=JSON.stringify({...pending.snapshot,savedAt:''});storage.removeItem(pendingKey());storage.setItem(KEY+account+':base',String(revision));
    if(JSON.stringify({...capture(),savedAt:''})===last)storage.removeItem(latestKey());else schedule();
-   el('cloud-retry').hidden=true;status('Cloud backup saved. Revision '+revision+'.');
+   el('cloud-retry').hidden=true;status(loginTemplate?'Cloud saved ✓':'Cloud backup saved. Revision '+revision+'.');
   }catch(e){
-   if(e.status===409){el('cloud-server').hidden=false;blocked=true;ready=false;status('Cloud save conflict. Local progress retained. Export or keep this browser’s local save, then load cloud to continue.');}
+   if(e.status===409){el('cloud-server').hidden=false;blocked=true;ready=false;status(loginTemplate?'Newer cloud save found. Progress kept on this device.':'Cloud save conflict. Local progress retained. Export or keep this browser’s local save, then load cloud to continue.');}
    else if(e.status===403){el('cloud-auth').hidden=false;blocked=true;ready=false;status('Signed-in account changed. Local progress retained; sign in to the correct account and load cloud.');}
    else if(e.status===401){ready=false;el('cloud-auth').hidden=false;status('Session expired. Local progress and pending backup retained; sign in again.');}
-   else status('Cloud unavailable: '+e.message+' Local saves retained; retry will use the same request ID.');
-   el('cloud-retry').hidden=false;
+   else status(loginTemplate?'Cloud save unavailable. Progress kept on this device.':'Cloud unavailable: '+e.message+' Local saves retained; retry will use the same request ID.');
+   if(loginTemplate&&[401,403].includes(e.status)){
+    el('cloud-server').hidden=true;
+    el('cloud-out').hidden=true;
+    showLogin(true);
+   }
+   el('cloud-retry').hidden=!!loginTemplate&&[401,403,409].includes(e.status);
   }finally{busy=false;}
  }
  function schedule(){clearTimeout(timer);timer=setTimeout(flush,1200);}
@@ -140,30 +167,63 @@
     storage.removeItem(pendingKey());storage.removeItem(latestKey());
    }
    restore(await api('save'));storage.setItem(KEY+account+':base',String(revision));
-  }catch(e){blocked=true;el('cloud-server').hidden=false;if(e.status===401)el('cloud-auth').hidden=false;status('Recovery paused: '+e.message+'. Local recovery retained; no cloud progress was replaced.');}
+  }catch(e){
+   blocked=true;
+   el('cloud-server').hidden=e.status===401&&!!loginTemplate;
+   if(e.status===401){
+    el('cloud-auth').hidden=false;
+    if(loginTemplate)el('cloud-out').hidden=true;
+    showLogin(true);
+   }
+   status('Recovery paused: '+e.message+'. Local recovery retained; no cloud progress was replaced.');
+  }
   finally{busy=false;loading=false;}
  }
  async function signedIn(b){
   account=b.accountId;character=b.character;ready=false;blocked=false;started=false;
   el('cloud-auth').hidden=true;el('cloud-out').hidden=false;
+  if(loginTemplate){
+   el('cloud-server').hidden=true;el('cloud-retry').hidden=true;
+   status(character?'Loading your character…':'Starting character creation…');
+   if(character)await resume();
+   else await startCharacter();
+   return;
+  }
   el('cloud-link').hidden=!!character;el('cloud-resume').hidden=!character;
   if(character)await resume();
   else status('Signed in. Create your one persistent character. Existing offline slots are preserved.');
  }
+ let signingIn=false;
  el('cloud-auth').addEventListener('submit',async e=>{
-  e.preventDefault();if(busy||loading){status('Wait for the current cloud operation to finish.');return;}ready=false;const attempt=++authEpoch;
+  e.preventDefault();if((loginTemplate&&signingIn)||busy||loading){status('Wait for the current cloud operation to finish.');return;}ready=false;const attempt=++authEpoch;
   const form=e.currentTarget,action=e.submitter?.value||'login';
+  signingIn=true;
+  if(loginTemplate)for(const button of form.querySelectorAll('button'))button.disabled=true;
   try{const b=await api(action,{login:form.elements.login.value,password:form.elements.password.value});form.elements.password.value='';if(attempt===authEpoch)await signedIn(b);}
   catch(err){status(err.message);}
+  finally{
+   signingIn=false;
+   if(loginTemplate)for(const button of form.querySelectorAll('button'))button.disabled=false;
+  }
  });
- el('cloud-link').addEventListener('click',async()=>{
+ async function startCharacter(){
   if(busy||character||!account)return;
   const draft=storage.getItem(KEY+account+':creation');
-  if(draft){busy=true;try{restore(await api('character',{snapshot:JSON.parse(draft)}));storage.removeItem(KEY+account+':creation');el('cloud-link').hidden=true;}catch(e){status('Creation recovery failed: '+e.message+'. Sign in again to check for a committed character.');}finally{busy=false;}return;}
+  if(draft){
+   busy=true;
+   try{restore(await api('character',{snapshot:JSON.parse(draft)}));storage.removeItem(KEY+account+':creation');if(!loginTemplate)el('cloud-link').hidden=true;}
+   catch(e){status('Creation recovery failed: '+e.message+'. Sign in again to check for a committed character.');}
+   finally{busy=false;}
+   return;
+  }
+  showLogin(false);
   started=true;resetPlayer();activeSaveSlot=0;screen.innerHTML='';stage='wake';
-  await intro();status('Choose your handle in the game. Your character will be saved automatically.');
- });
- el('cloud-resume').addEventListener('click',resume);
+  await intro();status(loginTemplate?'Choose your traveler name to create your cloud character.':'Choose your handle in the game. Your character will be saved automatically.');
+ }
+ if(!loginTemplate){
+  el('cloud-link').addEventListener('click',startCharacter);
+  el('cloud-resume').addEventListener('click',resume);
+ }
  el('cloud-server').addEventListener('click',async()=>{
   if(busy||!account)return;
   if(!confirm('Resume the server version? Unsynced local progress will be kept as a recovery copy, not merged.'))return;
@@ -178,19 +238,30 @@
  });
  el('cloud-retry').addEventListener('click',()=>{if(!blocked){ready=true;return flush();}});
  el('cloud-out').addEventListener('click',async()=>{
-  if(busy)return;await checkpoint();await flush();
-  if(account&&(storage.getItem(pendingKey())||storage.getItem(latestKey()))){status('Sign out paused: unsaved progress retained. Retry saving first.');return;}
+  if(busy||(loginTemplate&&(loading||signingIn)))return;
+  if(!loginTemplate||ready){await checkpoint();await flush();}
+  if(account&&(!loginTemplate||!blocked)&&(storage.getItem(pendingKey())||storage.getItem(latestKey()))){status('Sign out paused: unsaved progress retained. Retry saving first.');return;}
+  if(loginTemplate)busy=true;
   try{await api('logout',{});authEpoch++;ready=false;account=null;character=null;el('cloud-auth').hidden=false;
-   for(const id of ['cloud-out','cloud-link','cloud-resume','cloud-retry','cloud-server'])el(id).hidden=true;
-   status('Signed out. Local progress retained.');
+   for(const id of ['cloud-out','cloud-link','cloud-resume','cloud-retry','cloud-server']){const control=el(id);if(control)control.hidden=true;}
+   showLogin(true);
+   status(loginTemplate?'Signed out.':'Signed out. Local progress retained.');
   }catch(e){status(e.message);}
+  finally{if(loginTemplate)busy=false;}
  });
  for(const name of ['v49Autosave','v49RollingAutosave','saveGame']){
   window[name]=function(){checkpoint();return true;};
  }
  // Covers normal commands that do not call one of the existing autosave helpers.
  setInterval(()=>{if(ready)checkpoint();},5000);
- addEventListener('pagehide',()=>{if(ready){try{storage.setItem(latestKey(),JSON.stringify(capture()));}catch{} }});
+ addEventListener('pagehide',()=>{
+  if(!ready||!account)return;
+  try{
+   const current=capture();
+   if(!loginTemplate||storage.getItem(pendingKey())||JSON.stringify({...current,savedAt:''})!==last)
+    storage.setItem(latestKey(),JSON.stringify(current));
+  }catch{}
+ });
  addEventListener('online',()=>{if(ready&&!blocked)flush();});
  addEventListener('beforeunload',e=>{if(account&&(storage.getItem(pendingKey())||storage.getItem(latestKey()))){e.preventDefault();e.returnValue='';}});
  // Switching to a different local character/slot must never overwrite this account.

@@ -37,7 +37,9 @@ function record(script, phase) {
     return;
   }
   const url = new URL(script.src, baseUrl);
-  assert(url.origin === baseUrl.origin && /^\/route127\/(?:devtest|playtest)\//.test(url.pathname),
+  assert(url.origin === baseUrl.origin &&
+    (/^\/route127\/(?:devtest|playtest)\//.test(url.pathname) ||
+      url.pathname === '/route127/runtime/cloud-save-bootstrap.js'),
     'Unexpected DEVTEST script location: ' + script.src);
   startup.push({ phase, src: script.src, path: url.pathname.slice(1), query: url.search });
 }

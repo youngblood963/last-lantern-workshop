@@ -26,10 +26,10 @@ casinoWagerMenu=function(){
  if(!r||slots(r))return oldMenu.apply(this,arguments);
  outputQueue=outputQueue.then(()=>{
   currentHotkeys={c:'custom wager',b:'back'};
-  numberedChoices={10:'wager 10',50:'wager 50',100:'wager 100',500:'wager 500'};
+  numberedChoices={1:'wager 10',2:'wager 50',3:'wager 100',4:'wager 500'};
   usedHotkeys=new Set(['c','b']);
-  for(const label of ['[10] 10 BOLTS','[50] 50 BOLTS','[100] 100 BOLTS',
-                      '[500] 500 BOLTS','[C] CUSTOM','[B] BACK'])
+  for(const label of ['[1] WAGER 10 BOLTS','[2] WAGER 50 BOLTS','[3] WAGER 100 BOLTS',
+                      '[4] WAGER 500 BOLTS','[C] CUSTOM','[B] BACK'])
    addImmediate(label,'system');
   followOutput();
   GraphicalUI.schedule();

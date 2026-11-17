@@ -48,7 +48,7 @@ const GraphicalUI={
   const encounter=stage==='encounter'&&typeof currentEncounter==='function'&&!!currentEncounter();
   const current=this.choices().find(c=>c.key===choice.key&&c.command===choice.command);
   const command=String(current?.command||choice.command||'').trim().toLowerCase();
-  if(!current){this.sync();return false;}
+  if(!current&&!encounter){this.sync();return false;}
   if(encounter){
    const options=encounterChoices(currentEncounter()).split(/\s{2,}/).filter(Boolean).map(choiceCommand);
    if(!options.includes(command)){this.sync();return false;}

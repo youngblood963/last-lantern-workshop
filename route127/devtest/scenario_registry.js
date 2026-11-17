@@ -152,7 +152,20 @@ const encounters = [
    if(cmd.includes("move")||cmd.includes("leave")){add("You leave the culvert undisturbed.");return true;}return false;
   }},
   {title:"ROACH NEST",exclusive:true,text:"A rusted delivery van rocks on its dead suspension as roaches pour from underneath.",description(){const scenes=["Ordinary large roaches crowd the delivery van, drawn to a torn food carton.","Several unusually large contaminated roaches swarm around leaking containers beneath the van.","An aggressive roach swarm surges from the delivery van across the road."];return scenes[r18RoachVariant()];},choices:"FIGHT SWARM   LURE THEM AWAY   SEARCH VAN   BACK AWAY",combat:{action:"FIGHT SWARM",name:"ROACH SWARM",level:2,hp:20,min:2,max:5,xp:25,bolts:0,r18RoachNest:true,end:"The surviving roaches scatter beneath the van."},resolve(cmd){
-   if(cmd.includes("lure")){if(!hasItem("Energy Bars")){add("You need food to lure the swarm away.","system");return false;}removeItem("Energy Bars");gainXp(Math.max(8,player.level*2));add("You toss the ration away from the road. The roaches follow it into the weeds.");return true;}
+   if(cmd.includes("lure")){
+     // Use one ordinary food item, not exclusively an Energy Bar. Never
+     // consume quest, protected, unique, medicine, or non-food supplies.
+     const foods=['Energy Bars','Canned Meat','Fresh Apple','Fresh Pear','Fresh Berries',
+      'Fresh Carrot','Fresh Potato','Fresh Tomato','Fresh Cabbage','Preserved Vegetables',
+      'Preserved Meat','Wasteland Stew','Roadhouse Hash','Wild Honey'];
+     const food=(player.pack||[]).find(i=>i.qty>0&&i.type==='consumable'&&
+      !i.protected&&!i.questOnly&&!i.unique&&!i.equipped&&foods.includes(i.name));
+     if(!food){add("You don't have any food to lure the roaches away.","system");return false;}
+     if(!removeItem(food.name)){add("That food is no longer available.","system");return false;}
+     gainXp(Math.max(8,player.level*2));
+     add('You toss 1 '+food.name+' away from the road. The roaches follow it toward the wreckage.');
+     return true;
+    }
    if(cmd.includes("search")){if(!addPack("Scrap Metal","material"))return false;if(Math.random()<.3){roadHurt(4);add("A roach bites as you recover a piece of metal from the van.","danger");}else add("You reach the van's cargo and recover Scrap Metal without disturbing the swarm.");gainXp(Math.max(7,player.level*2));return true;}
    if(cmd.includes("back")||cmd.includes("away")){add("You leave the van to the roaches.");return true;}return false;
   }},

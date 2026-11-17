@@ -72,8 +72,29 @@ function r127HideGraphicalEcho(line,text,cls){
  if(/^>\s*(?:\d+|[a-z])\s*$/i.test(String(text).trim()))line.classList.add('r127-graphical-command-echo');
 }
 const r127EchoStyle=document.createElement('style');
-r127EchoStyle.textContent='.full-graphics .line.r127-graphical-command-echo{display:none!important}';
+r127EchoStyle.textContent=[
+ '.full-graphics .gfx-narrative .line.r127-graphical-command-echo{display:none!important}',
+ // Graphical location plates already identify the place; the BBS headings
+ // remain in the DOM and are fully visible when Classic BBS is selected.
+ '.full-graphics .gfx-narrative .line.place{display:none!important}'
+].join('\\n');
 document.head.appendChild(r127EchoStyle);
+ // Both queued typewriter output and instant graphical rows may echo a
+ // numeric/letter command. Filter the visual log only, never game output.
+ // The original line stays intact for Classic BBS and for menu registration.
+ function r127ClassifyGraphicalLines(){
+  if(!screen)return;
+  for(const line of screen.children){
+   if(!line.classList?.contains('line'))continue;
+   const contents=(line.textContent||'').trim();
+   const command=/^>\\s*(?:\\d{1,2}|[a-z])\\s*$/i.test(contents);
+   line.classList.toggle('r127-graphical-command-echo',command);
+  }
+ }
+ const r127NarrativeObserver=new MutationObserver(()=>r127ClassifyGraphicalLines());
+ r127NarrativeObserver.observe(screen,{childList:true,subtree:true,characterData:true});
+ r127ClassifyGraphicalLines();
+
 const wo14Add=add;add=function(text='',cls=''){if(String(cls).includes('place'))GraphicalUI.lastPlace=String(text);const result=wo14Add(text,cls);if(GraphicalUI.active()&&String(cls).split(/\s+/).includes('bright')&&/^>\s*(?:\d+|[a-z])\s*$/i.test(String(text).trim())){outputQueue=outputQueue.then(()=>{const line=screen.lastElementChild;if(line?.classList.contains('line'))line.classList.add('r127-graphical-command-echo');});}GraphicalUI.schedule();return result;};
 const wo14Immediate=addImmediate;addImmediate=function(text='',cls=''){const result=wo14Immediate(text,choiceOutputClass(text,cls));r127HideGraphicalEcho(result,text,cls);GraphicalUI.schedule();return result;};
 const wo14Hud=updateHud;updateHud=function(...args){const result=wo14Hud(...args);GraphicalUI.sync();return result;};

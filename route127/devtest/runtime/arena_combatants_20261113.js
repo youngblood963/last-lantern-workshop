@@ -46,6 +46,11 @@
  css.textContent=`
  .gfx-art.r127-arena-stage{position:relative;isolation:isolate;overflow:hidden}
  .gfx-art.r127-arena-stage>.gfx-image{object-fit:contain!important;object-position:center!important}
+ /* The Ring is a painted daytime scene; darken its illustration at night
+    without affecting interactive fighters, HP bars or other arena imagery. */
+ .gfx-art.r127-arena-stage.r127-ring-night>.gfx-image{
+  filter:brightness(.55) saturate(.72) contrast(1.06)!important
+ }
  .gfx-art.r127-arena-stage>.r127-arena-fighter{position:absolute;inset:0;z-index:7;display:flex;align-items:flex-end;justify-content:center;pointer-events:none;box-sizing:border-box;padding:2% 2% 4%}
  .gfx-art.r127-arena-stage .r127-arena-target{pointer-events:auto;display:flex;align-items:center;justify-content:flex-end;flex-direction:column;gap:4px;cursor:pointer;border:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;margin:0!important;width:min(72%,560px);height:98%;min-height:0!important;color:#fff}
  .gfx-art.r127-arena-stage .r127-arena-target img{display:block;width:100%;height:calc(100% - 42px);min-height:0;object-fit:contain;object-position:center bottom;filter:drop-shadow(3px 7px 7px #000c)}
@@ -68,6 +73,9 @@
    const e=this.element;if(!e?.figure)return result;
    const state=current(),shown=!!state&&!e.frame.hidden&&this.preference()==='graphics';
    e.figure.classList.toggle('r127-arena-stage',shown);
+   const period=typeof Route127RegionalSky?.phase==='function'
+    ?Route127RegionalSky.phase(player?.flags?.worldHour):'day';
+   e.figure.classList.toggle('r127-ring-night',shown&&state.key==='ring'&&period==='night');
    let layer=e.figure.querySelector(':scope > .r127-arena-fighter');
    const fighting=shown&&!!state.combat;
    if(!fighting){

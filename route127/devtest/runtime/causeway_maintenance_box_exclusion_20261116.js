@@ -10,7 +10,7 @@
    ||typeof r10Candidates!=='function'
    ||typeof r10Pool!=='function'
    ||typeof route127CurrentRegion!=='function')return;
- const excluded=new Set(['MAINTENANCE BOX','THE FIGHTING RING','THE FORGOTTEN ARENA','TOMMY BRIGGS — POSTAL ENCOUNTER']);
+ const excluded=new Set(['MAINTENANCE BOX','THE FIGHTING RING','THE FORGOTTEN ARENA','TOMMY BRIGGS — POSTAL ENCOUNTER','THE FENCE ARTIST']);
  const previous=r10Candidates;
  r10Candidates=function(legacyPool,kind){
   const candidates=previous.apply(this,arguments);

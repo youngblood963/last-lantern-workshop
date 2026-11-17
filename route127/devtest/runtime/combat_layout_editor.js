@@ -14,6 +14,7 @@
  // Owner confirmed these Seaport-eligible scenes are complete in Combat Visual Testing.
  const ownerApprovedScenes=new Set(['THE FORGOTTEN ARENA','THE FIGHTING RING']);
  const ownerApproved=row=>ownerApprovedScenes.has(String(row.title||'').toUpperCase())||ownerApprovedScenes.has(String(row.name||'').toUpperCase());
+ const industrialApproved=row=>['THE BLACK SNOW','CEMETERY OF TIRES'].includes(String(row.title||'').toUpperCase());
  const liberationApproved=row=>row.id==='seaport:liberation';
  const redApproved=row=>row.id==='scripted:r18redfight';
  const factoryBossApproved=row=>/^factory:boss:[0-3]$/.test(row.id);
@@ -105,6 +106,14 @@
     localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
     localStorage.setItem(lastCallBillySeed,'1');
    }
+   // Owner confirms Black Snow and the Cemetery of Tires (Tire Maze) are complete.
+   // Seed this once, retaining the ability to undo the review manually.
+   const industrialSeed=reviewKey+'-industrial-black-snow-tire-maze-approved-20261116';
+   if(!localStorage.getItem(industrialSeed)){
+    for(const row of L.rows.values())if(industrialApproved(row))reviews.add(row.id);
+    localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
+    localStorage.setItem(industrialSeed,'1');
+   }
    return reviews;
   }catch{return new Set();}
  }
@@ -114,6 +123,7 @@
   // No separate combat sprites are required for this fully illustrated scene.
   if(row.title==='THE MUD CANNON'&&reviews.has(row.id))return 'green';
   if(ownerApproved(row))return reviews.has(row.id)?'green':'yellow';
+  if(industrialApproved(row))return reviews.has(row.id)?'green':'yellow';
   if(liberationApproved(row))return reviews.has(row.id)?'green':'yellow';
   if(redApproved(row))return reviews.has(row.id)?'green':'yellow';
   if(factoryBossApproved(row))return reviews.has(row.id)?'green':'yellow';

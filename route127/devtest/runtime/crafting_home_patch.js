@@ -19,6 +19,7 @@ lanternAppendChoices=function(labels){
  if(stage==='house'&&labels.length===1&&labels[0]==='EXPLORE ROADS')return;
  return appendChoices.apply(this,arguments);
 };
+const canRestAtHouse=()=>player.flags.houseQuest!=='active';
 const solaceExit='↓ S — SOLACE';
 showHouseChoices=function(){
  ensureHousing();
@@ -29,6 +30,7 @@ showHouseChoices=function(){
   if(quest==='cleared')choices.push('LIFT FLOORBOARD');
   choices.push('CHECK PACK');
  }
+ if(canRestAtHouse())choices.push('REST');
  r5DirectChoices([...choices,solaceExit]);
  outputQueue=outputQueue.then(()=>{if(stage==='house')delete currentHotkeys.b;});
 };
@@ -52,6 +54,19 @@ const oldCore=handleCommandCore;
 handleCommandCore=async function(raw){
  const cmd=String(r5Mapped(raw)||'').trim().toLowerCase();
  if(!busy&&stage==='house'&&[solaceExit.toLowerCase(),'head to solace'].includes(cmd))return oldCore.call(this,'head south — solace');
+ if(!busy&&stage==='house'&&cmd==='rest'){
+  if(!canRestAtHouse()){
+   add('The house is occupied. You cannot rest here yet.','system');
+   return showHouseChoices();
+  }
+  // The inn handler uses this location to select its shared rest branch.
+  const location=mercyLocation;
+  mercyLocation='jenRoom';
+  try{handleInnRoom('rest');}
+  finally{mercyLocation=location;}
+  v49Autosave();
+  return showHouseChoices();
+ }
  if(!busy&&stage==='house'&&player.flags.houseOwned&&cmd==='crafting'){
   return r11CraftMenu('home');
  }

@@ -681,11 +681,11 @@ globalThis.Route127PublishedCombatLayouts={
     },
     "early:9/approach/desktop": {
       "background:the_traveler_vale.png": {
-        "x": 28.94345154466278,
-        "y": 53.57142965269199,
+        "x": 50,
+        "y": 57,
         "width": 100,
         "height": 100,
-        "scale": 1,
+        "scale": 0.4,
         "z": 1,
         "flip": false
       }

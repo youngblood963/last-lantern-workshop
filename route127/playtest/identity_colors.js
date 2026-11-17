@@ -20,7 +20,8 @@ const RouteIdentity={
  ranges(text){const ranges=[],upper=text.toUpperCase();
   for(const p of this.people())for(const name of new Set([p.name,p.key])){
    const re=new RegExp('\\b'+this.escape(name)+'\\b','gi');let m;
-   while((m=re.exec(text))){if(name!==p.name&&!this.personContext(text,m.index,m.index+m[0].length)&&!(p.kind==='npc'&&p.key!=='Forge'&&m[0][0]===m[0][0].toUpperCase()))continue;ranges.push({start:m.index,end:m.index+m[0].length,kind:p.kind});}
+   while((m=re.exec(text))){// 'Red' is also a color/direction in encounters; only highlight the short NPC handle in person context.
+   if(name!==p.name&&!this.personContext(text,m.index,m.index+m[0].length)&&!(p.kind==='npc'&&p.key!=='Forge'&&p.key!=='Red'&&m[0][0]===m[0][0].toUpperCase()))continue;ranges.push({start:m.index,end:m.index+m[0].length,kind:p.kind});}
   }
   if(!this.gearIndex){this.gearIndex=new Map();for(const [raw,g]of [...Object.entries(GEAR),...['Wild Honey','Old World Pocket Compass','Pre-War Silver Coin'].map(n=>[n,{rarity:'uncommon'}])]){const name=PlaythroughRepairs.cleanLabel(raw);const word=name.toUpperCase().match(/\w+/)?.[0];if(!word)continue;const list=this.gearIndex.get(word)||[];list.push({name:name.toUpperCase(),kind:g.rarity});this.gearIndex.set(word,list);}for(const list of this.gearIndex.values())list.sort((a,b)=>b.name.length-a.name.length);}
   for(const m of upper.matchAll(/\b\w+/g)){const item=this.gearIndex.get(m[0])?.find(g=>upper.startsWith(g.name,m.index)&&!/[A-Z0-9]/.test(upper[m.index+g.name.length]||''));if(item)ranges.push({start:m.index,end:m.index+item.name.length,kind:item.kind});}

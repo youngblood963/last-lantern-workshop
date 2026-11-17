@@ -3212,7 +3212,7 @@ function r10Geography(){
  // This changes only fresh random draws; pending/saved encounter IDs are kept.
  if(g?.currentEdgeId&&typeof route127DrawnBackground==='function'){
   const drawn=route127DrawnBackground(g);
-  if(drawn==='CAUSEWAY'||spec.regions.includes(drawn))return drawn;
+  if(drawn==='CAUSEWAY'||RoadScenarioRegistry.regionalSpec.regions.includes(drawn))return drawn;
  }
  if(e?.primaryRegion)return e.primaryRegion;
  // Old pre-Lantern saves are projected by their existing main-road context only.

@@ -60,6 +60,28 @@ if(require.main===module)(async()=>{
   assert.equal(persisted.run('lanternState().stepIndex'),4);
   assert.equal(persisted.run('player.turns'),19);
 
+  const central=await scene();
+  central.run(`
+    Object.assign(lanternState(),{nodeId:'solace',currentEdgeId:'solace--works-junction',
+      stepIndex:5,direction:1,pending:false,encounterIndex:null,solaceAdmitted:true});
+    lanternProject();
+    lanternRoadMenu();
+    player.flags.steveNews={seen:{casino5:true},queue:[]};
+    Math.random=()=>.01;
+  `);
+  await central.flush();
+  await central.run('handleCommand("continue road")');
+  await central.flush();
+  assert.equal(central.run('r10Geography()'),'CENTRAL');
+  assert.equal(central.run('lanternState().stepIndex'),6);
+  assert.equal(central.run('player.turns'),18);
+  assert.equal(central.run('lanternState().pending'),true);
+  assert.equal(central.run('stage'),'encounter');
+  central.run("v49Autosave();loadGame('auto')");
+  await central.flush();
+  assert.equal(central.run('stage'),'encounter');
+  assert.equal(central.run('player.turns'),18);
+
   const stalled=await scene({food:true});
   stalled.run(`
     stage='lanternRoad';

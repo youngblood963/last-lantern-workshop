@@ -9,11 +9,59 @@
  let account=null, character=null, revision=0, ready=false, busy=false, blocked=false;
  let last='',timer=null,creating=false,loading=false,started=false,authEpoch=0;
  const latestKey=()=>KEY+account+':latest';
+ const normalize=snapshot=>JSON.stringify({...snapshot,savedAt:''});
+ let writer=loginTemplate&&crypto.randomUUID();
+ const deviceKey='r127-dev-recovery-session';
+ const cacheKey=(id,characterId)=>KEY+id+':device:'+characterId;
+ const transient=error=>error.offline===true||error.status>=500;
+ function read(key){return JSON.parse(storage.getItem(key)||'null');}
+ function clearSame(key,raw){if(storage.getItem(key)===raw)storage.removeItem(key);}
+ function latest(raw=storage.getItem(latestKey())){
+  const entry=JSON.parse(raw||'null');
+  if(!entry||entry.snapshot)return entry;
+  // Existing journals stored the base revision separately.
+  const base=storage.getItem(KEY+account+':base');
+  return {snapshot:entry,revision:base===null?null:Number(base)};
+ }
+ function writeLatest(snapshot){
+  if(!loginTemplate){storage.setItem(latestKey(),JSON.stringify(snapshot));return;}
+  const previous=latest();
+  if(previous?.writer===writer&&previous.revision===revision&&normalize(previous.snapshot)===normalize(snapshot))return;
+  if(previous&&previous.writer!==writer&&normalize(previous.snapshot)!==normalize(snapshot))
+   storage.setItem(KEY+account+':conflict:'+crypto.randomUUID(),JSON.stringify(previous));
+  storage.setItem(latestKey(),JSON.stringify({snapshot,revision,writer}));
+ }
+ function remember(snapshot,savedRevision=revision){
+  if(!loginTemplate)return;
+  try{
+   const key=cacheKey(account,character.id);
+   if((read(key)?.revision??-1)<=savedRevision)
+    storage.setItem(key,JSON.stringify({snapshot,character,revision:savedRevision}));
+   storage.setItem(deviceKey,JSON.stringify({account,characterId:character.id}));
+  }catch{status('Cloud saved. This device could not keep a recovery copy.');}
+ }
+ const slotCommand=cmd=>/^(?:load(?:\s|$)|autosave$|save(?:\s|$)|v$|new(?:\s|$)|skip intro$)/i.test(cmd);
+ if(loginTemplate){
+  document.body.classList.add('r127-cloud-game');
+  const print=add;
+  add=function(text,...args){
+   if(typeof text==='string'&&/^(?:INTERFACE ONLINE|\(S\) STATUS)/.test(text))
+    text=text.replace(/(?: \/)? +\(V\) SAVE$/,'');
+   return print.call(this,text,...args);
+  };
+  const choices=GraphicalUI.choices;
+  GraphicalUI.choices=function(...args){
+   return choices.apply(this,args).filter(choice=>!slotCommand(choice.command));
+  };
+ }
  const originalCommand=handleCommand;
  handleCommand=async function(raw){
   if(!account||loading||creating||blocked||(!character&&!started)||(!ready&&character)){status('Sign in and load your cloud character before playing.');return;}
   let cmd=String(raw).trim().toLowerCase();
-  cmd=numberedChoices[cmd]||cmd;
+  cmd=String(numberedChoices[cmd]||currentHotkeys[cmd]||cmd).toLowerCase();
+  if(loginTemplate&&slotCommand(cmd)){
+   status('This character saves automatically.');return;
+  }
   if(/^(load|new|skip|testing|test|save|v)(?:$| )/.test(cmd)||(stage==='title'&&/^continue(?:$| )/.test(cmd))||['interfaceSave','v49TitleConfirm'].includes(stage)){
    if(/^(save|v)(?:$| )/.test(cmd))await flush();
    else status('Online play uses one cloud character. Use ?offline=1 for legacy QA saves.');
@@ -26,7 +74,11 @@
   if(!account||loading||blocked)return;
   try{
    if(!character){if(player.handle&&stage!=='confirmHandle'&&!creating)await createCharacter();return;}
-   if(ready){storage.setItem(latestKey(),JSON.stringify(capture()));schedule();}
+   if(ready){
+    const snapshot=capture();
+    if(!loginTemplate||normalize(snapshot)!==last)writeLatest(snapshot);
+    if(!loginTemplate||storage.getItem(pendingKey())||normalize(snapshot)!==last)schedule();
+   }
   }catch(e){status('Progress could not be secured locally: '+e.message);}
  }
  async function createCharacter(){
@@ -64,7 +116,9 @@
  const el=id=>controls?.[id]||document.getElementById(id);
  let noticeTimer;
  function status(message, duration=6500){
-  el('cloud-status').textContent=message;
+  const current=el('cloud-status');
+  if(notice&&duration===6500&&current.textContent===message)return;
+  current.textContent=message;
   if(!notice||loginDialog.open)return;
   clearTimeout(noticeTimer);
   notice.textContent=duration?message:'';
@@ -107,11 +161,23 @@
   }
  }
  showLogin(true);
+ if(loginTemplate)titleScreen=function(){
+  showLogin(true);
+  if(!account)return;
+  status('Restoring your character…');
+  if(character)void resume();
+  else void startCharacter();
+ };
  async function api(path,data){
-  const r=await fetch(apiPrefix+path,{method:data?'POST':'GET',credentials:'same-origin',
-   headers:data?{'Content-Type':'application/json'}:{},body:data?JSON.stringify(data):undefined,
-   signal:AbortSignal.timeout(15000)});
-  const b=await r.json();if(!r.ok)throw Object.assign(Error(b.error||'Request failed'),{status:r.status});return b;
+  let r;
+  try{
+   r=await fetch(apiPrefix+path,{method:data?'POST':'GET',credentials:'same-origin',
+    headers:data?{'Content-Type':'application/json'}:{},body:data?JSON.stringify(data):undefined,
+    signal:AbortSignal.timeout(15000)});
+  }catch(error){throw Object.assign(error,{offline:true});}
+  const b=await r.json().catch(()=>null);
+  if(!r.ok||!b)throw Object.assign(Error(b?.error||'Cloud request failed'),{status:r.status});
+  return b;
  }
  function pendingKey(){return KEY+account;}
  function journals(s,id){
@@ -130,7 +196,7 @@
   // Preserve the complete local bank period record for faithful DEV backup recovery.
   return journals(s,character.id);
  }
- function restore(b){
+ function restore(b,{device=false,baseline}={}){
   ready=false;character=b.character;revision=b.revision;
   const s=b.snapshot;
   if(!s||s.version!==38||!s.player||s.player.characterId!==character.id||!s.player.flags||typeof s.stage!=='string'||!Number.isSafeInteger(revision)||revision<0)throw Error('Invalid cloud character. Local progress retained.');
@@ -147,25 +213,49 @@
   const priorReader=getSaveData;
   getSaveData=function(slot){return slot==='auto'?{...s,manualSlot:0}:priorReader(slot);};
   try{localLoad('auto');}finally{getSaveData=priorReader;}
-  activeSaveSlot=0;last=JSON.stringify({...capture(),savedAt:''});blocked=false;ready=true;
-  storage.setItem(KEY+account+':base',String(revision));
+  activeSaveSlot=0;last=normalize(device?baseline:capture());blocked=false;ready=true;
+  if(!device){
+   storage.setItem(KEY+account+':base',String(revision));
+   remember(s);
+  }
   el('cloud-server').hidden=true;el('cloud-retry').hidden=true;
   showLogin(false);
-  status(loginTemplate?'Cloud character loaded.':'Cloud character loaded. Automatic development backups enabled. Revision '+revision+'.',0);
+  status(device?'Cloud unavailable. Playing from this device’s recovery copy.':
+   loginTemplate?'Cloud character loaded.':'Cloud character loaded. Automatic development backups enabled. Revision '+revision+'.',device?6500:0);
  }
  async function flush(){
   if(!ready||busy||blocked||!character)return;
   busy=true;
   try{
-   let pending=JSON.parse(storage.getItem(pendingKey())||'null');
-   const s=capture();storage.setItem(latestKey(),JSON.stringify(s));
+   let pendingRaw=storage.getItem(pendingKey());
+   let pending=JSON.parse(pendingRaw||'null');
+   const s=capture();
+   if(!loginTemplate||normalize(s)!==last)writeLatest(s);
+   const latestRaw=storage.getItem(latestKey());
    // savedAt changes every capture; compare game data without the wall-clock stamp.
    const normalized=JSON.stringify({...s,savedAt:''});
-   if(!pending&&normalized===last){storage.removeItem(latestKey());return;}
-   if(!pending){pending={revision,requestId:crypto.randomUUID(),snapshot:s};storage.setItem(pendingKey(),JSON.stringify(pending));}
-   const r=await api('save',pending);revision=r.revision;
-   last=JSON.stringify({...pending.snapshot,savedAt:''});storage.removeItem(pendingKey());storage.setItem(KEY+account+':base',String(revision));
-   if(JSON.stringify({...capture(),savedAt:''})===last)storage.removeItem(latestKey());else schedule();
+   if(!pending&&normalized===last){if(!loginTemplate)clearSame(latestKey(),latestRaw);return;}
+   if(!pending){
+    pending={revision,requestId:crypto.randomUUID(),snapshot:s,...(writer?{writer}:{})};
+    pendingRaw=JSON.stringify(pending);storage.setItem(pendingKey(),pendingRaw);
+   }
+   if(loginTemplate&&(pending.snapshot?.player?.characterId!==character.id||
+    (pending.revision!==revision||pending.writer&&pending.writer!==writer)&&normalize(pending.snapshot)!==normalized))
+    throw Object.assign(Error('A different recovery copy is pending'),{status:409});
+   const {writer:pendingWriter,...request}=pending;
+   const r=await api('save',request);revision=r.revision;
+   last=normalize(pending.snapshot);
+   clearSame(pendingKey(),pendingRaw);
+   storage.setItem(KEY+account+':base',String(revision));
+   remember(pending.snapshot);
+   const current=capture();
+   if(loginTemplate){
+    const entry=latest(latestRaw);
+    if(entry&&normalize(entry.snapshot)===last)clearSame(latestKey(),latestRaw);
+    // A newer checkpoint may have arrived while the request was in flight.
+    if(normalize(current)!==last&&latest()?.writer===writer){writeLatest(current);schedule();}
+   }else if(normalize(current)===last)clearSame(latestKey(),latestRaw);
+   else schedule();
    el('cloud-retry').hidden=true;status(loginTemplate?'Cloud Saved ✓':'Cloud backup saved. Revision '+revision+'.',2800);
   }catch(e){
    if(e.status===409){el('cloud-server').hidden=false;blocked=true;ready=false;status(loginTemplate?'Newer cloud save found. Recovery is in Options → Account.':'Cloud save conflict. Local progress retained. Export or keep this browser’s local save, then load cloud to continue.');}
@@ -173,6 +263,7 @@
    else if(e.status===401){ready=false;el('cloud-auth').hidden=false;status('Session expired. Local progress and pending backup retained; sign in again.');}
    else status(loginTemplate?'Cloud save unavailable. Retry in Options → Account.':'Cloud unavailable: '+e.message+' Local saves retained; retry will use the same request ID.');
    if(loginTemplate&&[401,403].includes(e.status)){
+    storage.removeItem(deviceKey);
     el('cloud-server').hidden=true;
     el('cloud-out').hidden=true;
     showLogin(true);
@@ -181,9 +272,73 @@
   }finally{busy=false;}
  }
  function schedule(){clearTimeout(timer);timer=setTimeout(flush,1200);}
+ async function resumeDeviceJournal(){
+  const pendingRaw=storage.getItem(pendingKey()),latestRaw=storage.getItem(latestKey());
+  const pending=JSON.parse(pendingRaw||'null'),entry=latest(latestRaw);
+  const matches=snapshot=>snapshot?.player?.characterId===character.id;
+  const conflict=()=>Object.assign(Error('Newer cloud progress exists. Local progress was kept.'),{status:409});
+  if((pending&&!matches(pending.snapshot))||(entry&&!matches(entry.snapshot)))throw conflict();
+  let cloud=await api('save');
+  if(cloud.character?.id!==character.id)throw conflict();
+  if(pending){
+   // An exact retry may acknowledge a write whose response was lost.
+   const {writer:pendingWriter,...request}=pending;
+   const result=await api('save',request);
+   remember(pending.snapshot,result.revision);
+   clearSame(pendingKey(),pendingRaw);
+   if(entry&&normalize(entry.snapshot)===normalize(pending.snapshot))clearSame(latestKey(),latestRaw);
+   else if(entry&&entry.revision===pending.revision&&entry.writer===pendingWriter&&storage.getItem(latestKey())===latestRaw){
+    storage.setItem(latestKey(),JSON.stringify({...entry,revision:result.revision}));
+   }
+   cloud=await api('save');
+  }
+  const remainingRaw=storage.getItem(latestKey()),remaining=latest(remainingRaw);
+  if(remaining){
+   if(!matches(remaining.snapshot)||remaining.revision!==cloud.revision)throw conflict();
+   if(normalize(remaining.snapshot)!==normalize(cloud.snapshot)){
+    const request={revision:cloud.revision,requestId:crypto.randomUUID(),snapshot:remaining.snapshot};
+    const raw=JSON.stringify({...request,writer:remaining.writer});
+    if(storage.getItem(pendingKey()))throw conflict();
+    storage.setItem(pendingKey(),raw);
+    const result=await api('save',request);
+    remember(remaining.snapshot,result.revision);
+    clearSame(pendingKey(),raw);
+    cloud=await api('save');
+   }
+   clearSame(latestKey(),remainingRaw);
+  }
+  restore(cloud);
+ }
+ function offerDeviceRecovery(){
+  if(!loginTemplate)return false;
+  try{
+   const marker=read(deviceKey);
+   if(!marker||account&&account!==marker.account||character&&character.id!==marker.characterId)return false;
+   const cache=read(cacheKey(marker.account,marker.characterId));
+   if(cache?.snapshot?.player?.characterId!==marker.characterId)return false;
+   el('cloud-local').hidden=false;
+   status('Cloud unavailable. You can continue from the copy on this device.');
+   return true;
+  }catch{return false;}
+ }
+ if(loginTemplate)el('cloud-local').addEventListener('click',()=>{
+  if(busy||loading||signingIn)return;
+  try{
+   const marker=read(deviceKey);
+   if(!marker||account&&account!==marker.account||character&&character.id!==marker.characterId)return;
+   account=marker.account;
+   const cached=read(cacheKey(account,marker.characterId)),pending=read(pendingKey()),entry=latest();
+   const candidate=entry?.snapshot||pending?.snapshot||cached.snapshot;
+   const base=entry?.revision??pending?.revision??cached.revision;
+   writer=entry?.writer||pending?.writer||writer;
+   restore({...cached,snapshot:candidate,revision:base},{device:true,baseline:cached.snapshot});
+   el('cloud-local').hidden=true;el('cloud-out').hidden=false;
+  }catch(error){status('Could not restore the device copy: '+error.message);}
+ });
  async function resume(){
   if(busy)return;busy=true;loading=true;ready=false;
   try{
+   if(loginTemplate){await resumeDeviceJournal();return;}
    const pending=JSON.parse(storage.getItem(pendingKey())||'null');
    let latest=JSON.parse(storage.getItem(latestKey())||'null');
    if(pending){await api('save',pending);storage.setItem(KEY+account+':base',String(pending.revision+1));storage.removeItem(pendingKey());}
@@ -203,6 +358,7 @@
    restore(await api('save'));storage.setItem(KEY+account+':base',String(revision));
   }catch(e){
    blocked=true;
+   if(transient(e)&&offerDeviceRecovery())return;
    el('cloud-server').hidden=e.status===401&&!!loginTemplate;
    if(e.status===401){
     el('cloud-auth').hidden=false;
@@ -217,7 +373,11 @@
   account=b.accountId;character=b.character;ready=false;blocked=false;started=false;
   el('cloud-auth').hidden=true;el('cloud-out').hidden=false;
   if(loginTemplate){
-   el('cloud-server').hidden=true;el('cloud-retry').hidden=true;
+   try{
+    const marker=read(deviceKey);
+    if(marker&&(marker.account!==account||marker.characterId!==character?.id))storage.removeItem(deviceKey);
+   }catch{storage.removeItem(deviceKey);}
+   el('cloud-server').hidden=true;el('cloud-retry').hidden=true;el('cloud-local').hidden=true;
    status(character?'Loading your character…':'Starting character creation…');
    if(character)await resume();
    else await startCharacter();
@@ -264,11 +424,11 @@
   busy=true;loading=true;
   try{
    const backup={pending:storage.getItem(pendingKey()),latest:storage.getItem(latestKey()),current:saveSnapshot()};
-   storage.setItem(pendingKey()+':conflict:'+Date.now(),JSON.stringify(backup));
+   storage.setItem(pendingKey()+':conflict:'+crypto.randomUUID(),JSON.stringify(backup));
    // Fetch and validate/load before clearing active recovery records.
    const cloud=await api('save');
    if(loginTemplate&&TravelerPanels.which==='options')TravelerPanels.close();
-   restore(cloud);storage.removeItem(pendingKey());storage.removeItem(latestKey());
+   restore(cloud);clearSame(pendingKey(),backup.pending);clearSame(latestKey(),backup.latest);
   }catch(e){ready=false;blocked=true;status('Could not load server version: '+e.message+'. Recovery retained.');}
   finally{busy=false;loading=false;}
  });
@@ -279,7 +439,8 @@
   if(account&&(!loginTemplate||!blocked)&&(storage.getItem(pendingKey())||storage.getItem(latestKey()))){status('Sign out paused: unsaved progress retained. Retry saving first.');return;}
   if(loginTemplate)busy=true;
   try{await api('logout',{});authEpoch++;ready=false;account=null;character=null;el('cloud-auth').hidden=false;
-   for(const id of ['cloud-out','cloud-link','cloud-resume','cloud-retry','cloud-server']){const control=el(id);if(control)control.hidden=true;}
+   if(loginTemplate)storage.removeItem(deviceKey);
+   for(const id of ['cloud-out','cloud-link','cloud-resume','cloud-retry','cloud-server','cloud-local']){const control=el(id);if(control)control.hidden=true;}
    showLogin(true);
    status(loginTemplate?'Signed out.':'Signed out. Local progress retained.');
   }catch(e){status(e.message);}
@@ -295,14 +456,16 @@
   try{
    const current=capture();
    if(!loginTemplate||storage.getItem(pendingKey())||JSON.stringify({...current,savedAt:''})!==last)
-    storage.setItem(latestKey(),JSON.stringify(current));
+    writeLatest(current);
   }catch{}
  });
  addEventListener('online',()=>{if(ready&&!blocked)flush();});
  addEventListener('beforeunload',e=>{if(account&&(storage.getItem(pendingKey())||storage.getItem(latestKey()))){e.preventDefault();e.returnValue='';}});
  // Switching to a different local character/slot must never overwrite this account.
  const localLoad=loadGame;
- loadGame=function(){status('Online character uses cloud persistence. Offline slots remain available in ?offline=1.');};
+ loadGame=function(){status(loginTemplate?'Your cloud character loads automatically.':'Online character uses cloud persistence. Offline slots remain available in ?offline=1.');};
  const initialEpoch=authEpoch;
- api('me').then(b=>{if(initialEpoch===authEpoch)return signedIn(b);}).catch(e=>{if(initialEpoch===authEpoch)status(e.status===401?'Register or sign in to play your cloud character.':e.message);});
+ api('me').then(b=>{if(initialEpoch===authEpoch)return signedIn(b);}).catch(e=>{if(initialEpoch!==authEpoch)return;
+  if(e.status===401&&loginTemplate)storage.removeItem(deviceKey);
+  if(!transient(e)||!offerDeviceRecovery())status(e.status===401?'Register or sign in to play your cloud character.':e.message);});
 })();

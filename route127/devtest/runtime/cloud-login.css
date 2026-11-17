@@ -101,3 +101,6 @@
 }
 
 .cloud-account h2 { margin: 0 0 .45rem; }
+
+/* The cloud adapter saves automatically. The explicit legacy QA path keeps its controls. */
+.r127-cloud-game [data-command="save current"] { display: none; }

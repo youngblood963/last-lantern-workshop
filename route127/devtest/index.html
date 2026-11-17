@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="../devtest/runtime/ui_stabilization_20261104.css?v=wo49-shared-room">
 <link rel="stylesheet" href="../devtest/runtime/nessa_pet_shop.css?v=1">
   <link rel="stylesheet" href="../devtest/runtime/scenario_results_wo52.css?v=wo59">
-  <link rel="stylesheet" href="../devtest/runtime/cloud-login.css?v=wo63">
+  <link rel="stylesheet" href="../devtest/runtime/cloud-login.css?v=wo64">
 </head>
 <body>
   <main class="terminal-shell">
@@ -707,25 +707,29 @@ function skipStalledEvent(){
  if(!pendingRoad()||busy||combatState)return false;
  if(!confirm('Back up this DEVTEST save and skip the current event? This spends no additional turns.'))return false;
  try{
-  const key='route127_devtest_stalled_road_backup_'+Date.now();
-  const raw=localStorage.getItem(FACTORY_AUTOSAVE_KEY);
+  const cloud=document.body.classList.contains('r127-cloud-game');
+  const snapshot=saveSnapshot();
+  const key='route127_devtest_stalled_road_backup_'+(cloud?snapshot.player.characterId+'_':'')+Date.now();
+  const raw=cloud?JSON.stringify(snapshot):localStorage.getItem(FACTORY_AUTOSAVE_KEY);
   if(!raw)throw Error('No autosave found for backup.');
   localStorage.setItem(key,raw);
   if(localStorage.getItem(key)!==raw)throw Error('Autosave backup verification failed.');
   const g=lanternState();
-  const snapshot=saveSnapshot();
   snapshot.stage='lanternRoad';
   Object.assign(snapshot.player.flags.lanternTravel,{pending:false,encounterIndex:null});
   for(const flag of ['devFoodChoice','devFoodSelected','r127StalledRoadEvent']){
    delete snapshot.player.flags[flag];
   }
   const updated=JSON.stringify({...snapshot,manualSlot:activeSaveSlot});
-  localStorage.setItem(FACTORY_AUTOSAVE_KEY,updated);
-  if(localStorage.getItem(FACTORY_AUTOSAVE_KEY)!==updated)throw Error('Recovered save could not be verified.');
+  if(!cloud){
+   localStorage.setItem(FACTORY_AUTOSAVE_KEY,updated);
+   if(localStorage.getItem(FACTORY_AUTOSAVE_KEY)!==updated)throw Error('Recovered save could not be verified.');
+  }
   Object.assign(g,{pending:false,encounterIndex:null});
   for(const flag of ['devFoodChoice','devFoodSelected','r127StalledRoadEvent'])delete player.flags[flag];
   resumeSavedEncounter=false;
   lanternRoadMenu();
+  if(cloud)v49Autosave();
   return true;
  }catch(error){
   console.error('[DEVTEST road] Skip Stalled Event failed',error);
@@ -810,12 +814,13 @@ globalThis.Route127RoadLoadRecovery=Object.freeze({restore,skipStalledEvent});
       <span id="cloud-status" role="status">Checking session…</span>
       <button type="button" id="cloud-retry" class="traveler-button" hidden>Retry save</button>
       <button type="button" id="cloud-server" class="traveler-button" hidden>Restore saved version</button>
+      <button type="button" id="cloud-local" class="traveler-button" hidden>Continue on this device</button>
       <button type="button" id="cloud-out" class="traveler-button" hidden>Sign out</button>
     </div>
   </section>
   <div class="cloud-notice" role="status" aria-atomic="true"></div>
 </template>
-<script src="../runtime/cloud-save-bootstrap.js?v=wo63" data-route127-client="devtest"></script>
+<script src="../runtime/cloud-save-bootstrap.js?v=wo64" data-route127-client="devtest"></script>
 </body>
 </html>
 

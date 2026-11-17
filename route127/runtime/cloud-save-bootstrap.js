@@ -4,7 +4,7 @@
  const script=document.currentScript;
  const client=script?.dataset.route127Client;
  const params=new URLSearchParams(location.search);
- if(params.get('cloud')!=='1'||params.get('offline')==='1')return;
+ if(params.get('offline')==='1')return;
 
  const origin=location.origin;
  const local=(port)=>origin==='https://localhost:'+port||origin==='https://127.0.0.1:'+port;
@@ -12,11 +12,11 @@
  const dev=client==='devtest'&&/^\/route127\/devtest\/(?:index\.html)?$/.test(location.pathname)&&
   globalThis.ROUTE127_ENV?.name==='DEVTEST'&&(hostedDev||local(8787));
  // Release compatibility is local staging only. Its runner must use a separate DB.
- const release=client==='playtest'&&/^\/route127\/playtest\/(?:index\.html)?$/.test(location.pathname)&&local(8788);
+ const release=client==='playtest'&&/^\/route127\/playtest\/(?:index\.html)?$/.test(location.pathname)&&local(8788)&&params.get('cloud')==='1';
  if(!dev&&!release)return;
 
  const adapter=document.createElement('script');
- const version=dev&&document.getElementById?.('route127-cloud-login')?'wo63':'wo61-direct';
+ const version=dev&&document.getElementById?.('route127-cloud-login')?'wo64':'wo61-direct';
  adapter.src=new URL('../online-game/cloud-dev.js?v='+version,script.src).href;
  if(hostedDev)adapter.dataset.apiPrefix='/route127/devtest/api/';
  adapter.onerror=()=>{

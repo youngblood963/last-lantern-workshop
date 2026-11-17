@@ -338,7 +338,12 @@
    if(region.value==='CAUSEWAY')background.value='CAUSEWAY';
    else if(row.regions.length)background.value=row.regions[0];
    // Steve is a regional sprite, not an airborne sky composition.
-   backdrop.value=row.id==='scripted:crazy-steve'?'none':(sceneLayers.get(row.id)||'none');
+   // Owner-uploaded combat sprites have a regional sky preview; freight uses dirt road.
+   const uploadedSprites=new Set(['HARBOR SECURITY DRONE','FLOODLIGHT SWEEP',
+     'DOCKSIDE PIRATES','SEAWALL SNIPER','CARGO HIJACKERS','SCRAP CRAB NEST']);
+   backdrop.value=row.id==='scripted:crazy-steve'?'none':
+     row.title==='THE BURIED FREIGHT'?'road':
+     uploadedSprites.has(row.title)?'sky':(sceneLayers.get(row.id)||'none');
    changePhase();
   }
   function changePhase(){

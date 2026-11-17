@@ -2540,7 +2540,6 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 81,
    "id": "east:65",
    "legacyName": "ABANDONED SUPPLY TRUCK",
-   "causeway": true,
    "classification": "REGIONAL",
    "regions": [
     "NORTH",
@@ -2988,7 +2987,6 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 125,
    "id": "east:73",
    "legacyName": "LEAKING FREIGHT TANK",
-   "causeway": true,
    "classification": "REGIONAL",
    "regions": [
     "INDUSTRIAL",
@@ -3030,7 +3028,6 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 129,
    "id": "east:77",
    "legacyName": "THE ROADSIDE MEASURING WALL",
-   "causeway": true,
    "classification": "REGIONAL",
    "regions": [
     "LOWLANDS"

@@ -156,6 +156,17 @@
  // can spot and correct the unresolved artwork without touching the save ID.
  register('THE WASHED-OUT SHOULDER',[],'both','Washed-out Shoulder — animated scene',scenery('the_washed_out_shoulder.gif'));
 
+ // New Nov 16 owner uploads: preserve canonical scenario IDs and regional backgrounds.
+ register('THE BURIED FREIGHT',[],'both','Buried freight — sky + dirt road',scenery('buried_freight.png'));
+ register('HARBOR SECURITY DRONE',sprite('harbour_security_drone.png'),'both','Coastal flying drone — regional sky');
+ register('FLOODLIGHT SWEEP',sprite('floodlight_drone_active.gif'),'both','Floodlight active — regional sky');
+ register('FLOODLIGHT SWEEP',sprite('floodlight_drone_destroyed.gif'),'combat','Floodlight destroyed — regional sky');
+ register('DOCKSIDE PIRATES',sprite('dockside_pirate_1.png','dockside_pirate_2.png','dockside_pirate_3.png'),'both','Three pirates — regional sky');
+ register('SEAWALL SNIPER',sprite('tactical_sniper.png'),'both','Tactical Sniper — regional sky');
+ register('CARGO HIJACKERS',sprite('crab_trap.png'),'both','The Crab Trap — regional sky');
+ register('SCRAP CRAB NEST',sprite('scrap_crab_nest.png'),'both','Nest Guardian — regional sky');
+
+
  const rows=new Map();
  const byEncounter=new Map();
  const byTitle=new Map();

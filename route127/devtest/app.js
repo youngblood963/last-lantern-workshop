@@ -1074,7 +1074,8 @@ function loadGame(slot=activeSaveSlot){
     if(w){add(`ROAD TURN ${dailyRoadTurns} — WANDERER`,"place");showWanderer(w,"road");}
     else {stage="between";resumeSavedEncounter=true;showEncounter();}
   }
-  else if(stage==="encounter" && slot==="auto" &&
+  else if((stage==="encounter" || stage==="between") && slot==="auto" &&
+          roadTurnCharged &&
           ["ROACH NEST","EAST ROAD — ROACH NEST"].includes(currentEncounter()?.title)){
     // DEVTEST one-time stuck-save rescue: leave the already-charged road
     // encounter without losing player inventory, quests, position or turns.

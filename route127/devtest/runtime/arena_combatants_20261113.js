@@ -45,7 +45,28 @@
  const css=document.createElement('style');css.id='r127-arena-combatants-styles';
  css.textContent=`
  .gfx-art.r127-arena-stage{position:relative;isolation:isolate;overflow:hidden}
- .gfx-art.r127-arena-stage>.gfx-image{object-fit:contain!important;object-position:center!important}
+ /* Jen's Bar style: preserve entire arena illustration and fill unused side space
+    with a dim, blurred, enlarged copy. Applies to tournament and spectator views. */
+ .gfx-art.r127-arena-stage,.gfx-art.r127-spectating{position:relative;isolation:isolate;overflow:hidden;background:#100c08!important}
+ .gfx-art.r127-arena-stage::before,.gfx-art.r127-spectating::before{
+  content:'';position:absolute;inset:-12px;z-index:0;pointer-events:none;
+  background-position:center;background-size:cover;background-repeat:no-repeat;
+  filter:blur(9px) brightness(.52) saturate(.75)
+ }
+ .gfx-art.r127-arena-stage:has(>.gfx-image[src*="the_fighting_ring.png"])::before,
+ .gfx-art.r127-spectating:has(>.gfx-image[src*="the_fighting_ring.png"])::before{
+  background-image:url('../the_fighting_ring.png')
+ }
+ .gfx-art.r127-arena-stage:has(>.gfx-image[src*="the_forgotten_arena.png"])::before,
+ .gfx-art.r127-spectating:has(>.gfx-image[src*="the_forgotten_arena.png"])::before{
+  background-image:url('../the_forgotten_arena.png')
+ }
+ .gfx-art.r127-arena-stage>.gfx-image,.gfx-art.r127-spectating>.gfx-image{
+  position:relative;z-index:1;width:100%!important;height:100%!important;
+  object-fit:contain!important;object-position:center!important;background:transparent!important
+ }
+ .gfx-art.r127-arena-night::before{filter:blur(9px) brightness(.28) saturate(.6)}
+
  /* Both arenas use painted daytime art. Apply the same night treatment
     to the scenic image only, preserving fighters and HP indicators. */
  .gfx-art.r127-arena-stage.r127-arena-night>.gfx-image{

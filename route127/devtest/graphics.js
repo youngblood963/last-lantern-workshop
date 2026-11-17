@@ -3,7 +3,10 @@
 // Resolve images beside this script, even when the host serves a nested URL.
 const ROUTE127_ASSET_BASE=typeof document.currentScript?.src==='string'&&document.currentScript.src
  ? new URL('.',document.currentScript.src).href:null;
+const OLD_HOUSE_ART='../playtest/assets/locations/abandoned_house_interior.png';
+let oldHouseArtReady=false;
 const ROUTE127_ART={
+ 'house-interior':{title:'Old House',path:OLD_HOUSE_ART},
  'northern-ridge':{file:'grand_city_preview.png',title:'Grand City — Northern Ridge preview'},
  'solace':{file:'solace.png',title:'Solace'},'seaport':{file:'seaport.png',title:'Seaport'},
  'factory-workshop':{file:'forge_workshop.png',title:"Forge's Workshop"},'factory':{file:'factory.png',title:'Factory'},'scrap-yard':{file:'scrapyard_dark.png',title:'Scrap Yard'},
@@ -15,6 +18,12 @@ const ROUTE127_ART={
  'rusty-anchor':{file:'rusty_anchor.png',title:'The Rusty Anchor'}
 };
 // WO24 shared image paths; dedicated art still wins in model().
+function route127HouseScene(place,g){
+ return !g?.currentEdgeId&&(!g||g.nodeId==='house')&&
+  (['house','roadReady','houseStorage','houseDeposit','houseWithdraw'].includes(place)||
+   (place==='r11Craft'&&player.flags.r11Bench==='home')||
+   (place==='combat'&&combatState?.source==='houseBoss'));
+}
 function route127RegionalArt(g){return '../assets/regions/'+route127CurrentRegion(g).toLowerCase()+'.png';}
 const GraphicalUI={
  element:null,home:null,lastPlace:'',preferred:null,modeKey:'route127-display-mode',optionsOpen:false,navOpen:false,rendering:false,
@@ -23,6 +32,7 @@ const GraphicalUI={
  active(){return this.eligible()&&this.preference()==='graphics';},
  setMode(mode){if(!['classic','graphics'].includes(mode))return false;this.preferred=mode;try{localStorage.setItem(this.modeKey,mode);}catch{}this.optionsOpen=false;this.navOpen=false;this.sync();return true;},
  context(){const overlays=new Set(['inventory','inventoryItem','confirmDrop','quests','interfaceStatus','interfaceMap','interfaceSave','combatItems','r5Loot','r18HorseTravel','corvetteRescue']);let place=overlays.has(stage)?returnStage:stage;const g=typeof lanternState==='function'?lanternState():null,c=combatState;
+  if(route127HouseScene(place,g))return 'house-interior';
   if(/^r18Ash/.test(place)||c?.source==='r18AshFight')return 'ash-cemetery';
   if(/^stationNine|^r18Station/.test(place)||['stationNineSecurity','r18StationFight'].includes(c?.source))return 'station-nine';
   if(place==='wo6FreshMart')return 'fresh-mart';if(place==='wo4Hospital'||c?.source==='wo4HospitalEntrance')return 'st-mercy-hospital';
@@ -38,7 +48,7 @@ const GraphicalUI={
  choices(){const rows=[],used=new Set();for(const [key,value]of Object.entries(numberedChoices||{})){if(!value)continue;const command=String(value);rows.push({key,command,label:route127RoadChoiceLabel(command)});used.add(command);}
   for(const [key,value]of Object.entries(currentHotkeys||{})){const command=String(value);if(!command||used.has(command))continue;rows.push({key,command,label:route127RoadChoiceLabel(command)});used.add(command);}return rows;},
  layout(){if(combatState)return 'combat';if(['inventory','inventoryItem','confirmDrop','r5Loot'].includes(stage))return 'inventory';if(stage==='interfaceMap')return 'map';if(stage==='interfaceStatus')return 'character';if(stage==='quests')return 'journal';if(/Craft|craft|Bench|Forge|Recipes/.test(stage))return 'crafting';if(stage==='mercy'&&mercyLocation!=='town'||/^r11Talk|^r18Fence|^port55Talk/.test(stage))return 'dialogue';if(stage==='mercy'||/^port|^seaport/.test(stage))return 'town';return 'highway';},
- model(){const id=this.context(),art=ROUTE127_ART[id],g=typeof lanternState==='function'?lanternState():null;return {active:this.active(),eligible:this.eligible(),layout:this.layout(),location:id,title:art?.title||(g?.currentEdgeId?(lanternEdge()?.name||'Route 127'):LG_NODES[g?.nodeId]?.name||'Route 127'),art:art?'assets/locations/'+art.file:route127RegionalArt(g),choices:this.choices(),hp:Number(player.hp)||0,maxHp:Number(player.maxHp)||1,level:Number(player.level)||1,xp:Number(player.xp)||0,nextXp:Number(player.nextXp)||1,bolts:Number(player.bolts)||0,turns:Number(player.turns)||0,maxTurns:Number(player.maxTurns)||150,pack:packSlotsUsed(),capacity:player.packMax,time:timePhase(),enemies:combatState?(combatState.enemies?.length?combatState.enemies:[combatState]).map(e=>({name:e.name,hp:e.hp,maxHp:e.maxHp||e.hp})):[]};},
+ model(){const id=this.context(),art=ROUTE127_ART[id],g=typeof lanternState==='function'?lanternState():null;return {active:this.active(),eligible:this.eligible(),layout:this.layout(),location:id,title:art?.title||(g?.currentEdgeId?(lanternEdge()?.name||'Route 127'):LG_NODES[g?.nodeId]?.name||'Route 127'),art:art?.path&&oldHouseArtReady?art.path:art?.file?'assets/locations/'+art.file:route127RegionalArt(g),choices:this.choices(),hp:Number(player.hp)||0,maxHp:Number(player.maxHp)||1,level:Number(player.level)||1,xp:Number(player.xp)||0,nextXp:Number(player.nextXp)||1,bolts:Number(player.bolts)||0,turns:Number(player.turns)||0,maxTurns:Number(player.maxTurns)||150,pack:packSlotsUsed(),capacity:player.packMax,time:timePhase(),enemies:combatState?(combatState.enemies?.length?combatState.enemies:[combatState]).map(e=>({name:e.name,hp:e.hp,maxHp:e.maxHp||e.hp})):[]};},
  preview(){const g=typeof lanternState==='function'?lanternState():null;if(!g||g.currentEdgeId)return '';if(g.nodeId==='northern-ridge')return 'Grand City rises above the northern approach: lamps glow behind repaired walls, and smoke curls from roofs where people are building a life again. The city interior remains beyond this preview.';if(g.nodeId==='broken-bridge')return 'The ruined span ends above the dark water. Weathered roads lead back into the wasteland; the territory across the broken crossing remains inaccessible.';return '';},
  statuses(){const c=combatState;if(!c)return [];const rows=[];for(const [key,label]of [['r18RatBleed','Bite bleeding'],['r18PowderBleed','Shrapnel bleeding'],['r18RatGuardBreak','Guard weakened']])if(c[key]>0)rows.push(label+': '+c[key]+' exchanges');if(c.wo3Cover)rows.push('Container cover ready');if(c.wo3LightShot)rows.push('Drone floodlight disabled');if(c.r18PowderGrenadePending)rows.push('Grenade readied');return rows;},
  nav(model){const result=[];if(player.flags.interfaceUnlocked){result.push(['map','Map','map'],['inventory','Backpack','pack'],['status','Character','person']);const craft=model.choices.find(c=>/^(crafting recipes|use workbench|crafting|recipes)$/.test(c.command));if(craft)result.push([craft.key,'Crafting','tool']);result.push(['quests','Journal','book']);}return result;},
@@ -77,6 +87,17 @@ const GraphicalUI={
  }finally{this.rendering=false;}},
  schedule(){if(this.scheduled)return;this.scheduled=true;outputQueue=outputQueue.then(()=>{this.scheduled=false;this.sync();});}
 };
+// Decode the shared house backdrop before replacing the regional image.
+if(typeof Image==='function'){
+ const houseImage=new Image();
+ houseImage.onload=()=>{
+  const ready=()=>{oldHouseArtReady=true;GraphicalUI.schedule();};
+  if(typeof houseImage.decode==='function')houseImage.decode().then(ready,()=>{});
+  else ready();
+ };
+ houseImage.src=new URL(OLD_HOUSE_ART,ROUTE127_ASSET_BASE||document.baseURI).href;
+}
+
 // Hooks observe output and settled transitions; they never regenerate a gameplay menu.
 // Graphical mode keeps action buttons; hide legacy typed-command echoes only.
 function r127HideGraphicalEcho(line,text,cls){

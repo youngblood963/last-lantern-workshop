@@ -5,6 +5,8 @@ const helperPath=path.resolve(__dirname,'../../../playtest/tests/helpers/game.cj
 module.exports=function(){
  const helper=new Module(helperPath,module);helper.filename=helperPath;helper.paths=module.paths;
  let source=fs.readFileSync(helperPath,'utf8').replace('const document={body,','const document={baseURI:"https://example.test/route127/playtest/",head:new E("head"),body,')
+  .replace("const gameDir=path.join(__dirname,'..','..');","const gameDir=path.join(__dirname,'..','..','..','devtest');")
+  .replace("this._text=t;}}","this._text=t;}appendData(text){this._text+=text;}}")
   .replace("location:{search:","location:{pathname:'/route127/devtest/index.html',search:")
   .replace('style={setProperty(){}}','style={setProperty(){},removeProperty(){},getPropertyValue(){return ""}}')
   .replace('vm.createContext({document,','vm.createContext({document,Image:class {},')

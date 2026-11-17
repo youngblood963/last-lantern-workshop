@@ -60,6 +60,26 @@ if(require.main===module)(async()=>{
   assert.equal(persisted.run('lanternState().stepIndex'),4);
   assert.equal(persisted.run('player.turns'),19);
 
+  const stalled=await scene({food:true});
+  stalled.run(`
+    stage='lanternRoad';
+    lanternState().encounterIndex=999999;
+    v49Autosave();
+    loadGame('auto');
+  `);
+  await stalled.flush();
+  const checkpoint=stalled.run('localStorage.getItem(FACTORY_AUTOSAVE_KEY)');
+  await stalled.click('resume road event');
+  assert.equal(stalled.run('lanternState().pending'),true);
+  await stalled.click('skip stalled event');
+  assert.equal(stalled.run('lanternState().pending'),false);
+  assert.equal(stalled.run('lanternState().stepIndex'),4);
+  assert.equal(stalled.run('player.turns'),19);
+  assert.equal(stalled.run('player.pack[0].qty'),2);
+  assert.equal(stalled.run('player.flags.timQuest'),'active');
+  assert.equal(stalled.run('JSON.parse(localStorage.getItem(FACTORY_AUTOSAVE_KEY)).player.flags.lanternTravel.pending'),false);
+  assert.equal(JSON.parse(checkpoint).player.flags.lanternTravel.encounterIndex,999999);
+
   const search=await scene();
   await search.click('search van');
   assert.equal(search.run('stage'),'lanternRoad');
@@ -98,6 +118,39 @@ if(require.main===module)(async()=>{
     TravelerPanels.body=document.createElement('div');
     TravelerPanels.options();
   `);
+  const cleanup=await scene();
+  cleanup.run(`
+    globalThis.alert=()=>{};
+    player.armor=R11_BOARD;
+    player.flags.cheeseburgerOwned=true;
+    player.flags.ownedPets=['Cheeseburger','Stray Cat'];
+    player.flags.equippedPet='Cheeseburger';
+    player.packMax=18;
+    player.pack=[{name:'Cheeseburger',type:'consumable',qty:1},{name:'Rope',type:'material',qty:2}];
+    v49Autosave();
+    const originalElement=document.createElement;
+    document.createElement=function(tag){
+      const element=originalElement(tag);
+      element.querySelector=selector=>element.children.find(n=>n.classList.contains(selector.slice(1)))||null;
+      element.querySelectorAll=selector=>element.children.filter(n=>n.tagName===selector.toUpperCase());
+      return element;
+    };
+    TravelerPanels.which='options';
+    TravelerPanels.body=document.createElement('div');
+    TravelerPanels.options();
+  `);
+  const retirement=cleanup.run(`TravelerPanels.body.children[0].children.find(n=>
+    n.textContent==='Remove Sandwich Board / Cheeseburger')`);
+  assert.ok(retirement,'missing exact-item cleanup in Options');
+  retirement.events.click[0]();
+  cleanup.run("loadGame('auto')");
+  await cleanup.flush();
+  assert.equal(cleanup.run('player.armor'),null);
+  assert.equal(cleanup.run('player.flags.ownedPets.join()'),'Stray Cat');
+  assert.equal(cleanup.run('player.flags.equippedPet'),null);
+  assert.equal(cleanup.run('player.packMax'),12);
+  assert.equal(cleanup.run('player.pack.map(i=>i.name+":"+i.qty).join()'),'Cheeseburger:1,Rope:2');
+
   const action=rescue.run(`TravelerPanels.body.children[0].children.find(n=>n.textContent==='Escape Stuck Roach Nest')`);
   assert.ok(action,'missing recovery action in real Options modal');
   action.events.click[0]();

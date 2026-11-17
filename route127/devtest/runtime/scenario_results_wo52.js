@@ -13,7 +13,8 @@
 
  function quantities(items){
   const counts=new Map();
-  for(const item of items||[]){
+  for(const item of Array.isArray(items)?items:[]){
+   if(!item?.name)continue;
    const name=item.name+(item.stolen?' (stolen)':'');
    counts.set(name,(counts.get(name)||0)+Number(item.qty||0));
   }
@@ -65,17 +66,23 @@
   }
   const proceed=append(node,'button','Continue');
   proceed.type='button';
-  proceed.addEventListener('click',()=>{
+  function dismiss(){
    if(dialog!==node)return;
    dialog=null;
-   node.close();
    node.remove();
    if(GraphicalUI.active())GraphicalUI.element?.choices?.querySelector('button')?.focus();
    else input.focus();
-  });
-  node.addEventListener('cancel',event=>event.preventDefault());
+  }
+  proceed.addEventListener('click',dismiss);
+  node.addEventListener('cancel',event=>{event.preventDefault();dismiss();});
+  node.addEventListener('close',dismiss);
   document.body.appendChild(node);
-  node.showModal();
+  try{
+   node.showModal();
+  }catch(error){
+   node.remove();
+   throw error;
+  }
   dialog=node;
   proceed.focus();
  }
@@ -135,7 +142,13 @@
    // Keep the engine's completed destination as the save state. Reload resumes
    // there directly, so it cannot repeat the resolution or its rewards.
    v49Autosave();
-   showResult(title,heading,[...new Set(current.story.slice(-4)),...current.quest],changes);
+   try{
+    showResult(title,heading,[...new Set(current.story.slice(-4)),...current.quest],changes);
+   }catch(error){
+    console.error('[DEVTEST scenario results] Could not display acknowledgment',error);
+    add(title+' — '+heading,'system');
+    for(const change of changes)add(change,'reward');
+   }
   }finally{
    action=null;
   }

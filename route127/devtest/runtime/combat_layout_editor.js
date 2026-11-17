@@ -18,6 +18,7 @@
  const redApproved=row=>row.id==='scripted:r18redfight';
  const factoryBossApproved=row=>/^factory:boss:[0-3]$/.test(row.id);
  const danielCaptorsApproved=row=>row.id==='factory:captors';
+ const lastCallAndBillyApproved=row=>['scripted:jenboss','scripted:terriblebilly'].includes(row.id);
  // These approved compositions contain the character(s) within a complete scene asset.
  // A combat encounter does not require separately registered sprites to review its artwork.
  const embeddedCombatArtwork=new Set(['THE IRON HARVEST','THE DRY FOUNTAIN','IRRADIATED ROACHES',
@@ -97,6 +98,13 @@
     localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
     localStorage.setItem(captorsSeed,'1');
    }
+   // Owner-reviewed one-time Last Call and Terrible Billy encounter artwork.
+   const lastCallBillySeed=reviewKey+'-last-call-and-terrible-billy-approved-20261116';
+   if(!localStorage.getItem(lastCallBillySeed)){
+    for(const row of L.rows.values())if(lastCallAndBillyApproved(row))reviews.add(row.id);
+    localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
+    localStorage.setItem(lastCallBillySeed,'1');
+   }
    return reviews;
   }catch{return new Set();}
  }
@@ -110,6 +118,7 @@
   if(redApproved(row))return reviews.has(row.id)?'green':'yellow';
   if(factoryBossApproved(row))return reviews.has(row.id)?'green':'yellow';
   if(danielCaptorsApproved(row))return reviews.has(row.id)?'green':'yellow';
+  if(lastCallAndBillyApproved(row))return reviews.has(row.id)?'green':'yellow';
   if(animated(row))return reviews.has(row.id)?'green':'yellow';
   const art=state(row);
   if(art==='Checking art')return 'checking';

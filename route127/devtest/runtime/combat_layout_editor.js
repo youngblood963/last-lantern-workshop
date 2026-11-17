@@ -186,7 +186,7 @@
  .r127-layout-editor .layout-unit img{width:100%;height:100%;min-height:0;object-fit:contain;object-position:center bottom;pointer-events:none}
  .r127-layout-editor .layout-unit span{font-size:11px;white-space:nowrap;background:#421714;border:1px solid #b25044;padding:2px 4px;pointer-events:none}
  .r127-layout-editor .layout-unit.layout-scene-image img{flex:none;object-fit:contain;object-position:center}
- .r127-layout-editor .layout-unit.layout-scene-image img[src*="shipwreck_scavengers.png"]{width:100%;height:100%;object-fit:contain!important;object-position:center center!important}
+ .r127-layout-editor .layout-unit.layout-scene-image img:is([src*="shipwreck_scavengers.png"],[src*="toxic_cargo.png"]){width:100%;height:100%;object-fit:contain!important;object-position:center center!important}
  .r127-layout-editor .layout-stage[data-preview=true] .layout-unit{outline:none;pointer-events:none}
  .r127-layout-editor .layout-empty{position:absolute;inset:auto 0 0;background:#130e09dd;padding:8px;text-align:center}
  .r127-layout-editor .layout-fields input[type=number]{width:5.5em}
@@ -344,7 +344,7 @@
      'DOCKSIDE PIRATES','SEAWALL SNIPER','CARGO HIJACKERS','SCRAP CRAB NEST']);
    backdrop.value=row.id==='scripted:crazy-steve'?'none':
      row.title==='THE BURIED FREIGHT'?'road':
-     (uploadedSprites.has(row.title)||row.title==='SHIPWRECK SCAVENGERS')?'sky':(sceneLayers.get(row.id)||'none');
+     (uploadedSprites.has(row.title)||['SHIPWRECK SCAVENGERS','LEAKING FREIGHT TANK'].includes(row.title))?'sky':(sceneLayers.get(row.id)||'none');
    changePhase();
   }
   function changePhase(){

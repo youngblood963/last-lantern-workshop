@@ -38,8 +38,12 @@
   z-index:1;mask-image:linear-gradient(to bottom,transparent 0%,transparent 28%,#000 58%,#000 100%);
   -webkit-mask-image:linear-gradient(to bottom,transparent 0%,transparent 28%,#000 58%,#000 100%);
  }
- .gfx-art.r127-causeway-scene>.gfx-image{position:relative;z-index:2;background:transparent!important;
-  object-fit:contain!important;object-position:center center!important;
+ /* A positioned DEVTOOLS scene object already has translate(-50%,-50%)
+    in its layout transform. Do not replace it with scale(): doing so
+    shifts props such as the Abandoned Sedan into the bottom-right corner. */
+ .gfx-art.r127-causeway-scene>.gfx-image{z-index:2;background:transparent!important;
+  object-fit:contain!important;object-position:center center!important}
+ .gfx-art.r127-causeway-scene>.gfx-image:not(.r127-layout-unit){position:relative;
   transform:scale(.90)!important;transform-origin:center center!important}
  /* If the normal scene image is itself the Causeway background, don't draw
     it a second time at 90% scale over our full-bleed composite. */

@@ -77,7 +77,7 @@ r127EchoStyle.textContent=[
  // Graphical location plates already identify the place; the BBS headings
  // remain in the DOM and are fully visible when Classic BBS is selected.
  '.full-graphics .gfx-narrative .line.place{display:none!important}'
-].join('\\n');
+].join(' ');
 document.head.appendChild(r127EchoStyle);
  // Both queued typewriter output and instant graphical rows may echo a
  // numeric/letter command. Filter the visual log only, never game output.

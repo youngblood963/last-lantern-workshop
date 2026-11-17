@@ -17,6 +17,7 @@
  const liberationApproved=row=>row.id==='seaport:liberation';
  const redApproved=row=>row.id==='scripted:r18redfight';
  const factoryBossApproved=row=>/^factory:boss:[0-3]$/.test(row.id);
+ const danielCaptorsApproved=row=>row.id==='factory:captors';
  // These approved compositions contain the character(s) within a complete scene asset.
  // A combat encounter does not require separately registered sprites to review its artwork.
  const embeddedCombatArtwork=new Set(['THE IRON HARVEST','THE DRY FOUNTAIN','IRRADIATED ROACHES',
@@ -89,6 +90,13 @@
     localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
     localStorage.setItem(factoryBossSeed,'1');
    }
+   // Owner confirmed Daniel's Captors complete; seed independently of boss approval.
+   const captorsSeed=reviewKey+'-daniel-captors-approved-20261116';
+   if(!localStorage.getItem(captorsSeed)){
+    for(const row of L.rows.values())if(danielCaptorsApproved(row))reviews.add(row.id);
+    localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
+    localStorage.setItem(captorsSeed,'1');
+   }
    return reviews;
   }catch{return new Set();}
  }
@@ -101,6 +109,7 @@
   if(liberationApproved(row))return reviews.has(row.id)?'green':'yellow';
   if(redApproved(row))return reviews.has(row.id)?'green':'yellow';
   if(factoryBossApproved(row))return reviews.has(row.id)?'green':'yellow';
+  if(danielCaptorsApproved(row))return reviews.has(row.id)?'green':'yellow';
   if(animated(row))return reviews.has(row.id)?'green':'yellow';
   const art=state(row);
   if(art==='Checking art')return 'checking';

@@ -23,18 +23,15 @@
   enabled,multiplier,
   setEnabled(value){localStorage.setItem(key,value?'on':'off');}
  });
- const range=weaponRange;
- weaponRange=function(){
-  const bounds=range.apply(this,arguments);
-  if(stage!=='combat'||combatState?.r18Bare)return bounds;
-  const weapon=GEAR[player.weapon];
+ function combatWeaponRange(name,bounds){
+  const weapon=GEAR[name];
   const rarity=weapon?.rarity, factor=factors[rarity];
   if(weapon?.type!=='weapon'||!factor||factor===1)return bounds;
-  const upgrade=player.flags?.r127EquipmentUpgrades?.[player.weapon];
+  const upgrade=player.flags?.r127EquipmentUpgrades?.[name];
   const base=GEAR[upgrade?.base]||weapon;
   const level=base.level, rank=EQUIPMENT_QUALITIES.indexOf(rarity);
   const generated=Number.isInteger(level)&&(base.id?.startsWith('weapon-')||
-   /^Road Weapon L\d{2} /.test(upgrade?.base||player.weapon));
+   /^Road Weapon L\d{2} /.test(upgrade?.base||name));
   // Generated weapons replace the old rarity additions. Fixed named weapons
   // keep their authored premium and get only the change in the WO41 factor.
   const ratio=generated?factor:factor/previous[rarity];
@@ -43,7 +40,18 @@
    const oldRarity=generated?rank*(index+1):0;
    return Math.round((authored-oldRarity)*ratio)+(value-authored);
   });
+ }
+ const range=weaponRange;
+ weaponRange=function(){
+  const bounds=range.apply(this,arguments);
+  return stage==='combat'&&!combatState?.r18Bare?combatWeaponRange(player.weapon,bounds):bounds;
  };
+ globalThis.Route127ShopWeaponRange=function(name){
+  const weapon=GEAR[name],accessory=GEAR[player.accessory];
+  const bounds=weapon?.type==='weapon'?[weapon.min,weapon.max]:[5,10];
+  return combatWeaponRange(name,[bounds[0]+(accessory?.min||0),bounds[1]+(accessory?.max||0)]);
+ };
+
 
  const retaliate=combatRetaliation, defense=armorDefense, damage=scaledEnemyDamage;
  let attackScale=1, pendingStrike=false;

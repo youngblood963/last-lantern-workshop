@@ -1,0 +1,41 @@
+const assert = require('node:assert/strict');
+const createGame = require('./helpers/wo33_dom.cjs');
+
+(async()=>{
+ const {run,flush,ids}=createGame();
+ await flush();
+ run(`
+  player.level=10;
+  player.flags.murphyRideLevel10Astrid=true;
+  player.flags.wo3Corvette={active:true};
+  player.flags.interfaceUnlocked=true;
+  GraphicalUI.setMode('graphics');
+  stage='mercy';
+  mercyLocation='mara';
+  ensureRefillClock();
+  const testNames=['Tactical Crowbar','Balanced Hatchet','Modified Revolver'];
+  const weapons=testNames.map(name=>catalogInstanceName(EQUIPMENT_CATALOG.find(row=>row.name===name),10));
+  const armor=catalogInstanceName(EQUIPMENT_CATALOG.find(row=>row.type==='armor'&&row.rarity==='uncommon'),10);
+  const stock={period:Number(player.flags.nextRefillAt),slots:[...weapons,armor].map(name=>({name,sold:false}))};
+  player.flags.regionalEquipment={solace:stock,seaport:stock};
+  showEquipmentShop();
+ `);
+ await flush();
+ const results=run(`JSON.stringify(GraphicalUI.choices().map(row=>Route127ShopComparison.offer(row.command)).filter(Boolean))`);
+ assert.equal(JSON.parse(results).length,4);
+ assert.equal(run(`Route127ShopComparison.offer('buy '+weapons[0]).price===regionalEquipmentPrice(weapons[0],'solace')`),true);
+ run(`player.weapon=weapons[0];player.armor=null`);
+ assert.equal(run(`Route127ShopComparison.comparison(Route127ShopComparison.offer('buy '+weapons[0])).differences.every(row=>row[2]===0)`),true);
+ assert.equal(run(`Route127ShopComparison.comparison(Route127ShopComparison.offer('buy '+armor)).equipped`),null);
+ run(`stock.slots[1].sold=true`);
+ assert.equal(run(`Route127ShopComparison.offer('buy '+weapons[1])`),null);
+ run(`stage='port55Service';player.flags.portStaffUI={role:'armory',page:'equipment'}`);
+ assert.equal(run(`Route127ShopComparison.offer('buy '+armor).price===regionalEquipmentPrice(armor,'seaport')`),true);
+ run(`player.flags.portStaffUI.role='general store';GraphicalUI.setMode('classic')`);
+ const before=run('JSON.stringify([player.bolts,player.pack,stock])');
+ await run(`handleCommand('inspect '+weapons[0])`);
+ await flush();
+ assert.match(ids.screen.textContent,/EQUIPPED/);
+ assert.equal(run('JSON.stringify([player.bolts,player.pack,stock])'),before);
+ console.log('PASS Mara purchase choices, Seaport vendors, sold-out stock, equipped slots and Classic BBS inspect');
+})().catch(error=>{console.error(error);process.exitCode=1;});

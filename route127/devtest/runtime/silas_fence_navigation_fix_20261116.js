@@ -7,6 +7,25 @@
     typeof handleCommand!=='function'||typeof r18FenceMenu!=='function'||
     typeof r18FenceCommand!=='function'||typeof r18FenceAllowed!=='function')return;
 
+ // Give Silas the same reliable graphical choice registration as other
+ // Seaport residents. Legacy menu producers may leave stale numberedChoices
+ // when an appended Corvette action arrives after the fence menu.
+ if(typeof GraphicalUI!=='undefined'){
+  const priorChoices=GraphicalUI.choices;
+  GraphicalUI.choices=function(...args){
+   if(stage!=='r18Fence'||!r18FenceAllowed())return priorChoices.apply(this,args);
+   const quote=player.flags.r18FenceQuote;
+   const options=quote?['CONFIRM SILAS SALE','CANCEL SILAS SALE']:
+    [...player.pack.filter(r18FenceEligible).map(i=>'SELL TO SILAS '+r18ItemLabel(i).toUpperCase()),
+     ...(typeof CorvetteRestoration!=='undefined'&&CorvetteRestoration.state().active&&!CorvetteRestoration.state().engineDelivered?['ASK SILAS ABOUT ENGINE']:[]),
+     ...(typeof CorvetteRestoration!=='undefined'&&CorvetteRestoration.state().engineQuest&&!CorvetteRestoration.state().engineDelivered?['RETURN NESSAS LOCKET']:[]),
+     'RETURN TO SEAPORT'];
+   numberedChoices={};
+   options.forEach((label,i)=>numberedChoices[String(i+1)]=label.toLowerCase());
+   currentHotkeys={b:'back'};
+   return options.map((label,i)=>({key:String(i+1),command:label.toLowerCase(),label}));
+  };
+ }
  const previousHandleCommand=handleCommand;
  const clean=v=>String(v??'').trim().toLowerCase();
  function shownSilas(){

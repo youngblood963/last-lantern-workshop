@@ -1,12 +1,11 @@
 /* DEVTEST — Compact Solace hub. Menus only; no world graph/quest/save rewrites.
- * Six root choices; Bulletin Board intentionally separate from Shops.
+ * The Rusty Lantern and Bulletin Board are independent of Shops.
  */
 (()=>{
 'use strict';
 if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
 const VIEWS=new Set(['town','hubShops','hubGates','hubWanderers']);
 const IN_SHOP={
- 'the rusty lantern':'bar',
  "johnny's trading post":'trader',
  "murphy's motor works":'workshop',
  'last chance clinic':'clinic',
@@ -47,7 +46,7 @@ function hub(){
  reconcileTownTravel();
  add('SOLACE — MAIN STREET','place');
  const visitor=featured();
- DevtestMenuModel.publishLabels('solace-town',['SHOPS',...(player.flags.relayUnlocked?['RELAY STATION']:[]),
+ DevtestMenuModel.publishLabels('solace-town',['SHOPS','THE RUSTY LANTERN',...(player.flags.relayUnlocked?['RELAY STATION']:[]),
    'FIND TIM','GATES',...(visitor?['TALK TO '+visitor.name.toUpperCase()]:[]),'BULLETIN BOARD',
    ...(player.flags.r18Courier?.phase==='service'?['POST OFFICE']:[])]);
 }
@@ -56,7 +55,7 @@ function submenu(which){
  reconcileTownTravel();
  if(which==='hubShops'){
   add('SOLACE — SHOPS','place');
-  DevtestMenuModel.publishLabels('solace-shops',['THE RUSTY LANTERN',"JOHNNY'S TRADING POST",
+  DevtestMenuModel.publishLabels('solace-shops',["JOHNNY'S TRADING POST",
    "MURPHY'S MOTOR WORKS",'LAST CHANCE CLINIC','SOLACE SAVINGS & LOAN',
    'ARMORY','BACK TO SOLACE'],'BACK TO SOLACE');
  }else if(which==='hubGates'){
@@ -107,6 +106,7 @@ handleCommandCore=async function(raw){
  if(['back','b','back to solace','return to town','town','solace'].includes(cmd)&&view!=='town')return hub();
  if(view==='town'){
   if(cmd==='shops')return submenu('hubShops');
+  if(cmd==='the rusty lantern')return previousCore.call(this,'bar');
   if(cmd==='gates')return submenu('hubGates');
   // Direct, named wanderer interactions; no redundant selection submenu.
   const nearby=featured();

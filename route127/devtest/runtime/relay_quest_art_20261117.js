@@ -17,11 +17,11 @@ const items=Object.freeze({
 const selection=()=>{
  const key=player?.flags?.relayRoadEncounter;
  const pending=typeof lanternState==='function'&&lanternState()?.pending;
- return stage==='encounter'&&pending&&Object.hasOwn(items,key)?items[key]:null;
+ return stage==='encounter'&&pending&&Object.prototype.hasOwnProperty.call(items,key)?items[key]:null;
 };
 const graphics=()=>GraphicalUI.preference()==='graphics';
-const period=()=>typeof Route127RegionalSky?.phase==='function'
- ?Route127RegionalSky.phase(player?.flags?.worldHour):'day';
+const period=()=>typeof globalThis.Route127RegionalSky?.phase==='function'
+ ?globalThis.Route127RegionalSky.phase(player?.flags?.worldHour):'day';
 const sky=()=>new URL('sky_'+(period()==='dusk'?'dawn':period())+'.png',regions).href;
 
 const previousModel=GraphicalUI.model;

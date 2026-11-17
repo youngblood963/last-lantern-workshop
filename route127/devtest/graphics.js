@@ -82,18 +82,34 @@ document.head.appendChild(r127EchoStyle);
  // Both queued typewriter output and instant graphical rows may echo a
  // numeric/letter command. Filter the visual log only, never game output.
  // The original line stays intact for Classic BBS and for menu registration.
- function r127ClassifyGraphicalLines(){
-  if(!screen)return;
-  for(const line of screen.children){
-   if(!line.classList?.contains('line'))continue;
-   const contents=(line.textContent||'').trim();
-   const command=/^>\s*(?:\d{1,2}|[a-z])\s*$/i.test(contents);
-   line.classList.toggle('r127-graphical-command-echo',command);
-  }
+ function r127ClassifyGraphicalLine(line){
+  if(!line?.classList?.contains('line'))return;
+  // Only command acknowledgements such as >3, > 2 or > B. Never
+  // suppress prose, rewards, warnings or character dialogue.
+  const command=/^>\s*(?:\d{1,2}|[a-z])\s*$/i.test((line.textContent||'').trim());
+  line.classList.toggle('r127-graphical-command-echo',command);
  }
- const r127NarrativeObserver=new MutationObserver(()=>r127ClassifyGraphicalLines());
+ // Follow newly appended/typed rows without rescanning the whole transcript
+ // on every character; that matters for older mobile hardware.
+ const r127NarrativeObserver=new MutationObserver(records=>{
+  const changed=new Set();
+  for(const record of records){
+   const parent=record.target.nodeType===1?record.target:record.target.parentElement;
+   const line=parent?.closest?.('.line');
+   if(line)changed.add(line);
+   if(record.type==='childList'){
+    for(const node of record.addedNodes){
+     if(node.nodeType===1){
+      if(node.classList?.contains('line'))changed.add(node);
+      else for(const nested of node.querySelectorAll?.('.line')||[])changed.add(nested);
+     }
+    }
+   }
+  }
+  for(const line of changed)r127ClassifyGraphicalLine(line);
+ });
  r127NarrativeObserver.observe(screen,{childList:true,subtree:true,characterData:true});
- r127ClassifyGraphicalLines();
+ for(const line of screen.children)r127ClassifyGraphicalLine(line);
 
 const wo14Add=add;add=function(text='',cls=''){if(String(cls).includes('place'))GraphicalUI.lastPlace=String(text);const result=wo14Add(text,cls);if(GraphicalUI.active()&&String(cls).split(/\s+/).includes('bright')&&/^>\s*(?:\d+|[a-z])\s*$/i.test(String(text).trim())){outputQueue=outputQueue.then(()=>{const line=screen.lastElementChild;if(line?.classList.contains('line'))line.classList.add('r127-graphical-command-echo');});}GraphicalUI.schedule();return result;};
 const wo14Immediate=addImmediate;addImmediate=function(text='',cls=''){const result=wo14Immediate(text,choiceOutputClass(text,cls));r127HideGraphicalEcho(result,text,cls);GraphicalUI.schedule();return result;};

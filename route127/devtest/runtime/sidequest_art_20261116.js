@@ -21,7 +21,7 @@
   }
   if(['combat','combatItems'].includes(stage)&&typeof combatState!=='undefined'&&combatState?.source==='jenBoss')
    return {name:'last_call_raider_captain.png',assetType:'enemies',title:'LAST CALL — RAIDER CAPTAIN',region:'INDUSTRIAL'};
-  if(stage==='r18Fence')return {name:'silas_crowe_fence.png',title:'SILAS THE FENCE',fullscreen:true};
+  if(stage==='r18Fence')return {name:'silas_crowe_fence.png',assetType:'locations',title:'SILAS THE FENCE',fullscreen:true};
   if(stage==='r11Hollis')return {name:'hollis_reed.png',title:'HOLLIS REED — DOCKS CLERK',region:'SEAPORT'};
   if(stage==='r11Gambler')return {name:'missing_gambler.png',title:'HOUSE RULES — THE MISSING GAMBLER',region:'SEAPORT'};
   if(['combat','combatItems'].includes(stage)&&typeof combatState!=='undefined'&&combatState?.source==='terribleBilly')
@@ -31,7 +31,7 @@
  const previousModel=GraphicalUI.model;
  GraphicalUI.model=function(...args){
   const model=previousModel.apply(this,args),s=graphics()?scene():null;
-  if(model?.active&&s){model.art=s.assetType==='enemies'?new URL('assets/enemies/'+s.name,root).href:img(s.name);model.title=s.title;model.regionalSky=null;}
+  if(model?.active&&s){model.art=s.assetType==='enemies'?new URL('assets/enemies/'+s.name,root).href:s.assetType==='locations'?new URL('assets/locations/'+s.name,root).href:img(s.name);model.title=s.title;model.regionalSky=null;}
   return model;
  };
  const css=document.createElement('style');css.id='r127-sidequest-art-20261116';

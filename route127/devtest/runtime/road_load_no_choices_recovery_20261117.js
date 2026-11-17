@@ -1,53 +1,81 @@
-/* DEVTEST — recover a save loaded mid-road with no playable commands.
- * The navigation batch defers binding a road menu when lanternTravel.pending
- * is true. Loading lanternRoad with that flag leaves a blank button panel.
- * Re-enter its recorded encounter rather than clearing pending/spending a turn.
- * For nonpending road saves, redraw commands without changing progress.
+/* DEVTEST road-choice recovery.
+ * A movement turn may be paid while an event is pending, so never offer
+ * Continue Road until that event is resolved. Resume it without charging turns.
+ * When no event is pending, rebuild missing command bindings directly.
+ * No save overwrite, travel reset or automatic movement.
  */
 (()=>{
- 'use strict';
- if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
- const hasChoices=()=>Object.keys(numberedChoices||{}).length>0||
-  Object.keys(currentHotkeys||{}).some(key=>key!=='b');
- let recovering=false;
- function recover(){
-  if(recovering||stage!=='lanternRoad'||hasChoices()||busy||combatState)return false;
-  const road=typeof lanternState==='function'?lanternState():null;
-  if(!road?.currentEdgeId||typeof lanternEdge!=='function'||!lanternEdge())return false;
-  recovering=true;
-  try{
-   if(road.pending){
-    // The movement turn has already been charged. Resume the pending event.
-    // Never call lanternStep or change stepIndex, turns or encounterIndex.
-    stage='between';
-    resumeSavedEncounter=true;
-    add('ROAD ENCOUNTER RESTORED — resuming the current movement turn.','system');
+'use strict';
+if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||typeof GraphicalUI==='undefined')return;
+let repairing=false;
+const road=()=>stage==='lanternRoad'&&typeof lanternState==='function'?lanternState():null;
+const valid=()=>{const g=road();return g?.currentEdgeId&&typeof lanternEdge==='function'&&!!lanternEdge()?g:null;};
+const hasActions=()=>Object.values(numberedChoices||{}).some(Boolean)||Object.keys(currentHotkeys||{}).some(k=>k!=='b');
+function restore(){
+ const g=valid();
+ if(!g||busy||commandProcessing||combatState||repairing)return false;
+ if(hasActions()&&!g.pending)return false;
+ repairing=true;
+ try{
+  if(g.pending){
+   // This is the already-paid current step, not a request to advance.
+   // Set the resume flag only if an encounter was already selected.
+   resumeSavedEncounter=Number.isInteger(g.encounterIndex)&&g.encounterIndex>=0;
+   roadTurnCharged=true;
+   stage='between';
+   try{
     showEncounter();
-   }else{
-    add('ROAD CONTROLS RESTORED — no travel turn used.','system');
-    lanternRoadMenu();
+   }catch(e){
+    stage='lanternRoad';
+    console.error('[DEVTEST road] Current event could not be restored',e);
+    // Keep the pending flag and current coordinates intact for another retry.
+    add('Current road encounter could not load. Try Resume Road Event again.','danger');
    }
-   GraphicalUI.schedule?.();
-   return true;
-  }catch(error){
-   console.error('[DEVTEST road restore] Unable to rebuild road choices',error);
-   add('ROAD CONTROLS RECOVERY FAILED — your position and save were not reset.','danger');
-   return false;
-  }finally{recovering=false;}
+  }else{
+   // Missing menu bindings must not force another load or re-enter an event.
+   numberedChoices={'1':'continue road','2':'reverse direction'};
+   currentHotkeys={};
+   add('ROAD ACTIONS RESTORED — Continue Road / Reverse Direction','system');
+  }
+  GraphicalUI.schedule();
+  return true;
+ }finally{repairing=false;}
+}
+const oldChoices=GraphicalUI.choices;
+GraphicalUI.choices=function(...args){
+ const existing=oldChoices.apply(this,args);
+ const g=valid();
+ if(!g||existing.length||busy||combatState)return existing;
+ return g.pending?
+  [{key:'1',command:'resume road event',label:'Resume Road Event',r127RoadRecovery:true}]:
+  [{key:'1',command:'continue road',label:'Continue Road',r127RoadRecovery:true},
+   {key:'2',command:'reverse direction',label:'Reverse Direction',r127RoadRecovery:true}];
+};
+const oldDispatch=GraphicalUI.dispatch;
+GraphicalUI.dispatch=async function(choice){
+ if(choice?.r127RoadRecovery&&valid()){
+  if(busy||commandProcessing)return false;
+  if(valid().pending){restore();this.sync();return true;}
+  await handleCommand(choice.command);this.sync();return true;
  }
- const originalLoad=loadGame;
- loadGame=function(...args){
-  const result=originalLoad.apply(this,args);
-  // Wait for menus written via outputQueue to bind their numeric commands.
-  outputQueue=outputQueue.then(()=>{
-   if(stage==='lanternRoad'&&!hasChoices())recover();
-  });
-  return result;
- };
- // Also repair an already-loaded screen after a deployment/hot refresh.
- // Avoid polling and never interfere with a valid encounter/menu.
- setTimeout(()=>{
-  if(stage==='lanternRoad'&&!hasChoices())recover();
- },1500);
- globalThis.Route127RoadLoadRecovery=Object.freeze({recover});
+ return oldDispatch.apply(this,arguments);
+};
+const originalLoad=loadGame;
+loadGame=function(...args){
+ const result=originalLoad.apply(this,args);
+ // Existing redraws use outputQueue; only repair after they have settled.
+ outputQueue=outputQueue.then(()=>{
+  if(valid()&&!hasActions())restore();
+ }).catch(err=>console.warn('[DEVTEST road] Menu redraw recovery:',err));
+ return result;
+};
+const oldCore=handleCommand;
+handleCommand=async function(...args){
+ const result=await oldCore.apply(this,args);
+ // A successful movement can still leave an unresolved step with no buttons.
+ if(valid()&&!hasActions())restore();
+ return result;
+};
+setTimeout(()=>{if(valid()&&!hasActions())restore();},1200);
+globalThis.Route127RoadLoadRecovery=Object.freeze({restore});
 })();

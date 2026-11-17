@@ -25,6 +25,11 @@ function menu(){
  r5DirectChoices(['WATCH A ROUND','BET ON A ROUND','ENTER TOURNAMENT','BACK AWAY']);
  GraphicalUI.schedule();
 }
+globalThis.Route127ArenaLobby=Object.freeze({open(key){
+ session={key,mode:'main',fighters:null,bet:null,result:''};
+ stage='r127ArenaLobby';
+ menu();
+}});
 function pick(){
  const all=roster[session.key],i=Math.floor(Math.random()*3);
  let j=Math.floor(Math.random()*2);if(j>=i)j++;
@@ -154,18 +159,18 @@ css.textContent=[
  '.gfx-art.r127-spectating{position:relative;isolation:isolate}',
  '.gfx-art.r127-spectating>.gfx-image{object-fit:contain!important;object-position:center!important}',
  '.gfx-art.r127-spectating.r127-arena-night>.gfx-image{filter:brightness(.55) saturate(.72) contrast(1.06)!important}',
- '.gfx-art.r127-spectating>.r127-spectator-layer{position:absolute;inset:0;z-index:8;pointer-events:none;display:flex;justify-content:space-around;align-items:flex-end;padding:0 12% 2%;box-sizing:border-box}',
+ '.gfx-art.r127-spectating>.r127-spectator-layer{position:absolute;inset:0;z-index:8;pointer-events:none;display:flex;justify-content:space-around;align-items:flex-end;padding:0 12% max(38px,8%);box-sizing:border-box}',
  '.r127-spectator-unit{position:relative;width:43%;height:84%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:0}',
  '.r127-spectator-unit img{width:100%;height:calc(100% - 32px);min-height:0;object-fit:contain;object-position:center bottom;filter:drop-shadow(3px 6px 5px #000a);transition:opacity .5s,transform .4s}',
  '.r127-spectator-unit:first-child img{transform:scaleX(-1)}',
  '.r127-spectator-unit.hit img{animation:r127-spectator-shake .24s ease-out}',
  '.r127-spectator-unit.ko img{opacity:0;translate:0 24px}',
- '.r127-spectator-hp{position:relative;width:94%;height:27px;box-sizing:border-box;background:#26110fea;border:1px solid #b24639;text-align:center;font:700 11px/25px system-ui,sans-serif;color:#fff;white-space:nowrap}',
+ '.r127-spectator-hp{position:relative;width:min(100%,150px);height:19px;box-sizing:border-box;background:#26110fea;border:1px solid #b24639;text-align:center;font:700 11px/17px system-ui,sans-serif;color:#fff;white-space:nowrap}',
  '.r127-spectator-hp-fill{position:absolute;inset:0 auto 0 0;background:#982e26;transition:width .25s}',
  '.r127-spectator-hp span{position:relative;text-shadow:0 1px 3px #000}',
  '.r127-spectator-damage{position:absolute;top:2%;color:#fff1b9;font:800 19px system-ui,sans-serif;text-shadow:0 2px 4px black}',
  '@keyframes r127-spectator-shake{0%,100%{translate:0}45%{translate:14px}}',
- '@media(max-width:600px){.gfx-art.r127-spectating>.r127-spectator-layer{padding:0 2% 1%}.r127-spectator-unit{width:49%;height:78%}.r127-spectator-hp{font-size:9px}}'
+ '@media(max-width:600px){.gfx-art.r127-spectating>.r127-spectator-layer{padding:0 2% max(34px,8%)}.r127-spectator-unit{width:49%;height:78%}.r127-spectator-hp{font-size:9px}}'
 ].join('\n');
 document.head.append(css);
 const oldSync=GraphicalUI.sync;

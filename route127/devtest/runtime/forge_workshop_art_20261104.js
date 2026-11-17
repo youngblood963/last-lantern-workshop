@@ -122,6 +122,13 @@
    model.art='../devtest/assets/locations/sheriff_kaiden.png';
    model.title='Sheriff Kaiden';
   }
+  // Silas's existing scene art is separate from Seaport's town backgrounds.
+  // r18Fence is not one of the usual port55 stages, so map it explicitly.
+  if(currentStage==='r18Fence'&&
+     !!player.flags?.seaport55?.freed&&player.flags?.r18SilasOutcome==='released'){
+   model.art='../devtest/assets/locations/silas_crowe_fence.png';
+   model.title='Silas the Fence';
+  }
   // Shared crafting art: one image for all four existing crafting locations.
   // Preserve gameplay, menus, scenery for non-crafting pages and staff overlays.
   const craftingStage=String(stage||'');

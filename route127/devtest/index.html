@@ -105,7 +105,7 @@ if(globalThis.ROUTE127_ENV?.name!=="DEVTEST"){document.write('<p role="alert">De
 <script src="../devtest/runtime/wanderer_live.js?v=eli-mercer-20261112"></script>
 <script src="../devtest/runtime/legacy_wanderer_profiles.js?v=2"></script>
 <script src="../devtest/runtime/wanderer_level_stars.js?v=1"></script>
-<script src="../devtest/runtime/relay_road_patch.js?v=relay-diagnostic-clues"></script>
+<script src="../devtest/runtime/relay_road_patch.js?v=wo66-relay-recovery"></script>
 <script src="../devtest/runtime/factory_gate_patch.js?v=20261104"></script>
 <script src="../devtest/runtime/encounter_repair_patch.js?v=20261104-b"></script>
 <script src="../devtest/runtime/food_lure_patch.js?v=wo51-food-menu"></script>
@@ -438,7 +438,7 @@ GraphicalUI.schedule();
 <script src="../devtest/runtime/sidequest_art_20261116.js?v=silas-correct-location-art-20261116"></script>
 <script src="../devtest/runtime/owner_final_scenarios_20261116.js?v=toxic-cargo-fit-20261116"></script>
 <script src="../devtest/runtime/silas_fence_navigation_fix_20261116.js?v=silas-fence-choices-engine-gated-2"></script>
-<script src="../devtest/runtime/graphical_transcript_display_guard_20261116.js?v=graphics-redundant-lines-guard-v1"></script>
+<script src="../devtest/runtime/graphical_transcript_display_guard_20261116.js?v=wo66-cloud-slots"></script>
 <script src="../devtest/runtime/casino_wagers_rat_odds_20261116.js?v=arena-shared-wagers-20261116"></script>
 <script src="../devtest/runtime/arena_spectator_exhibitions_20261116.js?v=wo60-lobby-restore"></script>
 <script>
@@ -566,7 +566,7 @@ GraphicalUI.schedule();
 </script>
 <script src="../devtest/runtime/scenario_results_wo52.js?v=wo59"></script>
 <script src="../devtest/runtime/solace_shop_art_restore_20261117.js?v=1"></script>
-<script src="../devtest/runtime/relay_quest_art_20261117.js?v=1"></script>
+<script src="../devtest/runtime/relay_quest_art_20261117.js?v=wo66-relay-recovery-1"></script>
 <script src="../devtest/runtime/wanderer_combat_art_20261117.js?v=1"></script>
 <script src="../devtest/runtime/mail_backpack_tampering_20261117.js?v=1"></script>
 <script src="../devtest/runtime/armory_equipment_comparison_20261117.js?v=wo55-shop-inspection"></script>
@@ -682,6 +682,8 @@ function restore(){
  if(!pendingRoad()||busy||combatState)return false;
  const g=lanternState();
  try{
+  // The Relay flag identifies the saved event even when the old index points elsewhere.
+  if(globalThis.DevtestRelayRoad?.open())return true;
   if(g.encounterIndex!=null&&(!Number.isInteger(g.encounterIndex)||
      !r10Pool(g.encounterRegion||lanternEdge().region)[g.encounterIndex])){
    throw Error('Saved encounter index is unavailable in '+(g.encounterRegion||lanternEdge().region));
@@ -719,7 +721,7 @@ function skipStalledEvent(){
   const g=lanternState();
   snapshot.stage='lanternRoad';
   Object.assign(snapshot.player.flags.lanternTravel,{pending:false,encounterIndex:null});
-  for(const flag of ['devFoodChoice','devFoodSelected','r127StalledRoadEvent']){
+  for(const flag of ['devFoodChoice','devFoodSelected','r127StalledRoadEvent','relayRoadEncounter']){
    delete snapshot.player.flags[flag];
   }
   const updated=JSON.stringify({...snapshot,manualSlot:activeSaveSlot});
@@ -728,7 +730,7 @@ function skipStalledEvent(){
    if(localStorage.getItem(FACTORY_AUTOSAVE_KEY)!==updated)throw Error('Recovered save could not be verified.');
   }
   Object.assign(g,{pending:false,encounterIndex:null});
-  for(const flag of ['devFoodChoice','devFoodSelected','r127StalledRoadEvent'])delete player.flags[flag];
+  for(const flag of ['devFoodChoice','devFoodSelected','r127StalledRoadEvent','relayRoadEncounter'])delete player.flags[flag];
   resumeSavedEncounter=false;
   lanternRoadMenu();
   if(cloud)v49Autosave();
@@ -750,7 +752,7 @@ loadGame=function(slot=activeSaveSlot){
   const data=read(which);
   const graph=data?.player?.flags?.lanternTravel;
   if(which===slot&&graph?.currentEdgeId&&graph.pending&&
-     !data.combatState&&['between','encounter'].includes(data.stage)){
+     !data.combatState&&['between','encounter',globalThis.DevtestRelayRoad?.sceneStage].includes(data.stage)){
    return {...data,stage:'lanternRoad'};
   }
   return data;
@@ -761,7 +763,7 @@ loadGame=function(slot=activeSaveSlot){
  }finally{
   getSaveData=read;
  }
- if(pendingRoad()&&Number.isInteger(lanternState().encounterIndex))restore();
+ if(pendingRoad()&&(globalThis.DevtestRelayRoad?.pending()||Number.isInteger(lanternState().encounterIndex)))restore();
  return result;
 };
 

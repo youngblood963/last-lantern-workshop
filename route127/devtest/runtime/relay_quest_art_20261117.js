@@ -15,9 +15,8 @@ const items=Object.freeze({
  east:{title:'SIGNAL-CONDITIONING MODULE',file:'relay_signal_conditioning_module.png',backdrop:'skyDirt'}
 });
 const selection=()=>{
- const key=player?.flags?.relayRoadEncounter;
- const pending=typeof lanternState==='function'&&lanternState()?.pending;
- return stage==='encounter'&&pending&&Object.prototype.hasOwnProperty.call(items,key)?items[key]:null;
+ const relay=globalThis.DevtestRelayRoad;
+ return relay&&stage===relay.sceneStage?items[relay.pending()]||null:null;
 };
 const graphics=()=>GraphicalUI.preference()==='graphics';
 const period=()=>typeof globalThis.Route127RegionalSky?.phase==='function'

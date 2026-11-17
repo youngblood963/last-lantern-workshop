@@ -209,7 +209,7 @@ function r11RestoreCasinoLedger(force=false){
  // Carry only casino debits/credits across a rollback, never unrelated quest earnings.
  const balance=player.bolts+(db.net||0)-(player.flags.r11CasinoNet||0);if(!Number.isSafeInteger(balance))throw Error('Casino journal balance requires recovery.');
  player.bolts=Math.max(0,balance);player.flags.r11CasinoSeq=db.seq;player.flags.r11CasinoNet=db.net||0;player.flags.r6Game=db.r6Game;player.flags.casino=db.casino;
- if(db.cheeseburgerOwned&&!player.flags.cheeseburgerOwned){player.flags.cheeseburgerOwned=true;const owned=player.flags.ownedPets||(player.flags.ownedPets=[]);if(!owned.includes('Cheeseburger'))owned.push('Cheeseburger');player.packMax+=6;}
+ if(db.cheeseburgerOwned&&!player.flags.cheeseburgerOwned&&!player.flags.r127CheeseburgerRetired){player.flags.cheeseburgerOwned=true;const owned=player.flags.ownedPets||(player.flags.ownedPets=[]);if(!owned.includes('Cheeseburger'))owned.push('Cheeseburger');player.packMax+=6;}
 }
 // Fixed-odds games can express a true relative probability bonus without changing skill rules.
 const R11_LUCK_GAMES=['dice','rps','rats','slots','CRAB RACING'];
@@ -242,7 +242,7 @@ casinoResolve=function(r){
   }
   casinoSettle(r,casinoSlotPayout(r.reels,r.bet),r.reels.join(' / '));
   // Preserve the independent once-per-character pet jackpot.
-  if(!player.flags.cheeseburgerOwned&&Math.random()<.05){player.flags.cheeseburgerOwned=true;const owned=player.flags.ownedPets||(player.flags.ownedPets=[]);if(!owned.includes('Cheeseburger'))owned.push('Cheeseburger');player.packMax+=6;add('CHEESEBURGER joins your companions. +6 backpack slots.','legendary');casinoCheckpoint();}
+  if(!player.flags.cheeseburgerOwned&&!player.flags.r127CheeseburgerRetired&&Math.random()<.05){player.flags.cheeseburgerOwned=true;const owned=player.flags.ownedPets||(player.flags.ownedPets=[]);if(!owned.includes('Cheeseburger'))owned.push('Cheeseburger');player.packMax+=6;add('CHEESEBURGER joins your companions. +6 backpack slots.','legendary');casinoCheckpoint();}
   casinoAnimate(['[ ? ] [ ? ] [ ? ]'],r.reels.map(s=>'['+s+']').join(' '));casinoRender();return;
  }
  return r11CasinoResolve(r);
@@ -343,8 +343,9 @@ const r11Quests=showQuests;showQuests=function(){r11Quests();if(!portRecruitUnlo
 // Local ownership prototype. No server/global authority is fabricated.
 const R11_LEGEND_KEY='route127-local-legendary-r11-v1';
 function r11LegendDB(){try{const db=JSON.parse(localStorage.getItem(R11_LEGEND_KEY)||'null');if(db&&db.version===1&&Array.isArray(db.announcements))return db;}catch{}return {version:1,board:null,announcements:[]};}
-function r11OwnsBoard(){const row=r11LegendDB().board;return !!row&&row.owner===player.characterId&&row.token===player.flags.r11BoardToken;}
+function r11OwnsBoard(){if(player.flags?.r127SteveBoardRetired)return false;const row=r11LegendDB().board;return !!row&&row.owner===player.characterId&&row.token===player.flags.r11BoardToken;}
 function r11ValidateBoard(){
+ if(player.flags?.r127SteveBoardRetired)return;
  const row=r11LegendDB().board,owner=row&&row.owner===player.characterId;
  if(owner)player.flags.r11BoardToken=row.token;
  const arrays=[...new Set([player.pack,player.stash,player.houseStorage,player.rustyRoomChest,player.flags.r6AnchorRoomChest,player.flags.r5LootQueue].filter(Boolean))];

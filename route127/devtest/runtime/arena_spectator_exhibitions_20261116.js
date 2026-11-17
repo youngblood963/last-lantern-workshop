@@ -9,7 +9,7 @@ const arenaArt=key=>new URL(key==='ring'?'../../the_fighting_ring.png':'../../th
 const roster={ring:[['SCRAPPER','arena_scrapper.png'],['BRUISER','arena_bruiser.png'],['THE HAMMER','arena_the_hammer.png']],grave:[['DRIFTER','arena_drifter.png'],['IRONBACK','arena_ironback.png'],['GRAVEKEEPER','arena_gravekeeper.png']]};
 const title=key=>key==='ring'?'THE FIGHTING RING':'THE FORGOTTEN ARENA';
 function identify(){
- if(stage!=='encounter'||typeof currentEncounter!=='function')return null;
+ if(typeof currentEncounter!=='function')return null;
  const name=String(currentEncounter()?.title||'').toUpperCase().replace(/^EAST ROAD — /,'');
  return name==='THE FIGHTING RING'?'ring':name==='THE FORGOTTEN ARENA'?'grave':null;
 }
@@ -70,8 +70,9 @@ function start(){
   GraphicalUI.schedule();
   if(a.hp===0||b.hp===0){
    clearInterval(timer);timer=0;session.mode='ending';GraphicalUI.schedule();
+   const finishedSession=session;
    setTimeout(()=>{
-    if(!active()||session.mode!=='ending')return;
+    if(!active()||session!==finishedSession||session.mode!=='ending')return;
     const winner=a.hp>0?a:b,loser=a.hp>0?b:a;
     session.result=winner.name+' defeats '+loser.name+'! The crowd erupts.';
     if(session.bet?.amount){
@@ -125,7 +126,7 @@ function command(raw){
 }
 const oldCore=handleCommandCore;
 handleCommandCore=async function(raw){
- const key=identify(),cmd=resolve(raw);
+ const key=stage==='encounter'?identify():null,cmd=resolve(raw);
  if(key&&['watch a round','bet on a round','enter tournament'].includes(cmd)){
   session={key,mode:'main',fighters:null,bet:null,result:''};stage='r127ArenaLobby';
   if(cmd==='enter tournament'){if(!r18TournamentEnter(key))menu();}
@@ -140,6 +141,43 @@ const oldRender=renderCurrentChoices;
 renderCurrentChoices=function(...args){
  if(active()){if(session.mode==='main')return menu();if(session.mode==='pick')return select();if(session.mode==='wager')return wagerMenu();return;}
  return oldRender.apply(this,args);
+};
+// Saved lobby stages contain the road encounter, but exhibitions are transient.
+const oldLoad=loadGame;
+loadGame=function(...args){
+ if(timer){clearInterval(timer);timer=0;}
+ session=null;
+ const result=oldLoad.apply(this,args);
+ if(stage!=='r127ArenaLobby')return result;
+ const graph=lanternState();
+ let key,encounter;
+ if(graph?.pending&&graph.currentEdgeId){
+  try{
+   encounter=currentEncounter();
+   key=identify();
+  }catch(error){console.warn('Saved arena encounter unavailable',error);}
+ }
+ if(key){
+  add('Arena lobby restored. Interrupted exhibitions do not resume.','system');
+  Route127ArenaLobby.open(key);
+ }else if(encounter){
+  stage='encounter';
+  renderCurrentChoices();
+ }else if(graph?.currentEdgeId){
+  // Discard only unusable encounter metadata on the already-paid step.
+  graph.pending=false;
+  graph.encounterIndex=null;
+  stage='lanternRoad';
+  lanternRoadMenu();
+ }else if(graph){
+  stage='lanternNode';
+  lanternNodeMenu();
+ }else{
+  stage='between';
+  renderCurrentChoices();
+ }
+ GraphicalUI.schedule();
+ return result;
 };
 if(typeof FocusedEntry!=='undefined'){
  const oldDescribe=FocusedEntry.describe;

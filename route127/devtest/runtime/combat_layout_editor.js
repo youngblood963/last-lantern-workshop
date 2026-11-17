@@ -394,6 +394,19 @@
     causeway.src=new URL(L.regionArt('CAUSEWAY'),L.root).href;
     canvas.append(causeway);
    }
+   // Composite the region's terrain overlay above the time-of-day sky for
+   // these owner-provided enemy sprites; do not show only an empty sky.
+   const uploadedRegional=new Set(['HARBOR SECURITY DRONE','FLOODLIGHT SWEEP',
+     'DOCKSIDE PIRATES','SEAWALL SNIPER','CARGO HIJACKERS','SCRAP CRAB NEST']);
+   const showRegional=layers==='sky'&&row&&uploadedRegional.has(row.title);
+   if(showRegional){
+    const regionArt=globalThis.Route127EditorSky?.describe(background.value,
+     {dawn:6,day:12,dusk:18,night:22}[skyTime.value]);
+    if(regionArt){
+     const ground=el('img');ground.className='layout-region-overlay';ground.alt='';
+     ground.src=regionArt.ground;canvas.append(ground);
+    }
+   }
    if(layers==='road'){
     const dirt=el('img');dirt.className='layout-dirt-road';dirt.alt='';
     dirt.src=new URL('dirt_road_foreground.png',regionalRoot).href;
@@ -401,7 +414,7 @@
    }
    canvas.dataset.skyTime=layers==='none'&&!bridge?'none':skyTime.value;
    skyTime.parentElement.hidden=layers==='none'&&!bridge;
-   background.parentElement.hidden=layers!=='none';
+   background.parentElement.hidden=layers!=='none'&&!showRegional;
    if(!nodes.size){const empty=el('p',state(row));empty.className='layout-empty';canvas.append(empty);}
    for(const [key,record] of nodes){
     const node=el('button');node.type='button';node.className='layout-unit'+(record.background?' layout-scene-image':'');

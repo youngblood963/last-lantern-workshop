@@ -55,10 +55,23 @@
   if(title==='BROKEN RADIO'||display==='BROKEN RADIO')return {id:'station-nine-radio',file:asset('scenarios','station_nine_discovery.png'),layers:'regional'};
   return null;
  }
+ function ready(spec){
+  const urls=[spec.file];
+  const phase=period();
+  if(spec.layers!=='none'){
+   const area=spec.layers==='regional'?route127CurrentRegion(lanternState()):null;
+   const layers=area&&globalThis.Route127EditorSky?.describe(area,player.flags?.worldHour);
+   urls.push(layers?.sky||sky(phase==='dusk'?'sky_dawn.png':'sky_'+phase+'.png'));
+   if(area)urls.push(layers?.ground||sky(area.toLowerCase()+'.png'));
+   else if(spec.layers==='road')urls.push(sky('dirt_road_foreground.png'));
+  }
+  if(spec.guard)urls.push(asset('enemies','solace_gate_guard.png'));
+  return urls.map(url=>GraphicalUI.sceneArtworkReady(url)).every(Boolean);
+ }
  const oldModel=GraphicalUI.model;
  GraphicalUI.model=function(...args){
   const m=oldModel.apply(this,args),spec=presentation();
-  if(spec&&m.active){m.art=spec.file;m.regionalSky=null;}
+  if(spec&&m.active&&ready(spec)){m.art=spec.file;m.regionalSky=null;}
   return m;
  };
  const css=document.createElement('style');
@@ -103,7 +116,7 @@
   try{
    const e=this.element;if(!e?.figure)return result;
    const fig=e.figure,spec=presentation();
-   const active=!!spec&&!e.frame.hidden&&!fig.hidden&&this.preference()==='graphics';
+   const active=!!spec&&this.displaysArtwork(spec.file)&&!e.frame.hidden&&!fig.hidden&&this.preference()==='graphics';
    let skyLayer=fig.querySelector(':scope > .r127-demo-sky'),roadLayer=fig.querySelector(':scope > .r127-demo-road'),guardLayer=fig.querySelector(':scope > .r127-demo-guard');
    fig.classList.toggle('r127-demo-art',active);
    if(!active){

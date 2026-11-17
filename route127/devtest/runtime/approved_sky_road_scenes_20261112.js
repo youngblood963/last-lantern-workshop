@@ -9,7 +9,7 @@
   ['THE BRIDGE TOLL','bridge_toll.png'],
   ['THE BURNT LIBRARY','burnt_library.png'],
   ['THE FENCE ARTIST','the_fence_artist.png'],
-  ['THE MASK MARKET','the_mask_market.png'],
+  ['THE MASK MARKET','the_mask_market.webp'],
   ['THE RUST PARADE','the_rust_parade.png'],
   ['THE SHATTERED SILO','the_shattered_silo.png'],
   ['COUNTY WORK TRUCK','county_work_truck.png'],
@@ -20,25 +20,11 @@
  const scenario=file=>new URL('assets/scenarios/'+file,base).href;
  const regional=file=>new URL(file,regions).href;
  const roadUrl=regional('dirt_road_foreground.png');
- const ready=new Map();
- function preload(url){
-  if(ready.has(url))return ready.get(url);
-  const state={loaded:false},image=new Image();
-  ready.set(url,state);
-  image.onload=async()=>{
-   try{if(image.decode)await image.decode();}
-   catch{return;}
-   state.loaded=true;
-   GraphicalUI.sync();
-  };
-  image.src=url;
-  return state;
- }
  function composition(){
   const period=Route127RegionalSky.phase(player.flags?.worldHour);
   const skyUrl=regional(period==='dusk'?'sky_dawn.png':'sky_'+period+'.png');
-  const sky=preload(skyUrl),road=preload(roadUrl);
-  return {period,skyUrl,loaded:sky.loaded&&road.loaded};
+  const loaded=[skyUrl,roadUrl].map(url=>GraphicalUI.sceneArtworkReady(url)).every(Boolean);
+  return {period,skyUrl,loaded};
  }
  const canonical=()=>String(typeof currentEncounter==='function'?currentEncounter()?.title||'':'').toUpperCase().replace(/^EAST ROAD — /,'').trim();
  const fightSilo=()=>typeof combatState!=='undefined'&&combatState&&['combat','combatItems'].includes(typeof stage==='undefined'?'':stage)&&
@@ -63,7 +49,8 @@
   const model=previousModel.apply(this,args);
   const name=target();
   if(!name||!model?.active)return model;
-  if(!composition().loaded){
+  const artworkReady=GraphicalUI.sceneArtworkReady(scenario(scenes.get(name)));
+  if(!composition().loaded||!artworkReady){
    const region=route127CurrentRegion(lanternState());
    const scene=Route127RegionalSky.describe(region,player.flags?.worldHour);
    if(scene){
@@ -116,7 +103,7 @@
    const e=this.element;if(!e?.figure)return result;
    const fig=e.figure,which=target();
    const layers=which&&!e.frame.hidden&&!fig.hidden&&this.preference()==='graphics'?composition():null;
-   const shown=!!layers?.loaded;
+   const shown=!!layers?.loaded&&this.displaysArtwork(scenario(scenes.get(which)));
    fig.classList.toggle('r127-approved-road',shown);
    let sky=fig.querySelector(':scope > .r127-approved-sky');
    let road=fig.querySelector(':scope > .r127-approved-ground');

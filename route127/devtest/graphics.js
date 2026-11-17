@@ -25,7 +25,71 @@ function route127HouseScene(place,g){
    (place==='combat'&&combatState?.source==='houseBoss'));
 }
 function route127RegionalArt(g){return '../assets/regions/'+route127CurrentRegion(g).toLowerCase()+'.png';}
+// Only current-frame dependencies participate in the artwork status.
+function createSceneArtworkLoader(ui){
+ const cache=new Map();
+ let used=new Set(),active=new Set(),notice,timer;
+ function request(url){
+  const key=new URL(url,ROUTE127_ASSET_BASE||document.baseURI).href;
+  let entry=cache.get(key);
+  if(!entry){
+   const image=new Image();
+   entry={state:'pending',since:Date.now()};
+   cache.set(key,entry);
+   const settle=state=>{
+    if(entry.state!=='pending')return;
+    clearTimeout(deadline);
+    image.onload=image.onerror=null;
+    entry.state=state;
+    if(active.has(entry)||used.has(entry))ui.schedule();
+   };
+   const deadline=setTimeout(()=>settle('failed'),15000);
+   image.onload=()=>image.decode?image.decode().then(()=>settle('ready'),()=>settle('failed')):settle('ready');
+   image.onerror=()=>settle('failed');
+   image.src=key;
+  }else{
+   cache.delete(key);
+   cache.set(key,entry);
+  }
+  used.add(entry);
+  return entry.state==='ready';
+ }
+ return {
+  request,
+  begin(){
+   used=new Set();
+   // Allow the presentation layers to register dependencies after base sync.
+   Promise.resolve().then(()=>{
+    clearTimeout(timer);
+    const e=ui.element;
+    active=e&&!e.frame.hidden&&!e.figure.hidden?used:new Set();
+    for(const [key,entry] of cache){
+     if(cache.size<=32)break;
+     if(!active.has(entry)&&entry.state!=='pending')cache.delete(key);
+    }
+    const pending=[...active].filter(entry=>entry.state==='pending');
+    const delay=pending.length?400-(Date.now()-Math.min(...pending.map(entry=>entry.since))):Infinity;
+    const message=[...active].some(entry=>entry.state==='failed')?'Scene artwork unavailable':
+     delay<=0?'Loading scene artwork…':'';
+    if(message&&e){
+     if(!notice){
+      notice=document.createElement('span');
+      notice.setAttribute('role','status');
+      Object.assign(notice.style,{position:'absolute',top:'8px',right:'8px',zIndex:12,
+       background:'#191510eb',color:'#fff5df',padding:'5px 8px',borderRadius:'4px',
+       fontSize:'.8rem',pointerEvents:'none'});
+     }
+     if(notice.parentNode!==e.figure)e.figure.append(notice);
+     if(notice.textContent!==message)notice.textContent=message;
+    }else notice?.remove();
+    if(delay>0&&Number.isFinite(delay)&&!message)timer=setTimeout(()=>ui.schedule(),delay);
+   });
+  }
+ };
+}
 const GraphicalUI={
+ sceneArtworkReady(url){return sceneArtwork.request(url);},
+ displaysArtwork(url){return this.element?.img.getAttribute('src')===new URL(url,ROUTE127_ASSET_BASE||document.baseURI).href;},
  element:null,home:null,lastPlace:'',preferred:null,modeKey:'route127-display-mode',optionsOpen:false,navOpen:false,rendering:false,
  preference(){if(this.preferred)return this.preferred;try{return localStorage.getItem(this.modeKey)==='classic'?'classic':'graphics';}catch{return 'graphics';}},
  eligible(){const g=typeof lanternState==='function'?lanternState():null;if(!g||['title','wake','wakeNamed','standing','handle','confirmHandle','hello','listen','savecoords','confirmNewSlot','selectNewOverwrite','confirmNewOverwrite'].includes(stage))return false;return !!(g.currentEdgeId||g.discoveredEdges?.length||g.nodeId!=='house'||player.flags.mercyDiscovered);},
@@ -73,7 +137,10 @@ const GraphicalUI={
   this.element={frame,header,stats,nav,main,figure,img,caption,enemies,narrative,choices,settings,classic,where,toggle};this.sync();
  },
  meter(label,value,max,kind){const row=this.node('div','gfx-stat '+kind);row.appendChild(this.node('span','gfx-stat-label',label));const meter=this.node('span','gfx-meter');meter.setAttribute('role','meter');meter.setAttribute('aria-label',label);meter.setAttribute('aria-valuemin','0');meter.setAttribute('aria-valuemax',String(max));meter.setAttribute('aria-valuenow',String(value));const fill=this.node('i');fill.style.width=Math.max(0,Math.min(100,value/Math.max(1,max)*100))+'%';meter.appendChild(fill);meter.appendChild(this.node('b','',value+' / '+max));row.appendChild(meter);return row;},
- sync(){if(!this.element||this.rendering)return;this.rendering=true;try{const m=this.model(),e=this.element;e.frame.hidden=!m.active;e.classic.hidden=m.active;e.classic.textContent=this.preference()==='classic'?'DISPLAY: CLASSIC BBS — SWITCH TO GRAPHICS':'DISPLAY: GRAPHICS — SWITCH TO CLASSIC BBS';document.body.classList.toggle('full-graphics',m.active);if(!m.active){if(screen.parentNode!==this.home)this.home.insertBefore(screen,this.home.firstChild);this.home.hidden=false;return;}if(screen.parentNode!==e.narrative)e.narrative.appendChild(screen);this.home.hidden=true;e.frame.dataset.layout=m.layout;e.frame.dataset.checkpoint=m.location==='solace'?'solace':'';e.frame.classList.toggle('nav-open',this.navOpen);e.toggle.setAttribute('aria-expanded',String(this.navOpen));e.where.textContent=m.title;e.caption.textContent=m.title;
+ sync(){if(!this.element||this.rendering)return;this.rendering=true;try{sceneArtwork.begin();const m=this.model(),e=this.element;
+ if(m.active&&m.art&&/\/assets\/(?:scenarios|enemies)\//.test(new URL(m.art,ROUTE127_ASSET_BASE||document.baseURI).pathname)&&!this.sceneArtworkReady(m.art)){
+  m.art=route127RegionalArt(lanternState());m.regionalSky=null;m.causewayBacking=false;
+ }e.frame.hidden=!m.active;e.classic.hidden=m.active;e.classic.textContent=this.preference()==='classic'?'DISPLAY: CLASSIC BBS — SWITCH TO GRAPHICS':'DISPLAY: GRAPHICS — SWITCH TO CLASSIC BBS';document.body.classList.toggle('full-graphics',m.active);if(!m.active){if(screen.parentNode!==this.home)this.home.insertBefore(screen,this.home.firstChild);this.home.hidden=false;return;}if(screen.parentNode!==e.narrative)e.narrative.appendChild(screen);this.home.hidden=true;e.frame.dataset.layout=m.layout;e.frame.dataset.checkpoint=m.location==='solace'?'solace':'';e.frame.classList.toggle('nav-open',this.navOpen);e.toggle.setAttribute('aria-expanded',String(this.navOpen));e.where.textContent=m.title;e.caption.textContent=m.title;
   const source=m.art?(ROUTE127_ASSET_BASE?new URL(m.art,ROUTE127_ASSET_BASE).href:m.art):'';if(e.img.getAttribute('src')!==source){if(source){e.img.hidden=false;e.figure.dataset.loadState='loading';e.figure.classList.remove('gfx-art-failed');e.img.src=source;e.img.alt=m.title+' — approved environment artwork';}else{e.img.hidden=true;e.img.removeAttribute('src');e.img.alt='';e.figure.classList.remove('gfx-art-failed');e.figure.dataset.loadState='none';}}e.figure.classList.toggle('gfx-neutral',!m.art||e.img.hidden);e.figure.hidden=['map','inventory','character','journal'].includes(m.layout);e.enemies.hidden=!m.enemies.length;
   e.stats.replaceChildren(this.node('strong','gfx-level','LV '+m.level),this.meter('HP',m.hp,m.maxHp,'hp'),this.meter('TURNS',m.turns,m.maxTurns,'turns'),this.meter('XP',m.xp,m.nextXp,'xp'),this.node('span','gfx-economy',m.bolts+' BOLTS · PACK '+m.pack+'/'+m.capacity+' · '+m.time));
   e.enemies.replaceChildren();for(const enemy of m.enemies){const row=this.node('div','gfx-enemy');row.appendChild(this.node('strong','',enemy.name));row.appendChild(this.meter('HP',enemy.hp,enemy.maxHp,'hp'));e.enemies.appendChild(row);}for(const status of this.statuses())e.enemies.appendChild(this.node('p','gfx-effect',status));
@@ -87,6 +154,8 @@ const GraphicalUI={
  }finally{this.rendering=false;}},
  schedule(){if(this.scheduled)return;this.scheduled=true;outputQueue=outputQueue.then(()=>{this.scheduled=false;this.sync();});}
 };
+const sceneArtwork=createSceneArtworkLoader(GraphicalUI);
+
 // Decode the shared house backdrop before replacing the regional image.
 if(typeof Image==='function'){
  const houseImage=new Image();

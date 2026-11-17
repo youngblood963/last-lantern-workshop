@@ -42,7 +42,7 @@
   'SOMETHING IN THE DRAIN':['Something in the Drain - Grate and Claw.png'],
   'DRAINAGE STALKER':['culvert_crawler.png'],
   'THE WAX MUSEUM':['The Curator.png'],
-  'THE WRECKERS':['The Wreckers - Pipe.png','The Wreckers - Chain.png'],
+  'THE WRECKERS':['Lone Scavenger - Friendly Scrapper.png','The Wreckers - Chain.png'],
   'RATS IN THE PANTRY':['Snarling Rats at a Rusted Sewer Drain.png'],
   'CHEMICAL BURNERS':['Chemical Burner 1.png','Chemical Burner 2.png'],
   'THE GRINDER CREW':['rivet.png'],

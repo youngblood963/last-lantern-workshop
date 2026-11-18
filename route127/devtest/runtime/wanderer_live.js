@@ -110,11 +110,16 @@
          typeof townWandererFocus !== 'undefined' &&
          townWandererFocus === currentTownWanderer))
       return { name:currentTownWanderer, kind:'town' };
-    // Recruitment conversation may be launched separately from the town menu.
+    // Keep the same portrait visible while a road wanderer is being recruited.
+    // The recruitment stage temporarily replaces wandererRoad, but the offer
+    // retains its origin so the correct road overlay can remain in place.
     if (stage === 'port55Recruit' &&
         typeof player !== 'undefined' &&
-        player?.flags?.portHireOffer?.origin !== 'wandererRoad')
-      return { name:player.flags.portHireOffer.name,kind:'town' };
+        player?.flags?.portHireOffer?.name)
+      return {
+        name:player.flags.portHireOffer.name,
+        kind:player.flags.portHireOffer.origin === 'wandererRoad' ? 'road' : 'town'
+      };
     // A genuinely visiting (not yet hired) Seaport wanderer has the same
     // portrait affordance as other town encounters.
     if ((stage==='port55Guest'||(stage==='port55Stop'&&

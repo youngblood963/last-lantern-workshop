@@ -766,7 +766,7 @@ function useItem(name){
   const rates={"Energy Bars":.10,"Bandage":.25,"Reinforced Bandage":.50,"Emergency Trauma Kit":.75,"Wild Honey":.15,"Fresh Carrot":.10,"Fresh Potato":.10,"Fresh Apple":.10,"Fresh Pear":.10,"Fresh Berries":.10,"Fresh Tomato":.10,"Fresh Cabbage":.10,"Preserved Vegetables":.25,"Preserved Meat":.25,"Wasteland Stew":.40,"Roadhouse Hash":.25};
   if(Object.hasOwn(rates,item.name)){
     if(player.hp>=player.maxHp){add("You are already at full health.","system");return;}
-    if(['Emergency Trauma Kit','Fresh Carrot','Fresh Potato','Fresh Apple','Fresh Pear','Fresh Berries','Fresh Tomato','Fresh Cabbage','Preserved Vegetables','Preserved Meat','Wasteland Stew','Roadhouse Hash'].includes(item.name)&&['combat','combatItems'].includes(stage)){add('Use this item after leaving combat.','system');return;}
+    if(['Emergency Trauma Kit','Fresh Carrot','Fresh Apple','Fresh Pear','Fresh Berries','Fresh Tomato','Fresh Cabbage','Preserved Vegetables','Preserved Meat','Wasteland Stew','Roadhouse Hash'].includes(item.name)&&['combat','combatItems'].includes(stage)){add('Use this item after leaving combat.','system');return;}
     const heal=Math.min(player.maxHp-player.hp,Math.max(1,Math.ceil(player.maxHp*rates[item.name])));
     if(!removeItem(item.name+(item.stolen?' (STOLEN)':''),1))return false;player.hp+=heal;updateHud();add(`${item.name.toUpperCase()} — +${heal} HP`,"reward");return true;
   }
@@ -776,7 +776,7 @@ function useItem(name){
   else add("You can't use that directly here.","system");
 }
 function showCombatItems(){
-  const usable=player.pack.filter(i=>i.qty>0&&(i.name==="Bandage"||i.name==="Energy Bars"||i.name==="Reinforced Bandage"||i.name==="Wild Honey"));
+  const usable=player.pack.filter(i=>i.qty>0&&(i.name==="Bandage"||i.name==="Energy Bars"||i.name==="Reinforced Bandage"||i.name==="Wild Honey"||i.name==="Fresh Potato"));
   // Never enter an empty combat-items submenu: graphical mode otherwise has
   // no numbered item buttons and can lose the Back binding mid-combat.
   if(!usable.length){

@@ -443,7 +443,9 @@ function handlePlayerDeath(){
   // Remaining road segments are the minimum rescue travel cost; recovery adds two.
   const atHouse=stage==="house" || ["houseStorage","houseDeposit","houseWithdraw"].includes(stage) || (combatState&&combatState.source==="houseBoss");
   const travel=graphRescue?graphRescue.travel:atHouse ? (inTown?roadTripLength:0) : inTown ? (roadGoal==="house"?Math.max(0,roadTripLength-roadTurn):roadGoal==="mercy"?Math.max(0,roadTripLength-roadTurn):roadGoal==="east"?Math.max(0,roadTurn+1):0) : Math.max(0,roadTurn+1);
-  const penalty=travel+2;
+  // Rescue travel can be long, but death costs at most 10 turns total,
+  // including the 2 recovery turns. The rescue destination is unchanged.
+  const penalty=Math.min(10,travel+2);
   player.turns=Math.max(0,player.turns-penalty);
   dailyRoadTurns+=travel; // rescue travels the route; recovery itself is not a road turn
   player.hp=Math.max(1,Math.round(player.maxHp*.5));
@@ -459,7 +461,7 @@ function handlePlayerDeath(){
   if(jenGateRescue)add("JEN > The gate guards were going to leave you out there. I brought you back myself. Don't make me do that twice.","bright");
   else add("Someone dragged you back from the highway. They didn't do it for free.");
   add(`RESCUE FEE — 10% OF CARRIED BOLTS: ${rescueBoltsLost} BOLTS LOST (${player.bolts} REMAINING)`, "danger");
-  add(`RESCUE TRAVEL: ${travel} TURNS   RECOVERY: 2 TURNS   TOTAL: ${penalty}`, "system");
+  add(`RESCUE TRAVEL: ${Math.min(travel,8)} TURNS   RECOVERY: 2 TURNS   TOTAL: ${penalty}${travel>8?" (10-TURN CAP)":""}`, "system");
   add(`HP RESTORED: ${player.hp}/${player.maxHp}   EQUIPMENT AND QUEST ITEMS RETAINED`, "system");
   stage="fallen"; add("(1) GET UP", "system");
 }
@@ -1773,7 +1775,7 @@ function noTurnsMenu(){
   processRefill(); if(testMode){add("TEST MODE ACTIVE — expedition turn limit disabled.","reward");return;} if(player.turns>0){add("Not enough turns for that action.","danger");return;}
   add("NO EXPEDITION TURNS REMAIN.","danger");
   add(`NEXT TURN REFILL: ${refillText()}`,"bright");
-  add("Expedition Turns replenish every 24 hours (+50, up to 150).","system");
+  add("Expedition Turns replenish every 24 hours (+30, up to 150).","system");
   if(!player.flags.overnightLocked){add("Night is coming. Choose how you'll spend it.");add(overnightChoices(),"system");}else add(`OVERNIGHT STATE LOCKED — ${overnightLabel(player.flags.overnight)}`,"bright");
   add(`SAVE CURRENT   STATUS   INVENTORY   MAP${QA_BUILD?"   TESTING":""}`,"system");
   player.flags.turnResumeStage=["zeroTurns","overnightConfirm"].includes(stage)?(player.flags.turnResumeStage||"between"):stage;

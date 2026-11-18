@@ -36,6 +36,27 @@ const createGame = require('./helpers/wo33_dom.cjs');
  assert.equal(run('player.bolts-startingBolts'),run('amounts[0]'));
  assert.equal(run(`player.pack.some(item=>item.name==='Harbor Guard Cutlass')`),false);
 
+// Single ordinary items should sell directly, without opening quantity menus.
+// This covers a basic tool and consumable, including a legacy string quantity.
+ run(`player.pack.push({name:'Battered Flashlight',type:'tool',qty:1});`);
+ const flashlightPrice=run(`v48SellPrice(player.pack.find(i=>i.name==='Battered Flashlight'))`);
+ assert.ok(flashlightPrice>0);
+ const flashlightBefore=run('player.bolts');
+ run(`v53SaleStart('Battered Flashlight')`);
+ assert.equal(run('player.bolts'),flashlightBefore+flashlightPrice);
+ assert.equal(run(`player.pack.some(i=>i.name==='Battered Flashlight')`),false);
+ assert.equal(run('!!player.flags.v53Sale'),false);
+
+ run(`player.pack.push({name:'Tent',type:'consumable',qty:'1'});`);
+ const tentPrice=run(`v48SellPrice(player.pack.find(i=>i.name==='Tent'))`);
+ assert.ok(tentPrice>0);
+ const tentBefore=run('player.bolts');
+ run(`v53SaleStart('Tent')`);
+ assert.equal(run('player.bolts'),tentBefore+tentPrice);
+ assert.equal(run(`player.pack.some(i=>i.name==='Tent')`),false);
+ assert.equal(run('!!player.flags.v53Sale'),false);
+
+
  run(`v53SaleStart('Crab Meat');v53SaleCommand('sell 2');v53SaleCommand('confirm sale')`);
  assert.equal(run('player.bolts-startingBolts'),run('amounts[0]+2*amounts[1]'));
  assert.equal(run(`player.pack.find(item=>item.name==='Crab Meat').qty`),2);

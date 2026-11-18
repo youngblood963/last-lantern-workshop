@@ -133,8 +133,10 @@ presentation.textContent=`
    Other road regions and the roach combat/HP logic are untouched. */
 .gfx-frame.r127-route-scene .r127-road-art[data-region="CAUSEWAY"]:is([data-key^="ROACH NEST"],[data-key^="ROACH SWARM"]){justify-content:center!important;align-items:flex-end!important}
 .gfx-frame.r127-route-scene .r127-road-art[data-region="CAUSEWAY"]:is([data-key^="ROACH NEST"],[data-key^="ROACH SWARM"]) .r127-road-unit{
- width:29%!important;height:52%!important;flex:0 0 29%!important;margin-bottom:5%!important
+ width:29%!important;height:52%!important;flex:0 0 29%!important;margin-bottom:0!important
 }
+/* The preview needs less clearance than the live combat HP label. */
+.gfx-frame.r127-route-scene .r127-road-art[data-region="CAUSEWAY"]:is([data-key^="ROACH NEST"],[data-key^="ROACH SWARM"]) div.r127-road-unit::after{height:10px}
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="SOMETHING IN THE DRAIN"] .r127-road-unit{width:48%!important;height:30%}
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="FERAL DOG"] .r127-road-unit{width:52%!important;height:60%}
 

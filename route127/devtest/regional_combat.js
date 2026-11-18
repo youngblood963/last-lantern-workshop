@@ -106,7 +106,7 @@
   "The Squatters",
   "CENTRAL",
   "human",
-  3,
+  2,
   0.29,
   "ASK TO PASS",
   "Squatters defend a ruined storefront. Ask permission to cross their shelter.",
@@ -350,6 +350,7 @@
   const [title,region,type,count,fraction,alternative,text,material]=d;
   // Bat Colony can appear on Central, North, and West roads; one shared encounter definition.
   const regions=title==='Bat Colony'?['CENTRAL','NORTH','WEST']:[region];
+  if(title==='Aggressive Seagulls')regions.push('CAUSEWAY');
   const encounter={title:title.toUpperCase(),text,exclusive:true,choices:alternative+'   FIGHT   LEAVE',resolve(cmd){
    if(['leave','back away','move on'].includes(cmd)){add('You leave the encounter behind.');return true;}
    if(cmd==='fight'||(title==='Fuel Thieves'&&cmd==='take the fuel'))return r.regionalCombatFight(d);

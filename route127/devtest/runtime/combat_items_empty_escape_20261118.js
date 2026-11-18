@@ -5,7 +5,7 @@
  'use strict';
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||typeof GraphicalUI==='undefined')return;
  const available=()=>Array.isArray(player?.pack)&&player.pack.some(i=>Number(i.qty)>0&&
-   ['Bandage','Energy Bars','Reinforced Bandage','Wild Honey'].includes(i.name));
+   ['Bandage','Energy Bars','Reinforced Bandage','Wild Honey','Fresh Potato'].includes(i.name));
  // Restore both saved/stale combat-items stages and a current fight whose
  // last consumable was just used, without triggering another enemy attack.
  function recover(){

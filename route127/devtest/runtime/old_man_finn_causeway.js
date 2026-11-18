@@ -12,10 +12,20 @@ const ART='../devtest/assets/locations/old_man_finn_boat.png';
 const finnArtStyle=document.createElement('style');
 finnArtStyle.textContent=`
 .gfx-frame .gfx-art:has(> .gfx-image[src*="old_man_finn_boat.png"]) {
+ position:relative;
+ isolation:isolate;
  background-color:#060b0f!important;
- background-image:none!important;
+ background-image:var(--r127-finn-night-sky,none)!important;
+ background-size:150% auto!important;
+ background-position:right center!important;
+ background-repeat:no-repeat!important;
+}
+.gfx-frame .gfx-art:has(> .gfx-image[src*="old_man_finn_boat.png"]) > .r127-regional-sky {
+ display:none!important;
 }
 .gfx-frame .gfx-art > .gfx-image[src*="old_man_finn_boat.png"] {
+ position:relative;
+ z-index:1;
  object-fit:contain!important;
  object-position:center center!important;
 }
@@ -162,10 +172,32 @@ renderCurrentChoices=function(...args){
  if(stage===STAGE)return menu(player.flags.r127FinnPage||'main');
  return oldRender.apply(this,args);
 };
+// Give Finn a sky *behind* his cutout, shifted so the moon is clear of
+// his head. Do not reuse the image as both foreground and background.
+const previousFinnSync=GraphicalUI.sync;
+GraphicalUI.sync=function(...args){
+ const result=previousFinnSync.apply(this,args);
+ const figure=this.element?.figure;
+ if(figure){
+  if(stage===STAGE){
+   const period=typeof Route127RegionalSky?.phase==='function'
+     ?Route127RegionalSky.phase(player?.flags?.worldHour):'night';
+   const file=period==='dusk'?'sky_dawn.png':'sky_'+period+'.png';
+   const sky=new URL('../devtest/assets/regions/'+file,document.baseURI).href;
+   figure.style.setProperty('--r127-finn-night-sky','url("'+sky+'")');
+  }else figure.style.removeProperty('--r127-finn-night-sky');
+ }
+ return result;
+};
 const oldModel=GraphicalUI.model;
 GraphicalUI.model=function(...args){
  const result=oldModel.apply(this,args);
- if(stage===STAGE){result.location='old-man-finn';result.title='Old Man Finn — Causeway';result.art=ART;}
+ if(stage===STAGE){
+   result.location='old-man-finn';result.title='Old Man Finn — Causeway';result.art=ART;
+   // Finn is a transparent foreground, not the Causeway regional base.
+   // Never overlay the regional sky above his face.
+   result.regionalSky=null;result.causewayBacking=false;
+  }
  return result;
 };
 if(typeof TravelerPanels!=='undefined'){

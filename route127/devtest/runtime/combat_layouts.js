@@ -334,6 +334,16 @@
  function get(id,phase,device){
   const scene=sceneKey(id,phase,device),desktop=sceneKey(id,phase,'desktop');
   const layouts={...published[desktop],...local[desktop],...published[scene],...local[scene]};
+  // The Causeway has a narrow paved centerline. Override old published/browser
+  // layout coordinates for the Roach Nest while crossing it; preserve custom
+  // placements everywhere else and leave encounter/combat logic untouched.
+  if(id==='early:15'&&typeof route127CurrentRegion==='function'&&
+     typeof lanternState==='function'&&route127CurrentRegion(lanternState())==='CAUSEWAY'){
+   for(const file of ['roach_nest_ordinary.png','roach_nest_contaminated.png','roach_nest_aggressive_swarm.png']){
+    const key='0:'+file;
+    layouts[key]={...layouts[key],x:50,y:70,width:42,height:64,scale:.78,z:2,flip:false};
+   }
+  }
   // Scrap Duel is a full cinematic scene, not a reduced sprite over regional sky.
   // Correct old device-saved layouts as well as the published 0.76-scale default.
   if(id==='east:11'&&layouts['background:the_scrap_duel.png']){

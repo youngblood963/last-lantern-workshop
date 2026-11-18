@@ -6,7 +6,8 @@ const archived=[
  'char-867796f8-b080-4a59-bb19-6de79d5a066a','char-97032b90-9d64-4767-ac8e-808b5b984ead',
  'char-3c6f966b-9690-4c74-98cc-e215966c1c42','char-4d646e9f-c813-4ab9-9334-662ed5b08470',
  'char-fe8893fb-c6ca-4c33-8f28-f36e427a3abd','char-e659d321-e17b-49c7-b4fa-9fc64fc5678d',
- 'char-beeb2b3f-22e5-4364-876a-47e62ed56dab','char-88e938b2-4712-4a2d-aaee-aade98afdf88'
+ 'char-beeb2b3f-22e5-4364-876a-47e62ed56dab','char-88e938b2-4712-4a2d-aaee-aade98afdf88',
+ 'char-535085c1-b637-43e8-94e6-a7ee5fbef8d8','char-de3e1cad-40f5-4570-9dde-770401771cf5'
 ];
 const PAGE_SIZE=50;
 const ID=/^char-[a-f0-9-]{36}$/;

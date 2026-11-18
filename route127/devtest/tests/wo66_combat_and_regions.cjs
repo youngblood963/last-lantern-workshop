@@ -80,12 +80,12 @@ for(const [edge,step,region] of routes){
   run(`road66('${edge}',${step},${direction})`);
   assert.equal(run('r10Geography()'),region);
   const data=result(`draws66().map(title=>{const entry=RoadScenarioRegistry.regionalByTitle.get(title);
-   return {title,classification:entry.classification,regions:entry.regions,causeway:entry.causeway===true};
+   return {title,classification:entry.classification,regions:entry.regions};
   })`);
   assert.equal(data.some(entry=>entry.title==='THE SCRAP CLAIM'),region==='INDUSTRIAL');
-  assert.equal(data.some(entry=>entry.classification==='GLOBAL'),region!=='CAUSEWAY');
+  assert.ok(data.some(entry=>entry.classification==='GLOBAL'));
   assert.equal(new Set(data.map(entry=>entry.title)).size,data.length);
-  assert.ok(data.length&&data.every(entry=>region==='CAUSEWAY'?entry.causeway:
+  assert.ok(data.length&&data.every(entry=>region==='CAUSEWAY'?entry.regions.includes('CAUSEWAY'):
    entry.classification==='GLOBAL'||entry.regions.includes(region)));
  }
 }

@@ -1,5 +1,14 @@
 // WO13 explicit canonical lifecycle policy; stable registry IDs are never reordered.
 const ROAD_LIFECYCLE={
+  "east:158": {
+    "name": "THE POWDER MONKEY",
+    "lifecycle": "Repeatable",
+    "regions": ["CAUSEWAY"],
+    "workOrderId": null,
+    "service": false,
+    "groups": [],
+    "completion": "Repeatable combat. Existing unique blueprint flag remains permanent."
+  },
   "early:4": {
     "name": "ROADBLOCK",
     "lifecycle": "Repeatable",
@@ -823,10 +832,11 @@ const ROAD_LIFECYCLE={
   },
   "east:62": {
     "name": "THE CRAB TRAP",
-    "lifecycle": "One-time",
+    "lifecycle": "Repeatable",
     "regions": [
       "SEAPORT",
-      "LOWLANDS"
+      "LOWLANDS",
+      "CAUSEWAY"
     ],
     "workOrderId": null,
     "service": false,
@@ -835,7 +845,7 @@ const ROAD_LIFECYCLE={
         "FIGHT"
       ]
     ],
-    "completion": "Terminal flags: wo2.crabTrap. Existing rewards/quest consequences retained."
+    "completion": "Combat repeats per road occurrence. Unique salvage remains gated by wo2.crabTrap."
   },
   "east:63": {
     "name": "TACTICAL SNIPER",
@@ -861,10 +871,11 @@ const ROAD_LIFECYCLE={
   },
   "east:64": {
     "name": "SCRAP CRAB NEST",
-    "lifecycle": "One-time",
+    "lifecycle": "Repeatable",
     "regions": [
       "SEAPORT",
-      "LOWLANDS"
+      "LOWLANDS",
+      "CAUSEWAY"
     ],
     "workOrderId": null,
     "service": false,
@@ -873,7 +884,7 @@ const ROAD_LIFECYCLE={
         "FIGHT"
       ]
     ],
-    "completion": "Terminal flags: wo2.crabNest. Existing rewards/quest consequences retained."
+    "completion": "Combat repeats per road occurrence. Unique salvage remains gated by wo2.crabNest."
   },
   "early:0": {
     "name": "COUNTY WORK TRUCK",
@@ -3461,8 +3472,8 @@ const RoadLifecycle={
  'east:22':[['r18SaltWorkersFreed']],'east:25':[['r18ArmoryClaimed']],'east:27':[['r18ChapelBoxClaimed']],
  'east:35':[['r18OilOutcome']],'east:39':[['r18SilasOutcome','r18SilasChestClaimed']],
  'east:57':[['wo2.forklift']],'east:58':[['wo2.patrol']],'east:59':[['wo2.wo3Dogs']],
- 'east:60':[['wo2.wo3Drone']],'east:61':[['wo2.wo3Stalker']],'east:62':[['wo2.crabTrap']],
- 'east:63':[['wo2.wo4Sniper']],'east:64':[['wo2.crabNest']],'east:65':[['wo2.fresh']],
+ 'east:60':[['wo2.wo3Drone']],'east:61':[['wo2.wo3Stalker']],
+ 'east:63':[['wo2.wo4Sniper']],'east:65':[['wo2.fresh']],
  'east:66':[['wo2.hash']],'east:68':[['wo2.windshield']],'east:69':[['wo2.milepost']],
  'east:71':[['wo2.wo3TrapLoot']],'east:73':[['wo2.toxic']],'east:74':[['wo2.wo3Lookout']],
  'east:75':[['wo2.wo4Bear']]

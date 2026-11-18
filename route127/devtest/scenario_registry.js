@@ -1394,7 +1394,11 @@ wo2(){
   e.resolve=function(cmd){if(['move on','back away','leave'].includes(cmd)){add('You leave the scene and return to the road.','system');return true;}const action=actions[cmd.toUpperCase()];return action?action()!==false:false;};
   const rewardKeys={'ABANDONED SUPPLY TRUCK':'fresh','BROKEN TOLL CREW':'patrol','CARGO HIJACKERS':'crabTrap','FREIGHT CAR AMBUSH':'forklift','SMOKE BEYOND THE GUARDRAIL':'harold','SCRAP CRAB NEST':'crabNest'};
   const rewardKey=rewardKeys[title];
-  if(rewardKey){const resolve=e.resolve;e.wo2Key=rewardKey;e.description=()=>registry.wo2State()[rewardKey]?name+' — the confrontation is over. The site has already been searched.':e.text;e.prompt=()=>registry.wo2State()[rewardKey]&&!['crabTrap','crabNest'].includes(rewardKey)?'INSPECT AFTERMATH   MOVE ON':e.choices;e.resolve=function(cmd){if(registry.wo2State()[rewardKey]&&!['crabTrap','crabNest'].includes(rewardKey)){if(['inspect aftermath','move on','leave','back away'].includes(cmd)){add('The site is quiet. There is nothing left to collect.');return true;}return false;}return resolve.call(this,cmd);};}
+  if(rewardKey){const resolve=e.resolve;e.wo2Key=rewardKey;
+   const aftermath=()=>registry.wo2State()[rewardKey]&&!['crabTrap','crabNest'].includes(rewardKey);
+   e.description=()=>aftermath()?name+' — the confrontation is over. The site has already been searched.':e.text;
+   e.prompt=()=>aftermath()?'INSPECT AFTERMATH   MOVE ON':e.choices;
+   e.resolve=function(cmd){if(aftermath()){if(['inspect aftermath','move on','leave','back away'].includes(cmd)){add('The site is quiet. There is nothing left to collect.');return true;}return false;}return resolve.call(this,cmd);};}
   Object.assign(e,extra);return e;
  }
  function clue(key,message){registry.wo2Once(key,()=>add(message,'bright'));}
@@ -1784,7 +1788,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "early:6",
    "legacyName": "THE STRAY",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -1810,7 +1816,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "early:15",
    "legacyName": "ROACH NEST",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -1818,7 +1826,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "early:16",
    "legacyName": "TUNNEL RATS",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -1826,7 +1836,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "early:17",
    "legacyName": "FERAL DOG",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -1834,7 +1846,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "early:18",
    "legacyName": "LONE SCAVENGER",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -1842,7 +1856,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "early:19",
    "legacyName": "GANG LOOKOUT",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -1858,7 +1874,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "early:21",
    "legacyName": "SECURITY DRONE",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -1952,7 +1970,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "early:11",
    "legacyName": "THE BIG MAN",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -2044,7 +2064,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "east:34",
    "legacyName": "THE WARDEN",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -2401,7 +2423,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "early:50",
    "legacyName": "THE LIMPING HOUND",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -2409,7 +2433,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "early:66",
    "legacyName": "MILES THE COURIER",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -2664,7 +2690,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "early:60",
    "legacyName": "BROKEN RADIO",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -2759,8 +2787,7 @@ RoadScenarioRegistry.regionalSpec = {
    "classification": "REGIONAL",
    "regions": [
     "INDUSTRIAL",
-    "LOWLANDS",
-    "CAUSEWAY"
+    "LOWLANDS"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -2877,7 +2904,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "east:3",
    "legacyName": "THE RED RAIN",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -3083,7 +3112,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "east:79",
    "legacyName": "A DRESSING IN THE DUST",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -3175,7 +3206,7 @@ RoadScenarioRegistry.installRegions=function(){
  this.regionalValidation={valid:true,total:134,counts,roads:LANTERN_WORLD_GRAPH.edges.length};
  // Filter before category availability, category weights and Corvette priority selection.
  const candidates=r10Candidates;r10Candidates=function(legacyPool,kind){const geography=r10Geography();return candidates(legacyPool,kind).filter(i=>r.wo6Eligible(r.pool(legacyPool)[i],geography));};
- // Post-review GLOBAL encounter: append only AFTER validating all 134 historical
+ // Post-review encounter: append only AFTER validating all 134 historical
   // IDs. The Powder Monkey is distinct from the Mud Cannon; no prior slot shifts.
   if(!this.powderMonkeyInstalled){
    const row=this.powderMonkeyRow;
@@ -3191,9 +3222,11 @@ RoadScenarioRegistry.installRegions=function(){
     }};
    const index=eastEncounters.push(bomber)-1,id='east:'+index;
    R10_POOLS.east.combat.push(index);
-   const item={number:null,id,legacyName:bomber.title,name:bomber.title,classification:'GLOBAL',regions:[],authority:'Owner-approved independent bomber encounter',encounter:bomber};
+   R10_POOLS.coast.combat.push(index);
+   const regions=['CAUSEWAY'];
+   const item={number:null,id,legacyName:bomber.title,name:bomber.title,classification:'REGIONAL',regions,authority:'Owner-approved independent bomber encounter',encounter:bomber};
    this.regionalCatalog.push(item);this.regionalById.set(id,item);this.regionalByTitle.set(r10CanonicalTitle(bomber.title),item);
-   const entry={id,canonicalId:id,name:bomber.title,classification:'GLOBAL',region:'GLOBAL',regions:[],encounter:bomber,references:[{road:'east',category:'combat',index}]};
+   const entry={id,canonicalId:id,name:bomber.title,classification:'REGIONAL',region:'CAUSEWAY',regions,encounter:bomber,references:[{road:'east',category:'combat',index},{road:'coast',category:'combat',index}]};
    this.entries.push(entry);this.byId[id]=entry;this.powderMonkeyInstalled=true;
   }
   // DEVTEST: formerly fixed coast patrols are ordinary random SEAPORT combat.

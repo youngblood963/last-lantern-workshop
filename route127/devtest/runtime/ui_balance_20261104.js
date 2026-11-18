@@ -2,7 +2,7 @@
  * No map edits, movement or turn changes. */
 (()=>{'use strict';if(!/\/route127\/devtest\/(?:index\.html)?$/.test(location.pathname))return;
 if(typeof HEALING_ITEM_RATES!=='undefined')Object.assign(HEALING_ITEM_RATES,{
- 'Fresh Carrot':.05,'Fresh Potato':.05,'Fresh Tomato':.05,'Fresh Cabbage':.05,
+ 'Fresh Carrot':.05,'Fresh Potato':.10,'Fresh Tomato':.05,'Fresh Cabbage':.05,
  'Roadhouse Hash':.30
 });
 if(typeof GraphicalUI==='undefined')return;

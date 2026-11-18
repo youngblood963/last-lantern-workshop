@@ -19,7 +19,7 @@ async function main(){
  const expiryScript=process.env.R127_QA_EXPIRE_SCRIPT;
  assert.ok(!expiryScript||hosted,'Session expiry helper is for hosted QA only');
  async function playerClient(index){
-  const context=await browser.newContext({ignoreHTTPSErrors,bypassCSP:!hosted});
+  const context=await browser.newContext({ignoreHTTPSErrors,bypassCSP:!hosted,viewport:{width:1024,height:520}});
   const page=await context.newPage();
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto(url.href,{waitUntil:'domcontentloaded'});
@@ -67,6 +67,12 @@ async function main(){
   for(const [c,other] of [[a,b],[b,a]]){
    const target=c.page.locator('[data-cloud-survivor-id="'+other.id+'"]');
    await target.waitFor({timeout:45000});
+   assert.equal(await target.evaluate(card=>{
+    const roster=card.closest('.r127-cloud-survivors');
+    const choices=roster.nextElementSibling;
+    return choices===GraphicalUI.element.choices&&
+     card.getBoundingClientRect().bottom<=GraphicalUI.element.main.getBoundingClientRect().bottom;
+   }),true,'Portrait row fits above the choices on a short desktop viewport');
    assert.equal(await c.page.locator('[data-cloud-survivor-id="'+c.id+'"]').count(),0);
    assert.equal(await target.locator('strong').innerText(),'Talk to '+other.name);
    await target.getByText('Online',{exact:true}).waitFor();

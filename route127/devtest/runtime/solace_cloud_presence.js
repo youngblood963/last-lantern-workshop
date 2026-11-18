@@ -85,8 +85,11 @@
    menu?.remove();
    return;
   }
-  const target=elements.frame.hidden?GraphicalUI.home:elements.choices;
-  if(menu?.parentNode!==target)target.append(menu);
+  if(elements.frame.hidden){
+   if(menu.parentNode!==GraphicalUI.home)GraphicalUI.home.append(menu);
+  }else if(menu.parentNode!==elements.main||menu.nextElementSibling!==elements.choices){
+   elements.main.insertBefore(menu,elements.choices);
+  }
  }
  function updateRows(next){
   const survivor=next.find(row=>row.id===selected);

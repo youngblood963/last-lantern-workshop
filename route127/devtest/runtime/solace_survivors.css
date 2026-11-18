@@ -63,10 +63,24 @@
 .r127-survivor-details dd { margin: 0 0 .4rem; }
 
 .r127-cloud-survivors {
-  grid-column: 1 / -1;
-  padding: .5rem 0;
+  flex: 0 0 auto;
+  min-width: 0;
+  padding: .15rem 0;
 }
 .r127-cloud-survivors p { margin: 0; }
+.r127-cloud-survivors .r127-survivor-cards {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  margin: .2rem 0 0;
+}
+.r127-cloud-survivors .r127-survivor-cards button {
+  flex: 0 0 auto;
+  padding: .2rem .4rem;
+}
+.r127-cloud-survivors .r127-survivor-cards img {
+  width: 2rem;
+  height: 2rem;
+}
 
 .r127-cloud-survivor-status {
   display: block;

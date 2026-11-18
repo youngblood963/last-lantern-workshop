@@ -1,7 +1,7 @@
 {
   "environment": "DEVTEST",
   "source": "route127/devtest/index.html",
-  "sourceSHA256": "e0707139526740f7612954ff1be15e5677b0fcd44ff17ccaea38797052a8a57c",
+  "sourceSHA256": "f5c40be3796d4992d9df5ff495880480f041b4beee008d5cb497b72abaf0ed4b",
   "base": "../playtest/",
   "externalCount": 169,
   "inlineCount": 9,
@@ -1046,9 +1046,9 @@
     },
     {
       "phase": "overlay",
-      "src": "../devtest/runtime/solace_cloud_presence.js?v=2",
+      "src": "../devtest/runtime/solace_cloud_presence.js?v=3",
       "path": "route127/devtest/runtime/solace_cloud_presence.js",
-      "query": "?v=2"
+      "query": "?v=3"
     },
     {
       "phase": "overlay",

@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="../devtest/runtime/ui_stabilization_20261104.css?v=wo49-shared-room">
 <link rel="stylesheet" href="../devtest/runtime/nessa_pet_shop.css?v=1">
   <link rel="stylesheet" href="../devtest/runtime/scenario_results_wo52.css?v=metal-dialog-room-20261118">
-  <link rel="stylesheet" href="../devtest/runtime/cloud-login.css?v=wo64">
+  <link rel="stylesheet" href="../devtest/runtime/cloud-login.css?v=account-recovery-20261118">
   <link rel="stylesheet" href="../devtest/runtime/solace_survivors.css?v=wo69b">
 </head>
 <body>
@@ -804,10 +804,38 @@ globalThis.Route127RoadLoadRecovery=Object.freeze({restore,skipStalledEvent});
       <h1 id="cloud-login-title" class="cloud-login-brand"><span>Route 127</span></h1>
       <form id="cloud-auth">
         <label>Account <input name="login" autocomplete="username" required minlength="3" maxlength="64" autofocus></label>
-        <label>Password <input name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128"></label>
+        <label for="cloud-login-password">Password</label>
+        <div class="cloud-password-field">
+          <input id="cloud-login-password" name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128">
+          <button type="button" data-password-toggle="cloud-login-password" aria-label="Show password" aria-pressed="false"><span aria-hidden="true">👁</span></button>
+        </div>
+        <fieldset id="cloud-registration" hidden>
+          <label>Recovery question
+            <select name="question" data-recovery-questions></select>
+          </label>
+          <label>Recovery answer <input name="answer" type="password" autocomplete="off" minlength="3" maxlength="128"></label>
+        </fieldset>
         <div class="cloud-login-actions">
           <button type="submit" name="action" value="login">Sign in</button>
-          <button type="submit" name="action" value="register">Register</button>
+          <button type="button" id="cloud-open-register">Create account</button>
+          <button type="button" id="cloud-forgot-password">Forgot password?</button>
+        </div>
+      </form>
+      <form id="cloud-recover" hidden>
+        <label>Account <input name="login" autocomplete="username" required minlength="3" maxlength="64"></label>
+        <label id="cloud-answer-step" hidden><span id="cloud-recovery-question"></span>
+          <input name="answer" type="password" autocomplete="off" minlength="3" maxlength="128">
+        </label>
+        <div id="cloud-reset-step" hidden>
+          <label for="cloud-reset-password">New password</label>
+          <div class="cloud-password-field">
+            <input id="cloud-reset-password" name="password" type="password" autocomplete="new-password" minlength="12" maxlength="128">
+            <button type="button" data-password-toggle="cloud-reset-password" aria-label="Show password" aria-pressed="false"><span aria-hidden="true">👁</span></button>
+          </div>
+        </div>
+        <div class="cloud-login-actions">
+          <button type="submit">Continue</button>
+          <button type="button" id="cloud-recovery-back">Back to sign in</button>
         </div>
       </form>
       <div class="cloud-login-feedback"></div>
@@ -815,6 +843,20 @@ globalThis.Route127RoadLoadRecovery=Object.freeze({restore,skipStalledEvent});
   </dialog>
   <section class="cloud-account" hidden>
     <h2>Account</h2>
+    <details id="cloud-recovery-settings">
+      <summary>Set up password recovery</summary>
+      <form id="cloud-enroll-recovery">
+        <label for="cloud-enroll-password">Current password</label>
+        <div class="cloud-password-field">
+          <input id="cloud-enroll-password" name="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128">
+          <button type="button" data-password-toggle="cloud-enroll-password" aria-label="Show password" aria-pressed="false"><span aria-hidden="true">👁</span></button>
+        </div>
+        <label>Recovery question <select name="question" data-recovery-questions required></select></label>
+        <label>Recovery answer <input name="answer" type="password" autocomplete="off" required minlength="3" maxlength="128"></label>
+        <button type="submit">Save recovery question</button>
+      </form>
+    </details>
+
     <div id="cloud-feedback">
       <span id="cloud-status" role="status">Checking session…</span>
       <button type="button" id="cloud-retry" class="traveler-button" hidden>Retry save</button>
@@ -832,7 +874,7 @@ globalThis.Route127RoadLoadRecovery=Object.freeze({restore,skipStalledEvent});
 <script src="../devtest/runtime/solace_cloud_presence.js?v=wo69e"></script>
 <script src="../devtest/runtime/old_man_finn_causeway.js?v=finn-midpoint-waypoint-20261118"></script>
 <script src="../devtest/runtime/boss_weapon_sell_20261118.js?v=1"></script>
-<script src="../runtime/cloud-save-bootstrap.js?v=wo64-quota-20261118" data-route127-client="devtest"></script>
+<script src="../runtime/cloud-save-bootstrap.js?v=wo64-recovery-20261118" data-route127-client="devtest"></script>
 </body>
 </html>
 

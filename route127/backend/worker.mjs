@@ -57,6 +57,75 @@ async function limit(env,req,login){
   if(row.attempts>10)fail(429,'Too many attempts; wait a minute');
  }
 }
+const recoveryQuestions={
+ first_job:'What was the name of your first workplace?',
+ childhood_place:'What was the name of a place you liked visiting as a child?',
+ memorable_book:'What was the title of a book you remember from childhood?'
+};
+const recoveryAnswer=value=>typeof value==='string'?value.normalize('NFKC').trim().toLowerCase():'';
+const validLogin=login=>/^[a-z0-9][a-z0-9_.-]{2,63}$/.test(login);
+const validPassword=value=>typeof value==='string'&&value.length>=12&&value.length<=128;
+function recoveryInput(b){
+ const answer=recoveryAnswer(b.answer);
+ if(!Object.hasOwn(recoveryQuestions,b.question)||answer.length<3||answer.length>128)
+  fail(400,'Choose a recovery question and enter a 3–128 character answer');
+ return answer;
+}
+async function recoveryMac(env,value){
+ const key=await crypto.subtle.importKey('raw',enc.encode(env.AUTH_PEPPER),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+ return hex(await crypto.subtle.sign('HMAC',key,enc.encode(JSON.stringify(value))));
+}
+async function recoveryFields(env,b){
+ const answer=recoveryInput(b),salt=random();
+ return [b.question,salt,await passwordHash(answer,salt,'recovery:'+env.AUTH_PEPPER)];
+}
+async function recoveryLimit(env,req,login,step){
+ const window=Math.floor(Date.now()/86400000);
+ for(const [scope,identity,max] of [['ip',req.headers.get('CF-Connecting-IP')||'local',60],['login',login,8]]){
+  const key=await sha('recovery:'+step+':'+scope+':'+identity);
+  const row=await env.DB.prepare(`INSERT INTO r127_auth_limits(key,window,attempts) VALUES(?,?,1)
+   ON CONFLICT(key) DO UPDATE SET window=excluded.window,
+   attempts=CASE WHEN window=excluded.window THEN attempts+1 ELSE 1 END RETURNING attempts`).bind(key,window).first();
+  if(row.attempts>max)fail(429,'Too many recovery requests. Try again tomorrow.');
+ }
+}
+function recoveryFailed(){fail(401,'Could not verify recovery details');}
+async function recover(env,req,path){
+ const b=await body(req),login=typeof b.login==='string'?b.login.trim().toLowerCase():'';
+ if(!validLogin(login))fail(400,'Enter a valid account username');
+ const step=path.split('/').at(-1);
+ await recoveryLimit(env,req,login,step);
+ const row=await env.DB.prepare('SELECT id,password_hash,recovery_question,recovery_salt,recovery_hash FROM r127_accounts WHERE login=?').bind(login).first();
+ const dummy=await recoveryMac(env,['dummy',login]);
+ if(step==='question'){
+  const choices=Object.keys(recoveryQuestions);
+  const id=row?.recovery_question||choices[parseInt(dummy.slice(0,8),16)%choices.length];
+  return response({question:recoveryQuestions[id]});
+ }
+ if(step==='verify'){
+  const answer=recoveryAnswer(b.answer);
+  if(answer.length<3||answer.length>128)recoveryFailed();
+  const hash=await passwordHash(answer,row?.recovery_salt||dummy,'recovery:'+env.AUTH_PEPPER);
+  if(!equal(row?.recovery_hash||dummy,hash)||!row?.recovery_hash)recoveryFailed();
+  const expires=Date.now()+5*60000;
+  const proof=await recoveryMac(env,['reset',row.id,row.password_hash,row.recovery_hash,expires]);
+  return response({token:expires+'.'+proof});
+ }
+ const match=typeof b.token==='string'&&b.token.match(/^(\d{13})\.([a-f0-9]{64})$/);
+ if(!match||Number(match[1])<=Date.now())recoveryFailed();
+ const proof=await recoveryMac(env,['reset',row?.id||dummy,row?.password_hash||dummy,row?.recovery_hash||dummy,Number(match[1])]);
+ if(!equal(proof,match[2])||!row?.recovery_hash)recoveryFailed();
+ if(!validPassword(b.password))fail(400,'Use a 12–128 character password');
+ const salt=random(),hash=await passwordHash(b.password,salt,env.AUTH_PEPPER);
+ const [update]=await env.DB.batch([
+  env.DB.prepare('UPDATE r127_accounts SET password_hash=?,salt=? WHERE id=? AND password_hash=? AND recovery_hash=?')
+   .bind(hash,salt,row.id,row.password_hash,row.recovery_hash),
+  env.DB.prepare('DELETE FROM r127_sessions WHERE account_id=? AND EXISTS(SELECT 1 FROM r127_accounts WHERE id=? AND password_hash=?)')
+   .bind(row.id,row.id,hash)
+ ]);
+ if(update.meta.changes!==1)recoveryFailed();
+ return response({ok:true});
+}
 async function session(env,req){
  const token=(req.headers.get('Cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(COOKIE+'='))?.slice(COOKIE.length+1)||'';
  if(!/^[a-f0-9]{64}$/.test(token))fail(401,'Sign in required');
@@ -68,6 +137,7 @@ async function character(env,account){return env.DB.prepare('SELECT id,name FROM
 async function handle(req,env){
  const url=new URL(req.url);
  let path=url.pathname;
+ const devtestAccount=path.startsWith('/route127/devtest/api/recovery/');
  const devtestPresence=path.startsWith('/route127/devtest/api/presence/');
  const devtestWorld=path.startsWith('/route127/devtest/api/world/');
  const localWorld=env.DEVTEST_WORLD_LOCAL==='true'&&
@@ -95,7 +165,10 @@ async function handle(req,env){
  // Same-origin only. Cookies are HttpOnly and CSRF requests must carry exact Origin.
  if(req.headers.get('Origin')&&req.headers.get('Origin')!==url.origin)fail(403,'Origin not allowed');
  if(req.method==='POST'&&req.headers.get('Origin')!==url.origin)fail(403,'Same-origin request required');
- if(['/api/register','/api/login'].includes(path)&&req.method==='POST'){
+ if(path.startsWith('/api/recovery/')&&(!devtestAccount||req.method!=='POST'))fail(404,'Not found');
+ if(['/api/recovery/question','/api/recovery/verify','/api/recovery/reset'].includes(path))return recover(env,req,path);
+ const recoveryRegistration=path==='/api/recovery/register';
+ if((['/api/register','/api/login'].includes(path)||recoveryRegistration)&&req.method==='POST'){
   const b=await body(req),login=typeof b.login==='string'?b.login.trim().toLowerCase():'';
   if(!/^[a-z0-9][a-z0-9_.-]{2,63}$/.test(login)||typeof b.password!=='string'||b.password.length<12||b.password.length>128)fail(400,'Use a 3–64 character login and a 12–128 character password');
   await limit(env,req,login);
@@ -103,16 +176,36 @@ async function handle(req,env){
   const salt=existing?.salt||random();
   const hash=await passwordHash(b.password,salt,env.AUTH_PEPPER);
   let account=existing?.id;
-  if(path==='/api/register'){
+  if(path==='/api/register'||recoveryRegistration){
    if(existing)fail(409,'Login unavailable');account='acct-'+crypto.randomUUID();
-   try{await env.DB.prepare('INSERT INTO r127_accounts(id,login,password_hash,salt,created_at) VALUES(?,?,?,?,?)').bind(account,login,hash,salt,Date.now()).run();}
+   const recovery=recoveryRegistration?await recoveryFields(env,b):null;
+   try{
+    if(recovery)await env.DB.prepare('INSERT INTO r127_accounts(id,login,password_hash,salt,created_at,recovery_question,recovery_salt,recovery_hash) VALUES(?,?,?,?,?,?,?,?)')
+     .bind(account,login,hash,salt,Date.now(),...recovery).run();
+    else await env.DB.prepare('INSERT INTO r127_accounts(id,login,password_hash,salt,created_at) VALUES(?,?,?,?,?)').bind(account,login,hash,salt,Date.now()).run();
+   }
    catch(e){if(/UNIQUE/.test(String(e)))fail(409,'Login unavailable');throw e;}
   }else if(!existing||!equal(existing.password_hash,hash))fail(401,'Invalid login or password');
   const token=random();
-  await env.DB.prepare('INSERT INTO r127_sessions(token_hash,account_id,expires_at) VALUES(?,?,?)').bind(await sha(token),account,Date.now()+SESSION_MS).run();
+  const issued=await env.DB.prepare(`INSERT INTO r127_sessions(token_hash,account_id,expires_at)
+   SELECT ?,id,? FROM r127_accounts WHERE id=? AND password_hash=?`).bind(await sha(token),Date.now()+SESSION_MS,account,hash).run();
+  if(issued.meta.changes!==1)fail(401,'Invalid login or password');
   return response({ok:true,accountId:account,character:await character(env,account)},200,{'Set-Cookie':cookie(token)});
  }
  const auth=await session(env,req);
+ if(path==='/api/recovery/enroll'){
+  const b=await body(req);
+  if(!validPassword(b.password))fail(400,'Enter your current password');
+  await recoveryLimit(env,req,auth.account_id,'enroll');
+  const row=await env.DB.prepare('SELECT password_hash,salt FROM r127_accounts WHERE id=?').bind(auth.account_id).first();
+  if(!row||!equal(await passwordHash(b.password,row.salt,env.AUTH_PEPPER),row.password_hash))fail(401,'Current password could not be verified');
+  const fields=await recoveryFields(env,b);
+  const result=await env.DB.prepare('UPDATE r127_accounts SET recovery_question=?,recovery_salt=?,recovery_hash=? WHERE id=? AND password_hash=?')
+   .bind(...fields,auth.account_id,row.password_hash).run();
+  if(result.meta.changes!==1)fail(401,'Sign in again to configure recovery');
+  return response({ok:true});
+ }
+
  if(path==='/api/logout'&&req.method==='POST'){
   await env.DB.prepare('DELETE FROM r127_sessions WHERE token_hash=?').bind(auth.tokenHash).run();return response({ok:true},200,{'Set-Cookie':cookie('',0)});
  }

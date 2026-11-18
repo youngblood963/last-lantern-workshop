@@ -93,3 +93,54 @@ test('concurrent character creation and competing device saves have one winner',
  const saved=(await call('save',null,a.cookie)).body;
  assert.equal(saved.revision,1);assert.equal(saved.character.name,saved.snapshot.player.handle);
 });
+
+test('DEVTEST recovery enrolls an existing account, resets once and preserves the owned save',async t=>{
+ const now=Date.now();t.mock.method(Date,'now',()=>now);
+ const env={ENVIRONMENT:'development',DEV_BACKUP_ENABLED:'true',WO61_DIRECT_DEVTEST:'true',AUTH_PEPPER:crypto.randomUUID()+crypto.randomUUID(),DB:database()};
+ const host='https://lastlanternworkshop.com';
+ const call=async(path,data,token='',devtest=true)=>{
+  const url=host+(devtest?'/route127/devtest/api/':'/api/')+path;
+  const r=await worker.fetch(new Request(url,{method:data?'POST':'GET',
+   headers:{...(data?{'Content-Type':'application/json',Origin:host}:{}),...(token?{Cookie:token}:{})},
+   body:data?JSON.stringify(data):undefined}),env);
+  return {status:r.status,body:await r.json(),cookie:r.headers.get('Set-Cookie')?.split(';')[0]};
+ };
+ const login='existing',answer='Made-up Answer 124',question='first_job';
+ const {cookie,body:{accountId}}=await call('register',{login,password:TEST_PASSWORD});
+ assert.equal((await call('character',{snapshot:fixture()},cookie)).status,201);
+ const saved=await call('save',null,cookie);
+ assert.equal((await call('recovery/question',{login},'',false)).status,404);
+ const unknown=await call('recovery/question',{login:'unknown'});
+ assert.equal(unknown.status,200);
+ assert.deepEqual(Object.keys(unknown.body),['question']);
+ const absent=await call('recovery/verify',{login:'unknown',answer});
+ assert.deepEqual(absent,await call('recovery/verify',{login,answer}));
+ assert.equal(absent.status,401);
+ assert.equal((await call('recovery/enroll',{password:TEST_PASSWORD,question,answer})).status,401);
+ assert.equal((await call('recovery/enroll',{password:'wrong password 123',question,answer},cookie)).status,401);
+ assert.equal((await call('recovery/enroll',{password:TEST_PASSWORD,question,answer},cookie)).status,200);
+ assert.match((await call('recovery/question',{login})).body.question,/first workplace/);
+ const enrolled=env.DB.sql.prepare('SELECT recovery_hash,recovery_salt FROM r127_accounts WHERE id=?').get(accountId);
+ assert.match(enrolled.recovery_hash,/^[a-f0-9]{64}$/);
+ assert.match(enrolled.recovery_salt,/^[a-f0-9]{64}$/);
+ assert(!JSON.stringify(enrolled).includes(answer));
+ assert.equal((await call('recovery/verify',{login,answer:'invalid answer'})).status,401);
+ const verification=await call('recovery/verify',{login,answer:'  made-up answer 124  '});
+ assert.equal(verification.status,200);
+ const password='new-r127-password-123';
+ assert.equal((await call('recovery/reset',{login,token:'wrong',password})).status,401);
+ assert.equal((await call('recovery/reset',{login,token:verification.body.token,password})).status,200);
+ assert.equal((await call('recovery/reset',{login,token:verification.body.token,password})).status,401);
+ assert.equal((await call('me',null,cookie)).status,401);
+ assert.equal((await call('login',{login,password:TEST_PASSWORD})).status,401);
+ const signedIn=await call('login',{login,password});
+ assert.equal(signedIn.body.accountId,accountId);
+ assert.deepEqual((await call('save',null,signedIn.cookie)).body,saved.body);
+ const newAccount=await call('recovery/register',{login:'second-account',question,answer,password});
+ assert.equal(newAccount.status,200);
+ const second=env.DB.sql.prepare('SELECT recovery_hash,recovery_salt FROM r127_accounts WHERE id=?').get(newAccount.body.accountId);
+ assert.notEqual(enrolled.recovery_salt,second.recovery_salt);
+ assert.notEqual(enrolled.recovery_hash,second.recovery_hash);
+ for(let i=0;i<7;i++)assert.equal((await call('recovery/verify',{login:'unknown',answer})).status,401);
+ assert.equal((await call('recovery/verify',{login:'unknown',answer})).status,429);
+});

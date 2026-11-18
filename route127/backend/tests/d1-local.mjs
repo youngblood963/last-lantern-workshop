@@ -3,7 +3,7 @@ import {DatabaseSync} from 'node:sqlite';
 import {readFileSync} from 'node:fs';
 export function database(path=':memory:'){
  const db=new DatabaseSync(path);
- for(const migration of ['0001_accounts.sql','0002_expedition.sql','0003_solace_presence.sql','0004_solace_activity.sql'])
+ for(const migration of ['0001_accounts.sql','0002_expedition.sql','0003_solace_presence.sql','0004_solace_activity.sql','0005_account_recovery.sql'])
   db.exec(readFileSync(new URL('../migrations/'+migration,import.meta.url),'utf8'));
  return {
   sql:db,

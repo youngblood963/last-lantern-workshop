@@ -6,6 +6,24 @@ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||
    typeof lanternState!=='function'||typeof GraphicalUI==='undefined')return;
 const EDGE='boulder-junction--seaport', STEP=6, STAGE='r127FinnStore';
 const ART='../devtest/assets/locations/old_man_finn_boat.png';
+// Finn's wide cinematic art was being cropped by the global cover rule,
+// making his boat and figure look enormous. Fit the full composition inside
+// this scene only, with a dimmed cover backdrop to avoid hard side bars.
+const finnArtStyle=document.createElement('style');
+finnArtStyle.textContent=`
+.gfx-frame .gfx-art:has(> .gfx-image[src*="old_man_finn_boat.png"]) {
+ background-color:#060b0f!important;
+ background-image:linear-gradient(#03070cbb,#03070cbb),url("../devtest/assets/locations/old_man_finn_boat.png")!important;
+ background-position:center!important;
+ background-size:cover!important;
+}
+.gfx-frame .gfx-art > .gfx-image[src*="old_man_finn_boat.png"] {
+ object-fit:contain!important;
+ object-position:center center!important;
+}
+`;
+document.head.appendChild(finnArtStyle);
+
 const inventoryTemplate=()=>({
  'Energy Bars':8,'Bandage':6,'Tent':3,'Scrap Metal':8,Wire:6,Cloth:6,'Emergency Trauma Kit':1
 });

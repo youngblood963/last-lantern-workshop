@@ -1394,7 +1394,11 @@ wo2(){
   e.resolve=function(cmd){if(['move on','back away','leave'].includes(cmd)){add('You leave the scene and return to the road.','system');return true;}const action=actions[cmd.toUpperCase()];return action?action()!==false:false;};
   const rewardKeys={'ABANDONED SUPPLY TRUCK':'fresh','BROKEN TOLL CREW':'patrol','CARGO HIJACKERS':'crabTrap','FREIGHT CAR AMBUSH':'forklift','SMOKE BEYOND THE GUARDRAIL':'harold','SCRAP CRAB NEST':'crabNest'};
   const rewardKey=rewardKeys[title];
-  if(rewardKey){const resolve=e.resolve;e.wo2Key=rewardKey;e.description=()=>registry.wo2State()[rewardKey]?name+' — the confrontation is over. The site has already been searched.':e.text;e.prompt=()=>registry.wo2State()[rewardKey]&&!['crabTrap','crabNest'].includes(rewardKey)?'INSPECT AFTERMATH   MOVE ON':e.choices;e.resolve=function(cmd){if(registry.wo2State()[rewardKey]&&!['crabTrap','crabNest'].includes(rewardKey)){if(['inspect aftermath','move on','leave','back away'].includes(cmd)){add('The site is quiet. There is nothing left to collect.');return true;}return false;}return resolve.call(this,cmd);};}
+  if(rewardKey){const resolve=e.resolve;e.wo2Key=rewardKey;
+   const aftermath=()=>registry.wo2State()[rewardKey]&&!['crabTrap','crabNest'].includes(rewardKey);
+   e.description=()=>aftermath()?name+' — the confrontation is over. The site has already been searched.':e.text;
+   e.prompt=()=>aftermath()?'INSPECT AFTERMATH   MOVE ON':e.choices;
+   e.resolve=function(cmd){if(aftermath()){if(['inspect aftermath','move on','leave','back away'].includes(cmd)){add('The site is quiet. There is nothing left to collect.');return true;}return false;}return resolve.call(this,cmd);};}
   Object.assign(e,extra);return e;
  }
  function clue(key,message){registry.wo2Once(key,()=>add(message,'bright'));}
@@ -2759,8 +2763,7 @@ RoadScenarioRegistry.regionalSpec = {
    "classification": "REGIONAL",
    "regions": [
     "INDUSTRIAL",
-    "LOWLANDS",
-    "CAUSEWAY"
+    "LOWLANDS"
    ],
    "authority": "Work Order 6 explicit classification"
   },

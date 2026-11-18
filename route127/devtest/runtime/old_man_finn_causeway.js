@@ -84,25 +84,27 @@ function confirm(){
  }
  delete player.flags.r127FinnSale;menu('sell');
 }
-const oldRoadMenu=lanternRoadMenu;
-lanternRoadMenu=function(...args){
- const ready=position();
- if(ready)discover();
- const result=oldRoadMenu.apply(this,args);
- if(ready){
-  const action='VISIT OLD MAN FINN';
-  // Append through the same native choice registrar, after the road menu.
-  outputQueue=outputQueue.then(()=>{
-   if(stage!=='lanternRoad'||!position())return;
-   if(Object.values(numberedChoices).includes(action.toLowerCase()))return;
-   const next=String(Math.max(0,...Object.keys(numberedChoices).map(Number).filter(Number.isFinite))+1);
-   numberedChoices[next]=action.toLowerCase();
-   addImmediate('['+next+'] '+action,'system');
-   GraphicalUI.schedule();
-  });
+const VISIT='VISIT OLD MAN FINN';
+globalThis.Route127OldManFinn=Object.freeze({
+ roadAction(){
+  if(!position())return null;
+  discover();
+  return VISIT;
+ },
+ mapMarker(){
+  if(!player.flags.r127FinnDiscovered)return '';
+  const point=lanternVisualEdgePoint(LG_EDGES[EDGE],STEP);
+  const x=Math.round(point[0]*LANTERN_MAP_VISUAL.width);
+  const y=Math.round(point[1]*LANTERN_MAP_VISUAL.height);
+  const dock=x+62;
+  return `<g data-old-man-finn role="img" aria-label="Old Man Finn — supply boat beside the Causeway">
+   <line x1="${x}" y1="${y}" x2="${dock}" y2="${y}" stroke="#e4bb68" stroke-width="2" stroke-dasharray="5 4"/>
+   <circle cx="${dock}" cy="${y}" r="7" fill="#e4bb68" stroke="#201409" stroke-width="2"/>
+   <text x="${dock+13}" y="${y-12}" fill="#ffe0a0" stroke="#10151c" stroke-width="5"
+    paint-order="stroke" font-size="18" font-family="monospace">OLD MAN FINN</text>
+  </g>`;
  }
- return result;
-};
+});
 const oldCore=handleCommandCore;
 handleCommandCore=async function(raw){
  const cmd=String(r5Mapped(raw)||'').trim().toLowerCase();
@@ -119,7 +121,7 @@ handleCommandCore=async function(raw){
   if(cmd==='cancel store sale')return menu('sell');
   return menu(player.flags.r127FinnPage||'main');
  }
- if(stage==='lanternRoad'&&position()&&cmd==='visit old man finn')return menu();
+ if(stage==='lanternRoad'&&position()&&cmd===VISIT.toLowerCase())return menu();
  return oldCore.apply(this,arguments);
 };
 const oldRender=renderCurrentChoices;
@@ -131,35 +133,6 @@ const oldModel=GraphicalUI.model;
 GraphicalUI.model=function(...args){
  const result=oldModel.apply(this,args);
  if(stage===STAGE){result.location='old-man-finn';result.title='Old Man Finn — Causeway';result.art=ART;}
- return result;
-};
-// Once discovered, mark Finn on the water beside the Causeway with the map's
-// existing amber leader-line/circle/label typography. Do not alter map topology.
-const oldMap=showMap;
-showMap=function(...args){
- const result=oldMap.apply(this,args);
- if(player.flags.r127FinnDiscovered&&lanternState()?.mapMode!=='classic'){
-  outputQueue=outputQueue.then(()=>{
-   const svg=screen?.querySelector('.lantern-map svg');
-   if(!svg||svg.querySelector('[data-old-man-finn]'))return;
-   const ns='http://www.w3.org/2000/svg',g=document.createElementNS(ns,'g');
-   g.setAttribute('data-old-man-finn','');g.setAttribute('role','img');
-   g.setAttribute('aria-label','Old Man Finn — supply boat beside the Causeway');
-   // Causeway center is x=543; offset the dock marker east onto the water.
-   const shapes=[
-    ['line',{x1:543,y1:814,x2:605,y2:814,stroke:'#e4bb68','stroke-width':2,'stroke-dasharray':'5 4'}],
-    ['circle',{cx:605,cy:814,r:7,fill:'#e4bb68',stroke:'#201409','stroke-width':2}],
-    ['text',{x:618,y:802,fill:'#ffe0a0',stroke:'#10151c','stroke-width':5,
-     'paint-order':'stroke','font-size':18,'font-family':'monospace'},'OLD MAN FINN']
-   ];
-   for(const [tag,attributes,value] of shapes){
-    const el=document.createElementNS(ns,tag);
-    for(const [k,v] of Object.entries(attributes))el.setAttribute(k,String(v));
-    if(value)el.textContent=value;g.append(el);
-   }
-   svg.append(g);
-  });
- }
  return result;
 };
 if(typeof TravelerPanels!=='undefined'){

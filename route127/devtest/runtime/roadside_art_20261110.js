@@ -7,7 +7,9 @@ const file=(name,root=false)=>({name,root});
 const scenes={
  'ROACH NEST':()=>[file('roach_nest_ordinary.png'),file('roach_nest_contaminated.png'),file('roach_nest_aggressive_swarm.png',true)][typeof r18RoachVariant==='function'?r18RoachVariant():0],
  'ROACH SWARM':()=>scenes['ROACH NEST'](),
- 'TUNNEL RATS':()=>typeof player!=='undefined'&&player.flags?.r18TunnelBoarPending?file('Tunnel Rats - Wild Boar.png'):file('Tunnel Rats.png'),
+ 'TUNNEL RATS':()=>typeof player!=='undefined'&&player.flags?.r18TunnelBoarPending
+  ?file('Tunnel Rats - Wild Boar.png')
+  :[file('Tunnel Rat 1.png'),file('Tunnel Rat 2.png')],
  'FERAL DOG':()=>[file('feral_dog_mother_pups.png'),file('feral_dog_hungry_lone.png',true),file('feral_dog_aggressive_lone.png',true),file('feral_dog_pack_concept.png',true)][typeof r18DogVariant==='function'?r18DogVariant():0],
  'LONE SCAVENGER':()=>[file('Lone Scavenger - Suspicious Scavenger.png'),file('Lone Scavenger - Friendly Scrapper.png'),file('Lone Scavenger - Weary Trader.png')][typeof r18ScavengerVariant==='function'?r18ScavengerVariant():0],
  'ROADBLOCK':()=>[file('Spear Robber.png'),file('Pipe Robber.png')],
@@ -115,6 +117,8 @@ presentation.textContent=`
 .gfx-frame.r127-route-scene .gfx-art-caption{top:8px;bottom:auto;font-size:16px}
 
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"] .r127-road-unit{width:46%!important;height:49%}
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"]:not(.single) .r127-road-unit,
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="RAT PACK"] .r127-road-unit{width:31%!important;height:49%}
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="SOMETHING IN THE DRAIN"] .r127-road-unit{width:48%!important;height:30%}
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="FERAL DOG"] .r127-road-unit{width:52%!important;height:60%}
 

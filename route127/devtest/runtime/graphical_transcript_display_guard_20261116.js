@@ -14,7 +14,14 @@
   const redundant=line.classList.contains('place')||
     command.test(value)||(location.test(value)&&!important.test(value));
   const cloudSlot=document.body.classList.contains('r127-cloud-game')&&legacySlot.test(value);
-  if((graphics&&redundant)||cloudSlot){
+  // Rusty's verbose legacy stock listing is only a binding source in Graphics.
+  // The actual graphical shop buttons show the same live prices and quantities.
+  // Keep the text listing available in Classic BBS.
+  if(stage==='factoryRusty'&&player.flags?.r5RustyUI==='buy'&&
+     /\[\d+\]\s*BUY\s/i.test(value)&&/\bBOLTS\b/i.test(value))
+   line.dataset.r127RustyBuyListing='true';
+  const rustyListing=graphics&&line.dataset.r127RustyBuyListing==='true';
+  if((graphics&&(redundant||rustyListing))||cloudSlot){
    if(line.style.getPropertyValue('display')!=='none'||line.style.getPropertyPriority('display')!=='important')
     line.style.setProperty('display','none','important');
    line.dataset.r127GraphicsHidden='true';

@@ -53,7 +53,8 @@
   node.setAttribute('aria-labelledby','r127-scenario-title');
   const append=(parent,tag,text)=>{
    const child=document.createElement(tag);
-   child.textContent=text;
+   // Level/rarity suffixes are internal equipment identifiers, not story text.
+   child.textContent=String(text).replace(/ \(L\d{1,2} (?:COMMON|UNCOMMON|RARE|EPIC|LEGENDARY)\)/gi,'');
    parent.appendChild(child);
    return child;
   };

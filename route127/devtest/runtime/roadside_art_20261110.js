@@ -129,6 +129,12 @@ presentation.textContent=`
 }
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"]:not(.single) .r127-road-unit:nth-child(1){left:45%!important}
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"]:not(.single) .r127-road-unit:nth-child(2){left:56%!important;bottom:7%!important}
+/* The Causeway's narrow pavement needs a smaller centered roach swarm.
+   Other road regions and the roach combat/HP logic are untouched. */
+.gfx-frame.r127-route-scene .r127-road-art[data-region="CAUSEWAY"]:is([data-key^="ROACH NEST"],[data-key^="ROACH SWARM"]){justify-content:center!important;align-items:flex-end!important}
+.gfx-frame.r127-route-scene .r127-road-art[data-region="CAUSEWAY"]:is([data-key^="ROACH NEST"],[data-key^="ROACH SWARM"]) .r127-road-unit{
+ width:29%!important;height:52%!important;flex:0 0 29%!important;margin-bottom:5%!important
+}
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="SOMETHING IN THE DRAIN"] .r127-road-unit{width:48%!important;height:30%}
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="FERAL DOG"] .r127-road-unit{width:52%!important;height:60%}
 
@@ -178,6 +184,7 @@ GraphicalUI.sync=function(...args){
    });
    e.figure.append(layer);
   }
+  layer.dataset.region=typeof route127CurrentRegion==='function'?route127CurrentRegion(lanternState()):'';
   if(scene.combat&&completeUnits){
    const units=[...layer.children],fighters=scene.combat.enemies?.length?scene.combat.enemies:[scene.combat];
    // Composite artwork retains its composition; individual fighters still have

@@ -41,10 +41,10 @@ function portStaffRender(){
  if(ui.page==='replace'){portStaffChoices(`REPLACE ${assigned||'VACANCY'} WITH ${ui.candidate}?`,['CONFIRM ASSIGNMENT','CANCEL ASSIGNMENT']);return;}
  if(!rating){portStaffChoices('STAFFING',[...(role==='workshop'?['TOMORROW PROJECT TERMINAL']:[]),'ASSIGN STAFF','RETURN TO HARBOR']);return;}
  if(ui.page==='saleConfirm'){portStaffChoices(`SELL 1 ${ui.item} — ${ui.price} BOLTS?`,['CONFIRM STORE SALE','CANCEL STORE SALE']);return;}
- if(ui.page==='sell'){const items=player.pack.filter(i=>v48SellPrice(i)>0);portStaffChoices('SELL ONE ITEM — EQUIPPED, QUEST AND LEGENDARY ITEMS PROTECTED',[...items.map(i=>'SELL '+r18ItemLabel(i).toUpperCase()),'BACK']);return;}
+ if(ui.page==='sell'){const items=player.pack.filter(i=>v48SellPrice(i)>0);portStaffChoices('SELL ONE ITEM — EQUIPPED, QUEST AND LEGENDARY ITEMS PROTECTED',[...items.map(i=>'SELL '+r18ItemLabel(i).toUpperCase()+' — '+portStoreSellPrice(i)+' BOLTS'),'BACK']);return;}
  if(ui.page==='equipment'){
   const stock=regionalEquipmentStock('seaport');for(const slot of stock.slots)add(regionalEquipmentText(slot,'seaport'),GEAR[slot.name]?.rarity||'system');
-  portStaffChoices('EQUIPMENT — PRICE PER ITEM',[...stock.slots.filter(x=>!x.sold).map(x=>'BUY '+x.name.toUpperCase()),'BACK']);return;
+  portStaffChoices('EQUIPMENT — PRICE PER ITEM',[...stock.slots.filter(x=>!x.sold).map(x=>'BUY '+x.name.toUpperCase()),'SELL ITEMS','BACK']);return;
  }
  if(ui.page==='buy'){portStaffChoices('SUPPLIES — PRICE PER ITEM',[...Object.keys(portStoreStock()).filter(n=>portStoreStock()[n]>0).map(n=>`BUY ${n.toUpperCase()} — ${portStorePrice(n)} BOLTS (${portStoreStock()[n]} LEFT)`),'BACK']);return;}
  if(ui.page==='stash'||ui.page==='retrieve'){

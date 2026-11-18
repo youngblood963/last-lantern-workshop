@@ -356,3 +356,12 @@ body.full-graphics .gfx-frame .gfx-art:has(> .gfx-image[src*="rusty_lantern_bar.
 body.full-graphics .gfx-frame .gfx-art:has(> .gfx-image[src*="rusty_lantern_bar.png"]) > .gfx-art-caption {
   z-index:2;
 }
+
+
+/* DEVTEST: THE TRAVELER uses a full-scene image (Vale + sky + road).
+   Never crop this composition to fill the artwork panel: keep her head
+   and the scene visible. This does not affect the recruitable Vale portrait. */
+body.full-graphics .gfx-frame .gfx-art > img.gfx-image[src*="the_traveler_vale.png"] {
+  object-fit:contain!important;
+  object-position:center center!important;
+}

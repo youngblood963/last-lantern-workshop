@@ -208,9 +208,10 @@
  for(const [floor,names] of FACTORY_ENEMIES.entries()){
   for(const [slot,name] of names.entries()){
    const id='factory:floor:'+floor+':'+slot;
+   const unit=enemy(name.toLowerCase().replaceAll(' ','_')+'.png');
    rows.set(id,{id,title:name,name,classification:'FIXED',regions:['INDUSTRIAL'],
     site:'Factory — '+FACTORY_FLOORS[floor].name,combat:true,variants:[
-     {units:[],background:locationArt(floorFiles[floor]),phase:'combat',variant:'Floor background'}
+     {units:[unit],background:locationArt(floorFiles[floor]),phase:'combat',variant:'Factory enemy'}
     ]});
   }
  }
@@ -504,6 +505,16 @@
     attachments.push(['attachment:'+name,layouts[unitKey(path,index)]||
      {x,y,width,height,scale:1,z:4,flip:false}]);
    });
+  }
+  if(scene.id.startsWith('factory:floor:')){
+   // Ordinary Factory encounters have one fighter, identified by the active floor and combat name.
+   const [path]=rows.get(scene.id).variants[0].units;
+   const key='attachment:'+assetName(path);
+   const index=attachments.findIndex(([id])=>id===key);
+   if(combatState.hp>0){
+    if(index<0)attachments.push([key,layouts[unitKey(path,0)]||
+     {x:50,y:60,width:48,height:70,scale:1,z:4,flip:false}]);
+   }else if(index>=0)attachments.splice(index,1);
   }
   const signature=scene.id+'/'+scene.phase+'/'+attachments.map(([key])=>key).join('/');
   if(attachmentLayer?.dataset.signature!==signature){

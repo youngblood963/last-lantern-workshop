@@ -3038,8 +3038,7 @@ RoadScenarioRegistry.regionalSpec = {
    "classification": "REGIONAL",
    "regions": [
     "NORTH",
-    "WEST",
-    "CAUSEWAY"
+    "WEST"
    ],
    "authority": "Work Order 6 explicit classification"
   },

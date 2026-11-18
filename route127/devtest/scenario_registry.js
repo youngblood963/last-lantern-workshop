@@ -1767,7 +1767,8 @@ RoadScenarioRegistry.regionalSpec = {
   "INDUSTRIAL",
   "LOWLANDS",
   "EAST",
-  "SEAPORT"
+  "SEAPORT",
+  "CAUSEWAY"
  ],
  "encounters": [
   {
@@ -2104,7 +2105,8 @@ RoadScenarioRegistry.regionalSpec = {
    "classification": "REGIONAL",
    "regions": [
     "INDUSTRIAL",
-    "SEAPORT"
+    "SEAPORT",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -2133,7 +2135,8 @@ RoadScenarioRegistry.regionalSpec = {
    "classification": "REGIONAL",
    "regions": [
     "INDUSTRIAL",
-    "SEAPORT"
+    "SEAPORT",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -2149,11 +2152,11 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 41,
    "id": "east:62",
    "legacyName": "CARGO HIJACKERS",
-   "causeway": true,
    "classification": "REGIONAL",
    "regions": [
     "SEAPORT",
-    "LOWLANDS"
+    "LOWLANDS",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -2172,11 +2175,11 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 43,
    "id": "east:64",
    "legacyName": "SCRAP CRAB NEST",
-   "causeway": true,
    "classification": "REGIONAL",
    "regions": [
     "SEAPORT",
-    "LOWLANDS"
+    "LOWLANDS",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -2202,12 +2205,12 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 46,
    "id": "early:3",
    "legacyName": "ABANDONED SEDAN",
-   "causeway": true,
    "classification": "REGIONAL",
    "regions": [
     "NORTH",
     "CENTRAL",
-    "SEAPORT"
+    "SEAPORT",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -2325,9 +2328,10 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 58,
    "id": "early:64",
    "legacyName": "THE WALKING PEDDLER",
-   "causeway": true,
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -2726,12 +2730,12 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 97,
    "id": "east:69",
    "legacyName": "CACHE UNDER THE MILEPOST",
-   "causeway": true,
    "classification": "REGIONAL",
    "regions": [
     "NORTH",
     "CENTRAL",
-    "SEAPORT"
+    "SEAPORT",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -2743,7 +2747,8 @@ RoadScenarioRegistry.regionalSpec = {
    "regions": [
     "NORTH",
     "CENTRAL",
-    "INDUSTRIAL"
+    "INDUSTRIAL",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -2754,7 +2759,8 @@ RoadScenarioRegistry.regionalSpec = {
    "classification": "REGIONAL",
    "regions": [
     "INDUSTRIAL",
-    "LOWLANDS"
+    "LOWLANDS",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -2975,7 +2981,8 @@ RoadScenarioRegistry.regionalSpec = {
    "classification": "REGIONAL",
    "regions": [
     "EAST",
-    "SEAPORT"
+    "SEAPORT",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -3002,7 +3009,8 @@ RoadScenarioRegistry.regionalSpec = {
    "classification": "REGIONAL",
    "regions": [
     "NORTH",
-    "WEST"
+    "WEST",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -3013,7 +3021,8 @@ RoadScenarioRegistry.regionalSpec = {
    "classification": "REGIONAL",
    "regions": [
     "INDUSTRIAL",
-    "SEAPORT"
+    "SEAPORT",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -3035,7 +3044,8 @@ RoadScenarioRegistry.regionalSpec = {
    "classification": "REGIONAL",
    "regions": [
     "NORTH",
-    "WEST"
+    "WEST",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -3061,11 +3071,11 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 130,
    "id": "east:78",
    "legacyName": "THE STRANDED HANDCART",
-   "causeway": true,
    "classification": "REGIONAL",
    "regions": [
     "WEST",
-    "CENTRAL"
+    "CENTRAL",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -3148,17 +3158,17 @@ RoadScenarioRegistry.installRegions=function(){
   numbers.add(row.number);ids.add(row.id);if(!Object.prototype.hasOwnProperty.call(counts,row.classification))throw Error('Invalid classification '+row.id);counts[row.classification]++;
   if(row.regions.some(x=>!allowed.has(x))||new Set(row.regions).size!==row.regions.length)throw Error('Invalid regional assignment '+row.id);
   if(row.classification==='REGIONAL'&&!row.regions.length)throw Error('Missing regional assignment '+row.id);
-   if(row.causeway!==undefined&&row.causeway!==true)throw Error('Invalid Causeway approval '+row.id);
+   // CAUSEWAY is an ordinary eighth region, assigned in row.regions.
   const [pool,index]=row.id.split(':'),encounter=(pool==='early'?encounters:eastEncounters)[Number(index)];
   if(!encounter||r10CanonicalTitle(encounter.title)!==row.legacyName)throw Error('Review ID/name mismatch '+row.id);
   const item={...row,encounter};byReview.set(row.number,item);byCanonicalId.set(row.id,item);byTitle.set(r10CanonicalTitle(encounter.title),item);
  }
- if(numbers.size!==134||spec.regions.length!==7)throw Error('Incomplete WO6 registry');
+ if(numbers.size!==134||spec.regions.length!==8)throw Error('Incomplete WO6 registry');
  for(const [key,value]of Object.entries(spec.expectedCounts))if(counts[key]!==value)throw Error('WO6 count mismatch '+key);
  for(const e of LANTERN_WORLD_GRAPH.edges)if(!allowed.has(e.primaryRegion)||(e.transitionRegion&&!allowed.has(e.transitionRegion)))throw Error('Missing/invalid geographical road tag '+e.id);
  for(const entry of this.entries){
   const item=byTitle.get(r10CanonicalTitle(entry.encounter.title));if(!item)throw Error('Active encounter missing regional review '+entry.id);
-  Object.assign(entry,{reviewNumber:item.number,canonicalId:item.id,classification:item.classification,regions:[...item.regions],causeway:item.causeway===true,region:item.classification==='REGIONAL'?item.regions.join('+'):item.classification});
+  Object.assign(entry,{reviewNumber:item.number,canonicalId:item.id,classification:item.classification,regions:[...item.regions],region:item.classification==='REGIONAL'?item.regions.join('+'):item.classification});
   const display=spec.nameOverrides[item.id];if(display)entry.encounter.displayName=display;entry.name=entry.encounter.displayName||entry.encounter.title;
  }
  this.regionalCatalog=spec.encounters.map(row=>{const item=byReview.get(row.number);return {...row,name:item.encounter.displayName||item.encounter.title,encounter:item.encounter};});
@@ -3200,9 +3210,9 @@ RoadScenarioRegistry.installRegions=function(){
     const index=eastEncounters.push(encounter)-1,id='east:'+index;
     R10_POOLS.east.combat.push(index);
     R10_POOLS.coast.combat.push(index); // Coast uses its own curated random pool over eastEncounters.
-    const row={number:null,id,legacyName:spec.title,name:spec.title,classification:'REGIONAL',regions:['SEAPORT'],causeway:true,authority:'Owner correction: random coastal patrol',encounter};
+    const row={number:null,id,legacyName:spec.title,name:spec.title,classification:'REGIONAL',regions:['SEAPORT','CAUSEWAY'],authority:'Owner correction: random coastal patrol',encounter};
     this.regionalCatalog.push(row);this.regionalById.set(id,row);this.regionalByTitle.set(r10CanonicalTitle(spec.title),row);
-    const entry={id,canonicalId:id,name:spec.title,classification:'REGIONAL',region:'SEAPORT',regions:['SEAPORT'],causeway:true,encounter,references:[{road:'east',category:'combat',index}]};
+    const entry={id,canonicalId:id,name:spec.title,classification:'REGIONAL',region:'SEAPORT+CAUSEWAY',regions:['SEAPORT','CAUSEWAY'],encounter,references:[{road:'east',category:'combat',index}]};
     this.entries.push(entry);this.byId[id]=entry;
    }
    this.coastPatrolRandomInstalled=true;
@@ -3214,11 +3224,11 @@ function r10Geography(){
  const g=typeof lanternState==='function'?lanternState():null,e=typeof lanternEdge==='function'?lanternEdge():null;
  // Select from the ACTUAL region at this movement step, not the edge's
  // primaryRegion (which may differ across owner-drawn boundary transitions).
- // CAUSEWAY remains its own eighth eligibility zone, separate from SEAPORT.
+ // Each painted movement region (including CAUSEWAY) uses its own explicit membership.
  // This changes only fresh random draws; pending/saved encounter IDs are kept.
  if(g?.currentEdgeId&&typeof route127DrawnBackground==='function'){
   const drawn=route127DrawnBackground(g);
-  if(drawn==='CAUSEWAY'||RoadScenarioRegistry.regionalSpec.regions.includes(drawn))return drawn;
+  if(RoadScenarioRegistry.regionalSpec.regions.includes(drawn))return drawn;
  }
  if(e?.primaryRegion)return e.primaryRegion;
  // Old pre-Lantern saves are projected by their existing main-road context only.
@@ -3232,11 +3242,14 @@ function r10Geography(){
 }
 RoadScenarioRegistry.wo6Eligible=function(encounter,geography){
  const item=this.regionalByTitle.get(r10CanonicalTitle(encounter?.title));
- // Explicit per-encounter approval, including formerly GLOBAL scenes. The
- // seven historical region memberships remain unchanged and do not grant
- // access to the eighth Causeway zone.
- if(geography==='CAUSEWAY')return item?.causeway===true;
- return !!item&&(item.classification==='GLOBAL'||item.classification==='REGIONAL'&&item.regions.includes(geography));
+ // CAUSEWAY has the same explicit regional membership as every other zone.
+ // GLOBAL encounters keep their previous broad availability in the seven
+ // original regions, but require a CAUSEWAY label for the water crossing.
+ if(!item)return false;
+ if(item.classification==='REGIONAL')return item.regions.includes(geography);
+ if(item.classification==='GLOBAL')return geography==='CAUSEWAY'?
+  item.regions.includes('CAUSEWAY'):true;
+ return false;
 };
 RoadScenarioRegistry.wo6FreshAvailable=function(){const g=lanternState();return !!g&&!g.currentEdgeId&&g.nodeId==='industrial-road';};
 RoadScenarioRegistry.wo6FreshMenu=function(){

@@ -6,7 +6,7 @@
     new URLSearchParams(location.search).get('offline')==='1')return;
  const api='/route127/devtest/api/presence/';
  const portrait=new URL('../devtest/assets/players/player_survivor_default.png',document.baseURI).href;
- let activeId=null,showRoster=false,rows=[],sprites=[],spriteKey='',dialog,selected,running=false,queued=false;
+ let activeId=null,showRoster=false,rows=[],sprites=[],spriteKey='',spriteOffset=0,dialog,selected,running=false,queued=false;
  let activityId,activityAt=0,inspection=0;
  const inSolace=()=>{
   const travel=lanternState();
@@ -53,7 +53,8 @@
  }
  function render(){
   const figure=GraphicalUI.active()&&onMainStreet()?GraphicalUI.element?.figure:null;
-  const visible=figure&&!figure.hidden?rows.slice(0,matchMedia('(max-width:640px)').matches?2:3):[];
+  const capacity=matchMedia('(max-width:640px)').matches?2:3;
+  const visible=figure&&!figure.hidden?rows.slice(spriteOffset,spriteOffset+capacity):[];
   const key=JSON.stringify(visible.map(({id,name})=>[id,name]));
   if(key===spriteKey&&sprites.every(sprite=>sprite.parentNode===figure))return;
   sprites.forEach(sprite=>sprite.remove());
@@ -77,6 +78,7 @@
   const identities=list=>JSON.stringify(list.map(({id,name})=>[id,name]));
   const changed=identities(rows)!==identities(next);
   rows=next;
+  if(changed)spriteOffset=0;
   if(changed&&showRoster){
    globalThis.Route127RefreshSolaceMenu?.();
    GraphicalUI.schedule();
@@ -146,5 +148,11 @@
   return result;
  };
  setInterval(()=>{changed();if(activeId&&!running)refresh();},15000);
+ setInterval(()=>{
+  const capacity=matchMedia('(max-width:640px)').matches?2:3;
+  if(!showRoster||rows.length<=capacity||sprites.some(sprite=>sprite.matches(':hover,:focus-within')))return;
+  spriteOffset=spriteOffset+capacity<rows.length?spriteOffset+capacity:0;
+  render();
+ },7000);
  GraphicalUI.schedule();
 })();

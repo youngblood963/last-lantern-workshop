@@ -18,8 +18,9 @@
  if(!dev&&!release)return;
 
  const adapter=document.createElement('script');
- const version=release?'wo65':dev&&document.getElementById?.('route127-cloud-login')?'wo64':'wo61-direct';
+ const version=release?'wo65':dev&&document.getElementById?.('route127-cloud-login')?'wo64-quota-20261118':'wo61-direct';
  adapter.src=new URL('../online-game/cloud-dev.js?v='+version,script.src).href;
+ if(dev)adapter.dataset.route127Client='devtest';
  if(hostedDev)adapter.dataset.apiPrefix='/route127/devtest/api/';
  adapter.onerror=()=>{
   const message=document.createElement('p');

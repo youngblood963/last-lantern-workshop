@@ -363,7 +363,7 @@ function updateRefillDisplay(){ if(!player.flags)return; processRefill(); const 
 function startRefillTimer(){ if(refillTimer)clearInterval(refillTimer); refillTimer=setInterval(()=>{updateRefillDisplay();},1000); updateRefillDisplay(); }
 // Generated equipment keeps its level/rarity key in inventory and saves.
 // Narrative and reward text show the readable item name instead.
-function narrativeGearName(name){return String(name).replace(/ \\(L\\d{1,2} (?:COMMON|UNCOMMON|RARE|EPIC|LEGENDARY)\\)/gi,'');}
+function narrativeGearName(name){return String(name).replace(/ \(L\d{1,2} (?:COMMON|UNCOMMON|RARE|EPIC|LEGENDARY)\)/gi,'');}
 function resultLine(text, cls="reward") { text=narrativeGearName(text); if(resultBuffer) resultBuffer.push([text,cls]); else add(text,cls); }
 function flushResults(){ if(!resultBuffer || !resultBuffer.length){ resultBuffer=null; return; } add("RESULT", "system"); for(const [t,c] of resultBuffer) add(t,c); resultBuffer=null; }
 function gainBolts(n) { if(stage==="fallen")return; player.bolts += n; updateHud(); resultLine(`+${n} BOLTS`, "reward"); }

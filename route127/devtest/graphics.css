@@ -325,3 +325,34 @@ dialog.route127-map-overlay[open]{display:flex;flex-direction:column;}
     object-position:center;
   }
 }
+
+
+/* DEVTEST: restore Jen's Rusty Lantern soft, dark side-fill like the other
+   Solace dialogue portraits. Only the bar artwork is affected. */
+body.full-graphics .gfx-frame .gfx-art:has(> .gfx-image[src*="rusty_lantern_bar.png"]) {
+  isolation:isolate;
+}
+body.full-graphics .gfx-frame .gfx-art:has(> .gfx-image[src*="rusty_lantern_bar.png"])::before {
+  content:"";
+  display:block;
+  position:absolute;
+  inset:0;
+  width:auto;
+  height:auto;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  background:url("../playtest/assets/locations/rusty_lantern_bar.png") center/cover no-repeat;
+  filter:blur(12px) brightness(.36);
+  transform:scale(1.06);
+  z-index:0;
+  pointer-events:none;
+}
+body.full-graphics .gfx-frame .gfx-art:has(> .gfx-image[src*="rusty_lantern_bar.png"]) > .gfx-image {
+  position:relative;
+  z-index:1;
+  clip-path:inset(0 12% 0 12%);
+}
+body.full-graphics .gfx-frame .gfx-art:has(> .gfx-image[src*="rusty_lantern_bar.png"]) > .gfx-art-caption {
+  z-index:2;
+}

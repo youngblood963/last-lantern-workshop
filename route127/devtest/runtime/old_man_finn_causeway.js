@@ -6,28 +6,14 @@ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||
    typeof lanternState!=='function'||typeof GraphicalUI==='undefined')return;
 const EDGE='boulder-junction--seaport', STEP=6, STAGE='r127FinnStore';
 const ART='../devtest/assets/locations/old_man_finn_boat.png';
-// Finn's wide cinematic art was being cropped by the global cover rule,
-// making his boat and figure look enormous. Fit the full composition inside
-// this scene only, with a dimmed cover backdrop to avoid hard side bars.
+// Keep Finn's transparent boat scene smaller in the existing artwork panel.
 const finnArtStyle=document.createElement('style');
 finnArtStyle.textContent=`
-.gfx-frame .gfx-art:has(> .gfx-image[src*="old_man_finn_boat.png"]) {
- position:relative;
- isolation:isolate;
- background-color:#060b0f!important;
- background-image:var(--r127-finn-night-sky,none)!important;
- background-size:150% auto!important;
- background-position:right center!important;
- background-repeat:no-repeat!important;
-}
-.gfx-frame .gfx-art:has(> .gfx-image[src*="old_man_finn_boat.png"]) > .r127-regional-sky {
- display:none!important;
-}
-.gfx-frame .gfx-art > .gfx-image[src*="old_man_finn_boat.png"] {
- position:relative;
- z-index:1;
+body.full-graphics .gfx-frame .gfx-art > img.gfx-image[src*="old_man_finn_boat.png"]{
  object-fit:contain!important;
  object-position:center center!important;
+ transform:scale(.78)!important;
+ transform-origin:center center!important;
 }
 `;
 document.head.appendChild(finnArtStyle);
@@ -171,23 +157,6 @@ const oldRender=renderCurrentChoices;
 renderCurrentChoices=function(...args){
  if(stage===STAGE)return menu(player.flags.r127FinnPage||'main');
  return oldRender.apply(this,args);
-};
-// Give Finn a sky *behind* his cutout, shifted so the moon is clear of
-// his head. Do not reuse the image as both foreground and background.
-const previousFinnSync=GraphicalUI.sync;
-GraphicalUI.sync=function(...args){
- const result=previousFinnSync.apply(this,args);
- const figure=this.element?.figure;
- if(figure){
-  if(stage===STAGE){
-   const period=typeof Route127RegionalSky?.phase==='function'
-     ?Route127RegionalSky.phase(player?.flags?.worldHour):'night';
-   const file=period==='dusk'?'sky_dawn.png':'sky_'+period+'.png';
-   const sky=new URL('../devtest/assets/regions/'+file,document.baseURI).href;
-   figure.style.setProperty('--r127-finn-night-sky','url("'+sky+'")');
-  }else figure.style.removeProperty('--r127-finn-night-sky');
- }
- return result;
 };
 const oldModel=GraphicalUI.model;
 GraphicalUI.model=function(...args){

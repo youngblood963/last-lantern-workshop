@@ -1362,7 +1362,13 @@ wo2Award(key){
  return this.wo2Once(key,()=>{add(reward.text,'reward');gainXp(reward.xp);gainBolts(this.wo2Roll(...reward.bolts));for(const args of reward.items)this.wo2Item(...args);});
 },
 wo2Fight(key,spec){
- if(this.wo2State()[key]){add('The confrontation is over; the supplies have already been claimed.','system');return true;}
+ if(this.wo2State()[key]){
+  if(key==='crabTrap'||key==='crabNest'){
+   // The unique cargo/nest reward is one-time, but roaming crabs can be fought again.
+   startCombat({...spec,bolts:0,enemies:spec.enemies?.map(e=>({...e,bolts:0})),wo2NoEquipment:true},'encounter');return true;
+  }
+  add('The confrontation is over; the supplies have already been claimed.','system');return true;
+ }
  startCombat({...spec,xp:0,bolts:0,enemies:spec.enemies?.map(e=>({...e,bolts:0})),wo2Reward:key,wo2NoEquipment:true},'encounter');return true;
 },
 wo2(){
@@ -1388,7 +1394,7 @@ wo2(){
   e.resolve=function(cmd){if(['move on','back away','leave'].includes(cmd)){add('You leave the scene and return to the road.','system');return true;}const action=actions[cmd.toUpperCase()];return action?action()!==false:false;};
   const rewardKeys={'ABANDONED SUPPLY TRUCK':'fresh','BROKEN TOLL CREW':'patrol','CARGO HIJACKERS':'crabTrap','FREIGHT CAR AMBUSH':'forklift','SMOKE BEYOND THE GUARDRAIL':'harold','SCRAP CRAB NEST':'crabNest'};
   const rewardKey=rewardKeys[title];
-  if(rewardKey){const resolve=e.resolve;e.wo2Key=rewardKey;e.description=()=>registry.wo2State()[rewardKey]?name+' — the confrontation is over. The site has already been searched.':e.text;e.prompt=()=>registry.wo2State()[rewardKey]?'INSPECT AFTERMATH   MOVE ON':e.choices;e.resolve=function(cmd){if(registry.wo2State()[rewardKey]){if(['inspect aftermath','move on','leave','back away'].includes(cmd)){add('The site is quiet. There is nothing left to collect.');return true;}return false;}return resolve.call(this,cmd);};}
+  if(rewardKey){const resolve=e.resolve;e.wo2Key=rewardKey;e.description=()=>registry.wo2State()[rewardKey]?name+' — the confrontation is over. The site has already been searched.':e.text;e.prompt=()=>registry.wo2State()[rewardKey]&&!['crabTrap','crabNest'].includes(rewardKey)?'INSPECT AFTERMATH   MOVE ON':e.choices;e.resolve=function(cmd){if(registry.wo2State()[rewardKey]&&!['crabTrap','crabNest'].includes(rewardKey)){if(['inspect aftermath','move on','leave','back away'].includes(cmd)){add('The site is quiet. There is nothing left to collect.');return true;}return false;}return resolve.call(this,cmd);};}
   Object.assign(e,extra);return e;
  }
  function clue(key,message){registry.wo2Once(key,()=>add(message,'bright'));}

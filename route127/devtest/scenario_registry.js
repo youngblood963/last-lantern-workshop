@@ -1193,7 +1193,7 @@ if(r18ParadeIndex>=0&&!R10_POOLS.east.environment.includes(r18ParadeIndex))R10_P
 const r18WardenIndex=eastEncounters.findIndex(e=>e.title==='THE WARDEN');
 if(r18WardenIndex>=0&&!R10_POOLS.east.combat.includes(r18WardenIndex))R10_POOLS.east.combat.push(r18WardenIndex);
 const r18PeteIndex=encounters.findIndex(e=>e.title==='THE WALKING PEDDLER');
-if(r18PeteIndex>=0){if(!R10_POOLS.early.exploration.includes(r18PeteIndex))R10_POOLS.early.exploration.push(r18PeteIndex);let i=eastEncounters.findIndex(e=>e.title==='THE WALKING PEDDLER');if(i<0)i=eastEncounters.push(encounters[r18PeteIndex])-1;if(!R10_POOLS.east.exploration.includes(i))R10_POOLS.east.exploration.push(i);}
+if(r18PeteIndex>=0){if(!R10_POOLS.early.exploration.includes(r18PeteIndex))R10_POOLS.early.exploration.push(r18PeteIndex);let i=eastEncounters.findIndex(e=>e.title==='THE WALKING PEDDLER');if(i<0)i=eastEncounters.push(encounters[r18PeteIndex])-1;if(!R10_POOLS.east.exploration.includes(i))R10_POOLS.east.exploration.push(i);/* Old Pete may randomly trade on Causeway, too. Reuse the same encounter/stock. */if(!R10_POOLS.coast.exploration.includes(i))R10_POOLS.coast.exploration.push(i);}
 const r18GnomesIndex=encounters.findIndex(e=>e.title==='THE GARDEN GNOMES');
 if(r18GnomesIndex>=0){if(!R10_POOLS.early.exploration.includes(r18GnomesIndex))R10_POOLS.early.exploration.push(r18GnomesIndex);let i=eastEncounters.findIndex(e=>e.title==='THE GARDEN GNOMES');if(i<0)i=eastEncounters.push(encounters[r18GnomesIndex])-1;if(!R10_POOLS.east.exploration.includes(i))R10_POOLS.east.exploration.push(i);}
 const r18WaxIndex=eastEncounters.findIndex(e=>e.title==='THE WAX MUSEUM');
@@ -2319,6 +2319,7 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 58,
    "id": "early:64",
    "legacyName": "THE WALKING PEDDLER",
+   "causeway": true,
    "classification": "GLOBAL",
    "regions": [],
    "authority": "Work Order 6 explicit classification"

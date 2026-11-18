@@ -2992,7 +2992,6 @@ RoadScenarioRegistry.regionalSpec = {
    "number": 124,
    "id": "east:72",
    "legacyName": "THE SINKING CAUSEWAY",
-   "causeway": true,
    "classification": "REGIONAL",
    "regions": [
     "NORTH",

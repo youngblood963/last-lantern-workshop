@@ -193,3 +193,6 @@ GraphicalUI.sync=function(){
 
 const wo17GraphicsLayout=GraphicalUI.layout;
 GraphicalUI.layout=function(){return TravelerPanels.dialog?TravelerPanels.snapshot.layout:wo17GraphicsLayout.call(this);};
+
+// Preserve the live purchase binding after registry installation.
+v48BuyBackpack=buyTravelerBackpack;

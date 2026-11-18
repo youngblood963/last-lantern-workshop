@@ -29,6 +29,7 @@ async function main(){
    resetPlayer();
    player.handle='Solace QA';
    player.flags.mercyDiscovered=true;
+   player.flags.interfaceUnlocked=true;
    stage='mercy';
    mercyLocation='town';
    Object.assign(lanternMigrate(),{nodeId:'solace',currentEdgeId:null,solaceAdmitted:true});

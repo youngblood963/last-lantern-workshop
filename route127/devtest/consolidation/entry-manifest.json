@@ -1,7 +1,7 @@
 {
   "environment": "DEVTEST",
   "source": "route127/devtest/index.html",
-  "sourceSHA256": "1ee717a257da67c1ad772c17f66878f51c741d190046085ad1c2a66548078b90",
+  "sourceSHA256": "7017e5950579a27a7aea84565d18a96df758fca3b49819f97a597724dda2dbaf",
   "base": "../playtest/",
   "externalCount": 169,
   "inlineCount": 9,
@@ -18,7 +18,7 @@
     },
     {
       "phase": "bootstrap",
-      "inlineSHA256": "5bff1f3771ab51950bf8d578f3674285a5beb432c47ab47214068b6fd7771460"
+      "inlineSHA256": "ec14f67cbc4c494c6c9478365b3d2a753954ca2ad3a07a331bebd006bf8ed5ed"
     },
     {
       "phase": "guarded",
@@ -254,9 +254,9 @@
     },
     {
       "phase": "guarded",
-      "src": "traveler_panels.js?v=wo69b",
-      "path": "route127/playtest/traveler_panels.js",
-      "query": "?v=wo69b"
+      "src": "../devtest/traveler_panels.js?v=wo69d",
+      "path": "route127/devtest/traveler_panels.js",
+      "query": "?v=wo69d"
     },
     {
       "phase": "guarded",
@@ -332,9 +332,9 @@
     },
     {
       "phase": "guarded",
-      "src": "runtime/wanderer_info_panel.js?v=wo69",
-      "path": "route127/playtest/runtime/wanderer_info_panel.js",
-      "query": "?v=wo69"
+      "src": "../devtest/runtime/wanderer_info_panel.js?v=wo69d",
+      "path": "route127/devtest/runtime/wanderer_info_panel.js",
+      "query": "?v=wo69d"
     },
     {
       "phase": "guarded",
@@ -1046,9 +1046,9 @@
     },
     {
       "phase": "overlay",
-      "src": "../devtest/runtime/solace_cloud_presence.js?v=wo69c",
+      "src": "../devtest/runtime/solace_cloud_presence.js?v=wo69d",
       "path": "route127/devtest/runtime/solace_cloud_presence.js",
-      "query": "?v=wo69c"
+      "query": "?v=wo69d"
     },
     {
       "phase": "overlay",

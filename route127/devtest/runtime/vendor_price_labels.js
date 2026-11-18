@@ -85,5 +85,26 @@
    return {...row,label:String(row.label||command).replace(/\s*[—–-]\s*(?:2% max hp per bolt.*|\d+ bolts?\b.*)$/i,'')+suffix,presentationSource:String(row.label||command).replace(/\s*[—–-]\s*(?:2% max hp per bolt.*|\d+ bolts?\b.*)$/i,'')+suffix};
   });
  };
+ // Rusty's graphical menu is authoritative; decorate the visible action
+ // labels after the other menu adapters have projected the command keys.
+ // Preserve every actual button command and click handler.
+ const previousSync=GraphicalUI.sync;
+ GraphicalUI.sync=function(...args){
+  const result=previousSync.apply(this,args);
+  if(stage!=='factoryRusty'||player.flags?.r5RustyUI!=='buy'||!this.active())return result;
+  const stock=r5RustyStock().stock;
+  for(const button of this.element?.choices?.querySelectorAll('.gfx-choice')||[]){
+   const label=button.querySelector('.gfx-choice-label');
+   if(!label)continue;
+   const match=label.textContent.trim().match(/^buy\s+(.+?)(?:\s+[—–-]\s+.*)?$/i);
+   if(!match)continue;
+   const item=Object.keys(stock).find(name=>norm(name)===norm(match[1]));
+   if(!item||stock[item]<1)continue;
+   const proper='Buy '+item+' — '+r5RustyPrice(item).toLocaleString('en-US')+' Bolts';
+   if(label.textContent!==proper)label.textContent=proper;
+   button.title=proper+' ('+stock[item]+' left)';
+  }
+  return result;
+ };
  globalThis.DevtestBoltLabels=Object.freeze({priceFor});
 })();

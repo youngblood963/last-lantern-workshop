@@ -4,7 +4,6 @@
  const hosts=['https://lastlanternworkshop.com','https://localhost:8787','https://127.0.0.1:8787'];
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||!hosts.includes(location.origin)||
     !/^\/route127\/devtest\/(?:index\.html)?$/.test(location.pathname)||
-    new URLSearchParams(location.search).get('sharedExpeditionQA')!=='1'||
     new URLSearchParams(location.search).get('offline')==='1')return;
 
  const api='/route127/devtest/api/world/';
@@ -46,7 +45,7 @@
   return response.json();
  }
 
- let entry,panel;
+ let panel;
  function openExpedition(){
   if(panel||!onMainStreet())return;
   const dialog=node('dialog'),status=node('p'),controls=node('div'),cards=node('div'),details=node('section');
@@ -157,22 +156,11 @@
    run(view);
   }
  }
+ globalThis.Route127SharedExpedition=Object.freeze({available:onMainStreet,open:openExpedition});
  const sync=GraphicalUI.sync;
  GraphicalUI.sync=function(...args){
   const result=sync.apply(this,args);
-  if(!this.element||this.element.frame.hidden||!onMainStreet()){
-   entry?.remove();
-   if(panel?.dialog.open)panel.dialog.close();
-  }else{
-   if(!entry){
-    entry=button('Shared Expedition',openExpedition);
-    entry.className='traveler-button r127-survivor-entry';
-   }
-   const {main,choices}=this.element;
-   if(entry.parentNode!==main)main.insertBefore(entry,choices);
-   if(panel&&player.characterId!==panel.self)panel.dialog.close();
-  }
+  if(panel?.dialog.open&&(!onMainStreet()||player.characterId!==panel.self))panel.dialog.close();
   return result;
  };
- GraphicalUI.schedule();
 })();

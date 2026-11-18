@@ -5,7 +5,6 @@ const {randomUUID}=require('node:crypto');
 
 async function main(){
  const url=new URL(process.env.R127_SURVIVOR_URL||'https://localhost:8787/route127/devtest/');
- url.searchParams.set('sharedExpeditionQA','1');
  const hosted=url.origin==='https://lastlanternworkshop.com';
  assert.equal(url.pathname,'/route127/devtest/');
  assert(hosted||url.origin==='https://localhost:8787');
@@ -60,6 +59,7 @@ async function main(){
   assert.notEqual(a.id,b.id);
   for(const c of [a,b]){
    assert.equal((await c.request('survivors')).status,409);
+   await c.page.evaluate(()=>TravelerPanels.open('options'));
    await c.click('Shared Expedition');
    await c.click('Join expedition');
    await c.page.getByRole('button',{name:'Depart for Western Road',exact:true}).waitFor();

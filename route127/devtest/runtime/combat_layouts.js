@@ -442,7 +442,14 @@
  css.textContent=`
  .r127-layout-attachments{position:absolute;inset:0;z-index:5;pointer-events:none}
  .r127-layout-attachments img{object-fit:contain}
- /* Full-scene illustrations must not be cropped as sprite tiles. */
+ /* Smaller five-gull composition; leave artwork and regional scenery intact. */
+  body.full-graphics .gfx-frame .gfx-art > img.gfx-image[src*="aggressive_seagulls.png"]:not(.r127-layout-unit){
+   object-fit:contain!important;
+   object-position:center center!important;
+   transform:scale(.78)!important;
+   transform-origin:center center!important;
+  }
+  /* Full-scene illustrations must not be cropped as sprite tiles. */
  .gfx-frame .gfx-art img[src*="miles_the_courier.png"],
  .gfx-frame .gfx-art img[src*="the_carousel_horse.png"]{object-fit:contain!important;object-position:center center!important}
  .gfx-frame .gfx-art.r127-layout-has-background{aspect-ratio:16/9;min-height:150px}

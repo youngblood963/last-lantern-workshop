@@ -344,6 +344,14 @@
     layouts[key]={...layouts[key],x:50,y:70,width:42,height:64,scale:.78,z:2,flip:false};
    }
   }
+  // On the narrow Causeway, The Stray's published left-shoulder position
+  // places him over water. Shift only his sprite toward the road center.
+  // Keep existing scale, depth, facing, and all other regional layouts.
+  if(id==='early:6'&&typeof route127CurrentRegion==='function'&&
+     typeof lanternState==='function'&&route127CurrentRegion(lanternState())==='CAUSEWAY'){
+   const stray='0:The Stray.png';
+   if(layouts[stray])layouts[stray]={...layouts[stray],x:52};
+  }
   // Scrap Duel is a full cinematic scene, not a reduced sprite over regional sky.
   // Correct old device-saved layouts as well as the published 0.76-scale default.
   if(id==='east:11'&&layouts['background:the_scrap_duel.png']){

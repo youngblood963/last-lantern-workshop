@@ -61,3 +61,9 @@
 
 .r127-survivor-details dt { font-weight: bold; }
 .r127-survivor-details dd { margin: 0 0 .4rem; }
+
+.r127-cloud-survivors {
+  grid-column: 1 / -1;
+  padding: .5rem 0;
+}
+.r127-cloud-survivors p { margin: 0; }

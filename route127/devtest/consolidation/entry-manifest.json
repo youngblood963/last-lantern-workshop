@@ -1,9 +1,9 @@
 {
   "environment": "DEVTEST",
   "source": "route127/devtest/index.html",
-  "sourceSHA256": "bc3c5790df25e854a9cb662b05b650fa027a89f324ee9c54dcb7b5ca91b1f562",
+  "sourceSHA256": "856c7233f878ae19255a6bb702195ad8ca36170fb000df45310b2957863d3434",
   "base": "../playtest/",
-  "externalCount": 168,
+  "externalCount": 169,
   "inlineCount": 9,
   "startup": [
     {
@@ -1043,6 +1043,12 @@
       "src": "../devtest/runtime/solace_survivors.js?v=shared-expedition1",
       "path": "route127/devtest/runtime/solace_survivors.js",
       "query": "?v=shared-expedition1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/solace_cloud_presence.js?v=1",
+      "path": "route127/devtest/runtime/solace_cloud_presence.js",
+      "query": "?v=1"
     },
     {
       "phase": "overlay",

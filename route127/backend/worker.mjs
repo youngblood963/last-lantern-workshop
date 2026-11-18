@@ -1,3 +1,4 @@
+import {solacePresence} from './solace-presence.mjs';
 import {worldRoute} from './world.mjs';
 import { scrypt as nodeScrypt, timingSafeEqual } from 'node:crypto';
 
@@ -67,10 +68,11 @@ async function character(env,account){return env.DB.prepare('SELECT id,name FROM
 async function handle(req,env){
  const url=new URL(req.url);
  let path=url.pathname;
+ const devtestPresence=path.startsWith('/route127/devtest/api/presence/');
  const devtestWorld=path.startsWith('/route127/devtest/api/world/');
  const localWorld=env.DEVTEST_WORLD_LOCAL==='true'&&
   ['https://localhost:8787','https://127.0.0.1:8787'].includes(url.origin);
- if(devtestWorld){
+ if(devtestWorld||devtestPresence){
   const referer=req.headers.get('Referer');
   if(!referer||![url.origin+'/route127/devtest/',url.origin+'/route127/devtest/index.html']
    .includes(referer.split('?')[0]))return response({error:'DEVTEST required'},403);
@@ -127,6 +129,10 @@ async function handle(req,env){
   return response({character:{id,name},revision:0,snapshot:s,mode:'untrusted-backup'},201);
  }
  const ch=await character(env,auth.account_id);
+ if(path.startsWith('/api/presence/')){
+  if(!devtestPresence)fail(404,'Presence route unavailable');
+  return solacePresence({req,env,auth,ch,path,response,fail});
+ }
  if(path.startsWith('/api/world/'))return worldRoute({req,env,auth,ch,path,body,response,fail,sha,devtest:devtestWorld});
  if(!ch)fail(404,'Create your permanent character first');
  if(path==='/api/save'&&req.method==='GET'){

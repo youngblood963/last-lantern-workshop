@@ -13,9 +13,7 @@ const finnArtStyle=document.createElement('style');
 finnArtStyle.textContent=`
 .gfx-frame .gfx-art:has(> .gfx-image[src*="old_man_finn_boat.png"]) {
  background-color:#060b0f!important;
- background-image:linear-gradient(#03070cbb,#03070cbb),url("../devtest/assets/locations/old_man_finn_boat.png")!important;
- background-position:center!important;
- background-size:cover!important;
+ background-image:none!important;
 }
 .gfx-frame .gfx-art > .gfx-image[src*="old_man_finn_boat.png"] {
  object-fit:contain!important;

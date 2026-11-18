@@ -1,19 +1,19 @@
-.r127-survivor-preview {
-  padding: .75rem;
+.r127-survivor-entry {
+  margin: .5rem 0;
 }
-.r127-survivor-preview h2,
 .r127-survivor-details h2 {
   margin: 0;
   font-size: 1.15rem;
 }
-.r127-survivor-preview p,
 .r127-survivor-details p {
   margin: .35rem 0 .75rem;
 }
-.r127-survivor-cards {
+.r127-survivor-cards,
+.r127-survivor-controls {
   display: flex;
   flex-wrap: wrap;
   gap: .5rem;
+  margin: .5rem 0;
 }
 .r127-survivor-cards button,
 .r127-survivor-details button {
@@ -58,3 +58,6 @@
 .r127-survivor-details::backdrop {
   background: #000a;
 }
+
+.r127-survivor-details dt { font-weight: bold; }
+.r127-survivor-details dd { margin: 0 0 .4rem; }

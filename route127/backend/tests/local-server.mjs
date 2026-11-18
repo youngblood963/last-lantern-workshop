@@ -6,12 +6,13 @@ import worker from '../worker.mjs';
 import {database} from './d1-local.mjs';
 if(!process.env.R127_DEV_CERT||!process.env.R127_DEV_KEY||!process.env.AUTH_PEPPER)throw Error('Set R127_DEV_CERT, R127_DEV_KEY and AUTH_PEPPER locally; never package their values');
 const playtest=process.env.R127_PLAYTEST_STAGE==='1';
+const devtest=process.env.R127_DEVTEST_STAGE==='1';
 const port=playtest?8788:8787;
 const origin='https://localhost:'+port;
-const root=resolve(playtest?'../..':'../online-game');
-const env={ENVIRONMENT:'development',DEV_BACKUP_ENABLED:'true',AUTH_PEPPER:process.env.AUTH_PEPPER,DB:database(process.env.R127_LOCAL_DB||'local-test.sqlite'),ASSETS:{async fetch(req){
+const root=resolve(playtest||devtest?'../..':'../online-game');
+const env={R15_WORLD_ENABLED:devtest?'true':'false',DEVTEST_WORLD_LOCAL:devtest?'true':'false',ENVIRONMENT:'development',DEV_BACKUP_ENABLED:'true',AUTH_PEPPER:process.env.AUTH_PEPPER,DB:database(process.env.R127_LOCAL_DB||'local-test.sqlite'),ASSETS:{async fetch(req){
  const pathname=decodeURIComponent(new URL(req.url).pathname);
- if(playtest&&pathname!=='/route-127-showcase.png'&&
+ if((playtest||devtest)&&pathname!=='/route-127-showcase.png'&&
     !/^\/route127\/(?:playtest|devtest|runtime|online-game|assets)\//.test(pathname))
   return new Response('Not found',{status:404});
  const p=resolve(root,'.'+(pathname.endsWith('/')?pathname+'index.html':pathname));

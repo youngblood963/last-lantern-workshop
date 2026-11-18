@@ -1,3 +1,4 @@
+import {worldRoute} from './world.mjs';
 import { scrypt as nodeScrypt, timingSafeEqual } from 'node:crypto';
 
 const COOKIE='__Host-r127dev', SESSION_MS=7*86400000, MAX_BODY=512*1024;
@@ -64,7 +65,21 @@ async function session(env,req){
 }
 async function character(env,account){return env.DB.prepare('SELECT id,name FROM r127_characters WHERE account_id=?').bind(account).first();}
 async function handle(req,env){
- const url=new URL(req.url),path=url.pathname;
+ const url=new URL(req.url);
+ let path=url.pathname;
+ const devtestWorld=path.startsWith('/route127/devtest/api/world/');
+ const localWorld=env.DEVTEST_WORLD_LOCAL==='true'&&
+  ['https://localhost:8787','https://127.0.0.1:8787'].includes(url.origin);
+ if(devtestWorld){
+  const referer=req.headers.get('Referer');
+  if(!referer||![url.origin+'/route127/devtest/',url.origin+'/route127/devtest/index.html']
+   .includes(referer.split('?')[0]))return response({error:'DEVTEST required'},403);
+ }
+ if(path.startsWith('/route127/devtest/api/')){
+  if(!localWorld&&(env.WO61_DIRECT_DEVTEST!=='true'||url.origin!=='https://lastlanternworkshop.com'))
+   return response({error:'Not found'},404);
+  path=path.slice('/route127/devtest'.length);
+ }
  if(env.ENVIRONMENT!=='development')return response({error:'Development backend disabled'},503);
  if(!path.startsWith('/api/')){
   if(!env.ASSETS)return response({error:'Not found'},404);
@@ -111,7 +126,9 @@ async function handle(req,env){
   ]);}catch(e){if(/UNIQUE/.test(String(e)))fail(409,'Account already has its permanent character');throw e;}
   return response({character:{id,name},revision:0,snapshot:s,mode:'untrusted-backup'},201);
  }
- const ch=await character(env,auth.account_id);if(!ch)fail(404,'Create your permanent character first');
+ const ch=await character(env,auth.account_id);
+ if(path.startsWith('/api/world/'))return worldRoute({req,env,auth,ch,path,body,response,fail,sha,devtest:devtestWorld});
+ if(!ch)fail(404,'Create your permanent character first');
  if(path==='/api/save'&&req.method==='GET'){
   const row=await env.DB.prepare('SELECT revision,payload,updated_at FROM r127_snapshots WHERE character_id=?').bind(ch.id).first();
   if(!row)fail(404,'Snapshot unavailable');return response({character:ch,revision:row.revision,snapshot:JSON.parse(row.payload),updatedAt:row.updated_at,mode:'untrusted-backup'});

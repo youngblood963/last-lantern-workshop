@@ -2,7 +2,9 @@
 import {DatabaseSync} from 'node:sqlite';
 import {readFileSync} from 'node:fs';
 export function database(path=':memory:'){
- const db=new DatabaseSync(path);db.exec(readFileSync(new URL('../migrations/0001_accounts.sql',import.meta.url),'utf8'));
+ const db=new DatabaseSync(path);
+ for(const migration of ['0001_accounts.sql','0002_expedition.sql'])
+  db.exec(readFileSync(new URL('../migrations/'+migration,import.meta.url),'utf8'));
  return {
   sql:db,
   prepare(sql){return {sql,args:[],bind(...args){this.args=args;return this;},

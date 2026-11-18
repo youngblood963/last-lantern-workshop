@@ -1,9 +1,9 @@
 {
   "environment": "DEVTEST",
   "source": "route127/devtest/index.html",
-  "sourceSHA256": "425939c523b6c5a610fa80f337837c020bc7dc340944e13ad206528579c7d68f",
+  "sourceSHA256": "bc3c5790df25e854a9cb662b05b650fa027a89f324ee9c54dcb7b5ca91b1f562",
   "base": "../playtest/",
-  "externalCount": 165,
+  "externalCount": 168,
   "inlineCount": 9,
   "startup": [
     {
@@ -18,7 +18,7 @@
     },
     {
       "phase": "bootstrap",
-      "inlineSHA256": "2379c88a63f3b881e02bea5869e13c09677827138e7d32868cb8aeffce473d7a"
+      "inlineSHA256": "3967d00e5a05174f1980bccfea024046c78ac6fbe0ed671fa1681bb99669c6f9"
     },
     {
       "phase": "guarded",
@@ -64,9 +64,9 @@
     },
     {
       "phase": "guarded",
-      "src": "consolidation.js?v=sell-singleton-20261109",
-      "path": "route127/playtest/consolidation.js",
-      "query": "?v=sell-singleton-20261109"
+      "src": "../devtest/consolidation.js?v=wo67",
+      "path": "route127/devtest/consolidation.js",
+      "query": "?v=wo67"
     },
     {
       "phase": "guarded",
@@ -124,9 +124,9 @@
     },
     {
       "phase": "guarded",
-      "src": "../devtest/r11.js?v=steve-gear-retirement-20261117",
+      "src": "../devtest/r11.js?v=wo67",
       "path": "route127/devtest/r11.js",
-      "query": "?v=steve-gear-retirement-20261117"
+      "query": "?v=wo67"
     },
     {
       "phase": "guarded",
@@ -248,9 +248,9 @@
     },
     {
       "phase": "guarded",
-      "src": "../devtest/graphics.js?v=wo66",
+      "src": "../devtest/graphics.js?v=wo67",
       "path": "route127/devtest/graphics.js",
-      "query": "?v=wo66"
+      "query": "?v=wo67"
     },
     {
       "phase": "guarded",
@@ -440,9 +440,9 @@
     },
     {
       "phase": "overlay",
-      "src": "../devtest/runtime/relay_road_patch.js?v=relay-diagnostic-clues",
+      "src": "../devtest/runtime/relay_road_patch.js?v=wo66-relay-recovery",
       "path": "route127/devtest/runtime/relay_road_patch.js",
-      "query": "?v=relay-diagnostic-clues"
+      "query": "?v=wo66-relay-recovery"
     },
     {
       "phase": "overlay",
@@ -912,9 +912,9 @@
     },
     {
       "phase": "overlay",
-      "src": "../devtest/runtime/demo_art_batch_20261112.js?v=wo63",
+      "src": "../devtest/runtime/demo_art_batch_20261112.js?v=road-enforcer-contain-20261117",
       "path": "route127/devtest/runtime/demo_art_batch_20261112.js",
-      "query": "?v=wo63"
+      "query": "?v=road-enforcer-contain-20261117"
     },
     {
       "phase": "overlay",
@@ -966,9 +966,9 @@
     },
     {
       "phase": "overlay",
-      "src": "../devtest/runtime/graphical_transcript_display_guard_20261116.js?v=graphics-redundant-lines-guard-v1",
+      "src": "../devtest/runtime/graphical_transcript_display_guard_20261116.js?v=wo66-cloud-slots",
       "path": "route127/devtest/runtime/graphical_transcript_display_guard_20261116.js",
-      "query": "?v=graphics-redundant-lines-guard-v1"
+      "query": "?v=wo66-cloud-slots"
     },
     {
       "phase": "overlay",
@@ -1008,6 +1008,18 @@
     },
     {
       "phase": "overlay",
+      "src": "../devtest/runtime/relay_quest_art_20261117.js?v=wo66-relay-recovery-1",
+      "path": "route127/devtest/runtime/relay_quest_art_20261117.js",
+      "query": "?v=wo66-relay-recovery-1"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/wanderer_combat_art_20261117.js?v=1",
+      "path": "route127/devtest/runtime/wanderer_combat_art_20261117.js",
+      "query": "?v=1"
+    },
+    {
+      "phase": "overlay",
       "src": "../devtest/runtime/mail_backpack_tampering_20261117.js?v=1",
       "path": "route127/devtest/runtime/mail_backpack_tampering_20261117.js",
       "query": "?v=1"
@@ -1024,7 +1036,13 @@
     },
     {
       "phase": "overlay",
-      "inlineSHA256": "bc5fbbf9126ce57ed6d0b0f4cf3e774377e8ddc9b1c3267612a90d68c2763531"
+      "inlineSHA256": "cde3c80bf80bd1b9635c80990384b83fa5fb945b17c52523a6d5d6047e2a39cb"
+    },
+    {
+      "phase": "overlay",
+      "src": "../devtest/runtime/solace_survivors.js?v=shared-expedition1",
+      "path": "route127/devtest/runtime/solace_survivors.js",
+      "query": "?v=shared-expedition1"
     },
     {
       "phase": "overlay",

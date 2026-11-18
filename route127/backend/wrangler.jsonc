@@ -9,7 +9,9 @@
   "preview_urls": false,
   "vars": {
     "ENVIRONMENT": "development",
-    "DEV_BACKUP_ENABLED": "true"
+    "DEV_BACKUP_ENABLED": "true",
+    "R15_WORLD_ENABLED": "true",
+    "WO61_DIRECT_DEVTEST": "true"
   },
   "d1_databases": [
     {

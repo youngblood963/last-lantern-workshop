@@ -134,7 +134,7 @@ presentation.textContent=`
 .gfx-frame.r127-route-scene .r127-road-art[data-region="CAUSEWAY"]:is([data-key^="ROACH NEST"],[data-key^="ROACH SWARM"]){justify-content:center!important;align-items:flex-end!important}
 .gfx-frame.r127-route-scene .r127-road-art[data-region="CAUSEWAY"]:is([data-key^="ROACH NEST"],[data-key^="ROACH SWARM"]) .r127-road-unit{
  width:29%!important;height:52%!important;flex:0 0 29%!important;margin-bottom:0!important;
-  position:relative!important;top:26px!important
+  /* Actual placement is controlled by CombatLayouts, including saved layouts. */
 }
 /* The preview needs less clearance than the live combat HP label. */
 .gfx-frame.r127-route-scene .r127-road-art[data-region="CAUSEWAY"]:is([data-key^="ROACH NEST"],[data-key^="ROACH SWARM"]) div.r127-road-unit::after{height:10px}

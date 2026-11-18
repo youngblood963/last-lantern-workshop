@@ -110,6 +110,8 @@ async function main(){
   assert.ok(await a.page.evaluate(()=>townWandererFocus),'NPC talk still uses the usual handler');
   await a.command('leave');
   await a.page.waitForFunction(()=>!townWandererFocus);
+  await a.page.waitForFunction(async url=>(await fetch(url,{cache:'no-store'})).ok,
+   world+'survivors',{polling:500});
   await b.command('gates');
   await b.command('west gate');
   await b.page.waitForFunction(()=>stage==='lanternGate');

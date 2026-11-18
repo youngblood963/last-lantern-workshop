@@ -66,6 +66,18 @@
   if(this.preference()!=='graphics')return rows;
   return rows.map(row=>{
    const command=String(row.command||'');
+   // Rusty's gameplay stock already carries real prices, but the graphical
+   // menu can shorten the command to an unpriced item label.
+   if(stage==='factoryRusty'&&norm(command).startsWith('buy ')){
+    const requested=norm(command).slice(4).split(' —')[0].trim();
+    const stock=r5RustyStock().stock;
+    const name=Object.keys(stock).find(item=>norm(item)===requested);
+    if(name&&stock[name]>0){
+     const price=r5RustyPrice(name);
+     return {...row,label:'Buy '+name+' — '+price.toLocaleString('en-US')+
+      ' Bolts ('+stock[name]+' left)'};
+    }
+   }
    const cost=priceFor(norm(command));
    const suffix=money(command,cost);
    if(!suffix)return row;

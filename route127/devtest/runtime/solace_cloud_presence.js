@@ -6,13 +6,15 @@
     new URLSearchParams(location.search).get('offline')==='1')return;
  const api='/route127/devtest/api/presence/';
  const portrait=new URL('../devtest/assets/players/player_survivor_default.png',document.baseURI).href;
- let activeId=null,rows=[],menu,dialog,selected,running=false,queued=false;
- const onMainStreet=()=>{
+ let activeId=null,showRoster=false,rows=[],menu,dialog,profileStatus,selected,running=false,queued=false;
+ const inSolace=()=>{
   const travel=lanternState();
   return document.body.classList.contains('r127-cloud-game')&&!document.querySelector('.cloud-login[open]')&&
-   stage==='mercy'&&mercyLocation==='town'&&player.flags.solaceMenu==='town'&&
-   !townWandererFocus&&!combatState&&travel?.nodeId==='solace'&&!travel.currentEdgeId&&!travel.pending;
+   travel?.nodeId==='solace'&&travel.solaceAdmitted&&!travel.currentEdgeId&&!travel.pending;
  };
+ const onMainStreet=()=>inSolace()&&stage==='mercy'&&mercyLocation==='town'&&
+  player.flags.solaceMenu==='town'&&!townWandererFocus&&!combatState;
+ const statusLabel=online=>online?'Online':'Offline';
  const node=(tag,value)=>{
   const element=document.createElement(tag);
   if(value!==undefined)element.textContent=value;
@@ -32,6 +34,7 @@
  }
  function closeProfile(){
   selected=null;
+  profileStatus=null;
   if(dialog){
    dialog.close();
    dialog.remove();
@@ -68,6 +71,8 @@
     ['Location',survivor.location]
    ];
    const list=node('dl');
+   profileStatus=node('dd',statusLabel(survivor.online));
+   list.append(node('dt','Status'),profileStatus);
    for(const [label,value] of stats)list.append(node('dt',label),node('dd',String(value)));
    body.replaceChildren(node('h2',survivor.name),node('p','Client-reported cloud save'),image(),list);
   }catch(error){
@@ -84,21 +89,27 @@
   if(menu?.parentNode!==target)target.append(menu);
  }
  function updateRows(next){
-  if(selected&&!next.some(row=>row.id===selected))closeProfile();
+  const survivor=next.find(row=>row.id===selected);
+  if(selected&&!survivor)closeProfile();
+  if(survivor&&profileStatus)profileStatus.textContent=statusLabel(survivor.online);
   if(JSON.stringify(rows)===JSON.stringify(next))return;
   rows=next;
   menu?.remove();
   menu=node('section');
   menu.className='r127-cloud-survivors';
-  menu.setAttribute('aria-label','Online survivors from client-reported cloud saves');
-  menu.append(node('p','Online survivors · client-reported location'));
+  menu.setAttribute('aria-label','Survivors from client-reported cloud saves');
+  menu.append(node('p','Survivors · client-reported location'));
   const cards=node('div');
   cards.className='r127-survivor-cards';
-  for(const {id,name} of rows){
+  for(const {id,name,online} of rows){
    const button=node('button');
    button.type='button';
    button.dataset.cloudSurvivorId=id;
-   button.append(image(),node('strong','Talk to '+name));
+   const label=node('span');
+   const status=node('small',statusLabel(online));
+   status.className='r127-cloud-survivor-status';
+   label.append(node('strong','Talk to '+name),status);
+   button.append(image(),label);
    button.addEventListener('click',()=>inspect(id));
    cards.append(button);
   }
@@ -115,14 +126,15 @@
     return;
    }
    await request('heartbeat',true);
+   if(!showRoster||id!==activeId)return;
    const next=[];
    let after=null;
    do{
     const page=await request('survivors'+(after?'?after='+encodeURIComponent(after):''));
     next.push(...page.survivors.filter(row=>row.id!==id));
     after=page.next;
-   }while(after&&id===activeId);
-   if(id===activeId)updateRows(next);
+   }while(after&&id===activeId&&showRoster);
+   if(id===activeId&&showRoster)updateRows(next);
   }catch{
    if(id===activeId)updateRows([]);
   }finally{
@@ -131,9 +143,11 @@
   }
  }
  function changed(){
-  const id=onMainStreet()?player.characterId:null;
-  if(id!==activeId){
+  const id=inSolace()?player.characterId:null;
+  const nextShow=!!id&&onMainStreet();
+  if(id!==activeId||nextShow!==showRoster){
    activeId=id;
+   showRoster=nextShow;
    updateRows([]);
    closeProfile();
    refresh();

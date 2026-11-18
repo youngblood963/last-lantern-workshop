@@ -67,3 +67,8 @@
   padding: .5rem 0;
 }
 .r127-cloud-survivors p { margin: 0; }
+
+.r127-cloud-survivor-status {
+  display: block;
+  color: #f5e3ce;
+}

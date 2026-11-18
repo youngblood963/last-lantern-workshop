@@ -138,5 +138,37 @@
  body.full-graphics .gfx-frame.r127-seaport-armory-equipment .gfx-choices{min-height:0}
  `;
  document.head.append(style);
+ // Show the current buyback value in the Backpack as well as merchant menus.
+ // This is informational only; the shop remains the sole sale authority.
+ if(typeof TravelerPanels!=='undefined'){
+  const previousInventory=TravelerPanels.inventory;
+  TravelerPanels.inventory=function(...args){
+   const result=previousInventory.apply(this,args);
+   const items=this.items();
+   const rows=[...this.body.querySelectorAll('.traveler-list .traveler-item')];
+   rows.forEach((row,index)=>{
+    const item=items[index],target=row.querySelector('.traveler-item-label');
+    if(!item||!target)return;
+    const value=v48SellPrice(item);
+    const note=document.createElement('small');
+    note.className='r127-inventory-sell-value';
+    note.textContent=value>0?'Sell value: '+value.toLocaleString('en-US')+
+      ' Bolts each':'Not sellable while equipped or protected';
+    target.appendChild(note);
+   });
+   if(this.selected&&player.pack.includes(this.selected)){
+    const detail=this.body.querySelector('.traveler-detail');
+    const value=v48SellPrice(this.selected);
+    if(detail){
+     const note=document.createElement('p');
+     note.className='traveler-note r127-inventory-sell-value';
+     note.textContent=value>0?'Merchant sell value: '+value.toLocaleString('en-US')+
+       ' Bolts per item.':'This item cannot currently be sold.';
+     detail.appendChild(note);
+    }
+   }
+   return result;
+  };
+ }
  globalThis.DevtestBoltLabels=Object.freeze({priceFor});
 })();

@@ -43,9 +43,23 @@ const descriptions={
  jenUnpaidTab:'Settle the unpaid tavern tab.',
  jenFamiliarFace:'Follow Jen’s lead on the familiar traveler.'
 };
-function objective(){
+function storyProgress(){
  const f=player.flags;
+ // Later milestones are proof of earlier progress, even if old save slots
+ // retained a stale Solace/Relay flag. Read-only: never rewrite the cloud save.
+ const seaportLiberated=!!(f.seaport55?.freed||f.chapterOneComplete);
+ const boulderCleared=!!(f.portRoadCleared||seaportLiberated);
+ const factoryReached=!!(f.v49FactoryMet||f.factoryQuest==='active'||
+   done(f.factoryQuest)||f.portChargePrepared||boulderCleared);
+ return {seaportLiberated,boulderCleared,factoryReached};
+}
+function objective(){
+ const f=player.flags,p=storyProgress();
  if(f.chapterOneComplete)return 'Chapter One completed. Further chapters are in development.';
+ if(p.seaportLiberated)return 'Visit the Tomorrow Project terminal inside Seaport Workshop (no staff required).';
+ if(p.boulderCleared)return 'Liberate Seaport — defeat the fishermen and free the survivors at Harbor Docks.';
+ if(p.factoryReached)
+  return typeof portQuestObjective==='function'?portQuestObjective():'Prepare the charge at the Factory.';
  if(f.mainSolaceQuest!=='done'&&f.mainSolaceQuest!=='complete')
   return 'Reach Solace and find shelter.';
  if(!done(f.relayQuest)){
@@ -75,6 +89,21 @@ function build(page){
   return rows;
  }
  const completed=page==='completed';
+ const progress=storyProgress();
+ // Main story milestones are independent from Chapter One completion. In particular,
+ // liberating Seaport must stay completed while the transmitter remains unfinished.
+ if(completed){
+  if(progress.boulderCleared)
+   push('Factory — Prepare the Dynamite',['The charge was prepared and the boulder at Boulder Junction was destroyed. Road to Seaport opened.','Completed.']);
+  if(progress.seaportLiberated)
+   push('Liberate Seaport',['Fishermen defeated; prisoners freed. Seaport liberated.','Completed.']);
+ }else if(progress.seaportLiberated&&!f.chapterOneComplete){
+  push('The Road to Seaport — Tomorrow Project',['Visit the Tomorrow Project terminal inside Seaport Workshop to finish Chapter One.']);
+ }else if(progress.boulderCleared){
+  push('Liberate Seaport',['Travel to Seaport, defeat the fishermen enforcers and free the survivors at Harbor Docks.']);
+ }else if(progress.factoryReached){
+  push('Factory — Prepare the Dynamite',[typeof portQuestObjective==='function'?portQuestObjective():'Prepare the charge and clear Boulder Junction.']);
+ }
  // Quest flags are authoritative; raw log strings and location breadcrumbs are not.
  if(typeof R5_QUESTS!=='undefined')for(const [key,name] of R5_QUESTS){
   if(key==='relayQuest')continue;

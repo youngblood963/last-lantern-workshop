@@ -1,5 +1,23 @@
 // WO13 explicit canonical lifecycle policy; stable registry IDs are never reordered.
 const ROAD_LIFECYCLE={
+  "east:160": {
+    "name": "HARBOR SECURITY DRONE",
+    "lifecycle": "Repeatable",
+    "regions": ["SEAPORT", "CAUSEWAY"],
+    "workOrderId": null,
+    "service": false,
+    "groups": [["FIGHT"]],
+    "completion": "Combat can recur on later road occurrences."
+  },
+  "east:159": {
+    "name": "COAST ROAD SCAVENGER",
+    "lifecycle": "Repeatable",
+    "regions": ["SEAPORT", "CAUSEWAY"],
+    "workOrderId": null,
+    "service": false,
+    "groups": [["FIGHT"]],
+    "completion": "Combat can recur on later road occurrences."
+  },
   "east:158": {
     "name": "THE POWDER MONKEY",
     "lifecycle": "Repeatable",
@@ -3109,7 +3127,8 @@ const ROAD_LIFECYCLE={
     "name": "Aggressive Seagulls",
     "lifecycle": "Repeatable",
     "regions": [
-      "SEAPORT"
+      "SEAPORT",
+      "CAUSEWAY"
     ],
     "workOrderId": null,
     "service": false,

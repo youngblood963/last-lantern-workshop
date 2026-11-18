@@ -5,7 +5,8 @@ const {ctx, run, scripts} = require('./helpers/devtest.cjs')();
 ctx.crypto = require('node:crypto').webcrypto;
 const read = source => JSON.parse(run('JSON.stringify(' + source + ')'));
 const edgeId = 'boulder-junction--seaport';
-const added = [
+const coastalCombat = ['early:171', 'east:159', 'east:160'];
+const added = [...coastalCombat,
  'early:11', 'early:15', 'early:16', 'early:17', 'early:18', 'early:19',
  'early:21', 'early:50', 'early:6', 'early:60', 'early:66',
  'east:158', 'east:3', 'east:34', 'east:79'
@@ -48,7 +49,11 @@ for (const direction of [1, -1]) {
   run(`causewayAt(${step},${direction});`);
   assert.equal(run('r10Geography()'), step <= 2 ? 'SEAPORT' : 'CAUSEWAY');
   if (step <= 2) {
-   assert(!read('causewayCandidates()').some(row => row.id === 'east:158'));
+   const seaport = read('causewayCandidates()');
+   assert(!seaport.some(row => row.id === 'east:158'));
+   for (const id of coastalCombat) {
+    assert(seaport.some(row => row.id === id && row.kind === 'combat' && row.lifecycle === 'Repeatable'));
+   }
    continue;
   }
   audit = read('causewayCandidates()');

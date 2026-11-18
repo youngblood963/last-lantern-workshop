@@ -361,7 +361,10 @@ function processRefill(){ ensureRefillClock(); let t=Number(player.flags.nextRef
 function refillText(){ ensureRefillClock(); const ms=Math.max(0,Number(player.flags.nextRefillAt)-Date.now()); const sec=Math.ceil(ms/1000), h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), ss=sec%60; return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(ss).padStart(2,"0")}`; }
 function updateRefillDisplay(){ if(!player.flags)return; processRefill(); const txt=testMode?"PAUSED / TEST":refillText(); const h=document.querySelector("#hud-refill"), side=document.querySelector("#side-refill"); if(h)h.textContent=txt;if(side)side.textContent=txt; }
 function startRefillTimer(){ if(refillTimer)clearInterval(refillTimer); refillTimer=setInterval(()=>{updateRefillDisplay();},1000); updateRefillDisplay(); }
-function resultLine(text, cls="reward") { if(resultBuffer) resultBuffer.push([text,cls]); else add(text,cls); }
+// Generated equipment keeps its level/rarity key in inventory and saves.
+// Narrative and reward text show the readable item name instead.
+function narrativeGearName(name){return String(name).replace(/ \\(L\\d{1,2} (?:COMMON|UNCOMMON|RARE|EPIC|LEGENDARY)\\)/gi,'');}
+function resultLine(text, cls="reward") { text=narrativeGearName(text); if(resultBuffer) resultBuffer.push([text,cls]); else add(text,cls); }
 function flushResults(){ if(!resultBuffer || !resultBuffer.length){ resultBuffer=null; return; } add("RESULT", "system"); for(const [t,c] of resultBuffer) add(t,c); resultBuffer=null; }
 function gainBolts(n) { if(stage==="fallen")return; player.bolts += n; updateHud(); resultLine(`+${n} BOLTS`, "reward"); }
 // R17 base HP interpolates deterministically between approved milestones.
@@ -1574,7 +1577,7 @@ function handleCombat(cmd){
     c.hp=c.enemies.reduce((total,e)=>total+Math.max(0,e.hp),0);
   }else {actualDamage=Math.min(dealt,c.hp);c.hp=Math.max(0,c.hp-dealt);add(`${c.name}: ${c.hp}/${c.maxHp} HP remaining.`,"bright");}
   if(c.r18ArenaRole==='gravekeeper'&&c.hp<=0&&!c.r18LastStand){c.r18LastStand=true;c.hp=Math.max(1,Math.ceil(c.maxHp*.2));add('The Gravekeeper makes a last stand and rises again.','danger');}
-  add(c.r18Bare?'You land a bare-knuckle punch.':`You swing the ${player.weapon.toLowerCase()} and connect.`);
+  add(c.r18Bare?'You land a bare-knuckle punch.':`You swing the ${narrativeGearName(player.weapon).toLowerCase()} and connect.`);
   add("RESULT","system"); add(`YOU DEAL ${actualDamage}   ${c.enemies?.length?"GROUP TOTAL — ":""}${c.name} HP ${c.hp}/${c.maxHp}`,"reward");
   if(c.hp<=0){
     // Gunshop Owner: guaranteed firearm and meaningful victory payout.

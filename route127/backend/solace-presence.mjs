@@ -1,5 +1,13 @@
 // DEVTEST social presence. The snapshot is client-reported and never authorizes gameplay.
 const ONLINE_MS=120000;
+const INACTIVE_MS=14*86400000;
+// Verified automated QA fixtures. The retained Nuts fixture is deliberately omitted.
+const archived=[
+ 'char-867796f8-b080-4a59-bb19-6de79d5a066a','char-97032b90-9d64-4767-ac8e-808b5b984ead',
+ 'char-3c6f966b-9690-4c74-98cc-e215966c1c42','char-4d646e9f-c813-4ab9-9334-662ed5b08470',
+ 'char-fe8893fb-c6ca-4c33-8f28-f36e427a3abd','char-e659d321-e17b-49c7-b4fa-9fc64fc5678d',
+ 'char-beeb2b3f-22e5-4364-876a-47e62ed56dab','char-88e938b2-4712-4a2d-aaee-aade98afdf88'
+];
 const PAGE_SIZE=50;
 const ID=/^char-[a-f0-9-]{36}$/;
 const inSolace=`(
@@ -40,6 +48,12 @@ export async function solacePresence({req,env,auth,ch,path,response,fail}){
   await revoke();
   return response({ok:true});
  }
+ if(path==='/api/presence/activity'&&req.method==='POST'){
+  await db.prepare(`INSERT INTO r127_solace_activity(character_id,last_play_at) VALUES(?,?)
+   ON CONFLICT(character_id) DO UPDATE SET last_play_at=MAX(last_play_at,excluded.last_play_at)`)
+   .bind(ch.id,now).run();
+  return response({ok:true});
+ }
  const heartbeat=path==='/api/presence/heartbeat'&&req.method==='POST';
  const list=path==='/api/presence/survivors'&&req.method==='GET';
  const inspect=path.startsWith('/api/presence/survivors/')&&req.method==='GET';
@@ -64,9 +78,12 @@ export async function solacePresence({req,env,auth,ch,path,response,fail}){
  }
  // Saved town membership and current session activity are independent.
  const eligible=`FROM r127_characters c JOIN r127_snapshots s ON s.character_id=c.id
+  LEFT JOIN r127_solace_activity a ON a.character_id=c.id
   WHERE c.id<>? AND ${inSolace}
+  AND c.id NOT IN (${archived.map(()=>'?').join(',')})
+  AND MAX(s.updated_at,COALESCE(a.last_play_at,0))>?
   AND EXISTS (SELECT 1 FROM r127_snapshots s WHERE s.character_id=? AND ${mainStreet})`;
- const args=[cutoff,now,ch.id,ch.id];
+ const args=[cutoff,now,ch.id,...archived,now-INACTIVE_MS,ch.id];
  if(list){
   const after=new URL(req.url).searchParams.get('after')||'';
   if(after&&!ID.test(after))fail(400,'Invalid survivor cursor');

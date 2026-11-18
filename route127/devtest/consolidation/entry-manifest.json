@@ -1,7 +1,7 @@
 {
   "environment": "DEVTEST",
   "source": "route127/devtest/index.html",
-  "sourceSHA256": "f5c40be3796d4992d9df5ff495880480f041b4beee008d5cb497b72abaf0ed4b",
+  "sourceSHA256": "680e4af2e13f5f976bc37f080701521aef715b4da19c12626eac6d773640fa9c",
   "base": "../playtest/",
   "externalCount": 169,
   "inlineCount": 9,
@@ -18,7 +18,7 @@
     },
     {
       "phase": "bootstrap",
-      "inlineSHA256": "3967d00e5a05174f1980bccfea024046c78ac6fbe0ed671fa1681bb99669c6f9"
+      "inlineSHA256": "0d9997eba19d1ca41d0b142b0fa88661bfc6bad1ba8a1f04dc876318dac8f2dc"
     },
     {
       "phase": "guarded",
@@ -248,15 +248,15 @@
     },
     {
       "phase": "guarded",
-      "src": "../devtest/graphics.js?v=wo67",
+      "src": "../devtest/graphics.js?v=wo69",
       "path": "route127/devtest/graphics.js",
-      "query": "?v=wo67"
+      "query": "?v=wo69"
     },
     {
       "phase": "guarded",
-      "src": "traveler_panels.js?v=wo53",
+      "src": "traveler_panels.js?v=wo69",
       "path": "route127/playtest/traveler_panels.js",
-      "query": "?v=wo53"
+      "query": "?v=wo69"
     },
     {
       "phase": "guarded",
@@ -332,9 +332,9 @@
     },
     {
       "phase": "guarded",
-      "src": "runtime/wanderer_info_panel.js?v=wo27-name",
+      "src": "runtime/wanderer_info_panel.js?v=wo69",
       "path": "route127/playtest/runtime/wanderer_info_panel.js",
-      "query": "?v=wo27-name"
+      "query": "?v=wo69"
     },
     {
       "phase": "guarded",
@@ -374,15 +374,15 @@
     },
     {
       "phase": "guarded",
-      "src": "../devtest/runtime/menu_model.js?v=wo39-b",
+      "src": "../devtest/runtime/menu_model.js?v=wo69",
       "path": "route127/devtest/runtime/menu_model.js",
-      "query": "?v=wo39-b"
+      "query": "?v=wo69"
     },
     {
       "phase": "guarded",
-      "src": "../devtest/runtime/solace_hub.js?v=rusty-lantern-root-20261117",
+      "src": "../devtest/runtime/solace_hub.js?v=wo69",
       "path": "route127/devtest/runtime/solace_hub.js",
-      "query": "?v=rusty-lantern-root-20261117"
+      "query": "?v=wo69"
     },
     {
       "phase": "guarded",
@@ -422,9 +422,9 @@
     },
     {
       "phase": "overlay",
-      "src": "../devtest/runtime/wanderer_live.js?v=eli-mercer-20261112",
+      "src": "../devtest/runtime/wanderer_live.js?v=wo69",
       "path": "route127/devtest/runtime/wanderer_live.js",
-      "query": "?v=eli-mercer-20261112"
+      "query": "?v=wo69"
     },
     {
       "phase": "overlay",
@@ -1040,15 +1040,15 @@
     },
     {
       "phase": "overlay",
-      "src": "../devtest/runtime/solace_survivors.js?v=shared-expedition1",
+      "src": "../devtest/runtime/solace_survivors.js?v=wo69",
       "path": "route127/devtest/runtime/solace_survivors.js",
-      "query": "?v=shared-expedition1"
+      "query": "?v=wo69"
     },
     {
       "phase": "overlay",
-      "src": "../devtest/runtime/solace_cloud_presence.js?v=3",
+      "src": "../devtest/runtime/solace_cloud_presence.js?v=wo69",
       "path": "route127/devtest/runtime/solace_cloud_presence.js",
-      "query": "?v=3"
+      "query": "?v=wo69"
     },
     {
       "phase": "overlay",

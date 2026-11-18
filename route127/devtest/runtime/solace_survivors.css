@@ -62,27 +62,14 @@
 .r127-survivor-details dt { font-weight: bold; }
 .r127-survivor-details dd { margin: 0 0 .4rem; }
 
-.r127-cloud-survivors {
-  flex: 0 0 auto;
-  min-width: 0;
-  padding: .15rem 0;
+.gfx-art .r127-live-player {
+  right: calc(11% + var(--r127-player-slot) * 10%);
+  max-width: 9%;
 }
-.r127-cloud-survivors p { margin: 0; }
-.r127-cloud-survivors .r127-survivor-cards {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  margin: .2rem 0 0;
+.gfx-art .r127-live-player .r127-live-wanderer-label,
+body.full-graphics .gfx-frame .r127-player-choice .gfx-choice-label {
+  color: #ffb36b;
 }
-.r127-cloud-survivors .r127-survivor-cards button {
-  flex: 0 0 auto;
-  padding: .2rem .4rem;
-}
-.r127-cloud-survivors .r127-survivor-cards img {
-  width: 2rem;
-  height: 2rem;
-}
-
-.r127-cloud-survivor-status {
-  display: block;
-  color: #f5e3ce;
+@media(max-width:640px){
+  .gfx-art .r127-live-player { right: calc(7% + var(--r127-player-slot) * 14%); max-width: 13%; }
 }

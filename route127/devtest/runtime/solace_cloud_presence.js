@@ -6,7 +6,8 @@
     new URLSearchParams(location.search).get('offline')==='1')return;
  const api='/route127/devtest/api/presence/';
  const portrait=new URL('../devtest/assets/players/player_survivor_default.png',document.baseURI).href;
- let activeId=null,showRoster=false,rows=[],menu,dialog,profileStatus,selected,running=false,queued=false;
+ let activeId=null,showRoster=false,rows=[],sprites=[],spriteKey='',dialog,selected,running=false,queued=false;
+ let activityId,activityAt=0,inspection=0;
  const inSolace=()=>{
   const travel=lanternState();
   return document.body.classList.contains('r127-cloud-game')&&!document.querySelector('.cloud-login[open]')&&
@@ -14,111 +15,89 @@
  };
  const onMainStreet=()=>inSolace()&&stage==='mercy'&&mercyLocation==='town'&&
   player.flags.solaceMenu==='town'&&!townWandererFocus&&!combatState;
- const statusLabel=online=>online?'Online':'Offline';
- const node=(tag,value)=>{
-  const element=document.createElement(tag);
-  if(value!==undefined)element.textContent=value;
-  return element;
- };
- function image(){
-  const img=node('img');
-  img.src=portrait;
-  img.alt='';
-  img.loading='lazy';
-  return img;
- }
  async function request(path,post=false){
   const response=await fetch(api+path,{method:post?'POST':'GET',credentials:'same-origin',cache:'no-store'});
   if(!response.ok)throw Error('Survivor presence is unavailable.');
   return response.json();
  }
  function closeProfile(){
+  inspection++;
   selected=null;
-  profileStatus=null;
-  if(dialog){
-   dialog.close();
-   dialog.remove();
-   dialog=null;
-  }
+  if(dialog?.open)dialog.close();
+  dialog=null;
  }
  async function inspect(id){
+  if(!onMainStreet()||!rows.some(row=>row.id===id))return;
   closeProfile();
-  selected=id;
-  const view=node('dialog');
-  dialog=view;
-  view.className='r127-survivor-details';
-  view.setAttribute('aria-label','Cloud survivor profile');
-  const body=node('section'),close=node('button','Close');
-  close.type='button';
-  close.addEventListener('click',closeProfile);
-  view.addEventListener('close',()=>{if(dialog===view&&!view.open)closeProfile();});
-  body.append(node('p','Loading survivor…'));
-  view.append(body,close);
-  document.body.append(view);
-  view.showModal();
+  const attempt=inspection;
   try{
    const {survivor}=await request('survivors/'+encodeURIComponent(id));
-   if(dialog!==view||!onMainStreet())return;
+   if(attempt!==inspection||!onMainStreet())return;
    const {equipment}=survivor;
    const gear=name=>Object.hasOwn(GEAR,name)?GEAR[name]:null;
    const weapon=gear(equipment.weapon),armor=gear(equipment.armor),accessory=gear(equipment.accessory);
-   const weaponRange=weapon?.type==='weapon'?[weapon.min,weapon.max]:[5,10];
-   const attack=(weaponRange[0]+(accessory?.min||0))+'–'+(weaponRange[1]+(accessory?.max||0));
-   const defense=(armor?.def||0)+(accessory?.def||0);
+   const range=weapon?.type==='weapon'?[weapon.min,weapon.max]:[5,10];
    const stats=[
-    ['Level',survivor.level??'Unknown'],['HP',(survivor.hp??'?')+' / '+(survivor.maxHp??'?')],
-    ['Attack',attack],['Defense',defense],['Equipment',Object.values(equipment).filter(Boolean).join(', ')||'None'],
+    ['Status',survivor.online?'Online':'Offline'],['Level',survivor.level??'Unknown'],
+    ['HP',(survivor.hp??'?')+' / '+(survivor.maxHp??'?')],
+    ['Attack',(range[0]+(accessory?.min||0))+'–'+(range[1]+(accessory?.max||0))],
+    ['Defense',(armor?.def||0)+(accessory?.def||0)],
+    ['Equipment',Object.values(equipment).filter(Boolean).join(', ')||'None'],
     ['Location',survivor.location]
    ];
-   const list=node('dl');
-   profileStatus=node('dd',statusLabel(survivor.online));
-   list.append(node('dt','Status'),profileStatus);
-   for(const [label,value] of stats)list.append(node('dt',label),node('dd',String(value)));
-   body.replaceChildren(node('h2',survivor.name),node('p','Client-reported cloud save'),image(),list);
-  }catch(error){
-   if(dialog===view)body.replaceChildren(node('p',error.message));
+   selected=id;
+   dialog=globalThis.Route127WandererInfo.open(survivor.name,portrait,{level:survivor.level,stats});
+  }catch{
+   if(attempt===inspection&&onMainStreet())add('Survivor information is unavailable.','system');
   }
  }
  function render(){
-  const elements=GraphicalUI.element;
-  if(!elements||!onMainStreet()||!rows.length){
-   menu?.remove();
-   return;
-  }
-  if(elements.frame.hidden){
-   if(menu.parentNode!==GraphicalUI.home)GraphicalUI.home.append(menu);
-  }else if(menu.parentNode!==elements.main||menu.nextElementSibling!==elements.choices){
-   elements.main.insertBefore(menu,elements.choices);
-  }
+  const figure=GraphicalUI.active()&&onMainStreet()?GraphicalUI.element?.figure:null;
+  const visible=figure&&!figure.hidden?rows.slice(0,matchMedia('(max-width:640px)').matches?2:3):[];
+  const key=JSON.stringify(visible.map(({id,name})=>[id,name]));
+  if(key===spriteKey&&sprites.every(sprite=>sprite.parentNode===figure))return;
+  sprites.forEach(sprite=>sprite.remove());
+  sprites=[];
+  spriteKey=key;
+  visible.forEach(({id,name},index)=>{
+   const img=document.createElement('img');
+   img.src=portrait;
+   img.alt=name;
+   img.decoding='async';
+   const sprite=globalThis.Route127TownPortrait(name,img,()=>handleCommand('inspect survivor '+id),index+1);
+   sprite.dataset.cloudSurvivorId=id;
+   sprites.push(sprite);
+   figure.appendChild(sprite);
+  });
  }
  function updateRows(next){
   const survivor=next.find(row=>row.id===selected);
   if(selected&&!survivor)closeProfile();
-  if(survivor&&profileStatus)profileStatus.textContent=statusLabel(survivor.online);
-  if(JSON.stringify(rows)===JSON.stringify(next))return;
+  if(survivor&&dialog?.open)dialog.querySelector('.r127-info-value').textContent=survivor.online?'Online':'Offline';
+  const identities=list=>JSON.stringify(list.map(({id,name})=>[id,name]));
+  const changed=identities(rows)!==identities(next);
   rows=next;
-  menu?.remove();
-  menu=node('section');
-  menu.className='r127-cloud-survivors';
-  menu.setAttribute('aria-label','Survivors from client-reported cloud saves');
-  menu.append(node('p','Survivors · client-reported location'));
-  const cards=node('div');
-  cards.className='r127-survivor-cards';
-  for(const {id,name,online} of rows){
-   const button=node('button');
-   button.type='button';
-   button.dataset.cloudSurvivorId=id;
-   const label=node('span');
-   const status=node('small',statusLabel(online));
-   status.className='r127-cloud-survivor-status';
-   label.append(node('strong','Talk to '+name),status);
-   button.append(image(),label);
-   button.addEventListener('click',()=>inspect(id));
-   cards.append(button);
-  }
-  menu.append(cards);
+  if(changed&&showRoster)globalThis.Route127RefreshSolaceMenu?.();
   render();
  }
+ globalThis.Route127SolaceCloud=Object.freeze({
+  choices:()=>onMainStreet()?rows.slice(0,90).map(({id,name})=>[id,'Talk to '+name,true,null,'inspect survivor '+id]):[],
+  inspect
+ });
+ const previousCommand=handleCommand;
+ handleCommand=async function(raw){
+  const typed=String(raw||'').trim().toLowerCase();
+  const command=numberedChoices[typed]||currentHotkeys[typed]||typed;
+  if(onMainStreet()&&command.startsWith('inspect survivor '))return inspect(command.slice(17));
+  const id=player.characterId;
+  if(typed&&!busy&&id&&document.body.classList.contains('r127-cloud-game')&&
+     !document.querySelector('.cloud-login[open]')&&(activityId!==id||Date.now()-activityAt>=3600000)){
+   activityId=id;
+   activityAt=Date.now();
+   request('activity',true).catch(()=>{if(activityId===id)activityAt=0;});
+  }
+  return previousCommand.apply(this,arguments);
+ };
  async function refresh(){
   if(running){queued=true;return;}
   running=true;

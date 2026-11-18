@@ -67,24 +67,18 @@ async function main(){
   for(const [c,other] of [[a,b],[b,a]]){
    const target=c.page.locator('[data-cloud-survivor-id="'+other.id+'"]');
    await target.waitFor({timeout:45000});
-   assert.equal(await target.evaluate(card=>{
-    const roster=card.closest('.r127-cloud-survivors');
-    const choices=roster.nextElementSibling;
-    return choices===GraphicalUI.element.choices&&
-     card.getBoundingClientRect().bottom<=GraphicalUI.element.main.getBoundingClientRect().bottom;
-   }),true,'Portrait row fits above the choices on a short desktop viewport');
-   assert.equal(await c.page.locator('[data-cloud-survivor-id="'+c.id+'"]').count(),0);
-   assert.equal(await target.locator('strong').innerText(),'Talk to '+other.name);
-   await target.getByText('Online',{exact:true}).waitFor();
-   assert.equal((await c.request('survivors/'+c.id)).status,404);
+   assert.equal(await target.evaluate(card=>card.parentNode===GraphicalUI.element.figure),true);
    await target.locator('img').evaluate(img=>img.decode());
-   await target.click();
+   const choice=c.page.locator('.gfx-choice.r127-player-choice').filter({hasText:'Talk to '+other.name});
+   await choice.first().waitFor();
+   await c.command(await c.page.evaluate(id=>Object.keys(numberedChoices).find(key=>numberedChoices[key]==='inspect survivor '+id),other.id));
    const profile=c.page.getByRole('dialog',{name:'Cloud survivor profile'});
-   await profile.getByText('Client-reported cloud save',{exact:true}).waitFor();
-   assert.deepEqual(await profile.locator('dt').allTextContents(),['Status','Level','HP','Attack','Defense','Equipment','Location']);
-   assert.equal(await profile.locator('dd').last().textContent(),'Solace');
-   await profile.getByRole('button',{name:'Close',exact:true}).click();
-   await c.page.getByRole('button',{name:'Shared Expedition',exact:true}).waitFor();
+   await profile.getByText('Online',{exact:true}).waitFor();
+   assert.deepEqual(await profile.locator('.r127-info-label').allTextContents(),['Status','Level','HP','Attack','Defense','Equipment','Location']);
+   assert.equal(await profile.locator('.r127-info-value').last().textContent(),'Solace');
+   await profile.getByRole('button',{name:'X — Close',exact:true}).click();
+   assert.equal(await c.page.getByRole('button',{name:'Shared Expedition',exact:true}).count(),0);
+   assert.equal(await c.page.locator('.r127-cloud-survivors').count(),0);
    const after=await c.save();
    assert.equal(after.revision,c.before.revision);
    assert.deepEqual(after.snapshot,c.before.snapshot);
@@ -98,12 +92,12 @@ async function main(){
    await b.page.waitForFunction(async prefix=>(await fetch(prefix+'me',{cache:'no-store'})).status===401,
     prefix,{polling:500});
    const card=a.page.locator('[data-cloud-survivor-id="'+b.id+'"]');
-   await card.getByText('Offline',{exact:true}).waitFor({timeout:45000});
+   await a.page.waitForFunction(async url=>!(await (await fetch(url)).json()).survivor.online,world+'survivors/'+b.id);
    await card.click();
    const profile=a.page.getByRole('dialog',{name:'Cloud survivor profile'});
    await profile.getByRole('heading',{name:'Nuts'}).waitFor();
-   assert.equal(await profile.locator('dd').first().textContent(),'Offline');
-   assert.equal(await profile.locator('dd').last().textContent(),'Solace');
+   assert.equal(await profile.locator('.r127-info-value').first().textContent(),'Offline');
+   assert.equal(await profile.locator('.r127-info-value').last().textContent(),'Solace');
    const persisted=await a.request('survivors/'+b.id);
    assert.equal(persisted.body.survivor.online,false);
    console.log('PASS hosted Nuts session expired (401); still visible and inspectable in Solace as Offline',b.id);

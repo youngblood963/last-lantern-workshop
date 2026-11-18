@@ -4,9 +4,9 @@ const DevtestMenuModel=(()=>{
  function normalize(screenId,definitions,commandFor=choiceCommand){
   const seen=new Set(), actions=[];
   let exit;
-  for(const [id,label,visible=true,destination] of definitions){
+  for(const [id,label,visible=true,destination,explicitCommand] of definitions){
    if(!visible)continue;
-   const command=commandFor(label);
+   const command=explicitCommand||commandFor(label);
    if(seen.has(command))continue;
    seen.add(command);
    const action={id:screenId+':'+id,label,command,destination};
@@ -22,7 +22,11 @@ const DevtestMenuModel=(()=>{
   const actions=normalize(screenId,definitions);
   currentHotkeys={};numberedChoices={};usedHotkeys=new Set();
   const labels=actions.map(action=>action.label).join('   ');
-  add(explicitBindings?hotkeyLine(labels):labels,'system');
+  const line=explicitBindings?hotkeyLine(labels):labels;
+  add(line,'system');
+  if(explicitBindings)actions.forEach((action,i)=>{
+   if(action.command.startsWith('inspect survivor '))numberedChoices[String(i+1)]=action.command;
+  });
   remember(actions);
  }
  function remember(actions,{direct=false}={}){

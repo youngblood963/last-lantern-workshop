@@ -4,6 +4,7 @@
  const hosts=['https://lastlanternworkshop.com','https://localhost:8787','https://127.0.0.1:8787'];
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||!hosts.includes(location.origin)||
     !/^\/route127\/devtest\/(?:index\.html)?$/.test(location.pathname)||
+    new URLSearchParams(location.search).get('sharedExpeditionQA')!=='1'||
     new URLSearchParams(location.search).get('offline')==='1')return;
 
  const api='/route127/devtest/api/world/';

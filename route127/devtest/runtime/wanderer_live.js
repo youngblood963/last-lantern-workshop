@@ -132,8 +132,30 @@
     return null;
   }
 
+  function townPortrait(name,img,open,slot=0){
+    const frame=document.createElement('div');
+    frame.className='r127-live-wanderer-town';
+    if(slot){
+      frame.classList.add('r127-live-player');
+      frame.style.setProperty('--r127-player-slot',slot);
+    }
+    const label=document.createElement('span');
+    label.className='r127-live-wanderer-label';
+    label.textContent=(typeof RouteIdentity!=='undefined'?RouteIdentity.wanderer?.[name]:null)||name;
+    frame.tabIndex=0;
+    frame.setAttribute('role','button');
+    frame.setAttribute('aria-label','Open full portrait of '+name);
+    frame.addEventListener('click',open);
+    frame.addEventListener('keydown',event=>{
+      if(event.key==='Enter'||event.key===' '){event.preventDefault();open();}
+    });
+    frame.append(img,label);
+    return frame;
+  }
+  globalThis.Route127TownPortrait=townPortrait;
+
   function clear(figure) {
-    figure?.querySelectorAll('.r127-live-wanderer-road,.r127-live-wanderer-town')
+    figure?.querySelectorAll('.r127-live-wanderer-road,.r127-live-wanderer-town:not(.r127-live-player)')
       .forEach(node => node.remove());
     shownKey = '';
   }
@@ -148,7 +170,7 @@
     if (!file) { clear(figure); return; }
     const kind = encounterInfo.kind;
     const key = kind + ':' + encounterInfo.name;
-    const existing = figure.querySelector('.r127-live-wanderer-road,.r127-live-wanderer-town');
+    const existing = figure.querySelector('.r127-live-wanderer-road,.r127-live-wanderer-town:not(.r127-live-player)');
     if (key === shownKey && existing) return;
     clear(figure);
     const src = new URL(file,root).href;
@@ -169,18 +191,10 @@
           ? '25%' : '15%');
       figure.appendChild(img);
     } else {
-      const frame = document.createElement('div');
-      frame.className = 'r127-live-wanderer-town';
-      const label = document.createElement('span');
-      label.className = 'r127-live-wanderer-label';
-      label.textContent = (typeof RouteIdentity!=='undefined'?
-        RouteIdentity.wanderer?.[encounterInfo.name]:null)||encounterInfo.name;
-      frame.title='Open '+encounterInfo.name+' portrait';frame.tabIndex=0;
-      frame.setAttribute('role','button');frame.setAttribute('aria-label','Open full portrait of '+encounterInfo.name);
-      frame.addEventListener('click',()=>{if(globalThis.Route127WandererInfo)globalThis.Route127WandererInfo.open(encounterInfo.name,new URL(file,root).href);else expandPortrait(encounterInfo.name,file);});
-      frame.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();if(globalThis.Route127WandererInfo)globalThis.Route127WandererInfo.open(encounterInfo.name,new URL(file,root).href);else expandPortrait(encounterInfo.name,file);}});
-      frame.append(img,label);
-      figure.appendChild(frame);
+      figure.appendChild(townPortrait(encounterInfo.name,img,()=>{
+       if(globalThis.Route127WandererInfo)globalThis.Route127WandererInfo.open(encounterInfo.name,src);
+       else expandPortrait(encounterInfo.name,file);
+      }));
     }
     shownKey = key;
   }

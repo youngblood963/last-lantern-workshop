@@ -116,6 +116,16 @@ const TravelerPanels={
   if(this.which==='menu')for(const [command,label]of GraphicalUI.nav(GraphicalUI.model()))panel.appendChild(this.button(label,async()=>{this.close();await handleCommand(command);GraphicalUI.sync();}));
   panel.appendChild(this.button('Full Graphics',()=>{this.close();GraphicalUI.setMode('graphics');}));
   panel.appendChild(this.button('Classic BBS',()=>{this.close();GraphicalUI.setMode('classic');}));
+  if(this.which==='options'&&globalThis.ROUTE127_ENV?.name==='DEVTEST'&&
+     document.body.classList.contains('r127-cloud-game')){
+   const url=new URL(location.href);
+   url.searchParams.set('sharedExpeditionQA','1');
+   const link=this.node('a','traveler-button','Shared Expedition (QA)');
+   link.href=url.href;
+   link.target='_blank';
+   link.rel='noopener';
+   panel.appendChild(link);
+  }
   panel.appendChild(this.button('Close',()=>this.close()));this.body.appendChild(panel);
  },
  async journalPage(page){

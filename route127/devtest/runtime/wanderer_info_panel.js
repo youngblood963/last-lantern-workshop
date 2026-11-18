@@ -33,19 +33,19 @@
     row.append(make('span','r127-info-label',name),make('span','r127-info-value',value));
     section.appendChild(row);
   };
-  function open(name,src){
+  function open(name,src,survivor){
     if(!name||!src)return;
-    const w=typeof wandererByName==='function'?wandererByName(name):null;
-    const def=typeof WandererWorldExpansion!=='undefined'
+    const w=!survivor&&typeof wandererByName==='function'?wandererByName(name):null;
+    const def=!survivor&&typeof WandererWorldExpansion!=='undefined'
       ? WandererWorldExpansion.definition(name):null;
     // Read existing state directly; ws() and v50Profile() can create state or roll loot.
-    const state=typeof player!=='undefined'?player?.wandererState?.[name]:null;
+    const state=!survivor&&typeof player!=='undefined'?player?.wandererState?.[name]:null;
     const profile=state?.profile||null;
     // Match the established graphical names used in road encounters and the roster.
     // Short names remain the authoritative internal IDs.
-    const display=(typeof RouteIdentity!=='undefined'?RouteIdentity.wanderer?.[name]:null)||def?.displayName||name;
-    const level=profile?.level??w?.level??def?.level??'Unknown';
-    const occupation=w?.occupation||def?.occupation||'Unknown';
+    const display=survivor?name:(typeof RouteIdentity!=='undefined'?RouteIdentity.wanderer?.[name]:null)||def?.displayName||name;
+    const level=survivor?.level??profile?.level??w?.level??def?.level??'Unknown';
+    const occupation=survivor?'Client-reported cloud save':w?.occupation||def?.occupation||'Unknown';
     const skills=ratingFor(name,w,def,state);
     if(!document.getElementById('r127-wanderer-info-css')){
       const style=make('style');style.id='r127-wanderer-info-css';
@@ -93,7 +93,7 @@
       document.head.appendChild(style);
     }
     const d=make('dialog','r127-winfo');
-    d.setAttribute('aria-label','Wanderer information: '+display);
+    d.setAttribute('aria-label',survivor?'Cloud survivor profile':'Wanderer information: '+display);
     const header=make('div','r127-winfo-header');
     const titleWrap=make('div'),title=make('h2','',display);
     titleWrap.append(title,make('div','r127-winfo-sub','LEVEL '+level+'  •  '+occupation));
@@ -106,6 +106,11 @@
     portraitColumn.appendChild(portrait);
     const details=make('div','r127-winfo-details');
     const overview=make('section');
+    if(survivor){
+      overview.appendChild(make('h3','','INSPECT'));
+      for(const [label,value] of survivor.stats)addRow(overview,label,value);
+      details.appendChild(overview);
+    }else{
     overview.appendChild(make('h3','','CHARACTER'));
     if(def?.personality||w?.vibe)addRow(overview,'Personality',def?.personality||w.vibe);
     if(def?.connection)addRow(overview,'Connections',def.connection);
@@ -137,9 +142,10 @@
     belongings.appendChild(make('p','r127-winfo-note',
       'Trade stock is not guaranteed loot.'));
     details.appendChild(belongings);
+    }
     body.append(portraitColumn,details);d.append(header,body);
     d.addEventListener('close',()=>d.remove(),{once:true});
-    document.body.appendChild(d);d.showModal();close.focus();
+    document.body.appendChild(d);d.showModal();close.focus();return d;
   }
   globalThis.Route127WandererInfo=Object.freeze({open});
 })();

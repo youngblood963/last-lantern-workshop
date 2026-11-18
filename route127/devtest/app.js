@@ -603,7 +603,7 @@ function enemyHit(min,max) {
 }
 function r18EquippedRanged(){const gear=GEAR[player.weapon],def=gear?.subtype?gear:typeof EQUIPMENT_CATALOG!=='undefined'?EQUIPMENT_CATALOG.find(x=>x.name===player.weapon):null;return !!def&&/rifle|revolver|pistol|shotgun|crossbow|smg/i.test(def.subtype||'');}
 function rollDamage(min,max){ if(min==null||max==null){[min,max]=weaponRange();} return Math.floor(Math.random()*(max-min+1))+min; }
-function packSlotsUsed() { return player.pack.filter(i=>!["key","quest"].includes(i.type)).length; }
+function packSlotsUsed() { for(const i of player.pack||[])if(i.name==='Fresh Potato'&&i.type!=='consumable')i.type='consumable'; return player.pack.filter(i=>!["key","quest"].includes(i.type)).length; }
 function r18ItemLabel(item){return item.name+(item.stolen?' (STOLEN)':'');}
 function r18NamedStack(items,label){const value=String(label).trim(),tagged=/ \(stolen\)$/i.test(value),name=value.replace(/ \(stolen\)$/i,'').toLowerCase(),matches=items.filter(i=>i.name.toLowerCase()===name);return tagged?matches.find(i=>!!i.stolen):matches.find(i=>!i.stolen)||matches[0];}
 function findItem(name) {const value=String(name).trim(),tagged=/ \(stolen\)$/i.test(value),query=value.replace(/ \(stolen\)$/i,'').toLowerCase(),exact=player.pack.filter(i=>i.name.toLowerCase()===query),matches=exact.length?exact:player.pack.filter(i=>i.name.toLowerCase().includes(query));return tagged?matches.find(i=>!!i.stolen):matches.find(i=>!i.stolen)||matches[0];}
@@ -633,6 +633,7 @@ function r18FoodRecord(name,type){const kind=r18FoodKind(name);if(!kind||type!==
 function r18FoodSync(){for(const i of player.pack||[])if(i.qty>0)r18FoodRecord(i.name,i.type);}
 function r18StewReady(){r18FoodSync();const f=player.flags.r18FoodSeen||{};return !!(f.meat&&f.fruit&&f.vegetable);}
 function addPack(name, type="material", qty=1, quietFull=false, stolen=false) {
+  if(name==="Fresh Potato")type="consumable";
   if(stage==="fallen")return false;
   const existing=player.pack.find(i=>i.name===name && i.type===type && !!i.stolen===!!stolen);
   if(existing){ existing.qty+=qty; updateHud(); resultLine(`PACK: + ${name}${qty>1?` ×${qty}`:""}`,"reward"); r18FoodRecord(name,type); if(!stolen)r18PetRoadFind(name,type); return true; }
@@ -742,7 +743,7 @@ function inspectItem(name){
     "Large Animal Bones":"Large animal bones usable for trade.",
     "Small Animal Bones":"Small animal bones used for a Bone Tomahawk and trade.",
     "Fresh Carrot":"A fresh carrot. Restore 10% of maximum HP outside combat.",
-    "Fresh Potato":"A fresh potato. Restore 10% of maximum HP outside combat.",
+    "Fresh Potato":"A fresh potato. Restore 10% of maximum HP, including in combat.",
     "Fresh Pear":"Fresh produce. Restore 10% of maximum HP outside combat.",
     "Fresh Berries":"Fresh produce. Restore 10% of maximum HP outside combat.",
     "Fresh Tomato":"Fresh produce. Restore 10% of maximum HP outside combat.",

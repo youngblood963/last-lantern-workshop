@@ -47,8 +47,8 @@
     if(cmd==='treat wounds')return treatCost(portStaffRating('clinic'));
     if(cmd==='buy bandage')return portClinicBandagePrice();
    }
-   if(role==='general store'||role==='armory'){
-    // Seaport Armory is its own service role, not the General Store.
+   if(role==='general store'){
+    // The Seaport Armory equipment screen belongs to the General Store role.
     // Resolve the live regional price without changing the purchase command.
     if(ui.page==='equipment'&&cmd.startsWith('buy ')){
      const stock=regionalEquipmentStock('seaport').slots
@@ -94,7 +94,7 @@
  GraphicalUI.sync=function(...args){
   const result=previousSync.apply(this,args);
   const armory=stage==='port55Service'&&
-   player.flags?.portStaffUI?.role==='armory'&&
+   player.flags?.portStaffUI?.role==='general store'&&
    player.flags?.portStaffUI?.page==='equipment'&&this.active();
   this.element?.frame?.classList.toggle('r127-seaport-armory-equipment',!!armory);
   if(armory){

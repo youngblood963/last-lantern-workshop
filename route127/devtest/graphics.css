@@ -365,3 +365,7 @@ body.full-graphics .gfx-frame .gfx-art > img.gfx-image[src*="the_traveler_vale.p
   object-fit:contain!important;
   object-position:center center!important;
 }
+
+/* The Classic BBS blackjack card hands remain in the transcript for Classic mode,
+   but must not leak into full-graphics scenes after leaving the casino. */
+body.full-graphics .gfx-narrative .v48-card-hand{display:none!important}

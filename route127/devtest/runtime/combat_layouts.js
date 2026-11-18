@@ -333,7 +333,15 @@
  }
  function get(id,phase,device){
   const scene=sceneKey(id,phase,device),desktop=sceneKey(id,phase,'desktop');
-  return {...published[desktop],...local[desktop],...published[scene],...local[scene]};
+  const layouts={...published[desktop],...local[desktop],...published[scene],...local[scene]};
+  // Scrap Duel is a full cinematic scene, not a reduced sprite over regional sky.
+  // Correct old device-saved layouts as well as the published 0.76-scale default.
+  if(id==='east:11'&&layouts['background:the_scrap_duel.png']){
+   layouts['background:the_scrap_duel.png']={
+    ...layouts['background:the_scrap_duel.png'],x:50,y:50,width:100,height:100,scale:1,z:1,flip:false
+   };
+  }
+  return layouts;
  }
 
  // DEVTEST-only live art mapping: the Visual Testing assignments must also appear
@@ -420,6 +428,8 @@
  .gfx-frame .gfx-art img[src*="miles_the_courier.png"],
  .gfx-frame .gfx-art img[src*="the_carousel_horse.png"]{object-fit:contain!important;object-position:center center!important}
  .gfx-frame .gfx-art.r127-layout-has-background{aspect-ratio:16/9;min-height:150px}
+ /* Scrap Duel's authored scene fills the complete artwork viewport; no sky margin. */
+ .gfx-frame .gfx-art img[src*="the_scrap_duel.png"]{object-fit:cover!important;object-position:center!important}
  .gfx-frame .gfx-art .r127-layout-unit{position:absolute!important;left:var(--r127-layout-x)!important;top:var(--r127-layout-y)!important;width:var(--r127-layout-width)!important;height:var(--r127-layout-height)!important;transform:translate(-50%,-50%) scale(var(--r127-layout-scale))!important;scale:none!important;z-index:var(--r127-layout-z)!important}
  .gfx-frame .gfx-art .r127-layout-unit:not(.r127-layout-background)>img{transform:none!important}
  .gfx-frame .gfx-art .r127-layout-unit.r127-layout-flipped:not(.r127-layout-background)>img{transform:scaleX(-1)!important}

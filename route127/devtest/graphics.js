@@ -121,8 +121,12 @@ const GraphicalUI={
   if(!current){this.sync();return false;}
   if(busy||commandProcessing)return false;
   const encounter=stage==='encounter'&&!!currentEncounter();
+  // Roadside wanderers use the same textual action menu as road encounters.
+  // Dispatch the selected command, not its transient number: other renderers
+  // can rebuild numberedChoices while a wanderer portrait/menu is updating.
+  const semanticChoice=encounter||stage==='wandererRoad';
   this.navOpen=false;
-  await handleCommand(encounter?current.command:current.key);
+  await handleCommand(semanticChoice?current.command:current.key);
   this.sync();return true;
  },
  node(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;},

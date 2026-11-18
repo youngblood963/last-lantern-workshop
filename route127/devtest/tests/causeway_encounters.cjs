@@ -5,10 +5,15 @@ const {ctx, run, scripts} = require('./helpers/devtest.cjs')();
 ctx.crypto = require('node:crypto').webcrypto;
 const read = source => JSON.parse(run('JSON.stringify(' + source + ')'));
 const edgeId = 'boulder-junction--seaport';
-const expected = [
+const added = [
+ 'early:11', 'early:15', 'early:16', 'early:17', 'early:18', 'early:19',
+ 'early:21', 'early:50', 'early:6', 'early:60', 'early:66',
+ 'east:158', 'east:3', 'east:34', 'east:79'
+];
+const expected = [...added,
  'early:3', 'early:64', 'east:54', 'east:57', 'east:60', 'east:62',
  'east:64', 'east:69', 'east:70', 'east:72', 'east:73', 'east:78'
-];
+].sort();
 
 assert(scripts.includes('devtest/runtime/old_man_finn_causeway.js'));
 assert(scripts.includes('devtest/lifecycle.js'));
@@ -42,7 +47,10 @@ for (const direction of [1, -1]) {
  for (let step = 1; step <= 12; step++) {
   run(`causewayAt(${step},${direction});`);
   assert.equal(run('r10Geography()'), step <= 2 ? 'SEAPORT' : 'CAUSEWAY');
-  if (step <= 2) continue;
+  if (step <= 2) {
+   assert(!read('causewayCandidates()').some(row => row.id === 'east:158'));
+   continue;
+  }
   audit = read('causewayCandidates()');
   assert.deepEqual(audit.map(row => row.id).sort(), expected);
   assert(audit.every(row => row.regions.includes('CAUSEWAY')));
@@ -100,7 +108,7 @@ for (const direction of [1, -1]) {
  const way = direction === 1 ? 'Forward' : 'Reverse';
  console.log(way, result);
  const depleted = read(`causewaySim(${direction},true)`);
- assert.deepEqual(Object.keys(depleted.counts).sort(), ['early:64','east:54','east:62','east:64','east:78']);
+ assert.deepEqual(Object.keys(depleted.counts).sort(), [...added,'early:64','east:54','east:62','east:64','east:78'].sort());
  console.log(way + ' after finite rewards', depleted);
 }
 

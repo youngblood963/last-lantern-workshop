@@ -1,5 +1,14 @@
 // WO13 explicit canonical lifecycle policy; stable registry IDs are never reordered.
 const ROAD_LIFECYCLE={
+  "east:158": {
+    "name": "THE POWDER MONKEY",
+    "lifecycle": "Repeatable",
+    "regions": ["CAUSEWAY"],
+    "workOrderId": null,
+    "service": false,
+    "groups": [],
+    "completion": "Repeatable combat. Existing unique blueprint flag remains permanent."
+  },
   "early:4": {
     "name": "ROADBLOCK",
     "lifecycle": "Repeatable",

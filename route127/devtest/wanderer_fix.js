@@ -9,7 +9,7 @@
   // second actionable menu alongside the authoritative v53Choices menu.
   if(encounter&&cls==='system'&&(
     v53LegacyMenu(s)&&(!v53OfficialMenu||
-      typeof portRecruitUnlocked==='function'&&portRecruitUnlocked()&&!/\\bRECRUIT\\b/.test(s))||
+      typeof portRecruitUnlocked==='function'&&portRecruitUnlocked()&&!/\bRECRUIT\b/.test(s))||
     !v53OfficialMenu&&/^(?:STEAL(?: FROM)?|TRADE(?: |$))/.test(s)&&/(?:MOVE ON|TOWN|INSPECT)/.test(s)
   ))return;
   return previousAddImmediate(text,cls);

@@ -119,6 +119,16 @@ presentation.textContent=`
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"] .r127-road-unit{width:46%!important;height:49%}
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"]:not(.single) .r127-road-unit,
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="RAT PACK"] .r127-road-unit{width:31%!important;height:49%}
+/* Two separate Tunnel Rat sprites must stay on the narrow Causeway roadway.
+   Only the two-rat variant is positioned; the Wild Boar variant is unchanged.
+   HP labels and per-rat defeated visibility remain owned by the existing renderer. */
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"]:not(.single){display:block}
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"]:not(.single) .r127-road-unit{
+ position:absolute!important;width:20%!important;height:43%!important;
+ bottom:5%!important;transform:translateX(-50%)!important;
+}
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"]:not(.single) .r127-road-unit:nth-child(1){left:45%!important}
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"]:not(.single) .r127-road-unit:nth-child(2){left:56%!important;bottom:7%!important}
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="SOMETHING IN THE DRAIN"] .r127-road-unit{width:48%!important;height:30%}
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="FERAL DOG"] .r127-road-unit{width:52%!important;height:60%}
 

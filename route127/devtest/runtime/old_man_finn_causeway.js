@@ -6,17 +6,40 @@ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||
    typeof lanternState!=='function'||typeof GraphicalUI==='undefined')return;
 const EDGE='boulder-junction--seaport', STEP=6, STAGE='r127FinnStore';
 const ART='../devtest/assets/locations/old_man_finn_boat.png';
-// Keep Finn's transparent boat scene smaller in the existing artwork panel.
+// Finn is a transparent boat sprite: display the existing world-hour sky
+// BEHIND it, rather than a duplicate foreground overlay. Keep the boat low.
 const finnArtStyle=document.createElement('style');
 finnArtStyle.textContent=`
+body.full-graphics .gfx-frame .gfx-art:has(> img.gfx-image[src*="old_man_finn_boat.png"]){
+ background-color:#080d14!important;
+ background-image:var(--r127-finn-sky,none)!important;
+ background-size:130% auto!important;
+ background-position:left center!important;
+ background-repeat:no-repeat!important;
+}
 body.full-graphics .gfx-frame .gfx-art > img.gfx-image[src*="old_man_finn_boat.png"]{
  object-fit:contain!important;
  object-position:center center!important;
- transform:scale(.78)!important;
+ transform:translateY(10%) scale(.78)!important;
  transform-origin:center center!important;
 }
 `;
 document.head.appendChild(finnArtStyle);
+const oldFinnSync=GraphicalUI.sync;
+GraphicalUI.sync=function(...args){
+ const result=oldFinnSync.apply(this,args);
+ const figure=this.element?.figure;
+ if(figure){
+  if(stage===STAGE){
+   const phase=typeof Route127RegionalSky?.phase==='function'
+    ?Route127RegionalSky.phase(player?.flags?.worldHour):'night';
+   const file=phase==='dusk'?'sky_dawn.png':'sky_'+phase+'.png';
+   const sky=new URL('../devtest/assets/regions/'+file,document.baseURI).href;
+   figure.style.setProperty('--r127-finn-sky','url("'+sky+'")');
+  }else figure.style.removeProperty('--r127-finn-sky');
+ }
+ return result;
+};
 
 const inventoryTemplate=()=>({
  'Energy Bars':8,'Bandage':6,'Tent':3,'Scrap Metal':8,Wire:6,Cloth:6,'Emergency Trauma Kit':1

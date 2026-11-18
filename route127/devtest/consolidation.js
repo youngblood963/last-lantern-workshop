@@ -105,9 +105,13 @@ function v53SaleStart(name,merchant=null){
  // stolen-property and balance validation before anything is transferred.
  const gear=typeof GEAR!=='undefined'?GEAR[item.name]:null;
  const protectedConfirm=gear&&['weapon','armor','accessory'].includes(gear.type)&&['rare','epic'].includes(gear.rarity);
- player.flags.v53Sale={name:item.name,type:item.type,stolen:!!item.stolen,available:item.qty,unit,qty:1,merchant,location:mercyLocation,mode:item.qty===1?'confirm':'quantity'};
+ // Cloud/legacy inventory can contain quantities stored as "1" instead of 1.
+ // Treat either as a single item: there is no quantity to choose.
+ const available=Number(item.qty);
+ const single=Number.isSafeInteger(available)&&available===1;
+ player.flags.v53Sale={name:item.name,type:item.type,stolen:!!item.stolen,available,unit,qty:1,merchant,location:mercyLocation,mode:single?'confirm':'quantity'};
  if(!merchant)player.flags.v48Sale={name:item.name,type:item.type,qty:1,total:unit};
- if(item.qty===1&&!protectedConfirm)return v53SaleCommand('confirm sale');
+ if(single&&!protectedConfirm)return v53SaleCommand('confirm sale');
  v53SaleMenu();return true;
 }
 function v53SaleMenu(){const q=player.flags.v53Sale;if(!q)return;

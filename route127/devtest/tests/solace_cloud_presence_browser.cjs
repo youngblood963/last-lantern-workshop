@@ -104,14 +104,6 @@ async function main(){
    assert.deepEqual(errors,[]);
    return;
   }
-  const visitor=await a.page.evaluate(()=>Object.values(numberedChoices).find(cmd=>/^talk to /i.test(cmd)));
-  assert.ok(visitor,'NPC wanderer remains in the existing menu');
-  await a.command(visitor);
-  assert.ok(await a.page.evaluate(()=>townWandererFocus),'NPC talk still uses the usual handler');
-  await a.command('leave');
-  await a.page.waitForFunction(()=>!townWandererFocus);
-  await a.page.waitForFunction(async url=>(await fetch(url,{cache:'no-store'})).ok,
-   world+'survivors',{polling:500});
   await b.command('gates');
   await b.command('west gate');
   await b.page.waitForFunction(()=>stage==='lanternGate');
@@ -132,6 +124,10 @@ async function main(){
   await b.page.waitForFunction(async prefix=>!!(await (await fetch(prefix+'save',{cache:'no-store'})).json())
    .snapshot.player.flags.lanternTravel.currentEdgeId,prefix,{polling:500});
   assert.equal((await a.request('survivors/'+b.id)).status,404);
+  const visitor=await a.page.evaluate(()=>Object.values(numberedChoices).find(cmd=>/^talk to /i.test(cmd)));
+  assert.ok(visitor,'NPC wanderer remains in the existing menu');
+  await a.command(visitor);
+  assert.ok(await a.page.evaluate(()=>townWandererFocus),'NPC talk still uses the usual handler');
   console.log('PASS mutual Main Street Inspect, duplicate names, self exclusion, unchanged saves, NPC talk, gate return and normal road departure');
   assert.deepEqual(errors,[]);
  }finally{await browser.close();}

@@ -30,7 +30,20 @@
   get length(){return keys().length;},key(i){return keys()[i]??null;},
   getItem(key){key=String(key);if(original.getItem(removed+key)!==null)return null;return original.getItem(prefix+key)??(readsLegacy(key)?original.getItem(key):null);},
   setItem(key,value){key=String(key);original.setItem(prefix+key,String(value));original.removeItem(removed+key);},
-  removeItem(key){key=String(key);original.setItem(removed+key,'1');original.removeItem(prefix+key);},
+  removeItem(key){
+   key=String(key);
+   // A DEVTEST-only record needs no tombstone because it has no legacy value to mask.
+   if(!playtest&&original.getItem(key)===null){
+    original.removeItem(prefix+key);original.removeItem(removed+key);return;
+   }
+   original.setItem(removed+key,'1');original.removeItem(prefix+key);
+  },
+  ...(playtest?{}:{cloudLoadArchives(){
+   const archive=prefix+'r127-before-cloud-load:';
+   return Array.from({length:original.length},(_,i)=>original.key(i))
+    .filter(key=>key?.startsWith(archive)&&/^\d+$/.test(key.slice(archive.length)))
+    .map(key=>key.slice(prefix.length));
+  }}),
   clear(){for(const key of keys())this.removeItem(key);}
  });
  // Storage replacement must succeed before any game script runs: fail closed.

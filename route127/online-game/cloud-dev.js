@@ -6,6 +6,43 @@
  const template=document.getElementById('route127-cloud-login');
  const loginTemplate=template?.tagName==='TEMPLATE'?template:null;
  const storage=localStorage, KEY='r127-dev-pending:';
+ const quotaRepair=document.currentScript?.dataset.route127Client==='devtest';
+ const archivePrefix='r127-before-cloud-load:';
+ const archiveKey=archivePrefix+'latest';
+ const quotaError=error=>error?.name==='QuotaExceededError'||error?.name==='NS_ERROR_DOM_QUOTA_REACHED';
+ function storageKeys(){
+  return Array.from({length:storage.length},(_,index)=>storage.key(index)).filter(Boolean);
+ }
+ function pruneLoadArchives(){
+  const old=storage.cloudLoadArchives()
+   .sort((a,b)=>Number(b.slice(archivePrefix.length))-Number(a.slice(archivePrefix.length)));
+  // Keep the newest older-format archive until a bounded replacement is durable.
+  for(const key of old.slice(storage.getItem(archiveKey)===null?1:0))storage.removeItem(key);
+ }
+ function writeLocal(key,value){
+  if(!quotaRepair){storage.setItem(key,value);return;}
+  if(storage.getItem(key)===value)return;
+  try{storage.setItem(key,value);}
+  catch(error){
+   if(!quotaError(error))throw error;
+   pruneLoadArchives();
+   storage.setItem(key,value);
+  }
+ }
+ function optionalLocal(key,value){
+  try{writeLocal(key,value);return true;}
+  catch(error){if(!quotaRepair||!quotaError(error))throw error;return false;}
+ }
+ function archiveConflict(prefix,value){
+  if(quotaRepair){
+   const keys=storageKeys().filter(key=>key.startsWith(prefix));
+   if(keys.some(key=>storage.getItem(key)===value))return;
+   // Different revisions may contain unsynced progress. Never evict them automatically.
+   if(keys.length>=3)throw Error('Three local conflict copies already exist. Existing recovery copies were retained.');
+  }
+  writeLocal(prefix+crypto.randomUUID(),value);
+ }
+
  let account=null, character=null, revision=0, ready=false, busy=false, blocked=false;
  let last='',timer=null,creating=false,loading=false,started=false,authEpoch=0;
  const latestKey=()=>KEY+account+':latest';
@@ -24,20 +61,20 @@
   return {snapshot:entry,revision:base===null?null:Number(base)};
  }
  function writeLatest(snapshot){
-  if(!loginTemplate){storage.setItem(latestKey(),JSON.stringify(snapshot));return;}
+  if(!loginTemplate){writeLocal(latestKey(),JSON.stringify(snapshot));return;}
   const previous=latest();
   if(previous?.writer===writer&&previous.revision===revision&&normalize(previous.snapshot)===normalize(snapshot))return;
   if(previous&&previous.writer!==writer&&normalize(previous.snapshot)!==normalize(snapshot))
-   storage.setItem(KEY+account+':conflict:'+crypto.randomUUID(),JSON.stringify(previous));
-  storage.setItem(latestKey(),JSON.stringify({snapshot,revision,writer}));
+   archiveConflict(KEY+account+':conflict:',JSON.stringify(previous));
+  writeLocal(latestKey(),JSON.stringify({snapshot,revision,writer}));
  }
  function remember(snapshot,savedRevision=revision){
   if(!loginTemplate)return;
   try{
    const key=cacheKey(account,character.id);
    if((read(key)?.revision??-1)<=savedRevision)
-    storage.setItem(key,JSON.stringify({snapshot,character,revision:savedRevision}));
-   storage.setItem(deviceKey,JSON.stringify({account,characterId:character.id}));
+    writeLocal(key,JSON.stringify({snapshot,character,revision:savedRevision}));
+   writeLocal(deviceKey,JSON.stringify({account,characterId:character.id}));
   }catch{status('Cloud saved. This device could not keep a recovery copy.');}
  }
  const slotCommand=cmd=>/^(?:load(?:\s|$)|autosave$|save(?:\s|$)|v$|new(?:\s|$)|skip intro$)/i.test(cmd);
@@ -84,7 +121,7 @@
  async function createCharacter(){
   if(creating||busy)return;creating=true;busy=true;
   try{const s=journals(saveSnapshot(),player.characterId);
-   storage.setItem(KEY+account+':creation',JSON.stringify(s));
+   writeLocal(KEY+account+':creation',JSON.stringify(s));
    restore(await api('character',{snapshot:s}));
    storage.removeItem(KEY+account+':creation');if(!loginTemplate)el('cloud-link').hidden=true;
   }catch(e){ready=false;blocked=true;status('Character creation not confirmed: '+e.message+' Sign in again to recover; your draft is retained.');}
@@ -206,18 +243,24 @@
   if(s.devBankLedger)bank.accounts[character.id]=s.devBankLedger;else delete bank.accounts[character.id];
   // Retain existing autosave bytes for manual recovery, without touching any manual slots.
   const prior=storage.getItem(FACTORY_AUTOSAVE_KEY);
-  if(prior)storage.setItem('r127-before-cloud-load:'+Date.now(),JSON.stringify({snapshot:prior,bank:bankBefore,casino:storage.getItem('route127-r11-casino-'+character.id),round:storage.getItem('route127-r7-casino-'+character.id+'-'+(s.player.flags.r6Game?.id||'none'))}));
-  storage.setItem(R7_ACCOUNTS_KEY,JSON.stringify(bank));
-  for(const [key,value]of [['route127-r11-casino-'+character.id,s.devCasinoLedger],['route127-r7-casino-'+character.id+'-'+(s.player.flags.r6Game?.id||'none'),s.devRoundLedger]]){if(value)storage.setItem(key,JSON.stringify(value));else storage.removeItem(key);}
+  if(quotaRepair)pruneLoadArchives();
+  let archive;
+  if(prior){
+   archive=JSON.stringify({snapshot:prior,bank:bankBefore,casino:storage.getItem('route127-r11-casino-'+character.id),round:storage.getItem('route127-r7-casino-'+character.id+'-'+(s.player.flags.r6Game?.id||'none'))});
+   if(!quotaRepair)writeLocal(archivePrefix+Date.now(),archive);
+  }
+  if(!quotaRepair||bankBefore!==null||s.devBankLedger)writeLocal(R7_ACCOUNTS_KEY,JSON.stringify(bank));
+  for(const [key,value]of [['route127-r11-casino-'+character.id,s.devCasinoLedger],['route127-r7-casino-'+character.id+'-'+(s.player.flags.r6Game?.id||'none'),s.devRoundLedger]]){if(value)writeLocal(key,JSON.stringify(value));else storage.removeItem(key);}
   // Feed the existing loader in memory: never replace the legacy autosave.
   const priorReader=getSaveData;
   getSaveData=function(slot){return slot==='auto'?{...s,manualSlot:0}:priorReader(slot);};
   try{localLoad('auto');}finally{getSaveData=priorReader;}
   activeSaveSlot=0;last=normalize(device?baseline:capture());blocked=false;ready=true;
   if(!device){
-   storage.setItem(KEY+account+':base',String(revision));
+   optionalLocal(KEY+account+':base',String(revision));
    remember(s);
   }
+  if(quotaRepair&&archive&&optionalLocal(archiveKey,archive))pruneLoadArchives();
   el('cloud-server').hidden=true;el('cloud-retry').hidden=true;
   showLogin(false);
   status(device?'Cloud unavailable. Playing from this device’s recovery copy.':
@@ -237,7 +280,7 @@
    if(!pending&&normalized===last){if(!loginTemplate)clearSame(latestKey(),latestRaw);return;}
    if(!pending){
     pending={revision,requestId:crypto.randomUUID(),snapshot:s,...(writer?{writer}:{})};
-    pendingRaw=JSON.stringify(pending);storage.setItem(pendingKey(),pendingRaw);
+    pendingRaw=JSON.stringify(pending);writeLocal(pendingKey(),pendingRaw);
    }
    if(loginTemplate&&(pending.snapshot?.player?.characterId!==character.id||
     (pending.revision!==revision||pending.writer&&pending.writer!==writer)&&normalize(pending.snapshot)!==normalized))
@@ -246,7 +289,7 @@
    const r=await api('save',request);revision=r.revision;
    last=normalize(pending.snapshot);
    clearSame(pendingKey(),pendingRaw);
-   storage.setItem(KEY+account+':base',String(revision));
+   optionalLocal(KEY+account+':base',String(revision));
    remember(pending.snapshot);
    const current=capture();
    if(loginTemplate){
@@ -284,11 +327,11 @@
    // An exact retry may acknowledge a write whose response was lost.
    const {writer:pendingWriter,...request}=pending;
    const result=await api('save',request);
-   remember(pending.snapshot,result.revision);
    clearSame(pendingKey(),pendingRaw);
+   remember(pending.snapshot,result.revision);
    if(entry&&normalize(entry.snapshot)===normalize(pending.snapshot))clearSame(latestKey(),latestRaw);
    else if(entry&&entry.revision===pending.revision&&entry.writer===pendingWriter&&storage.getItem(latestKey())===latestRaw){
-    storage.setItem(latestKey(),JSON.stringify({...entry,revision:result.revision}));
+    writeLocal(latestKey(),JSON.stringify({...entry,revision:result.revision}));
    }
    cloud=await api('save');
   }
@@ -299,7 +342,7 @@
     const request={revision:cloud.revision,requestId:crypto.randomUUID(),snapshot:remaining.snapshot};
     const raw=JSON.stringify({...request,writer:remaining.writer});
     if(storage.getItem(pendingKey()))throw conflict();
-    storage.setItem(pendingKey(),raw);
+    writeLocal(pendingKey(),raw);
     const result=await api('save',request);
     remember(remaining.snapshot,result.revision);
     clearSame(pendingKey(),raw);
@@ -341,7 +384,7 @@
    if(loginTemplate){await resumeDeviceJournal();return;}
    const pending=JSON.parse(storage.getItem(pendingKey())||'null');
    let latest=JSON.parse(storage.getItem(latestKey())||'null');
-   if(pending){await api('save',pending);storage.setItem(KEY+account+':base',String(pending.revision+1));storage.removeItem(pendingKey());}
+   if(pending){await api('save',pending);writeLocal(KEY+account+':base',String(pending.revision+1));storage.removeItem(pendingKey());}
    const cloud=await api('save');
    if(latest){
     if(latest.player?.characterId!==cloud.character.id)throw Error('Recovery character mismatch');
@@ -352,10 +395,10 @@
     const base=Number(rawBase);
     if(cloud.revision!==(pending?expected:base))throw Object.assign(Error('Newer cloud progress exists; local recovery retained'),{status:409});
     const request={revision:cloud.revision,requestId:crypto.randomUUID(),snapshot:latest};
-    storage.setItem(pendingKey(),JSON.stringify(request));await api('save',request);
+    writeLocal(pendingKey(),JSON.stringify(request));await api('save',request);
     storage.removeItem(pendingKey());storage.removeItem(latestKey());
    }
-   restore(await api('save'));storage.setItem(KEY+account+':base',String(revision));
+   restore(await api('save'));writeLocal(KEY+account+':base',String(revision));
   }catch(e){
    blocked=true;
    if(transient(e)&&offerDeviceRecovery())return;
@@ -424,7 +467,7 @@
   busy=true;loading=true;
   try{
    const backup={pending:storage.getItem(pendingKey()),latest:storage.getItem(latestKey()),current:saveSnapshot()};
-   storage.setItem(pendingKey()+':conflict:'+crypto.randomUUID(),JSON.stringify(backup));
+   archiveConflict(pendingKey()+':conflict:',JSON.stringify(backup));
    // Fetch and validate/load before clearing active recovery records.
    const cloud=await api('save');
    if(loginTemplate&&TravelerPanels.which==='options')TravelerPanels.close();

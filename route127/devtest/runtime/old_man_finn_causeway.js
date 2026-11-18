@@ -84,6 +84,23 @@ function confirm(){
  }
  delete player.flags.r127FinnSale;menu('sell');
 }
+// The map discovery proved travelers are reaching STEP 6, but the optional
+// road action is easy to miss among other road/quest buttons. Treat Finn as a
+// visible, non-consuming waypoint once per movement arrival (both directions).
+// Returning to the Causeway resumes the normal menu without reopening Finn.
+const roadMenuBeforeFinn=lanternRoadMenu;
+let lastWaypointArrival=null;
+lanternRoadMenu=function(...args){
+ if(position()){
+  const g=lanternState();
+  const arrival=[g.currentEdgeId,g.stepIndex,g.moveSerial||0,g.sceneId||''].join(':');
+  if(arrival!==lastWaypointArrival){
+   lastWaypointArrival=arrival;
+   return menu('main');
+  }
+ }
+ return roadMenuBeforeFinn.apply(this,args);
+};
 const VISIT='VISIT OLD MAN FINN';
 globalThis.Route127OldManFinn=Object.freeze({
  roadAction(){

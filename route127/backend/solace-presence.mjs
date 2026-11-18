@@ -7,7 +7,11 @@ const archived=[
  'char-3c6f966b-9690-4c74-98cc-e215966c1c42','char-4d646e9f-c813-4ab9-9334-662ed5b08470',
  'char-fe8893fb-c6ca-4c33-8f28-f36e427a3abd','char-e659d321-e17b-49c7-b4fa-9fc64fc5678d',
  'char-beeb2b3f-22e5-4364-876a-47e62ed56dab','char-88e938b2-4712-4a2d-aaee-aade98afdf88',
- 'char-535085c1-b637-43e8-94e6-a7ee5fbef8d8','char-de3e1cad-40f5-4570-9dde-770401771cf5'
+ 'char-535085c1-b637-43e8-94e6-a7ee5fbef8d8','char-de3e1cad-40f5-4570-9dde-770401771cf5',
+ // R15 paired expedition runs identified by their saved legacy sentinel and event history.
+ 'char-a2b2374f-e89b-416f-bc54-202cc91df99d','char-16a89f15-dc20-4151-8275-361ecc6a5fde',
+ 'char-fdc2caae-31b8-488f-9cd2-b79d035097ff','char-a6bc2a81-4ae7-44f3-9e2e-bee1511a2787',
+ 'char-4839bf04-6970-4aa1-8a05-5cbd20078eea','char-541c62b3-5952-4b01-87f2-cb813b20c159'
 ];
 const PAGE_SIZE=50;
 const ID=/^char-[a-f0-9-]{36}$/;

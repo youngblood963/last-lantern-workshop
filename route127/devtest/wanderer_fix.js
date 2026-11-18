@@ -7,9 +7,10 @@
   const encounter=(stage==='wandererRoad'||stage==='mercy'&&townWandererFocus);
   // Legacy direct-output paths bypassed v53's add() filter, producing a
   // second actionable menu alongside the authoritative v53Choices menu.
-  if(encounter&&!v53OfficialMenu&&cls==='system'&&(
-    v53LegacyMenu(s)||
-    /^(?:STEAL(?: FROM)?|TRADE(?: |$))/.test(s)&&/(?:MOVE ON|TOWN|INSPECT)/.test(s)
+  if(encounter&&cls==='system'&&(
+    v53LegacyMenu(s)&&(!v53OfficialMenu||
+      typeof portRecruitUnlocked==='function'&&portRecruitUnlocked()&&!/\\bRECRUIT\\b/.test(s))||
+    !v53OfficialMenu&&/^(?:STEAL(?: FROM)?|TRADE(?: |$))/.test(s)&&/(?:MOVE ON|TOWN|INSPECT)/.test(s)
   ))return;
   return previousAddImmediate(text,cls);
  };

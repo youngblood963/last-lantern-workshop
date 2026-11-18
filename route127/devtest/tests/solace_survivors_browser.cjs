@@ -61,6 +61,7 @@ async function main(){
    assert.equal((await c.request('survivors')).status,409);
    await c.click('Shared Expedition');
    await c.click('Join expedition');
+   await c.page.getByRole('button',{name:'Depart for Western Road',exact:true}).waitFor();
    assert.equal((await c.request('survivors')).status,403);
    await c.click('Depart for Western Road');
    await c.click('Enter Solace');

@@ -82,7 +82,10 @@
   const rows=this.choices();
   for(const [i,button] of [...(this.element?.choices?.children||[])].entries()){
    const label=button.querySelector('.gfx-choice-label');
-   if(label&&rows[i])F.paint(label,F.title(rows[i].presentationSource??rows[i].label));
+   if(label&&rows[i]){
+    if(button.classList.contains('r127-player-choice'))label.textContent=rows[i].label;
+    else F.paint(label,F.title(rows[i].presentationSource??rows[i].label));
+   }
   }
   F.buttons(this.element?.frame);
  }return result;};

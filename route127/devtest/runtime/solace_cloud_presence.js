@@ -77,7 +77,10 @@
   const identities=list=>JSON.stringify(list.map(({id,name})=>[id,name]));
   const changed=identities(rows)!==identities(next);
   rows=next;
-  if(changed&&showRoster)globalThis.Route127RefreshSolaceMenu?.();
+  if(changed&&showRoster){
+   globalThis.Route127RefreshSolaceMenu?.();
+   GraphicalUI.schedule();
+  }
   render();
  }
  globalThis.Route127SolaceCloud=Object.freeze({

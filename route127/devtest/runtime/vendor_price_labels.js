@@ -47,13 +47,15 @@
     if(cmd==='treat wounds')return treatCost(portStaffRating('clinic'));
     if(cmd==='buy bandage')return portClinicBandagePrice();
    }
-   if(role==='general store'){
+   if(role==='general store'||role==='armory'){
+    // Seaport Armory is its own service role, not the General Store.
+    // Resolve the live regional price without changing the purchase command.
     if(ui.page==='equipment'&&cmd.startsWith('buy ')){
      const stock=regionalEquipmentStock('seaport').slots
       .find(slot=>!slot.sold&&norm(slot.name)===cmd.slice(4));
      if(stock)return regionalEquipmentPrice(stock.name,'seaport');
     }
-    if(ui.page==='buy'&&cmd.startsWith('buy ')){
+    if(role==='general store'&&ui.page==='buy'&&cmd.startsWith('buy ')){
      const item=Object.keys(portStoreStock()).find(name=>norm(name)===cmd.slice(4));
      if(item)return portStorePrice(item);
     }
@@ -91,6 +93,27 @@
  const previousSync=GraphicalUI.sync;
  GraphicalUI.sync=function(...args){
   const result=previousSync.apply(this,args);
+  const armory=stage==='port55Service'&&
+   player.flags?.portStaffUI?.role==='armory'&&
+   player.flags?.portStaffUI?.page==='equipment'&&this.active();
+  this.element?.frame?.classList.toggle('r127-seaport-armory-equipment',!!armory);
+  if(armory){
+   // A late-rendering menu may have reused an old label. Display the actual
+   // current price for each purchasable slot without modifying its command.
+   const available=regionalEquipmentStock('seaport').slots.filter(slot=>!slot.sold);
+   const buttons=this.element?.choices?.querySelectorAll('.gfx-choice')||[];
+   for(const button of buttons){
+    const label=button.querySelector('.gfx-choice-label');
+    if(!label)continue;
+    const raw=label.textContent.trim().replace(/^buy\\s+/i,'').replace(/\\s+[—–-]\\s+.*$/,'');
+    const item=available.find(slot=>norm(slot.name)===norm(raw));
+    if(!item)continue;
+    const text='Buy '+item.name+' — '+regionalEquipmentPrice(item.name,'seaport').toLocaleString('en-US')+' Bolts';
+    label.textContent=text;
+    button.title=text;
+    button.setAttribute('aria-label',text);
+   }
+  }
   if(stage!=='factoryRusty'||player.flags?.r5RustyUI!=='buy'||!this.active())return result;
   const stock=r5RustyStock().stock;
   for(const button of this.element?.choices?.querySelectorAll('.gfx-choice')||[]){
@@ -106,5 +129,14 @@
   }
   return result;
  };
+ // Only the graphical Seaport Armory stock page: the narrative transcript
+ // repeats the same entire inventory as the action buttons and is unreadable.
+ // Keep underlying BBS DOM and classic mode intact for gameplay/accessibility.
+ const style=document.createElement('style');
+ style.textContent=`
+ body.full-graphics .gfx-frame.r127-seaport-armory-equipment .gfx-narrative{display:none!important}
+ body.full-graphics .gfx-frame.r127-seaport-armory-equipment .gfx-choices{min-height:0}
+ `;
+ document.head.append(style);
  globalThis.DevtestBoltLabels=Object.freeze({priceFor});
 })();

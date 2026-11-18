@@ -769,7 +769,7 @@ globalThis.Route127PublishedCombatLayouts={
         "y": 50,
         "width": 100,
         "height": 100,
-        "scale": 0.76,
+        "scale": 1,
         "z": 1,
         "flip": false
       }

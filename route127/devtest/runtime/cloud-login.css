@@ -104,3 +104,26 @@
 
 /* The cloud adapter saves automatically. The explicit legacy QA path keeps its controls. */
 .r127-cloud-game [data-command="save current"] { display: none; }
+
+.cloud-password-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .4rem;
+  margin-bottom: .85rem;
+}
+.cloud-password-field input { min-width: 0; }
+.cloud-password-field button { min-height: 44px; min-width: 44px; }
+#cloud-registration {
+  min-width: 0;
+  margin: 0 0 .85rem;
+  border: 1px solid #806549;
+}
+.cloud-login select, .cloud-account :is(input,select) {
+  max-width: 100%;
+  padding: .45rem;
+  color: inherit;
+  font: inherit;
+  background: #0c0d0b;
+  border: 1px solid #a0805b;
+}
+.cloud-account form label { display: block; margin: .4rem 0; }

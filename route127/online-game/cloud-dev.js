@@ -208,7 +208,7 @@
  async function api(path,data){
   let r;
   try{
-   r=await fetch(apiPrefix+path,{method:data?'POST':'GET',credentials:'same-origin',
+   r=await fetch((quotaRepair&&path.startsWith('recovery/')?'/route127/devtest/api/':apiPrefix)+path,{method:data?'POST':'GET',credentials:'same-origin',
     headers:data?{'Content-Type':'application/json'}:{},body:data?JSON.stringify(data):undefined,
     signal:AbortSignal.timeout(15000)});
   }catch(error){throw Object.assign(error,{offline:true});}
@@ -436,13 +436,126 @@
   const form=e.currentTarget,action=e.submitter?.value||'login';
   signingIn=true;
   if(loginTemplate)for(const button of form.querySelectorAll('button'))button.disabled=true;
-  try{const b=await api(action,{login:form.elements.login.value,password:form.elements.password.value});form.elements.password.value='';if(attempt===authEpoch)await signedIn(b);}
+  try{
+   const data={login:form.elements.login.value,password:form.elements.password.value};
+   if(quotaRepair&&action==='register'&&form.elements.question){
+    data.question=form.elements.question.value;data.answer=form.elements.answer.value;
+   }
+   const b=await api(data.question?'recovery/register':action,data);
+   form.elements.password.value='';
+   if(form.elements.answer){
+    form.elements.answer.value='';
+    form.elements.password.type='password';
+    const toggle=form.querySelector('[data-password-toggle]');
+    toggle.setAttribute('aria-label','Show password');toggle.setAttribute('aria-pressed','false');
+   }
+   if(attempt===authEpoch)await signedIn(b);
+  }
   catch(err){status(err.message);}
   finally{
    signingIn=false;
    if(loginTemplate)for(const button of form.querySelectorAll('button'))button.disabled=false;
   }
  });
+ if(quotaRepair&&el('cloud-recover')){
+  const auth=el('cloud-auth'),registration=el('cloud-registration'),register=el('cloud-open-register');
+  const submit=auth.querySelector('button[type="submit"]'),recover=el('cloud-recover');
+  const settings=el('cloud-recovery-settings'),enroll=el('cloud-enroll-recovery');
+  const choices={
+   first_job:'What was the name of your first workplace?',
+   childhood_place:'What was the name of a place you liked visiting as a child?',
+   memorable_book:'What was the title of a book you remember from childhood?'
+  };
+  for(const panel of [auth,accountPanel]){
+   for(const select of panel.querySelectorAll('[data-recovery-questions]')){
+    select.add(new Option('Choose a question',''));
+    for(const [id,label] of Object.entries(choices))select.add(new Option(label,id));
+   }
+  }
+  function maskPasswords(panel){
+   for(const button of panel.querySelectorAll('[data-password-toggle]')){
+    const field=el(button.dataset.passwordToggle);
+    field.type='password';button.setAttribute('aria-label','Show password');button.setAttribute('aria-pressed','false');
+   }
+  }
+  for(const panel of [loginDialog,accountPanel]){
+   for(const button of panel.querySelectorAll('[data-password-toggle]')){
+    button.addEventListener('click',()=>{
+     const field=el(button.dataset.passwordToggle),visible=field.type==='password';
+     field.type=visible?'text':'password';
+     button.setAttribute('aria-label',visible?'Hide password':'Show password');
+     button.setAttribute('aria-pressed',String(visible));
+    });
+   }
+  }
+  function registrationMode(active){
+   registration.hidden=!active;
+   auth.elements.question.required=auth.elements.answer.required=active;
+   auth.elements.password.autocomplete=active?'new-password':'current-password';
+   if(!active){auth.elements.answer.value='';auth.elements.question.value='';}
+   submit.value=active?'register':'login';
+   submit.textContent=active?'Create account':'Sign in';
+   register.textContent=active?'Back to sign in':'Create account';
+  }
+  register.addEventListener('click',()=>{if(!signingIn)registrationMode(registration.hidden);});
+  let recoveryToken='',recoveryStep='question',recovering=false;
+  function recoveryMode(step){
+   recoveryStep=step;
+   el('cloud-answer-step').hidden=step!=='verify';
+   el('cloud-reset-step').hidden=step!=='reset';
+   recover.elements.answer.required=step==='verify';
+   recover.elements.password.required=step==='reset';
+   recover.elements.login.readOnly=step!=='question';
+   if(step==='question')recoveryToken='';
+  }
+  function closeRecovery(){
+   recover.reset();maskPasswords(recover);recoveryMode('question');
+   recover.hidden=true;auth.hidden=false;registrationMode(false);
+  }
+  el('cloud-forgot-password').addEventListener('click',()=>{
+   if(signingIn)return;
+   recover.elements.login.value=auth.elements.login.value;
+   auth.elements.password.value='';maskPasswords(auth);registrationMode(false);auth.hidden=true;recover.hidden=false;
+   recoveryMode('question');recover.elements.login.focus();
+  });
+  el('cloud-recovery-back').addEventListener('click',()=>{if(!recovering)closeRecovery();});
+  recover.addEventListener('submit',async event=>{
+   event.preventDefault();
+   if(recovering)return;
+   recovering=true;
+   const login=recover.elements.login.value;
+   try{
+    if(recoveryStep==='question'){
+     const result=await api('recovery/question',{login});
+     el('cloud-recovery-question').textContent=result.question;
+     recoveryMode('verify');recover.elements.answer.focus();
+    }else if(recoveryStep==='verify'){
+     const result=await api('recovery/verify',{login,answer:recover.elements.answer.value});
+     recoveryToken=result.token;recover.elements.answer.value='';
+     recoveryMode('reset');recover.elements.password.focus();
+    }else{
+     await api('recovery/reset',{login,token:recoveryToken,password:recover.elements.password.value});
+     closeRecovery();auth.elements.login.value=login;auth.elements.password.focus();
+     status('Password reset. Sign in with your new password.');
+    }
+   }catch(error){
+    if(recoveryStep==='reset'&&error.status===401){recover.elements.password.value='';maskPasswords(recover);recoveryMode('question');}
+    status(error.message);
+   }finally{recovering=false;}
+  });
+  let enrolling=false;
+  enroll.addEventListener('submit',async event=>{
+   event.preventDefault();
+   if(enrolling)return;
+   enrolling=true;
+   try{
+    await api('recovery/enroll',Object.fromEntries(new FormData(enroll)));
+    enroll.reset();maskPasswords(enroll);settings.open=false;
+    status('Password recovery configured.');
+   }catch(error){status(error.message);}
+   finally{enrolling=false;}
+  });
+ }
  async function startCharacter(){
   if(busy||character||!account)return;
   const draft=storage.getItem(KEY+account+':creation');

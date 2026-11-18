@@ -603,7 +603,13 @@ function enemyHit(min,max) {
 }
 function r18EquippedRanged(){const gear=GEAR[player.weapon],def=gear?.subtype?gear:typeof EQUIPMENT_CATALOG!=='undefined'?EQUIPMENT_CATALOG.find(x=>x.name===player.weapon):null;return !!def&&/rifle|revolver|pistol|shotgun|crossbow|smg/i.test(def.subtype||'');}
 function rollDamage(min,max){ if(min==null||max==null){[min,max]=weaponRange();} return Math.floor(Math.random()*(max-min+1))+min; }
-function packSlotsUsed() { for(const i of player.pack||[])if(i.name==='Fresh Potato'&&i.type!=='consumable')i.type='consumable'; return player.pack.filter(i=>!["key","quest"].includes(i.type)).length; }
+// Keep all edible prepared foods/produce classified as consumables, including
+// legacy saves where traveling merchants stocked them as materials.
+const R127_EDIBLE_ITEMS=new Set(['Energy Bars','Bandage','Reinforced Bandage','Emergency Trauma Kit','Wild Honey','Fresh Carrot','Fresh Potato','Fresh Apple','Fresh Pear','Fresh Berries','Fresh Tomato','Fresh Cabbage','Preserved Vegetables','Preserved Meat','Wasteland Stew','Roadhouse Hash']);
+function r127NormalizeEdiblePack(){
+ for(const item of player.pack||[])if(R127_EDIBLE_ITEMS.has(item.name)&&!['quest','key'].includes(item.type))item.type='consumable';
+}
+function packSlotsUsed() { r127NormalizeEdiblePack();return player.pack.filter(i=>!["key","quest"].includes(i.type)).length; }
 function r18ItemLabel(item){return item.name+(item.stolen?' (STOLEN)':'');}
 function r18NamedStack(items,label){const value=String(label).trim(),tagged=/ \(stolen\)$/i.test(value),name=value.replace(/ \(stolen\)$/i,'').toLowerCase(),matches=items.filter(i=>i.name.toLowerCase()===name);return tagged?matches.find(i=>!!i.stolen):matches.find(i=>!i.stolen)||matches[0];}
 function findItem(name) {const value=String(name).trim(),tagged=/ \(stolen\)$/i.test(value),query=value.replace(/ \(stolen\)$/i,'').toLowerCase(),exact=player.pack.filter(i=>i.name.toLowerCase()===query),matches=exact.length?exact:player.pack.filter(i=>i.name.toLowerCase().includes(query));return tagged?matches.find(i=>!!i.stolen):matches.find(i=>!i.stolen)||matches[0];}
@@ -633,7 +639,7 @@ function r18FoodRecord(name,type){const kind=r18FoodKind(name);if(!kind||type!==
 function r18FoodSync(){for(const i of player.pack||[])if(i.qty>0)r18FoodRecord(i.name,i.type);}
 function r18StewReady(){r18FoodSync();const f=player.flags.r18FoodSeen||{};return !!(f.meat&&f.fruit&&f.vegetable);}
 function addPack(name, type="material", qty=1, quietFull=false, stolen=false) {
-  if(name==="Fresh Potato")type="consumable";
+  if(R127_EDIBLE_ITEMS.has(name))type='consumable';
   if(stage==="fallen")return false;
   const existing=player.pack.find(i=>i.name===name && i.type===type && !!i.stolen===!!stolen);
   if(existing){ existing.qty+=qty; updateHud(); resultLine(`PACK: + ${name}${qty>1?` ×${qty}`:""}`,"reward"); r18FoodRecord(name,type); if(!stolen)r18PetRoadFind(name,type); return true; }
@@ -816,7 +822,7 @@ async function showInventoryItem(name){
   await outputQueue;
   const actions = item.type==="weapon" || item.type==="armor" || item.type==="accessory" ? "(E) EQUIP   (D) DROP   (B) BACK" : item.name==="Battered Flashlight"
     ? "(D) DISMANTLE   (B) BACK"
-    : item.type==="consumable"
+    : (item.type==="consumable"||R127_EDIBLE_ITEMS.has(item.name))
       ? (player.hp<player.maxHp?"(U) USE   (D) DROP   (B) BACK":"(D) DROP   (B) BACK")
       : (["key","quest"].includes(item.type) ? "(B) BACK" : "(D) DROP   (B) BACK");
   numberedChoices={};
@@ -2973,7 +2979,7 @@ function renderCurrentChoices(){
   if(stage==="turnComplete"||stage==="questRoadComplete")return completeRoadTurn();
   if(stage==="inventory"){showInventory();return showInterfaceNav();}
   if(stage==="confirmDrop")return add("(Y) CONFIRM DROP   (N) CANCEL","system");
-  if(stage==="inventoryItem"){const item=findItem(inventoryMode&&inventoryMode.item);if(!item){stage="inventory";return showInventory();}return add(item.type==="weapon"||item.type==="armor"?"(E) EQUIP   (D) DROP   (B) BACK":item.name==="Battered Flashlight"?"(D) DISMANTLE   (B) BACK":item.type==="consumable"?(player.hp<player.maxHp?"(U) USE   (D) DROP   (B) BACK":"(D) DROP   (B) BACK"):["key","quest"].includes(item.type)?"(B) BACK":"(D) DROP   (B) BACK","system");}
+  if(stage==="inventoryItem"){const item=findItem(inventoryMode&&inventoryMode.item);if(!item){stage="inventory";return showInventory();}return add(item.type==="weapon"||item.type==="armor"?"(E) EQUIP   (D) DROP   (B) BACK":item.name==="Battered Flashlight"?"(D) DISMANTLE   (B) BACK":(item.type==="consumable"||R127_EDIBLE_ITEMS.has(item.name))?(player.hp<player.maxHp?"(U) USE   (D) DROP   (B) BACK":"(D) DROP   (B) BACK"):["key","quest"].includes(item.type)?"(B) BACK":"(D) DROP   (B) BACK","system");}
   if(stage==="quests"){showQuests();return showInterfaceNav();}
   if(stage==="interfaceStatus"){showStatus();return showInterfaceNav();}
   if(stage==="interfaceMap"){showMap();return showInterfaceNav();}

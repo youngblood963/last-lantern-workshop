@@ -53,16 +53,6 @@ applyLevelEvolution=function(div,text,cls=''){
  if(gear)return;
  const pet=Object.keys(PORT55_PETS).find(n=>String(text).includes(n));if(pet){const start=String(text).indexOf(pet);colorField(div,String(text),'rarity-'+r11PetRarity(pet),1,start,start+pet.length);}
 };
-// Common/Uncommon gear uses the existing protected transaction, immediately for one item.
-const r11SaleStart=v53SaleStart;
-v53SaleStart=function(name,merchant=null){
- const clean=String(name).replace(/\s+[×x]\d+$/i,'').trim(),item=r18NamedStack(player.pack,clean);
- const cheap=item&&['weapon','armor'].includes(item.type)&&['common','uncommon'].includes(GEAR[item.name]?.rarity);
- if(!cheap)return r11SaleStart(name,merchant);
- const unit=v48SellPrice(item);if(!unit)return r11SaleStart(name,merchant);
- player.flags.v53Sale={name:item.name,type:item.type,stolen:!!item.stolen,available:item.qty,unit,qty:1,merchant,location:mercyLocation,mode:'confirm'};
- return v53SaleCommand('confirm sale');
-};
 const r11Store=portStaffServiceCommand;
 portStaffServiceCommand=function(cmd){
  const ui=player.flags.portStaffUI;

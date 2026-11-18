@@ -47,7 +47,7 @@ const createGame = require('./helpers/wo33_dom.cjs');
  assert.equal(run(`player.pack.some(i=>i.name==='Battered Flashlight')`),false);
  assert.equal(run('!!player.flags.v53Sale'),false);
 
- run(`player.pack.push({name:'Tent',type:'consumable',qty:'1'});`);
+ run(`player.pack.push({name:'Tent',type:'supply',qty:'1'});`);
  const tentPrice=run(`v48SellPrice(player.pack.find(i=>i.name==='Tent'))`);
  assert.ok(tentPrice>0);
  const tentBefore=run('player.bolts');
@@ -58,11 +58,11 @@ const createGame = require('./helpers/wo33_dom.cjs');
 
 
  run(`v53SaleStart('Crab Meat');v53SaleCommand('sell 2');v53SaleCommand('confirm sale')`);
- assert.equal(run('player.bolts-startingBolts'),run('amounts[0]+2*amounts[1]'));
+ assert.equal(run('player.bolts-startingBolts'),run('amounts[0]+2*amounts[1]')+flashlightPrice+tentPrice);
  assert.equal(run(`player.pack.find(item=>item.name==='Crab Meat').qty`),2);
  run(`loadGame('auto')`);
  await flush();
- assert.equal(run('player.bolts-startingBolts'),run('amounts[0]+2*amounts[1]'));
+ assert.equal(run('player.bolts-startingBolts'),run('amounts[0]+2*amounts[1]')+flashlightPrice+tentPrice);
  assert.equal(run(`player.pack.find(item=>item.name==='Crab Meat').qty`),2);
  assert.equal(run(`player.pack.find(item=>item.type==='quest').qty`),1);
  console.log('PASS Solace sell list, protected items, rare confirmation, partial sale, duplicate confirmation and reload');

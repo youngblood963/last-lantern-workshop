@@ -124,9 +124,14 @@ const GraphicalUI={
   // Roadside wanderers use the same textual action menu as road encounters.
   // Dispatch the selected command, not its transient number: other renderers
   // can rebuild numberedChoices while a wanderer portrait/menu is updating.
-  const semanticChoice=encounter||stage==='wandererRoad';
+  const vendorSale=stage==='mercy'&&player.flags.v48Shop==='sell';
+  const semanticChoice=encounter||stage==='wandererRoad'||vendorSale;
   this.navOpen=false;
-  await handleCommand(semanticChoice?current.command:current.key);
+  if(vendorSale||player.flags.v50Trade){
+   commandProcessing=true;
+   try{await handleCommand(current.command);}
+   finally{commandProcessing=false;}
+  }else await handleCommand(semanticChoice?current.command:current.key);
   this.sync();return true;
  },
  node(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;},

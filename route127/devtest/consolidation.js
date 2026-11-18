@@ -94,6 +94,11 @@ const v53OldWanted=v52WantedBoard;v52WantedBoard=function(){v53OldWanted();add(`
 const v53OldQuests=showQuests;showQuests=function(){v53OldQuests();if(v52Crime().bounty>0)add(`OPTIONAL — CLEAR YOUR NAME: Speak with Tim in Solace and PAY FINE (${v52Crime().bounty} Bolts). No XP or Bolt reward.`,'system');};
 const v53OldVendor=johnnyShop;johnnyShop=function(){v53OldVendor();add('NEXT RESTOCK: '+refillText().slice(0,5),'system');};
 const v53OldArmory=showEquipmentShop;showEquipmentShop=function(){v53OldArmory();add('NEXT RESTOCK: '+refillText().slice(0,5),'system');};
+// Legacy snapshots may encode stack quantities as strings.
+const v53Ordinary=v48Ordinary;
+v48Ordinary=function(item){
+ return !item?.unique&&!item?.protected&&v53Ordinary(typeof item?.qty==='string'?{...item,qty:Number(item.qty)}:item);
+};
 // Quantity selection and a single transaction commit for all sale outlets.
 function v53SaleStart(name,merchant=null){
  // The displayed stack quantity is menu metadata, not part of the item name.
@@ -124,7 +129,7 @@ function v53SaleCommand(cmd){
  const q=player.flags.v53Sale;if(!q)return false;
  if(['cancel sale','cancel','back','b','town','return to town'].includes(cmd)){delete player.flags.v53Sale;delete player.flags.v48Sale;delete player.flags.v50Sale;if(cmd.includes('town')){mercyLocation='town';mercyMenu();}else if(q.merchant)v50Trade(wandererByName(q.merchant));else v48SaleMenu();return true;}
  if(cmd==='custom amount'){q.mode='custom';v53SaleMenu();return true;}
- if(cmd==='confirm sale'){
+ if(cmd==='confirm sale'&&q.mode==='confirm'){
   const item=player.pack.find(i=>i.name===q.name&&i.type===q.type&&!!i.stolen===!!q.stolen),total=q.qty*q.unit;
   const w=q.merchant?wandererByName(q.merchant):null,inv=w?v52Inventory(w):null;
   const present=q.merchant?w&&wandererAlive(w)&&(stage==='wandererRoad'?currentRoadWanderer===w.name:stage==='mercy'&&currentTownWanderer===w.name):stage==='mercy'&&mercyLocation===q.location&&['johnny','jen','wayne','mara'].includes(mercyLocation);
@@ -132,15 +137,47 @@ function v53SaleCommand(cmd){
   if(item.stolen&&r18SaleDetected(item,q.merchant||mercyLocation)){delete player.flags.v53Sale;delete player.flags.v48Sale;delete player.flags.v50Sale;if(w)v50Trade(w);else v48SaleMenu();return true;}
   item.qty-=q.qty;if(item.qty===0)player.pack.splice(player.pack.indexOf(item),1);
   if(inv){inv.bolts-=total;const held=inv.items.find(i=>i.name===q.name&&i.type===q.type&&!!i.stolen===!!q.stolen);if(held)held.qty+=q.qty;else inv.items.push({name:q.name,type:q.type,qty:q.qty,trade:false,...(q.stolen?{stolen:true}:{})});}
-  delete player.flags.v53Sale;delete player.flags.v48Sale;delete player.flags.v50Sale;gainBolts(total);add(`SOLD ${q.qty} × ${q.name} — ${total} BOLTS TOTAL`,'reward');v48Checkpoint();if(w)v50Trade(w);else v48SaleMenu();return true;
+  delete player.flags.v53Sale;delete player.flags.v48Sale;delete player.flags.v50Sale;gainBolts(total);add(`SOLD ${q.qty} × ${q.name} — ${total} BOLTS TOTAL`,'reward');v48Checkpoint();if(w)v53WandererSaleList(w);else v48SaleMenu();return true;
  }
- let n;if(q.mode==='custom'&&/^\d+$/.test(cmd))n=Number(cmd);else if(cmd==='sell all')n=q.available;else if(/^sell \d+$/.test(cmd))n=Number(cmd.slice(5));
+ let n;if(q.mode==='custom'&&/^\d+$/.test(cmd))n=Number(cmd);else if(cmd==='sell all')n=Number(q.available);else if(/^sell \d+$/.test(cmd))n=Number(cmd.slice(5));
  if(Number.isSafeInteger(n)&&n>=1&&n<=q.available){q.qty=n;q.mode='confirm';v53SaleMenu();return true;}
  add('Choose a valid quantity or cancel.','system');v53SaleMenu();return true;
 }
+// Own the item selection here; the legacy handler would redraw the list
+// again after the transaction already did so.
+const v53LegacyVendorCommand=handleV48Command;
+handleV48Command=function(cmd){
+ if(stage==='mercy'&&['johnny','jen','wayne','mara'].includes(mercyLocation)){
+  if(['sell','sell items'].includes(cmd)){v48SaleMenu();return true;}
+  if(cmd.startsWith('sell ')){
+   const item=cmd==='sell all scrap'?'Scrap Metal':cmd.slice(5).split(/\s+[—–-]\s+/)[0];
+   if(!v53SaleStart(item))v48SaleMenu();
+   return true;
+  }
+ }
+ return v53LegacyVendorCommand(cmd);
+};
 v48Sell=function(name,confirmed=false){if(confirmed){if(player.flags.v53Sale)return v53SaleCommand('confirm sale');add('Choose a quantity before confirming.','system');return false;}return v53SaleStart(name);};
 v48SaleMenu=function(){player.flags.v48Shop='sell';if(player.flags.v53Sale)return v53SaleMenu();add('SELL CARRIED ITEMS — SELECT AN ITEM','place');v53Choices([...player.pack.filter(i=>v48SellPrice(i)>0).map(i=>`SELL ${r18ItemLabel(i).toUpperCase()} ×${i.qty} — ${v48SellPrice(i)} BOLTS EACH`),'BACK']);};
-const v53OldTradeCommand=v50TradeCommand;v50TradeCommand=function(cmd){if(v53SaleCommand(cmd))return true;const w=wandererByName(player.flags.v50Trade);if(w&&cmd.startsWith('sell ')&&cmd!=='sell items'){v53SaleStart(cmd.slice(5).split(' ×')[0].split(' —')[0],w.name);return true;}return v53OldTradeCommand(cmd);};
+function v53WandererSaleList(w){
+ player.flags.v50Trade=w.name;
+ add('TRADE — SELL CARRIED ITEMS','place');
+ v53Choices([...player.pack.filter(i=>v48SellPrice(i)>0).map(i=>`SELL ${r18ItemLabel(i).toUpperCase()} ×${i.qty} — ${v48SellPrice(i)} BOLTS EACH`),'LEAVE TRADE']);
+}
+const v53OldTradeCommand=v50TradeCommand;
+v50TradeCommand=function(cmd){
+ if(v53SaleCommand(cmd))return true;
+ const w=wandererByName(player.flags.v50Trade);
+ const present=w&&wandererAlive(w)&&(stage==='wandererRoad'?currentRoadWanderer===w.name:stage==='mercy'&&currentTownWanderer===w.name);
+ if(present&&!v50Profile(w).hostile){
+  if(cmd==='sell items'){v53WandererSaleList(w);return true;}
+  if(cmd.startsWith('sell ')){
+   if(!v53SaleStart(cmd.slice(5).split(/\s+[—–-]\s+/)[0],w.name))v53WandererSaleList(w);
+   return true;
+  }
+ }
+ return v53OldTradeCommand(cmd);
+};
 // Board content stays local/shared; no per-character Relay completion announcement.
 showBulletinBoard=function(){const counter=document.querySelector('#v53-board-counter');if(counter)counter.hidden=true;mercyLocation='town';player.flags.solaceMenu='board';townWandererFocus=null;add('SOLACE BULLETIN BOARD','place');add('MISSING: Two runners. Last seen eastbound.');add('NOTICE: Stop leaving broken glass outside The Rusty Lantern Tavern.');add('Someone has added underneath: THEN GIVE US BETTER CUPS.','system');getBoardPosts().forEach(p=>add(`> ${p.handle||'TRAVELER'} — DAY ${p.day||1}: ${p.text}`,'system'));v53Choices(['POST A MESSAGE','VIEW BOUNTIES','RETURN TO TOWN']);};
 function v53BoardPrompt(){add(`WRITE A MESSAGE — MAX ${BOARD_MAX_CHARS} CHARACTERS. ${BOARD_MAX_CHARS-(input.value||'').length} REMAINING. Enter message or CANCEL.`,'system');}

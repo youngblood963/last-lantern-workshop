@@ -152,9 +152,18 @@
  GraphicalUI.sync=function(...args){
    const result=workbenchSync.apply(this,args);
    const el=this.element;
-   if(stage==='r11Craft' && el?.figure && el?.img &&
+   // The first Forge lesson uses factoryBench; later crafting uses r11Craft.
+   // Both show the same workbench without changing the tutorial's gameplay.
+   if((stage==='r11Craft'||stage==='factoryBench') && el?.figure && el?.img &&
       /\/crafting_workbench\.png(?:\?|$)/.test(el.img.getAttribute('src')||'')){
      el.figure.hidden=false;
+   }
+   // The Unauthorized Cargo forklift is cinematic artwork, not a crop-to-fill
+   // background. Give just this scene a full-image fit.
+   if(el?.frame && el?.img){
+     el.frame.classList.toggle('r127-unauthorized-cargo-contain',
+       /unauthorized cargo/i.test(el.caption?.textContent||'') &&
+       /unauthorized[_-]cargo/i.test(el.img.getAttribute('src')||''));
    }
    return result;
  };
@@ -165,6 +174,7 @@
  benchStyle.textContent=`
  body.full-graphics .gfx-frame[data-layout="crafting"] .gfx-art:not([hidden]){min-height:clamp(130px,28dvh,280px)}
  body.full-graphics .gfx-frame[data-layout="crafting"] #screen{height:clamp(100px,17dvh,185px);max-height:32dvh}
+ body.full-graphics .gfx-frame.r127-unauthorized-cargo-contain .gfx-art .gfx-image{object-fit:contain!important;object-position:center center!important}
  @media(max-width:760px){
   body.full-graphics .gfx-frame[data-layout="crafting"] .gfx-art:not([hidden]){min-height:130px}
   body.full-graphics .gfx-frame[data-layout="crafting"] #screen{height:clamp(95px,18dvh,155px);max-height:30dvh}

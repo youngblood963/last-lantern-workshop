@@ -12,10 +12,11 @@ async function main(){
  const world='/route127/devtest/api/world/';
  const browser=await chromium.launch({executablePath:process.env.R11_CHROMIUM,headless:true,
   args:['--no-sandbox','--disable-dev-shm-usage']});
+ const ignoreHTTPSErrors=!hosted||process.env.R127_SURVIVOR_IGNORE_TLS==='1';
  const session='mpqa_'+randomUUID().slice(0,8);
  const errors=[];
  async function playerClient(index){
-  const context=await browser.newContext({ignoreHTTPSErrors:!hosted,bypassCSP:!hosted});
+  const context=await browser.newContext({ignoreHTTPSErrors,bypassCSP:!hosted});
   const page=await context.newPage();
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto(url.href,{waitUntil:'domcontentloaded'});
@@ -67,9 +68,10 @@ async function main(){
    assert.equal((await c.request('survivors/'+c.id)).status,404);
   }
   for(const [c,other] of [[a,b],[b,a]]){
-   const card=c.page.getByRole('button',{name:'Inspect Solace QA',exact:true});
+   const card=c.page.locator('[data-character-id="'+other.id+'"]');
+   assert.equal(await c.page.locator('[data-character-id="'+c.id+'"]').count(),0);
    await card.waitFor({timeout:25000});
-   assert.equal(await card.getAttribute('data-character-id'),other.id);
+   assert.equal(await card.getAttribute('aria-label'),'Inspect Solace QA');
    assert.match(await card.locator('img').getAttribute('src'),/player_survivor_default\.png$/);
    await card.locator('img').evaluate(img=>img.decode());
    await card.click();

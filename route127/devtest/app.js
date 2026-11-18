@@ -447,6 +447,10 @@ function handlePlayerDeath(){
   player.turns=Math.max(0,player.turns-penalty);
   dailyRoadTurns+=travel; // rescue travels the route; recovery itself is not a road turn
   player.hp=Math.max(1,Math.round(player.maxHp*.5));
+  // Rescue fee: 10% of carried Bolts, rounded up. Banked Bolts are untouched.
+  const carriedBolts=Math.max(0,Math.floor(Number(player.bolts)||0));
+  const rescueBoltsLost=Math.min(carriedBolts,Math.ceil(carriedBolts*.10));
+  player.bolts=carriedBolts-rescueBoltsLost;
   if(combatState&&combatState.source==="jenBoss")player.flags.jenQuest="raiders";
   combatState=null; currentRoadWanderer=null; updateHud();
   add("YOU HAVE FALLEN","danger");
@@ -454,6 +458,7 @@ function handlePlayerDeath(){
   add(graphRescue?`Hours later, you wake in ${LG_NODES[graphRescue.node].name}.`:inTown?"Hours later, you wake on a cot in Solace.":"Hours later, you wake in the old house.");
   if(jenGateRescue)add("JEN > The gate guards were going to leave you out there. I brought you back myself. Don't make me do that twice.","bright");
   else add("Someone dragged you back from the highway. They didn't do it for free.");
+  add(`RESCUE FEE — 10% OF CARRIED BOLTS: ${rescueBoltsLost} BOLTS LOST (${player.bolts} REMAINING)`, "danger");
   add(`RESCUE TRAVEL: ${travel} TURNS   RECOVERY: 2 TURNS   TOTAL: ${penalty}`, "system");
   add(`HP RESTORED: ${player.hp}/${player.maxHp}   EQUIPMENT AND QUEST ITEMS RETAINED`, "system");
   stage="fallen"; add("(1) GET UP", "system");

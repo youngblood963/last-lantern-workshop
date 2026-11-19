@@ -44,7 +44,7 @@
  for(const [title,file] of Object.entries({
   'THE SLEEPING ROBOT':'the_sleeping_robot.png',
   'THE LAST AUTONOMOUS TAXI':'the_last_autonomous_taxi.gif',
-  'THE ROAD EATER':'the_road_eater.png',
+  'THE ROAD EATER':'the_road_eater .png',
   'THE SALVAGE YARD LEDGER':'the_salvage_yard_ledger.png',
   'THE SCRAP CLAIM':'the_scrap_claim.png'
  }))register(title,sprite(file));
@@ -217,7 +217,7 @@
   rows.set(id,{
    id,title,name:entry.encounter.displayName||entry.name||entry.encounter.title,
    classification:entry.classification||'GLOBAL',regions:entry.regions||[],
-   combat:!!fight,variants:states.get(title)||[]
+   combat:!!fight,fullCinematic:industrialCinematics.has(title),variants:states.get(title)||[]
   });
  }
  // Combat names differ from their saved encounter titles in the reworked scenes.
@@ -311,6 +311,10 @@
  if(gateGuard)gateGuard.variants=[{units:[enemy('solace_gate_guard.png')],
   background:'../playtest/assets/locations/solace_town_gate.png',
   phase:'combat',variant:'Solace gate — guard emerges'}];
+ const gideon='wanderer:Gideon Briggs';
+ rows.set(gideon,{id:gideon,title:'GIDEON BRIGGS',name:'Gideon Briggs',classification:'GLOBAL',
+  regions:[],site:'Road wanderer',combat:false,variants:[{units:['assets/wanderers/rob_gideon.png'],
+   phase:'approach',variant:'Road portrait',background:null}]});
  const installed=new Map([...rows.values()].flatMap(row=>row.variants.flatMap(v=>
   v.units.map(path=>[assetName(path),path]))));
  const bounds={x:[0,100],y:[0,100],width:[2,150],height:[2,150],scale:[.1,3],z:[0,30]};
@@ -429,11 +433,14 @@
   return model;
  };
 
- const selector='.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-figure,.r127-npc-combat,.r127-road-unit,.r127-silo-boar';
+ const selector='.r127-live-wanderer-road,.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-figure,.r127-npc-combat,.r127-road-unit,.r127-silo-boar';
  function activeScene(){
   // The level-five Crazy Steve promotional menu is a standalone graphical stage.
   if(typeof stage!=='undefined'&&stage==='r127StevePromo')return {id:'scripted:crazy-steve',phase:'approach'};
   const c=typeof combatState==='undefined'?null:combatState;
+  if(!c&&(stage==='wandererRoad'&&currentRoadWanderer==='Gideon Briggs'||
+   stage==='port55Recruit'&&player.flags.portHireOffer?.name==='Gideon Briggs'&&
+   player.flags.portHireOffer.origin==='wandererRoad'))return {id:gideon,phase:'approach'};
   if(c?.r18DanielCaptors)return {id:'factory:captors',phase:'combat'};
   if(stage==='factoryDungeonRoom'&&!c){
    const f=player.flags.factoryDungeon;
@@ -508,6 +515,7 @@
  /* Scrap Duel's authored scene fills the complete artwork viewport; no sky margin. */
  .gfx-frame .gfx-art img[src*="the_scrap_duel.png"]{object-fit:cover!important;object-position:center!important}
  .gfx-frame .gfx-art .r127-layout-unit{position:absolute!important;left:var(--r127-layout-x)!important;top:var(--r127-layout-y)!important;width:var(--r127-layout-width)!important;height:var(--r127-layout-height)!important;transform:translate(-50%,-50%) scale(var(--r127-layout-scale))!important;scale:none!important;z-index:var(--r127-layout-z)!important}
+ .gfx-frame .gfx-art img.r127-live-wanderer-road.r127-layout-unit{right:auto;bottom:auto;max-width:none;object-position:center}
  .gfx-frame .gfx-art .r127-layout-unit:not(.r127-layout-background)>img{transform:none!important}
  .gfx-frame .gfx-art .r127-layout-unit.r127-layout-flipped:not(.r127-layout-background)>img{transform:scaleX(-1)!important}
  .gfx-frame .gfx-art img.r127-layout-flipped{transform:translate(-50%,-50%) scale(calc(-1 * var(--r127-layout-scale)),var(--r127-layout-scale))!important}

@@ -1,0 +1,15 @@
+/* The sharp foreground retains its original proportions. The backing only
+   shows where the game panel and the artwork have different aspect ratios. */
+body.full-graphics .gfx-frame .gfx-art.r127-cinematic-fill,
+.tomorrow-visual.r127-cinematic-fill {
+  background-image: linear-gradient(#100d0b9e, #100d0b9e), var(--r127-cinematic-image) !important;
+  background-position: center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+}
+
+body.full-graphics .gfx-frame .gfx-art.r127-cinematic-fill > img.gfx-image {
+  object-fit: contain !important;
+  object-position: center !important;
+  background-color: transparent !important;
+}

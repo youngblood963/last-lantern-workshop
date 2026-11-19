@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <title>Luna’s Workshop · Route 127 DEVTEST</title>
+ <link rel="stylesheet" href="runtime/tomorrow_project.css?v=workshop-polish-1">
+ <link rel="stylesheet" href="runtime/lunas_workshop.css?v=1">
+</head>
+<body>
+ <main>
+  <header>
+   <h1>Luna’s Workshop</h1>
+   <a id="return" href="./?visual-testing=1">Return to Visual Testing</a>
+  </header>
+  <section class="preview">
+   <div class="toolbar">
+    <label>Preview <select id="device"><option value="desktop">Desktop</option><option value="mobile">Mobile</option></select></label>
+    <button type="button" id="signal">Test signal flicker</button>
+   </div>
+   <div id="viewport" data-device="desktop"></div>
+   <p id="status" role="status">Loading scene…</p>
+  </section>
+  <div class="controls">
+   <section>
+    <h2>Characters</h2>
+    <label>Character <select id="actor"><option value="syn">Syn and desk</option><option value="luna">Luna</option><option value="flora">Flora</option></select></label>
+    <p class="hint">Drag the selected character in the preview or enter its exact position.</p>
+    <div id="placement" class="fields"></div>
+    <div id="peek-layer" class="fields"></div>
+   </section>
+   <section>
+    <h2>Playback</h2>
+    <label>Animation <select id="clip"></select></label>
+    <div id="playback" class="fields"></div>
+    <div class="toolbar">
+     <button type="button" id="play">Play</button>
+     <button type="button" id="restart">Restart</button>
+     <button type="button" id="stop">Stop All Animations</button>
+    </div>
+   </section>
+   <section>
+    <h2>Sequence</h2>
+    <label>Sequence <select id="sequence"></select></label>
+    <div id="timeline" class="fields"></div>
+    <p class="hint" id="notes"></p>
+    <button type="button" id="sequence-play">Play Sequence</button>
+   </section>
+   <section>
+    <h2>Ambient testing</h2>
+    <div id="ambient" class="fields"></div>
+    <div class="toolbar">
+     <button type="button" id="random">Test Random Animation</button>
+     <button type="button" id="dialogue">Simulate Dialogue Choice</button>
+     <button type="button" id="scene-reset">Reset Scene</button>
+    </div>
+   </section>
+  </div>
+  <section class="layouts">
+   <h2>Layouts</h2>
+   <div class="toolbar">
+    <button type="button" id="save">Save Layout</button>
+    <button type="button" id="load">Load Saved Layout</button>
+    <button type="button" id="defaults">Reset to Default</button>
+    <button type="button" id="export">Export Layout</button>
+    <label>Import Layout <input id="import" type="file" accept="application/json,.json"></label>
+   </div>
+   <p class="hint">Save Layout applies the current draft to the DEVTEST terminal in this browser. Export and import JSON to transfer it to another browser.</p>
+  </section>
+ </main>
+ <script src="runtime/tomorrow_project_scene.js?v=workshop-polish-1"></script>
+ <script src="runtime/lunas_workshop.js?v=1"></script>
+</body>
+</html>

@@ -195,6 +195,7 @@
  css.textContent=`
  .r127-layout-editor{width:min(1120px,96vw);max-height:94dvh;overflow:auto;background:#181411;color:#f5e6cf;border:1px solid #a67f4c;padding:14px}
  .r127-layout-editor::backdrop{background:#000b}
+ .r127-layout-editor .layout-workshop-link{display:inline-block;color:#edbe83;margin-bottom:.5rem}
  .r127-layout-editor h2{margin:0 0 10px}
  .r127-layout-editor .layout-controls{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0;align-items:end}
  .r127-layout-editor label{display:grid;gap:3px;font-size:13px}
@@ -228,6 +229,12 @@
  function show(legacy){
   const dialog=el('dialog');dialog.className='r127-layout-editor';dialog.setAttribute('aria-label','Combat Visual Testing');
   const heading=el('h2','Combat Visual Testing');dialog.append(heading);
+  const workshop=el('a',"Luna's Workshop");
+  workshop.href='../devtest/lunas-workshop.html';
+  workshop.target='_blank';
+  workshop.rel='noopener';
+  workshop.className='layout-workshop-link';
+  dialog.append(workshop);
   function button(parent,label,action){
    const b=el('button',label);b.type='button';b.addEventListener('click',action);parent.append(b);return b;
   }
@@ -556,4 +563,6 @@
   checkAssets(()=>{rebuildPicker();if(row&&spec)metadata.dataset.artStatus=state(row);});
  }
  globalThis.Route127CombatLayoutEditor=Object.freeze({show});
+ if(new URLSearchParams(location.search).get('visual-testing')==='1')
+  document.addEventListener('DOMContentLoaded',show,{once:true});
 })();

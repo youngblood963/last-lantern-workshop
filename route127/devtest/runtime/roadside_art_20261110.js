@@ -2,14 +2,22 @@
 (()=>{
 'use strict';
 if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||!/^\/route127\/devtest\/(?:index\.html)?$/.test(location.pathname)||typeof GraphicalUI==='undefined')return;
-const asset=(name,root=false)=>new URL(root?'../../'+encodeURIComponent(name):'../devtest/assets/enemies/'+encodeURIComponent(name),document.baseURI).href;
-const file=(name,root=false)=>({name,root});
+const asset=({name,root,directory})=>new URL(
+ root?'../../'+encodeURIComponent(name):'../devtest/assets/'+directory+'/'+encodeURIComponent(name),document.baseURI
+).href;
+const file=(name,root=false,directory='enemies')=>({name,root,directory});
 const industrialSprites={
+ 'THE SLEEPING ROBOT':['the_sleeping_robot.png'],
  'BROKEN CLEANER BOT':['broken_cleaner_bot.png'],
  'AUTONOMOUS SECURITY HOUNDS':['autonomous_security_hound_1.png','autonomous_security_hound_2.png'],
  'FACTORY ENFORCERS':['factory_enforcer_1.png','factory_enforcer_2.png','factory_enforcer_3.png']
 };
 const scenes={
+ 'THE ROAD EATER':()=>file('the_road_eater.png'),
+ 'THE SALVAGE YARD LEDGER':()=>file('the_salvage_yard_ledger.png'),
+ 'THE SCRAP CLAIM':()=>file('the_scrap_claim.png'),
+ 'LOCKER IN THE CONCRETE PIPE':()=>file('the_spring_trap.png',false,'scenarios'),
+ 'THE TOOL CRIB':()=>file('the_tool_crib.png',false,'scenarios'),
  'ROACH NEST':()=>[file('roach_nest_ordinary.png'),file('roach_nest_contaminated.png'),file('roach_nest_aggressive_swarm.png',true)][typeof r18RoachVariant==='function'?r18RoachVariant():0],
  'ROACH SWARM':()=>scenes['ROACH NEST'](),
  'TUNNEL RATS':()=>typeof player!=='undefined'&&player.flags?.r18TunnelBoarPending
@@ -48,7 +56,8 @@ function current(){
  const raw=normalize(combat?.name||encounter?.title);
  const title=aliases[raw]||raw;
  if(!title)return null;
- const industrial=industrialSprites[title]||industrialSprites[normalize(origin?.title)];
+ const taxi=origin?.wo7==='WO8-TAXI'||combat?.wo7Id==='WO8-TAXI';
+ const industrial=taxi?['the_last_autonomous_taxi.gif']:industrialSprites[title]||industrialSprites[normalize(origin?.title)];
  if(industrial&&route127CurrentRegion(lanternState())==='INDUSTRIAL'){
   return {title,items:industrial.map(name=>file(name)),combat};
  }
@@ -63,7 +72,8 @@ function current(){
  if(!spec&&/CHEMICAL BURNER/.test(title))spec=()=>[file('Chemical Burner 1.png'),file('Chemical Burner 2.png')];
  if(!spec&&/SENTRY/.test(title))spec=()=>file('sentry.png');
  if(!spec&&/PIPE ROBBER/.test(title))spec=()=>file('Pipe Robber.png');
- return spec?{title,items:[].concat(spec()).filter(Boolean),combat}:null;
+ // The Road Eater artwork depicts the whole machine. Its three targets keep their existing HP panel.
+ return spec?{title,items:[].concat(spec()).filter(Boolean),combat:combat?.r18RoadEater?null:combat}:null;
 }
 const css=document.createElement('style');
 css.textContent=`
@@ -190,7 +200,7 @@ GraphicalUI.sync=function(...args){
      unit.type='button';
      unit.addEventListener('click',()=>{if(!busy)handleCommand(scene.combat.enemies?.length?'attack '+(i+1):'attack')});
     }
-    const img=document.createElement('img');img.src=asset(f.name,f.root)+'?v=wo27-art-fit';img.alt='';
+    const img=document.createElement('img');img.src=asset(f)+'?v=wo27-art-fit';img.alt='';
     img.onerror=()=>{img.hidden=true;img.dataset.failed='true';e.frame.classList.add('r127-sprite-failed');e.frame.classList.remove('r127-road-combat-active');console.warn('Missing DEVTEST encounter art',f.name)};
     unit.append(img);layer.append(unit);
    });

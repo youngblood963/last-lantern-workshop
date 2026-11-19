@@ -33,15 +33,15 @@ v49Forge=function(...args){
  finally{portForgeDialogue=fn;}
  numberedChoices={};currentHotkeys={};
  const lightsActive=player.flags.r11Quests?.lights==='active';
- const hasFloodlight=(player.pack||[]).some(i=>i.name==='Harbor Floodlight Controller'&&i.qty>0);
+ const hasModule=r11HasCommunicationsModule();
  const options=[];
  if(ready()){
   add('FORGE > You have everything. Hand me the equipment, and I\'ll prepare the charge.','bright');
   options.push('PREPARE DYNAMITE');
  }
- if(lightsActive&&!hasFloodlight){
-  add('FORGE > Kaiden sent word about Seaport\'s dark docks. I have the replacement floodlight controller. 100 Bolts.','bright');
-  options.push('BUY HARBOR FLOODLIGHT CONTROLLER — 100 BOLTS');
+ if(lightsActive){
+  if(!hasModule)add('FORGE > Kaiden told me about the Tomorrow Project terminal. I have the communications module you need. 100 Bolts.','bright');
+  options.push(hasModule?'CONFIRM COMMUNICATIONS MODULE':'BUY PRE-WAR COMMUNICATIONS INTERFACE MODULE — 100 BOLTS');
  }
  r5DirectChoices([...options,'BACK']);
 };
@@ -51,19 +51,19 @@ const priorCore=handleCommandCore;
 handleCommandCore=async function(raw){
  const cmd=String(typeof r5Mapped==='function'?r5Mapped(raw):raw).toLowerCase().trim();
  if(!busy&&stage==='factoryForge'){
-  if(cmd==='buy harbor floodlight controller — 100 bolts'||cmd==='buy harbor floodlight controller - 100 bolts'){
+  if((cmd==='confirm communications module'&&r11HasCommunicationsModule())||/^buy (?:pre-war communications interface module|harbor floodlight controller)(?: [—-] 100 bolts)?$/.test(cmd)){
    const quests=player.flags.r11Quests||{};
-   if(quests.lights!=='active'){add('FORGE > Kaiden has not requested a controller.','system');v49Forge();return;}
-   if((player.pack||[]).some(i=>i.name==='Harbor Floodlight Controller'&&i.qty>0)){
-    quests.lights='ready';add('FORGE > You already have the replacement controller. Take it to Kaiden.','system');v49Forge();return;
+   if(quests.lights!=='active'){add('FORGE > Kaiden has not requested the communications module.','system');v49Forge();return;}
+   if(r11HasCommunicationsModule()){
+    quests.lights='ready';add('FORGE > You already have the module. Install it in the Rusty Anchor back room.','system');v49Autosave();v49Forge();return;
    }
-   if(player.bolts<100){add('FORGE > You need 100 Bolts for the controller.','system');v49Forge();return;}
+   if(player.bolts<100){add('FORGE > You need 100 Bolts for the communications module.','system');v49Forge();return;}
    // Quest items bypass normal pack capacity. Debit only after pickup succeeds.
-   if(!addPack('Harbor Floodlight Controller','quest',1,true)){add('FORGE > Could not transfer the controller.','danger');v49Forge();return;}
+   if(!addPack(R11_COMMUNICATIONS_MODULE,'quest',1,true)){add('FORGE > Could not transfer the communications module.','danger');v49Forge();return;}
    player.bolts-=100;
    quests.lights='ready';
    player.flags.r11FloodlightPart=true;
-   add('PURCHASED — Harbor Floodlight Controller (100 Bolts). Return to Sheriff Kaiden in Seaport.','reward');
+   add('PURCHASED — Pre-War Communications Interface Module (100 Bolts). Install it in the Rusty Anchor back room.','reward');
    updateHud();
    if(typeof v49Autosave==='function')v49Autosave();
    v49Forge();return;

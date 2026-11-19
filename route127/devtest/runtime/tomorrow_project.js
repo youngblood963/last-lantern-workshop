@@ -12,7 +12,8 @@
  const art={
   room:assets+'locations/rusty_anchor_backroom.png',
   off:assets+'locations/rusty_anchor_computer_off.png',
-  on:assets+'locations/rusty_anchor_computer_on.gif',
+  activation:assets+'locations/rusty_anchor_computer_on.gif?v=single-cycle-1',
+  on:assets+'locations/rusty_anchor_computer_powered.png',
   hub:assets+'tomorrow_project/backgrounds/communication_hub.png'
  };
  const liberated=()=>player.flags.seaport55?.freed===true;
@@ -32,6 +33,7 @@
  const main='MAIN QUESTION MENU';
  const greed='WHAT DO YOU MEAN, GREED?';
  let startup=false;
+ let activating=false;
  let terminalOrigin=backRoom;
 
  function write(lines){
@@ -189,6 +191,9 @@
   choices(['CONTINUE EXPLORING']);
  }
 
+ const originalLoad=loadGame;
+ loadGame=function(...args){activating=false;return originalLoad.apply(this,args);};
+
  const originalSaveStage=gameplayStageForSave;
  gameplayStageForSave=function(){
   const saved=originalSaveStage();
@@ -218,8 +223,8 @@
     if(!roomUnlocked()||['back','b','return to bar','leave back room'].includes(cmd))return port55MiaMenu();
     if(['use computer','access terminal'].includes(cmd)&&repaired()){resetConversation();return connect();}
     if(cmd==='fix computer'&&!repaired()){
-     if(lights()==='ready'&&hasItem('Harbor Floodlight Controller'))return r11QuestComplete('lights',room);
-     add('The computer needs the Harbor Floodlight Controller from Forge at the Factory.','system');
+     if(lights()==='ready'&&r11HasCommunicationsModule())return r11QuestComplete('lights',()=>{activating=true;room();});
+     add('The computer needs the Pre-War Communications Interface Module from Forge at the Factory.','system');
     }
     if(['examine computer','examine terminal'].includes(cmd)&&repaired())
      add('The computer is running. The communications link is ready.','bright');
@@ -298,8 +303,8 @@
  function finaleObjective(){
   if(completed())return 'Demo complete. Continue exploring or contact the Tomorrow Project.';
    if(repaired())return 'Access the terminal in the Rusty Anchor back room.';
-  if(lights()==='ready')return 'Use FIX COMPUTER in the Rusty Anchor back room to install the floodlight controller.';
-  if(lights()==='active')return 'Buy the replacement floodlight controller from Forge at the Factory.';
+  if(lights()==='ready')return 'Use FIX COMPUTER in the Rusty Anchor back room to install the communications module.';
+  if(lights()==='active')return 'Buy the Pre-War Communications Interface Module from Forge at the Factory.';
   return 'Find Sheriff Kaiden on Town Streets and ask about Keeping the Lights On under Small Talk.';
  }
  const originalQuestObjective=portQuestObjective;
@@ -342,6 +347,7 @@
   const roomView=stage===backRoom;
   const connectedView=stage===terminal&&!startup;
   if(!connectedView)stopAmbient();
+  if(!roomView)activating=false;
   if(connectedView&&!wasConnected)scene.configure(TomorrowProjectScene.load());
   wasConnected=connectedView;
   const frame=this.element?.frame;
@@ -353,7 +359,7 @@
   else if(!figure&&visual.parentNode!==layout.parentNode)layout.before(visual);
   visual.classList.toggle('tomorrow-overlay',!!figure);
   scene.view(connectedView?'hub':roomView?'room':'',
-   roomView?art.room:'',roomView?(repaired()?art.on:art.off):'');
+   roomView?art.room:'',roomView?(repaired()?(activating?art.activation:art.on):art.off):'');
   return result;
  };
 })();

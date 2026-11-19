@@ -21,6 +21,7 @@ const industrialSprites={
  'FACTORY ENFORCERS':['factory_enforcer_1.png','factory_enforcer_2.png','factory_enforcer_3.png']
 };
 const scenes={
+ 'COAST ROAD SCAVENGER':()=>file('highway_hunter_rifleman.png'),
  'THE ROAD EATER':()=>file('the_road_eater.png'),
  'THE SALVAGE YARD LEDGER':()=>file('the_salvage_yard_ledger.png'),
  'THE SCRAP CLAIM':()=>file('the_scrap_claim.png'),

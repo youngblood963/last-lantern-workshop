@@ -123,10 +123,13 @@ globalThis.TomorrowProjectScene=(()=>{
    composition.append(img);
    return img;
   }
+  const hubArt=root+'backgrounds/communication_hub.png';
+  const overlayArt=null; // Optional transparent-center artwork.
   const background=sprite('tomorrow-background');
   const computer=sprite('tomorrow-computer','Communications computer');
   const syn=sprite('tomorrow-actor','Syn at the communications desk');
   syn.dataset.actor='syn';
+  const frame=sprite('tomorrow-frame');
   let current=load(),active=null,last='',next=0;
   const ghosts=new Map();
   function show(img,path){
@@ -151,7 +154,11 @@ globalThis.TomorrowProjectScene=(()=>{
   function view(kind,roomArt,computerArt){
    visual.dataset.view=kind;
    visual.hidden=!kind;
-   show(background,kind==='hub'?root+'backgrounds/communication_hub.png':roomArt);
+   const backdrop=kind==='hub'?hubArt:kind==='room'?roomArt:null;
+   show(background,backdrop);
+   show(frame,kind==='hub'?overlayArt:null);
+   if(backdrop)visual.style.setProperty('--tomorrow-backing','url('+JSON.stringify(new URL(backdrop,document.baseURI).href)+')');
+   else visual.style.removeProperty('--tomorrow-backing');
    show(computer,computerArt);
    show(syn,kind==='hub'?root+'characters/syn_desk.png':'');
    configure(current);

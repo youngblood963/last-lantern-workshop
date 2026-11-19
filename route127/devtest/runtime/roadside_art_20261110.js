@@ -6,7 +6,15 @@ const asset=({name,root,directory})=>new URL(
  root?'../../'+encodeURIComponent(name):'../devtest/assets/'+directory+'/'+encodeURIComponent(name),document.baseURI
 ).href;
 const file=(name,root=false,directory='enemies')=>({name,root,directory});
+const industrialEncounterSprites=Object.freeze({
+ 'FUEL THIEVES':['fuel_thief_1.png','fuel_thief_2.png'],
+ 'INDUSTRIAL SPIDERS':['industrial_spider_1.png','industrial_spider_2.png','industrial_spider_3.png','industrial_spider_4.png'],
+ 'JUNKYARD HERMIT':['junkyard_hermit.png'],
+ 'PAYMENT REQUIRED':['payment_required.png'],
+ 'SCRAP TORCHERS':['scrap_torcher_1.png','scrap_torcher_2.png']
+});
 const industrialSprites={
+ ...industrialEncounterSprites,
  'THE SLEEPING ROBOT':['the_sleeping_robot.png'],
  'BROKEN CLEANER BOT':['broken_cleaner_bot.png'],
  'AUTONOMOUS SECURITY HOUNDS':['autonomous_security_hound_1.png','autonomous_security_hound_2.png'],
@@ -103,7 +111,7 @@ function scenarioChoices(){
  actions.push(exit);
  return actions.map((label,i)=>({key:String(i+1),command:choiceCommand(label),label}));
 }
-globalThis.Route127RoadsidePresentation=Object.freeze({choices:scenarioChoices,current,inScope});
+globalThis.Route127RoadsidePresentation=Object.freeze({choices:scenarioChoices,current,inScope,industrialEncounterSprites});
 Route127MenuAuthority.register('roadside-scenarios',{
  supports:()=>stage==='encounter'&&inScope()&&!player.flags?.r18HoundNaming,
  choices:context=>context.base

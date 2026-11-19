@@ -20,6 +20,17 @@
   states.set(title,rows);
  }
  const industrialCinematics=new Map([
+  ['THE PARTS TRUCK','the_parts_truck.png'],
+  ['THE MIDNIGHT SHIFT','the_midnight_shift.png'],
+  ['THE LAST PAYCHECK','the_last_paycheck.png'],
+  ['THE LAST FAX MACHINE','the_last_fax_machine.png'],
+  ['THE EMPTY ASSEMBLY LINE','the_empty_assembly_line.gif'],
+  ['THE COLLAPSING CATWALK','the_collapsing_catwalk.gif'],
+  ['THE BATTERY ROOM','the_battery_room.png'],
+  ['THE FACTORY WHISTLE','the_factory_whistle.gif'],
+  ['THE TRAINING VIDEO','the_training_video.png'],
+  ['THE TRAPPED WORKER','the_trapped_worker.png'],
+  ['THE WATER SHIPMENT','the_water_shipment.png'],
   ['CHEMICAL RUNOFF','chemical_runoff.gif'],
   ['DRAINAGE CULVERT','drainage_culvert.gif'],
   ['EMPLOYEE ENTRANCE ONLY','employee_entrance_only.png']
@@ -30,6 +41,19 @@
   'AUTONOMOUS SECURITY HOUNDS':['autonomous_security_hound_1.png','autonomous_security_hound_2.png'],
   'FACTORY ENFORCERS':['factory_enforcer_1.png','factory_enforcer_2.png','factory_enforcer_3.png']
  }))register(title,sprite(...files));
+ for(const [title,file] of Object.entries({
+  'THE SLEEPING ROBOT':'the_sleeping_robot.png',
+  'THE LAST AUTONOMOUS TAXI':'the_last_autonomous_taxi.gif',
+  'THE ROAD EATER':'the_road_eater.png',
+  'THE SALVAGE YARD LEDGER':'the_salvage_yard_ledger.png',
+  'THE SCRAP CLAIM':'the_scrap_claim.png'
+ }))register(title,sprite(file));
+ register('LOCKER IN THE CONCRETE PIPE',[scenery('the_spring_trap.png')]);
+ register('THE TOOL CRIB',[scenery('the_tool_crib.png')]);
+ register('THE WATER SHIPMENT',sprite('tanker_scavenger_1.png','tanker_scavenger_2.png'),
+  'combat','Tanker Scavengers',scenery('the_water_shipment.png'));
+ register('THE WATER SHIPMENT',sprite('settlement_water_guard_1.png','settlement_water_guard_2.png'),
+  'combat','Settlement Water Guards',scenery('the_water_shipment.png'));
  for(const [title,files] of Object.entries({
   'BAT COLONY':Array(4).fill('bat_colony.png'),
   'RABID RACCOONS':Array(3).fill('rabid_raccoon.png'),
@@ -458,6 +482,16 @@
  }
  const css=document.createElement('style');
  css.textContent=`
+ body.full-graphics .gfx-frame .gfx-art > .gfx-image:is(
+  [src$="/the_parts_truck.png"],
+  [src$="/the_midnight_shift.png"],
+  [src$="/the_last_paycheck.png"],
+  [src$="/the_last_fax_machine.png"],
+  [src$="/the_battery_room.png"],
+  [src$="/the_training_video.png"],
+  [src$="/the_trapped_worker.png"],
+  [src$="/the_water_shipment.png"]
+ ){object-fit:contain;object-position:center}
  .r127-layout-attachments{position:absolute;inset:0;z-index:5;pointer-events:none}
  .r127-layout-attachments img{object-fit:contain}
  /* Smaller five-gull composition; leave artwork and regional scenery intact. */

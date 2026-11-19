@@ -10,7 +10,7 @@ const ART='../devtest/assets/locations/old_man_finn_boat.png';
 // BEHIND it, rather than a duplicate foreground overlay. Keep the boat low.
 const finnArtStyle=document.createElement('style');
 finnArtStyle.textContent=`
-body.full-graphics .gfx-frame .gfx-art:has(> img.gfx-image[src*="old_man_finn_boat.png"]){
+body.full-graphics .gfx-frame .gfx-art.r127-finn-backdrop{
  background-color:#080d14!important;
  background-image:var(--r127-finn-sky,none)!important;
  background-size:130% auto!important;
@@ -18,6 +18,7 @@ body.full-graphics .gfx-frame .gfx-art:has(> img.gfx-image[src*="old_man_finn_bo
  background-repeat:no-repeat!important;
 }
 body.full-graphics .gfx-frame .gfx-art > img.gfx-image[src*="old_man_finn_boat.png"]{
+ background:transparent!important;
  object-fit:contain!important;
  object-position:center center!important;
  transform:translateY(10%) scale(.78)!important;
@@ -30,11 +31,12 @@ GraphicalUI.sync=function(...args){
  const result=oldFinnSync.apply(this,args);
  const figure=this.element?.figure;
  if(figure){
+  figure.classList.toggle('r127-finn-backdrop',stage===STAGE);
   if(stage===STAGE){
-   const phase=typeof Route127RegionalSky?.phase==='function'
+   const phase=typeof Route127RegionalSky!=='undefined'
     ?Route127RegionalSky.phase(player?.flags?.worldHour):'night';
    const file=phase==='dusk'?'sky_dawn.png':'sky_'+phase+'.png';
-   const sky=new URL('../devtest/assets/regions/'+file,document.baseURI).href;
+   const sky=new URL('../assets/regions/'+file,document.baseURI).href;
    figure.style.setProperty('--r127-finn-sky','url("'+sky+'")');
   }else figure.style.removeProperty('--r127-finn-sky');
  }

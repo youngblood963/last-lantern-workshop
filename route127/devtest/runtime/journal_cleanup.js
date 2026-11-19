@@ -55,8 +55,7 @@ function storyProgress(){
 }
 function objective(){
  const f=player.flags,p=storyProgress();
- if(f.chapterOneComplete)return 'Chapter One completed. Further chapters are in development.';
- if(p.seaportLiberated)return 'Visit the Tomorrow Project terminal inside Seaport Workshop (no staff required).';
+ if(p.seaportLiberated)return portQuestObjective();
  if(p.boulderCleared)return 'Liberate Seaport — defeat the fishermen and free the survivors at Harbor Docks.';
  if(p.factoryReached)
   return typeof portQuestObjective==='function'?portQuestObjective():'Prepare the charge at the Factory.';
@@ -97,8 +96,8 @@ function build(page){
    push('Factory — Prepare the Dynamite',['The charge was prepared and the boulder at Boulder Junction was destroyed. Road to Seaport opened.','Completed.']);
   if(progress.seaportLiberated)
    push('Liberate Seaport',['Fishermen defeated; prisoners freed. Seaport liberated.','Completed.']);
- }else if(progress.seaportLiberated&&!f.chapterOneComplete){
-  push('The Road to Seaport — Tomorrow Project',['Visit the Tomorrow Project terminal inside Seaport Workshop to finish Chapter One.']);
+ }else if(progress.seaportLiberated){
+  if(!f.tomorrowProjectChoice)push('The Road to Seaport — Tomorrow Project',[portQuestObjective()]);
  }else if(progress.boulderCleared){
   push('Liberate Seaport',['Travel to Seaport, defeat the fishermen enforcers and free the survivors at Harbor Docks.']);
  }else if(progress.factoryReached){

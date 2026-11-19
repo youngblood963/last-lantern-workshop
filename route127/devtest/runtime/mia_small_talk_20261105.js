@@ -16,6 +16,7 @@
    'SMALL TALK','BUY DRINKS','GAMBLE',
    player.flags.r6AnchorRoomOwned?'GO TO ROOM':'RENT ROOM — 2000 BOLTS',
    ...(typeof r18RedAllowed==='function'&&r18RedAllowed()?['TALK TO RED']:[]),
+   ...(player.flags.seaport55?.freed?['ENTER BACK ROOM']:[]),
    'RETURN TO HARBOR'
   ]);
  };

@@ -269,6 +269,12 @@
   }
   if(cmd==='ask about seaport'){
    add('KAIDEN > The fishermen are gone, but keeping this town safe will take more than a cleared dock. People need working shops, open roads, and someone watching the harbor.','bright');
+   add("KAIDEN > Tomorrow Project, huh?",'bright');
+   add("KAIDEN > Haven't heard that name in years.",'bright');
+   add("KAIDEN > Used to be part of that outfit myself. Crazy bunch. Big ideas about bringing people together and rebuilding civilization.",'bright');
+   add("KAIDEN > Never amounted to much, far as I could tell.",'bright');
+   add("KAIDEN > There's an old communications terminal in the back room of the bar. Hasn't worked in decades.",'bright');
+   add("KAIDEN > If you're trying to reach those people, that might be your best shot.",'bright');
    // Original liberation dialogue counted speaking to Kaiden toward chapter completion.
    const q=port55State();
    if(q.stage==='meet'&&!q.metKaiden){

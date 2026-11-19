@@ -12,7 +12,9 @@
  const art={
   room:assets+'locations/rusty_anchor_backroom.png',
   off:assets+'locations/rusty_anchor_computer_off.png',
-  on:assets+'locations/rusty_anchor_computer_on.gif',
+  activation:assets+'locations/rusty_anchor_computer_on.gif?v=single-cycle-1',
+  on:assets+'locations/rusty_anchor_computer_powered.png',
+  frame:null, // Optional transparent-center artwork, when supplied.
   hub:assets+'tomorrow_project/backgrounds/communication_hub.png',
   syn:assets+'tomorrow_project/characters/syn_desk.png'
  };
@@ -33,6 +35,7 @@
  const main='MAIN QUESTION MENU';
  const greed='WHAT DO YOU MEAN, GREED?';
  let startup=false;
+ let activating=false;
  let terminalOrigin=backRoom;
 
  function write(lines){
@@ -190,6 +193,9 @@
   choices(['CONTINUE EXPLORING']);
  }
 
+ const originalLoad=loadGame;
+ loadGame=function(...args){activating=false;return originalLoad.apply(this,args);};
+
  const originalSaveStage=gameplayStageForSave;
  gameplayStageForSave=function(){
   const saved=originalSaveStage();
@@ -219,8 +225,8 @@
     if(!roomUnlocked()||['back','b','return to bar','leave back room'].includes(cmd))return port55MiaMenu();
     if(['use computer','access terminal'].includes(cmd)&&repaired()){resetConversation();return connect();}
     if(cmd==='fix computer'&&!repaired()){
-     if(lights()==='ready'&&hasItem('Harbor Floodlight Controller'))return r11QuestComplete('lights',room);
-     add('The computer needs the Harbor Floodlight Controller from Forge at the Factory.','system');
+     if(lights()==='ready'&&r11HasCommunicationsModule())return r11QuestComplete('lights',()=>{activating=true;room();});
+     add('The computer needs the Pre-War Communications Interface Module from Forge at the Factory.','system');
     }
     if(['examine computer','examine terminal'].includes(cmd)&&repaired())
      add('The computer is running. The communications link is ready.','bright');
@@ -299,8 +305,8 @@
  function finaleObjective(){
   if(completed())return 'Demo complete. Continue exploring or contact the Tomorrow Project.';
    if(repaired())return 'Access the terminal in the Rusty Anchor back room.';
-  if(lights()==='ready')return 'Use FIX COMPUTER in the Rusty Anchor back room to install the floodlight controller.';
-  if(lights()==='active')return 'Buy the replacement floodlight controller from Forge at the Factory.';
+  if(lights()==='ready')return 'Use FIX COMPUTER in the Rusty Anchor back room to install the communications module.';
+  if(lights()==='active')return 'Buy the Pre-War Communications Interface Module from Forge at the Factory.';
   return 'Find Sheriff Kaiden on Town Streets and ask about Keeping the Lights On under Small Talk.';
  }
  const originalQuestObjective=portQuestObjective;
@@ -333,6 +339,7 @@
  const background=sprite('tomorrow-background');
  const computer=sprite('tomorrow-computer','Communications computer');
  const syn=sprite('tomorrow-syn','Syn at the communications desk');
+ const terminalFrame=sprite('tomorrow-frame');
  function show(img,path){
   img.hidden=!path;
   if(path&&img.getAttribute('src')!==path)img.setAttribute('src',path);
@@ -411,6 +418,7 @@
   const roomView=stage===backRoom;
   const connectedView=stage===terminal&&!startup;
   if(!connectedView)stopAmbient();
+  if(!roomView)activating=false;
   const frame=this.element?.frame;
   shell.classList.toggle('tomorrow-terminal',stage===terminal);
   shell.classList.toggle('tomorrow-startup',stage===terminal&&startup);
@@ -421,8 +429,12 @@
   visual.classList.toggle('tomorrow-overlay',!!figure);
   visual.hidden=!roomView&&!connectedView;
   show(background,roomView?art.room:connectedView?art.hub:'');
-  show(computer,roomView?(repaired()?art.on:art.off):'');
+  show(computer,roomView?(repaired()?(activating?art.activation:art.on):art.off):'');
   show(syn,connectedView?art.syn:'');
+  show(terminalFrame,connectedView?art.frame:'');
+  const backdrop=roomView?art.room:connectedView?art.hub:null;
+  if(backdrop)visual.style.setProperty('--tomorrow-backing','url('+JSON.stringify(new URL(backdrop,document.baseURI).href)+')');
+  else visual.style.removeProperty('--tomorrow-backing');
   return result;
  };
 })();

@@ -258,7 +258,7 @@
   }
   if(page==='small-talk'){
    if(cmd==='how is seaport holding up?'||cmd==='how is seaport holding up'){
-    add('KAIDEN > The docks are open again. Keeping them safe is the hard part. We need reliable lights, honest traders, and a watch that actually stays put.','bright');
+    add('KAIDEN > The docks are open again. Keeping them safe is the hard part. An old communications terminal in the Rusty Anchor back room might help us reach the Tomorrow Project. I used to work with them. Ask me about Keeping the Lights On if you want to get it running.','bright');
     menu('small-talk');return true;
    }
    if(cmd==='ask about keeping the lights on'){

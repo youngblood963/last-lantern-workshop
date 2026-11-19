@@ -2,7 +2,8 @@
 const R11_DRINKS={e:['BEER',5,5],beer:['BEER',5,5],o:['SHOT',9,10],shot:['SHOT',9,10],h:['HOUSE SPECIAL',15,15],'house special':['HOUSE SPECIAL',15,15]};
 const R11_BOARD="Crazy Steve's Sandwich Board";
 const R11_TIMES={common:30,uncommon:120,rare:1800,epic:28800,legendary:43200};
-const R11_ALIASES={'Reinforced Belt':'Worn Belt','Rusted Dog Tags':'Reinforced Dog Tags','Scrap Dog':'Rust Hound','Reinforced Combat Machete':'Tempered Combat Machete','Refurbished Service Revolver':'Specialized Service Revolver','Reinforced Relay Vest':'Advanced Relay Vest','Reinforced Leather Armor':'Tempered Leather Armor'};
+const R11_COMMUNICATIONS_MODULE='Pre-War Communications Interface Module';
+const R11_ALIASES={'Harbor Floodlight Controller':R11_COMMUNICATIONS_MODULE,'Reinforced Belt':'Worn Belt','Rusted Dog Tags':'Reinforced Dog Tags','Scrap Dog':'Rust Hound','Reinforced Combat Machete':'Tempered Combat Machete','Refurbished Service Revolver':'Specialized Service Revolver','Reinforced Relay Vest':'Advanced Relay Vest','Reinforced Leather Armor':'Tempered Leather Armor'};
 Object.assign(VENDOR_BASE,{"Niko's Lucky Vest":10,"Chemist's Injector":320});
 Object.assign(GEAR["Niko's Lucky Vest"],{rarity:'epic',def:10,questOnly:true});
 Object.assign(GEAR["Chemist's Injector"],{rarity:'rare',min:20,max:27,questOnly:true});
@@ -300,24 +301,25 @@ const r11Docks=r5Docks;r5Docks=function(){if(!portRecruitUnlocked())return r11Do
 function r11HollisMenu(){stage='r11Hollis';add('HOLLIS REED — DOCKS CLERK','place');add('Hollis sets aside a water-stained manifest and looks up from his ledger.','bright');r5DirectChoices(['ASK ABOUT THE LAST SHIPMENT','BACK']);}
 port55MiaMenu=function(){stage='port55Mia';port55Submenu('The Rusty Anchor — Mia',['SMALL TALK','BUY DRINKS','GAMBLE',player.flags.r6AnchorRoomOwned?'GO TO ROOM':'RENT ROOM — 3000 BOLTS',...(portRecruitUnlocked()?['ASK ABOUT HOUSE RULES']:[]),'RETURN TO HARBOR']);};
 function r11Drinks(){stage='r11Drinks';add('MIA — DRINKS','place');r5DirectChoices(['BEER — 5 BOLTS / 5% MAX HP (MIN 5)','SHOT — 9 BOLTS / 9% MAX HP (MIN 10)','HOUSE SPECIAL — 15 BOLTS / 15% MAX HP (MIN 15)','BACK']);}
+function r11HasCommunicationsModule(){return player.pack.some(i=>i.name===R11_COMMUNICATIONS_MODULE&&i.qty>0);}
 const R11_QUESTS={shipment:{name:'The Last Shipment',xp:120,bolts:75,giver:'Hollis Reed'},houseRules:{name:'House Rules',xp:100,bolts:100,giver:'Mia'},lights:{name:'Keeping the Lights On',xp:150,bolts:0,giver:'Kaiden'}};
 function r11QuestState(){return player.flags.r11Quests||(player.flags.r11Quests={});}
 function r11QuestMenu(key){
  if(!portRecruitUnlocked())return;
  stage='r11Quest';player.flags.r11QuestFocus=key;const q=R11_QUESTS[key],state=r11QuestState()[key];add(q.giver.toUpperCase()+' — '+q.name.toUpperCase(),'place');
- const intro={shipment:'The relief cargo was signed over to an empty freight spur. Find the redirected crates and the duplicate manifest before the harbor blames its own workers.',houseRules:'A gambler left owing Mia money, but his room still holds everything he owns. Look for his camp on the coastal approach to Seaport, near the Causeway. Ask why he vanished before deciding what to do.',lights:'The harbor still has power, but the outer dock security floodlights are down. Forge at the Factory has a replacement floodlight controller. Buy one from him and bring it back. It will restore the harbor lights and let me power up the bar’s communications terminal.'};
+ const intro={shipment:'The relief cargo was signed over to an empty freight spur. Find the redirected crates and the duplicate manifest before the harbor blames its own workers.',houseRules:'A gambler left owing Mia money, but his room still holds everything he owns. Look for his camp on the coastal approach to Seaport, near the Causeway. Ask why he vanished before deciding what to do.',lights:'I used to work with the Tomorrow Project. Their old communications terminal is in the Rusty Anchor back room. If you want to reach them, ask Forge at the Factory for a Pre-War Communications Interface Module. Install it in the terminal and see who answers.'};
  if(!state){add(intro[key]);r5DirectChoices(['ACCEPT QUEST','BACK']);}
- else if(state==='ready'&&key==='lights'){add('Install the controller in the Rusty Anchor back room with FIX COMPUTER.','system');r5DirectChoices(['BACK']);}
+ else if(state==='ready'&&key==='lights'){add('Install the communications module in the Rusty Anchor back room with FIX COMPUTER.','system');r5DirectChoices(['BACK']);}
  else if(state==='ready'){add('You have what you need. Report what happened.','system');r5DirectChoices(['COMPLETE QUEST','BACK']);}
  else if(state==='done'){add('This job is finished. The harbor remembers your help.','bright');r5DirectChoices(['BACK']);}
- else{add(key==='shipment'?'Search the abandoned loading area on the Causeway, between Boulder Junction and Seaport.':key==='houseRules'?'Search the gambler’s camp on the coastal approach to Seaport, near the Causeway.':'Visit Forge at the Factory and buy his replacement harbor floodlight controller for 100 Bolts.','system');r5DirectChoices(['BACK']);}
+ else{add(key==='shipment'?'Search the abandoned loading area on the Causeway, between Boulder Junction and Seaport.':key==='houseRules'?'Search the gambler’s camp on the coastal approach to Seaport, near the Causeway.':'Visit Forge at the Factory and buy the Pre-War Communications Interface Module for 100 Bolts.','system');r5DirectChoices(['BACK']);}
 }
 function r11QuestReturn(){const k=player.flags.r11QuestFocus;if(k==='shipment')r11HollisMenu();else if(k==='houseRules')port55MiaMenu();else{stage='port55Kaiden';port55Submenu('Kaiden — Town Lawman',['SMALL TALK','ASK ABOUT KEEPING THE LIGHTS ON','RETURN TO HARBOR']);}}
 function r11QuestComplete(key,onComplete=r11QuestReturn){
  if(!portRecruitUnlocked()||r11QuestState()[key]!=='ready')return;
- if(key==='lights'&&(stage!=='port55TomorrowBackRoom'||!hasItem('Harbor Floodlight Controller')))return;
+ if(key==='lights'&&(stage!=='port55TomorrowBackRoom'||!r11HasCommunicationsModule()))return;
  r11QuestState()[key]='done';const q=R11_QUESTS[key];gainXp(q.xp);if(q.bolts)gainBolts(q.bolts);
- if(key==='lights'){player.pack=player.pack.filter(i=>i.name!=='Harbor Floodlight Controller');delete player.flags.r11FloodlightPart; if(!addPack('Uncommon Electrical Parts','material',2,true))(player.stash||(player.stash=[])).push({name:'Uncommon Electrical Parts',type:'material',qty:2});add('Kaiden has the new controller fitted. The harbor security floodlights sweep the dark water again. The communications terminal in the Rusty Anchor back room is powered up too. Two spare Uncommon Electrical Parts are yours.','reward');}
+ if(key==='lights'){player.pack=player.pack.filter(i=>i.name!==R11_COMMUNICATIONS_MODULE);delete player.flags.r11FloodlightPart; if(!addPack('Uncommon Electrical Parts','material',2,true))(player.stash||(player.stash=[])).push({name:'Uncommon Electrical Parts',type:'material',qty:2});add('You install the communications module. The Tomorrow Project terminal powers up. Two spare Uncommon Electrical Parts are yours.','reward');}
  if(key==='houseRules')add(player.flags.r11GamblerChoice==='forgive'?"MIA > You gave him a chance to come back. I can live with that. Here's your fee.":player.flags.r11GamblerChoice==='work'?"MIA > He offered to work it off? Good. I'll find him a broom.":"MIA > He paid what he could. Next time he wants a room, he talks to me first.",'bright');
  add('QUEST COMPLETE — '+q.name,'reward');if(key==='lights')onComplete();
  r11Quiet(()=>v49Autosave());
@@ -333,7 +335,7 @@ function r11RoadQuest(cmd){
  updateHud();r11Quiet(()=>v49Autosave());return true;
 }
 function r11GamblerMenu(){stage='r11Gambler';add('The missing gambler shelters beside a broken handcart. He fled after losing his wages, afraid Mia would have him beaten. He offers his last few Bolts.','bright');r5DirectChoices(['TAKE WHAT HE CAN PAY','ASK HIM TO WORK IT OFF','FORGIVE THE DEBT AND SEND HIM HOME']);}
-const r11Quests=showQuests;showQuests=function(){r11Quests();if(!portRecruitUnlocked())return;for(const [k,state]of Object.entries(r11QuestState())){add(`${state==='done'?'COMPLETE':'SIDE QUEST'} — ${R11_QUESTS[k].name}`,'place');add(state==='ready'?'Report to '+R11_QUESTS[k].giver:state==='done'?'Completed.':k==='shipment'?'Search the abandoned loading area on the Causeway, between Boulder Junction and Seaport.':k==='houseRules'?'Search the coastal approach to Seaport for the gambler camp.':'Visit Forge at the Factory and buy his replacement harbor floodlight controller for 100 Bolts.','system');}};
+const r11Quests=showQuests;showQuests=function(){r11Quests();if(!portRecruitUnlocked())return;for(const [k,state]of Object.entries(r11QuestState())){add(`${state==='done'?'COMPLETE':'SIDE QUEST'} — ${R11_QUESTS[k].name}`,'place');add(state==='ready'?(k==='lights'?'Install the communications module in the Rusty Anchor back room.':'Report to '+R11_QUESTS[k].giver):state==='done'?'Completed.':k==='shipment'?'Search the abandoned loading area on the Causeway, between Boulder Junction and Seaport.':k==='houseRules'?'Search the coastal approach to Seaport for the gambler camp.':'Visit Forge at the Factory and buy the Pre-War Communications Interface Module for 100 Bolts.','system');}};
 // Local ownership prototype. No server/global authority is fabricated.
 const R11_LEGEND_KEY='route127-local-legendary-r11-v1';
 function r11LegendDB(){try{const db=JSON.parse(localStorage.getItem(R11_LEGEND_KEY)||'null');if(db&&db.version===1&&Array.isArray(db.announcements))return db;}catch{}return {version:1,board:null,announcements:[]};}

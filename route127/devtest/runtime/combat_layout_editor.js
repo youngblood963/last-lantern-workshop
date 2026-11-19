@@ -15,6 +15,7 @@
  const ownerApprovedScenes=new Set(['THE FORGOTTEN ARENA','THE FIGHTING RING']);
  const ownerApproved=row=>ownerApprovedScenes.has(String(row.title||'').toUpperCase())||ownerApprovedScenes.has(String(row.name||'').toUpperCase());
  const industrialApproved=row=>['THE BLACK SNOW','CEMETERY OF TIRES'].includes(String(row.title||'').toUpperCase());
+ const ownerIndustrialDone=row=>['LIVE WIRES','THE FURNACE PIT','FURNACE PIT'].includes(String(row.title||'').toUpperCase());
  const liberationApproved=row=>row.id==='seaport:liberation';
  const redApproved=row=>row.id==='scripted:r18redfight';
  const factoryBossApproved=row=>/^factory:boss:[0-3]$/.test(row.id);
@@ -122,6 +123,14 @@
     localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
     localStorage.setItem(industrialSeed,'1');
    }
+   // Owner-confirmed Industrial scenes, seeded once in each browser.
+   // Subsequent manual review toggles remain authoritative.
+   const liveWiresFurnaceSeed=reviewKey+'-live-wires-furnace-pit-approved-20261119';
+   if(!localStorage.getItem(liveWiresFurnaceSeed)){
+    for(const row of L.rows.values())if(ownerIndustrialDone(row)||['early:186','east:7'].includes(row.id))reviews.add(row.id);
+    localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
+    localStorage.setItem(liveWiresFurnaceSeed,'1');
+   }
    return reviews;
   }catch{return new Set();}
  }
@@ -132,6 +141,7 @@
   if(row.title==='THE MUD CANNON'&&reviews.has(row.id))return 'green';
   if(ownerApproved(row))return reviews.has(row.id)?'green':'yellow';
   if(industrialApproved(row))return reviews.has(row.id)?'green':'yellow';
+  if(ownerIndustrialDone(row)||['early:186','east:7'].includes(row.id))return reviews.has(row.id)?'green':'yellow';
   if(liberationApproved(row))return reviews.has(row.id)?'green':'yellow';
   if(redApproved(row))return reviews.has(row.id)?'green':'yellow';
   if(factoryBossApproved(row))return reviews.has(row.id)?'green':'yellow';

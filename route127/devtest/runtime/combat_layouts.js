@@ -41,6 +41,9 @@
   'AUTONOMOUS SECURITY HOUNDS':['autonomous_security_hound_1.png','autonomous_security_hound_2.png'],
   'FACTORY ENFORCERS':['factory_enforcer_1.png','factory_enforcer_2.png','factory_enforcer_3.png']
  }))register(title,sprite(...files));
+ for(const [title,files] of Object.entries(globalThis.Route127RoadsidePresentation?.industrialEncounterSprites||{})){
+  register(title,sprite(...files));
+ }
  for(const [title,file] of Object.entries({
   'THE SLEEPING ROBOT':'the_sleeping_robot.png',
   'THE LAST AUTONOMOUS TAXI':'the_last_autonomous_taxi.gif',

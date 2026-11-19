@@ -512,7 +512,8 @@ const WO7={
  },
  install(){if(this.installed||!RoadScenarioRegistry.ready)return;this.installed=true;const wo=this,r=RoadScenarioRegistry;
   for(const [id,title,region,category,text]of WO7_DEFINITIONS){if(r.regionalByTitle.has(title))throw Error('WO7 duplicate title '+title);const e={title,text,exclusive:false,wo7:id,prompt(){return wo.choices(id).join('   ');},resolve(cmd){return wo.act(id,cmd);}};
-   const index=encounters.push(e)-1,key='early:'+index,metadata={number:null,id:key,workOrderId:id,legacyName:title,name:title,classification:'REGIONAL',regions:[region],encounter:e,authority:'Owner approved WO7'};r.originalIds.set(e,key);r.regionalCatalog.push(metadata);r.regionalById.set(key,metadata);r.regionalByTitle.set(title,metadata);const entry={id:key,canonicalId:key,name:title,classification:'REGIONAL',region,regions:[region],encounter:e,references:[]};
+   const regions=id==='I11'?[region,'CAUSEWAY']:[region];
+   const index=encounters.push(e)-1,key='early:'+index,metadata={number:null,id:key,workOrderId:id,legacyName:title,name:title,classification:'REGIONAL',regions,encounter:e,authority:'Owner approved WO7'};r.originalIds.set(e,key);r.regionalCatalog.push(metadata);r.regionalById.set(key,metadata);r.regionalByTitle.set(title,metadata);const entry={id:key,canonicalId:key,name:title,classification:'REGIONAL',region:regions.join('+'),regions:[region],encounter:e,references:[]};
    for(const road of ['early','east','coast']){const pool=r.pool(road);let i=pool.indexOf(e);if(i<0)i=pool.push(e)-1;R10_POOLS[road][category].push(i);entry.references.push({road,category,index:i});}r.entries.push(entry);r.byId[key]=entry;
   }
   const resolve=resolveEncounter;resolveEncounter=function(cmd){const e=currentEncounter();if(e?.wo7)return wo.act(e.wo7,cmd);return resolve(cmd);};

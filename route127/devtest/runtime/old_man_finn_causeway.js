@@ -6,18 +6,32 @@ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||
    typeof lanternState!=='function'||typeof GraphicalUI==='undefined')return;
 const EDGE='boulder-junction--seaport', STEP=6, STAGE='r127FinnStore';
 const ART='../devtest/assets/locations/old_man_finn_boat.png';
-// Finn is a transparent boat sprite: display the existing world-hour sky
-// BEHIND it, rather than a duplicate foreground overlay. Keep the boat low.
+// Layer static water over the world-hour sky and behind the boat sprite.
+const WATER=new URL('../assets/regions/water.png',document.baseURI).href;
 const finnArtStyle=document.createElement('style');
 finnArtStyle.textContent=`
 body.full-graphics .gfx-frame .gfx-art.r127-finn-backdrop{
+ position:relative;
+ isolation:isolate;
  background-color:#080d14!important;
  background-image:var(--r127-finn-sky,none)!important;
  background-size:130% auto!important;
  background-position:left center!important;
  background-repeat:no-repeat!important;
 }
-body.full-graphics .gfx-frame .gfx-art > img.gfx-image[src*="old_man_finn_boat.png"]{
+body.full-graphics .gfx-frame .gfx-art.r127-finn-backdrop::before{
+ content:'';
+ position:absolute;
+ inset:70% 0 0;
+ z-index:0;
+ pointer-events:none;
+ background:url("${WATER}") center 58% / cover no-repeat;
+ -webkit-mask-image:linear-gradient(transparent,#000 24%);
+ mask-image:linear-gradient(transparent,#000 24%);
+}
+body.full-graphics .gfx-frame .gfx-art.r127-finn-backdrop > img.gfx-image[src*="old_man_finn_boat.png"]{
+ position:relative;
+ z-index:1;
  background:transparent!important;
  object-fit:contain!important;
  object-position:center center!important;

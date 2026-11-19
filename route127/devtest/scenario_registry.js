@@ -2396,7 +2396,8 @@ RoadScenarioRegistry.regionalSpec = {
    "classification": "REGIONAL",
    "regions": [
     "WEST",
-    "CENTRAL"
+    "CENTRAL",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -2477,7 +2478,8 @@ RoadScenarioRegistry.regionalSpec = {
    "classification": "REGIONAL",
    "regions": [
     "INDUSTRIAL",
-    "NORTH"
+    "NORTH",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -2663,7 +2665,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "early:52",
    "legacyName": "THE DITCH BACKPACK",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -2682,7 +2686,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "early:56",
    "legacyName": "THE LOCKED TOOL CHEST",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -2711,7 +2717,9 @@ RoadScenarioRegistry.regionalSpec = {
    "id": "early:25",
    "legacyName": "THE LAST MAIL",
    "classification": "GLOBAL",
-   "regions": [],
+   "regions": [
+    "CAUSEWAY"
+   ],
    "authority": "Work Order 6 explicit classification"
   },
   {
@@ -2895,7 +2903,8 @@ RoadScenarioRegistry.regionalSpec = {
    "classification": "REGIONAL",
    "regions": [
     "CENTRAL",
-    "INDUSTRIAL"
+    "INDUSTRIAL",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },
@@ -2915,7 +2924,8 @@ RoadScenarioRegistry.regionalSpec = {
    "legacyName": "THE LIME FOG",
    "classification": "REGIONAL",
    "regions": [
-    "LOWLANDS"
+    "LOWLANDS",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },

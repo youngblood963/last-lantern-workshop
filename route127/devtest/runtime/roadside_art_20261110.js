@@ -66,7 +66,7 @@ function current(){
  if(!title)return null;
  const taxi=origin?.wo7==='WO8-TAXI'||combat?.wo7Id==='WO8-TAXI';
  const industrial=taxi?['the_last_autonomous_taxi.gif']:industrialSprites[title]||industrialSprites[normalize(origin?.title)];
- if(industrial&&route127CurrentRegion(lanternState())==='INDUSTRIAL'){
+ if(industrial&&(taxi||route127CurrentRegion(lanternState())==='INDUSTRIAL')){
   return {title,items:industrial.map(name=>file(name)),combat};
  }
  if(['HIGHWAY ROBBERS','LOOTERS','PARKING LOT RAIDERS','GANG LOOKOUT','THE HOLLOWED',

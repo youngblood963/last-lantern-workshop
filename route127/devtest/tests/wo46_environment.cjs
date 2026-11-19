@@ -236,14 +236,21 @@ for(const width of [390,1365]){
  scenery.stroke=()=>strokes.scenery++;
  ui.stroke=()=>strokes.ui++;
  hazard.draw(0);
- assert(strokes.scenery>6&&strokes.ui>0,'Powered cables, arc and UI trace are rendered at '+width+'px');
+ for(const elapsed of [0,1,2,3,4,5,6,7,8]){
+  strokes.scenery=0;strokes.ui=0;hazard.elapsed=elapsed;hazard.draw(0);
+  assert(strokes.scenery>=15&&strokes.ui>=2,'Powered contacts and button edges are visible at '+width+'px without input');
+ }
+ assert.equal(hazard.state.contact,null);
  for(const [event,pointerType] of [['pointermove','mouse'],['pointerdown','touch']]){
   frame.fire(event,{target:choice,clientX:80,pointerType,preventDefault(){throw Error('Input consumed');}});
   assert.equal(hazard.state.contact.button,choice);
  }
  strokes.scenery=0;strokes.ui=0;
  hazard.setPowerActive(false);
- assert.equal(strokes.scenery,6,'All three unpowered cables are still drawn');
+ assert.equal(strokes.scenery,15,'Cable contact glow remains during the fade');
+ strokes.scenery=0;
+ hazard.draw(.35);
+ assert.equal(strokes.scenery,6,'Only the three dark cables remain after the glow fades');
  assert.equal(strokes.ui,0);
  hazard.stop();
  assert.equal(frames.size,0);

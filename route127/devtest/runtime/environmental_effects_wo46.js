@@ -507,7 +507,7 @@
   [[1.02,.58],[.90,.65],[.83,.73],[.75,.77],[.68,.76],[.63,.72]],
   [[1.02,.91],[.92,.88],[.86,.87],[.80,.91],[.75,.92]]
  ];
- const wireBlue=alpha=>'rgba(104,184,230,'+alpha+')';
+ const wireBlue=alpha=>'rgba(137,211,255,'+alpha+')';
 
  function drawWireScenery(context,layer,engine){
   const {width,height}=layer;
@@ -519,27 +519,33 @@
    const points=run.map(([x,y])=>[x*width,y*height]);
    strokePath(context,points,'rgba(10,11,13,.85)',5*size);
    strokePath(context,points,'rgba(102,96,88,.58)',1.6*size);
-   const [x,y]=points[points.length-1];
    const glow=engine.state.glow;
    if(!glow)continue;
-   const radius=13*size;
-   const light=context.createRadialGradient(x,y,0,x,y,radius);
-   light.addColorStop(0,wireBlue(.27*glow));
-   light.addColorStop(1,wireBlue(0));
-   context.fillStyle=light;
-   context.fillRect(x-radius,y-radius,radius*2,radius*2);
-   if(engine.reduced||!engine.powerActive)continue;
-   const phase=(engine.elapsed+.4+index*2.3)%7/1.55;
-   if(phase>=1)continue;
-   const [px,py]=points[points.length-2];
-   const dx=x-px,dy=y-py;
-   const trail=Math.max(0,phase-.25);
-   const head=[px+dx*phase,py+dy*phase];
-   const strength=Math.sin(phase*Math.PI);
-   strokePath(context,[[px+dx*trail,py+dy*trail],head],wireBlue(.57*strength),1.7*size);
-   const arc=Math.max(0,1-Math.abs(phase-.78)/.18);
-   if(arc>0)strokePath(context,[head,[head[0]+3*size,head[1]-4*size],
-    [head[0]+6*size,head[1]-3*size],[head[0]+9*size,head[1]-7*size]],wireBlue(.43*arc),size);
+   // Stagger three contacts along each cable without changing the pulse timing.
+   for(let site=0;site<3;site++){
+    const end=points.length-3+site;
+    const [x,y]=points[end];
+    const [px,py]=points[end-1];
+    const dx=x-px,dy=y-py;
+    const radius=18*size;
+    const light=context.createRadialGradient(x,y,0,x,y,radius);
+    light.addColorStop(0,wireBlue(.42*glow));
+    light.addColorStop(1,wireBlue(0));
+    context.fillStyle=light;
+    context.fillRect(x-radius,y-radius,radius*2,radius*2);
+    strokePath(context,[[x-dx*.23,y-dy*.23],[x,y]],wireBlue(.35*glow),1.8*size);
+    if(engine.reduced||!engine.powerActive)continue;
+    const phase=(engine.elapsed+.4+index*2.3+site*7/3)%7/1.55;
+    if(phase>=1)continue;
+    const trail=Math.max(0,phase-.34);
+    const head=[px+dx*phase,py+dy*phase];
+    const strength=Math.sin(phase*Math.PI);
+    strokePath(context,[[px+dx*trail,py+dy*trail],head],wireBlue(.88*strength),2.4*size);
+    const arc=Math.pow(strength,2);
+    const reach=11*size;
+    strokePath(context,[head,[head[0]+reach*.35,head[1]-reach*.65],
+     [head[0]+reach*.68,head[1]-reach*.48],[head[0]+reach,head[1]-reach]],wireBlue(.76*arc),1.6*size);
+   }
   }
   context.restore();
  }
@@ -553,18 +559,24 @@
    const rect=button.getBoundingClientRect();
    if(rect.width<16||rect.height<8)continue;
    const left=rect.left-bounds.left,top=rect.top-bounds.top+2;
-   const phase=(engine.elapsed+.6+index*2.1)%8/1.6;
-   if(phase<1){
+   const right=left+rect.width-3,bottom=top+rect.height-4;
+   strokePath(context,[[left+3,top+5],[left+3,top],[left+18,top]],wireBlue(.48),1.4);
+   strokePath(context,[[right-15,bottom],[right,bottom],[right,bottom-5]],wireBlue(.48),1.4);
+   for(let trace=0;trace<3;trace++){
+    const phase=(engine.elapsed+.6+index*2.1+trace*8/3)%8/1.6;
+    if(phase>=1)continue;
     const x=left+5+(rect.width-10)*phase;
+    const y=trace===1?bottom:top;
+    const inward=trace===1?-1:1;
     const strength=Math.sin(phase*Math.PI);
-    strokePath(context,[[Math.max(left+2,x-25),top],[x,top]],wireBlue(.51*strength),1.2);
-    if(phase>.84)strokePath(context,[[x,top],[x+2,top+2],[x+3,top+1]],wireBlue(.42*strength),1);
+    strokePath(context,[[Math.max(left+3,x-32),y],[x,y]],wireBlue(.84*strength),2);
+    strokePath(context,[[x,y],[x+2,y+3*inward],[x+3,y+inward]],wireBlue(.65*strength),1.3);
    }
    if(contact?.button!==button)continue;
    const age=engine.elapsed-contact.time;
    if(age>=.55)continue;
    const x=left+Math.max(8,Math.min(rect.width-8,contact.x));
-   strokePath(context,[[x-7,top],[x+7,top]],wireBlue(.4*(1-age/.55)),1.7);
+   strokePath(context,[[x-7,top],[x+7,top]],wireBlue(.65*(1-age/.55)),2);
   }
  }
 

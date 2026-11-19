@@ -10,21 +10,51 @@ function v53Normalize(cmd){
 const v53OldChoice=choiceCommand;choiceCommand=function(label){return v53Normalize(v53OldChoice(label));};
 let v53OfficialMenu=false,v53RenderingWanderer=false,v53OutputSerial=0,v53LastMenuSerial=-1,v53LastMenuContext='';
 function v53Context(){return stage+'|'+mercyLocation+'|'+townWandererFocus+'|'+currentRoadWanderer+'|'+(combatState?.name||'');}
+function v53WandererContext(){
+ if(stage==='wandererRoad'&&currentRoadWanderer)return 'road:'+currentRoadWanderer;
+ if(stage==='mercy'&&townWandererFocus&&townWandererFocus===currentTownWanderer)return 'town:'+townWandererFocus;
+ if(stage==='port55Guest'&&player.flags.port55VisitingName)return 'guest:'+player.flags.port55VisitingName;
+ const offer=player.flags.portHireOffer;
+ if(stage==='port55Recruit'&&offer)return 'hire:'+offer.origin+':'+offer.name;
+ return '';
+}
 function v53LegacyMenu(text){return /SMALL TALK|\bTALK\b/.test(text)&&/INSPECT/.test(text)&&/FIGHT/.test(text)&&/MOVE ON|LEAVE|TOWN/.test(text);}
+function v53LegacyWandererOutput(text,cls){
+ if(v53OfficialMenu||!cls.includes('system')||!(v53RenderingWanderer||v53WandererContext()))return false;
+ return v53LegacyMenu(text)||
+  /^(?:TRADE|STEAL)(?: |$)/.test(text)&&/ {2,}/.test(text)||
+  stage==='port55Guest'&&text==='CONFIRM FIGHT   BACK OFF';
+}
+let v53PendingWandererMenu;
 function v53Display(text){let out=String(text??'').replace(/SMALL TALK/gi,'TALK');if(stage==='mercy'&&mercyLocation==='johnny'&&player.flags.solaceMenu==='shop')out=out.split(/\s{2,}/).filter(x=>!/^ASK ABOUT RELAY PARTS$/i.test(x)).join('   ');if(v53RenderingWanderer||stage==='wandererRoad'||stage==='mercy'&&(townWandererFocus||player.flags.v50Trade))out=out.replace(/\bTRADE\b/g,'BROWSE WARES');return out;}
 const v53OldAdd=add;add=function(text='',cls=''){
- if(!v53OfficialMenu&&v53LegacyMenu(text)&&(v53RenderingWanderer||stage==='wandererRoad'||stage==='mercy'&&townWandererFocus))return;
+ if(v53LegacyWandererOutput(text,cls))return;
  if(!v53OfficialMenu&&stage==='combat'&&/ATTACK/.test(text)&&/USE ITEM/.test(text)&&/BACK OFF/.test(text))return;
- if(!v53OfficialMenu&&(v53RenderingWanderer||stage==='wandererRoad'||stage==='mercy'&&townWandererFocus)&&/^(?:TRADE|STEAL)(?: |$)/.test(text)&&cls==='system')return;
  if(!v53OfficialMenu)v53OutputSerial++;return v53OldAdd(v53Display(text),cls);
 };
 const v53OldImmediate=addImmediate;addImmediate=function(text='',cls=''){
+ if(v53LegacyWandererOutput(text,cls))return;
  if(!v53OfficialMenu&&stage==='combat'&&/ATTACK/.test(text)&&/USE ITEM/.test(text)&&/BACK OFF/.test(text))return;
  if(!v53OfficialMenu)v53OutputSerial++;return v53OldImmediate(v53Display(text),cls);
 };
 function v53Choices(parts){
  const labels=[...new Set(parts)],serial=v53OutputSerial;
- outputQueue=outputQueue.then(()=>{v53OfficialMenu=true;try{currentHotkeys={};numberedChoices={};usedHotkeys=new Set();addImmediate(hotkeyLine(labels.join('   ')),'system');v53LastMenuSerial=serial;v53LastMenuContext=v53Context();}finally{v53OfficialMenu=false;}});
+ // Road entry assigns its stage immediately after showWanderer returns.
+ const context=v53WandererContext()||(v53RenderingWanderer&&currentRoadWanderer?'road:'+currentRoadWanderer:'');
+ const pending=context?{context}:null;
+ if(pending){
+  v53PendingWandererMenu=pending;
+  currentHotkeys={};numberedChoices={};usedHotkeys=new Set();
+ }
+ outputQueue=outputQueue.then(()=>{
+  if(pending&&(v53PendingWandererMenu!==pending||v53WandererContext()!==context))return;
+  v53OfficialMenu=true;
+  try{
+   currentHotkeys={};numberedChoices={};usedHotkeys=new Set();
+   addImmediate(hotkeyLine(labels.join('   ')),'system');
+   v53LastMenuSerial=serial;v53LastMenuContext=v53Context();
+  }finally{v53OfficialMenu=false;}
+ });
 }
 function v53WandererMenu(w,road){
  if(!w||!wandererAlive(w))return;
@@ -44,7 +74,7 @@ renderCurrentChoices=function(){
  return v53OldRender();
 };
 const v53OldContext=showCurrentContext;showCurrentContext=function(){if(stage==='combat'||stage==='wandererRoad'||stage==='mercy')return renderCurrentChoices();return v53OldContext();};
-const v53OldShow=showWanderer;showWanderer=function(w,context){v53RenderingWanderer=true;try{v53OldShow(w,context);}finally{v53RenderingWanderer=false;}v53WandererMenu(w,context==='road');};
+const v53OldShow=showWanderer;showWanderer=function(w,context){v53RenderingWanderer=true;try{v53OldShow(w,context);v53WandererMenu(w,context==='road');}finally{v53RenderingWanderer=false;}};
 function v53TimMenu(){mercyLocation='tim';townWandererFocus=null;player.flags.solaceMenu='tim53';add('TIM — SOLACE','place');v53Choices(['TALK TIM',...(r18CourierEligible('tim')?['DELIVER TIM LETTER']:[]),...(player.flags.r18ClaraMet&&player.flags.r18DanielQuest!=='done'?['ASK ABOUT DANIEL']:[]),...(v52Crime().bounty>0?['PAY FINE','OFFER BRIBE']:[]),...(player.flags.r18BribePending?.lawman==='Tim'?['CONFIRM BRIBE','CANCEL BRIBE']:[]),'INSPECT TIM','TOWN']);}
 // Martha buys one identified carried valuable per confirmed transaction.
 function r18MarthaEligible(i){return !!i&&i.type==='valuable'&&v48Ordinary(i)&&!i.unique&&!i.protected&&!protectedUniqueEquipment(i.name)&&v48SellPrice(i)>0;}

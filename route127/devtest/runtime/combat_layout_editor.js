@@ -31,6 +31,13 @@
   'east:33','east:58','scripted:serviceboss','scripted:crazy-steve']);
  const november16Uploads=new Set(['LEAKING FREIGHT TANK','FREIGHT CAR AMBUSH','THE CRANE NEST',
   'THE WASHED-OUT SHOULDER','THE POWDER MONKEY','AGGRESSIVE SEAGULLS','SHIPWRECK SCAVENGERS']);
+ const industrialUploads=new Set([
+  'THE PARTS TRUCK','THE MIDNIGHT SHIFT','THE LAST PAYCHECK','THE LAST FAX MACHINE',
+  'THE EMPTY ASSEMBLY LINE','THE COLLAPSING CATWALK','THE BATTERY ROOM','THE FACTORY WHISTLE',
+  'THE TRAINING VIDEO','THE TRAPPED WORKER','THE WATER SHIPMENT','THE SLEEPING ROBOT',
+  'THE LAST AUTONOMOUS TAXI','THE ROAD EATER','THE SALVAGE YARD LEDGER','THE SCRAP CLAIM',
+  'LOCKER IN THE CONCRETE PIPE','THE TOOL CRIB','GIDEON BRIGGS'
+ ]);
  const sceneLayers=new Map([
   ['east:21','sky'],['east:6','road'],['east:11','sky'],['early:2','road'],['east:78','none'],
   ['early:50','none'],['early:54','road'],['early:61','road'],['early:9','road'],
@@ -132,7 +139,7 @@
   if(animated(row))return reviews.has(row.id)?'green':'yellow';
   const art=state(row);
   if(art==='Checking art')return 'checking';
-  if(art!=='Art present'||(row.combat&&!embeddedCombatArtwork.has(row.title)&&!row.variants.some(v=>v.units.length)))return 'red';
+  if(art!=='Art present'||(row.combat&&!row.fullCinematic&&!embeddedCombatArtwork.has(row.title)&&!row.variants.some(v=>v.units.length)))return 'red';
   return reviews.has(row.id)?'green':'yellow';
  }
  const state=row=>{
@@ -235,7 +242,8 @@
   const coverage=select(filters,'Artwork',['All','Art present','Art missing / review','Art broken','Art unassigned / review','Checking art']);
   const multi=select(filters,'Sprites',['Any','Multiple sprites']);
   const sort=select(filters,'Sort by',['Name','Region','Artwork']);
-  const batch=select(filters,'Review batch',[['New uploads (Nov 16)','New uploads (Nov 16)'],['New uploads (9)','Previous uploads'],['All encounters','All encounters']]);
+  const batch=select(filters,'Review batch',[['Industrial & Roadside','Industrial & Roadside uploads'],['New uploads (Nov 16)','New uploads (Nov 16)'],['New uploads (9)','Previous uploads'],['All encounters','All encounters']]);
+  if(L.activeScene())batch.value='All encounters';
   const picker=el('select');picker.className='layout-picker';picker.setAttribute('aria-label','Encounter');dialog.append(picker);
   let reviews=readReviews();
   const reviewControls=controls();
@@ -316,6 +324,7 @@
    const keep=picker.value||L.activeScene()?.id;
    const term=search.value.trim().toLowerCase(),all=[...L.rows.values()];
    const visible=all.filter(row=>{
+    if(batch.value==='Industrial & Roadside'&&!industrialUploads.has(row.title))return false;
     if(batch.value==='New uploads (9)'&&!latestBatch.has(row.id))return false;
     if(batch.value==='New uploads (Nov 16)'&&!november16Uploads.has(row.title))return false;
     if(classification.value==='Active'?row.classification==='INACTIVE':row.classification!==classification.value)return false;
@@ -399,8 +408,9 @@
    bg.src=bridge?new URL('sky_'+(skyTime.value==='dusk'?'dawn':skyTime.value)+'.png',regionalRoot).href:
     layers==='none'?new URL(L.regionArt(background.value),L.root).href:
     new URL('sky_'+(skyTime.value==='dusk'?'dawn':skyTime.value)+'.png',regionalRoot).href;
-   canvas.replaceChildren(bg);
-   if(bridge){
+   const standalone=row?.fullCinematic&&!!spec?.background&&layers==='none';
+   canvas.replaceChildren(...(standalone?[]:[bg]));
+   if(bridge&&!standalone){
     const causeway=el('img');causeway.className='layout-causeway-ground';causeway.alt='';
     causeway.src=new URL(L.regionArt('CAUSEWAY'),L.root).href;
     canvas.append(causeway);
@@ -425,7 +435,7 @@
    }
    canvas.dataset.skyTime=layers==='none'&&!bridge?'none':skyTime.value;
    skyTime.parentElement.hidden=layers==='none'&&!bridge;
-   background.parentElement.hidden=layers!=='none'&&!showRegional;
+   background.parentElement.hidden=standalone||layers!=='none'&&!showRegional;
    if(!nodes.size){const empty=el('p',state(row));empty.className='layout-empty';canvas.append(empty);}
    for(const [key,record] of nodes){
     const node=el('button');node.type='button';node.className='layout-unit'+(record.background?' layout-scene-image':'');

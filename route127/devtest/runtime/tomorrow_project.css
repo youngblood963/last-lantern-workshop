@@ -1,25 +1,105 @@
-.tomorrow-classic-art {
-  display: block;
+.tomorrow-visual {
+  display: grid;
+  place-items: center;
+  container-type: size;
   width: 100%;
-  max-height: min(34vh, 320px);
-  object-fit: contain;
+  height: min(40dvh, 360px);
 }
 
-.tomorrow-classic-art[hidden] {
+.tomorrow-visual[hidden],
+.tomorrow-composition img[hidden] {
   display: none;
 }
 
-.tomorrow-scene .gfx-image {
+.tomorrow-visual.tomorrow-overlay {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  pointer-events: none;
+}
+
+.tomorrow-scene .gfx-art:has(> .tomorrow-overlay:not([hidden])) > .gfx-image {
+  opacity: 0;
+}
+
+.tomorrow-composition {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: min(100cqw, 177.3cqh);
+  aspect-ratio: 1670 / 942;
+}
+
+.tomorrow-composition img {
+  position: absolute;
+  display: block;
   object-fit: contain;
 }
 
-.tomorrow-terminal #screen {
-  background: #0a120e;
+.tomorrow-background,
+.tomorrow-syn {
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
-.tomorrow-startup #screen {
-  animation: tomorrow-signal 480ms ease-out;
+.tomorrow-syn { z-index: 3; }
+
+.tomorrow-computer {
+  top: 20%;
+  left: 30%;
+  width: 25%;
 }
+
+.tomorrow-ambient {
+  --tomorrow-start: -130%;
+  --tomorrow-end: 400%;
+  left: 6%;
+  bottom: 16%;
+  width: 31%;
+  z-index: 2;
+}
+
+.tomorrow-motion-enter { --tomorrow-end: 0%; }
+.tomorrow-motion-exit { --tomorrow-start: 0%; }
+
+.tomorrow-motion-enter,
+.tomorrow-motion-exit,
+.tomorrow-motion-cross {
+  animation: tomorrow-traverse var(--tomorrow-duration) linear both;
+}
+
+.tomorrow-turn,
+.tomorrow-coffee { width: 29%; }
+
+.tomorrow-peek {
+  left: 0;
+  bottom: 16%;
+  width: 29%;
+}
+
+.tomorrow-flora-peek,
+.tomorrow-flora-run {
+  width: 18%;
+  bottom: 5%;
+}
+
+.tomorrow-flora-peek { left: 66%; }
+
+.tomorrow-flora-run {
+  --tomorrow-start: -115%;
+  --tomorrow-end: 610%;
+  left: 0;
+  z-index: 4;
+}
+
+@keyframes tomorrow-traverse {
+  from { transform: translateX(var(--tomorrow-start)); }
+  to { transform: translateX(var(--tomorrow-end)); }
+}
+
+.tomorrow-terminal #screen { background: #0a120e; }
+.tomorrow-startup #screen { animation: tomorrow-signal 480ms ease-out; }
 
 @keyframes tomorrow-signal {
   0%, 45% { opacity: .65; }
@@ -29,3 +109,6 @@
 @media (prefers-reduced-motion: reduce) {
   .tomorrow-startup #screen { animation: none; }
 }
+
+.tomorrow-overlay { z-index: 1; }
+.tomorrow-scene .gfx-art-caption { z-index: 2; }

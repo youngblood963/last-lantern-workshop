@@ -137,7 +137,8 @@ function build(page){
  if(typeof R11_QUESTS!=='undefined'&&f.r11Quests)for(const [key,state] of Object.entries(f.r11Quests)){
   if(visible(state)&&done(state)===completed&&R11_QUESTS[key])
    push(R11_QUESTS[key].name,completed?['Completed.']:
-    [state==='ready'?'Return to '+R11_QUESTS[key].giver+' to report your findings.':'Follow the leads from '+R11_QUESTS[key].giver+'.']);
+    [key==='lights'&&state==='ready'?'Use FIX COMPUTER in the Rusty Anchor back room.':
+     state==='ready'?'Return to '+R11_QUESTS[key].giver+' to report your findings.':'Follow the leads from '+R11_QUESTS[key].giver+'.']);
  }
  return rows;
 }

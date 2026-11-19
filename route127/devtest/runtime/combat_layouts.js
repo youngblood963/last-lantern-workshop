@@ -44,7 +44,7 @@
  for(const [title,file] of Object.entries({
   'THE SLEEPING ROBOT':'the_sleeping_robot.png',
   'THE LAST AUTONOMOUS TAXI':'the_last_autonomous_taxi.gif',
-  'THE ROAD EATER':'the_road_eater .png',
+  'THE ROAD EATER':'the_road_eater.png',
   'THE SALVAGE YARD LEDGER':'the_salvage_yard_ledger.png',
   'THE SCRAP CLAIM':'the_scrap_claim.png'
  }))register(title,sprite(file));

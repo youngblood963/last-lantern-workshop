@@ -307,17 +307,21 @@ function r11QuestMenu(key){
  stage='r11Quest';player.flags.r11QuestFocus=key;const q=R11_QUESTS[key],state=r11QuestState()[key];add(q.giver.toUpperCase()+' — '+q.name.toUpperCase(),'place');
  const intro={shipment:'The relief cargo was signed over to an empty freight spur. Find the redirected crates and the duplicate manifest before the harbor blames its own workers.',houseRules:'A gambler left owing Mia money, but his room still holds everything he owns. Look for his camp on the coastal approach to Seaport, near the Causeway. Ask why he vanished before deciding what to do.',lights:'The harbor still has power, but the outer dock security floodlights are down. Forge at the Factory has a replacement floodlight controller. Buy one from him and bring it back. It will restore the harbor lights and let me power up the bar’s communications terminal.'};
  if(!state){add(intro[key]);r5DirectChoices(['ACCEPT QUEST','BACK']);}
+ else if(state==='ready'&&key==='lights'){add('Install the controller in the Rusty Anchor back room with FIX COMPUTER.','system');r5DirectChoices(['BACK']);}
  else if(state==='ready'){add('You have what you need. Report what happened.','system');r5DirectChoices(['COMPLETE QUEST','BACK']);}
  else if(state==='done'){add('This job is finished. The harbor remembers your help.','bright');r5DirectChoices(['BACK']);}
  else{add(key==='shipment'?'Search the abandoned loading area on the Causeway, between Boulder Junction and Seaport.':key==='houseRules'?'Search the gambler’s camp on the coastal approach to Seaport, near the Causeway.':'Visit Forge at the Factory and buy his replacement harbor floodlight controller for 100 Bolts.','system');r5DirectChoices(['BACK']);}
 }
 function r11QuestReturn(){const k=player.flags.r11QuestFocus;if(k==='shipment')r11HollisMenu();else if(k==='houseRules')port55MiaMenu();else{stage='port55Kaiden';port55Submenu('Kaiden — Town Lawman',['SMALL TALK','ASK ABOUT KEEPING THE LIGHTS ON','RETURN TO HARBOR']);}}
-function r11QuestComplete(key){
+function r11QuestComplete(key,onComplete=r11QuestReturn){
  if(!portRecruitUnlocked()||r11QuestState()[key]!=='ready')return;
+ if(key==='lights'&&(stage!=='port55TomorrowBackRoom'||!hasItem('Harbor Floodlight Controller')))return;
  r11QuestState()[key]='done';const q=R11_QUESTS[key];gainXp(q.xp);if(q.bolts)gainBolts(q.bolts);
  if(key==='lights'){player.pack=player.pack.filter(i=>i.name!=='Harbor Floodlight Controller');delete player.flags.r11FloodlightPart; if(!addPack('Uncommon Electrical Parts','material',2,true))(player.stash||(player.stash=[])).push({name:'Uncommon Electrical Parts',type:'material',qty:2});add('Kaiden has the new controller fitted. The harbor security floodlights sweep the dark water again. The communications terminal in the Rusty Anchor back room is powered up too. Two spare Uncommon Electrical Parts are yours.','reward');}
  if(key==='houseRules')add(player.flags.r11GamblerChoice==='forgive'?"MIA > You gave him a chance to come back. I can live with that. Here's your fee.":player.flags.r11GamblerChoice==='work'?"MIA > He offered to work it off? Good. I'll find him a broom.":"MIA > He paid what he could. Next time he wants a room, he talks to me first.",'bright');
- add('QUEST COMPLETE — '+q.name,'reward');r11Quiet(()=>v49Autosave());r11QuestReturn();
+ add('QUEST COMPLETE — '+q.name,'reward');if(key==='lights')onComplete();
+ r11Quiet(()=>v49Autosave());
+ if(key!=='lights')onComplete();
 }
 function r11RoadQuestOptions(){if(!portRecruitUnlocked()||!r6Road()?.active||r6Road().leg!=='coast')return [];const q=r6Road(),s=r11QuestState();return [...(s.shipment==='active'&&q.pos===3?['SEARCH FREIGHT SPUR']:[]),...(s.houseRules==='active'&&q.pos===1?['SEARCH GAMBLER CAMP']:[])];}
 const r11RoadMenu=r6RoadMenu;r6RoadMenu=function(){r11RoadMenu();if(stage==='r6Road'){const extra=r11RoadQuestOptions();if(extra.length)r5DirectChoices(['CONTINUE '+(r6Road().dir>0?'EAST':'WEST'),'REVERSE DIRECTION','INSPECT ROAD',...extra]);}};

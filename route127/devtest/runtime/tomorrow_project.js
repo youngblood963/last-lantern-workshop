@@ -8,14 +8,18 @@
  const completion='port55TomorrowComplete';
  const networkAction='CONTACT TOMORROW PROJECT';
  const oldAction='tomorrow project terminal';
- const artRoot='../devtest/assets/story/';
+ const assets='../devtest/assets/';
  const art={
-  backRoom:artRoot+'seaport_terminal_off.png',
-  startup:artRoot+'seaport_terminal_activation.gif',
-  feed:artRoot+'tomorrow_project_connection.png'
+  room:assets+'locations/rusty_anchor_backroom.png',
+  off:assets+'locations/rusty_anchor_computer_off.png',
+  on:assets+'locations/rusty_anchor_computer_on.gif',
+  hub:assets+'tomorrow_project/backgrounds/communication_hub.png',
+  syn:assets+'tomorrow_project/characters/syn_desk.png'
  };
  const liberated=()=>player.flags.seaport55?.freed===true;
- const repaired=()=>liberated()&&player.flags.r11Quests?.lights==='done';
+ const lights=()=>player.flags.r11Quests?.lights;
+ const roomUnlocked=()=>liberated()&&['active','ready','done'].includes(lights());
+ const repaired=()=>liberated()&&lights()==='done';
  const completed=()=>['yes','no'].includes(player.flags.tomorrowProjectChoice);
  const questions=[
   'WHY HAVE YOU BEEN SENDING ME ALL OVER THE WASTELAND?',
@@ -42,7 +46,8 @@
  function room(){
   stage=backRoom;
   add('SEAPORT — THE RUSTY ANCHOR BACK ROOM','place');
-  choices([repaired()?'ACCESS TERMINAL':'EXAMINE TERMINAL','RETURN TO BAR']);
+  choices(repaired()?['USE COMPUTER','EXAMINE COMPUTER','LEAVE BACK ROOM']:
+   ['EXAMINE COMPUTER','FIX COMPUTER','LEAVE BACK ROOM']);
  }
  function menu(){
   stage=terminal;
@@ -50,6 +55,7 @@
   choices([...questions,'DISCONNECT']);
  }
  function leaveTerminal(){
+  stopAmbient();
   if(terminalOrigin==='factoryTerminal')return v49Terminal();
   room();
  }
@@ -196,7 +202,7 @@
  handleCommandCore=async function(raw){
   if(busy)return originalCore.apply(this,arguments);
   const cmd=r5Mapped(raw);
-  if(stage==='port55Mia'&&cmd==='enter back room'&&liberated()&&
+  if(stage==='port55Mia'&&cmd==='enter back room'&&roomUnlocked()&&
      (Number(day)||1)>=(Number(player.flags.r18MiaBarredUntil)||0))return room();
   if(stage==='factoryTerminal'&&cmd===networkAction.toLowerCase()&&completed()){
    resetConversation();
@@ -210,10 +216,15 @@
   const globalShortcut=/^(?:save|load|inventory|inv|i|status|stats|s|quests?|q|map|m|v|testing|test off)(?:\s|$)/;
   if(!globalShortcut.test(cmd)){
    if(stage===backRoom){
-    if(!liberated()){stage='seaport';return port55Menu();}
-    if(['back','b','return to bar'].includes(cmd))return port55MiaMenu();
-    if(cmd==='access terminal'&&repaired()){resetConversation();return connect();}
-    if(cmd==='examine terminal'&&!repaired()){
+    if(!roomUnlocked()||['back','b','return to bar','leave back room'].includes(cmd))return port55MiaMenu();
+    if(['use computer','access terminal'].includes(cmd)&&repaired()){resetConversation();return connect();}
+    if(cmd==='fix computer'&&!repaired()){
+     if(lights()==='ready'&&hasItem('Harbor Floodlight Controller'))return r11QuestComplete('lights',room);
+     add('The computer needs the Harbor Floodlight Controller from Forge at the Factory.','system');
+    }
+    if(['examine computer','examine terminal'].includes(cmd)&&repaired())
+     add('The computer is running. The communications link is ready.','bright');
+    if(['examine computer','examine terminal'].includes(cmd)&&!repaired()){
      write([
       'An old communications terminal sits against the wall.',
       'Decades of dust cover its controls. The monitor is dark.',
@@ -226,6 +237,7 @@
     if(['disconnect','back','b'].includes(cmd))return leaveTerminal();
     if(cmd===greed.toLowerCase()&&historyAvailable){
      resetConversation();
+     playAmbient();
      write(history);
      return choices([main]);
     }
@@ -236,11 +248,13 @@
     const question=questions.findIndex(label=>label.toLowerCase()===cmd);
     resetConversation();
     if(question===6){
+     stopAmbient();
      pendingAnswer=true;
      write(invitation);
      return choices(['YES','NO',main]);
     }
     if(question>=0){
+     playAmbient();
      write(answers[question]);
      historyAvailable=question===3;
      return choices(historyAvailable?[greed,main]:[main]);
@@ -253,7 +267,7 @@
 
  const originalRender=renderCurrentChoices;
  renderCurrentChoices=function(){
-  if(stage===backRoom&&liberated())return room();
+  if(stage===backRoom)return roomUnlocked()?room():port55MiaMenu();
   if(stage===terminal){resetConversation();return menu();}
   if(stage===completion)return choices(['CONTINUE EXPLORING']);
   return originalRender.apply(this,arguments);
@@ -284,10 +298,9 @@
 
  function finaleObjective(){
   if(completed())return 'Demo complete. Continue exploring or contact the Tomorrow Project.';
-  const lights=player.flags.r11Quests?.lights;
-  if(repaired())return 'Access the terminal in the Rusty Anchor back room.';
-  if(lights==='ready')return 'Deliver the replacement floodlight controller to Kaiden in Seaport.';
-  if(lights==='active')return 'Buy the replacement floodlight controller from Forge at the Factory.';
+   if(repaired())return 'Access the terminal in the Rusty Anchor back room.';
+  if(lights()==='ready')return 'Use FIX COMPUTER in the Rusty Anchor back room to install the floodlight controller.';
+  if(lights()==='active')return 'Buy the replacement floodlight controller from Forge at the Factory.';
   return 'Find Sheriff Kaiden on Town Streets and ask about Keeping the Lights On under Small Talk.';
  }
  const originalQuestObjective=portQuestObjective;
@@ -299,13 +312,86 @@
   return liberated()?finaleObjective():originalPortObjective.apply(this,arguments);
  };
 
- // Keep the artwork outside the transcript so it persists as dialogue scrolls.
- // Both graphics and Classic BBS use the same live transcript and bindings.
- const visual=document.createElement('img');
- visual.className='tomorrow-classic-art';
- visual.hidden=true;
+ // One scene graph serves both display modes. Percentage positioning is provisional.
  const shell=document.querySelector('.terminal-shell');
- shell.querySelector('.game-layout').before(visual);
+ const layout=shell.querySelector('.game-layout');
+ const visual=document.createElement('div');
+ visual.className='tomorrow-visual';
+ visual.hidden=true;
+ const composition=document.createElement('div');
+ composition.className='tomorrow-composition';
+ visual.append(composition);
+ layout.before(visual);
+ function sprite(className,alt=''){
+  const img=document.createElement('img');
+  img.className=className;
+  img.alt=alt;
+  img.hidden=true;
+  composition.append(img);
+  return img;
+ }
+ const background=sprite('tomorrow-background');
+ const computer=sprite('tomorrow-computer','Communications computer');
+ const syn=sprite('tomorrow-syn','Syn at the communications desk');
+ function show(img,path){
+  img.hidden=!path;
+  if(path&&img.getAttribute('src')!==path)img.setAttribute('src',path);
+ }
+
+ const motion={
+  walk:['luna/luna_walk.gif',2400],
+  turn:['luna/luna_turn.gif',2880],
+  coffee:['luna/luna_coffee.gif',2400],
+  peek:['luna/luna_peek.gif',2560],
+  'flora-peek':['flora/flora_peek.gif',2400],
+  'flora-run':['flora/flora_run.gif',1600]
+ };
+ const sequences=[
+  [['walk','cross']],
+  [['walk','enter'],['turn','hold'],['walk','exit']],
+  [['walk','enter'],['coffee','hold'],['walk','exit']],
+  [['peek','hold']],
+  [['flora-peek','hold']],
+  [['flora-run','cross']]
+ ];
+ let lastSequence=-1;
+ let ambient=null;
+ let nextAmbient=0;
+ function stopAmbient(){
+  if(!ambient)return;
+  clearTimeout(ambient.timer);
+  ambient.img?.remove();
+  ambient=null;
+  nextAmbient=Date.now()+1000;
+ }
+ function playAmbient(){
+  if(startup||ambient||Date.now()<nextAmbient||
+     window.matchMedia('(prefers-reduced-motion: reduce)').matches||Math.random()>=.4)return;
+  const options=sequences.map((_,i)=>i).filter(i=>i!==lastSequence);
+  lastSequence=options[Math.floor(Math.random()*options.length)];
+  const sequence=sequences[lastSequence];
+  const playback=ambient={};
+  function frame(index){
+   if(ambient!==playback||stage!==terminal)return;
+   playback.img?.remove();
+   if(index===sequence.length){stopAmbient();return;}
+   const [clip,movement]=sequence[index];
+   const [file,duration]=motion[clip];
+   const img=playback.img=sprite('tomorrow-ambient tomorrow-'+clip+' tomorrow-motion-'+movement);
+   img.style.setProperty('--tomorrow-duration',duration+'ms');
+   img.onload=()=>{
+    if(ambient!==playback)return;
+    clearTimeout(playback.timer);
+    img.hidden=false;
+    playback.timer=setTimeout(()=>frame(index+1),duration);
+   };
+   img.onerror=()=>{if(ambient===playback)stopAmbient();};
+   playback.timer=setTimeout(()=>{if(ambient===playback)stopAmbient();},5000);
+   img.src=assets+'tomorrow_project/'+file;
+  }
+  frame(0);
+ }
+
  const originalModel=GraphicalUI.model;
  GraphicalUI.model=function(){
   const model=originalModel.apply(this,arguments);
@@ -314,28 +400,29 @@
    model.title=stage===backRoom?'The Rusty Anchor — Back Room':
     stage===completion?'Route 127 — Demo Complete':
     startup?'Tomorrow Project — Acquiring Signal':'Tomorrow Project — Headquarters Live Feed';
-   const path=stage===backRoom?art.backRoom:stage===completion?'':startup?art.startup:art.feed;
-   const motionReduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-   model.art=path&&!(startup&&motionReduced)&&this.sceneArtworkReady(path)?path:'';
+   const path=stage===backRoom?art.room:stage===terminal&&!startup?art.hub:'';
+   model.art=path&&this.sceneArtworkReady(path)?path:'';
   }
   return model;
  };
  const originalSync=GraphicalUI.sync;
  GraphicalUI.sync=function(){
   const result=originalSync.apply(this,arguments);
-  const inFinale=stage===backRoom||stage===terminal||stage===completion;
+  const roomView=stage===backRoom;
+  const connectedView=stage===terminal&&!startup;
+  if(!connectedView)stopAmbient();
   const frame=this.element?.frame;
   shell.classList.toggle('tomorrow-terminal',stage===terminal);
   shell.classList.toggle('tomorrow-startup',stage===terminal&&startup);
-  frame?.classList.toggle('tomorrow-scene',inFinale);
-  if(inFinale&&!this.active()){
-   const model=this.model();
-   if(model.art){
-    if(visual.getAttribute('src')!==model.art)visual.setAttribute('src',model.art);
-    visual.alt=model.title;
-    visual.hidden=false;
-   }else visual.hidden=true;
-  }else visual.hidden=true;
+  frame?.classList.toggle('tomorrow-scene',roomView||stage===terminal||stage===completion);
+  const figure=this.active()?this.element?.figure:null;
+  if(figure&&visual.parentNode!==figure)figure.append(visual);
+  else if(!figure&&visual.parentNode!==layout.parentNode)layout.before(visual);
+  visual.classList.toggle('tomorrow-overlay',!!figure);
+  visual.hidden=!roomView&&!connectedView;
+  show(background,roomView?art.room:connectedView?art.hub:'');
+  show(computer,roomView?(repaired()?art.on:art.off):'');
+  show(syn,connectedView?art.syn:'');
   return result;
  };
 })();

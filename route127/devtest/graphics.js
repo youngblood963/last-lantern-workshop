@@ -125,13 +125,13 @@ const GraphicalUI={
   // Dispatch the selected command, not its transient number: other renderers
   // can rebuild numberedChoices while a wanderer portrait/menu is updating.
   const vendorSale=stage==='mercy'&&player.flags.v48Shop==='sell';
-  const semanticChoice=encounter||stage==='wandererRoad'||vendorSale;
+  const wanderer=!!v53WandererContext();
   this.navOpen=false;
-  if(vendorSale||player.flags.v50Trade){
+  if(wanderer||vendorSale||player.flags.v50Trade){
    commandProcessing=true;
    try{await handleCommand(current.command);}
    finally{commandProcessing=false;}
-  }else await handleCommand(semanticChoice?current.command:current.key);
+  }else await handleCommand(encounter?current.command:current.key);
   this.sync();return true;
  },
  node(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;},
@@ -159,8 +159,39 @@ const GraphicalUI={
     e.settings.appendChild(this.button('CLASSIC BBS',()=>this.setMode('classic')));
     e.settings.appendChild(this.button('CLOSE OPTIONS',()=>{this.optionsOpen=false;this.sync();}));
   }
-  e.choices.replaceChildren();e.choices.style.setProperty('--gfx-choice-rows',String(Math.max(1,Math.ceil(m.choices.length/2))));for(const [i,c]of m.choices.entries()){const b=this.button('',()=>this.dispatch(c),'gfx-choice');b.disabled=!!busy;if(c.command.startsWith('inspect survivor '))b.classList.add('r127-player-choice');if(c.label!==c.command){if(!c.command.startsWith('inspect survivor '))b.classList.add('gfx-road-choice');b.setAttribute('title',c.label);b.setAttribute('aria-label',c.key+' '+c.label);}b.appendChild(this.node('span','gfx-choice-key',c.key.toUpperCase()));b.appendChild(this.node('span','gfx-choice-label',c.label));b.appendChild(this.node('span','gfx-choice-arrow','›'));e.choices.appendChild(b);globalThis.Route127ShopComparison?.bind(b,c);}
+  this.renderChoices(m.choices,e.choices);
  }finally{this.rendering=false;}},
+ renderChoices(choices,container){
+  const context=v53WandererContext();
+  const bindings=numberedChoices;
+  const disabled=!!busy||!!context&&commandProcessing;
+  const previous=this.wandererButtons;
+  if(context&&previous?.context===context&&previous.bindings===bindings&&
+     previous.disabled===disabled&&previous.choices.length===choices.length&&
+     choices.every((choice,i)=>['key','command','label'].every(k=>choice[k]===previous.choices[i][k])))return;
+  this.wandererButtons=context?{context,bindings,disabled,choices}:null;
+  container.replaceChildren();
+  container.style.setProperty('--gfx-choice-rows',String(Math.max(1,Math.ceil(choices.length/2))));
+  for(const choice of choices){
+   const button=this.button('',()=>{
+    const activeContext=v53WandererContext();
+    if((context||activeContext)&&(!container.contains(button)||context!==activeContext||bindings!==numberedChoices))return;
+    return this.dispatch(choice);
+   },'gfx-choice');
+   button.disabled=disabled;
+   if(choice.command.startsWith('inspect survivor '))button.classList.add('r127-player-choice');
+   if(choice.label!==choice.command){
+    if(!choice.command.startsWith('inspect survivor '))button.classList.add('gfx-road-choice');
+    button.setAttribute('title',choice.label);
+    button.setAttribute('aria-label',choice.key+' '+choice.label);
+   }
+   button.appendChild(this.node('span','gfx-choice-key',choice.key.toUpperCase()));
+   button.appendChild(this.node('span','gfx-choice-label',choice.label));
+   button.appendChild(this.node('span','gfx-choice-arrow','›'));
+   container.appendChild(button);
+   globalThis.Route127ShopComparison?.bind(button,choice);
+  }
+ },
  schedule(){if(this.scheduled)return;this.scheduled=true;outputQueue=outputQueue.then(()=>{this.scheduled=false;this.sync();});}
 };
 const sceneArtwork=createSceneArtworkLoader(GraphicalUI);

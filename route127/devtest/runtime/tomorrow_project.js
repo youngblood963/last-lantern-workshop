@@ -13,8 +13,7 @@
   room:assets+'locations/rusty_anchor_backroom.png',
   off:assets+'locations/rusty_anchor_computer_off.png',
   on:assets+'locations/rusty_anchor_computer_on.gif',
-  hub:assets+'tomorrow_project/backgrounds/communication_hub.png',
-  syn:assets+'tomorrow_project/characters/syn_desk.png'
+  hub:assets+'tomorrow_project/backgrounds/communication_hub.png'
  };
  const liberated=()=>player.flags.seaport55?.freed===true;
  const lights=()=>player.flags.r11Quests?.lights;
@@ -312,84 +311,16 @@
   return liberated()?finaleObjective():originalPortObjective.apply(this,arguments);
  };
 
- // One scene graph serves both display modes. Percentage positioning is provisional.
+ // The Workshop and live terminal use the same scene and animation player.
  const shell=document.querySelector('.terminal-shell');
  const layout=shell.querySelector('.game-layout');
- const visual=document.createElement('div');
- visual.className='tomorrow-visual';
- visual.hidden=true;
- const composition=document.createElement('div');
- composition.className='tomorrow-composition';
- visual.append(composition);
+ const scene=TomorrowProjectScene.create();
+ const {visual}=scene;
+ let wasConnected=false;
  layout.before(visual);
- function sprite(className,alt=''){
-  const img=document.createElement('img');
-  img.className=className;
-  img.alt=alt;
-  img.hidden=true;
-  composition.append(img);
-  return img;
- }
- const background=sprite('tomorrow-background');
- const computer=sprite('tomorrow-computer','Communications computer');
- const syn=sprite('tomorrow-syn','Syn at the communications desk');
- function show(img,path){
-  img.hidden=!path;
-  if(path&&img.getAttribute('src')!==path)img.setAttribute('src',path);
- }
-
- const motion={
-  walk:['luna/luna_walk.gif',2400],
-  turn:['luna/luna_turn.gif',2880],
-  coffee:['luna/luna_coffee.gif',2400],
-  peek:['luna/luna_peek.gif',2560],
-  'flora-peek':['flora/flora_peek.gif',2400],
-  'flora-run':['flora/flora_run.gif',1600]
- };
- const sequences=[
-  [['walk','cross']],
-  [['walk','enter'],['turn','hold'],['walk','exit']],
-  [['walk','enter'],['coffee','hold'],['walk','exit']],
-  [['peek','hold']],
-  [['flora-peek','hold']],
-  [['flora-run','cross']]
- ];
- let lastSequence=-1;
- let ambient=null;
- let nextAmbient=0;
- function stopAmbient(){
-  if(!ambient)return;
-  clearTimeout(ambient.timer);
-  ambient.img?.remove();
-  ambient=null;
-  nextAmbient=Date.now()+1000;
- }
+ function stopAmbient(){scene.stop();}
  function playAmbient(){
-  if(startup||ambient||Date.now()<nextAmbient||
-     window.matchMedia('(prefers-reduced-motion: reduce)').matches||Math.random()>=.4)return;
-  const options=sequences.map((_,i)=>i).filter(i=>i!==lastSequence);
-  lastSequence=options[Math.floor(Math.random()*options.length)];
-  const sequence=sequences[lastSequence];
-  const playback=ambient={};
-  function frame(index){
-   if(ambient!==playback||stage!==terminal)return;
-   playback.img?.remove();
-   if(index===sequence.length){stopAmbient();return;}
-   const [clip,movement]=sequence[index];
-   const [file,duration]=motion[clip];
-   const img=playback.img=sprite('tomorrow-ambient tomorrow-'+clip+' tomorrow-motion-'+movement);
-   img.style.setProperty('--tomorrow-duration',duration+'ms');
-   img.onload=()=>{
-    if(ambient!==playback)return;
-    clearTimeout(playback.timer);
-    img.hidden=false;
-    playback.timer=setTimeout(()=>frame(index+1),duration);
-   };
-   img.onerror=()=>{if(ambient===playback)stopAmbient();};
-   playback.timer=setTimeout(()=>{if(ambient===playback)stopAmbient();},5000);
-   img.src=assets+'tomorrow_project/'+file;
-  }
-  frame(0);
+  if(!startup&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches)scene.roll();
  }
 
  const originalModel=GraphicalUI.model;
@@ -411,6 +342,8 @@
   const roomView=stage===backRoom;
   const connectedView=stage===terminal&&!startup;
   if(!connectedView)stopAmbient();
+  if(connectedView&&!wasConnected)scene.configure(TomorrowProjectScene.load());
+  wasConnected=connectedView;
   const frame=this.element?.frame;
   shell.classList.toggle('tomorrow-terminal',stage===terminal);
   shell.classList.toggle('tomorrow-startup',stage===terminal&&startup);
@@ -419,10 +352,8 @@
   if(figure&&visual.parentNode!==figure)figure.append(visual);
   else if(!figure&&visual.parentNode!==layout.parentNode)layout.before(visual);
   visual.classList.toggle('tomorrow-overlay',!!figure);
-  visual.hidden=!roomView&&!connectedView;
-  show(background,roomView?art.room:connectedView?art.hub:'');
-  show(computer,roomView?(repaired()?art.on:art.off):'');
-  show(syn,connectedView?art.syn:'');
+  scene.view(connectedView?'hub':roomView?'room':'',
+   roomView?art.room:'',roomView?(repaired()?art.on:art.off):'');
   return result;
  };
 })();

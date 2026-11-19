@@ -1,0 +1,71 @@
+:root {
+ color-scheme: dark;
+ font-family: system-ui, sans-serif;
+ background: #171410;
+ color: #f3e9da;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { width: min(100% - 2rem, 1100px); margin: 1.5rem auto; }
+header, .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: .65rem; }
+header { justify-content: space-between; margin-bottom: 1rem; }
+h1, h2 { margin: 0; color: #f4bf82; }
+h2 { font-size: 1.15rem; margin-bottom: .75rem; }
+a { color: #f4bf82; }
+section { border: 1px solid #5a4734; border-radius: .4rem; padding: .9rem; background: #211b16; }
+.preview { margin-bottom: .75rem; }
+.controls { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.layouts { margin-top: .75rem; }
+
+#viewport {
+ width: 100%;
+ max-width: 960px;
+ margin: .8rem auto 0;
+ background: #101612;
+}
+
+#viewport[data-device=mobile] { max-width: 390px; }
+
+#viewport .tomorrow-visual {
+ height: auto;
+ display: block;
+ container-type: normal;
+}
+
+#viewport .tomorrow-composition {
+ width: 100%;
+ aspect-ratio: auto;
+ padding-top: 56.407%;
+ touch-action: none;
+ cursor: grab;
+}
+
+#viewport .tomorrow-composition:active { cursor: grabbing; }
+#viewport.tomorrow-startup { animation: tomorrow-signal 480ms ease-out; }
+
+label { display: flex; align-items: center; gap: .45rem; }
+.fields { display: flex; gap: .5rem .9rem; flex-wrap: wrap; margin: .7rem 0; }
+
+input, select, button {
+ font: inherit;
+ color: inherit;
+ border: 1px solid #826649;
+ border-radius: .25rem;
+ background: #15130f;
+ padding: .35rem .5rem;
+}
+
+input[type=number] { width: 6rem; }
+input[type=file] { max-width: min(100%, 16rem); }
+button { cursor: pointer; }
+button:hover { border-color: #f4bf82; }
+:focus-visible { outline: 2px solid #f4bf82; outline-offset: 2px; }
+.hint, #status { font-size: .9rem; color: #d7c5ae; }
+#status { margin: .65rem 0 0; min-height: 1.4em; }
+
+@media (max-width: 640px) {
+ main { width: calc(100% - 1rem); margin: .75rem auto; }
+ .controls { grid-template-columns: 1fr; }
+ #viewport[data-device=desktop] { max-width: none; }
+}

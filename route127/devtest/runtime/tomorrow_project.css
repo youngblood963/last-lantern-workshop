@@ -26,6 +26,7 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
+  width: 100%;
   width: min(100cqw, 177.3cqh);
   aspect-ratio: 1670 / 942;
 }
@@ -36,14 +37,13 @@
   object-fit: contain;
 }
 
-.tomorrow-background,
-.tomorrow-syn {
+.tomorrow-background {
   inset: 0;
   width: 100%;
   height: 100%;
 }
 
-.tomorrow-syn { z-index: 3; }
+
 
 .tomorrow-computer {
   top: 20%;
@@ -51,51 +51,19 @@
   width: 25%;
 }
 
-.tomorrow-ambient {
-  --tomorrow-start: -130%;
-  --tomorrow-end: 400%;
-  left: 6%;
-  bottom: 16%;
-  width: 31%;
-  z-index: 2;
+.tomorrow-actor {
+  height: auto;
+  transform: translate(-50%, -50%);
 }
 
-.tomorrow-motion-enter { --tomorrow-end: 0%; }
-.tomorrow-motion-exit { --tomorrow-start: 0%; }
-
-.tomorrow-motion-enter,
-.tomorrow-motion-exit,
-.tomorrow-motion-cross {
+.tomorrow-moving {
+  transform: translate(-50%, -50%) scaleX(var(--tomorrow-facing, 1));
   animation: tomorrow-traverse var(--tomorrow-duration) linear both;
 }
 
-.tomorrow-turn,
-.tomorrow-coffee { width: 29%; }
-
-.tomorrow-peek {
-  left: 0;
-  bottom: 16%;
-  width: 29%;
-}
-
-.tomorrow-flora-peek,
-.tomorrow-flora-run {
-  width: 18%;
-  bottom: 5%;
-}
-
-.tomorrow-flora-peek { left: 66%; }
-
-.tomorrow-flora-run {
-  --tomorrow-start: -115%;
-  --tomorrow-end: 610%;
-  left: 0;
-  z-index: 4;
-}
-
 @keyframes tomorrow-traverse {
-  from { transform: translateX(var(--tomorrow-start)); }
-  to { transform: translateX(var(--tomorrow-end)); }
+  from { left: var(--tomorrow-from-x); top: var(--tomorrow-from-y); }
+  to { left: var(--tomorrow-to-x); top: var(--tomorrow-to-y); }
 }
 
 .tomorrow-terminal #screen { background: #0a120e; }

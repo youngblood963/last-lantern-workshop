@@ -60,7 +60,7 @@
    this.listen(root,'focusin',e=>{if(this.effect==='glass'&&(this.reduced||!this.running))this.draw(0);if(performance.now()-this.lastPointer<300)return;const b=e.target.closest?.('button');if(b){const r=b.getBoundingClientRect(),box=root.getBoundingClientRect();if(this.effect!=='fog')return;this.interact(r.left+r.width/2-box.left,r.top+r.height/2-box.top,true);}});
    this.listen(root,'focusout',()=>{if(this.effect==='fog'){this.pointer.focused=false;this.release();}});
    this.listen(document,'visibilitychange',()=>{if(this.effect==='wires'&&!document.hidden)this.draw(0);this.schedule();});
-   this.listen(this.motion,'change',e=>{this.reduced=e.matches;if(this.effect==='wires'){this.state.contact=null;this.draw(0);}this.schedule();});
+   this.listen(this.motion,'change',e=>{this.reduced=e.matches;if(this.effect==='wires'||this.effect==='furnace'){this.state.contact=null;this.draw(0);}this.schedule();});
    if(typeof ResizeObserver!=='undefined'){this.observer=new ResizeObserver(()=>this.resize());this.observer.observe(root);this.observer.observe(scenery);}
    else this.listen(window,'resize',()=>this.resize());
    this.resize();this.play();
@@ -68,6 +68,11 @@
   random(){this.randomState=(Math.imul(this.randomState,1664525)+1013904223)>>>0;return this.randomState/4294967296;}
   listen(target,type,fn){target.addEventListener?.(type,fn,{passive:true});this.listeners.push([target,type,fn]);}
   approach(event,touch=false){
+   if(this.effect==='furnace'){
+    const button=event.target?.closest?.('.gfx-choice');
+    if(button&&this.running&&!this.reduced)this.state.contact={button,time:this.elapsed};
+    return;
+   }
    if(this.effect==='wires'){
     if(!this.powerActive||this.reduced||!this.running)return;
     const button=event.target?.closest?.('.gfx-choice');
@@ -152,7 +157,7 @@
   restart(){if(this.stopped)return;this.clearBeads();this.clearSoot();this.elapsed=0;this.state=effects.get(this.effect).create(this);this.pointer.strength=0;this.pointer.target=0;if(this.effect==='wires')this.draw(0);this.play();}
   cancel(){if(this.frame!==null){cancelAnimationFrame(this.frame);this.frame=null;}}
   schedule(){if(this.stopped||document.hidden||!this.running){this.cancel();return;}if(this.reduced){this.cancel();this.draw(0);return;}if(this.effect==='wires'&&!this.powerActive&&this.state.glow===0){this.cancel();return;}if(this.frame!==null)return;
-   this.frame=requestAnimationFrame(time=>{this.frame=null;if(this.effect!=='wires'||time-this.last>=32){
+   this.frame=requestAnimationFrame(time=>{this.frame=null;if(!['wires','furnace'].includes(this.effect)||time-this.last>=32){
      const dt=this.last?Math.min(.05,(time-this.last)/1000):0;this.last=time;this.elapsed+=dt;this.draw(dt);
     }
     this.schedule();});
@@ -161,7 +166,7 @@
    if(this.effect==='wires'){
     this.state.glow=this.powerActive?1:this.reduced?0:Math.max(0,this.state.glow-dt*3);
    }
-   this.atmosphere.style.background=this.effect==='rain'?'rgba(96,37,24,.19)':(this.effect==='glass'||this.effect==='wires')?'transparent':this.effect==='ash'?'rgba(63,59,54,.12)':'rgba(145,154,111,.07)';
+   this.atmosphere.style.background=this.effect==='rain'?'rgba(96,37,24,.19)':(['glass','wires','furnace'].includes(this.effect))?'transparent':this.effect==='ash'?'rgba(63,59,54,.12)':'rgba(145,154,111,.07)';
    this.atmosphere.style.opacity=this.period==='night'?'.85':'.65';
    for(const layer of this.layers){const c=layer.context;if(!c)continue;c.clearRect(0,0,layer.width,layer.height);effects.get(this.effect).draw(c,layer,this,dt);if(layer.canvas.dataset.layer==='interface'&&this.buttonDroplets)this.drawBeads(c,dt);}
   }
@@ -588,8 +593,105 @@
   }
  });
 
+ // Resample only thin bands of the loaded artwork, keeping the heat distortion
+ // in the lower-center plume. No pixel readback or full-scene copy.
+ function furnaceShimmer(c,layer,engine){
+  const image=layer.host.querySelector?.('img');
+  if(!image?.naturalWidth||!image.naturalHeight||!c.drawImage)return;
+  const box=image.getBoundingClientRect(),host=layer.host.getBoundingClientRect();
+  if(!box.width||!box.height)return;
+  const fit=getComputedStyle(image);
+  const scale=(fit.objectFit==='contain'?Math.min:Math.max)(box.width/image.naturalWidth,box.height/image.naturalHeight);
+  const width=image.naturalWidth*scale,height=image.naturalHeight*scale;
+  const alignment=value=>value?.endsWith('%')?parseFloat(value)/100:.5;
+  const [ox,oy]=fit.objectPosition.split(' ').map(alignment);
+  const left=box.left-host.left+(box.width-width)*ox;
+  const top=box.top-host.top+(box.height-height)*oy;
+  const x=box.left-host.left+box.width*.28,span=box.width*.44;
+  const plumeTop=box.top-host.top+box.height*.47;
+  const plumeHeight=box.height*.44;
+  c.save();
+  c.beginPath();c.rect(x,plumeTop,span,plumeHeight);c.clip();
+  for(let i=0;i<12;i++){
+   const rise=(i/12+engine.elapsed*.11)%1;
+   const y=plumeTop+(1-rise)*plumeHeight;
+   const band=Math.min(5,plumeHeight/18);
+   const wave=Math.sin(rise*18-engine.elapsed*.85)*4;
+   c.globalAlpha=.57*Math.sin(rise*Math.PI);
+   c.drawImage(image,(x-left)/scale,(y-top)/scale,span/scale,band/scale,x+wave,y,span,band);
+  }
+  c.restore();
+ }
+
+ function furnaceGlow(c,x,y,radius,opacity){
+  const light=c.createRadialGradient(x,y,0,x,y,radius);
+  light.addColorStop(0,'rgba(255,101,26,'+opacity+')');
+  light.addColorStop(.46,'rgba(232,66,16,'+(opacity*.54)+')');
+  light.addColorStop(1,'rgba(232,66,16,0)');
+  c.fillStyle=light;
+  c.fillRect(x-radius,y-radius,radius*2,radius*2);
+ }
+
+ function drawFurnaceScenery(c,layer,engine){
+  const {width,height}=layer;
+  if(!engine.reduced)furnaceShimmer(c,layer,engine);
+  const pulse=engine.reduced?0:Math.sin(engine.elapsed*.55)*.035;
+  furnaceGlow(c,width*.5,height*.98,Math.min(width*.62,height*.67),.55+pulse);
+  if(engine.reduced)return;
+  const count=width<650?44:64;
+  for(let i=0;i<count;i++){
+   const ember=engine.state.embers[i];
+   const age=(ember.phase+engine.elapsed*ember.speed)%1;
+   const x=width*(ember.x+Math.sin(ember.phase*13+engine.elapsed*.9)*.035);
+   const y=height*(.96-age*ember.rise);
+   const alpha=Math.min(1,age*10)*(1-age)*ember.brightness;
+   c.fillStyle='rgba(243,62,16,'+(alpha*.42)+')';
+   c.beginPath();c.ellipse(x,y,ember.size*1.9,ember.size*1.9,0,0,Math.PI*2);c.fill();
+   c.fillStyle='rgba(255,'+ember.green+',53,'+alpha+')';
+   c.beginPath();c.ellipse(x,y,ember.size,ember.size*.8,0,0,Math.PI*2);c.fill();
+  }
+ }
+
+ function drawFurnaceButtons(c,engine){
+  const bounds=engine.root.getBoundingClientRect();
+  const contact=engine.state.contact;
+  for(const [i,button] of Array.from(engine.root.querySelectorAll('.gfx-choice')).slice(0,engine.buttonLimit).entries()){
+   const rect=button.getBoundingClientRect();
+   if(rect.width<20||rect.height<12)continue;
+   const x=rect.left-bounds.left+3,y=rect.bottom-bounds.top-3,width=rect.width-6;
+   const response=contact?.button===button?Math.max(0,1-(engine.elapsed-contact.time)/.7):0;
+   strokePath(c,[[x,y-5],[x,y],[x+width,y],[x+width,y-5]],
+    'rgba(255,120,49,'+(.48+response*.25)+')',1.6);
+   if(engine.reduced)continue;
+   for(let j=0;j<3;j++){
+    const phase=(engine.elapsed*.22+j/3+i*.13)%1;
+    const px=x+width*(.1+j*.37)+Math.sin(phase*Math.PI*2)*6;
+    const strength=Math.sin(phase*Math.PI);
+    c.fillStyle='rgba(255,149,58,'+(.75*strength)+')';
+    c.fillRect(px,y-6*phase,2.5,2.5);
+    strokePath(c,[[px-8,y+2],[px,y+1+Math.sin(phase*Math.PI*2)],[px+8,y+2]],
+     'rgba(255,92,29,'+(.34*strength)+')',1);
+   }
+  }
+ }
+
+ EnvironmentalEffects.register('furnace',{
+  create(engine){
+   return {contact:null,embers:Array.from({length:64},()=>({
+    x:.12+engine.random()*.76,phase:engine.random(),speed:.08+engine.random()*.075,
+    rise:.44+engine.random()*.48,size:1.3+engine.random()*2.1,
+    brightness:.72+engine.random()*.28,green:104+Math.round(engine.random()*104)
+   }))};
+  },
+  draw(context,layer,engine){
+   if(layer.canvas.dataset.layer==='scenery')drawFurnaceScenery(context,layer,engine);
+   else drawFurnaceButtons(context,engine);
+  }
+ });
+
  const descriptors=[{title:'THE RED RAIN',effect:'rain'},{title:'THE LIME FOG',effect:'fog'},{title:'THE BLACK SNOW',effect:'ash'},{title:'THE GLASS FIELD',effect:'glass'},
-  {id:'early:186',title:'LIVE WIRES — ELECTRICAL HAZARD',effect:'wires'}];
+  {id:'early:186',title:'LIVE WIRES — ELECTRICAL HAZARD',effect:'wires'},
+  {id:'east:7',title:'THE FURNACE PIT',effect:'furnace'}];
  function records(){return descriptors.map(d=>({...d,entry:RoadScenarioRegistry.entries.find(r=>d.id?r.id===d.id:r.encounter.title===d.title)})).filter(d=>d.entry);}
  function liveEffect(){if(stage!=='encounter'||combatState||!GraphicalUI.active()||TravelerPanels.dialog||Route127MapOverlay.dialog?.open||previewDialog)return null;const current=currentEncounter();return records().find(d=>d.entry.encounter===current)||null;}
  let live=null,previewDialog=null;
@@ -597,7 +699,7 @@
   if(live&&(live.effect!==spec.effect||live.root!==root)){live.stop();live=null;}
   const period=Route127RegionalSky.phase(player.flags.worldHour);
   const wires=spec.effect==='wires';
-  const region=wires?'INDUSTRIAL':spec.effect==='glass'?route127CurrentRegion(lanternState()):'CENTRAL';
+  const region=wires||spec.effect==='furnace'?'INDUSTRIAL':spec.effect==='glass'?route127CurrentRegion(lanternState()):'CENTRAL';
   if(live&&live.region!==region){live.stop();live=null;}
   // Read the current visit's gameplay flag without initializing or modifying it.
   const visit=player.flags.wo7Scene;
@@ -641,7 +743,8 @@
   button('RESTART',()=>{mode='playing';if(controller)controller.restart();else start();status.textContent='Restarted';});
   button('STOP',()=>{mode='stopped';controller?.stop();controller=null;status.textContent='Stopped — all weather layers removed';});
   button('Close effects',()=>dialog.close());
-  for(const s of [encounter,region,period])s.addEventListener('change',render);
+  for(const s of [region,period])s.addEventListener('change',render);
+  encounter.addEventListener('change',()=>{if(encounter.value==='furnace')region.value='INDUSTRIAL';render();});
   dialog.addEventListener('keydown',event=>event.stopPropagation());
   dialog.addEventListener('close',()=>{closed=true;revision++;controller?.stop();dialog.remove();previewDialog=null;GraphicalUI.sync();},{once:true});
   dialog.append(stage,status);document.body.append(dialog);dialog.showModal();encounter.focus();render();

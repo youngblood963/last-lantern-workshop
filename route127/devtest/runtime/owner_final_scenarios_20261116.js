@@ -80,8 +80,8 @@
   @media(max-width:600px){.gfx-art.r127-final-encounter>.r127-final-sprites .r127-final-unit{height:79%;width:42%}.gfx-art.r127-final-encounter>.r127-final-sprites .r127-final-unit.r127-final-freight{height:90%;width:98%}}
  `;
  document.head.append(style);
- // Shipwreck Scavengers and Toxic Cargo are complete cinematic paintings, NOT separate sprites.
- // Keep its entire width visible, filling any letterboxing with time-of-day sky.
+ // Both paintings use the time-of-day sky behind their transparent artwork.
+ // Shipwreck’s foreground reaches both source edges; scale it to the full frame.
  const shipwreckStyle=document.createElement('style');
  shipwreckStyle.id='r127-full-cinematic-scene-fit';
  shipwreckStyle.textContent=`
@@ -91,6 +91,10 @@
    position:relative;z-index:1;display:block;width:100%!important;height:100%!important;
    object-fit:contain!important;object-position:center center!important;background:transparent!important;
    transform:none!important;max-width:100%!important;max-height:100%!important;
+  }
+  .gfx-frame .gfx-art.r127-shipwreck-full>.gfx-image[src*="shipwreck_scavengers.png"]{
+   position:relative!important;inset:auto!important;
+   object-fit:fill!important;object-position:center bottom!important;
   }
   .gfx-art.r127-shipwreck-full>.gfx-art-caption{position:relative;z-index:9}
  `;

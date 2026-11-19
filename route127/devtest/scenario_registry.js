@@ -1992,7 +1992,8 @@ RoadScenarioRegistry.regionalSpec = {
    "legacyName": "THE CRANE NEST",
    "classification": "REGIONAL",
    "regions": [
-    "LOWLANDS"
+    "LOWLANDS",
+    "CAUSEWAY"
    ],
    "authority": "Work Order 6 explicit classification"
   },

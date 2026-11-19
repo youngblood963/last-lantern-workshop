@@ -25,7 +25,7 @@ ctx.ResizeObserver=class{observe(){}disconnect(){disconnected++;}};
 ctx.performance={now:()=>now};ctx.requestAnimationFrame=fn=>{frames.set(++rafId,fn);return rafId;};ctx.cancelAnimationFrame=id=>frames.delete(id);
 vm.runInContext(fs.readFileSync(path.resolve(__dirname,'../runtime/environmental_effects_wo46.js'),'utf8'),ctx);
 const Controller=run('Route127Environment.Controller'),records=run('Route127Environment.records()');
-assert.equal(records.length,4);
+assert.equal(records.length,5);
 const glassRecord=records.find(x=>x.effect==='glass').entry;
 assert.equal(glassRecord.classification,'REGIONAL');
 assert.deepEqual(Array.from(glassRecord.regions).sort(),['CENTRAL','INDUSTRIAL']);
@@ -34,8 +34,8 @@ assert.equal(ashRecord.classification,'REGIONAL');
 assert.deepEqual(Array.from(ashRecord.regions).sort(),['INDUSTRIAL','NORTH']);
 assert.equal(records.find(x=>x.effect==='rain').entry.classification,'GLOBAL');
 assert(records.find(x=>x.effect==='fog').entry.regions.includes('LOWLANDS'));
-const expected={glass:['CROSS CAREFULLY','TAKE THE SAFE DETOUR','CLEAR A PATH WITH TOOL','BACK AWAY'],ash:['BUY TWO COINS FOR 110 BOLTS','HEAL THE SCAVENGER','THREATEN THE SCAVENGER','FIGHT THE SCAVENGER','SEARCH THE BURNING TRUCK','BACK AWAY'],rain:['SPRINT TO SHELTER','COVER WITH ARMOR','PUSH THROUGH FOR SALVAGE','BACK AWAY'],fog:['COVER FACE WITH CLOTH','WAIT FOR THE WIND','SEARCH THE PLANT STASH','BACK AWAY']};
-for(const record of records)assert.deepEqual(Array.from(record.entry.encounter.choices.split(/\s{2,}/)),expected[record.effect]);
+const expected={wires:['CROSS THE CABLES','DISCONNECT THE POWER SOURCE','SEARCH THE TRUCK SAFELY','LEAVE'],glass:['CROSS CAREFULLY','TAKE THE SAFE DETOUR','CLEAR A PATH WITH TOOL','BACK AWAY'],ash:['BUY TWO COINS FOR 110 BOLTS','HEAL THE SCAVENGER','THREATEN THE SCAVENGER','FIGHT THE SCAVENGER','SEARCH THE BURNING TRUCK','BACK AWAY'],rain:['SPRINT TO SHELTER','COVER WITH ARMOR','PUSH THROUGH FOR SALVAGE','BACK AWAY'],fog:['COVER FACE WITH CLOTH','WAIT FOR THE WIND','SEARCH THE PLANT STASH','BACK AWAY']};
+for(const record of records)assert.deepEqual(Array.from(record.effect==='wires'?run('WO7.definitions.get("I6")[5]'):record.entry.encounter.choices.split(/\s{2,}/)),expected[record.effect]);
 const before=run('JSON.stringify(player)'),logic=records.map(r=>r.entry.encounter.resolve);
 const root=node(),scene=node('figure',{left:0,top:0,width:800,height:400}),button=node('button',{left:250,top:450,width:220,height:50});root.buttons=[button];root.append(scene);
 for(const effect of ['rain','fog','ash','glass'])for(const period of ['dawn','day','dusk','night']){
@@ -190,3 +190,63 @@ integration.run('loadGame()');
 assert.equal(integration.run('Route127Environment.diagnostics()'),null);
 assert.equal(integration.run('JSON.stringify(player)'),liveBefore);
 console.log('PASS WO48: authoritative regional encounter and four choices, fixed geometry, distinct Industrial placement, touch targeting, live gating and teardown');
+
+const wiresRecord=records.find(r=>r.effect==='wires').entry;
+assert.equal(wiresRecord.id,'early:186');
+assert.deepEqual(Array.from(wiresRecord.regions),['INDUSTRIAL']);
+integration.run(`let wiresVisit='wires-first';RoadLifecycle.occurrence=()=>wiresVisit;
+ currentEncounter=()=>RoadScenarioRegistry.entries.find(e=>e.id==='early:186').encounter;
+ stage='encounter';GraphicalUI.sync();`);
+assert.equal(integration.run('Route127Environment.diagnostics().powerActive'),true);
+assert.equal(integration.run('Route127Environment.diagnostics().region'),'INDUSTRIAL');
+assert.equal(integration.run('JSON.stringify(player)'),liveBefore,'Reading the effect must not create encounter state');
+integration.run('WO7.save=()=>{};add=()=>{};WO7.render=()=>GraphicalUI.sync();WO7.act("I6","DISCONNECT THE POWER SOURCE");');
+assert.equal(integration.run('Route127Environment.diagnostics().powerActive'),false);
+for(let i=0;i<40;i++){now+=33;const pending=[...frames.values()];frames.clear();for(const fn of pending)fn(now);}
+assert.equal(frames.size,0,'Inactive cables stop scheduling animation after the local glow fades');
+integration.run('stage="lanternRoad";GraphicalUI.sync();');
+assert.equal(liveFigure.children.length,0);
+integration.run('stage="encounter";GraphicalUI.sync();');
+assert.equal(integration.run('Route127Environment.diagnostics().powerActive'),false);
+integration.run('wiresVisit="wires-second";GraphicalUI.sync();');
+assert.equal(integration.run('Route127Environment.diagnostics().powerActive'),true);
+integration.run('loadGame()');
+assert.equal(frames.size,0);
+assert.equal(liveRoot.listenerCount(),0);
+
+reduced=true;
+const stillWires=new Controller(root,scene,{effect:'wires',region:'INDUSTRIAL'});
+assert.equal(frames.size,0);
+assert.equal(stillWires.state.glow,1);
+stillWires.setPowerActive(false);
+assert.equal(stillWires.state.glow,0);
+assert.equal(frames.size,0);
+stillWires.stop();
+console.log('PASS I6: real shutdown handler, read-only activation, per-visit power state, idle fade, reduced motion and cleanup');
+
+reduced=false;
+for(const width of [390,1365]){
+ const frame=node('div',{left:0,top:0,width,height:600});
+ const art=node('figure',{left:0,top:0,width,height:300});
+ const choice=node('button',{left:20,top:350,width:width-40,height:48});
+ frame.buttons=[choice];frame.append(art);
+ const hazard=new Controller(frame,art,{effect:'wires',region:'INDUSTRIAL'});
+ const [scenery,ui]=hazard.layers.map(layer=>layer.context);
+ const strokes={scenery:0,ui:0};
+ scenery.stroke=()=>strokes.scenery++;
+ ui.stroke=()=>strokes.ui++;
+ hazard.draw(0);
+ assert(strokes.scenery>6&&strokes.ui>0,'Powered cables, arc and UI trace are rendered at '+width+'px');
+ for(const [event,pointerType] of [['pointermove','mouse'],['pointerdown','touch']]){
+  frame.fire(event,{target:choice,clientX:80,pointerType,preventDefault(){throw Error('Input consumed');}});
+  assert.equal(hazard.state.contact.button,choice);
+ }
+ strokes.scenery=0;strokes.ui=0;
+ hazard.setPowerActive(false);
+ assert.equal(strokes.scenery,6,'All three unpowered cables are still drawn');
+ assert.equal(strokes.ui,0);
+ hazard.stop();
+ assert.equal(frames.size,0);
+ assert.equal(frame.listenerCount(),0);
+}
+console.log('PASS I6: 390px and 1365px canvas geometry, pointer and touch, and static unpowered cables');

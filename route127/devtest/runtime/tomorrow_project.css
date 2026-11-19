@@ -1,0 +1,31 @@
+.tomorrow-classic-art {
+  display: block;
+  width: 100%;
+  max-height: min(34vh, 320px);
+  object-fit: contain;
+}
+
+.tomorrow-classic-art[hidden] {
+  display: none;
+}
+
+.tomorrow-scene .gfx-image {
+  object-fit: contain;
+}
+
+.tomorrow-terminal #screen {
+  background: #0a120e;
+}
+
+.tomorrow-startup #screen {
+  animation: tomorrow-signal 480ms ease-out;
+}
+
+@keyframes tomorrow-signal {
+  0%, 45% { opacity: .65; }
+  25%, 100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tomorrow-startup #screen { animation: none; }
+}

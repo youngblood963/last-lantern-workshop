@@ -4,6 +4,11 @@
 if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||!/^\/route127\/devtest\/(?:index\.html)?$/.test(location.pathname)||typeof GraphicalUI==='undefined')return;
 const asset=(name,root=false)=>new URL(root?'../../'+encodeURIComponent(name):'../devtest/assets/enemies/'+encodeURIComponent(name),document.baseURI).href;
 const file=(name,root=false)=>({name,root});
+const industrialSprites={
+ 'BROKEN CLEANER BOT':['broken_cleaner_bot.png'],
+ 'AUTONOMOUS SECURITY HOUNDS':['autonomous_security_hound_1.png','autonomous_security_hound_2.png'],
+ 'FACTORY ENFORCERS':['factory_enforcer_1.png','factory_enforcer_2.png','factory_enforcer_3.png']
+};
 const scenes={
  'ROACH NEST':()=>[file('roach_nest_ordinary.png'),file('roach_nest_contaminated.png'),file('roach_nest_aggressive_swarm.png',true)][typeof r18RoachVariant==='function'?r18RoachVariant():0],
  'ROACH SWARM':()=>scenes['ROACH NEST'](),
@@ -43,6 +48,10 @@ function current(){
  const raw=normalize(combat?.name||encounter?.title);
  const title=aliases[raw]||raw;
  if(!title)return null;
+ const industrial=industrialSprites[title]||industrialSprites[normalize(origin?.title)];
+ if(industrial&&route127CurrentRegion(lanternState())==='INDUSTRIAL'){
+  return {title,items:industrial.map(name=>file(name)),combat};
+ }
  if(['HIGHWAY ROBBERS','LOOTERS','PARKING LOT RAIDERS','GANG LOOKOUT','THE HOLLOWED',
  'THE SQUATTERS','GUNSHOP OWNER','RABID RACCOONS','BAT COLONY',
  'SILAS CROWE','RIVET AND CREW'].includes(title))return null;

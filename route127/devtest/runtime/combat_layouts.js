@@ -19,6 +19,17 @@
   rows.push({units,phase,variant,background});
   states.set(title,rows);
  }
+ const industrialCinematics=new Map([
+  ['CHEMICAL RUNOFF','chemical_runoff.gif'],
+  ['DRAINAGE CULVERT','drainage_culvert.gif'],
+  ['EMPLOYEE ENTRANCE ONLY','employee_entrance_only.png']
+ ]);
+ for(const [title,file] of industrialCinematics)register(title,[],'both','Full cinematic',scenery(file));
+ for(const [title,files] of Object.entries({
+  'BROKEN CLEANER BOT':['broken_cleaner_bot.png'],
+  'AUTONOMOUS SECURITY HOUNDS':['autonomous_security_hound_1.png','autonomous_security_hound_2.png'],
+  'FACTORY ENFORCERS':['factory_enforcer_1.png','factory_enforcer_2.png','factory_enforcer_3.png']
+ }))register(title,sprite(...files));
  for(const [title,files] of Object.entries({
   'BAT COLONY':Array(4).fill('bat_colony.png'),
   'RABID RACCOONS':Array(3).fill('rabid_raccoon.png'),
@@ -383,6 +394,12 @@
   if(!onRoad)return model;
   const encounter=typeof currentEncounter==='function'?currentEncounter():null;
   const title=normalize(encounter?.title||c?.name);
+  const cinematic=industrialCinematics.get(title);
+  if(cinematic&&route127CurrentRegion(lanternState())==='INDUSTRIAL'){
+   model.art='../devtest/'+scenery(cinematic);
+   model.regionalSky=null;
+   return model;
+  }
   const file=ownerRoadArt.get(title)||ownerRoadArt.get(normalize(c?.name));
   if(file)model.art='../devtest/assets/'+(file.startsWith('../scenarios/')?'scenarios/'+file.slice('../scenarios/'.length):'enemies/'+file);
   return model;

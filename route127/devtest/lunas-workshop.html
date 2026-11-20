@@ -5,7 +5,7 @@
  <meta name="viewport" content="width=device-width, initial-scale=1">
  <title>Luna’s Workshop · Route 127 DEVTEST</title>
  <link rel="stylesheet" href="runtime/tomorrow_project.css?v=workshop-polish-1">
- <link rel="stylesheet" href="runtime/lunas_workshop.css?v=1">
+ <link rel="stylesheet" href="runtime/lunas_workshop.css?v=choreography-1">
 </head>
 <body>
  <main>
@@ -32,6 +32,8 @@
    <section>
     <h2>Playback</h2>
     <label>Animation <select id="clip"></select></label>
+    <div id="clip-placement" class="fields"></div>
+    <p class="hint">Blank placement fields inherit the character settings. During a sequence, X and Y offset this clip from the character’s anchor.</p>
     <div id="playback" class="fields"></div>
     <div class="toolbar">
      <button type="button" id="play">Play</button>
@@ -44,6 +46,9 @@
     <label>Sequence <select id="sequence"></select></label>
     <div id="timeline" class="fields"></div>
     <p class="hint" id="notes"></p>
+    <ol id="stages" class="stages"></ol>
+    <div class="toolbar"><label>New stage <select id="stage-type"><option value="move">Move</option><option value="play">Play animation</option><option value="pause">Pause</option></select></label>
+    <button type="button" id="stage-add">Add Stage</button></div>
     <button type="button" id="sequence-play">Play Sequence</button>
    </section>
    <section>
@@ -68,7 +73,7 @@
    <p class="hint">Save Layout applies the current draft to the DEVTEST terminal in this browser. Export and import JSON to transfer it to another browser.</p>
   </section>
  </main>
- <script src="runtime/tomorrow_project_scene.js?v=workshop-polish-1"></script>
- <script src="runtime/lunas_workshop.js?v=1"></script>
+ <script src="runtime/tomorrow_project_scene.js?v=choreography-1"></script>
+ <script src="runtime/lunas_workshop.js?v=choreography-1"></script>
 </body>
 </html>

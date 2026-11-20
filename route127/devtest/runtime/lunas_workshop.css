@@ -69,3 +69,8 @@ button:hover { border-color: #f4bf82; }
  .controls { grid-template-columns: 1fr; }
  #viewport[data-device=desktop] { max-width: none; }
 }
+
+.stages { padding-inline-start: 1.45rem; }
+.stages li { padding: .65rem; border-top: 1px solid #5a4734; }
+.stages .toolbar button { font-size: .86rem; }
+.stages button:disabled { opacity: .5; cursor: default; }

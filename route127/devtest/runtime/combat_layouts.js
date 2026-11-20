@@ -308,6 +308,13 @@
  // Combat Visual Testing states rather than reporting the scripted row as missing.
  const billyRow=rows.get('scripted:terriblebilly');
  if(billyRow)billyRow.variants=[{units:[],phase:'both',variant:'Terrible Billy bounty artwork',background:scenery('terrible_billy.png')}];
+ // Last Call's Raider Captain already renders from the sidequest art handler.
+ // Expose that same existing image to Combat Visual Testing without changing
+ // its dynamic-sky/environment backdrop or the quest's combat behavior.
+ const captainRow=rows.get('scripted:jenboss');
+ if(captainRow)captainRow.variants=[{units:[],phase:'combat',
+  variant:'Last Call — Raider Captain (existing combat artwork)',
+  background:enemy('last_call_raider_captain.png')}];
  // Crazy Steve is a level-five promotional menu, not a random road registry fight.
  rows.set('scripted:crazy-steve',{id:'scripted:crazy-steve',title:'CRAZY STEVE',
   name:'Crazy Steve — Casino Announcement',classification:'FIXED',regions:['CENTRAL'],

@@ -304,6 +304,10 @@
    phase:'both',variant:'Red portrait — live HP meter in combat'}];
  const yardmanRow=rows.get('scripted:serviceboss');
  if(yardmanRow)yardmanRow.variants=[{units:[],phase:'both',variant:'Yardman cinematic — sky only',background:scenery('the_yardman.png')}];
+ // Terrible Billy already has approved cinematic artwork; expose it to both
+ // Combat Visual Testing states rather than reporting the scripted row as missing.
+ const billyRow=rows.get('scripted:terriblebilly');
+ if(billyRow)billyRow.variants=[{units:[],phase:'both',variant:'Terrible Billy bounty artwork',background:scenery('terrible_billy.png')}];
  // Crazy Steve is a level-five promotional menu, not a random road registry fight.
  rows.set('scripted:crazy-steve',{id:'scripted:crazy-steve',title:'CRAZY STEVE',
   name:'Crazy Steve — Casino Announcement',classification:'FIXED',regions:['CENTRAL'],

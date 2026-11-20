@@ -13,7 +13,8 @@ globalThis.TomorrowProjectScene=(()=>{
   floraPeek:['flora','flora/flora_peek.gif','Flora — Peek'],
   floraRun:['flora','flora/flora_run.gif','Flora — Run']
  };
- const peekFrameCount=16;
+ // All six current source GIFs contain 16 frames.
+ const clipFrameCount=16;
  const sequences={
   walk:['Luna — Walk Through','walk',null,true],
   glance:['Luna — Camera Glance','walk','turn',true],
@@ -91,8 +92,8 @@ globalThis.TomorrowProjectScene=(()=>{
    const incoming=data?.timelines?.[id];
    const stages=Array.isArray(incoming)?incoming.slice(0,16).map(s=>{
     if(s?.type==='hold'){
-     if(actor!=='luna'||s.clip!=='peek')return null;
-     return {type:'hold',clip:'peek',frame:Math.round(num(s.frame,9,1,peekFrameCount)),
+     if(clips[s.clip]?.[0]!==actor)return null;
+     return {type:'hold',clip:s.clip,frame:Math.round(num(s.frame,9,1,clipFrameCount)),
       duration:num(s.duration,4000,0,60000),facing:['left','right'].includes(s.facing)?s.facing:'auto'};
     }
     if(!['move','play','pause'].includes(s?.type))return null;
@@ -385,5 +386,5 @@ globalThis.TomorrowProjectScene=(()=>{
   function reset(){stop();last='';next=0;}
   return {visual,composition,view,configure,pose,start,stop,roll,reset};
  }
- return {create,load,save,normalize,clips,sequences,plan,peekFrameCount};
+ return {create,load,save,normalize,clips,sequences,plan,clipFrameCount};
 })();

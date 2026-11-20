@@ -140,7 +140,8 @@
   width: max(0px, calc((100% - min(100cqw, 177.3cqh)) / 2));
   background-image: url("../assets/tomorrow_project/backgrounds/tomorrow_project_monitor_frame.png");
   background-repeat: no-repeat;
-  background-size: 800% 180%;
+  /* Sample only the outermost ~8% of each side: exclude the recessed black groove. */
+  background-size: 1250% 180%;
   filter: none;
   z-index: 0;
   pointer-events: none;

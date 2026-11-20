@@ -215,6 +215,12 @@
  register('MOUNTAIN POACHERS',sprite('mountain_poacher_rifleman.png','mountain_poacher_trapper.png'));
  register('MOUNTAIN LIONS',sprite('mountain_lion.png'));
 
+ register('THE CINDER WOLVES',[],'both','Cinder wolf pack',enemy('the_cinder_wolves.png'));
+ register('THE DUST HORSES',[],'approach','Stampeding herd',scenery('the_dust_horses.png'));
+ register('THE DUST HORSES',[scenery('dust_horse_brown.png')],'approach','Horse rescue');
+ register('THE COLLAPSED DAM',[],'approach','Collapsed dam',scenery('the_collapsed_dam.png'));
+ register('THE CHAIN BRIDGE',[],'approach','Animated chain bridge',scenery('the_chain_bridge.gif'));
+
  const rows=new Map();
  const byEncounter=new Map();
  const byTitle=new Map();
@@ -232,6 +238,14 @@
    classification:entry.classification||'GLOBAL',regions:entry.regions||[],
    combat:!!fight,fullCinematic:industrialCinematics.has(title),variants:states.get(title)||[]
   });
+ }
+ // The registry retains the older titles for these repurposed encounter IDs.
+ for(const [id,variant] of [
+  ['east:75',{units:sprite('wild_bear.png'),phase:'both',variant:'Wild bear',background:null}],
+  ['east:72',{units:[],phase:'approach',variant:'Lost convoy',background:scenery('the_lost_convoy.png')}]
+ ]){
+  const row=rows.get(id);
+  if(row)row.variants.push(variant);
  }
  // Combat names differ from their saved encounter titles in the reworked scenes.
  for(const [combatName,encounterTitle] of [

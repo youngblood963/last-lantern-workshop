@@ -23,7 +23,7 @@
  const lastCallAndBillyApproved=row=>['scripted:jenboss','scripted:terriblebilly'].includes(row.id);
  // These approved compositions contain the character(s) within a complete scene asset.
  // A combat encounter does not require separately registered sprites to review its artwork.
- const embeddedCombatArtwork=new Set(['THE IRON HARVEST','THE DRY FOUNTAIN','IRRADIATED ROACHES',
+ const embeddedCombatArtwork=new Set(['THE CINDER WOLVES','THE IRON HARVEST','THE DRY FOUNTAIN','IRRADIATED ROACHES',
   'THE KNIFE WIND','BROKEN TOLL CREW','THE YARDMAN','THE LAST PATROL',
   'AGGRESSIVE SEAGULLS','SHIPWRECK SCAVENGERS']);
  // Batch selector is deliberately independent of review state; completed scenes

@@ -133,6 +133,7 @@
      const img=document.createElement('img');img.alt='';img.src=file(art.scenery?'scenarios':'enemies',name);
      img.onerror=()=>console.warn('DEVTEST scenario image failed to load:',name);
      const positions=files.length===3?[20,50,80]:[50];
+     unit.dataset.index=String(index);
      unit.style.left=positions[index]+'%';
      if(files.length===3){unit.style.width='31%';unit.style.height='82%';}
      unit.append(img);
@@ -145,6 +146,7 @@
    }
    const fighters=Array.isArray(target.combat?.enemies)?target.combat.enemies:null;
    [...layer.children].forEach((unit,i)=>{
+    globalThis.Route127CombatLayouts?.applyOverlay(unit,i);
     const hp=unit.querySelector('.r127-final-hp');
     if(!hp)return;
     const fighter=fighters?.[i]||(!fighters&&i===0?target.combat:null);

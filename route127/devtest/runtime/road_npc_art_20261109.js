@@ -9,6 +9,12 @@ css.textContent=`
 .gfx-art{position:relative}
 .r127-npc-scene{position:absolute;inset:0;overflow:hidden;z-index:5;pointer-events:none}
 .r127-npc-scene .r127-npc-figure{position:absolute;top:52%;left:50%;transform:translate(-50%,-50%);height:94%;width:75%;object-fit:contain;filter:drop-shadow(5px 7px 6px #000b);pointer-events:none}
+.r127-npc-scene.r127-grinder-pair .r127-npc-figure{width:45%;height:86%;top:55%}
+.r127-npc-scene.r127-grinder-pair .r127-npc-figure[data-crew-slot="0"]{left:32%}
+.r127-npc-scene.r127-grinder-pair .r127-npc-figure[data-crew-slot="1"]{left:68%}
+.gfx-frame .r127-npc-scene.r127-grinder-pair button.r127-npc-combat{width:45%;height:86%;top:55%}
+.gfx-frame .r127-npc-scene.r127-grinder-pair button.r127-npc-combat[data-crew-slot="0"]{left:32%}
+.gfx-frame .r127-npc-scene.r127-grinder-pair button.r127-npc-combat[data-crew-slot="1"]{left:68%}
 .r127-npc-scene .r127-npc-figure.cage{top:auto;bottom:1%;transform:translateX(-50%);height:96%;width:auto;max-width:86%;object-position:bottom}
 .gfx-frame .r127-npc-scene button.r127-npc-combat{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:75%;height:94%;min-height:0!important;border:0!important;border-radius:0!important;background:transparent!important;background-image:none!important;box-shadow:none!important;color:#fff;pointer-events:auto;cursor:pointer;padding:0!important;filter:drop-shadow(4px 6px 6px #000c)}
 .r127-npc-scene .r127-npc-combat img{width:100%;height:100%;max-height:none;object-fit:contain;display:block}
@@ -28,11 +34,11 @@ GraphicalUI.sync=function(...args){
   const combat=typeof combatState!=='undefined'?combatState:null;
   let spec=null;
   if(!e.frame.hidden&&combat?.name==='SILAS CROWE')spec={key:'silas-fight',file:'silas_crowe.png',fight:'solo',label:'SILAS CROWE'};
-  else if(!e.frame.hidden&&combat?.name==='RIVET AND CREW')spec={key:'rivet-fight',file:'rivet.png',fight:'rivet',label:'RIVET'};
+  else if(!e.frame.hidden&&combat?.name==='RIVET AND CREW')spec={key:'rivet-fight',file:'rivet.png',files:['rivet.png','masked_scavenger.png'],fight:'rivet',label:'RIVET'};
   else if(!e.frame.hidden&&stage==='encounter'&&typeof currentEncounter==='function'){
    const title=String(currentEncounter()?.title||'').replace(/^EAST ROAD — /,'');
    if(title==='THE HANGING CAGE'&&!player.flags?.r18SilasOutcome)spec={key:'silas-caged',file:'silas_crowe_caged.png',cage:true};
-   if(title==='THE GRINDER CREW')spec={key:'rivet-scene',file:'rivet.png'};
+   if(title==='THE GRINDER CREW')spec={key:'rivet-scene',file:'rivet.png',files:['rivet.png','masked_scavenger.png']};
    if(title==='THE STEEL ORCHARD'&&!player.flags?.r18MarthaSettled)spec={key:'martha-orchard',file:'martha.png'};
   }else if(!e.frame.hidden&&stage==='mercy'&&typeof mercyLocation!=='undefined'&&mercyLocation==='johnny'&&player.flags?.r18MarthaSettled&&player.flags?.solaceMenu==='marthaCounter'){
    spec={key:'martha-counter',file:'martha.png'};
@@ -41,6 +47,42 @@ GraphicalUI.sync=function(...args){
   e.frame.classList.toggle('r127-npc-combat-active',!!spec?.fight&&(spec.fight!=='rivet'||combat.enemies.length===1));
   if(!spec){layer?.remove();activeKey='';return result}
   if(!layer||activeKey!==spec.key){layer?.remove();layer=document.createElement('div');layer.className='r127-npc-scene';layer.setAttribute('aria-label',spec.key.replace(/-/g,' '));e.figure.append(layer);activeKey=spec.key}
+  layer.classList.toggle('r127-grinder-pair',!!spec.files);
+  // Rivet's companion already exists as enemy 2 in the combat engine.
+  // Present each existing enemy separately; do not change HP, turns or targeting.
+  if(spec.files){
+   const crew=spec.fight==='rivet'?combat?.enemies:null;
+   const files=spec.files;
+   for(let index=0;index<files.length;index++){
+    const fighter=crew?.[index];
+    const visible=!crew||Number(fighter?.hp)>0;
+    let node=layer.querySelector('[data-crew-slot="'+index+'"]');
+    if(!visible){node?.remove();continue;}
+    if(!node){
+     node=document.createElement(spec.fight==='rivet'?'button':'img');
+     node.dataset.crewSlot=String(index);
+     if(spec.fight==='rivet'){
+      node.type='button';node.className='r127-npc-combat';
+      const img=document.createElement('img');img.src=url(files[index])+'?v=road-repair-2';img.alt='';
+      img.onerror=()=>{img.dataset.failed='true';img.hidden=true;GraphicalUI.element?.frame.classList.add('r127-sprite-failed')};
+      const label=document.createElement('span');label.className='r127-npc-label';
+      node.append(img,label);
+      node.addEventListener('click',()=>{if(typeof busy!=='undefined'&&busy)return;if(typeof handleCommand==='function')handleCommand('attack '+(index+1));});
+     }else{
+      node.className='r127-npc-figure';node.src=url(files[index])+'?v=road-repair-2';node.alt='';
+      node.onerror=()=>{node.dataset.failed='true';node.hidden=true;GraphicalUI.element?.frame.classList.add('r127-sprite-failed')};
+     }
+     layer.append(node);
+    }
+    if(fighter){
+     const hp=Math.max(0,Number(fighter.hp)||0);
+     const max=Math.max(1,Number(fighter.maxHp)||hp);
+     node.setAttribute('aria-label','Attack '+(index===0?'Rivet':'Crew Member')+', '+hp+' of '+max+' HP');
+     node.querySelector('.r127-npc-label').textContent=hp+'/'+max+' HP';
+    }
+   }
+   return result;
+  }
   if(!spec.fight){
    if(!layer.firstElementChild){
     const img=document.createElement('img');img.className='r127-npc-figure'+(spec.cage?' cage':'');img.src=url(spec.file)+'?v=road-repair-1';img.alt='';

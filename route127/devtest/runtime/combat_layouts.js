@@ -83,7 +83,7 @@
   'THE WRECKERS':['Lone Scavenger - Friendly Scrapper.png','The Wreckers - Chain.png'],
   'RATS IN THE PANTRY':['Snarling Rats at a Rusted Sewer Drain.png'],
   'CHEMICAL BURNERS':['Chemical Burner 1.png','Chemical Burner 2.png'],
-  'THE GRINDER CREW':['rivet.png'],
+  'THE GRINDER CREW':['rivet.png','masked_scavenger.png'],
   'THE STEEL ORCHARD':['martha.png']
  }))register(title,sprite(...files));
  register('GANG LOOKOUT',sprite('gang_lookout_1.png','gang_lookout_2.png'),'combat','Reinforcements');

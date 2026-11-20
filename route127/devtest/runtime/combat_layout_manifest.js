@@ -83,11 +83,11 @@ globalThis.Route127PublishedCombatLayouts={
         "flip": false
       },
       "1:Spear Robber.png": {
-        "x": 85.16071920208347,
-        "y": 63.97883519124905,
+        "x": 70.0,
+        "y": 69.0,
         "width": 42,
         "height": 80,
-        "scale": 1.06,
+        "scale": 0.84,
         "z": 2,
         "flip": true
       }

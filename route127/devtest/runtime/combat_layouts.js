@@ -206,6 +206,15 @@
  register('SCRAP CRAB NEST',sprite('scrap_crab_nest.png'),'both','Nest Guardian — regional sky');
 
 
+ register('COLD ROAD CAMP',[],'approach','Abandoned camp',scenery('cold_road_camp.png'));
+ register('COLD ROAD CAMP',[scenery('cold_road_camp_traveler.png')],'approach','Occupied camp',scenery('cold_road_camp.png'));
+ register('SALT ON THE ROAD',[],'approach','Salt circle',scenery('salt_on_the_road.png'));
+ register('SALT ON THE ROAD',sprite('chair_man.png'),'combat','Chair Man fight',scenery('salt_on_the_road.png'));
+ register('FALLING WATCH PLATFORM',[],'approach','Collapsing lookout',scenery('collapsing_lookout.png'));
+ register('TERRITORIAL SURVIVALISTS',sprite('territorial_survivalist_rifleman.png','territorial_survivalist_shotgun.png'));
+ register('MOUNTAIN POACHERS',sprite('mountain_poacher_rifleman.png','mountain_poacher_trapper.png'));
+ register('MOUNTAIN LIONS',sprite('mountain_lion.png'));
+
  const rows=new Map();
  const byEncounter=new Map();
  const byTitle=new Map();

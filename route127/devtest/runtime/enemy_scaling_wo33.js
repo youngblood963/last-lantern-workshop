@@ -28,7 +28,7 @@
    return null;
   },
   tier(s,source){
-   if(s.r18WardenId||s.r18RoadEater||s.r18HarvestMachine||source==='seaportLiberation'||s.name==='THE FOREMAN')return 'boss';
+   if(s.r18WardenId||s.r18BigMan||s.r18RoadEater||s.r18HarvestMachine||source==='seaportLiberation'||s.name==='THE FOREMAN')return 'boss';
    if((source==='factoryFight'&&['SALVAGE KING','GRINDER','THE CHEMIST'].includes(s.name))||['jenBoss','terribleBilly','r18AshFight','r18RedFight'].includes(source))return 'miniboss';
    return 'ordinary';
   },

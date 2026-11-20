@@ -39,6 +39,20 @@ const WO8={
    const index=encounters.push(e)-1,key='early:'+index,metadata={number:null,id:key,workOrder8Id:d.id,legacyName:d.title,name:d.title,classification:'REGIONAL',regions:['INDUSTRIAL'],encounter:e,authority:'Owner approved WO8'};r.originalIds.set(e,key);r.regionalCatalog.push(metadata);r.regionalById.set(key,metadata);r.regionalByTitle.set(d.title,metadata);const entry={id:key,canonicalId:key,name:d.title,classification:'REGIONAL',region:'INDUSTRIAL',regions:['INDUSTRIAL'],encounter:e,references:[]};
    for(const road of ['early','east','coast']){const pool=r.pool(road);let i=pool.indexOf(e);if(i<0)i=pool.push(e)-1;R10_POOLS[road].combat.push(i);entry.references.push({road,category:'combat',index:i});}r.entries.push(entry);r.byId[key]=entry;
   }
+  // Taxi LEAVE must reach the exit even when older encounter/menu wrappers
+  // intercept the command before the WO7 scenario resolver.
+  const core=handleCommandCore;
+  handleCommandCore=async function(raw){
+   const cmd=String(raw||'').trim().toLowerCase();
+   if(!busy && stage==='encounter' && cmd==='leave' && currentEncounter()?.wo7==='WO8-TAXI'){
+    const q=WO7.state('WO8-TAXI');
+    delete q.farePending;
+    if(q.done){completeRoadTurn();return;}
+    WO7.finish(q,'You leave the malfunctioning taxi behind and continue along Route 127. No fare is charged.');
+    return;
+   }
+   return core.apply(this,arguments);
+  };
   const choices=WO7.choices;WO7.choices=function(id){return wo.is(id)?wo.choices(id):choices.call(this,id);};
   const act=WO7.act;WO7.act=function(id,cmd){return wo.is(id)?wo.act(id,cmd):act.call(this,id,cmd);};
  }

@@ -74,6 +74,9 @@ function current(){
  'THE SQUATTERS','GUNSHOP OWNER','RABID RACCOONS','BAT COLONY',
  'SILAS CROWE','RIVET AND CREW'].includes(title))return null;
  let spec=scenes[title]||scenes[normalize(origin?.title)];
+ // Pack combat must retain its three-dog artwork, not fall back to a newly
+ // selected FERAL DOG approach variant (which can show the mother and pups).
+ if(combat&&(combat.r18DogPack||raw==='FERAL DOG PACK'))spec=()=>file('feral_dog_pack_concept.png',true);
  if(combat?.r18WallFight||normalize(encounter?.displayName)==='THE SENTRY')spec=scenes['THE SENTRY'];
  if(combat?.r18WardenId)spec=scenes['THE WARDEN'];
  if(raw==='FERAL BOAR')spec=()=>file('Tunnel Rats - Wild Boar.png');

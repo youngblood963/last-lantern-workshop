@@ -23,21 +23,23 @@
  }
  options(get('clip'),Object.entries(api.clips).map(([id,clip])=>[id,clip[2]]));
  options(get('sequence'),Object.entries(api.sequences).map(([id,sequence])=>[id,sequence[0]]));
- function field(parent,label,values,key,{min,max,step=1,choices}={}){
+ function field(parent,label,values,key,{min,max,step=1,choices,optional=false,onChange}={}){
   const wrap=document.createElement('label');
   wrap.textContent=label;
   const control=document.createElement(choices?'select':'input');
   if(choices)options(control,choices);
   else if(typeof values[key]==='boolean')control.type='checkbox';
   else Object.assign(control,{type:'number',min,max,step});
+  if(optional)control.placeholder='Inherit';
   if(control.type==='checkbox')control.checked=values[key];
-  else control.value=values[key];
+  else control.value=values[key]??'';
   const update=()=>{
-   if(control.type==='number'&&(!control.validity.valid||control.value===''))return;
-   values[key]=control.type==='checkbox'?control.checked:control.type==='number'?control.valueAsNumber:control.value;
+   if(control.type==='number'&&(!control.validity.valid||(!optional&&control.value==='')))return;
+   values[key]=control.type==='checkbox'?control.checked:control.type==='number'?(control.value===''?null:control.valueAsNumber):control.value;
    scene.configure(config);
+   if(onChange&&control.type==='select-one')onChange();
   };
-  control.addEventListener('input',update);
+  if(!choices)control.addEventListener('input',update);
   control.addEventListener('change',update);
   wrap.append(control);parent.append(wrap);
   return control;
@@ -56,24 +58,73 @@
   field(root,'Visible',actor,'visible');
   if(id==='flora')field(peek,'Flora peek layer',config,'peekLayer',{min:1,max:20});
  }
+ function clipPlacement(){
+  const root=get('clip-placement'),id=get('clip').value,clip=config.placements[id];
+  root.textContent='';
+  field(root,'Scale (%)',clip,'scale',{min:1,max:200,step:.1,optional:true});
+  field(root,'X (%)',clip,'x',{min:-150,max:250,step:.1,optional:true});
+  field(root,'Y (%)',clip,'y',{min:-100,max:200,step:.1,optional:true});
+  field(root,'Layer',clip,'layer',{min:1,max:20,optional:true});
+ }
+ const facing=[['auto','Auto'],['right','Right'],['left','Left']];
  function timeline(){
   const root=get('timeline'),id=get('sequence').value,p=config.paths[id],def=api.sequences[id];
-  root.textContent='';
+  const stages=config.timelines[id], list=get('stages');
+  root.textContent='';list.textContent='';
   if(def[3]){
    field(root,'Start X (%)',p,'fromX',{min:-150,max:250,step:.1});
-   field(root,'End X (%)',p,'toX',{min:-150,max:250,step:.1});
+   field(root,'Waypoint X (%)',p,'toX',{min:-150,max:250,step:.1});
    field(root,'Start Y offset (%)',p,'fromY',{min:-150,max:150,step:.1});
-   field(root,'End Y offset (%)',p,'toY',{min:-150,max:150,step:.1});
-   field(root,def[2]?'Enter / exit time each (ms)':'Movement time (ms)',p,'duration',{min:100,max:20000});
+   field(root,'Waypoint Y offset (%)',p,'toY',{min:-150,max:150,step:.1});
   }
   field(root,'Frame speed (×)',p,'speed',{min:.25,max:4,step:.05});
-  if(def[2])field(root,'Pause (ms)',p,'pause',{min:0,max:10000});
-  field(root,'Facing',p,'facing',{choices:[['auto','Auto'],['right','Right'],['left','Left']]});
-  get('notes').textContent=def[2]?'The existing walk and action GIFs have different poses at the cut. The actor stays at the same scene position while the clips switch.':
-   def[3]?'The source GIF has its own motion. The path moves the entire sprite independently.':'Peek motion is built into the GIF. Move the character to change where it appears.';
+  const actor=api.clips[def[1]][0];
+  const eligible=Object.entries(api.clips).filter(([,c])=>c[0]===actor).map(([key,c])=>[key,c[2]]);
+  get('notes').textContent=def[3]?
+   'Use Return to start to control the exit. If a sequence ends inside the frame, it adds a return automatically. Start offscreen or behind the desk.':
+   'The peek motion is built into the GIF. Adjust its placement under Playback.';
+  get('stage-add').disabled=stages.length>=16;
+  function edit(apply){
+   scene.stop();
+   apply();
+   scene.configure(config);
+   timeline();
+  }
+  function button(parent,label,fn,disabled=false){
+   const node=document.createElement('button');
+   node.type='button';node.textContent=label;node.disabled=disabled;
+   node.addEventListener('click',fn);parent.append(node);
+  }
+  stages.forEach((stage,index)=>{
+   const row=document.createElement('li'),fields=document.createElement('div'),tools=document.createElement('div');
+   fields.className='fields';tools.className='toolbar';
+   const heading=document.createElement('strong');
+   heading.textContent={move:'Move',play:'Play animation',pause:'Pause'}[stage.type];
+   if(stage.type!=='pause'){
+    field(fields,'Animation',stage,'clip',{choices:eligible});
+    field(fields,'Facing',stage,'facing',{choices:facing});
+   }
+   if(stage.type==='move'){
+    field(fields,'Destination',stage,'target',{choices:[
+     ['waypoint','Waypoint'],['placement','Character anchor'],['origin','Return to start'],['custom','Custom position']
+    ],onChange:timeline});
+    if(stage.target==='custom'){
+     field(fields,'X (%)',stage,'x',{min:-150,max:250,step:.1});
+     field(fields,'Y (%)',stage,'y',{min:-100,max:200,step:.1});
+    }
+   }
+   if(stage.type!=='play')field(fields,'Time (ms)',stage,'duration',stage.type==='move'?
+    {min:100,max:20000}:{min:0,max:10000});
+   const shift=delta=>edit(()=>{[stages[index],stages[index+delta]]=[stages[index+delta],stages[index]];});
+   button(tools,'Preview Stage',()=>play(id,false,index));
+   button(tools,'Move Up',()=>shift(-1),index===0);
+   button(tools,'Move Down',()=>shift(1),index===stages.length-1);
+   button(tools,'Remove',()=>edit(()=>stages.splice(index,1)),stages.length===1);
+   row.append(heading,fields,tools);list.append(row);
+  });
  }
  function rebuild(){
-  scene.configure(config);placement();timeline();
+  scene.configure(config);placement();clipPlacement();timeline();
   get('playback').textContent='';get('ambient').textContent='';
   field(get('playback'),'Clip speed (×)',config,'speed',{min:.25,max:4,step:.05});
   field(get('playback'),'Loop manually played previews',config,'loop');
@@ -82,6 +133,7 @@
  }
  get('actor').addEventListener('change',placement);
  get('sequence').addEventListener('change',timeline);
+ get('clip').addEventListener('change',clipPlacement);
  const canvas=scene.composition;
  canvas.addEventListener('pointerdown',event=>{
   if(drag||event.button!==0)return;
@@ -105,15 +157,25 @@
  for(const event of ['pointerup','pointercancel','lostpointercapture']){
   canvas.addEventListener(event,e=>{if(drag?.id===e.pointerId)drag=null;});
  }
- function play(id,single){
-  lastPreview={id,single};
+ function play(id,single,stageIndex){
+  lastPreview={id,single,stageIndex};
   const name=single?api.clips[id][2]:api.sequences[id][0];
-  const started=scene.start(id,{single,loop:config.loop,onEnd:status});
-  status(started?'Playing '+name:'Character hidden');
+  const started=scene.start(id,{single,stageIndex,loop:stageIndex===undefined&&config.loop,onEnd:status});
+  status(started?'Playing '+name+(stageIndex===undefined?'':' · Stage '+(stageIndex+1)):'Character hidden');
  }
  const click=(id,fn)=>get(id).addEventListener('click',fn);
+ click('stage-add',()=>{
+  const id=get('sequence').value,p=config.paths[id],def=api.sequences[id],type=get('stage-type').value;
+  const clip=def[1],actor=api.clips[clip][0];
+  const stages=config.timelines[id];
+  if(stages.length>=16)return;
+  scene.stop();
+  stages.push(type==='pause'?{type,duration:300}:type==='play'?{type,clip,facing:'auto'}:
+   {type,clip,target:'waypoint',x:p.toX,y:config.actors[actor].y,duration:p.duration,facing:'auto'});
+  scene.configure(config);timeline();
+ });
  click('play',()=>play(get('clip').value,true));
- click('restart',()=>{if(lastPreview)play(lastPreview.id,lastPreview.single);else play(get('clip').value,true);});
+ click('restart',()=>{if(lastPreview)play(lastPreview.id,lastPreview.single,lastPreview.stageIndex);else play(get('clip').value,true);});
  click('sequence-play',()=>play(get('sequence').value,false));
  click('stop',()=>{scene.stop();status('Stopped');});
  for(const id of ['random','dialogue'])click(id,()=>status(scene.roll(status)));

@@ -33,8 +33,9 @@ globalThis.TomorrowProjectScene=(()=>{
   speed:1,
   loop:false,
   paths:Object.fromEntries(Object.keys(sequences).map(id=>[id,{
-   fromX:-20,toX:120,fromY:0,toY:0,duration:id==='floraRun'?1600:2400,
-   speed:1,pause:id==='glance'?300:0,facing:'auto'
+   fromX:id==='floraRun'?115:-20,toX:id==='floraRun'?57:id==='walk'?75:120,
+   fromY:0,toY:0,duration:id==='walk'?2500:id==='floraRun'?1600:2400,
+   speed:id==='walk'?.6:1,pause:id==='glance'?300:0,facing:'auto'
   }]))
  };
  const num=(value,fallback,min,max)=>typeof value==='number'&&Number.isFinite(value)?
@@ -49,15 +50,105 @@ globalThis.TomorrowProjectScene=(()=>{
   }
   const paths={};
   for(const [id,base] of Object.entries(defaults.paths)){
-   const p=data?.paths?.[id]||{};
+   const saved=data?.paths?.[id]||{};
+   const p={...saved};
+   // Upgrade untouched pre-sequencer paths while retaining edited coordinates and timing.
+   if(!data?.timelines?.[id]){
+    if(id==='walk'&&p.fromX===-20&&p.toX===120&&p.duration===2400&&p.speed===1){
+     p.toX=base.toX;p.duration=base.duration;p.speed=base.speed;
+    }
+    if(id==='floraRun'&&p.fromX===-20&&p.toX===120){
+     p.fromX=base.fromX;p.toX=base.toX;
+    }
+   }
    paths[id]={fromX:num(p.fromX,base.fromX,-150,250),toX:num(p.toX,base.toX,-150,250),
     fromY:num(p.fromY,0,-150,150),toY:num(p.toY,0,-150,150),
-    duration:num(p.duration,base.duration,100,20000),speed:num(p.speed,1,.25,4),
+    duration:num(p.duration,base.duration,100,20000),speed:num(p.speed,base.speed,.25,4),
     pause:num(p.pause,base.pause,0,10000),facing:['left','right'].includes(p.facing)?p.facing:'auto'};
   }
-  return {actors,paths,probability:num(data?.probability,40,0,100),
+  const placements={};
+  for(const [id] of Object.entries(clips)){
+   const raw=data?.placements?.[id];
+   placements[id]={
+    x:num(raw?.x,null,-150,250),y:num(raw?.y,null,-100,200),
+    scale:num(raw?.scale,null,1,200),layer:num(raw?.layer,null,1,20)
+   };
+  }
+  const timelines={};
+  for(const [id,def] of Object.entries(sequences)){
+   const path=paths[id];
+   const move=target=>({type:'move',clip:def[1],target,x:path.toX,y:actors[clips[def[1]][0]].y,
+    duration:path.duration,facing:path.facing});
+   const hold={type:'pause',duration:path.pause};
+   const initial=def[3]?[
+    move(def[2]?'placement':'waypoint'),
+    ...(def[2]?[{type:'play',clip:def[2],facing:'auto'}]:[]),
+    ...(path.pause?[hold]:[]),
+    move('origin')
+   ]:[{type:'play',clip:def[1],facing:'auto'}];
+   const actor=clips[def[1]][0];
+   const incoming=data?.timelines?.[id];
+   const stages=Array.isArray(incoming)?incoming.slice(0,16).map(s=>{
+    if(!['move','play','pause'].includes(s?.type))return null;
+    const clip=clips[s.clip]?.[0]===actor?s.clip:def[1];
+    if(s.type==='pause')return {type:s.type,duration:num(s.duration,300,0,10000)};
+    if(s.type==='play')return {type:s.type,clip,facing:['left','right'].includes(s.facing)?s.facing:'auto'};
+    return {type:s.type,clip,target:['waypoint','placement','origin','custom'].includes(s.target)?s.target:'waypoint',
+     x:num(s.x,path.toX,-150,250),y:num(s.y,actors[actor].y,-100,200),
+     duration:num(s.duration,path.duration,100,20000),facing:['left','right'].includes(s.facing)?s.facing:'auto'};
+   }).filter(Boolean):[];
+   timelines[id]=stages.length?stages:initial;
+  }
+  return {actors,paths,placements,timelines,probability:num(data?.probability,40,0,100),
    cooldown:num(data?.cooldown,1000,0,20000),peekLayer:num(data?.peekLayer,2,1,20),
    speed:num(data?.speed,1,.25,4),loop:data?.loop===true};
+ }
+ function appearance(config,id){
+  const actor=config.actors[clips[id][0]],clip=config.placements[id];
+  return {x:clip.x??actor.x,y:clip.y??actor.y,scale:clip.scale??actor.scale,
+   layer:clip.layer??(id==='floraPeek'?config.peekLayer:actor.layer),visible:actor.visible};
+ }
+ function plan(config,id,single=false){
+  if(single){
+   const a=appearance(config,id);
+   return [{clip:id,from:[a.x,a.y],to:[a.x,a.y],speed:config.speed}];
+  }
+  const def=sequences[id],p=config.paths[id],actor=config.actors[clips[def[1]][0]];
+  const origin=def[3]?[p.fromX,actor.y+p.fromY]:[actor.x,actor.y];
+  let position=origin, facing=1, lastClip=def[1], lastType;
+  const stages=config.timelines[id];
+  function resolve(stage){
+   const id=stage.clip||lastClip;
+   const a=appearance(config,id);
+   const offset=[a.x-actor.x,a.y-actor.y];
+   // A return ends at the original entrance, using the movement clip's own offset.
+   const target=stage.type!=='move'?position:
+    stage.target==='origin'?origin:stage.target==='placement'?[actor.x,actor.y]:
+    stage.target==='custom'?[stage.x,stage.y]:[p.toX,actor.y+p.toY];
+   if(stage.type==='move'){
+    const delta=target[0]-position[0];
+    facing=stage.facing==='left'?-1:stage.facing==='right'?1:delta===0?facing:Math.sign(delta);
+   }else if(stage.type==='play'){
+    if(stage.facing==='left'||stage.facing==='right')facing=stage.facing==='left'?-1:1;
+    else if(!def[3])facing=p.facing==='left'?-1:1;
+   }
+   const shift=point=>[point[0]+offset[0],point[1]+offset[1]];
+   const step={clip:id,from:shift(position),to:shift(target),speed:p.speed,facing,duration:stage.duration,
+    still:stage.type==='pause',holdPrevious:stage.type==='pause'&&lastType==='play',
+    oneCycle:stage.type==='play'&&def[3]};
+   position=target;lastClip=id;
+   if(stage.type!=='pause')lastType=stage.type;
+   return step;
+  }
+  const actions=stages.map(resolve);
+  if(def[3]&&(position[0]!==origin[0]||position[1]!==origin[1])){
+   const last=actions[actions.length-1], width=appearance(config,last.clip).scale;
+   const endX=last.to[0];
+   if(endX>-width/2&&endX<100+width/2){
+    actions.push(resolve({type:'move',clip:def[1],target:'origin',duration:p.duration,facing:'auto'}));
+   }
+  }
+  return actions;
  }
  function load(){
   try{return normalize(JSON.parse(localStorage.getItem(storageKey)||'null'));}
@@ -78,7 +169,7 @@ globalThis.TomorrowProjectScene=(()=>{
   }
   return sources.get(id);
  }
- function gif(buffer,speed,still=false){
+ function gif(buffer,speed,still=false,oneCycle=false){
   const data=new Uint8Array(buffer.slice(0));
   if(data.length<14||data[0]!==71||data[1]!==73||data[2]!==70)throw Error('Invalid GIF');
   const palette=flag=>flag&128?3*(2**((flag&7)+1)):0;
@@ -90,7 +181,7 @@ globalThis.TomorrowProjectScene=(()=>{
    }
    throw Error('Truncated GIF');
   };
-  let p=13+palette(data[10]),duration=0,frames=0,delay=10;
+  let p=13+palette(data[10]),duration=0,frames=0,delay=10,loopStart,loopEnd;
   while(p<data.length){
    const tag=data[p++];
    if(tag===0x3b)break;
@@ -100,7 +191,12 @@ globalThis.TomorrowProjectScene=(()=>{
      delay=Math.max(2,Math.round(((data[p+2]+256*data[p+3])||10)/speed));
      data[p+2]=delay&255;data[p+3]=delay>>8;
     }
-    p=blocks(p);
+    const end=blocks(p);
+    if(oneCycle&&label===0xff&&data[p]===11){
+     const app=String.fromCharCode(...data.slice(p+1,p+12));
+     if(app==='NETSCAPE2.0'||app==='ANIMEXTS1.0'){loopStart=p-2;loopEnd=end;}
+    }
+    p=end;
    }else if(tag===0x2c){
     p=blocks(p+10+palette(data[p+8]));
     duration+=delay*10;frames++;delay=10;
@@ -108,7 +204,7 @@ globalThis.TomorrowProjectScene=(()=>{
    }else throw Error('Unsupported GIF block');
   }
   if(!frames)throw Error('GIF has no frames');
-  return {blob:new Blob([data],{type:'image/gif'}),duration};
+  return {blob:new Blob(loopEnd?[data.slice(0,loopStart),data.slice(loopEnd)]:[data],{type:'image/gif'}),duration};
  }
 
  function create(){
@@ -136,20 +232,20 @@ globalThis.TomorrowProjectScene=(()=>{
    img.hidden=!path;
    if(path&&img.getAttribute('src')!==path)img.setAttribute('src',path);
   }
-  function position(img,id,layer){
-   const a=current.actors[id];
+  function position(img,id,clip){
+   const a=clip?appearance(current,clip):current.actors[id];
    img.style.left=a.x+'%';img.style.top=a.y+'%';img.style.width=a.scale+'%';
-   img.style.zIndex=String(layer??a.layer);img.hidden=!a.visible;
+   img.style.zIndex=String(a.layer);img.hidden=!a.visible;
   }
   function configure(settings){
    current=normalize(settings);
    const hub=visual.dataset.view==='hub';
    position(syn,'syn');syn.hidden=!hub||!current.actors.syn.visible;
    for(const [id,entry] of ghosts){
-    position(entry.img,id);
+    position(entry.img,id,entry.clip);
     entry.img.hidden=!hub||!current.actors[id].visible||active?.actor===id;
    }
-   if(active?.img)position(active.img,active.actor,active.peek?current.peekLayer:undefined);
+   if(active?.img)position(active.img,active.actor,active.clip);
   }
   function view(kind,roomArt,computerArt){
    visual.dataset.view=kind;
@@ -169,7 +265,7 @@ globalThis.TomorrowProjectScene=(()=>{
    if(old){URL.revokeObjectURL(old.url);old.img.remove();}
    const img=sprite('tomorrow-actor');
    img.dataset.actor=actor;img.src=url;
-   ghosts.set(actor,{img,url});
+   ghosts.set(actor,{img,url,clip:id});
    configure(current);
   }
   function release(play){
@@ -192,46 +288,47 @@ globalThis.TomorrowProjectScene=(()=>{
    configure(current);
    play.onEnd?.(reason);
   }
-  function start(id,{single=false,loop=false,onEnd}={}){
+  function start(id,{single=false,stageIndex,loop=false,onEnd}={}){
    if(visual.dataset.view!=='hub')return false;
    const def=single?null:sequences[id], clip=single?id:def?.[1];
-   if(!clips[clip])return false;
+   if(!Object.prototype.hasOwnProperty.call(clips,clip))return false;
    const actor=clips[clip][0],a=current.actors[actor];
    if(!a.visible)return false;
+   const all=plan(current,id,single);
+   const selected=Number.isInteger(stageIndex)?all[stageIndex]:null;
+   if(stageIndex!==undefined&&!selected)return false;
    stop();
-   const path=def?current.paths[id]:null;
-   const speed=path?path.speed:current.speed;
-   const middle=[a.x,a.y],from=path?[path.fromX,a.y+path.fromY]:middle,to=path?[path.toX,a.y+path.toY]:middle;
-   const backwards=path&&(path.facing==='left'||(path.facing==='auto'&&to[0]<from[0]));
-   const layer=clip==='floraPeek'?current.peekLayer:a.layer;
-   const actions=def?.[2]?
-    [[clip,from,middle,path.duration],[def[2],middle,middle,null],...(path.pause?[[def[2],middle,middle,path.pause,true]]:[]),[clip,middle,to,path.duration]]:
-    [[clip,def?.[3]?from:middle,def?.[3]?to:middle,def?.[3]?path.duration:null]];
-   const play=active={actor,onEnd,peek:clip==='floraPeek'};configure(current);
+   const actions=selected?[{...selected,holdPrevious:false}]:all;
+   const play=active={actor,onEnd};configure(current);
    async function go(index){
     if(active!==play)return;
     if(index===actions.length){
      if(!loop)return stop('Finished');
      index=0;
     }
-    const [action,start,end,ms,still]=actions[index];
+    const step=actions[index];
+    if(step.holdPrevious&&play.img){
+     play.timer=setTimeout(()=>go(index+1),step.duration);
+     return;
+    }
+    const {clip:action,from:start,to:end,duration:ms,facing,still,speed,oneCycle}=step;
     try{
-     const media=gif(await source(action),speed,still);
+     const media=gif(await source(action),speed,still,oneCycle);
      if(active!==play)return;
      const img=sprite('tomorrow-actor tomorrow-moving');
      const url=URL.createObjectURL(media.blob);
      const duration=ms??media.duration;
      img.dataset.actor=actor;
-     position(img,actor,layer);img.hidden=true;
+     position(img,actor,action);img.hidden=true;
      for(const [key,value] of Object.entries({'from-x':start[0]+'%','from-y':start[1]+'%',
-      'to-x':end[0]+'%','to-y':end[1]+'%','duration':duration+'ms','facing':backwards?-1:1})){
+      'to-x':end[0]+'%','to-y':end[1]+'%','duration':duration+'ms','facing':facing??1})){
       img.style.setProperty('--tomorrow-'+key,String(value));
      }
      play.pending={img,url,timer:setTimeout(()=>stop('Artwork timed out'),5000)};
      img.onload=()=>{
       if(active!==play)return;
       clearTimeout(play.pending.timer);play.pending=null;
-      release(play);play.img=img;play.url=url;
+      release(play);play.img=img;play.url=url;play.clip=action;
       img.hidden=!current.actors[actor].visible;
       play.timer=setTimeout(()=>go(index+1),duration);
      };
@@ -255,5 +352,5 @@ globalThis.TomorrowProjectScene=(()=>{
   function reset(){stop();last='';next=0;}
   return {visual,composition,view,configure,pose,start,stop,roll,reset};
  }
- return {create,load,save,normalize,clips,sequences};
+ return {create,load,save,normalize,clips,sequences,plan};
 })();

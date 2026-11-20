@@ -118,3 +118,9 @@
 }
 
 .tomorrow-frame[hidden] { display: none; }
+
+/* In the headquarters feed, use the monitor frame instead of the old
+   blurred duplicate-image edge fill. Keep that fallback for other views. */
+.tomorrow-visual.tomorrow-has-frame::before {
+  display: none;
+}

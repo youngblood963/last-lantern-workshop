@@ -9,7 +9,8 @@
  const releaseCloud=playtest&&params.get('offline')!=='1'&&(
   location.origin==='https://lastlanternworkshop.com'||
   (/^https:\/\/(?:localhost|127\.0\.0\.1):8788$/.test(location.origin)&&params.get('cloud')==='1'));
- const environment=Object.freeze({name:playtest?'PLAYTEST':'DEVTEST',engine:'../playtest/',backend:releaseCloud,qa:false,
+ const terminalPreview=!playtest&&params.get('tomorrow-preview')==='1';
+ const environment=Object.freeze({terminalPreview,name:playtest?'PLAYTEST':'DEVTEST',engine:'../playtest/',backend:releaseCloud,qa:false,
   storagePrefix:playtest?'route127:playtest:cloud:v1:':'route127:devtest:v1:'});
  if(playtest&&!releaseCloud){
   Object.defineProperty(globalThis,'ROUTE127_ENV',{value:environment,writable:false,configurable:false});
@@ -18,6 +19,17 @@
  Object.defineProperty(window,'ROUTE127_QA_BUILD',{value:false,writable:false,configurable:false});
  // Read old same-origin characters without modifying them. Every write, including
  // identity/ledger housekeeping by the unchanged engine, goes to the private fork.
+ if(terminalPreview){
+  const entries=new Map();
+  Object.defineProperty(globalThis,'localStorage',{value:Object.freeze({
+   get length(){return entries.size;},key(i){return [...entries.keys()][i]??null;},
+   getItem(key){return entries.get(String(key))??null;},
+   setItem(key,value){entries.set(String(key),String(value));},
+   removeItem(key){entries.delete(String(key));},clear(){entries.clear();}
+  }),configurable:false,writable:false});
+  Object.defineProperty(globalThis,'ROUTE127_ENV',{value:environment,writable:false,configurable:false});
+  return;
+ }
  const original=globalThis.localStorage,prefix=environment.storagePrefix,removed=prefix+'removed:';
  // Import old browser saves, while keeping cloud journals scoped to this client.
  const readsLegacy=key=>!playtest||!key.startsWith('r127-dev-')&&!key.startsWith('r127-before-cloud-load:');

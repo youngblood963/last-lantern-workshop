@@ -22,7 +22,6 @@
   if(place==='r11Craft')return 'crafting-workbench'; // Stage alone identifies the craft screen; restored saves may omit r11Bench.
   if(place==='factoryBench')return 'crafting-workbench';
   if(place==='mercy'&&mercyLocation==='murphy'&&!!player?.flags?.v49MurphyMenu)return 'crafting-workbench';
-  if(place==='port55Service'&&player?.flags?.portStaffUI?.role==='workshop')return 'crafting-workbench';
   if(place==='factoryRusty')return 'factory-rusty';
   if(['factoryWorkshop','factoryTerminal','factoryForge'].includes(place))return 'factory-workshop';
   const g=typeof lanternState==='function'?lanternState():null;
@@ -89,7 +88,7 @@
    const shops={
     'clinic':['Clinic','seaport_clinic.png'],
     'general store':['General Store','seaport_general_store.png'],
-    'workshop':['Workshop','seaport_workshop.png'],
+    'workshop':['Workshop','seaport_crafting_shop.png'],
     'bank':['Bank','seaport_bank.png'],
     'armory':['Armory','seaport_armory.png']
    };
@@ -135,8 +134,7 @@
   const bench=String(player?.flags?.r11Bench||'').toLowerCase();
   const craftingHere=(craftingStage==='r11Craft'&&['home','murphy','factory','seaport','port'].includes(bench))||
     craftingStage==='factoryBench'||
-    (craftingStage==='mercy'&&mercyLocation==='murphy'&&!!player?.flags?.v49MurphyMenu)||
-    (craftingStage==='port55Service'&&player?.flags?.portStaffUI?.role==='workshop');
+    (craftingStage==='mercy'&&mercyLocation==='murphy'&&!!player?.flags?.v49MurphyMenu);
   if(craftingHere){
     model.title='Crafting';
     model.art='../devtest/assets/locations/crafting_workbench.png?v=wo41-shared';

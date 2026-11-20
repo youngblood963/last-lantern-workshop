@@ -47,7 +47,7 @@ function hub({quiet=false}={}){
  if(!quiet)add('SOLACE — MAIN STREET','place');
  const visitor=featured();
  const labels=['SHOPS','THE RUSTY LANTERN',...(player.flags.relayUnlocked?['RELAY STATION']:[]),
-   'FIND TIM','GATES',...(visitor?['TALK TO '+visitor.name.toUpperCase()]:[]),'BULLETIN BOARD',
+   'FIND TIM','GATES',...(player.flags.marlowRescued?['TALK TO MARLOW']:[]),...(visitor?['TALK TO '+visitor.name.toUpperCase()]:[]),'BULLETIN BOARD',
    ...(player.flags.r18Courier?.phase==='service'?['POST OFFICE']:[])];
  DevtestMenuModel.publish('solace-town',[...labels.map(label=>[choiceCommand(label),label]),
   ...(globalThis.Route127SolaceCloud?.choices()||[])],{explicitBindings:true});

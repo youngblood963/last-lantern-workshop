@@ -625,12 +625,11 @@ const R5_ROAD_REWORK={
   if(n===1&&Math.random()<.55){add('The machine follows the vibration into a collapsed tunnel and grinds to a halt.','bright');r18RoadEaterSalvage();gainXp(Math.max(8,player.level*2));return true;}
   if(n!==2)add('The tunneling machine turns toward you.','danger');const level=Math.max(1,Math.min(50,Number(player.level)||1)),hp=Math.max(16,Math.floor(baseHpForLevel(level)*.18));startCombat({name:'THE ROAD EATER',level,hp:hp*3,min:4,max:8,xp:Math.max(30,level*8),bolts:0,r18RoadEater:true,enemies:[{name:'CUTTING WHEEL',hp,bolts:0},{name:'HYDRAULICS',hp,bolts:0},{name:'CONTROL UNIT',hp,bolts:0}],end:'The tunneling machine grinds to a halt.'},'encounter');return true;
  }},
- 'THE SALT MINERS':{options:['SNEAK THE WORKERS FREE','PERSUADE THE GUARDS','FIGHT THE SALTMASTER','BACK AWAY'],run(n){
-  if(player.flags.r18SaltWorkersFreed){add('The rescued workers have left the salt road.','system');return true;}
-  if(n===0&&Math.random()<.6){add('You free the workers while the guards are distracted.','bright');r18FreeSaltWorkers();return true;}
-  if(n===1&&Math.random()<.35){add('The guards accept your warning and abandon the sleds.','bright');r18FreeSaltWorkers();return true;}
-  if(n!==2)add('The guards spot your attempt and move to stop you.','danger');
-  const level=Math.max(1,Math.min(50,Number(player.level)||1)),hp=Math.max(16,Math.floor(baseHpForLevel(level)*.18));startCombat({name:'THE SALTMASTER AND OVERSEER',level,hp:hp*2,min:3,max:7,xp:Math.max(30,level*8),bolts:6,r18SaltGuards:true,enemies:[{name:'THE SALTMASTER',hp,bolts:3},{name:'OVERSEER',hp,bolts:3}],end:'The guards are defeated and the workers gather around the sleds.'},'encounter');return true;
+ 'THE SALT MINERS':{options:['FIGHT THE SALTMASTER','BACK AWAY'],run(){
+  if(player.flags.r18SaltWorkersFreed||player.flags.marlowRescued){
+   add('The rescued workers have left the salt road.','system');return true;
+  }
+  const level=Math.max(1,Math.min(50,Number(player.level)||1)),hp=Math.max(16,Math.floor(baseHpForLevel(level)*.18));startCombat({name:'THE SALTMASTER AND OVERSEER',level,hp:hp*2,min:3,max:7,xp:Math.max(30,level*8),bolts:6,r18MarlowGuards:true,enemies:[{name:'THE SALTMASTER',hp,bolts:3},{name:'OVERSEER',hp,bolts:3}],end:'The guards are defeated and the workers gather around the sleds.'},'encounter');return true;
  }},
  'THE GRINDER CREW':{options:['BUY SCRAP FOR 6 BOLTS','SELL SCRAP FOR 3 BOLTS','HELP THE CREW','SABOTAGE THE CRUSHER','BACK AWAY'],run(n){
   if(n===0){if(!roadTrade('Scrap Metal','material',6))return false;add('Rivet sells you Scrap Metal for six Bolts.','reward');return true;}

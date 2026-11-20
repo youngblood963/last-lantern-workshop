@@ -105,7 +105,7 @@ function inScope(){
 }
 function scenarioChoices(){
  if(stage!=='encounter'||!inScope()||player.flags?.r18HoundNaming||(player.flags?.devFoodChoice&&/TUNNEL RATS$/.test(currentEncounter()?.title||'')))return null;
- const encounter=currentEncounter();if(!encounter)return null;
+ const encounter=currentEncounter();if(!encounter||(encounter.title==='THE SALT MINERS'&&player.flags.marlowRescuePending))return null;
  const labels=encounterChoices(encounter).split(/\s{2,}/).filter(Boolean);
  if(typeof questRoadMarkers==='function')labels.push(...questRoadMarkers().map(row=>row[1]));
  const exits=/^(BACK AWAY|MOVE ON|KEEP MOVING|WALK AWAY|LEAVE|WITHDRAW|RETREAT|BACK DOWN)$/i;

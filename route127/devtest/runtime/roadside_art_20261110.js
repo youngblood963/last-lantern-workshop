@@ -168,6 +168,8 @@ presentation.textContent=`
 .gfx-frame.r127-route-scene .r127-road-art[data-region="CAUSEWAY"]:is([data-key^="ROACH NEST"],[data-key^="ROACH SWARM"]) div.r127-road-unit::after{height:10px}
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="SOMETHING IN THE DRAIN"] .r127-road-unit{width:48%!important;height:30%}
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="FERAL DOG"] .r127-road-unit{width:52%!important;height:60%}
+/* Keep the Road Eater's tracks down on the pavement instead of hovering above it. */
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="THE ROAD EATER"] .r127-road-unit{position:relative;top:10%}
 
 .gfx-frame.r127-route-scene :is(.r127-bat-layer,.r127-raccoon-layer,.r127-human-layer,.r127-npc-scene){bottom:6%}
 .gfx-frame.r127-route-scene .r127-road-art{top:0;bottom:0}

@@ -43,7 +43,7 @@ const WO8={
   // intercept the command before the WO7 scenario resolver.
   const core=handleCommandCore;
   handleCommandCore=async function(raw){
-   const cmd=String(raw||'').trim().toLowerCase();
+   const cmd=r5Mapped(raw);
    if(!busy && stage==='encounter' && cmd==='leave' && currentEncounter()?.wo7==='WO8-TAXI'){
     const q=WO7.state('WO8-TAXI');
     delete q.farePending;

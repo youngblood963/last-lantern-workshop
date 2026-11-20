@@ -100,6 +100,14 @@
   margin:3% auto 0!important;object-fit:contain!important;object-position:center center!important;
   transform:none!important;top:auto!important;left:auto!important;right:auto!important;
  }
+ /* Last Patrol: fit the entire image inside the art viewport instead of
+    letting saved layout transforms crop the checkpoint sergeant. */
+ .gfx-frame .gfx-art.r127-demo-art[data-demo-id="last-patrol"]>.gfx-image{
+  display:block!important;position:relative!important;
+  width:92%!important;height:90%!important;max-width:92%!important;max-height:90%!important;
+  margin:2% auto 0!important;object-fit:contain!important;object-position:center center!important;
+  transform:none!important;top:auto!important;left:auto!important;right:auto!important;
+ }
  .gfx-art.r127-demo-art>.gfx-art-caption{position:relative;z-index:9}
  .gfx-art.r127-demo-art[data-demo-period="dawn"]>.gfx-image,
  .gfx-art.r127-demo-art[data-demo-period="dawn"]>.r127-demo-road{filter:brightness(.92) saturate(.91) sepia(.13)}

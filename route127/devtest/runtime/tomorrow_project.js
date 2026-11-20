@@ -363,6 +363,8 @@
   visual.classList.toggle('tomorrow-overlay',!!figure);
   scene.view(connectedView?'hub':roomView?'room':'',
    roomView?art.room:'',roomView?(repaired()?(activating?art.activation:art.on):art.off):'');
+  // Play the existing Workshop signal flicker once when the feed connects.
+  visual.classList.toggle('tomorrow-signal-in',connectedView);
   return result;
  };
  if(preview){

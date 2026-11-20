@@ -103,7 +103,8 @@
 
 /* The monitor casing is behind the entire transmission, not an overlay. */
 .tomorrow-visual.tomorrow-has-frame .tomorrow-composition {
-  width: min(84cqw, 149cqh);
+  /* Restore the original scene dimensions; do not shrink Syn or animations. */
+  width: min(100cqw, 177.3cqh);
   z-index: 1;
 }
 
@@ -112,7 +113,8 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  /* Fill the wide terminal viewport rather than shrinking to a centered 16:9 box. */
+  object-fit: fill;
   z-index: 0;
   pointer-events: none;
 }

@@ -83,6 +83,10 @@
   get('notes').textContent=def[3]?
    'Use Return to start to control the exit. If a sequence ends inside the frame, it adds a return automatically. Start offscreen or behind the desk.':
    'The peek motion is built into the GIF. Adjust its placement under Playback.';
+  const stageType=get('stage-type');
+  const holdOption=stageType.querySelector('option[value="hold"]');
+  holdOption.disabled=actor!=='luna';
+  if(holdOption.disabled&&stageType.value==='hold')stageType.value='move';
   get('stage-add').disabled=stages.length>=16;
   function edit(apply){
    scene.stop();
@@ -99,9 +103,9 @@
    const row=document.createElement('li'),fields=document.createElement('div'),tools=document.createElement('div');
    fields.className='fields';tools.className='toolbar';
    const heading=document.createElement('strong');
-   heading.textContent={move:'Move',play:'Play animation',pause:'Pause'}[stage.type];
+   heading.textContent={move:'Move',play:'Play animation',pause:'Pause',hold:'Hold GIF Frame'}[stage.type];
    if(stage.type!=='pause'){
-    field(fields,'Animation',stage,'clip',{choices:eligible});
+    field(fields,'Animation',stage,'clip',{choices:stage.type==='hold'?[['peek',api.clips.peek[2]]]:eligible});
     field(fields,'Facing',stage,'facing',{choices:facing});
    }
    if(stage.type==='move'){
@@ -113,7 +117,13 @@
      field(fields,'Y (%)',stage,'y',{min:-100,max:200,step:.1});
     }
    }
-   if(stage.type!=='play')field(fields,'Time (ms)',stage,'duration',stage.type==='move'?
+   if(stage.type==='hold'){
+    field(fields,'Frame',stage,'frame',{min:1,max:api.peekFrameCount});
+    field(fields,'Hold (ms)',stage,'duration',{min:0,max:60000,step:10});
+    const hint=document.createElement('p');
+    hint.className='hint';hint.textContent='Plays Luna Peek, holds the selected frame, then finishes the same GIF.';
+    fields.append(hint);
+   }else if(stage.type!=='play')field(fields,'Time (ms)',stage,'duration',stage.type==='move'?
     {min:100,max:20000}:{min:0,max:10000});
    const shift=delta=>edit(()=>{[stages[index],stages[index+delta]]=[stages[index+delta],stages[index]];});
    button(tools,'Preview Stage',()=>play(id,false,index));
@@ -170,7 +180,13 @@
   const stages=config.timelines[id];
   if(stages.length>=16)return;
   scene.stop();
-  stages.push(type==='pause'?{type,duration:300}:type==='play'?{type,clip,facing:'auto'}:
+  if(type==='hold'){
+   if(actor!=='luna')return;
+   const existing=stages.length===1&&stages[0].type==='play'&&stages[0].clip==='peek'?stages[0]:null;
+   const hold={type:'hold',clip:'peek',frame:9,duration:4000,facing:existing?.facing||'auto'};
+   if(existing)stages[0]=hold;
+   else stages.push(hold);
+  }else stages.push(type==='pause'?{type,duration:300}:type==='play'?{type,clip,facing:'auto'}:
    {type,clip,target:'waypoint',x:p.toX,y:config.actors[actor].y,duration:p.duration,facing:'auto'});
   scene.configure(config);timeline();
  });

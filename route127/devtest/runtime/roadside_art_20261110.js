@@ -209,7 +209,7 @@ GraphicalUI.sync=function(...args){
      unit.type='button';
      unit.addEventListener('click',()=>{if(!busy)handleCommand(scene.combat.enemies?.length?'attack '+(i+1):'attack')});
     }
-    const img=document.createElement('img');img.src=asset(f)+'?v=wo27-art-fit';img.alt='';
+    const img=document.createElement('img');img.src=asset(f)+(f.name==='roach_nest_ordinary.png'?'?v=roach-food-carton-20261120':'?v=wo27-art-fit');img.alt='';
     img.onerror=()=>{img.hidden=true;img.dataset.failed='true';e.frame.classList.add('r127-sprite-failed');e.frame.classList.remove('r127-road-combat-active');console.warn('Missing DEVTEST encounter art',f.name)};
     unit.append(img);layer.append(unit);
    });

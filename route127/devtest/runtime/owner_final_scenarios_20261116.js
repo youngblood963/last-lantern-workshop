@@ -41,6 +41,24 @@
   return {type,combat:phases.has(stage)?combat:null,region:typeof route127CurrentRegion==='function'?
    route127CurrentRegion(typeof lanternState==='function'?lanternState():null):'SEAPORT'};
  }
+ function northArtwork(){
+  const scene=globalThis.Route127CombatLayouts?.activeScene();
+  if(!scene)return null;
+  const combat=phases.has(stage)?combatState:null;
+  const scenery=name=>({name,dir:'scenarios',scenery:true});
+  const sprite=(name,index=0,dir='enemies')=>({name,dir,index});
+  switch(scene.id){
+   case 'early:55':return combat?null:[scenery('cold_road_camp.png'),
+    ...(r18CampVariant()?[sprite('cold_road_camp_traveler.png',0,'scenarios')]:[])];
+   case 'early:29':return [scenery('salt_on_the_road.png'),
+    ...(combat?.name==='CHAIR MAN'?[sprite('chair_man.png')]:[])];
+   case 'east:74':return combat?null:[scenery('collapsing_lookout.png')];
+   case 'early:140':return [sprite('mountain_poacher_rifleman.png'),sprite('mountain_poacher_trapper.png',1)];
+   case 'early:141':return [sprite('territorial_survivalist_rifleman.png'),sprite('territorial_survivalist_shotgun.png',1)];
+   case 'early:142':return [sprite('mountain_lion.png')];
+   default:return null;
+  }
+ }
  function period(){return typeof Route127RegionalSky?.phase==='function'?
   Route127RegionalSky.phase(player?.flags?.worldHour):'day';}
  function skyName(){const p=period();return 'sky_'+(p==='dusk'?'dawn':p)+'.png';}
@@ -68,16 +86,21 @@
   .gfx-art.r127-final-encounter{position:relative;isolation:isolate;overflow:hidden}
   .gfx-art.r127-final-encounter>.gfx-image{position:relative;z-index:1;object-fit:cover;background:transparent!important}
   .gfx-art.r127-final-encounter>.r127-final-road{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:2;pointer-events:none}
-  .gfx-art.r127-final-encounter>.r127-final-sprites{position:absolute;inset:0;z-index:5;pointer-events:none}
-  .gfx-art.r127-final-encounter>.r127-final-sprites .r127-final-unit{position:absolute;bottom:3%;transform:translateX(-50%);height:85%;width:40%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;pointer-events:auto}
-  .gfx-art.r127-final-encounter>.r127-final-sprites .r127-final-unit>img{width:100%;height:calc(100% - 22px);object-fit:contain;object-position:center bottom;filter:drop-shadow(3px 6px 5px #000a)}
-  .gfx-art.r127-final-encounter>.r127-final-sprites .r127-final-unit.r127-final-freight{left:50%;width:94%;height:92%;bottom:0;pointer-events:none}
-  .gfx-art.r127-final-encounter>.r127-final-sprites .r127-final-unit.r127-final-freight>img{height:100%;object-fit:contain}
-  .gfx-art.r127-final-encounter>.r127-final-sprites .r127-final-hp{font:700 clamp(10px,1.2vw,14px)/1 sans-serif;color:#fff5ef;background:#36140ff0;border:1px solid #d84b39;border-radius:3px;padding:3px 5px;margin-bottom:3px;white-space:nowrap;min-width:45px;text-align:center}
+  .gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites{position:absolute;inset:0;z-index:5;pointer-events:none}
+  .gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-unit{position:absolute;bottom:3%;transform:translateX(-50%);height:85%;width:40%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;pointer-events:auto}
+  .gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-unit>img{width:100%;height:calc(100% - 22px);object-fit:contain;object-position:center bottom;filter:drop-shadow(3px 6px 5px #000a)}
+  .gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-unit.r127-final-freight{left:50%;width:94%;height:92%;bottom:0;pointer-events:none}
+  .gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-unit.r127-final-freight>img{height:100%;object-fit:contain}
+  .gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-hp{font:700 clamp(10px,1.2vw,14px)/1 sans-serif;color:#fff5ef;background:#36140ff0;border:1px solid #d84b39;border-radius:3px;padding:3px 5px;margin-bottom:3px;white-space:nowrap;min-width:45px;text-align:center}
   .gfx-art.r127-final-encounter>.gfx-art-caption{position:relative;z-index:10}
-  .gfx-art.r127-final-encounter[data-r127-final-period="night"]>.r127-final-sprites img{filter:brightness(.66) saturate(.72) drop-shadow(3px 6px 5px #000a)}
-  .gfx-art.r127-final-encounter[data-r127-final-period="dusk"]>.r127-final-sprites img{filter:brightness(.82) saturate(.85) drop-shadow(3px 6px 5px #000a)}
-  @media(max-width:600px){.gfx-art.r127-final-encounter>.r127-final-sprites .r127-final-unit{height:79%;width:42%}.gfx-art.r127-final-encounter>.r127-final-sprites .r127-final-unit.r127-final-freight{height:90%;width:98%}}
+  .gfx-art:is(.r127-final-encounter,.r127-north-art)[data-r127-final-period="night"]>.r127-final-sprites img{filter:brightness(.66) saturate(.72) drop-shadow(3px 6px 5px #000a)}
+  .gfx-art:is(.r127-final-encounter,.r127-north-art)[data-r127-final-period="dusk"]>.r127-final-sprites img{filter:brightness(.82) saturate(.85) drop-shadow(3px 6px 5px #000a)}
+  .gfx-art.r127-north-art>.r127-final-sprites .r127-final-unit[data-pair='true']{left:30%;width:34%}
+  .gfx-art.r127-north-art>.r127-final-sprites .r127-final-unit[data-pair='true'][data-index='1']{left:70%}
+  .gfx-art.r127-north-art>.r127-final-sprites .r127-final-unit:not(.r127-final-freight){z-index:2}
+  .gfx-art.r127-north-art>.r127-final-sprites .r127-final-unit[data-pair='false']:not(.r127-final-freight){left:50%}
+  .gfx-art.r127-north-art>.gfx-art-caption{z-index:10}
+  @media(max-width:600px){.gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-unit{height:79%;width:42%}.gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-unit.r127-final-freight{height:90%;width:98%}}
  `;
  document.head.append(style);
  // Shipwreck Scavengers and Toxic Cargo are complete cinematic paintings, NOT separate sprites.
@@ -111,48 +134,55 @@
     }
     wreckSky.style.backgroundImage='url("'+regional(skyName())+'")';
    }else wreckSky?.remove();
-   const target=selection(),on=!!target&&!e.frame.hidden&&this.preference()==='graphics';
+   const target=selection(),north=northArtwork();
+   const on=!!(target||north)&&!e.frame.hidden&&this.preference()==='graphics';
    const figure=e.figure;
-   figure.classList.toggle('r127-final-encounter',on);
+   figure.classList.toggle('r127-final-encounter',on&&!!target);
+   figure.classList.toggle('r127-north-art',on&&!!north);
    let layer=figure.querySelector(':scope > .r127-final-sprites');
    let road=figure.querySelector(':scope > .r127-final-road');
    if(!on){layer?.remove();road?.remove();delete figure.dataset.r127FinalPeriod;return result;}
    figure.dataset.r127FinalPeriod=period();
-   if(target.type==='freight'){
+   if(target?.type==='freight'){
     if(!road){road=document.createElement('img');road.className='r127-final-road';road.alt='';road.setAttribute('aria-hidden','true');figure.insertBefore(road,e.img.nextSibling);}
     const src=regional('dirt_road_foreground.png');if(road.src!==src)road.src=src;
    }else road?.remove();
-   const art=artwork[target.type];
-   const files=art.scenery?[art.file]:target.type==='floodlight'&&target.combat?.wo3LightShot?
-    ['floodlight_drone_destroyed.gif']:art.files;
-   const identity=target.type+'|'+files.join('|');
+   const art=artwork[target?.type];
+   const files=north||(art.scenery?[art.file]:target.type==='floodlight'&&target.combat?.wo3LightShot?
+    ['floodlight_drone_destroyed.gif']:art.files).map((name,index)=>({
+     name,index,dir:art.scenery?'scenarios':'enemies',scenery:art.scenery
+    }));
+   const identity=(target?.type||'north')+'|'+files.map(({name})=>name).join('|');
    if(!layer||layer.dataset.identity!==identity){
     layer?.remove();layer=document.createElement('div');layer.className='r127-final-sprites';layer.dataset.identity=identity;
-    for(const [index,name] of files.entries()){
-     const unit=document.createElement('div');unit.className='r127-final-unit'+(art.scenery?' r127-final-freight':'');
-     const img=document.createElement('img');img.alt='';img.src=file(art.scenery?'scenarios':'enemies',name);
+    for(const {name,index=0,dir,scenery} of files){
+     const unit=document.createElement('div');unit.className='r127-final-unit'+(scenery?' r127-final-freight':'');
+     const img=document.createElement('img');img.alt='';img.src=file(dir,name);
      img.onerror=()=>console.warn('DEVTEST scenario image failed to load:',name);
      const positions=files.length===3?[20,50,80]:[50];
      unit.dataset.index=String(index);
-     unit.style.left=positions[index]+'%';
+     if(north)unit.dataset.pair=String(files.length===2&&!files[0].scenery);
+     else unit.style.left=positions[index]+'%';
      if(files.length===3){unit.style.width='31%';unit.style.height='82%';}
      unit.append(img);
-     if(!art.scenery){
+     if(!scenery){
       const hp=document.createElement('span');hp.className='r127-final-hp';hp.hidden=true;unit.prepend(hp);
      }
      layer.append(unit);
     }
     figure.append(layer);
    }
-   const fighters=Array.isArray(target.combat?.enemies)?target.combat.enemies:null;
-   [...layer.children].forEach((unit,i)=>{
+   const combat=north&&phases.has(stage)?combatState:target?.combat;
+   const fighters=Array.isArray(combat?.enemies)?combat.enemies:null;
+   [...layer.children].forEach(unit=>{
+    const i=Number(unit.dataset.index);
     globalThis.Route127CombatLayouts?.applyOverlay(unit,i);
     const hp=unit.querySelector('.r127-final-hp');
     if(!hp)return;
-    const fighter=fighters?.[i]||(!fighters&&i===0?target.combat:null);
+    const fighter=fighters?.[i]||(!fighters&&i===0?combat:null);
     const show=!!fighter;
     hp.hidden=!show;
-    unit.hidden=!!target.combat&&!!fighters&&(!fighter||Number(fighter.hp)<=0);
+    unit.hidden=!!combat&&(fighters?(!fighter||Number(fighter.hp)<=0):!!north&&Number(fighter?.hp)<=0);
     if(show){const current=Math.max(0,Number(fighter.hp)||0);hp.textContent=current+' HP';}
    });
   }catch(error){console.warn('DEVTEST final encounter art:',error);}

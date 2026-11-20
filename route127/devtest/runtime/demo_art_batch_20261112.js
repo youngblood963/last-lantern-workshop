@@ -94,7 +94,7 @@
  }
  /* The Road Enforcer is a transparent full-figure cutout, not a full-bleed scene.
     Scale the actual image within the artwork viewport so the head and feet remain visible. */
- .gfx-frame .gfx-art.r127-demo-art[data-demo-id="road-enforcer"]>.gfx-image{
+ .gfx-frame .gfx-art.r127-demo-art[data-demo-id="road-enforcer"]>.gfx-image:not(.r127-layout-unit){
   display:block!important;position:relative!important;
   width:76%!important;height:88%!important;max-width:76%!important;max-height:88%!important;
   margin:3% auto 0!important;object-fit:contain!important;object-position:center center!important;
@@ -102,7 +102,7 @@
  }
  /* Last Patrol: fit the entire image inside the art viewport instead of
     letting saved layout transforms crop the checkpoint sergeant. */
- .gfx-frame .gfx-art.r127-demo-art[data-demo-id="last-patrol"]>.gfx-image{
+ .gfx-frame .gfx-art.r127-demo-art[data-demo-id="last-patrol"]>.gfx-image:not(.r127-layout-unit){
   display:block!important;position:relative!important;
   width:92%!important;height:90%!important;max-width:92%!important;max-height:90%!important;
   margin:2% auto 0!important;object-fit:contain!important;object-position:center center!important;

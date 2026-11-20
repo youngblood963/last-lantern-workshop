@@ -44,6 +44,7 @@
  for(const [title,files] of Object.entries(globalThis.Route127RoadsidePresentation?.industrialEncounterSprites||{})){
   register(title,sprite(...files));
  }
+ register('TUNNEL RATS',sprite('Tunnel Rat 1.png','Tunnel Rat 2.png'),'both','Two separate rats');
  for(const [title,file] of Object.entries({
   'THE SLEEPING ROBOT':'the_sleeping_robot.png',
   'THE LAST AUTONOMOUS TAXI':'the_last_autonomous_taxi.gif',
@@ -94,7 +95,7 @@
   'ROACH NEST':[enemy('roach_nest_ordinary.png'),enemy('roach_nest_contaminated.png'),'../../roach_nest_aggressive_swarm.png'],
   'FERAL DOG':[enemy('feral_dog_mother_pups.png'),'../../feral_dog_hungry_lone.png','../../feral_dog_aggressive_lone.png','../../feral_dog_pack_concept.png'],
   'LONE SCAVENGER':sprite('Lone Scavenger - Suspicious Scavenger.png','Lone Scavenger - Friendly Scrapper.png','Lone Scavenger - Weary Trader.png'),
-  'TUNNEL RATS':sprite('Tunnel Rats.png','Tunnel Rats - Wild Boar.png')
+  'TUNNEL RATS':sprite('Tunnel Rats - Wild Boar.png')
  }))for(const path of files)register(title,[path],'both',assetName(path).replace(/\.png$/i,''));
  for(const [title,file] of Object.entries({
   'THE HANGING SHOES':'the_hanging_shoes.png','THE IRON HARVEST':'the_iron_harvest.png',
@@ -447,7 +448,7 @@
   return model;
  };
 
- const selector='.r127-live-wanderer-road,.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-figure,.r127-npc-combat,.r127-road-unit,.r127-silo-boar';
+ const selector='.r127-live-wanderer-road,.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-figure,.r127-npc-combat,.r127-road-unit,.r127-silo-boar,.r127-final-unit';
  function activeScene(){
   // The level-five Crazy Steve promotional menu is a standalone graphical stage.
   if(typeof stage!=='undefined'&&stage==='r127StevePromo')return {id:'scripted:crazy-steve',phase:'approach'};
@@ -479,15 +480,34 @@
   const id=byEncounter.get(encounter)||byTitle.get(normalize(encounter?.title||c?.name));
   return id?{id,phase:c?'combat':'approach'}:null;
  }
- const getSlot=(node,index)=>node.dataset.batIndex??node.dataset.raccoonIndex??node.dataset.humanIndex??node.dataset.index??index;
+ const getSlot=(node,index)=>node.dataset.batIndex??node.dataset.raccoonIndex??node.dataset.humanIndex??node.dataset.crewSlot??node.dataset.index??index;
+ function artworkPlacement(img,scene,index,allowBackdrop=false){
+  const name=assetName(img.src);
+  // The Mask Market's live composition uses its WebP asset. Keep accepting
+  // the published/editor placement key for the same scene artwork.
+  const backdropName=name==='the_mask_market.webp'?'the_mask_market.png':name;
+  for(const variant of rows.get(scene.id)?.variants||[]){
+   if(variant.phase!=='both'&&variant.phase!==scene.phase)continue;
+   if(allowBackdrop&&variant.background&&assetName(variant.background)===backdropName)
+    return {key:'background:'+backdropName,background:true};
+   if(variant.units[index]&&assetName(variant.units[index])===name)
+    return {key:unitKey(img.src,index),background:false};
+  }
+  return null;
+ }
  function figureUnits(e,scene){
   const units=[...e.figure.querySelectorAll(selector)].flatMap((node,index)=>{
    const img=node.tagName==='IMG'?node:node.querySelector('img');
-   return img?.src?[{node,img,key:unitKey(img.src,getSlot(node,index))}]:[];
+   if(!img?.src)return [];
+   const slot=getSlot(node,index);
+   const placement=node.classList.contains('r127-final-unit')?
+    artworkPlacement(img,scene,slot,node.classList.contains('r127-final-freight')):
+    {key:unitKey(img.src,slot),background:false};
+   return placement?[{node,img,...placement}]:[];
   });
-  const row=rows.get(scene.id);
-  if(e.img?.src&&row?.variants.some(v=>v.background&&assetName(v.background)===assetName(e.img.src))){
-   units.push({node:e.img,img:e.img,key:'background:'+assetName(e.img.src),background:true});
+  if(e.img?.src){
+   const placement=artworkPlacement(e.img,scene,0,true);
+   if(placement)units.push({node:e.img,img:e.img,...placement});
   }
   return units;
  }
@@ -500,6 +520,14 @@
    node.style.setProperty('--r127-layout-'+name,layout[name]+suffix);
   }
   styled.add(node);
+ }
+ const viewportDevice=()=>typeof matchMedia==='function'&&matchMedia('(max-width:600px)').matches?'phone':'desktop';
+ function applyOverlay(node,index){
+  const scene=activeScene(),img=node.querySelector('img');
+  if(!scene||!img?.src)return;
+  const placement=artworkPlacement(img,scene,index,node.classList.contains('r127-final-freight'));
+  const layout=placement&&get(scene.id,scene.phase,viewportDevice())[placement.key];
+  if(layout)apply(node,layout);
  }
  const css=document.createElement('style');
  css.textContent=`
@@ -529,6 +557,9 @@
  /* Scrap Duel's authored scene fills the complete artwork viewport; no sky margin. */
  .gfx-frame .gfx-art img[src*="the_scrap_duel.png"]{object-fit:cover!important;object-position:center!important}
  .gfx-frame .gfx-art .r127-layout-unit{position:absolute!important;left:var(--r127-layout-x)!important;top:var(--r127-layout-y)!important;width:var(--r127-layout-width)!important;height:var(--r127-layout-height)!important;transform:translate(-50%,-50%) scale(var(--r127-layout-scale))!important;scale:none!important;z-index:var(--r127-layout-z)!important}
+ .gfx-frame .gfx-art > img.gfx-image.r127-layout-unit:not(.r127-layout-background){
+  max-width:none;max-height:none;object-fit:contain;object-position:center bottom
+ }
  .gfx-frame .gfx-art img.r127-live-wanderer-road.r127-layout-unit{right:auto;bottom:auto;max-width:none;object-position:center}
  .gfx-frame .gfx-art .r127-layout-unit:not(.r127-layout-background)>img{transform:none!important}
  .gfx-frame .gfx-art .r127-layout-unit.r127-layout-flipped:not(.r127-layout-background)>img{transform:scaleX(-1)!important}
@@ -558,11 +589,11 @@
   }
   // DAY intentionally has no filter: preserve the original bright character artwork.
   e.figure.dataset.r127CharacterLight=typeof Route127RegionalSky?.phase==='function'?Route127RegionalSky.phase(player?.flags?.worldHour):'day';
-  const device=typeof matchMedia==='function'&&matchMedia('(max-width:600px)').matches?'phone':'desktop';
+  const device=viewportDevice();
   const layouts=get(scene.id,scene.phase,device);
   e.figure.classList.toggle('r127-layout-has-background',!!e.img?.src&&!!layouts['background:'+assetName(e.img.src)]);
   if(Object.keys(layouts).length)for(const item of figureUnits(e,scene)){
-   if(layouts[item.key])apply(item.node,layouts[item.key],item.background);
+   if(!item.node.classList.contains('r127-final-unit')&&layouts[item.key])apply(item.node,layouts[item.key],item.background);
   }
   const attachments=Object.entries(layouts).filter(([key])=>key.startsWith('attachment:'));
   // The two crane enemies are individual sprites above the regional Lowlands
@@ -627,6 +658,6 @@
   }));
  }
  globalThis.Route127CombatLayouts=Object.freeze({
-  rows,installed,root,regionArt,assetName,unitKey,sceneKey,get,local:()=>local,published:()=>published,merged,json,save,importJSON,capture,activeScene
+  rows,installed,root,regionArt,assetName,unitKey,sceneKey,get,applyOverlay,local:()=>local,published:()=>published,merged,json,save,importJSON,capture,activeScene
  });
 })();

@@ -83,10 +83,6 @@
   get('notes').textContent=def[3]?
    'Use Return to start to control the exit. If a sequence ends inside the frame, it adds a return automatically. Start offscreen or behind the desk.':
    'The peek motion is built into the GIF. Adjust its placement under Playback.';
-  const stageType=get('stage-type');
-  const holdOption=stageType.querySelector('option[value="hold"]');
-  holdOption.disabled=actor!=='luna';
-  if(holdOption.disabled&&stageType.value==='hold')stageType.value='move';
   get('stage-add').disabled=stages.length>=16;
   function edit(apply){
    scene.stop();
@@ -105,7 +101,7 @@
    const heading=document.createElement('strong');
    heading.textContent={move:'Move',play:'Play animation',pause:'Pause',hold:'Hold GIF Frame'}[stage.type];
    if(stage.type!=='pause'){
-    field(fields,'Animation',stage,'clip',{choices:stage.type==='hold'?[['peek',api.clips.peek[2]]]:eligible});
+    field(fields,'Animation',stage,'clip',{choices:eligible});
     field(fields,'Facing',stage,'facing',{choices:facing});
    }
    if(stage.type==='move'){
@@ -118,15 +114,18 @@
     }
    }
    if(stage.type==='hold'){
-    field(fields,'Frame',stage,'frame',{min:1,max:api.peekFrameCount});
+    field(fields,'Frame',stage,'frame',{min:1,max:api.clipFrameCount});
     field(fields,'Hold (ms)',stage,'duration',{min:0,max:60000,step:10});
     const hint=document.createElement('p');
-    hint.className='hint';hint.textContent='Plays Luna Peek, holds the selected frame, then finishes the same GIF.';
+    hint.className='hint';hint.textContent='Plays this clip, holds the selected frame, then continues through the rest of the clip.';
     fields.append(hint);
    }else if(stage.type!=='play')field(fields,'Time (ms)',stage,'duration',stage.type==='move'?
     {min:100,max:20000}:{min:0,max:10000});
    const shift=delta=>edit(()=>{[stages[index],stages[index+delta]]=[stages[index+delta],stages[index]];});
    button(tools,'Preview Stage',()=>play(id,false,index));
+   if(stage.type==='play')button(tools,'Hold a Frame',()=>edit(()=>{
+    stages[index]=holdStage(stage.clip,stage.facing);
+   }));
    button(tools,'Move Up',()=>shift(-1),index===0);
    button(tools,'Move Down',()=>shift(1),index===stages.length-1);
    button(tools,'Remove',()=>edit(()=>stages.splice(index,1)),stages.length===1);
@@ -174,6 +173,9 @@
   status(started?'Playing '+name+(stageIndex===undefined?'':' · Stage '+(stageIndex+1)):'Character hidden');
  }
  const click=(id,fn)=>get(id).addEventListener('click',fn);
+ function holdStage(clip,facing='auto'){
+  return {type:'hold',clip,frame:9,duration:4000,facing};
+ }
  click('stage-add',()=>{
   const id=get('sequence').value,p=config.paths[id],def=api.sequences[id],type=get('stage-type').value;
   const clip=def[1],actor=api.clips[clip][0];
@@ -181,9 +183,8 @@
   if(stages.length>=16)return;
   scene.stop();
   if(type==='hold'){
-   if(actor!=='luna')return;
-   const existing=stages.length===1&&stages[0].type==='play'&&stages[0].clip==='peek'?stages[0]:null;
-   const hold={type:'hold',clip:'peek',frame:9,duration:4000,facing:existing?.facing||'auto'};
+   const existing=stages.length===1&&stages[0].type==='play'?stages[0]:null;
+   const hold=holdStage(existing?.clip||def[2]||clip,existing?.facing);
    if(existing)stages[0]=hold;
    else stages.push(hold);
   }else stages.push(type==='pause'?{type,duration:300}:type==='play'?{type,clip,facing:'auto'}:

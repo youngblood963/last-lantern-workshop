@@ -4,7 +4,7 @@
 if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||!location.pathname.includes('/route127/devtest/'))return;
 const tiers=[1,.75,.5,.25,.1],costs=[2,4,6,8,10],minutes=[1,5,10,20,40];
 const mats=r=>({Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0,'Tempered Steel':r.tempered||0,'Small Animal Bones':r.smallBones||0,'Animal Bones':r.bones||0,'Explosive Components':r.explosives||0,'Animal Hide':r.hide||0,...(r.materials||{})});
-const state={tab:'Items',selected:null,upgrade:null,open:false};
+const state={tab:'Items',selected:null,upgrade:null,open:false,foodSelections:{}};
 const baseName=name=>String(name||'').replace(/ \+[1-5]$/,'');
 const level=name=>Number(String(name||'').match(/ \+([1-5])$/)?.[1]||0);
 /* Presentation only: never alter inventory keys, GEAR lookups, saves or upgrade identifiers. */
@@ -47,7 +47,7 @@ function ready(r){
  if(Object.entries(mats(r)).some(([n,q])=>q>have(n)))return false;
  if(r.questInputs&&Object.entries(r.questInputs).some(([n,q])=>CorvetteRestoration.count(n)<q))return false;
  if(r.basicTent&&!r18ExactTent('Tent'))return false;
- if(r.food)return false; // food recipes require canonical ingredient-selection workflow
+ if(r.food&&r.food.some(kind=>!r18FoodEligible(kind).length))return false;
  return true;
 }
 const css=document.createElement('style');css.textContent=`
@@ -64,6 +64,9 @@ const css=document.createElement('style');css.textContent=`
 .r127-bench-panel .r127-bench-list button{text-align:left}
 .r127-bench-panel .r127-bench-detail{padding:12px;background:#090807c9;border:1px solid #72512f;min-height:90px}
 .r127-bench-panel .r127-bench-row{padding:4px 0}
+.r127-bench-panel .r127-bench-food-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:9px 0}
+.r127-bench-panel .r127-bench-food-row label{min-width:85px;text-transform:capitalize;color:#ffcb88}
+.r127-bench-panel .r127-bench-food-row select{flex:1;min-width:180px;max-width:100%}
 .r127-bench-panel,.r127-bench-panel *{scrollbar-width:thin;scrollbar-color:#79553b #15100c}
 .r127-bench-panel ::-webkit-scrollbar{width:10px;height:10px}
 .r127-bench-panel ::-webkit-scrollbar-track{background:#15100c;border:1px solid #4b3425}
@@ -102,10 +105,50 @@ function draw(){
  for(const [name,q]of Object.entries(r.questInputs||{})){const n=CorvetteRestoration.count(name);el(detail,'div',name+' — '+n+'/'+q,n>=q?'good':'bad')}
  if(r.basicTent)el(detail,'div','Tent — '+(r18ExactTent('Tent')?'1/1':'0/1'),r18ExactTent('Tent')?'good':'bad');
  if(r.bolts){el(detail,'div','Bolts — '+player.bolts+'/'+r.bolts,player.bolts>=r.bolts?'good':'bad')}
- if(r.food)el(detail,'p','Ingredient selection required — use original crafting menu.','bad');
+ if(r.food)for(const kind of r.food){
+  const available=[...new Set(r18FoodEligible(kind).map(item=>item.name))];
+  const row=el(detail,'div','','r127-bench-food-row');
+  const label=el(row,'label',kind);
+  const select=document.createElement('select');
+  select.setAttribute('aria-label',kind+' ingredient');
+  label.htmlFor='r127-bench-'+kind;
+  select.id='r127-bench-'+kind;
+  const names=state.foodSelections[key]||(state.foodSelections[key]={});
+  if(!available.includes(names[kind]))names[kind]=available[0]||'';
+  if(!available.length){
+   const option=document.createElement('option');option.textContent='No eligible '+kind+' in backpack';option.value='';select.append(option);
+   el(detail,'p','Collect an eligible '+kind+' ingredient to craft this recipe.','bad');
+  }else for(const name of available){
+   const option=document.createElement('option');option.textContent=name+' (×'+r18FoodEligible(kind).filter(item=>item.name===name).reduce((sum,item)=>sum+item.qty,0)+')';
+   option.value=name;option.selected=name===names[kind];select.append(option);
+  }
+  select.disabled=!available.length;
+  select.addEventListener('change',()=>{names[kind]=select.value});
+  row.append(select);
+ }
  if(player.flags.v49MurphyJob)el(detail,'p','A craft is already running. Collect it before starting another.','bad');
  const actions=el(detail,'div','','r127-bench-actions');
- button(actions,'Craft',()=>{close();r11CraftCommand('craft '+r.name.toLowerCase());if(typeof GraphicalUI!=='undefined')GraphicalUI.schedule()},!ready(r)||!!player.flags.v49MurphyJob,'primary');
+ button(actions,'Craft',()=>{
+  if(!ready(r)||player.flags.v49MurphyJob){draw();return;}
+  if(r.food){
+   const selected=state.foodSelections[key]||{};
+   if(r.food.some(kind=>!r18FoodEligible(kind).some(item=>item.name===selected[kind]))){draw();return;}
+   close();
+   // Start and complete the existing canonical food-selection transaction.
+   // Its final confirmation rechecks inventory, recipe gates, and quantities,
+   // then commits materials and the normal timed crafting job.
+   r11CraftCommand('craft '+r.name.toLowerCase());
+   if(player.flags.r18FoodDraft?.key!==key){GraphicalUI.schedule();return;}
+   for(const kind of r.food){
+    r11CraftCommand('select '+kind+' — '+selected[kind].toLowerCase());
+   }
+   r11CraftCommand('confirm ingredients');
+  }else{
+   close();
+   r11CraftCommand('craft '+r.name.toLowerCase());
+  }
+  if(typeof GraphicalUI!=='undefined')GraphicalUI.schedule();
+ },!ready(r)||!!player.flags.v49MurphyJob,'primary');
  button(actions,'Back to Workbench',close);
 }
 function saveUpgrade(){updateHud();if(typeof v49Autosave==='function')v49Autosave()}

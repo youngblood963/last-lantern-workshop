@@ -3,6 +3,7 @@
  'use strict';
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
 
+ const preview=globalThis.ROUTE127_ENV.terminalPreview;
  const backRoom='port55TomorrowBackRoom';
  const terminal='port55TomorrowTerminal';
  const completion='port55TomorrowComplete';
@@ -57,6 +58,7 @@
  }
  function leaveTerminal(){
   stopAmbient();
+  if(preview){resetConversation();return menu();}
   if(terminalOrigin==='factoryTerminal')return v49Terminal();
   room();
  }
@@ -175,7 +177,7 @@
 
  function finish(cmd){
   write(cmd==='yes'?yesReply:noReply);
-  if(completed())return menu();
+  if(preview||completed())return menu();
   player.flags.tomorrowProjectChoice=cmd;
   player.flags.chapterOneComplete=true;
   stage=completion;
@@ -206,6 +208,7 @@
  handleCommandCore=async function(raw){
   if(busy)return originalCore.apply(this,arguments);
   const cmd=r5Mapped(raw);
+  if(preview&&stage!==terminal)return menu();
   if(stage==='port55Mia'&&cmd==='enter back room'&&roomUnlocked()&&
      (Number(day)||1)>=(Number(player.flags.r18MiaBarredUntil)||0))return room();
   if(stage==='factoryTerminal'&&cmd===networkAction.toLowerCase()&&completed()){
@@ -218,7 +221,7 @@
    return port55Menu();
   }
   const globalShortcut=/^(?:save|load|inventory|inv|i|status|stats|s|quests?|q|map|m|v|testing|test off)(?:\s|$)/;
-  if(!globalShortcut.test(cmd)){
+  if(preview||!globalShortcut.test(cmd)){
    if(stage===backRoom){
     if(!roomUnlocked()||['back','b','return to bar','leave back room'].includes(cmd))return port55MiaMenu();
     if(['use computer','access terminal'].includes(cmd)&&repaired()){resetConversation();return connect();}
@@ -252,7 +255,7 @@
     const question=questions.findIndex(label=>label.toLowerCase()===cmd);
     resetConversation();
     if(question===6){
-     stopAmbient();
+     playAmbient();
      pendingAnswer=true;
      write(invitation);
      return choices(['YES','NO',main]);
@@ -348,7 +351,7 @@
   const connectedView=stage===terminal&&!startup;
   if(!connectedView)stopAmbient();
   if(!roomView)activating=false;
-  if(connectedView&&!wasConnected)scene.configure(TomorrowProjectScene.load());
+  if(connectedView&&!wasConnected)scene.configure(preview?TomorrowProjectScene.approved():TomorrowProjectScene.load());
   wasConnected=connectedView;
   const frame=this.element?.frame;
   shell.classList.toggle('tomorrow-terminal',stage===terminal);
@@ -362,4 +365,28 @@
    roomView?art.room:'',roomView?(repaired()?(activating?art.activation:art.on):art.off):'');
   return result;
  };
+ if(preview){
+  GraphicalUI.eligible=()=>true;
+  GraphicalUI.preference=()=> 'graphics';
+  GraphicalUI.nav=()=>[];
+  addEventListener('DOMContentLoaded',()=>{
+   const tools=document.createElement('section');
+   tools.setAttribute('aria-label','Terminal preview controls');
+   const back=document.createElement('a');
+   back.href='../devtest/lunas-workshop.html';back.textContent='Return to Luna’s Workshop';
+   const select=document.createElement('select');
+   select.setAttribute('aria-label','Sequence to preview');
+   for(const [id,[name]] of Object.entries(TomorrowProjectScene.sequences)){
+    const option=document.createElement('option');
+    option.value=id;option.textContent=name;select.append(option);
+   }
+   const play=document.createElement('button');
+   play.type='button';play.textContent='Play sequence';
+   play.addEventListener('click',()=>scene.start(select.value));
+   tools.append(back,' ',select,' ',play);
+   shell.prepend(tools);
+   menu();
+   GraphicalUI.schedule();
+  },{once:true});
+ }
 })();

@@ -55,7 +55,7 @@
   };
   field(root,'Scale (%)',actor,'scale',{min:1,max:200,step:.1});
   field(root,'Layer',actor,'layer',{min:1,max:20});
-  field(root,'Visible',actor,'visible');
+  field(root,id==='syn'?'Visible':'Visible at rest',actor,'visible');
   if(id==='flora')field(peek,'Flora peek layer',config,'peekLayer',{min:1,max:20});
  }
  function clipPlacement(){
@@ -170,7 +170,7 @@
   lastPreview={id,single,stageIndex};
   const name=single?api.clips[id][2]:api.sequences[id][0];
   const started=scene.start(id,{single,stageIndex,loop:stageIndex===undefined&&config.loop,onEnd:status});
-  status(started?'Playing '+name+(stageIndex===undefined?'':' · Stage '+(stageIndex+1)):'Character hidden');
+  status(started?'Playing '+name+(stageIndex===undefined?'':' · Stage '+(stageIndex+1)):'Preview unavailable');
  }
  const click=(id,fn)=>get(id).addEventListener('click',fn);
  function holdStage(clip,facing='auto'){
@@ -205,7 +205,7 @@
   scene.reset();lastPreview=null;config=settings;rebuild();status(message);
  }
  click('load',()=>restore(api.load(),'Saved layout loaded'));
- click('defaults',()=>restore(api.normalize(),'Default layout loaded as a draft'));
+ click('defaults',()=>restore(api.approved(),'Default layout loaded as a draft'));
  click('export',()=>{
   const url=URL.createObjectURL(new Blob([JSON.stringify(api.normalize(config),null,2)],{type:'application/json'}));
   const link=document.createElement('a');

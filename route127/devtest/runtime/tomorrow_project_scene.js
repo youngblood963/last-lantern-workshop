@@ -158,9 +158,10 @@ globalThis.TomorrowProjectScene=(()=>{
   }
   return actions;
  }
+ function approved(){return normalize(globalThis.TomorrowProjectApprovedLayout);}
  function load(){
-  try{return normalize(JSON.parse(localStorage.getItem(storageKey)||'null'));}
-  catch{return normalize();}
+  try{return normalize(JSON.parse(localStorage.getItem(storageKey)||'null')??globalThis.TomorrowProjectApprovedLayout);}
+  catch{return approved();}
  }
  function save(config){localStorage.setItem(storageKey,JSON.stringify(normalize(config)));}
 
@@ -261,6 +262,7 @@ globalThis.TomorrowProjectScene=(()=>{
   syn.dataset.actor='syn';
   const frame=sprite('tomorrow-frame');
   let current=load(),active=null,last='',next=0;
+  const remaining=new Set();
   const ghosts=new Map();
   function show(img,path){
    img.hidden=!path;
@@ -279,7 +281,7 @@ globalThis.TomorrowProjectScene=(()=>{
     position(entry.img,id,entry.clip);
     entry.img.hidden=!hub||!current.actors[id].visible||active?.actor===id;
    }
-   if(active?.img)position(active.img,active.actor,active.clip);
+   if(active?.img){position(active.img,active.actor,active.clip);active.img.hidden=!hub;}
   }
   function view(kind,roomArt,computerArt){
    visual.dataset.view=kind;
@@ -326,8 +328,7 @@ globalThis.TomorrowProjectScene=(()=>{
    if(visual.dataset.view!=='hub')return false;
    const def=single?null:sequences[id], clip=single?id:def?.[1];
    if(!Object.prototype.hasOwnProperty.call(clips,clip))return false;
-   const actor=clips[clip][0],a=current.actors[actor];
-   if(!a.visible)return false;
+   const actor=clips[clip][0];
    const all=plan(current,id,single);
    const selected=Number.isInteger(stageIndex)?all[stageIndex]:null;
    if(stageIndex!==undefined&&!selected)return false;
@@ -363,7 +364,7 @@ globalThis.TomorrowProjectScene=(()=>{
       if(active!==play)return;
       clearTimeout(play.pending.timer);play.pending=null;
       release(play);play.img=img;play.url=url;play.clip=action;
-      img.hidden=!current.actors[actor].visible;
+      img.hidden=visual.dataset.view!=='hub';
       play.timer=setTimeout(()=>go(index+1),duration);
      };
      img.onerror=()=>{if(active===play)stop('Artwork unavailable');};
@@ -377,14 +378,14 @@ globalThis.TomorrowProjectScene=(()=>{
    if(active)return 'Animation already playing';
    if(Date.now()<next)return 'Cooldown';
    if(Math.random()>=current.probability/100)return 'No animation triggered';
-   const options=Object.keys(sequences).filter(id=>id!==last&&current.actors[clips[sequences[id][1]][0]].visible);
-   if(!options.length)return 'No different visible sequence';
+   if(!remaining.size)Object.keys(sequences).forEach(id=>remaining.add(id));
+   const options=[...remaining].filter(id=>id!==last);
    const id=options[Math.floor(Math.random()*options.length)];
-   if(start(id,{onEnd})){last=id;return sequences[id][0];}
+   if(start(id,{onEnd})){remaining.delete(id);last=id;return sequences[id][0];}
    return 'No animation triggered';
   }
-  function reset(){stop();last='';next=0;}
+  function reset(){stop();remaining.clear();last='';next=0;}
   return {visual,composition,view,configure,pose,start,stop,roll,reset};
  }
- return {create,load,save,normalize,clips,sequences,plan,clipFrameCount};
+ return {create,load,save,approved,normalize,clips,sequences,plan,clipFrameCount};
 })();

@@ -109,10 +109,10 @@ function scenarioChoices(){
  const labels=encounterChoices(encounter).split(/\s{2,}/).filter(Boolean);
  if(typeof questRoadMarkers==='function')labels.push(...questRoadMarkers().map(row=>row[1]));
  const exits=/^(BACK AWAY|MOVE ON|KEEP MOVING|WALK AWAY|LEAVE|WITHDRAW|RETREAT|BACK DOWN)$/i;
- const exit=labels.find(label=>/^(BACK AWAY|MOVE ON|WALK AWAY|LEAVE|KEEP MOVING)$/i.test(label))||labels.find(label=>exits.test(label))||'LEAVE';
+ const exit=labels.find(label=>/^(BACK AWAY|MOVE ON|WALK AWAY|LEAVE|KEEP MOVING)$/i.test(label))||labels.find(label=>exits.test(label))||(encounter.wo7==='WO8-HOUNDS'?null:'LEAVE');
  const actions=labels.filter(label=>label!==exit);
- // Generic LEAVE is already supported by resolveEncounter.
- actions.push(exit);
+ // Active security hounds use their existing escape attempt.
+ if(exit)actions.push(exit);
  return actions.map((label,i)=>({key:String(i+1),command:choiceCommand(label),label}));
 }
 globalThis.Route127RoadsidePresentation=Object.freeze({choices:scenarioChoices,current,inScope,industrialEncounterSprites});

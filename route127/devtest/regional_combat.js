@@ -354,7 +354,7 @@
   const encounter={title:title.toUpperCase(),text,exclusive:true,choices:alternative+'   FIGHT   LEAVE',resolve(cmd){
    if(['leave','back away','move on'].includes(cmd)){add('You leave the encounter behind.');return true;}
    if(cmd==='fight'||(title==='Fuel Thieves'&&cmd==='take the fuel'))return r.regionalCombatFight(d);
-   if(cmd!==alternative.toLowerCase())return false;
+   if(cmd!==alternative.toLowerCase()&&cmd!==choiceCommand(alternative))return false;
    if(alternative.startsWith('PAY ')){const cost=alternative.includes('FIVE')?5:6;if(player.bolts<cost){add('You do not have '+cost+' Bolts. You can still leave.','system');return false;}player.bolts-=cost;updateHud();}
    if(alternative==='OFFER FOOD'){if(!hasItem('Energy Bars')){add('You need Energy Bars to offer food.','system');return false;}if(!removeItem('Energy Bars'))return false;}
    if(alternative==='OFFER SCRAP'&&!r6ConsumeMaterial('Scrap Metal',1)){add('You need Scrap Metal.','system');return false;}

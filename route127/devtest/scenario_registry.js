@@ -916,7 +916,7 @@ if(r18Quicksand){
 }
 // Append (never reorder old save indices) established combat scenes to the
 // previously discovery-only East pool. Existing 30% wanderer/cooldown stays intact.
-for(const title of ['THE WRECKERS','THE CRAWLER','SECURITY DRONE','HIGHWAY ROBBERS','GANG LOOKOUT','FERAL DOG','LONE SCAVENGER','SOMETHING IN THE DRAIN']){const original=encounters.find(e=>e.title===title),spec=combatSpecs[title];if(original&&spec&&!eastEncounters.some(e=>e.title===title))eastEncounters.push({...original,choices:'FIGHT   BACK AWAY',exclusive:true,combat:{...spec,action:'FIGHT'},resolve(cmd){if(['back away','leave'].includes(cmd)){add('You spot the threat before it closes in and leave without reward.','system');return true;}return false;}});}
+for(const title of ['THE WRECKERS','THE CRAWLER','SECURITY DRONE','HIGHWAY ROBBERS','GANG LOOKOUT','FERAL DOG','LONE SCAVENGER','SOMETHING IN THE DRAIN']){const original=encounters.find(e=>e.title===title),spec=combatSpecs[title];if(original&&spec&&!eastEncounters.some(e=>e.title===title))eastEncounters.push({...original,prompt:undefined,choices:'FIGHT   BACK AWAY',exclusive:true,combat:{...spec,action:'FIGHT'},resolve(cmd){if(['back away','leave'].includes(cmd)){add('You spot the threat before it closes in and leave without reward.','system');return true;}return false;}});}
 // Upgrade the underlying backpack, never confuse an active companion with it.
 v48BuyBackpack=function(){r5Capacity();const bonus=player.flags.r5MuleBonus||0,base=player.packMax-bonus;if(base>=10){add('Your underlying backpack already holds at least 10 slots.','system');return false;}if(player.bolts<V48_BACKPACK_PRICE){add('10-slot backpack costs '+V48_BACKPACK_PRICE+' Bolts.','system');return false;}player.bolts-=V48_BACKPACK_PRICE;player.packMax=10+bonus;updateHud();v48Checkpoint();showPurchaseComplete();return true;};
 // Storage transfers also count as intake after removing an active Mule.
@@ -973,7 +973,7 @@ const R9_COAST_SCENES=[];
 function r9CoastScene(category,title,text,actions){
  const choices=[...actions.map(a=>a[0]),'MOVE ON'];
  const index=eastEncounters.push({category,title,text,exclusive:true,choices:choices.join('   '),resolve(cmd){
-  const n=choices.findIndex(c=>c.toLowerCase()===cmd);if(n<0)return false;
+  const n=choices.findIndex(c=>c.toLowerCase()===cmd||choiceCommand(c)===cmd);if(n<0)return false;
   if(n===actions.length){add('You leave the scene behind and follow the freight line.','system');return true;}
   const result=actions[n][1]();return result!==false;
  }})-1;

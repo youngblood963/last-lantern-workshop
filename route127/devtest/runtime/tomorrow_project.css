@@ -68,6 +68,8 @@
 
 .tomorrow-terminal #screen { background: #0a120e; }
 .tomorrow-startup #screen { animation: tomorrow-signal 480ms ease-out; }
+/* The Workshop signal flicker also plays on the real headquarters video feed. */
+.tomorrow-visual.tomorrow-signal-in .tomorrow-composition { animation: tomorrow-signal 480ms ease-out both; }
 
 @keyframes tomorrow-signal {
   0%, 45% { opacity: .65; }
@@ -76,6 +78,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .tomorrow-startup #screen { animation: none; }
+  .tomorrow-visual.tomorrow-signal-in .tomorrow-composition { animation: none; }
 }
 
 .tomorrow-overlay { z-index: 1; }

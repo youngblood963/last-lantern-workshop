@@ -45,7 +45,7 @@
   const scene=globalThis.Route127CombatLayouts?.activeScene();
   if(!scene)return null;
   const combat=phases.has(stage)?combatState:null;
-  const scenery=name=>({name,dir:'scenarios',scenery:true});
+  const scenery=(name,dir='scenarios')=>({name,dir,scenery:true});
   const sprite=(name,index=0,dir='enemies')=>({name,dir,index});
   switch(scene.id){
    case 'early:55':return combat?null:[scenery('cold_road_camp.png'),
@@ -56,6 +56,13 @@
    case 'early:140':return [sprite('mountain_poacher_rifleman.png'),sprite('mountain_poacher_trapper.png',1)];
    case 'early:141':return [sprite('territorial_survivalist_rifleman.png'),sprite('territorial_survivalist_shotgun.png',1)];
    case 'early:142':return [sprite('mountain_lion.png')];
+   case 'east:75':return [sprite('wild_bear.png')];
+   case 'east:23':return [scenery('the_cinder_wolves.png','enemies')];
+   case 'east:40':return combat?null:r18HorseScene().phase==='offer'?
+    [sprite('dust_horse_brown.png',0,'scenarios')]:[scenery('the_dust_horses.png')];
+   case 'east:5':return combat?null:[scenery('the_collapsed_dam.png')];
+   case 'east:72':return combat?null:[scenery('the_lost_convoy.png')];
+   case 'east:15':return combat?null:[scenery('the_chain_bridge.gif')];
    default:return null;
   }
  }

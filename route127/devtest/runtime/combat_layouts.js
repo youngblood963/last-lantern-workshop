@@ -219,7 +219,7 @@
   const fight=!!entry.encounter.combat||entry.references?.some(ref=>ref.category==='combat')||
    states.get(title)?.some(spec=>spec.phase==='combat');
   rows.set(id,{
-   id,title,name:entry.encounter.displayName||entry.name||entry.encounter.title,
+   id,title,name:title==='MOUNTAIN LIONS'?'Mountain Lion':entry.encounter.displayName||entry.name||entry.encounter.title,
    classification:entry.classification||'GLOBAL',regions:entry.regions||[],
    combat:!!fight,fullCinematic:industrialCinematics.has(title),variants:states.get(title)||[]
   });

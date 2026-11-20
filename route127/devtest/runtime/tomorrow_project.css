@@ -101,10 +101,20 @@
 
 .tomorrow-visual.tomorrow-overlay { position: absolute; }
 
+/* The monitor casing is behind the entire transmission, not an overlay. */
+.tomorrow-visual.tomorrow-has-frame .tomorrow-composition {
+  width: min(84cqw, 149cqh);
+  z-index: 1;
+}
+
 .tomorrow-frame {
+  position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 21;
+  object-fit: contain;
+  z-index: 0;
   pointer-events: none;
 }
+
+.tomorrow-frame[hidden] { display: none; }

@@ -13,6 +13,7 @@ globalThis.TomorrowProjectScene=(()=>{
   floraPeek:['flora','flora/flora_peek.gif','Flora — Peek'],
   floraRun:['flora','flora/flora_run.gif','Flora — Run']
  };
+ const peekFrameCount=16;
  const sequences={
   walk:['Luna — Walk Through','walk',null,true],
   glance:['Luna — Camera Glance','walk','turn',true],
@@ -89,6 +90,11 @@ globalThis.TomorrowProjectScene=(()=>{
    const actor=clips[def[1]][0];
    const incoming=data?.timelines?.[id];
    const stages=Array.isArray(incoming)?incoming.slice(0,16).map(s=>{
+    if(s?.type==='hold'){
+     if(actor!=='luna'||s.clip!=='peek')return null;
+     return {type:'hold',clip:'peek',frame:Math.round(num(s.frame,9,1,peekFrameCount)),
+      duration:num(s.duration,4000,0,60000),facing:['left','right'].includes(s.facing)?s.facing:'auto'};
+    }
     if(!['move','play','pause'].includes(s?.type))return null;
     const clip=clips[s.clip]?.[0]===actor?s.clip:def[1];
     if(s.type==='pause')return {type:s.type,duration:num(s.duration,300,0,10000)};
@@ -128,16 +134,17 @@ globalThis.TomorrowProjectScene=(()=>{
    if(stage.type==='move'){
     const delta=target[0]-position[0];
     facing=stage.facing==='left'?-1:stage.facing==='right'?1:delta===0?facing:Math.sign(delta);
-   }else if(stage.type==='play'){
+   }else if(stage.type==='play'||stage.type==='hold'){
     if(stage.facing==='left'||stage.facing==='right')facing=stage.facing==='left'?-1:1;
     else if(!def[3])facing=p.facing==='left'?-1:1;
    }
    const shift=point=>[point[0]+offset[0],point[1]+offset[1]];
-   const step={clip:id,from:shift(position),to:shift(target),speed:p.speed,facing,duration:stage.duration,
+   const step={clip:id,from:shift(position),to:shift(target),speed:p.speed,facing,duration:stage.type==='hold'?undefined:stage.duration,
     still:stage.type==='pause',holdPrevious:stage.type==='pause'&&lastType==='play',
     oneCycle:stage.type==='play'&&def[3]};
+   if(stage.type==='hold')step.frameHold={frame:stage.frame,duration:stage.duration};
    position=target;lastClip=id;
-   if(stage.type!=='pause')lastType=stage.type;
+   if(stage.type!=='pause')lastType=stage.type==='hold'?'play':stage.type;
    return step;
   }
   const actions=stages.map(resolve);
@@ -169,7 +176,7 @@ globalThis.TomorrowProjectScene=(()=>{
   }
   return sources.get(id);
  }
- function gif(buffer,speed,still=false,oneCycle=false){
+ function gif(buffer,speed,still=false,oneCycle=false,frameHold){
   const data=new Uint8Array(buffer.slice(0));
   if(data.length<14||data[0]!==71||data[1]!==73||data[2]!==70)throw Error('Invalid GIF');
   const palette=flag=>flag&128?3*(2**((flag&7)+1)):0;
@@ -181,7 +188,7 @@ globalThis.TomorrowProjectScene=(()=>{
    }
    throw Error('Truncated GIF');
   };
-  let p=13+palette(data[10]),duration=0,frames=0,delay=10,loopStart,loopEnd;
+  let p=13+palette(data[10]),duration=0,frames=0,delay=10,delayOffset,loopStart,loopEnd,frameInsert;
   while(p<data.length){
    const tag=data[p++];
    if(tag===0x3b)break;
@@ -189,22 +196,48 @@ globalThis.TomorrowProjectScene=(()=>{
     const label=data[p++];
     if(label===0xf9&&data[p]===4){
      delay=Math.max(2,Math.round(((data[p+2]+256*data[p+3])||10)/speed));
-     data[p+2]=delay&255;data[p+3]=delay>>8;
+     delayOffset=p+2;
+     data[delayOffset]=delay&255;data[delayOffset+1]=delay>>8;
     }
     const end=blocks(p);
-    if(oneCycle&&label===0xff&&data[p]===11){
+    if((oneCycle||frameHold)&&label===0xff&&data[p]===11){
      const app=String.fromCharCode(...data.slice(p+1,p+12));
      if(app==='NETSCAPE2.0'||app==='ANIMEXTS1.0'){loopStart=p-2;loopEnd=end;}
     }
     p=end;
    }else if(tag===0x2c){
+    const imageStart=p-1;
     p=blocks(p+10+palette(data[p+8]));
-    duration+=delay*10;frames++;delay=10;
+    // Extend just this frame's delay in the temporary GIF. The browser
+    // decodes the same frames in order, including their transparency/disposal.
+    if(frameHold&&frames+1===frameHold.frame){
+     const added=Math.max(0,Math.min(65535-delay,Math.round(frameHold.duration/10)));
+     delay+=added;
+     if(delayOffset!==undefined){
+      data[delayOffset]=delay&255;data[delayOffset+1]=delay>>8;
+     }else{
+      frameInsert=[imageStart,new Uint8Array([0x21,0xf9,4,0,delay&255,delay>>8,0,0])];
+     }
+    }
+    duration+=delay*10;frames++;delay=10;delayOffset=undefined;
     if(still)return {blob:new Blob([data.slice(0,p),new Uint8Array([0x3b])],{type:'image/gif'}),duration};
    }else throw Error('Unsupported GIF block');
   }
   if(!frames)throw Error('GIF has no frames');
-  return {blob:new Blob(loopEnd?[data.slice(0,loopStart),data.slice(loopEnd)]:[data],{type:'image/gif'}),duration};
+  if(!frameHold)return {blob:new Blob(loopEnd?[data.slice(0,loopStart),data.slice(loopEnd)]:[data],{type:'image/gif'}),duration};
+  if(frames<frameHold.frame)throw Error('Hold frame is outside the GIF');
+  const edits=[];
+  if(loopEnd)edits.push([loopStart,loopEnd]);
+  if(frameInsert)edits.push([frameInsert[0],frameInsert[0],frameInsert[1]]);
+  const parts=[];
+  let offset=0;
+  for(const [start,end,bytes] of edits.sort((a,b)=>a[0]-b[0])){
+   parts.push(data.slice(offset,start));
+   if(bytes)parts.push(bytes);
+   offset=end;
+  }
+  parts.push(data.slice(offset));
+  return {blob:new Blob(parts,{type:'image/gif'}),duration};
  }
 
  function create(){
@@ -311,9 +344,9 @@ globalThis.TomorrowProjectScene=(()=>{
      play.timer=setTimeout(()=>go(index+1),step.duration);
      return;
     }
-    const {clip:action,from:start,to:end,duration:ms,facing,still,speed,oneCycle}=step;
+    const {clip:action,from:start,to:end,duration:ms,facing,still,speed,oneCycle,frameHold}=step;
     try{
-     const media=gif(await source(action),speed,still,oneCycle);
+     const media=gif(await source(action),speed,still,oneCycle,frameHold);
      if(active!==play)return;
      const img=sprite('tomorrow-actor tomorrow-moving');
      const url=URL.createObjectURL(media.blob);
@@ -352,5 +385,5 @@ globalThis.TomorrowProjectScene=(()=>{
   function reset(){stop();last='';next=0;}
   return {visual,composition,view,configure,pose,start,stop,roll,reset};
  }
- return {create,load,save,normalize,clips,sequences,plan};
+ return {create,load,save,normalize,clips,sequences,plan,peekFrameCount};
 })();

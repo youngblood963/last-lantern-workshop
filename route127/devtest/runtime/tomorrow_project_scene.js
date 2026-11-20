@@ -255,12 +255,14 @@ globalThis.TomorrowProjectScene=(()=>{
    return img;
   }
   const hubArt=root+'backgrounds/communication_hub.png';
-  const overlayArt=null; // Optional transparent-center artwork.
+  const overlayArt=root+'backgrounds/tomorrow_project_monitor_frame.png';
   const background=sprite('tomorrow-background');
   const computer=sprite('tomorrow-computer','Communications computer');
   const syn=sprite('tomorrow-actor','Syn at the communications desk');
   syn.dataset.actor='syn';
-  const frame=sprite('tomorrow-frame');
+  const frame=document.createElement('img');
+  frame.className='tomorrow-frame';frame.alt='';frame.hidden=true;frame.draggable=false;
+  visual.prepend(frame);
   let current=load(),active=null,last='',next=0;
   const remaining=new Set();
   const ghosts=new Map();
@@ -289,6 +291,7 @@ globalThis.TomorrowProjectScene=(()=>{
    const backdrop=kind==='hub'?hubArt:kind==='room'?roomArt:null;
    show(background,backdrop);
    show(frame,kind==='hub'?overlayArt:null);
+   visual.classList.toggle('tomorrow-has-frame',kind==='hub');
    if(backdrop)visual.style.setProperty('--tomorrow-backing','url('+JSON.stringify(new URL(backdrop,document.baseURI).href)+')');
    else visual.style.removeProperty('--tomorrow-backing');
    show(computer,computerArt);

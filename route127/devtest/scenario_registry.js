@@ -625,7 +625,8 @@ const R5_ROAD_REWORK={
   if(n===1&&Math.random()<.55){add('The machine follows the vibration into a collapsed tunnel and grinds to a halt.','bright');r18RoadEaterSalvage();gainXp(Math.max(8,player.level*2));return true;}
   if(n!==2)add('The tunneling machine turns toward you.','danger');const level=Math.max(1,Math.min(50,Number(player.level)||1)),hp=Math.max(16,Math.floor(baseHpForLevel(level)*.18));startCombat({name:'THE ROAD EATER',level,hp:hp*3,min:4,max:8,xp:Math.max(30,level*8),bolts:0,r18RoadEater:true,enemies:[{name:'CUTTING WHEEL',hp,bolts:0},{name:'HYDRAULICS',hp,bolts:0},{name:'CONTROL UNIT',hp,bolts:0}],end:'The tunneling machine grinds to a halt.'},'encounter');return true;
  }},
- 'THE SALT MINERS':{options:['FIGHT THE SALTMASTER','BACK AWAY'],run(){
+ 'THE SALT MINERS':{options:['FIGHT THE SALTMASTER','BACK AWAY'],run(choice){
+  if(choice!==0){add('You back away from the salt quarry without drawing the guards’ attention.','system');return true;}
   if(player.flags.r18SaltWorkersFreed||player.flags.marlowRescued){
    add('The rescued workers have left the salt road.','system');return true;
   }

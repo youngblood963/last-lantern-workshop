@@ -19,7 +19,7 @@ lanternAppendChoices=function(labels){
  if(stage==='house'&&labels.length===1&&labels[0]==='EXPLORE ROADS')return;
  return appendChoices.apply(this,arguments);
 };
-const canRestAtHouse=()=>player.flags.houseQuest!=='active';
+const canRestAtHouse=()=>player.flags.houseOwned===true && player.flags.houseQuest==='done';
 const solaceExit='↓ S — SOLACE';
 showHouseChoices=function(){
  ensureHousing();

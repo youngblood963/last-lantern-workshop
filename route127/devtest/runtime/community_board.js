@@ -119,7 +119,7 @@
    const data=await request('board?id='+encodeURIComponent(id)+'&page='+index);
    if(version!==renderVersion)return;
    panel.querySelector('h2').textContent=(data.post.pinned?'Important Notice · ':'')+data.post.title;
-   line.textContent=data.post.locked?'Closed to responses.':'';
+   line.textContent=data.post.identity||data.post.locked?'Closed to responses.':'';
    for(const post of [data.post,...data.replies]){
     const item=make('article');
     if(post.identity)item.className='community-official';
@@ -131,7 +131,7 @@
     if(data.admin||post.owned&&!post.identity)actions.push(['Remove Notice',{action:'remove'}]);
     if(data.admin&&!post.parent_id){
      actions.push([post.pinned?'Unpin Notice':'Pin Notice',{action:'pinned',enabled:!post.pinned}]);
-     actions.push([post.locked?'Unlock Responses':'Lock Responses',{action:'locked',enabled:!post.locked}]);
+     if(!post.identity)actions.push([post.locked?'Unlock Responses':'Lock Responses',{action:'locked',enabled:!post.locked}]);
     }
     for(const [label,value] of actions)item.append(control(label,async event=>{
      if(value.action==='remove'&&!confirm('Remove this notice?'))return;
@@ -146,7 +146,7 @@
    }
    if(index>0)panel.append(control('Previous Responses',()=>thread(kind,id,index-1)));
    if(data.more)panel.append(control('More Responses',()=>thread(kind,id,index+1)));
-   if(!data.post.locked)panel.append(control('Write a Response',()=>editor({kind,parent:id,threadId:id})));
+   if(!data.post.identity&&!data.post.locked)panel.append(control('Write a Response',()=>editor({kind,parent:id,threadId:id})));
   }catch(error){if(version===renderVersion){line.textContent=error.message;panel.append(control('Retry',()=>thread(kind,id,index)));}}
  }
  function editor({kind,parent,post,threadId}){

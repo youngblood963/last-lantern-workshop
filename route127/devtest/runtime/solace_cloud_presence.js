@@ -6,15 +6,22 @@
     new URLSearchParams(location.search).get('offline')==='1')return;
  const api='/route127/devtest/api/presence/';
  const portrait=new URL('../devtest/assets/players/player_survivor_default.png',document.baseURI).href;
- let activeId=null,showRoster=false,rows=[],sprites=[],spriteKey='',spriteOffset=0,dialog,selected,running=false,queued=false;
+ let activeId=null,activeArea=null,showRoster=false,rows=[],sprites=[],spriteKey='',spriteOffset=0,dialog,selected,running=false,queued=false;
  let activityId,activityAt=0,inspection=0;
- const inSolace=()=>{
+ function presenceArea(){
+  if(!document.body.classList.contains('r127-cloud-game')||document.querySelector('.cloud-login[open]'))return null;
   const travel=lanternState();
-  return document.body.classList.contains('r127-cloud-game')&&!document.querySelector('.cloud-login[open]')&&
-   travel?.nodeId==='solace'&&travel.solaceAdmitted&&!travel.currentEdgeId&&!travel.pending;
- };
- const onMainStreet=()=>inSolace()&&stage==='mercy'&&mercyLocation==='town'&&
-  player.flags.solaceMenu==='town'&&!townWandererFocus&&!combatState;
+  if(!travel||travel.currentEdgeId||travel.pending)return null;
+  if(travel.nodeId==='solace'&&travel.solaceAdmitted)return 'solace';
+  if(travel.nodeId==='factory'&&['eastEnd','lanternNode'].includes(stage)&&!combatState)return 'factory';
+  if(travel.nodeId==='seaport'&&stage==='seaport'&&!combatState)return 'seaport';
+  return null;
+ }
+ function inRosterArea(){
+  const area=presenceArea();
+  return area==='solace'?stage==='mercy'&&mercyLocation==='town'&&
+   player.flags.solaceMenu==='town'&&!townWandererFocus&&!combatState:!!area;
+ }
  async function request(path,post=false){
   const response=await fetch(api+path,{method:post?'POST':'GET',credentials:'same-origin',cache:'no-store'});
   if(!response.ok)throw Error('Survivor presence is unavailable.');
@@ -27,12 +34,12 @@
   dialog=null;
  }
  async function inspect(id){
-  if(!onMainStreet()||!rows.some(row=>row.id===id))return;
+  if(!inRosterArea()||!rows.some(row=>row.id===id))return;
   closeProfile();
-  const attempt=inspection;
+  const attempt=inspection,area=presenceArea();
   try{
    const {survivor}=await request('survivors/'+encodeURIComponent(id));
-   if(attempt!==inspection||!onMainStreet())return;
+   if(attempt!==inspection||area!==presenceArea()||!inRosterArea())return;
    const {equipment}=survivor;
    const gear=name=>Object.hasOwn(GEAR,name)?GEAR[name]:null;
    const weapon=gear(equipment.weapon),armor=gear(equipment.armor),accessory=gear(equipment.accessory);
@@ -48,11 +55,11 @@
    selected=id;
    dialog=globalThis.Route127WandererInfo.open(survivor.name,portrait,{level:survivor.level,stats});
   }catch{
-   if(attempt===inspection&&onMainStreet())add('Survivor information is unavailable.','system');
+   if(attempt===inspection&&inRosterArea())add('Survivor information is unavailable.','system');
   }
  }
  function render(){
-  const figure=GraphicalUI.active()&&onMainStreet()?GraphicalUI.element?.figure:null;
+  const figure=GraphicalUI.active()&&inRosterArea()?GraphicalUI.element?.figure:null;
   const capacity=matchMedia('(max-width:640px)').matches?2:3;
   const visible=figure&&!figure.hidden?rows.slice(spriteOffset,spriteOffset+capacity):[];
   const key=JSON.stringify(visible.map(({id,name})=>[id,name]));
@@ -86,14 +93,14 @@
   render();
  }
  globalThis.Route127SolaceCloud=Object.freeze({
-  choices:()=>onMainStreet()?rows.slice(0,90).map(({id,name})=>[id,'Talk to '+name,true,null,'inspect survivor '+id]):[],
+  choices:()=>inRosterArea()?rows.slice(0,90).map(({id,name})=>[id,'Talk to '+name,true,null,'inspect survivor '+id]):[],
   inspect
  });
  const previousCommand=handleCommand;
  handleCommand=async function(raw){
   const typed=String(raw||'').trim().toLowerCase();
   const command=numberedChoices[typed]||currentHotkeys[typed]||typed;
-  if(onMainStreet()&&command.startsWith('inspect survivor '))return inspect(command.slice(17));
+  if(inRosterArea()&&command.startsWith('inspect survivor '))return inspect(command.slice(17));
   const id=player.characterId;
   if(typed&&!busy&&id&&document.body.classList.contains('r127-cloud-game')&&
      !document.querySelector('.cloud-login[open]')&&(activityId!==id||Date.now()-activityAt>=3600000)){
@@ -106,33 +113,36 @@
  async function refresh(){
   if(running){queued=true;return;}
   running=true;
-  const id=activeId;
+  const id=activeId,area=activeArea;
   try{
    if(!id){
     await request('leave',true);
     return;
    }
    await request('heartbeat',true);
-   if(!showRoster||id!==activeId)return;
+   if(!showRoster||id!==activeId||area!==activeArea)return;
    const next=[];
    let after=null;
    do{
     const page=await request('survivors'+(after?'?after='+encodeURIComponent(after):''));
+    if((page.area||'solace')!==area){updateRows([]);return;}
     next.push(...page.survivors.filter(row=>row.id!==id));
     after=page.next;
-   }while(after&&id===activeId&&showRoster);
-   if(id===activeId&&showRoster)updateRows(next);
+   }while(after&&id===activeId&&area===activeArea&&showRoster);
+   if(id===activeId&&area===activeArea&&showRoster)updateRows(next);
   }catch{
-   if(id===activeId)updateRows([]);
+   if(id===activeId&&area===activeArea)updateRows([]);
   }finally{
    running=false;
    if(queued){queued=false;refresh();}
   }
  }
  function changed(){
-  const id=inSolace()?player.characterId:null;
-  const nextShow=!!id&&onMainStreet();
-  if(id!==activeId||nextShow!==showRoster){
+  const area=presenceArea();
+  const id=area?player.characterId:null;
+  const nextShow=!!id&&inRosterArea();
+  if(id!==activeId||area!==activeArea||nextShow!==showRoster){
+   activeArea=area;
    activeId=id;
    showRoster=nextShow;
    updateRows([]);

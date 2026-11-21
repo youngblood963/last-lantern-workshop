@@ -8,7 +8,7 @@ function node(tag='div',box={left:0,top:0,width:800,height:600}){
   getBoundingClientRect:()=>({...box,right:box.left+box.width,bottom:box.top+box.height}),
   append(...xs){for(const x of xs){this.children.push(x);x.parentElement=this;}},
   remove(){this.isConnected=false;if(this.parentElement)this.parentElement.children=this.parentElement.children.filter(x=>x!==this);},
-  setAttribute(){},getContext:()=>({setTransform(){},clearRect(){},beginPath(){},moveTo(){},lineTo(){},save(){},restore(){},rect(){},clip(){},ellipse(){draws++;},fill(){draws++;},stroke(){draws++;},fillRect(){draws++;},createRadialGradient(){return {addColorStop(){}};}}),
+  setAttribute(){},getContext:()=>({setTransform(){},clearRect(){},beginPath(){},moveTo(){},lineTo(){},save(){},restore(){},rect(){},clip(){},ellipse(){draws++;},bezierCurveTo(){},closePath(){},translate(){},scale(){},createLinearGradient(){return {addColorStop(){}};},fill(){draws++;},stroke(){draws++;},fillRect(){draws++;},createRadialGradient(){return {addColorStop(){}};}}),
   addEventListener(k,fn){if(!listeners.has(k))listeners.set(k,new Set());listeners.get(k).add(fn);},
   removeEventListener(k,fn){listeners.get(k)?.delete(fn);},
   fire(k,e={}){for(const f of listeners.get(k)||[])f(e);},
@@ -25,16 +25,16 @@ ctx.ResizeObserver=class{observe(){}disconnect(){disconnected++;}};
 ctx.performance={now:()=>now};ctx.requestAnimationFrame=fn=>{frames.set(++rafId,fn);return rafId;};ctx.cancelAnimationFrame=id=>frames.delete(id);
 vm.runInContext(fs.readFileSync(path.resolve(__dirname,'../runtime/environmental_effects_wo46.js'),'utf8'),ctx);
 const Controller=run('Route127Environment.Controller'),records=run('Route127Environment.records()');
-assert.equal(records.length,6);
+assert.equal(records.length,7);
 const glassRecord=records.find(x=>x.effect==='glass').entry;
 assert.equal(glassRecord.classification,'REGIONAL');
-assert.deepEqual(Array.from(glassRecord.regions).sort(),['CENTRAL','INDUSTRIAL']);
+assert.deepEqual(Array.from(glassRecord.regions).sort(),['CAUSEWAY','CENTRAL','INDUSTRIAL']);
 const ashRecord=records.find(x=>x.effect==='ash').entry;
 assert.equal(ashRecord.classification,'REGIONAL');
-assert.deepEqual(Array.from(ashRecord.regions).sort(),['INDUSTRIAL','NORTH']);
+assert.deepEqual(Array.from(ashRecord.regions).sort(),['CAUSEWAY','INDUSTRIAL','NORTH']);
 assert.equal(records.find(x=>x.effect==='rain').entry.classification,'GLOBAL');
 assert(records.find(x=>x.effect==='fog').entry.regions.includes('LOWLANDS'));
-const expected={furnace:['SHUT DOWN FURNACE','HOOK GLOWING METAL','SEARCH MAINTENANCE LOCKER','BACK AWAY'],wires:['CROSS THE CABLES','DISCONNECT THE POWER SOURCE','SEARCH THE TRUCK SAFELY','LEAVE'],glass:['CROSS CAREFULLY','TAKE THE SAFE DETOUR','CLEAR A PATH WITH TOOL','BACK AWAY'],ash:['BUY TWO COINS FOR 110 BOLTS','HEAL THE SCAVENGER','THREATEN THE SCAVENGER','FIGHT THE SCAVENGER','SEARCH THE BURNING TRUCK','BACK AWAY'],rain:['SPRINT TO SHELTER','COVER WITH ARMOR','PUSH THROUGH FOR SALVAGE','BACK AWAY'],fog:['COVER FACE WITH CLOTH','WAIT FOR THE WIND','SEARCH THE PLANT STASH','BACK AWAY']};
+const expected={tar:['USE ROPE OR POLE','WADE TO SEALED CASE','SEARCH THE SHORELINE','BACK AWAY'],furnace:['SHUT DOWN FURNACE','HOOK GLOWING METAL','SEARCH MAINTENANCE LOCKER','BACK AWAY'],wires:['CROSS THE CABLES','DISCONNECT THE POWER SOURCE','SEARCH THE TRUCK SAFELY','LEAVE'],glass:['CROSS CAREFULLY','TAKE THE SAFE DETOUR','CLEAR A PATH WITH TOOL','BACK AWAY'],ash:['BUY TWO COINS FOR 110 BOLTS','HEAL THE SCAVENGER','THREATEN THE SCAVENGER','FIGHT THE SCAVENGER','SEARCH THE BURNING TRUCK','BACK AWAY'],rain:['SPRINT TO SHELTER','COVER WITH ARMOR','PUSH THROUGH FOR SALVAGE','BACK AWAY'],fog:['COVER FACE WITH CLOTH','WAIT FOR THE WIND','SEARCH THE PLANT STASH','BACK AWAY']};
 for(const record of records)assert.deepEqual(Array.from(record.effect==='wires'?run('WO7.definitions.get("I6")[5]'):record.entry.encounter.choices.split(/\s{2,}/)),expected[record.effect]);
 const before=run('JSON.stringify(player)'),logic=records.map(r=>r.entry.encounter.resolve);
 const root=node(),scene=node('figure',{left:0,top:0,width:800,height:400}),button=node('button',{left:250,top:450,width:220,height:50});root.buttons=[button];root.append(scene);
@@ -312,3 +312,29 @@ for(const width of [390,1365]){
  assert.equal(art.children.length,0);
 }
 console.log('PASS Furnace Pit: canonical activation, 390px/1365px draw budgets, localized shimmer and glow, touch, reduced motion, visibility and teardown');
+
+const tarBefore=integration.run("JSON.stringify(player)");
+const tarRecord=records.find(r=>r.effect==='tar');
+assert.equal(tarRecord.entry.id,'east:31');
+assert.deepEqual(Array.from(tarRecord.entry.regions),['LOWLANDS']);
+for(const width of [390,1000])for(const period of ['day','night']){
+ const frame=node(),art=node('figure',{left:0,top:0,width,height:width*9/16});
+ const tar=new Controller(frame,art,{effect:'tar',region:'LOWLANDS',period});
+ assert.equal(tar.layers.length,1,'The pool draws only on the scenery');
+ const beforeDraw=draws;
+ for(let i=0;i<80;i++){
+  now+=34;
+  const pending=[...frames.values()];frames.clear();for(const fn of pending)fn(now);
+ }
+ assert(tar.elapsed>2&&draws>beforeDraw);
+ tar.stop();assert.equal(frames.size,0);
+}
+reduced=true;
+const stillTar=new Controller(root,scene,{effect:'tar'});
+assert.equal(frames.size,0);stillTar.stop();
+integration.run(`stage='encounter';currentEncounter=()=>RoadScenarioRegistry.entries.find(e=>e.id==='east:31').encounter;GraphicalUI.sync();`);
+assert.equal(integration.run('Route127Environment.diagnostics().effect'),'tar');
+integration.run('loadGame()');
+assert.equal(integration.run('Route127Environment.diagnostics()'),null);
+assert.equal(integration.run('JSON.stringify(player)'),tarBefore);
+console.log('PASS Tar Pool: Lowlands registry and choices, scenery-only day/night animation at desktop and phone widths, reduced motion, live activation, cleanup and unchanged player data');

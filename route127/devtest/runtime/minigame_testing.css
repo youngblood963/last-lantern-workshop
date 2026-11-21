@@ -174,3 +174,22 @@
 @media (prefers-reduced-motion: reduce) {
   .tire-yard-hit { animation: none; }
 }
+
+.tire-yard-frame { display: grid; justify-items: center; width: 100%; }
+.tire-yard-countdown { color: #ffda82; font-weight: bold; font-variant-numeric: tabular-nums; }
+.tire-yard-countdown-low { color: #ff8170; }
+.tire-yard-countdown-last { text-shadow: 0 0 8px #ff4c36; outline: 1px solid #c76d54; padding: 0 6px; }
+.tire-yard-warning { color: #ffbe75; }
+.tire-yard-warning:empty { display: none; }
+.tire-yard-rescue { border: 1px solid #9d735a; padding: .7rem 1.5rem; margin: 0; }
+.tire-yard-path.tire-yard-smoke {
+  background: radial-gradient(ellipse at 40% 55%, #aaa49996, #716b6580 55%, #645c5940);
+}
+.tire-yard-collapse { animation: tire-yard-collapse 230ms ease-out; }
+@keyframes tire-yard-collapse {
+  20%, 65% { transform: translateX(2px); }
+  40%, 80% { transform: translateX(-2px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tire-yard-collapse { animation: none; }
+}

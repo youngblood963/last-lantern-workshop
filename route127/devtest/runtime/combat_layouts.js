@@ -641,6 +641,8 @@
  /* Scrap Duel's authored scene fills the complete artwork viewport; no sky margin. */
  .gfx-frame .gfx-art img[src*="the_scrap_duel.png"]{object-fit:cover!important;object-position:center!important}
  .gfx-frame .gfx-art .r127-layout-unit{position:absolute!important;left:var(--r127-layout-x)!important;top:var(--r127-layout-y)!important;width:var(--r127-layout-width)!important;height:var(--r127-layout-height)!important;transform:translate(-50%,-50%) scale(var(--r127-layout-scale))!important;scale:none!important;z-index:var(--r127-layout-z)!important}
+ /* Saved coordinates are relative to the scene, rather than a sprite grid cell. */
+ .gfx-frame .gfx-art .r127-lowlands-units>.r127-layout-unit{grid-area:auto!important}
  .gfx-frame .gfx-art > img.gfx-image.r127-layout-unit:not(.r127-layout-background){
   max-width:none;max-height:none;object-fit:contain;object-position:center bottom
  }

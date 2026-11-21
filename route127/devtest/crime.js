@@ -13,7 +13,7 @@ function r18BribeOffer(lawman){const c=v52Crime(),f=player.flags,today=Number(da
 function r18BribeConfirm(lawman){const f=player.flags,c=v52Crime(),p=f.r18BribePending,today=Number(day)||1;if(!p||p.lawman!==lawman){add('No bribe is awaiting confirmation here.','system');return false;}delete f.r18BribePending;if(today<(Number(f.r18BribeNextDay)||0)||c.bounty!==p.bounty||player.bolts<p.price){add('The offer changed; no bribe was attempted and no Bolts were charged.','system');return false;}f.r18BribeNextDay=today+3;if(Math.random()<.5){player.bolts-=p.price;c.bounty=0;c.active=[];updateHud();add(lawman+' accepts '+p.price+' Bolts and clears the bounty.','reward');}else{v52Record('Attempted bribery',lawman,'Attempted to bribe '+lawman,25);add(lawman+' rejects the offer and reports it. No bribe payment was taken.','danger');}return true;}
 function r18BribeCancel(){delete player.flags.r18BribePending;add('You withdraw the offer. No Bolts were spent.','system');}
 function r18LegalFine(lawman){const c=v52Crime();if(!c.bounty){add('Your record is clear.','system');return false;}const price=c.bounty;if(player.bolts<price){add('Clearing the bounty costs '+price+' Bolts.','system');return false;}player.bolts-=price;c.bounty=0;c.active=[];delete player.flags.r18BribePending;updateHud();add(lawman+' accepts '+price+' Bolts. Your bounty is cleared.','reward');return true;}
-function v52ItemType(name){return GEAR[name]?.type||(['Bandage','Energy Bars','Reinforced Bandage','Emergency Trauma Kit'].includes(name)?'consumable':name==='Tent'?'supply':name==='Battered Flashlight'?'tool':'material');}
+function v52ItemType(name){return GEAR[name]?.type||(['Bandage','Energy Bars','Clean Water','Reinforced Bandage','Emergency Trauma Kit'].includes(name)?'consumable':name==='Tent'?'supply':name==='Battered Flashlight'?'tool':'material');}
 function v52CrimeLocation(){const names={town:'Main Street',jen:'The Rusty Lantern Tavern',jenTalk:'The Rusty Lantern Tavern',johnny:"Johnny's Trading Post",murphy:"Murphy's Motor Works",wayne:'Last Chance Clinic',amii:'Solace Savings & Loan',mara:'Scrap & Steel Armory',tim:'Tim',gate:'West Gate',eastGate:'East Gate',relay:'Relay Station'};return 'Solace — '+(names[mercyLocation]||mercyLocation);}
 function v52Inventory(w){
  const p=v50Profile(w);let inv=p.v52Inventory;
@@ -21,6 +21,12 @@ function v52Inventory(w){
  // Old v52 snapshots contain independent quantities. Keep the lower remaining count;
  // never resurrect goods already stolen/bought/salvaged. v51 simply seeds from its saved stock.
  if(inv.version!==2){for(const item of inv.items){const stock=(p.stock||[]).find(x=>x.name===item.name);item.type=item.type||v52ItemType(item.name);item.trade=!!stock;if(stock){item.qty=Math.min(item.qty,stock.qty);item.price=stock.price;}}inv.version=2;}
+ if(!inv.cleanWaterSeeded){
+  inv.cleanWaterSeeded=true;
+  if(!p.hostile&&!inv.salvaged&&!inv.items.some(i=>i.name==='Clean Water')&&Math.random()<.75){
+   inv.items.push({name:'Clean Water',type:'consumable',qty:1+Math.floor(Math.random()*3),price:10,trade:true});
+  }
+ }
  p.stock=inv.items.filter(x=>x.trade);return inv;
 }
 function r18TheftAllowed(){const next=Number(player.flags.r18CrimeCooldowns?.theft)||0;if((Number(day)||1)>=next)return true;add('Another theft attempt is unavailable until day '+next+'.','system');return false;}

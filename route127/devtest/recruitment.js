@@ -69,7 +69,8 @@ function portStaffRender(){
 }
 function portStoreStock(){
  const state=portStaffState(),period=Number(player.flags.nextRefillAt)||0;
- if(!state.stock||state.stockPeriod!==period){state.stockPeriod=period;state.stock={'Energy Bars':8,Bandage:6,Tent:3,'Scrap Metal':8,Wire:6,Cloth:6,'Emergency Trauma Kit':1};}
+ if(!state.stock||state.stockPeriod!==period){state.stockPeriod=period;state.stock={'Energy Bars':8,'Clean Water':10,Bandage:6,Tent:3,'Scrap Metal':8,Wire:6,Cloth:6,'Emergency Trauma Kit':1};}
+ state.stock['Clean Water']??=10;
  return state.stock;
 }
 function portStorePrice(n){const base=VENDOR_BASE[n]||Math.max(1,(V48_LOOT_PRICES[n]||2)*2);return Math.max(1,Math.round(base*(1-(portStaffRating('general store')-1)*.02)));}

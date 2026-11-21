@@ -1,7 +1,7 @@
 // WO12: deterministic item values and explicit reward/service policies. No XP/HP curve edits.
 const Economy={
  version:12,
- goods:{'Energy Bars':8,Bandage:18,'Emergency Trauma Kit':45,Tent:24,'Battered Flashlight':20,'Scrap Metal':8,Wire:8,Cloth:6,Rope:8,Fuel:12,Electronics:18,Chemicals:12},
+ goods:{'Energy Bars':8,'Clean Water':10,Bandage:18,'Emergency Trauma Kit':45,Tent:24,'Battered Flashlight':20,'Scrap Metal':8,Wire:8,Cloth:6,Rope:8,Fuel:12,Electronics:18,Chemicals:12},
  regions:{NORTH:3,WEST:4,CENTRAL:5,INDUSTRIAL:9,LOWLANDS:10,EAST:12,SEAPORT:14},
  subtype:{pipe:10,club:8,bat:12,hatchet:18,knife:14,machete:24,axe:32,hammer:28,rifle:80,revolver:55,pistol:48,shotgun:70,smg:85,crossbow:40},
  value(name){const g=GEAR[name];if(!g)return this.goods[name]||0;const def=EQUIPMENT_CATALOG.find(x=>x.id===g.id||x.name===g.name||x.name===name),level=Math.max(1,Number(g.level)||def?.minLevel||1),rarity={common:1,uncommon:1.65,rare:3.6,epic:4.6,legendary:0}[g.rarity]||0;if(!rarity)return 0;let identity=0;for(const ch of String(g.id||name))identity=(identity*31+ch.charCodeAt(0))%23;const stats=g.type==='weapon'?((Number(g.min)||0)+(Number(g.max)||0))*6:(Number(g.def)||0)*45;let bonuses=0;for(const [k,v]of Object.entries(g))if(typeof v==='number'&&/bonus|chance|resist/i.test(k))bonuses+=Math.abs(v)*(/chance/i.test(k)?200:12);return Math.max(20,Math.round((35+10*Math.pow(level,1.8)+stats+(this.subtype[g.subtype]||15)+identity+bonuses)*rarity*(1+identity*.003)*({rifle:1.24,smg:1.3,shotgun:1.18,club:.94,pipe:.96}[g.subtype]||1)));},

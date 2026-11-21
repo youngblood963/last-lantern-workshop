@@ -590,7 +590,7 @@ function equipmentRarityRoll(level,roll){
  return 'legendary';
 }
 const RARITY_COLOR={common:"#e5e7eb",uncommon:"#22c55e",rare:"#3b82f6",epic:"#a855f7",legendary:"#f97316"};
-function gearLabel(name){if(name==="Old World Pocket Compass")return "Old World Pocket Compass [UNCOMMON]";if(name==="Pre-War Silver Coin")return "Pre-War Silver Coin [UNCOMMON]";if(name==="Wild Honey")return "Wild Honey [UNCOMMON]";const g=GEAR[name];return g?`${name} [${g.rarity.toUpperCase()}]`:name;}
+function gearLabel(name){if(name==="Old World Pocket Compass")return "Old World Pocket Compass [UNCOMMON]";if(name==="Pre-War Silver Coin")return "Pre-War Silver Coin [UNCOMMON]";if(name==="Clean Water")return "Clean Water [COMMON]";if(name==="Wild Honey")return "Wild Honey [UNCOMMON]";const g=GEAR[name];return g?`${name} [${g.rarity.toUpperCase()}]`:name;}
 function armorDefense(){if(typeof stage!=='undefined'&&stage==='combat'&&typeof combatState!=='undefined'&&combatState?.r18Bare)return 0;return (GEAR[player.armor]?.def||0)+(GEAR[player.accessory]?.def||0);}
 function weaponRange(){if(typeof stage!=='undefined'&&stage==='combat'&&typeof combatState!=='undefined'&&combatState?.r18Bare){const l=Math.max(1,Math.min(50,Number(player.level)||1)),n=Math.floor((l-1)*.8);return [5+n,10+n];}const g=GEAR[player.weapon],a=GEAR[player.accessory];return g&&g.type==="weapon"?[g.min+(a?.min||0),g.max+(a?.max||0)]:[5+(a?.min||0),10+(a?.max||0)];}
 function enemyHit(min,max) {
@@ -605,7 +605,7 @@ function r18EquippedRanged(){const gear=GEAR[player.weapon],def=gear?.subtype?ge
 function rollDamage(min,max){ if(min==null||max==null){[min,max]=weaponRange();} return Math.floor(Math.random()*(max-min+1))+min; }
 // Keep all edible prepared foods/produce classified as consumables, including
 // legacy saves where traveling merchants stocked them as materials.
-const R127_EDIBLE_ITEMS=new Set(['Energy Bars','Bandage','Reinforced Bandage','Emergency Trauma Kit','Wild Honey','Fresh Carrot','Fresh Potato','Fresh Apple','Fresh Pear','Fresh Berries','Fresh Tomato','Fresh Cabbage','Preserved Vegetables','Preserved Meat','Wasteland Stew','Roadhouse Hash']);
+const R127_EDIBLE_ITEMS=new Set(['Energy Bars','Clean Water','Bandage','Reinforced Bandage','Emergency Trauma Kit','Wild Honey','Fresh Carrot','Fresh Potato','Fresh Apple','Fresh Pear','Fresh Berries','Fresh Tomato','Fresh Cabbage','Preserved Vegetables','Preserved Meat','Wasteland Stew','Roadhouse Hash']);
 function r127NormalizeEdiblePack(){
  for(const item of player.pack||[])if(R127_EDIBLE_ITEMS.has(item.name)&&!['quest','key'].includes(item.type))item.type='consumable';
 }
@@ -728,7 +728,7 @@ function inspectItem(name){
   const info={
     "Mine-Protected Tent":"UNCOMMON — One-use outdoor shelter that prevents overnight losses when selected and confirmed.",
     "Explosive Components":"Salvaged explosive parts used in the Mine-Protected Tent blueprint.",
-    "Tent":"One-use shelter for a lower-risk camp. Consumed only when you confirm MAKE CAMP.","Energy Bars":"ENERGY BAR — Restore 10% of maximum HP.",
+    "Tent":"One-use shelter for a lower-risk camp. Consumed only when you confirm MAKE CAMP.","Energy Bars":"ENERGY BAR — Restore 10% of maximum HP.","Clean Water":"Restore 20% of maximum HP outside combat.",
     "Battered Flashlight":"A scratched LED flashlight. Still works. Mostly. Useful anywhere darkness is the problem. Can be dismantled for Bolts and Electronics.",
     "Cloth":"Salvaged fabric. Useful for bandages and basic crafting.",
     "Wire":"Copper wire with enough insulation left to matter.",
@@ -770,10 +770,10 @@ function useItem(name){
   if(typeof combatState!=='undefined'&&combatState?.r18Bare){add('No items or healing during a bare-knuckle match.','system');return false;}
   if(String(name).toLowerCase().includes("tent")){add("Use MAKE CAMP when overnight choices appear. Tent is consumed only after confirmation.","system");return;}
   const item=findItem(name); if(!item){add("You aren't carrying that.","system"); return;}
-  const rates={"Energy Bars":.10,"Bandage":.25,"Reinforced Bandage":.50,"Emergency Trauma Kit":.75,"Wild Honey":.15,"Fresh Carrot":.10,"Fresh Potato":.10,"Fresh Apple":.10,"Fresh Pear":.10,"Fresh Berries":.10,"Fresh Tomato":.10,"Fresh Cabbage":.10,"Preserved Vegetables":.25,"Preserved Meat":.25,"Wasteland Stew":.40,"Roadhouse Hash":.25};
+  const rates={"Energy Bars":.10,"Clean Water":.20,"Bandage":.25,"Reinforced Bandage":.50,"Emergency Trauma Kit":.75,"Wild Honey":.15,"Fresh Carrot":.10,"Fresh Potato":.10,"Fresh Apple":.10,"Fresh Pear":.10,"Fresh Berries":.10,"Fresh Tomato":.10,"Fresh Cabbage":.10,"Preserved Vegetables":.25,"Preserved Meat":.25,"Wasteland Stew":.40,"Roadhouse Hash":.25};
   if(Object.hasOwn(rates,item.name)){
     if(player.hp>=player.maxHp){add("You are already at full health.","system");return;}
-    if(['Wild Honey','Fresh Potato','Fresh Carrot','Fresh Apple','Fresh Pear','Fresh Berries','Fresh Tomato','Fresh Cabbage','Preserved Vegetables','Preserved Meat','Wasteland Stew','Roadhouse Hash'].includes(item.name)&&['combat','combatItems'].includes(stage)){add('Use this item after leaving combat.','system');return;}
+    if(['Clean Water','Wild Honey','Fresh Potato','Fresh Carrot','Fresh Apple','Fresh Pear','Fresh Berries','Fresh Tomato','Fresh Cabbage','Preserved Vegetables','Preserved Meat','Wasteland Stew','Roadhouse Hash'].includes(item.name)&&['combat','combatItems'].includes(stage)){add('Use this item after leaving combat.','system');return;}
     const heal=Math.min(player.maxHp-player.hp,Math.max(1,Math.ceil(player.maxHp*rates[item.name])));
     if(!removeItem(item.name+(item.stolen?' (STOLEN)':''),1))return false;player.hp+=heal;updateHud();add(`${item.name.toUpperCase()} — +${heal} HP`,"reward");return true;
   }
@@ -1369,6 +1369,12 @@ function r18RetainRoadReward(name,type){
  (player.flags.r5LootQueue||(player.flags.r5LootQueue=[])).push({name,type,qty:1});
  add(name+" is held until you make room.","system");return true;
 }
+// Called only after eligible supply searches earn their existing rewards.
+function r18FindCleanWater(largeCache=false){
+ if(Math.random()>=.2)return;
+ const qty=largeCache&&Math.random()<.25?2:1;
+ for(let i=0;i<qty;i++)r18RetainRoadReward('Clean Water','consumable');
+}
 function r18CampVariant(){
  const g=typeof lanternState==='function'?lanternState():null;
  const scene=g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`;
@@ -1376,7 +1382,7 @@ function r18CampVariant(){
  return player.flags.r18CampScene.occupied;
 }
 // A scene-scoped stock roll survives redraws and save/load without duplicating purchases.
-function r18PeteStock(){const g=typeof lanternState==='function'?lanternState():null,scene=g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`,f=player.flags;if(f.r18PeteStock?.scene===scene)return f.r18PeteStock;const stock={scene,potato:Math.random()<.5,equipment:null};if(Math.random()<.25){const pool=EQUIPMENT_CATALOG.filter(x=>x.rarity==='uncommon'&&['weapon','armor'].includes(x.type)),def=pool[Math.floor(Math.random()*pool.length)];if(def){const level=Math.max(def.minLevel,Math.min(def.maxLevel,Math.floor(Number(player.level)||1)));stock.equipment={name:catalogInstanceName(def,level),type:def.type,price:80+level*3,sold:false};}}f.r18PeteStock=stock;return stock;}
+function r18PeteStock(){const g=typeof lanternState==='function'?lanternState():null,scene=g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`,f=player.flags;if(f.r18PeteStock?.scene===scene){f.r18PeteStock.water??=4;return f.r18PeteStock;}const stock={scene,water:4,potato:Math.random()<.5,equipment:null};if(Math.random()<.25){const pool=EQUIPMENT_CATALOG.filter(x=>x.rarity==='uncommon'&&['weapon','armor'].includes(x.type)),def=pool[Math.floor(Math.random()*pool.length)];if(def){const level=Math.max(def.minLevel,Math.min(def.maxLevel,Math.floor(Number(player.level)||1)));stock.equipment={name:catalogInstanceName(def,level),type:def.type,price:80+level*3,sold:false};}}f.r18PeteStock=stock;return stock;}
 function r18FreezerScene(){
  const g=typeof lanternState==='function'?lanternState():null;
  const scene=typeof RoadLifecycle!=='undefined'?RoadLifecycle.sceneKey('early:32'):g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`;
@@ -1388,7 +1394,7 @@ function r18OpenMechanicChest(){
  const eligible=Object.keys(CRAFT_RECIPES).filter(k=>['uncommon','rare'].includes(CRAFT_RECIPES[k].rarity||GEAR[CRAFT_RECIPES[k].name]?.rarity)&&!GEAR[CRAFT_RECIPES[k].name]?.questOnly&&typeof r11Learned==='function'&&!r11Learned(k)),uncommon=eligible.filter(k=>(CRAFT_RECIPES[k].rarity||GEAR[CRAFT_RECIPES[k].name]?.rarity)==='uncommon'),pool=uncommon.length?uncommon:eligible;
  if(pool.length){const key=pool[Math.floor(Math.random()*pool.length)];player.flags.r11Learned=player.flags.r11Learned||{};player.flags.r11Learned[key]=true;add('BLUEPRINT LEARNED — '+CRAFT_RECIPES[key].name,'reward');}
  else{r18RetainRoadReward('Scrap Metal','material');add('The plans are already familiar, but the chest contains usable Scrap Metal.','reward');}
- r18RetainRoadReward('Wire','material');player.flags.r18MechanicChestOpened=true;gainXp(Math.max(8,player.level*2));return true;
+ r18RetainRoadReward('Wire','material');player.flags.r18MechanicChestOpened=true;r18FindCleanWater(true);gainXp(Math.max(8,player.level*2));return true;
 }
 const R18_CHESS_PUZZLES=[
  {setup:'White king F6, white queen G6; black king H8. White to move.',answer:'QUEEN G7',wrong:['QUEEN E6','KING E6']},
@@ -1437,7 +1443,7 @@ function r18DepotCombatWin(){const q=player.flags.r18CountyDepot;if(!q){complete
 function r18DepotCommand(cmd){const f=player.flags,q=f.r18CountyDepot;if(!q){stage='between';renderCurrentChoices();return;}
  if(cmd==='leave depot'||cmd==='back'){add('You mark the depot trail and return to the highway.','system');return r18DepotReturn();}
  if(cmd==='inspect depot log'){add('The log identifies Unit 07 and mechanic Eli Mercer. A repair note describes an exposed two-wire isolation circuit.','bright');if(!q.log){q.log=true;gainXp(Math.max(6,player.level));}return r18DepotMenu();}
- if(cmd==='search depot locker'){if(q.locker){add('The locker has already been searched.','system');return r18DepotMenu();}q.locker=true;r18RetainRoadReward('Electronics','material');add('A service locker contains Electronics.','reward');return r18DepotMenu();}
+ if(cmd==='search depot locker'){if(q.locker){add('The locker has already been searched.','system');return r18DepotMenu();}q.locker=true;r18RetainRoadReward('Electronics','material');r18FindCleanWater();add('A service locker contains Electronics.','reward');return r18DepotMenu();}
  if(cmd==='disable unit with two wire'&&!q.neutralized){if(r6MaterialCount('Wire')<2){add('Two Wire are needed to isolate Unit 07.','system');return r18DepotMenu();}if(!r6ConsumeMaterial('Wire',2))return r18DepotMenu();q.neutralized=true;add('You isolate Unit 07’s control circuit. The machine powers down.','reward');return r18DepotMenu();}
  if(cmd==='sneak past unit'&&!q.neutralized){if(Math.random()<.6){q.neutralized=true;add('You slip past the patrol and lock Unit 07 behind a service gate.','bright');return r18DepotMenu();}add('Unit 07 detects movement and turns toward you.','danger');return r18DepotFight();}
  if(cmd==='fight unit 07'&&!q.neutralized)return r18DepotFight();
@@ -2588,7 +2594,7 @@ function smallTalk(name){
   const a=lines[name]; add(a[Math.floor(Math.random()*a.length)], "bright");
 }
 // Individual stock is stored with the character, never regenerated by opening the shop.
-const VENDOR_BASE={"Emergency Trauma Kit":200,"Battered Flashlight":20,"Rusted Pipe":12,"Worn Jacket":10,"Tent":12,"Energy Bars":8,"Bandage":12,"Reinforced Jacket":45,"Claw Hammer":50,"Tire Iron":80,"Reinforced Pipe":48,"Tempered Steel Pipe":125,"Padded Jacket":45,"Hardened Scavenger Coat":135,"Devastator's Iron Pipe":320,"Wraith's Reinforced Coat":340,"Worn Leather Wristband":18,"Lucky Bottle Cap":15,"Worn Belt":22,"Scavenger's Charm":55,"Reinforced Dog Tags":60,"Road Warrior's Bracelet":65};
+const VENDOR_BASE={"Emergency Trauma Kit":200,"Battered Flashlight":20,"Rusted Pipe":12,"Worn Jacket":10,"Tent":12,"Energy Bars":8,"Clean Water":10,"Bandage":12,"Reinforced Jacket":45,"Claw Hammer":50,"Tire Iron":80,"Reinforced Pipe":48,"Tempered Steel Pipe":125,"Padded Jacket":45,"Hardened Scavenger Coat":135,"Devastator's Iron Pipe":320,"Wraith's Reinforced Coat":340,"Worn Leather Wristband":18,"Lucky Bottle Cap":15,"Worn Belt":22,"Scavenger's Charm":55,"Reinforced Dog Tags":60,"Road Warrior's Bracelet":65};
 const VENDOR_POOL=["Rusted Pipe","Worn Jacket","Reinforced Jacket","Claw Hammer","Tire Iron","Reinforced Pipe","Tempered Steel Pipe","Padded Jacket","Hardened Scavenger Coat","Devastator's Iron Pipe","Wraith's Reinforced Coat","Worn Leather Wristband","Lucky Bottle Cap","Worn Belt","Scavenger's Charm","Reinforced Dog Tags","Road Warrior's Bracelet"];
 function refreshVendorStock(){
   const common=VENDOR_POOL.filter(x=>GEAR[x].rarity==="common"),uncommon=VENDOR_POOL.filter(x=>GEAR[x].rarity==="uncommon"),rare=VENDOR_POOL.filter(x=>GEAR[x].rarity==="rare");
@@ -2605,6 +2611,15 @@ function ensureVendorStock(){
  }
  if(!Array.isArray(player.vendorSold))player.vendorSold=[];
 }
+function johnnyWaterStock(){
+ const period=Number(player.flags.nextRefillAt)||0;
+ if(player.flags.johnnyWater?.period!==period)player.flags.johnnyWater={period,qty:10};
+ return player.flags.johnnyWater;
+}
+function johnnyWaterListing(){
+ const qty=johnnyWaterStock().qty;
+ add(`CLEAN WATER — RESTORE 20% MAX HP OUTSIDE COMBAT — ${johnnyPrice('Clean Water')} BOLTS (${qty} LEFT)`,'system');
+}
 function johnnyPrice(item){const base=VENDOR_BASE[item];return player.dailyDeal===item?Math.max(1,Math.round(base*.72)):base;}
 function johnnyMainMenu(){
   player.flags.solaceMenu="johnnyMain";
@@ -2616,11 +2631,12 @@ function johnnyShop(){
   ensureVendorStock();player.flags.solaceMenu="shop";
   add("JOHNNY'S STOCK — PERSONAL DAILY SELECTION","place");
   add(`ENERGY BAR — RESTORE 10% MAX HP — ${johnnyPrice("Energy Bars")} BOLTS`,"system");add(`BANDAGE — RESTORE 25% MAX HP — ${johnnyPrice("Bandage")} BOLTS`,"system");
+  johnnyWaterListing();
   add(`BATTERED FLASHLIGHT — 20 BOLTS`,"system");
   add(`TENT — ${johnnyPrice("Tent")} BOLTS — one use for overnight camp.`,"system");
   if(player.packMax-(player.flags.r5MuleBonus||0)<10)add(`10-SLOT BACKPACK — ${V48_BACKPACK_PRICE} BOLTS`,"system");
   const scrap=findItem("Scrap Metal"),sq=scrap?scrap.qty:0;add(`SCRAP: ${sq} — ${sq*4} BOLTS. Stock refreshes at daily refill.`,"system");
-  add(["BUY ENERGY BAR","BUY BANDAGE","BUY BATTERED FLASHLIGHT","SMALL TALK",...(player.flags.relayPartsRevealed&&player.flags.relayQuest!=="complete"?["ASK ABOUT RELAY PARTS"]:[]),"BUY TENT","BUY","SELL ITEMS",...(player.flags.r18MarthaSettled?["OLD WORLD COUNTER"]:[]),...(player.packMax-(player.flags.r5MuleBonus||0)<10?["BUY 10-SLOT BACKPACK"]:[]),...(sq?["SELL ALL SCRAP"]:[]),"(B) BACK"].join("   "),"system");
+  add(["BUY ENERGY BAR",...(johnnyWaterStock().qty>0?["BUY CLEAN WATER"]:[]),"BUY BANDAGE","BUY BATTERED FLASHLIGHT","SMALL TALK",...(player.flags.relayPartsRevealed&&player.flags.relayQuest!=="complete"?["ASK ABOUT RELAY PARTS"]:[]),"BUY TENT","BUY","SELL ITEMS",...(player.flags.r18MarthaSettled?["OLD WORLD COUNTER"]:[]),...(player.packMax-(player.flags.r5MuleBonus||0)<10?["BUY 10-SLOT BACKPACK"]:[]),...(sq?["SELL ALL SCRAP"]:[]),"(B) BACK"].join("   "),"system");
 }
 function showEquipmentShop(){
  player.flags.solaceMenu="equipment";add("SCRAP & STEEL ARMORY — MARA — DAILY EQUIPMENT",'place');
@@ -2629,8 +2645,8 @@ function showEquipmentShop(){
 }
 function vendorReturnMenu(){return player.flags.solaceMenu==="equipment"?showEquipmentShop():johnnyShop();}
 function buyJohnny(item){
- ensureVendorStock();if(!["Energy Bars","Bandage","Tent","Battered Flashlight",...player.vendorStock].includes(item)){add("JOHNNY > Not in today's stock.","system");vendorReturnMenu();return;}
- if(player.vendorSold.includes(item)){add("JOHNNY > Sold out. Try tomorrow.","system");vendorReturnMenu();return;}
+ ensureVendorStock();if(!["Energy Bars","Clean Water","Bandage","Tent","Battered Flashlight",...player.vendorStock].includes(item)){add("JOHNNY > Not in today's stock.","system");vendorReturnMenu();return;}
+ if(player.vendorSold.includes(item)||(item==="Clean Water"&&johnnyWaterStock().qty<1)){add("JOHNNY > Sold out. Try tomorrow.","system");vendorReturnMenu();return;}
  if(GEAR[item] && mercyLocation!=="mara"){add("Weapons and armor are sold at Scrap & Steel Armory.","system");return;}
  const price=johnnyPrice(item);if(player.bolts<price){add(`INSUFFICIENT BOLTS — ${price} required; you carry ${player.bolts}.`,"system");vendorReturnMenu();return;}
  const g=GEAR[item],stackable=!g;
@@ -2639,7 +2655,9 @@ function buyJohnny(item){
 
  // Payment only after capacity checks. Gear is carried until explicitly equipped.
  if(!addPack(item,g?g.type:item==="Tent"?"supply":item==="Battered Flashlight"?"tool":"consumable",1,true)){vendorReturnMenu();return;}
- player.bolts-=price;if(g)player.vendorSold.push(item);updateHud();
+ player.bolts-=price;if(g)player.vendorSold.push(item);
+ if(item==="Clean Water"){johnnyWaterStock().qty--;v49Autosave();}
+ updateHud();
  add(`PURCHASED — ${gearLabel(item)} — -${price} BOLTS. ${g?"Open INVENTORY to equip.":""}`,g?.rarity||"reward");showPurchaseComplete();
 }
 function showPurchaseComplete(){player.flags.solaceMenu="purchaseComplete";add("PURCHASE COMPLETE","reward");add("CONTINUE SHOPPING   RETURN TO TOWN","system");}
@@ -2731,7 +2749,7 @@ function handleSolace(cmd, raw=cmd){
   if((cmd.includes("talk to tim")||cmd==="talk tim"||cmd==="tim") && player.flags.timQuest==="found" && hasItem("Tim's Old Badge")){removeItem("Tim's Old Badge");player.flags.timQuest="done";add("Tim turns the badge over in his palm for a long moment.");add(`TIM > Thought I'd lost this part of myself for good. Thanks, ${player.handle}.`,"bright");add("QUEST COMPLETE — THE OLD BADGE","place");gainXp(120);gainBolts(30);return;}
   if((cmd.includes("talk to murphy")||cmd==="talk murphy"||cmd==="murphy") && player.flags.murphyQuest==="found" && hasItem("Usable Serpentine Belt")){removeItem("Usable Serpentine Belt");player.flags.murphyQuest="done";add("Murphy bends the belt, checks the ribs, then actually smiles.");add("MURPHY > That's one good belt. Knew there had to be one left out there.","bright");add("QUEST COMPLETE — ONE GOOD BELT","place");gainXp(120);gainBolts(35);if(!hasItem("Reinforced Work Vest")&&player.armor!=="Reinforced Work Vest")addPack("Reinforced Work Vest","armor");return;}
   // Match only displayed personal stock, never stale hard-coded items.
-  if(mercyLocation==="johnny" && cmd.startsWith("buy ")){ensureVendorStock();const wanted=cmd.slice(4).trim();const item=["Energy Bars","Bandage","Tent","Battered Flashlight",...player.vendorStock].find(x=>x.toLowerCase()===wanted || (x==="Energy Bars"&&wanted==="energy bar"));if(item){buyJohnny(item);return;}add("JOHNNY > I don't have that today.","system");johnnyShop();return;}
+  if(mercyLocation==="johnny" && cmd.startsWith("buy ")){ensureVendorStock();const wanted=cmd.slice(4).trim();const item=["Energy Bars","Clean Water","Bandage","Tent","Battered Flashlight",...player.vendorStock].find(x=>x.toLowerCase()===wanted || (x==="Energy Bars"&&wanted==="energy bar"));if(item){buyJohnny(item);return;}add("JOHNNY > I don't have that today.","system");johnnyShop();return;}
   if(mercyLocation==="wayne" && cmd.includes("buy") && cmd.includes("bandage")){ if(player.bolts<8){add("WAYNE > Eight Bolts. Medicine is cheaper than bleeding to death.","system");return;} if(packSlotsUsed()>=player.packMax && !hasItem("Bandage")){add("Your pack is full.","system");return;} player.bolts-=8; updateHud(); addPack("Bandage","consumable"); add("WAYNE > Try using it before you can see bone.","bright"); return; }
   if(cmd.includes("sell") && cmd.includes("scrap")){ const it=findItem("Scrap Metal"); if(!it){add("JOHNNY > You're trying to sell me scrap you don't have. Bold strategy.","system");return;} const qty=cmd.includes("all")?it.qty:1; removeItem("Scrap Metal",qty); player.bolts+=4*qty; updateHud(); add(`+${4*qty} BOLTS`, "reward"); add(`JOHNNY > ${qty} scrap. Fair enough.`); if(mercyLocation==="johnny")johnnyShop(); return; }
   if(cmd.includes("inspect") && (cmd.includes("corvette")||cmd.includes("photo")) || cmd.includes("about corvette")){ add("You step closer to the faded photograph. A bright blue Corvette sits under a sky that looks almost impossibly clean."); add("Murphy glances over and smiles. MURPHY > Blue Corvette. That's what cars were supposed to look like.","bright"); return; }

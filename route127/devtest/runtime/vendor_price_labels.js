@@ -27,7 +27,7 @@
    if(mercyLocation==='johnny'&&
       ['shop','johnnyStock','purchaseComplete'].includes(player.flags?.solaceMenu)){
     const goods={
-     'buy energy bar':'Energy Bars','buy bandage':'Bandage',
+     'buy energy bar':'Energy Bars','buy clean water':'Clean Water','buy bandage':'Bandage',
      'buy battered flashlight':'Battered Flashlight','buy tent':'Tent'
     };
     if(goods[cmd])return johnnyPrice(goods[cmd]);

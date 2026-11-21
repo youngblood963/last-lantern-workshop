@@ -45,7 +45,7 @@ GraphicalUI.sync=function(...args){
 };
 
 const inventoryTemplate=()=>({
- 'Energy Bars':8,'Bandage':6,'Tent':3,'Scrap Metal':8,Wire:6,Cloth:6,'Emergency Trauma Kit':1
+ 'Energy Bars':8,'Clean Water':10,'Bandage':6,'Tent':3,'Scrap Metal':8,Wire:6,Cloth:6,'Emergency Trauma Kit':1
 });
 const position=()=>{const g=lanternState();return g?.currentEdgeId===EDGE&&g.stepIndex===STEP&&!g.pending;};
 function discover(){
@@ -57,7 +57,7 @@ function discover(){
 function stock(){
  const period=Number(player.flags.nextRefillAt)||0;
  const s=player.flags.r127FinnStock;
- if(s&&s.period===period)return s.items;
+ if(s&&s.period===period){s.items['Clean Water']??=10;return s.items;}
  const items=inventoryTemplate();
  player.flags.r127FinnStock={period,items};
  return items;

@@ -734,11 +734,11 @@ function inspectItem(name){
     "Wire":"Copper wire with enough insulation left to matter.",
     "Rope":"A length of rope useful for descents and securing crossings.",
     "Scrap Metal":"Bent but usable metal for repairs and crafting.",
-    "Wild Honey":"UNCOMMON — Restore 15% of maximum HP, including in combat.",
+    "Wild Honey":"UNCOMMON — Restore 15% of maximum HP outside combat.",
     "Pre-War Silver Coin":"UNCOMMON — A silver keepsake that can be sold for Bolts.",
     "Bandage":"A clean-enough field dressing. Restore 25% of maximum HP.",
     "Reinforced Bandage":"Forge-crafted dressing. Restore 50% of maximum HP.",
-    "Emergency Trauma Kit":"A sealed emergency kit. Restore 75% of maximum HP outside combat.",
+    "Emergency Trauma Kit":"A sealed emergency kit. Restore 75% of maximum HP, including in combat.",
     "Tempered Steel":"RARE — Heat-treated metal used in the Tempered Steel Pipe blueprint.",
     "Raw Rat Meat":"Raw rat meat. Use shared cooking and preservation recipes after learning them.",
     "Raw Bird Meat":"Raw bird meat. Use shared cooking and preservation recipes after learning them.",
@@ -749,7 +749,7 @@ function inspectItem(name){
     "Large Animal Bones":"Large animal bones usable for trade.",
     "Small Animal Bones":"Small animal bones used for a Bone Tomahawk and trade.",
     "Fresh Carrot":"A fresh carrot. Restore 10% of maximum HP outside combat.",
-    "Fresh Potato":"A fresh potato. Restore 10% of maximum HP, including in combat.",
+    "Fresh Potato":"A fresh potato. Restore 10% of maximum HP outside combat.",
     "Fresh Pear":"Fresh produce. Restore 10% of maximum HP outside combat.",
     "Fresh Berries":"Fresh produce. Restore 10% of maximum HP outside combat.",
     "Fresh Tomato":"Fresh produce. Restore 10% of maximum HP outside combat.",
@@ -773,7 +773,7 @@ function useItem(name){
   const rates={"Energy Bars":.10,"Bandage":.25,"Reinforced Bandage":.50,"Emergency Trauma Kit":.75,"Wild Honey":.15,"Fresh Carrot":.10,"Fresh Potato":.10,"Fresh Apple":.10,"Fresh Pear":.10,"Fresh Berries":.10,"Fresh Tomato":.10,"Fresh Cabbage":.10,"Preserved Vegetables":.25,"Preserved Meat":.25,"Wasteland Stew":.40,"Roadhouse Hash":.25};
   if(Object.hasOwn(rates,item.name)){
     if(player.hp>=player.maxHp){add("You are already at full health.","system");return;}
-    if(['Emergency Trauma Kit','Fresh Carrot','Fresh Apple','Fresh Pear','Fresh Berries','Fresh Tomato','Fresh Cabbage','Preserved Vegetables','Preserved Meat','Wasteland Stew','Roadhouse Hash'].includes(item.name)&&['combat','combatItems'].includes(stage)){add('Use this item after leaving combat.','system');return;}
+    if(['Wild Honey','Fresh Potato','Fresh Carrot','Fresh Apple','Fresh Pear','Fresh Berries','Fresh Tomato','Fresh Cabbage','Preserved Vegetables','Preserved Meat','Wasteland Stew','Roadhouse Hash'].includes(item.name)&&['combat','combatItems'].includes(stage)){add('Use this item after leaving combat.','system');return;}
     const heal=Math.min(player.maxHp-player.hp,Math.max(1,Math.ceil(player.maxHp*rates[item.name])));
     if(!removeItem(item.name+(item.stolen?' (STOLEN)':''),1))return false;player.hp+=heal;updateHud();add(`${item.name.toUpperCase()} — +${heal} HP`,"reward");return true;
   }
@@ -783,7 +783,7 @@ function useItem(name){
   else add("You can't use that directly here.","system");
 }
 function showCombatItems(){
-  const usable=player.pack.filter(i=>i.qty>0&&(i.name==="Bandage"||i.name==="Energy Bars"||i.name==="Reinforced Bandage"||i.name==="Wild Honey"||i.name==="Fresh Potato"));
+  const usable=player.pack.filter(i=>i.qty>0&&(i.name==="Bandage"||i.name==="Energy Bars"||i.name==="Reinforced Bandage"||i.name==="Emergency Trauma Kit"));
   // Never enter an empty combat-items submenu: graphical mode otherwise has
   // no numbered item buttons and can lose the Back binding mid-combat.
   if(!usable.length){
@@ -800,7 +800,7 @@ function showCombatItems(){
   numberedChoices={};currentHotkeys={b:"back"};
   refreshInterfaceShortcutLabels();
   add("──────────── COMBAT ITEMS ────────────","system");
-  usable.forEach((i,n)=>add(`[${n+1}] ${r18ItemLabel(i)}${i.qty>1?` ×${i.qty}`:""} — ${i.name==="Reinforced Bandage"?"50% MAX HP":i.name==="Bandage"?"25% MAX HP":i.name==="Wild Honey"?"15% MAX HP":"10% MAX HP"}`)); add("Choose a NUMBER to use it. (B) BACK","system");
+  usable.forEach((i,n)=>add(`[${n+1}] ${r18ItemLabel(i)}${i.qty>1?` ×${i.qty}`:""} — ${i.name==="Reinforced Bandage"?"50% MAX HP":i.name==="Bandage"?"25% MAX HP":i.name==="Emergency Trauma Kit"?"75% MAX HP":"10% MAX HP"}`)); add("Choose a NUMBER to use it. (B) BACK","system");
   inventoryMode={combat:true,items:usable.map(i=>i.name)}; returnStage="combat"; stage="combatItems";
   numberedChoices=Object.fromEntries(usable.map((i,n)=>[String(n+1),r18ItemLabel(i)]));currentHotkeys.b="back";
 }

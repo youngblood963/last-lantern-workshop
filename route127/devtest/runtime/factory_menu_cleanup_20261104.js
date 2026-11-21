@@ -110,7 +110,7 @@ function renderCraft(){
   craftKey=null;
   add(title+' — CRAFTING','place');
   add('Choose a category to browse your learned recipes.','system');
-  r5DirectChoices(['ITEMS','WEAPONS','ARMOR','BACK']);return;
+  r5DirectChoices(['CRAFT','UPGRADE','MODIFY','BACK']);return;
  }
  if(!craftKey){
   add(title+' — '+craftCategory.toUpperCase(),'place');
@@ -149,6 +149,7 @@ r11CraftCommand=function(cmd){
  cmd=String(cmd||'').trim().toLowerCase();
  if(player.flags.v49MurphyJob||player.flags.devCraftQuote||player.flags.r18FoodDraft)
   return oldCraftCommand.apply(this,arguments);
+ if(cmd==='craft')cmd='items';
  if(['items','weapons','armor'].includes(cmd)){
   craftCategory=cmd;craftKey=null;return renderCraft();
  }

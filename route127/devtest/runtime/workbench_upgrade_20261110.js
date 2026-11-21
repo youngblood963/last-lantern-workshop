@@ -4,7 +4,7 @@
 if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||!location.pathname.includes('/route127/devtest/'))return;
 const tiers=[1,.75,.5,.25,.1],costs=[2,4,6,8,10],minutes=[1,5,10,20,40];
 const mats=r=>({Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0,'Tempered Steel':r.tempered||0,'Small Animal Bones':r.smallBones||0,'Animal Bones':r.bones||0,'Explosive Components':r.explosives||0,'Animal Hide':r.hide||0,...(r.materials||{})});
-const state={tab:'Items',selected:null,upgrade:null,open:false,foodSelections:{}};
+const state={tab:'Craft',selected:null,upgrade:null,open:false,foodSelections:{}};
 const baseName=name=>String(name||'').replace(/ \+[1-5]$/,'');
 const level=name=>Number(String(name||'').match(/ \+([1-5])$/)?.[1]||0);
 /* Presentation only: never alter inventory keys, GEAR lookups, saves or upgrade identifiers. */
@@ -23,10 +23,13 @@ function styledEquipment(parent,tag,name,suffix=''){
 
 function records(){return player.flags.r127EquipmentUpgrades||(player.flags.r127EquipmentUpgrades={});}
 function hydrate(){
+ EquipmentMods.hydrate();
  const rec=records();
  for(const [name,entry] of Object.entries(rec)){
   const base=GEAR[entry.base];if(!base||!['weapon','armor'].includes(base.type))continue;
-  GEAR[name]={...base,...(base.type==='weapon'?{min:base.min+entry.bonus,max:base.max+entry.bonus}:{def:base.def+entry.bonus})};
+  const gear={...base,...(base.type==='weapon'?{min:base.min+entry.bonus,max:base.max+entry.bonus}:{def:base.def+entry.bonus})};
+  if(EquipmentMods.installed(name))Object.defineProperty(GEAR,name,{value:gear,enumerable:false,writable:true,configurable:true});
+  else GEAR[name]=gear;
  }
 }
 function inventory(){
@@ -78,7 +81,7 @@ let shade=null;
 function button(parent,label,fn,disabled=false,klass=''){const b=document.createElement('button');b.type='button';b.textContent=label;b.disabled=disabled;b.className=klass;b.addEventListener('click',fn);parent.append(b);return b}
 function el(parent,tag,text,klass=''){const n=document.createElement(tag);n.textContent=text;n.className=klass;parent.append(n);return n}
 function close(){shade?.remove();shade=null;state.open=false}
-function open(tab='Items'){state.tab=tab;state.open=true;draw()}
+function open(tab='Craft'){state.tab=tab;state.modify=null;state.open=true;draw()}
 function draw(){
  if(!state.open||stage!=='r11Craft'){close();return}
  hydrate();shade?.remove();shade=document.createElement('div');shade.className='r127-bench-shade';
@@ -86,10 +89,11 @@ function draw(){
  const panel=document.createElement('section');panel.className='r127-bench-panel';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','Workbench '+state.tab);shade.append(panel);document.body.append(shade);
  el(panel,'h2',"Workbench — "+state.tab);
  const tabs=el(panel,'div','','r127-bench-tabs');
- for(const tab of ['Items','Weapons','Armor','Upgrade'])button(tabs,tab,()=>{state.tab=tab;state.selected=null;state.upgrade=null;draw()},false,tab===state.tab?'active':'');
+ for(const tab of ['Craft','Upgrade','Modify'])button(tabs,tab,()=>{state.tab=tab;state.selected=null;state.upgrade=null;state.modify=null;draw()},false,tab===state.tab?'active':'');
  button(tabs,'Close',close);
  if(state.tab==='Upgrade'){drawUpgrade(panel);return}
- const category={Items:['consumable','material','supply','tool','quest'],Weapons:['weapon'],Armor:['armor']}[state.tab];
+ if(state.tab==='Modify'){drawModify(panel);return}
+ const category=['consumable','material','supply','tool','quest'];
  const keys=Object.keys(CRAFT_RECIPES).filter(k=>r11Learned(k)&&category.includes(CRAFT_RECIPES[k].type)&&k!=='pipe');
  const list=el(panel,'div','','r127-bench-list');
  for(const key of keys)button(list,CRAFT_RECIPES[key].name,()=>{state.selected=key;draw()},false,state.selected===key?'active':'');
@@ -152,6 +156,35 @@ function draw(){
  },!ready(r)||!!player.flags.v49MurphyJob,'primary');
  button(actions,'Back to Workbench',close);
 }
+function installedLabel(entry){
+ const key=EquipmentMods.installed(entry.name);
+ return key?EquipmentMods.catalog[key].name:'None';
+}
+function drawModify(panel){
+ const entries=inventory(),list=el(panel,'div','','r127-bench-list');
+ el(panel,'h3','Equipment Modifications');
+ for(const entry of entries)button(list,displayName(entry.name)+(entry.equipped?' (EQUIPPED)':''),()=>{state.modify=entry;draw()});
+ if(!entries.length){el(panel,'p','No owned weapons or armor.');return;}
+ const target=state.modify;
+ if(!target){el(panel,'p','Select equipment to modify.');return;}
+ const detail=el(panel,'div','','r127-bench-detail');
+ el(detail,'h3',displayName(target.name));
+ el(detail,'p','Installed modification: '+installedLabel(target));
+ const choices=EquipmentMods.options(target.name);
+ if(!choices.length)el(detail,'p','No compatible learned modifications.');
+ for(const choice of choices){
+  el(detail,'h3',choice.name);
+  el(detail,'p',choice.effect);
+  const cost=EquipmentMods.cost(choice);
+  for(const row of cost)el(detail,'div',row.name+' — '+row.have+'/'+row.qty,row.have>=row.qty?'good':'bad');
+  const current=EquipmentMods.installed(target.name);
+  button(detail,current?'Replace with '+choice.name:'Craft and install '+choice.name,()=>{
+   const result=EquipmentMods.install(target,choice.key);state.modify=null;draw();
+   const root=shade?.querySelector('.r127-bench-panel');
+   if(root)el(root,'p',result);
+  },current===choice.key||cost.some(row=>row.have<row.qty));
+ }
+}
 function saveUpgrade(){updateHud();if(typeof v49Autosave==='function')v49Autosave()}
 function finishUpgrade(job){
  const selected=inventory().find(x=>x.name===job.name&&x.kind===job.kind&&x.equipped===job.equipped);
@@ -168,6 +201,12 @@ function finishUpgrade(job){
   message='SUCCESS! '+displayName(job.name)+' upgraded to '+displayName(name)+' (+'+job.bonus+' '+(job.kind==='weapon'?'Attack':'Defense')+').'+(job.level===4?' FULLY UPGRADED!':'');
  }else message='FAILED! '+displayName(job.name)+' upgrade failed. Your equipment is unchanged and has been returned. Materials were consumed.';
  delete player.flags.r127UpgradeJob;saveUpgrade();return message;
+}
+function startUpgrade(entry){
+ const lv=level(entry.name),material=entry.kind==='weapon'?'Scrap Metal':'Cloth';
+ if(lv>=5||player.flags.r127UpgradeJob||!inventory().some(x=>x.name===entry.name&&x.kind===entry.kind&&x.equipped===entry.equipped)||!consume(material,costs[lv]))return false;
+ player.flags.r127UpgradeJob={name:entry.name,kind:entry.kind,equipped:entry.equipped,level:lv,success:Math.random()<tiers[lv],bonus:1+Math.floor(Math.random()*3),endsAt:Date.now()+minutes[lv]*60000};
+ saveUpgrade();return true;
 }
 function drawUpgrade(panel){
  const job=player.flags.r127UpgradeJob;
@@ -197,29 +236,82 @@ function drawUpgrade(panel){
  el(detail,'p','Materials are consumed on every attempt. Failure leaves the equipment and its current stats unchanged.');
  const actions=el(detail,'div','','r127-bench-actions');
  button(actions,'Start Upgrade',()=>{
-  const selected=inventory().find(x=>x.name===e.name&&x.kind===e.kind&&x.equipped===e.equipped);
-  if(player.flags.r127UpgradeJob||!selected||level(selected.name)!==lv||have(material)<cost){draw();return}
-  if(!consume(material,cost)){draw();return}
-  player.flags.r127UpgradeJob={name:e.name,kind:e.kind,equipped:e.equipped,level:lv,success:Math.random()<chance,bonus:1+Math.floor(Math.random()*3),endsAt:Date.now()+minutes[lv]*60000};
-  saveUpgrade();draw();
+  startUpgrade(e);draw();
  },have(material)<cost,'primary');
 }
+globalThis.r127HydrateUpgrades=hydrate;
+let textTab=null,textTarget=null,textEntries=[];
+function textWorkbench(){
+ add('WORKBENCH — '+textTab.toUpperCase(),'place');
+ const job=player.flags.r127UpgradeJob;
+ if(textTab==='Upgrade'&&job){
+  const remaining=Math.max(0,Math.ceil((job.endsAt-Date.now())/1000));
+  add(remaining?job.name+' — '+remaining+' seconds remaining.':job.name+' — ready to collect.','system');
+  return r5DirectChoices([...(remaining?['CHECK UPGRADE']:['COLLECT UPGRADE']),'BACK']);
+ }
+ if(!textTarget){
+  textEntries=inventory();
+  if(!textEntries.length)add('No owned weapons or armor.','system');
+  return r5DirectChoices([...textEntries.map((entry,i)=>'SELECT EQUIPMENT '+(i+1)+' — '+displayName(entry.name)+(entry.equipped?' (EQUIPPED)':'')),'BACK']);
+ }
+ add(displayName(textTarget.name),'bright');
+ if(textTab==='Upgrade'){
+  const lv=level(textTarget.name),material=textTarget.kind==='weapon'?'Scrap Metal':'Cloth';
+  if(lv>=5)add('Fully upgraded.','system');
+  else add('+'+(lv+1)+' — '+minutes[lv]+' min, '+Math.round(tiers[lv]*100)+'% success, '+have(material)+'/'+costs[lv]+' '+material,'system');
+  return r5DirectChoices([...(lv<5&&have(material)>=costs[lv]?['START UPGRADE']:[]),'BACK']);
+ }
+ const current=EquipmentMods.installed(textTarget.name);
+ add('Installed modification: '+installedLabel(textTarget),'system');
+ const options=EquipmentMods.options(textTarget.name),choices=[];
+ if(!options.length)add('No compatible learned modifications.','system');
+ for(const option of options){
+  const cost=EquipmentMods.cost(option);
+  add(option.name+' — '+option.effect+' — '+cost.map(row=>row.name+' '+row.have+'/'+row.qty).join(', '),'system');
+  if(current!==option.key&&cost.every(row=>row.have>=row.qty))choices.push((current?'REPLACE WITH ':'INSTALL ')+option.name.toUpperCase());
+ }
+ return r5DirectChoices([...choices,'BACK']);
+}
+const oldCraftCommand=r11CraftCommand;
+r11CraftCommand=function(cmd){
+ cmd=String(cmd||'').trim().toLowerCase();
+ if(!player.flags.v49RecipeBandage||player.flags.v49MurphyJob||player.flags.devCraftQuote||player.flags.r18FoodDraft){textTab=null;textTarget=null;return oldCraftCommand.apply(this,arguments);}
+ if(cmd==='modify'||cmd==='upgrade'){textTab=cmd==='modify'?'Modify':'Upgrade';textTarget=null;return textWorkbench();}
+ if(cmd==='craft'){textTab=null;textTarget=null;}
+ if(!textTab)return oldCraftCommand.apply(this,arguments);
+ if(cmd==='back'||cmd==='b'){
+  if(textTarget){textTarget=null;return textWorkbench();}
+  textTab=null;return r11CraftMenu();
+ }
+ const selection=/^select equipment (\d+)(?: |$)/.exec(cmd);
+ if(selection){textTarget=textEntries[Number(selection[1])-1]||null;return textWorkbench();}
+ if(textTab==='Modify'&&textTarget){
+  const key=Object.keys(EquipmentMods.catalog).find(key=>['install ','replace with '].some(prefix=>cmd===prefix+EquipmentMods.catalog[key].name.toLowerCase()));
+  if(key){add(EquipmentMods.install(textTarget,key),'system');textTarget=null;}
+ }
+ if(textTab==='Upgrade'){
+  const job=player.flags.r127UpgradeJob;
+  if(cmd==='start upgrade'&&textTarget&&startUpgrade(textTarget))textTarget=null;
+  if(cmd==='collect upgrade'&&job&&Date.now()>=job.endsAt)add(finishUpgrade(job),'system');
+ }
+ return textWorkbench();
+};
 const oldMenu=r11CraftMenu;
-r11CraftMenu=function(...args){const result=oldMenu.apply(this,args);if(state.open)setTimeout(()=>{if(state.open)draw()},0);return result};
+r11CraftMenu=function(...args){if(args[0]){textTab=null;textTarget=null;}const result=oldMenu.apply(this,args);if(state.open)setTimeout(()=>{if(state.open)draw()},0);return result};
 const oldSync=GraphicalUI.sync;
 GraphicalUI.sync=function(...args){hydrate();const result=oldSync.apply(this,args);if(state.open&&stage!=='r11Craft')close();return result};
 const oldChoices=GraphicalUI.choices;
 GraphicalUI.choices=function(...args){
  const choices=oldChoices.apply(this,args);
  if(stage==='r11Craft'&&!player.flags.v49MurphyJob&&!player.flags.r18FoodDraft&&player.flags.v49RecipeBandage){
-  return [...['Items','Weapons','Armor','Upgrade'].map((tab,i)=>({key:String(i+1),label:tab,command:'r127 bench '+tab.toLowerCase()})),{key:'5',label:'Back',command:'back'}];
+  return [...['Craft','Upgrade','Modify'].map((tab,i)=>({key:String(i+1),label:tab,command:'r127 bench '+tab.toLowerCase()})),{key:'4',label:'Back',command:'back'}];
  }
  return choices;
 };
 const oldDispatch=GraphicalUI.dispatch;
 GraphicalUI.dispatch=async function(choice){
  if(stage==='r11Craft'&&/^r127 bench /.test(choice?.command||'')){open(choice.command.slice(11).replace(/^./,x=>x.toUpperCase()));return true}
- // The graphical Back is a synthetic fifth choice. Its key 5 may still
+ // The graphical Back is a synthetic choice. Its key may still
  // correspond to a learned recipe in numberedChoices; route the command
  // itself instead of resolving that stale numeric slot.
  if(stage==='r11Craft'&&choice?.command==='back'){
@@ -232,7 +324,7 @@ GraphicalUI.dispatch=async function(choice){
 const oldCore=handleCommandCore;
 handleCommandCore=async function(raw){
  const cmd=String(raw||'').trim().toLowerCase();
- if(stage==='r11Craft'&&/^r127 bench (items|weapons|armor|upgrade)$/.test(cmd)){open(cmd.slice(11).replace(/^./,x=>x.toUpperCase()));return true}
+ if(stage==='r11Craft'&&/^r127 bench (craft|upgrade|modify)$/.test(cmd)){open(cmd.slice(11).replace(/^./,x=>x.toUpperCase()));return true}
  return oldCore.apply(this,arguments);
 };
 hydrate();

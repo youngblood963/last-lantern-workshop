@@ -76,6 +76,11 @@ function shopList(){
     add(r.name+' — '+(learned(key)?'LEARNED':price+' BOLTS'),r.rarity||GEAR[r.name]?.rarity||'system');
     if(!learned(key))choices.push('LEARN '+r.name.toUpperCase());
   }
+  for(const key of ['precision','impact']){
+    const recipe=EquipmentMods.catalog[key];
+    add(recipe.name+' — '+(EquipmentMods.learned(key)?'LEARNED':'500 BOLTS'),'system');
+    if(!EquipmentMods.learned(key))choices.push('LEARN '+recipe.name.toUpperCase());
+  }
   if(!choices.length)add('No new blueprints available.','system');
   DevtestMenuModel.publishLabels('solace-blueprints',[...choices,backLabel],backLabel);
 }
@@ -273,6 +278,8 @@ handleCommandCore=async function(raw){
    if(cmd==='crafting'){section='murphyCraft';return r11CraftMenu('murphy');}
    if(cmd==='small talk'||cmd==='small talk murphy'||cmd==='talk'){return murphyTalk();}
    if(section==='murphyRecipes'&&cmd.startsWith('learn ')){
+     const mod=['precision','impact'].find(key=>cmd==='learn '+EquipmentMods.catalog[key].name.toLowerCase());
+     if(mod){EquipmentMods.purchase(mod,500);return shopList();}
      const key=Object.keys(CRAFT_RECIPES).find(k=>CRAFT_RECIPES[k].name.toLowerCase()===cmd.slice(6));
      const price=key&&murphyBlueprintKeys.includes(key)?murphyBlueprintPrice(key):0;
      if(price>0){

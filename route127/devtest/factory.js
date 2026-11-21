@@ -61,10 +61,10 @@ function r18DanielAvailable(){return !!player.flags.r18ClaraMet&&player.flags.r1
 function r18DanielAtRoom(){const f=factoryState();return stage==='factoryDungeonRoom'&&f.floor===0&&f.room===2&&r18DanielAvailable();}
 function r18DanielMenu(){add('Behind a stack of shipping crates, two captors guard Clara Bennett’s brother Daniel.','place');add('FREE DANIEL WITH WIRE   NEGOTIATE RELEASE — 25 BOLTS   FIGHT CAPTORS   RETURN TO FACTORY ROOM','system');}
 function r18DanielFinish(){const f=player.flags;if(f.r18DanielQuest==='done')return false;
- f.r18DanielQuest='done';delete f.r18DanielFocus;gainBolts(125);gainXp(Math.max(60,player.level*12)+30);r18RetainRoadReward('Pre-War Silver Coin','valuable');add('Daniel escapes the Factory. At the entrance Clara embraces him; together they thank you and leave for a safer road.','reward');
+ f.r18DanielQuest='done';delete f.r18DanielFocus;EquipmentMods.learn('padding');gainBolts(125);gainXp(Math.max(60,player.level*12)+30);r18RetainRoadReward('Pre-War Silver Coin','valuable');add('Daniel escapes the Factory. At the entrance Clara embraces him; together they thank you and leave for a safer road.','reward');
  // Visual-only cue for the DEVTEST cinematic. Quest outcome and rewards remain unchanged.
  if(globalThis.ROUTE127_ENV?.name==='DEVTEST')window.dispatchEvent(new Event('route127:daniel-reunion'));
- return true;}
+ v49Autosave();return true;}
 function r18DanielCommand(cmd){if(!r18DanielAtRoom()||!player.flags.r18DanielFocus)return false;
  if(cmd==='return to factory room'||cmd==='back'){delete player.flags.r18DanielFocus;factoryRender();return true;}
  if(cmd==='free daniel with wire'){if(!hasItem('Wire')){add('A length of Wire is needed to work the improvised latch.','system');r18DanielMenu();return true;}if(!removeItem('Wire'))return true;if(r18DanielFinish())factoryRender();else r18DanielMenu();return true;}

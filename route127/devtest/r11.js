@@ -103,7 +103,6 @@ Object.assign(CRAFT_RECIPES,{
  mineTent:{name:'Mine-Protected Tent',rarity:'uncommon',cloth:0,scrap:2,wire:1,explosives:1,basicTent:1,bolts:0,type:'supply',chance:.90},
  wastelandStew:{name:'Wasteland Stew',rarity:'uncommon',food:['meat','fruit','vegetable'],bolts:0,type:'consumable',chance:1},
  preservedMeat:{name:'Preserved Meat',rarity:'uncommon',food:['meat'],bolts:0,type:'consumable',chance:1},
- preservedVegetables:{name:'Preserved Vegetables',rarity:'uncommon',food:['vegetable'],bolts:0,type:'consumable',chance:1},
  boneTomahawk:{name:'Bone Tomahawk',cloth:0,scrap:2,wire:1,smallBones:3,bolts:30,type:'weapon',chance:.90,minLevel:3},
  boneArmor:{name:'Bone Armor',cloth:2,scrap:4,wire:1,bones:4,bolts:75,type:'armor',chance:.90,minLevel:6},
  temperedPipe:{name:'Tempered Steel Pipe',cloth:0,scrap:2,wire:1,parts:0,tempered:2,bolts:40,type:'weapon',chance:.90,minLevel:4},

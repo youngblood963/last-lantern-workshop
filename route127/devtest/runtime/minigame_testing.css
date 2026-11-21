@@ -60,6 +60,7 @@
   aspect-ratio: 170 / 111;
   background: bottom center / 100% auto no-repeat url('../assets/minigames/scrap-duel/embedded.webp');
   transform: translate(-50%, -100%);
+  transform-origin: bottom center;
   filter: drop-shadow(1px 1px 1px #190c06);
   animation: minigame-hubcap-strike 160ms ease-out;
 }
@@ -74,6 +75,8 @@
   background: #150c08a8;
   z-index: -1;
 }
+.minigame-hubcap-truck { width: 3.7%; }
+.minigame-hubcap-crate { width: 5.4%; }
 .minigame-hubcap-ground {
   width: 8%;
   aspect-ratio: 170 / 69;

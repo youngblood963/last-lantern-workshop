@@ -200,14 +200,34 @@ const scrapTargets={
  25:[58.8,27.2,6.2,12.7],
  50:[75.5,25.3,8.3,15.5]
 };
-function scrapLanding(score){
- // Use separate visual randomness so impacts never consume gameplay rolls.
- const [a,b]=crypto.getRandomValues(new Uint32Array(2));
- const u=a/2**32,v=b/2**32;
- if(score===0)return [35+21*u,70+15*v];
- const [x,y,rx,ry]=scrapTargets[score];
- const angle=2*Math.PI*u,radius=Math.sqrt(v);
- return [x+rx*radius*Math.cos(angle),y+ry*radius*Math.sin(angle)];
+// Rectangles are inset from scene features to leave room for the full sprite.
+const scrapMisses=[
+ ['ground',35,56,70,85],
+ ['truck',37,37.6,22,44],
+ ['crate',65,81,84,94]
+];
+const upperTruck=[86.6,89,12,16];
+function scrapLanding(score,previous){
+ // Separate cosmetic draws keep champion rolls and timing untouched.
+ const category=score===0?crypto.getRandomValues(new Uint32Array(1))[0]/2**32:0;
+ const miss=score===0?scrapMisses[Math.floor(category*scrapMisses.length)]:null;
+ let impact;
+ for(let attempt=0;attempt<6;attempt++){
+  const [a,b]=crypto.getRandomValues(new Uint32Array(2));
+  const u=a/2**32,v=b/2**32;
+  if(miss){
+   const [surface,...zone]=miss;
+   const [left,right,top,bottom]=surface==='truck'&&category>.5?upperTruck:zone;
+   impact={x:left+(right-left)*u,y:top+(bottom-top)*v,surface};
+  }else{
+   const [x,y,rx,ry]=scrapTargets[score];
+   const angle=2*Math.PI*u,radius=Math.sqrt(v);
+   impact={x:x+rx*radius*Math.cos(angle),y:y+ry*radius*Math.sin(angle),surface:'target'};
+  }
+  if(!previous||impact.surface!==previous.surface||
+     Math.hypot(impact.x-previous.x,(impact.y-previous.y)*704/1250)>=2)break;
+ }
+ return impact;
 }
 
 function mountScrapDuel(body,started){
@@ -247,6 +267,7 @@ function mountScrapDuel(body,started){
  });
  controls.append(aim,throwButton);
  body.append(status,opponent,meter,controls);
+ const lastLanding=new Map();
  let began,frame,impact,projectile;
  function report(message){
   status.textContent=message+' Score '+totalScore(scores)+' · Throws left '+(THROW_COUNT-scores.length)+'.';
@@ -284,12 +305,18 @@ function mountScrapDuel(body,started){
   scores.push(score);
   projectile=element('span',null,'minigame-hubcap minigame-hubcap-flight');
   projectile.setAttribute('aria-hidden','true');
-   const [x,y]=scrapLanding(score);
+  const landing=scrapLanding(score,lastLanding.get(score));
+  lastLanding.set(score,landing);
+  const {x,y,surface}=landing;
   projectile.style.left=x+'%';
   projectile.style.top=y+'%';
   scene.append(projectile);
   const showContact=()=>{
-   projectile.className='minigame-hubcap '+(score===0?'minigame-hubcap-ground':'minigame-hubcap-embedded');
+   projectile.className=surface==='ground'
+    ?'minigame-hubcap minigame-hubcap-ground'
+    :'minigame-hubcap minigame-hubcap-embedded';
+   if(surface==='truck')projectile.classList.add('minigame-hubcap-truck');
+   if(surface==='crate')projectile.classList.add('minigame-hubcap-crate');
   };
   const landed=()=>{
    showContact();

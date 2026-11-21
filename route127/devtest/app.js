@@ -460,37 +460,46 @@ function tryNikoSecondChance(){
   else if(stage==="combat"){stage="fallen";add("(1) GET UP","system");}
   return true;
 }
+function playerRescueRoute(){
+  const graphRescue=typeof lanternRescuePlan==='function'?lanternRescuePlan():null;
+  const inTown=graphRescue?graphRescue.node!=='house':player.flags.mercyDiscovered;
+  // Remaining road segments are the minimum rescue travel cost; recovery adds two.
+  const atHouse=stage==="house" || ["houseStorage","houseDeposit","houseWithdraw"].includes(stage) || (combatState&&combatState.source==="houseBoss");
+  const travel=graphRescue?graphRescue.travel:atHouse ? (inTown?roadTripLength:0) : inTown ? (roadGoal==="house"?Math.max(0,roadTripLength-roadTurn):roadGoal==="mercy"?Math.max(0,roadTripLength-roadTurn):roadGoal==="east"?Math.max(0,roadTurn+1):0) : Math.max(0,roadTurn+1);
+  const arrival=graphRescue?`Hours later, you wake in ${LG_NODES[graphRescue.node].name}.`:inTown?"Hours later, you wake on a cot in Solace.":"Hours later, you wake in the old house.";
+  return {travel,arrival};
+}
+function playerRescueOutcome({hp, maxHp, turns, bolts}, travel){
+  const turnsLost=Math.min(Math.max(0,turns),5,travel+2);
+  const carriedBolts=Math.max(0,Math.floor(Number(bolts)||0));
+  const boltsLost=Math.min(carriedBolts,Math.ceil(carriedBolts*.10));
+  const hpAfter=Math.max(1,Math.round(maxHp*.5));
+  return {
+    boltsLost,boltsRemaining:carriedBolts-boltsLost,
+    hpAtDeath:hp,hpRestored:hpAfter-hp,hpAfter,maxHp,
+    turnsLost,turnsRemaining:Math.max(0,turns-turnsLost)
+  };
+}
 function handlePlayerDeath(){
   if(stage==="fallen") return;
   delete player.flags.rescueSummary;
   if(tryNikoSecondChance())return;
   if(player.flags.r18HorseOwned){delete player.flags.r18HorseOwned;add('The horse runs off during your rescue.','system');}
   player.deathStreak=(player.deathStreak||0)+1;
-  const graphRescue=typeof lanternRescuePlan==='function'?lanternRescuePlan():null;
-  const inTown=graphRescue?graphRescue.node!=='house':player.flags.mercyDiscovered;
+  const {travel,arrival}=playerRescueRoute();
   const defeatedByGateGuards=!!(combatState&&combatState.source==="gateGuards");
   const jenGateRescue=defeatedByGateGuards&&!player.flags.jenGateRescueUsed;
   if(jenGateRescue)player.flags.jenGateRescueUsed=true;
-  // Remaining road segments are the minimum rescue travel cost; recovery adds two.
-  const atHouse=stage==="house" || ["houseStorage","houseDeposit","houseWithdraw"].includes(stage) || (combatState&&combatState.source==="houseBoss");
-  const travel=graphRescue?graphRescue.travel:atHouse ? (inTown?roadTripLength:0) : inTown ? (roadGoal==="house"?Math.max(0,roadTripLength-roadTurn):roadGoal==="mercy"?Math.max(0,roadTripLength-roadTurn):roadGoal==="east"?Math.max(0,roadTurn+1):0) : Math.max(0,roadTurn+1);
-  const turnsLost=Math.min(Math.max(0,player.turns),5,travel+2);
-  player.turns=Math.max(0,player.turns-turnsLost);
-  dailyRoadTurns+=travel; // rescue travels the route; recovery itself is not a road turn
-  const hpAtDeath=player.hp;
-  player.hp=Math.max(1,Math.round(player.maxHp*.5));
-  // Rescue fee: 10% of carried Bolts, rounded up. Banked Bolts are untouched.
-  const carriedBolts=Math.max(0,Math.floor(Number(player.bolts)||0));
-  const rescueBoltsLost=Math.min(carriedBolts,Math.ceil(carriedBolts*.10));
-  player.bolts=carriedBolts-rescueBoltsLost;
+  const outcome=playerRescueOutcome(player,travel);
+  player.turns=outcome.turnsRemaining;
+  dailyRoadTurns+=travel; // Recovery itself is not a road turn.
+  player.hp=outcome.hpAfter;
+  player.bolts=outcome.boltsRemaining;
   if(combatState&&combatState.source==="jenBoss")player.flags.jenQuest="raiders";
-  const arrival=graphRescue?`Hours later, you wake in ${LG_NODES[graphRescue.node].name}.`:inTown?"Hours later, you wake on a cot in Solace.":"Hours later, you wake in the old house.";
   const rescuer=jenGateRescue?"JEN > The gate guards were going to leave you out there. I brought you back myself. Don't make me do that twice.":"Someone dragged you back from the highway. They didn't do it for free.";
   const summary=player.flags.rescueSummary={
+    ...outcome,
     narrative:["Your vision fades as the wasteland goes silent.",arrival,rescuer],
-    boltsLost:rescueBoltsLost,boltsRemaining:player.bolts,
-    hpAtDeath,hpRestored:player.hp-hpAtDeath,hpAfter:player.hp,maxHp:player.maxHp,
-    turnsLost,turnsRemaining:player.turns
   };
   combatState=null; currentRoadWanderer=null; updateHud();
   stage="fallen";
@@ -1496,9 +1505,9 @@ function r18MazeScene(){
  if(f.r18MazeScene?.scene!==scene)f.r18MazeScene=r18NewMaze(player.level,scene);
  return f.r18MazeScene;
 }
-function r18MazeStep(q,direction){
+function r18MazeStep(q,direction,grid=R18_MAZES[q.variant]){
  const [dx,dy]={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]}[direction];
- const grid=R18_MAZES[q.variant],x=q.x+dx,y=q.y+dy;
+ const x=q.x+dx,y=q.y+dy;
  q.step++;
  const tile=grid[y]?.[x];
  if(tile==='#'||tile===undefined)return 'wall';

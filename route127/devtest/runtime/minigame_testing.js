@@ -104,6 +104,7 @@ function createTireYard(grid){
  tiles.style.setProperty('--yard-rows',grid.length);
  const wallAt=(x,y)=>grid[y]?.[x]==='#';
  const crate=tireYardSprite('crate','tire-yard-crate');
+ const paths=[];
  grid.forEach((row,y)=>Array.from(row).forEach((tile,x)=>{
   const cell=element('div',null,tile==='#'?'tire-yard-wall':'tire-yard-path');
   const position=(y+1)+' / '+(x+1);
@@ -115,13 +116,14 @@ function createTireYard(grid){
    if(vertical&&!horizontal)pile.classList.add('tire-yard-pile-vertical');
    cell.append(pile);
   }
+  else paths.push([cell,TireMazeHazards.key([x,y])]);
   if(tile==='G')crate.style.gridArea=position;
   tiles.append(cell);
  }));
  const survivor=tireYardSprite('survivor','tire-yard-survivor');
  tiles.append(crate,survivor);
  board.append(tiles);
- return {board,survivor,crate};
+ return {board,paths,survivor,crate};
 }
 
 function mountMaze(body,started){
@@ -130,13 +132,27 @@ function mountMaze(body,started){
   return;
  }
  const level=player.level,maxHp=player.maxHp;
- const q=r18NewMaze(level);
+ const hazards=TireMazeHazards, rules=hazards.settings;
+ let q,grid,view;
  const corvette=player.flags.wo3Corvette;
  const recoveringTires=Boolean(corvette?.active);
  let tires=Math.max(Number(corvette?.tiresRecovered)||0,Number(corvette?.tiresSubmitted)||0);
  let secondChance=player.accessory==="Niko's Collar"&&Number(player.flags.nikoSecondChanceDay)!==(Number(day)||1);
  let hp=maxHp,lastMove=-Infinity;
- const {board,survivor,crate}=createTireYard(R18_MAZES[q.variant]);
+ const rescueRoute=playerRescueRoute();
+ const testResources={maxHp,turns:player.turns,bolts:player.bolts};
+ const countdown=element('p',null,'tire-yard-countdown');
+ countdown.setAttribute('role','timer');
+ const frame=element('div',null,'tire-yard-frame');
+ const warning=element('p',null,'tire-yard-warning');
+ warning.setAttribute('role','status');
+ const rescue=element('ul',null,'tire-yard-rescue');
+ rescue.hidden=true;
+ const retry=button('Try Again',startAttempt);
+ retry.hidden=true;
+ let clock,deadline,nextSmoke,smokeUntil,nextShift,shiftAt,moves,remaining;
+ let smoke=new Set();
+ let phase='ready';
  const status=element('p');status.setAttribute('role','status');
  const movement=element('div',null,'tire-controls');
  const tire=button('Recover Suitable Tire',()=>{
@@ -146,43 +162,152 @@ function mountMaze(body,started){
  const tireControls=element('div',null,'tire-controls');
  tireControls.append(tire);
  body.append(element('p','Reach the salvage crate. Stay clear of the burning tires. Use the direction buttons, arrow keys, or WASD.'),
-  board,status,movement,tireControls);
+  countdown,frame,warning,status,rescue,movement,tireControls,retry);
  for(const direction of ['up','left','down','right'])
   movement.append(button(direction.toUpperCase(),()=>move(direction)));
 
+ function rebuild(){
+  view=createTireYard(grid);
+  frame.replaceChildren(view.board);
+  paintSmoke();
+ }
+ function paintSmoke(){
+  for(const [cell,key] of view.paths)cell.classList.toggle('tire-yard-smoke',smoke.has(key));
+ }
+ function setTime(seconds){
+  if(remaining===seconds)return;
+  remaining=seconds;
+  countdown.textContent=seconds+' seconds remaining';
+  countdown.classList.toggle('tire-yard-countdown-low',seconds<=10);
+  countdown.classList.toggle('tire-yard-countdown-last',seconds<=5);
+ }
+ function resetLayout(){
+  q=r18NewMaze(level);
+  grid=R18_MAZES[q.variant].map(row=>Array.from(row));
+  rebuild();
+ }
+ function startAttempt(){
+  stopClock();
+  phase='playing';
+  const now=performance.now();
+  deadline=now+rules.duration;
+  smokeUntil=0;
+  nextSmoke=Math.max(smokeUntil||0,now+hazards.randomBetween(rules.smokeInterval));
+  nextShift=rules.firstShift;
+  moves=0;
+  shiftAt=0;
+  lastMove=-Infinity;
+  retry.hidden=true;
+  warning.textContent='';
+  resetLayout();
+  setTime(rules.duration/1000);
+  render('Find a path to the crate.');
+  if(document.activeElement===retry)movement.firstElementChild?.focus();
+  clock=setInterval(()=>tick(performance.now()),100);
+ }
+ function stopClock(){
+  clearInterval(clock);
+  smoke.clear();
+  if(view)paintSmoke();
+ }
+ cleanup=stopClock;
+ function tick(now){
+  if(phase!=='playing')return false;
+  if(now>=deadline){
+   phase='timeout';
+   stopClock();
+   resetLayout();
+   setTime(rules.duration/1000);
+   warning.textContent="TIME'S UP! The salvage attempt failed.";
+   retry.hidden=false;
+   render('Try again with your remaining HP.');
+   retry.focus();
+   return false;
+  }
+  setTime(Math.ceil((deadline-now)/1000));
+  if(shiftAt&&now>=shiftAt){
+   shiftAt=0;
+   const layout=hazards.shift(grid,[q.x,q.y]);
+   warning.textContent='';
+   if(layout){
+    grid=layout;
+    rebuild();
+    view.board.classList.add('tire-yard-collapse');
+    warning.textContent='CRASH! Burning tires tumble into the passage!';
+   }
+  }
+  if(smoke.size&&now>=smokeUntil){
+   smoke.clear();
+   paintSmoke();
+  }
+  if(now>=nextSmoke){
+   smoke=hazards.smoke(grid,[q.x,q.y]);
+   smokeUntil=now+hazards.randomBetween(rules.smokeDuration);
+   nextSmoke=Math.max(smokeUntil||0,now+hazards.randomBetween(rules.smokeInterval));
+   paintSmoke();
+  }
+  return true;
+ }
  function render(message){
-  survivor.style.gridArea=(q.y+1)+' / '+(q.x+1);
-  crate.hidden=q.finished;
+  view.survivor.style.gridArea=(q.y+1)+' / '+(q.x+1);
+  view.crate.hidden=q.finished;
   status.textContent=message+' HP '+hp+' / '+maxHp+' · Row '+(q.y+1)+', column '+(q.x+1);
-  movement.hidden=q.finished||hp===0;
+  movement.hidden=phase!=='playing';
   tireControls.hidden=!q.finished||!recoveringTires||tires>=4;
   if(movement.hidden&&movement.contains(document.activeElement))heading.focus();
  }
+ function takeDamage(damage,message){
+  hp=Math.max(0,hp-damage);
+  view.survivor.classList.remove('tire-yard-hit');
+  void view.survivor.offsetWidth;
+  view.survivor.classList.add('tire-yard-hit');
+  if(hp===0&&secondChance){
+   secondChance=false;
+   hp=1;
+   message+=" NIKO'S COLLAR FLASHES WARM. You collapse to one knee, alive at 1 HP. The collar's Second Chance is spent for today.";
+  }
+  if(hp===0){
+   phase='fallen';
+   stopClock();
+   warning.textContent='YOU HAVE FALLEN · SIMULATED RESCUE';
+   const summary=playerRescueOutcome({...testResources,hp},rescueRoute.travel);
+   rescue.replaceChildren(element('li',rescueRoute.arrival),...rescueSummaryLines(summary).map(line=>element('li',line)));
+   rescue.hidden=false;
+  }
+  return message;
+ }
  function move(direction){
   const now=performance.now();
-  if(q.finished||hp===0||now-lastMove<120)return;
+  if(!tick(now)||now-lastMove<120)return;
   lastMove=now;
-  const tile=r18MazeStep(q,direction);
+  const tile=r18MazeStep(q,direction,grid);
   if(tile==='wall'){
    const damage=environmentalDamage('minor',maxHp);
-   hp=Math.max(0,hp-damage);
-   survivor.classList.remove('tire-yard-hit');
-   // Restart the short impact flash when consecutive inputs hit the wall.
-   void survivor.offsetWidth;
-   survivor.classList.add('tire-yard-hit');
-   let message='The burning tires scorch you! −'+damage+' HP.';
-   if(hp===0&&secondChance){
-    secondChance=false;
-    hp=1;
-    message+=" NIKO'S COLLAR FLASHES WARM. You collapse to one knee, alive at 1 HP. The collar's Second Chance is spent for today.";
-   }
-   render(hp===0?message+' YOU HAVE FALLEN.':message);
-  }else if(tile==='goal'){
+   render(takeDamage(damage,'The burning tires scorch you! −'+damage+' HP.'));
+   return;
+  }
+  const smoky=smoke.has(hazards.key([q.x,q.y]));
+  const damage=Math.max(1,Math.round(maxHp*rules.smokeDamage));
+  const message=smoky?takeDamage(damage,'You choke on thick, toxic smoke! −'+damage+' HP.'):'';
+  if(phase==='fallen'){render(message);return;}
+  if(tile==='goal'){
    q.finished=true;
+   phase='won';
+   stopClock();
+   warning.textContent='';
    const reward=r18MazeReward(level,typeof v555AwardEquipmentDrop==='function');
    const equipment=reward.equipment()?' · Equipment drop roll succeeded':'';
    render('You reach the crate and recover its contents. Simulated rewards · Scrap Metal · '+reward.bolts+' Bolts · '+reward.xp+' XP'+equipment+'.');
-  }else render('');
+   return;
+  }
+  if(++moves>=nextShift&&!shiftAt){
+   nextShift=moves+hazards.randomBetween(rules.shiftInterval);
+   if(Math.random()<rules.shiftChance){
+    shiftAt=now+rules.warning;
+    warning.textContent='The burning tire stacks begin to sway…';
+   }
+  }
+  render(message);
  }
  playKey=event=>{
   const direction=directions[event.key]||directions[event.key.toLowerCase()];
@@ -190,7 +315,7 @@ function mountMaze(body,started){
   move(direction);
   return true;
  };
- render('Find a path to the crate.');
+ startAttempt();
 }
 
 // Positions and radii are percentages of the uncropped image. The three

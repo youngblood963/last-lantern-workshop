@@ -236,7 +236,15 @@ function draw(){
   if(target.appearance)card.append(element('p',target.description));
   if(row.id===billy.id)card.append(element('p','Introductory contract · No expiration.'));
   const action=source==='preview'?null:row.status==='available'?'accept':row.status==='active'&&row.id!==billy.id?'abandon':row.status==='proof'&&source!=='board'?'claim':null;
-  if(action)card.append(button({accept:'Accept Bounty',abandon:'Abandon Contract',claim:'Claim '+row.payment+' Bolts'}[action],()=>{act(row.id,action,source);draw();}));
+  if(action)card.append(button({accept:'Accept Bounty',abandon:'Abandon Contract',claim:'Claim '+row.payment+' Bolts'}[action],()=>{
+   if(act(row.id,action,source)&&action==='claim'){
+    dialog.close();
+    if(source==='tim')v53TimMenu();
+    else r18KaidenChoices();
+    return;
+   }
+   draw();
+  }));
   if(row.status==='proof'&&source==='board')card.append(element('p','See Tim in Solace or Kaiden in Seaport to collect payment.'));
   body.append(card);
  }else{

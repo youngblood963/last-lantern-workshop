@@ -1775,12 +1775,12 @@ wo4(){
   'RETREAT':()=>{if(Math.random()<.30){const spec=bearSpec();hurt(scaledEnemyDamage(10,armorDefense(),spec.level));add('The bear lunges while you withdraw.','danger');}return true;}
  },'wo4Bear');wild.category='combat';wild.futureRegion='Northern Ridge';
  const wall=eastEncounters[77],priorWall=wall.resolve;
- wall.wo4=true;wall.displayName='THE BROKEN BRIDGE DISCOVERY';
- wall.text+=' The marks appear to record changing loads and cracks in damaged infrastructure. Someone has been studying whether Broken Bridge can carry weight.';
+ wall.wo4=true;wall.displayName='THE DOMINION SURVEY';
+ wall.text='A weathered roadside concrete wall bears structural diagrams, load measurements and a faded New Dominion field report. The survey concerns Broken Bridge elsewhere on the map. Someone is investigating whether the damaged crossing can be restored.';
  wall.choices+='   EXAMINE THE MEASUREMENTS   SEARCH FOR ADDITIONAL EVIDENCE';
  wall.wo2NonTerminal=['EXAMINE THE MEASUREMENTS'];wall.exclusive=false;
  wall.resolve=function(cmd){if(['examine the measurements','search for additional evidence'].includes(cmd)){
-  r.wo2State().wo4BrokenBridge=true;add('DISCOVERY — BROKEN BRIDGE. The measurements chart structural damage; a newer note suggests New Dominion is also watching the site. You record the clue without opening an onward route.','bright');
+  r.wo2Once('wo4BrokenBridge',()=>{gainXp(Math.max(10,(Number(player.level)||1)*3));});add('DISCOVERY — THE DOMINION SURVEY. New Dominion is assessing whether Broken Bridge can be restored. You record their structural survey, not a new location or travel route.','bright');
   if(cmd==='search for additional evidence')r.wo2Once('wo4BridgeSalvage',()=>r.wo2Item('Scrap Metal'));return true;
  }return priorWall.call(this,cmd);};
  // Explicitly approved category replacements, with no slot changes or duplicates.
@@ -1796,7 +1796,7 @@ wo4(){
   const area={'search emergency room':'er','search pharmacy':'pharmacy','search security office':'security'}[cmd];if(area)return r.wo4HospitalSearch(area);return r.wo4HospitalMenu();}
   if(!busy&&cmd==='visit st mercy hospital'&&['lanternRoad','lanternNode'].includes(stage)&&r.wo4HospitalAvailable())return r.wo4HospitalEnter(false);return core(raw);};
  const load=loadGame;loadGame=function(slot){const data=getSaveData(slot),result=load(slot);if(data?.stage==='wo4Hospital'&&player.flags.wo4Hospital?.discovered)r.wo4HospitalMenu();return result;};
- const journal=showQuests;showQuests=function(){journal();const q=player.flags.wo4Hospital;if(q?.discovered){const e=q.edge&&LG_EDGES[q.edge],where=e?LG_NODES[e.a].name+' ↔ '+LG_NODES[e.b].name+', position '+q.step+' / '+e.distanceTurns:q.node&&LG_NODES[q.node]?LG_NODES[q.node].name:'its recorded approach';add('DISCOVERED SITE — ST. MERCY HOSPITAL: '+where+'. '+(q.cleared?'Entrance cleared.':'Entrance still guarded.'),'system');}if(r.wo2State().wo4BrokenBridge)add('BROKEN BRIDGE — structural measurements and a New Dominion note. No onward route established.','system');};
+ const journal=showQuests;showQuests=function(){journal();const q=player.flags.wo4Hospital;if(q?.discovered){const e=q.edge&&LG_EDGES[q.edge],where=e?LG_NODES[e.a].name+' ↔ '+LG_NODES[e.b].name+', position '+q.step+' / '+e.distanceTurns:q.node&&LG_NODES[q.node]?LG_NODES[q.node].name:'its recorded approach';add('DISCOVERED SITE — ST. MERCY HOSPITAL: '+where+'. '+(q.cleared?'Entrance cleared.':'Entrance still guarded.'),'system');}if(r.wo2State().wo4BrokenBridge)add('THE DOMINION SURVEY — New Dominion is assessing Broken Bridge for possible restoration. No new route discovered.','system');};
  this.wo4Installed=true;
 },
 };
@@ -3214,7 +3214,7 @@ RoadScenarioRegistry.regionalSpec = {
   "east:33": "THE ROAD REAPERS",
   "east:10": "THE BONE HUNTERS",
   "east:75": "WILD BEAR",
-  "east:77": "THE BROKEN BRIDGE DISCOVERY",
+  "east:77": "THE DOMINION SURVEY",
   "east:72": "THE LOST CONVOY",
   "east:73": "TOXIC CARGO",
   "east:74": "COLLAPSING LOOKOUT",

@@ -13,6 +13,15 @@ const industrialEncounterSprites=Object.freeze({
  'PAYMENT REQUIRED':['payment_required.png'],
  'SCRAP TORCHERS':['scrap_torcher_1.png','scrap_torcher_2.png']
 });
+const lowlandsSprites=Object.freeze({
+ 'ALLIGATORS':['alligator.png'],
+ 'BACKWOODS CANNIBALS':['backwoods_cannibal_1.png','backwoods_cannibal_2.png','backwoods_cannibal_3.png'],
+ 'GIANT MOSQUITOES':Array(5).fill('giant_mosquito.png'),
+ 'HOSTILE SWAMP DWELLERS':['swamp_dweller_1.png','swamp_dweller_2.png'],
+ 'SALT MARSH HUNTERS':['marsh_dog_1.png','marsh_dog_2.png'],
+ 'SNAPPING TURTLES':Array(2).fill('snapping_turtle_1.png'),
+ 'WATER MOCCASINS':['water_moccasin_1.png','water_moccasin_2.png']
+});
 const industrialSprites={
  ...industrialEncounterSprites,
  'THE SLEEPING ROBOT':['the_sleeping_robot.png'],
@@ -67,6 +76,9 @@ function current(){
  const raw=normalize(combat?.name||encounter?.title);
  const title=aliases[raw]||raw;
  if(!title)return null;
+ const lowlands=lowlandsSprites[title==='MARSH DOG PACK'?'SALT MARSH HUNTERS':title]||
+  lowlandsSprites[normalize(origin?.title)];
+ if(lowlands)return {title,items:lowlands.map(name=>file(name)),combat,lowlands:true};
  const taxi=origin?.wo7==='WO8-TAXI'||combat?.wo7Id==='WO8-TAXI';
  const industrial=taxi?['the_last_autonomous_taxi.gif']:industrialSprites[title]||industrialSprites[normalize(origin?.title)];
  if(industrial&&(taxi||route127CurrentRegion(lanternState())==='INDUSTRIAL')){
@@ -117,7 +129,7 @@ function scenarioChoices(){
  if(exit)actions.push(exit);
  return actions.map((label,i)=>({key:String(i+1),command:choiceCommand(label),label}));
 }
-globalThis.Route127RoadsidePresentation=Object.freeze({choices:scenarioChoices,current,inScope,industrialEncounterSprites});
+globalThis.Route127RoadsidePresentation=Object.freeze({choices:scenarioChoices,current,inScope,industrialEncounterSprites,lowlandsSprites});
 Route127MenuAuthority.register('roadside-scenarios',{
  supports:()=>stage==='encounter'&&inScope()&&!player.flags?.r18HoundNaming,
  choices:context=>context.base
@@ -128,6 +140,10 @@ presentation.textContent=`
 .gfx-frame.r127-route-scene .r127-road-unit{height:82%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0!important;margin:0;border:0!important;border-image:none!important;background:transparent!important;box-shadow:none!important;min-height:0!important;pointer-events:auto;cursor:pointer}
 .gfx-frame.r127-route-scene .r127-road-art img,.gfx-frame.r127-route-scene .r127-road-art.single img{width:100%;height:calc(100% - 31px);object-fit:contain;object-position:center bottom}
 .gfx-frame.r127-route-scene .r127-road-unit[hidden]{display:none}
+.gfx-frame.r127-route-scene .r127-road-art.r127-lowlands-units{display:grid;grid-template-columns:repeat(var(--lowlands-count),minmax(0,1fr))}
+.gfx-frame.r127-route-scene .r127-lowlands-units .r127-road-unit{width:100%;grid-row:1}
+.gfx-frame.r127-route-scene .r127-lowlands-units.single .r127-road-unit{width:54%;justify-self:center}
+.gfx-frame.r127-route-scene .r127-lowlands-units .r127-road-hp{font-size:clamp(10px,2.8vw,16px);padding:3px 4px}
 .gfx-frame.r127-route-scene :is(.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-combat){display:flex;flex-direction:column;align-items:center;gap:3px}
 .gfx-frame.r127-route-scene :is(.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-combat)>img{height:calc(100% - 31px)!important;flex:1;min-height:0;object-position:center bottom}
 .gfx-frame.r127-route-scene :is(.r127-bat-hp,.r127-raccoon-label,.r127-human-hp,.r127-npc-label,.r127-road-hp){position:static!important;transform:none!important;left:auto;bottom:auto;display:block;flex:none;z-index:2;white-space:nowrap;color:#ffaaa4;background:#32100e;border:1px solid #aa413b;border-radius:4px;padding:3px 6px;font:700 clamp(13.5px,1.5vw,18px)/1.15 sans-serif}
@@ -208,10 +224,16 @@ GraphicalUI.sync=function(...args){
   const key=scene.title+':'+scene.items.map(x=>x.name).join('|')+':'+!!scene.combat;
   if(layer?.dataset.key!==key){
    layer?.remove();layer=document.createElement('div');layer.className='r127-road-art'+(scene.items.length===1?' single':'');layer.dataset.key=key;
+   if(scene.lowlands){
+    layer.classList.add('r127-lowlands-units');
+    layer.style.setProperty('--lowlands-count',String(scene.items.length));
+   }
    scene.items.forEach((f,i)=>{
     const interactive=!!scene.combat&&(!scene.combat.r18TunnelRat||completeUnits);
     const unit=document.createElement(interactive?'button':'div');
-    unit.className='r127-road-unit';unit.style.width=(scene.items.length===1?'54%':'38%');
+    unit.className='r127-road-unit';
+    if(scene.lowlands){unit.dataset.index=String(i);unit.style.gridColumn=String(i+1);}
+    else unit.style.width=(scene.items.length===1?'54%':'38%');
     if(interactive){
      unit.type='button';
      unit.addEventListener('click',()=>{if(!busy)handleCommand(scene.combat.enemies?.length?'attack '+(i+1):'attack')});

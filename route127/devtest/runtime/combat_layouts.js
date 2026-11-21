@@ -221,6 +221,15 @@
  register('THE COLLAPSED DAM',[],'approach','Collapsed dam',scenery('the_collapsed_dam.png'));
  register('THE CHAIN BRIDGE',[],'approach','Animated chain bridge',scenery('the_chain_bridge.gif'));
 
+ register('THE SALT MINERS',[],'approach','Salt quarry',scenery('salt_miners.png'));
+ register('THE SALT MINERS',[scenery('marlow_vance.png')],'approach','Rescued Marlow',scenery('salt_miners.png'));
+ register('THE SALT MINERS',sprite('saltmaster.png','salt_overseer.png'),'combat','Guard fight',scenery('salt_miners.png'));
+ register('THE QUARRY LIFT',[],'approach','Suspended beam',scenery('the_quarry_lift.png'));
+ register('THE QUARRY LIFT',sprite('quarry_hookman.png','quarry_chain_swinger.png','quarry_strangler.png'),
+  'combat','Three gang members',scenery('the_quarry_lift.png'));
+ register('THE QUARRY LIFT',sprite('quarry_hookman.png','quarry_strangler.png'),
+  'combat','Beam dropped',scenery('the_quarry_lift_no_beam.png'));
+
  const rows=new Map();
  const byEncounter=new Map();
  const byTitle=new Map();

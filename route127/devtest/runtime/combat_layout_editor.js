@@ -8,6 +8,13 @@
  const regionLabel=row=>row.classification==='REGIONAL'?row.regions.join(' + '):
   [row.classification,row.site||row.regions.join(' + ')].filter(Boolean).join(' · ');
  const assets=row=>[...new Set(row.variants.flatMap(v=>[...v.units,...(v.background?[v.background]:[])]))];
+ const northernRuntimeScenes=new Set(['east:22','east:12']);
+ const northernRuntimeAssets=new Set([...northernRuntimeScenes].flatMap(id=>{
+  const row=L.rows.get(id);
+  return row?assets(row):[];
+ }));
+ const previewURL=path=>new URL(path,L.root).href+'?v='+
+  (northernRuntimeAssets.has(path)?'northern-layout-registry-20261120':'wo27-art-fit');
  const status=new Map();
  const reviewKey='route127-scenario-reviews-v1';
  const animatedTitles=new Set(['THE LIME FOG','THE RED RAIN','THE GLASS FIELD']);
@@ -167,7 +174,7 @@
    while(running<6&&pending.length){
     const file=pending.shift(),img=new Image();running++;status.set(file,'checking');
     const done=result=>{status.set(file,result);running--;refresh();pump();};
-    img.onload=()=>done('working');img.onerror=()=>done('broken');img.src=new URL(file,L.root).href+'?v=wo27-art-fit';
+    img.onload=()=>done('working');img.onerror=()=>done('broken');img.src=previewURL(file);
    }
   }
   pump();
@@ -342,7 +349,7 @@
    const keep=picker.value||L.activeScene()?.id;
    const term=search.value.trim().toLowerCase(),all=[...L.rows.values()];
    const visible=all.filter(row=>{
-    if(batch.value==='Industrial & Roadside'&&!industrialUploads.has(row.title))return false;
+    if(batch.value==='Industrial & Roadside'&&!industrialUploads.has(row.title)&&!northernRuntimeScenes.has(row.id))return false;
     if(batch.value==='New uploads (9)'&&!latestBatch.has(row.id))return false;
     if(batch.value==='New uploads (Nov 16)'&&!november16Uploads.has(row.title))return false;
     if(classification.value==='Active'?row.classification==='INACTIVE':row.classification!==classification.value)return false;
@@ -458,7 +465,7 @@
    for(const [key,record] of nodes){
     const node=el('button');node.type='button';node.className='layout-unit'+(record.background?' layout-scene-image':'');
     node.setAttribute('aria-label',L.assetName(record.path));record.element=node;
-    const img=el('img');img.draggable=false;img.alt='';img.src=new URL(record.path,L.root).href+'?v=wo27-art-fit';
+    const img=el('img');img.draggable=false;img.alt='';img.src=previewURL(record.path);
     img.addEventListener('error',()=>{img.alt='Missing: '+L.assetName(record.path);});
     node.append(img);
     if(phase.value==='combat'&&!record.background)node.append(el('span','HP'));

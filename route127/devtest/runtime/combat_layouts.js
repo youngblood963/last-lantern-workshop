@@ -221,14 +221,22 @@
  register('THE COLLAPSED DAM',[],'approach','Collapsed dam',scenery('the_collapsed_dam.png'));
  register('THE CHAIN BRIDGE',[],'approach','Animated chain bridge',scenery('the_chain_bridge.gif'));
 
- register('THE SALT MINERS',[],'approach','Salt quarry',scenery('salt_miners.png'));
- register('THE SALT MINERS',[scenery('marlow_vance.png')],'approach','Rescued Marlow',scenery('salt_miners.png'));
- register('THE SALT MINERS',sprite('saltmaster.png','salt_overseer.png'),'combat','Guard fight',scenery('salt_miners.png'));
- register('THE QUARRY LIFT',[],'approach','Suspended beam',scenery('the_quarry_lift.png'));
- register('THE QUARRY LIFT',sprite('quarry_hookman.png','quarry_chain_swinger.png','quarry_strangler.png'),
-  'combat','Three gang members',scenery('the_quarry_lift.png'));
- register('THE QUARRY LIFT',sprite('quarry_hookman.png','quarry_strangler.png'),
-  'combat','Beam dropped',scenery('the_quarry_lift_no_beam.png'));
+ // These scenes are drawn by owner_final_scenarios using canonical IDs.
+ // Match its combatant order so saved placement keys reach the correct sprites.
+ const northernRuntimeScenes=new Map([
+  ['east:22',[
+   {units:[],phase:'approach',variant:'Salt quarry',background:scenery('salt_miners.png')},
+   {units:[scenery('marlow_vance.png')],phase:'approach',variant:'Rescued Marlow',background:scenery('salt_miners.png')},
+   {units:sprite('saltmaster.png','salt_overseer.png'),phase:'combat',variant:'Guard fight',background:scenery('salt_miners.png')}
+  ]],
+  ['east:12',[
+   {units:[],phase:'approach',variant:'Suspended beam',background:scenery('the_quarry_lift.png')},
+   {units:sprite('quarry_hookman.png','quarry_chain_swinger.png','quarry_strangler.png'),
+    phase:'combat',variant:'Three gang members',background:scenery('the_quarry_lift.png')},
+   {units:sprite('quarry_hookman.png','quarry_strangler.png'),
+    phase:'combat',variant:'Beam dropped',background:scenery('the_quarry_lift_no_beam.png')}
+  ]]
+ ]);
 
  const rows=new Map();
  const byEncounter=new Map();
@@ -240,12 +248,13 @@
   byEncounter.set(entry.encounter,id);
   byTitle.set(title,id);
   if(rows.has(id))continue;
+  const variants=northernRuntimeScenes.get(id)||states.get(title)||[];
   const fight=!!entry.encounter.combat||entry.references?.some(ref=>ref.category==='combat')||
-   states.get(title)?.some(spec=>spec.phase==='combat');
+   variants.some(spec=>spec.phase==='combat');
   rows.set(id,{
    id,title,name:title==='MOUNTAIN LIONS'?'Mountain Lion':entry.encounter.displayName||entry.name||entry.encounter.title,
    classification:entry.classification||'GLOBAL',regions:entry.regions||[],
-   combat:!!fight,fullCinematic:industrialCinematics.has(title),variants:states.get(title)||[]
+   combat:!!fight,fullCinematic:industrialCinematics.has(title),variants
   });
  }
  // The registry retains the older titles for these repurposed encounter IDs.

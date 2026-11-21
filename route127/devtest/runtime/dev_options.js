@@ -387,6 +387,11 @@
       Route127MinigameTesting.open();
     });
     panel.insertBefore(minigames,close||null);
+    const bounties=this.button('Preview Bounty Roster',()=>{
+      this.close();
+      DailyBounties.preview();
+    });
+    panel.insertBefore(bounties,close||null);
     const formula=this.button('WO41 Combat Simulator',()=>{
       const url=new URL('../devtest/combat_simulator_wo41.html',document.baseURI).href;
       window.open(url,'_blank','noopener');

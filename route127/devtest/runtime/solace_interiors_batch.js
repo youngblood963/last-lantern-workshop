@@ -313,18 +313,15 @@ handleCommandCore=async function(raw){
 v53TimMenu=function(){
  section='timMain';mercyLocation='tim';townWandererFocus=null;player.flags.solaceMenu='tim53';
  const wanted=v52Crime().bounty>0;
- menu('solace-tim','TIM — SOLACE',['TALK TIM',...(typeof r18CourierEligible==='function'&&r18CourierEligible('tim')?['DELIVER TIM LETTER']:[]),...(player.flags.r18ClaraMet&&player.flags.r18DanielQuest!=='done'?['ASK ABOUT DANIEL']:[]),...(wanted?['PAY FINE','OFFER BRIBE']:[]),...(player.flags.r18BribePending?.lawman==='Tim'?['CONFIRM BRIBE','CANCEL BRIBE']:[]),'TOWN'],'TOWN');
+ menu('solace-tim','TIM — SOLACE',['TALK TIM','BOUNTIES','VIEW WARRANTS',...(typeof r18CourierEligible==='function'&&r18CourierEligible('tim')?['DELIVER TIM LETTER']:[]),...(player.flags.r18ClaraMet&&player.flags.r18DanielQuest!=='done'?['ASK ABOUT DANIEL']:[]),...(wanted?['PAY FINE','OFFER BRIBE']:[]),...(player.flags.r18BribePending?.lawman==='Tim'?['CONFIRM BRIBE','CANCEL BRIBE']:[]),'TOWN'],'TOWN');
 };
 // Reward eligible NPC bounty targets at defeat, independently of reopening Tim.
 const oldCombat=handleCombat;
 handleCombat=function(...args){
  const defeatedSource=combatState?.source;
- const before=defeatedSource==='terribleBilly'?player.flags.terribleBillyBounty:defeatedSource==='houseBoss'?player.flags.timHouseBounty:null;
+ const before=defeatedSource==='houseBoss'?player.flags.timHouseBounty:null;
  const result=oldCombat.apply(this,args);
  const f=player.flags;
- if(before==='active'&&defeatedSource==='terribleBilly'&&f.terribleBillyBounty==='proof'){
-   f.terribleBillyBounty='done';gainXp(140);gainBolts(100);add('BOUNTY PAID — TERRIBLE BILLY: +140 XP, +100 BOLTS.','reward');v49Autosave();
- }
  if(before==='active'&&defeatedSource==='houseBoss'&&f.timHouseBounty==='proof'){
    f.timHouseBounty='done';gainXp(100);gainBolts(75);add('BOUNTY PAID — OLD HOUSE: +100 XP, +75 BOLTS.','reward');v49Autosave();
  }

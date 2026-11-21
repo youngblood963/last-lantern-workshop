@@ -62,6 +62,11 @@ test('private feedback validates fields, retries delivery failures and allows on
  const report={id:crypto.randomUUID(),category:'Report a Bug',subject:'Bounty artwork',message:'Sprite missing.',
   location:'Solace',encounter:'Terrible Billy',build:'fixture',to:'untrusted@example.com'};
  assert.equal((await owner.call('feedback',report)).status,503);
+ env.WORKSHOP_EMAIL={send:async()=>{assert.fail('Invalid recipient must fail before sending');}};
+ assert.equal((await owner.call('feedback',report)).status,503);
+ env.WORKSHOP_EMAIL_TO='invalid@example.test, other@example.test';
+ assert.equal((await owner.call('feedback',report)).status,503);
+ env.WORKSHOP_EMAIL_TO='verified-inbox@example.test';
  env.WORKSHOP_EMAIL={send:async()=>{throw Error('Simulated email outage');}};
  assert.equal((await owner.call('feedback',report)).status,502);
  env.WORKSHOP_EMAIL={send:async message=>{messages.push(message);return {messageId:'fixture'};}};
@@ -72,7 +77,8 @@ test('private feedback validates fields, retries delivery failures and allows on
  assert(results.some(row=>row.status===200));
  assert.equal((await owner.call('feedback',report)).status,200);
  assert.equal((await owner.call('feedback',{...report,id:crypto.randomUUID()})).status,429);
- assert.equal(messages.length,1);assert.equal(messages[0].to,'support@lastlanternworkshop.com');
+ assert.equal(messages.length,1);assert.equal(messages[0].to,'verified-inbox@example.test');
+ assert.equal(messages[0].from,'route127@lastlanternworkshop.com');
  assert.match(messages[0].text,/Character Level: 9/);
  assert.match(messages[0].text,/Encounter: Terrible Billy/);
  assert.match(messages[0].text,/Device: DEVTEST iPad fixture/);

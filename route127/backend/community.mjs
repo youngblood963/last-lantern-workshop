@@ -1,4 +1,3 @@
-const support='support@lastlanternworkshop.com';
 const sender='route127@lastlanternworkshop.com';
 const official=['Last Lantern Workshop','Luna'];
 const categories=['Report a Bug','Suggest a Feature','Gameplay Balancing','Artwork or Visual Issue','General Feedback'];
@@ -92,7 +91,9 @@ export async function communityRoute({req,env,auth,ch,path,body,response,fail}){
  if(!categories.includes(data.category))fail(400,'Choose a feedback category.');
  const subject=clean(data.subject,100),message=clean(data.message,4000,true),id=clean(data.id,36);
  if(!/^[a-f0-9-]{36}$/.test(id))fail(400,'Invalid request ID.');
- if(!env.WORKSHOP_EMAIL)fail(503,'Workshop email is temporarily unavailable.');
+ const recipient=typeof env.WORKSHOP_EMAIL_TO==='string'?env.WORKSHOP_EMAIL_TO.trim():'';
+ if(!env.WORKSHOP_EMAIL||recipient.length>254||! /^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/.test(recipient))
+  fail(503,'Workshop email is temporarily unavailable.');
  const level=await who();
  const existing=await sql('SELECT request_id,sent_at FROM r127_community_feedback WHERE account_id=?',account).first();
  if(existing?.request_id===id&&existing.sent_at)return response({ok:true});
@@ -109,7 +110,7 @@ export async function communityRoute({req,env,auth,ch,path,body,response,fail}){
   `Game Build: ${diag(data.build)||'Unavailable'}`,`Device: ${diag(req.headers.get('User-Agent'),220)||'Unknown'}`,
   `Submitted: ${new Date(now).toISOString()}`,'','PLAYER MESSAGE:','',message,'','END OF REPORT'].join('\n');
  try{
-  const receipt=await env.WORKSHOP_EMAIL.send({from:sender,to:support,subject:`[ROUTE 127] [${data.category.toUpperCase()}] ${subject}`,text:report});
+  const receipt=await env.WORKSHOP_EMAIL.send({from:sender,to:recipient,subject:`[ROUTE 127] [${data.category.toUpperCase()}] ${subject}`,text:report});
   if(!receipt?.messageId)throw new Error('Missing email receipt');
  }catch{
   await sql('DELETE FROM r127_community_feedback WHERE account_id=? AND request_id=? AND sent_at IS NULL',account,id).run();

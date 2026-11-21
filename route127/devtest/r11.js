@@ -114,6 +114,24 @@ Object.assign(CRAFT_RECIPES,{
 // Approved library recipe rarity/time; existing saved jobs keep their absolute deadline.
 if(CRAFT_RECIPES.bandage)CRAFT_RECIPES.bandage.rarity='rare';
 for(const recipe of Object.values(CRAFT_RECIPES))recipe.seconds=R11_TIMES[recipe.rarity||GEAR[recipe.name]?.rarity||'common'];
+const REINFORCED_BANDAGE_SECONDS=120;
+if(CRAFT_RECIPES.bandage)CRAFT_RECIPES.bandage.seconds=REINFORCED_BANDAGE_SECONDS;
+
+// DEVTEST loads the shared Factory handler. Override only new tutorial jobs.
+const r11FactoryCommand=v49FactoryCommand;
+v49FactoryCommand=function(cmd){
+ const kit=player.flags.v49Kit;
+ if(stage!=='factoryBench'||!['i','insert','insert materials'].includes(cmd)||
+    player.flags.v49RecipeBandage||player.flags.v49Job||!(kit?.cloth>=2&&kit?.scrap>=1))
+  return r11FactoryCommand.apply(this,arguments);
+ delete player.flags.v49Kit;
+ player.flags.v49Job={endsAt:Date.now()+REINFORCED_BANDAGE_SECONDS*1000,success:Math.random()<.9};
+ v49Autosave();
+ add('MATERIALS INSERTED — 2-MINUTE REAL-TIME CRAFT STARTED. ZERO TURNS SPENT.','reward');
+ v49Workbench();
+ return true;
+};
+
 function r11Learned(key){r11Migrate();return !!player.flags.r11Learned[key]||(player.flags.v49RecipeBandage&&['bandage','pipe'].includes(key));}
 function r11Blueprint(source){
  const rates={combat:.02,exploration:.015,salvage:.025,boss:.10};

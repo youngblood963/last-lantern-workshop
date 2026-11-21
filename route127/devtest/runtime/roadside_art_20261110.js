@@ -60,6 +60,8 @@ function current(){
  const combat=typeof combatState!=='undefined'?combatState:null;
  const encounter=stage==='encounter'&&typeof currentEncounter==='function'?currentEncounter():null;
  const origin=typeof currentEncounter==='function'&&['encounter','combat','combatItems'].includes(stage)?currentEncounter():null;
+ const target=globalThis.DailyBounties?.artTarget();
+ if(target)return {title:target.name.toUpperCase(),items:[file(target.art)],combat};
  const aliases={'THE MILK CRATES':'THE HIGHWAY HUNTERS','SCAVENGER':'LONE SCAVENGER','WRECKERS':'THE WRECKERS','DRAIN CREATURE':'SOMETHING IN THE DRAIN',
  'FERAL BOAR':'TUNNEL RATS','PANTRY RAT PACK':'RATS IN THE PANTRY','LARGE CONTAMINATED ROACHES':'ROACH NEST','AGGRESSIVE ROACH SWARM':'ROACH NEST'};
  const raw=normalize(combat?.name||encounter?.title);

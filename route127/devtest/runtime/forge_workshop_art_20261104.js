@@ -208,7 +208,7 @@
   }else{
    page='main';
    baseSubmenu('Sheriff Kaiden',
-    ['ASK ABOUT SEAPORT','SMALL TALK','VIEW BOUNTIES',
+    ['ASK ABOUT SEAPORT','SMALL TALK','BOUNTIES','VIEW WARRANTS',
      ...(wanted()?['PAY FINE','OFFER BRIBE']:[]),'BACK']);
   }
   currentHotkeys.b='back';
@@ -282,7 +282,7 @@
    menu();return true;
   }
   if(cmd==='small talk'){menu('small-talk');return true;}
-  if(cmd==='view bounties'){
+  if(cmd==='view warrants'){
    v52Wanted();
    const crime=v52Crime();
    if(crime.active?.length)crime.active.slice(-8).forEach(x=>

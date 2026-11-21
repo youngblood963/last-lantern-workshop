@@ -734,7 +734,7 @@ function showQuests(){
   if(player.flags.mainSolaceQuest!=="done"){active++;add("MAIN — HEAD TO SOLACE");add("Follow the GPS coordinates south to Solace. Find shelter, then ask about the Relay Station to restore contact with the Tomorrow Project.","system");}
   if(["active","cleared"].includes(player.flags.houseQuest)){active++;add("SIDE — INVESTIGATE THE ABANDONED HOUSE");add(player.flags.houseQuest==="cleared"?"Lift the loose floorboard in the starting house to claim your wooden storage box.":"Return to the starting house north of Solace and investigate the recent occupation.","system");}
   if(player.flags.timHouseBounty && player.flags.timHouseBounty!=="done"){active++;add(`BOUNTY — TROUBLE AT THE OLD HOUSE [${String(player.flags.timHouseBounty).toUpperCase()}]`);add(player.flags.timHouseBounty==="proof"?"Return to Tim with proof that the old-house squatter has been driven out.":"Investigate the occupied old house after Wayne unlocks the house lead, then defeat the squatter.","system");}
-  if(player.flags.terribleBillyBounty && player.flags.terribleBillyBounty!=="done"){active++;add(`BOUNTY — TERRIBLE BILLY [${String(player.flags.terribleBillyBounty).toUpperCase()}]`);add(player.flags.terribleBillyBounty==="proof"?"Return to Tim with proof that Terrible Billy has been stopped.":"Find Terrible Billy between Solace and the Factory near the works junction (road steps 3–5). Confront him on the road.","system");}
+  if(player.flags.terribleBillyBounty && player.flags.terribleBillyBounty!=="done"){active++;add(`BOUNTY — TERRIBLE BILLY [${String(player.flags.terribleBillyBounty).toUpperCase()}]`);add(player.flags.terribleBillyBounty==="proof"?"Return to Tim or Kaiden with proof that Terrible Billy has been stopped.":"Find Terrible Billy between Solace and the Factory near the works junction (road steps 3–5). Confront him on the road.","system");}
   if(["active","found"].includes(player.flags.timQuest)){active++;add("SIDE — THE OLD BADGE");add(player.flags.timQuest==="found"?"Return Tim's old badge to him in Solace.":"Search Route 127 between Solace and the old house.","system");}
   if(["active","found"].includes(player.flags.murphyQuest)){active++;add("SIDE — ONE GOOD BELT");add(player.flags.murphyQuest==="found"?"Return the usable serpentine belt to Murphy.":"Search near the service-road fork toward the old house.","system");}
   if(player.flags.relayQuest==="ask"){active++;add("MAIN — RELAY STATION");add("Ask Tim, Jen or Murphy about the Relay Station. The Tomorrow Project needs a reliable line to Solace.","system");}
@@ -754,7 +754,7 @@ function showQuests(){
   if(player.flags.murphyQuest==="done"){completed++;add("SIDE — ONE GOOD BELT");add("Brought Murphy a usable serpentine belt. Reward: 120 XP · 35 Bolts","system");}
   if(player.flags.houseQuest==="done"){completed++;add("SIDE — INVESTIGATE THE ABANDONED HOUSE");add("House claimed. Six-slot wooden storage box unlocked.","system");}
   if(player.flags.timHouseBounty==="done"){completed++;add("BOUNTY — TROUBLE AT THE OLD HOUSE — COMPLETE","reward");add("Returned proof to Tim. Reward: 100 XP · 75 Bolts.","system");}
-  if(player.flags.terribleBillyBounty==="done"){completed++;add("BOUNTY — TERRIBLE BILLY — COMPLETE","reward");add("Stopped Terrible Billy and returned proof to Tim. Reward: 140 XP · 100 Bolts.","system");}
+  if(player.flags.terribleBillyBounty==="done"){completed++;add("BOUNTY — TERRIBLE BILLY — COMPLETE","reward");add("Stopped Terrible Billy and returned proof. Reward: 140 XP · 100 Bolts.","system");}
   if(player.flags.relayQuest==="complete"){completed++;add("MAIN — RELAY STATION: CONNECTION STABILIZED","reward");add("The Relay is operational. The Tomorrow Project can reach Solace again; the Factory's local archive is the next lead.","system");}
   if(!completed)add("NONE","system"); add("────────────────────────────────────────","system");add("(B) BACK","system");
 }
@@ -1911,7 +1911,6 @@ function encounterChoices(e){
   const done = player.encounterDone[roadTurn] || new Set();
   const parts = base.split(/\s{2,}/).filter(Boolean);
   const available = parts.filter(choice => e.title==="THE SCRAP DUEL"||!done.has(choice));
-  if(terribleBillyEligibleRoad())available.push('CONFRONT TERRIBLE BILLY');
   // Turn Complete owns road progression; do not inject a duplicate MOVE ON action.
   return available.join("   ");
 }
@@ -1982,13 +1981,13 @@ function showEncounter() {
   currentRoadWanderer=null;
   const e = storyRefreshTravelerEncounter();
   if(e.title==="THE TRAVELER")storyRecordValeSighting();
-  rememberEncounter(roadEncounterOrder[currentRoadEncounterIndex()]);
+  if(!e.dailyBounty)rememberEncounter(roadEncounterOrder[currentRoadEncounterIndex()]);
   if(activeRoad?.active&&activeRoad.leg==='coast'&&typeof r9CoastRemember==='function')r9CoastRemember(activeRoad.index);
   if(activeRoad?.active&&activeRoad.leg==='coast'&&typeof R8_COAST_COMBAT!=='undefined'&&R8_COAST_COMBAT.includes(activeRoad.index)){
     player.flags.r8CoastCombatHistory=[...(player.flags.r8CoastCombatHistory||[]).filter(t=>t!==e.title),e.title].slice(-5);
   }
   if(!player.encounterDone[roadTurn]) player.encounterDone[roadTurn]=new Set();
-  const lvl=(e.combat&&e.combat.level) || encounterLevels[e.title] || (roadGoal==="east"? (e.title==="THE WARDEN"?Math.min(50,player.level+2):5+(roadTurn%6)):null);
+  const lvl=e.dailyBountyLevel || (e.combat&&e.combat.level) || encounterLevels[e.title] || (roadGoal==="east"? (e.title==="THE WARDEN"?Math.min(50,player.level+2):5+(roadTurn%6)):null);
   add(""); add(`ROAD TURN ${dailyRoadTurns} — ${e.displayName||e.title}${lvl?` — LVL ${String(lvl).padStart(2,"0")}`:""}`, "place");
   add(typeof e.description==="function"?e.description():e.text);if(typeof lanternState==="function" && lanternState()?.pending && e.title==="RIVER OF FIRE" && typeof r6FireArt==="function")r6FireArt();add("");const markerActions=renderRoadMarkerActions();add([encounterChoices(e),...markerActions].filter(Boolean).join("   "),"system");
   if(e.exclusive) add("What do you do?", "system");
@@ -2539,7 +2538,7 @@ function showCurrentContext(){
   add("CURRENT SITUATION","system");
   if(stage==="combat" && combatState){ add(`${combatState.name} — LVL ${String(combatState.level).padStart(2,"0")} — HP ${combatState.hp}/${combatState.maxHp}`,"bright"); renderCombatMenu(); return; }
   if(stage==="wandererRoad" && currentRoadWanderer){ const w=wandererByName(currentRoadWanderer); add(`ROUTE 127 — ${w.name.toUpperCase()} — LVL ${String(w.level).padStart(2,"0")}`,"bright"); add("SMALL TALK   INSPECT   FIGHT   MOVE ON","system"); return; }
-  if(stage==="encounter"){ const e=currentEncounter(); const lvl=(e.combat&&e.combat.level) || encounterLevels[e.title] || (roadGoal==="east"? (e.title==="THE WARDEN"?Math.min(50,player.level+2):5+(roadTurn%6)):null); add(`${e.displayName||e.title}${lvl?` — LVL ${String(lvl).padStart(2,"0")}`:""}`,"bright"); add(encounterChoices(e),"system"); return; }
+  if(stage==="encounter"){ const e=currentEncounter(); const lvl=e.dailyBountyLevel || (e.combat&&e.combat.level) || encounterLevels[e.title] || (roadGoal==="east"? (e.title==="THE WARDEN"?Math.min(50,player.level+2):5+(roadTurn%6)):null); add(`${e.displayName||e.title}${lvl?` — LVL ${String(lvl).padStart(2,"0")}`:""}`,"bright"); add(encounterChoices(e),"system"); return; }
   if(stage==="mercy"){ add(`SOLACE — ${mercyLocation.toUpperCase()}`,"bright"); if(mercyLocation==="town")mercyMenu(); else if(mercyLocation==="jen")showBarActions(); else if(mercyLocation==="relay")showRelayChoices(); else add("(T) TOWN","system"); return; }
   if(stage==="roadReady") add("OLD HOUSE — ROAD heads south toward Solace.","system");
   else if(stage==="settlement"){if(player.flags.solaceGateChallenge)showSolaceGateBusiness();else add("(P) APPROACH GATE","system");}
@@ -2920,20 +2919,19 @@ function handleSolace(cmd, raw=cmd){
 
   if(cmd.includes("talk to jen")||cmd==="talk jen"){npcTalk("jen");return;} if(cmd.includes("talk to johnny")||cmd==="talk johnny"){npcTalk("johnny");return;} if(cmd.includes("talk to murphy")||cmd==="talk murphy"){npcTalk("murphy");return;} if(cmd.includes("talk to wayne")||cmd==="talk wayne"){npcTalk("wayne");return;} if(cmd.includes("talk to amii")||cmd==="talk amii"){npcTalk("amii");return;} if(cmd.includes("talk to tim")||cmd==="talk tim"){npcTalk("tim");return;}
   if(mercyLocation==="tim" && ["1","about solace","solace"].includes(cmd)){add("TIM > Solace started as a fuel stop, then a camp. Somebody built a wall and we started calling it home.","bright");npcTalk("tim");return;}
-  if(mercyLocation==="tim" && ["2","work"].includes(cmd)){add("TIM > Two leads: Terrible Billy, and trouble at the old house. Billy has been hitting travelers east of the fork. Bring me proof he will not do it again.","bright");add(`${player.flags.timHouseBounty?`TROUBLE AT THE OLD HOUSE — ${String(player.flags.timHouseBounty).toUpperCase()}`:"ACCEPT TROUBLE AT THE OLD HOUSE"}   ${player.flags.terribleBillyBounty?`TERRIBLE BILLY — ${String(player.flags.terribleBillyBounty).toUpperCase()}`:"ACCEPT TERRIBLE BILLY CONTRACT"}` ,"system");npcTalk("tim");return;}
+  if(mercyLocation==="tim" && ["2","work"].includes(cmd)){add("TIM > There’s trouble at the old house. For wanted travelers, check Bounties.","bright");add(player.flags.timHouseBounty?`TROUBLE AT THE OLD HOUSE — ${String(player.flags.timHouseBounty).toUpperCase()}`:"ACCEPT TROUBLE AT THE OLD HOUSE","system");npcTalk("tim");return;}
   if(mercyLocation==="tim" && (cmd.includes("accept trouble at the old house")||cmd==="trouble at old house")){if(!player.flags.timHouseBounty){player.flags.timHouseBounty="active";add("BOUNTY ACCEPTED — TROUBLE AT THE OLD HOUSE. Find the occupied house north of Solace, defeat the squatter, and bring proof to Tim.","reward");}else add(`TIM > That contract is already ${String(player.flags.timHouseBounty).toUpperCase()}.`,"system");npcTalk("tim");return;}
-  if(mercyLocation==="tim" && (cmd.includes("accept terrible billy")||cmd==="terrible billy"||cmd==="billy contract")){if(!player.flags.terribleBillyBounty){player.flags.terribleBillyBounty="active";add("BOUNTY ACCEPTED — TERRIBLE BILLY. Search Route 127 between Solace and the Factory near the works junction, then CONFRONT TERRIBLE BILLY.","reward");}else add(`TIM > That contract is already ${String(player.flags.terribleBillyBounty).toUpperCase()}.`,"system");npcTalk("tim");return;}
   if(mercyLocation==="tim" && ["3","bounties","view bounties","about bounties"].includes(cmd)){
     v52WantedBoard();
     player.flags.r127TimBountyOpen=true;
-    r5DirectChoices(['ACCEPT TERRIBLE BILLY CONTRACT','ACCEPT TROUBLE AT THE OLD HOUSE','COLLECT BOUNTY','BACK']);
+    r5DirectChoices(['ACCEPT TROUBLE AT THE OLD HOUSE','COLLECT BOUNTY','BACK']);
     return;
   }
   if(mercyLocation==="tim"&&player.flags.r127TimBountyOpen){
     delete player.flags.r127TimBountyOpen;
     if(cmd==="back"||cmd==="b"){npcTalk("tim");return;}
   }
-  if(mercyLocation==="tim" && ["4","collect bounty"].includes(cmd)){if(player.flags.timHouseBounty==="proof"){player.flags.timHouseBounty="done";gainXp(100);gainBolts(75);updateHud();add("TIM > That's proof enough. The old house is clear.","bright");add("BOUNTY COMPLETE — TROUBLE AT THE OLD HOUSE. +100 XP, +75 BOLTS.","reward");}else if(player.flags.terribleBillyBounty==="proof"){player.flags.terribleBillyBounty="done";gainXp(140);gainBolts(100);updateHud();add("TIM > Billy won't be hunting travelers again. You did good.","bright");add("BOUNTY COMPLETE — TERRIBLE BILLY. +140 XP, +100 BOLTS.","reward");}else add("TIM > Bring me proof from an active bounty contract. The board is informational; it doesn't pay out by itself.","system");npcTalk("tim");return;}
+  if(mercyLocation==="tim" && ["4","collect bounty"].includes(cmd)){if(player.flags.timHouseBounty==="proof"){player.flags.timHouseBounty="done";gainXp(100);gainBolts(75);updateHud();add("TIM > That's proof enough. The old house is clear.","bright");add("BOUNTY COMPLETE — TROUBLE AT THE OLD HOUSE. +100 XP, +75 BOLTS.","reward");}else add("TIM > Bring me proof from an active bounty contract. The board is informational; it doesn't pay out by itself.","system");npcTalk("tim");return;}
   if(mercyLocation==="tim" && ["5","pay off bounty"].includes(cmd)){if(typeof v52PayFine==="function")v52PayFine();else add("Bounty settlement is unavailable.","system");npcTalk("tim");return;}
   if(mercyLocation==="tim" && ["6","relay station","ask about relay station","about relay station"].includes(cmd)){askAboutRelay("tim");return;}
   if(mercyLocation==="tim" && ["7","never mind","back"].includes(cmd)){mercyLocation="town";mercyMenu();return;}
@@ -3466,7 +3464,6 @@ async function handleCommandCore(raw) {
     if(cmd.startsWith("withdraw ")){transferHouseItem(cmd.slice(9),false);showHouseStorage("houseWithdraw");return;}
     showHouseStorage(stage);return;
   }
-  if(stage==="encounter" && (cmd.includes("hunt terrible billy")||cmd.includes("confront terrible billy"))){if(!terribleBillyEligibleRoad()){add("You need an active Terrible Billy contract from Tim before you can track him.","system");add(encounterChoices(currentEncounter()),"system");return;}if(!testMode&&player.turns<1){noTurnsMenu();return;}spendTurn();add("TERRIBLE BILLY — WANTED RAIDER","danger");add('A young gunslinger in a torn duster steps from behind a wreck, fingertips resting on the worn revolver at his hip. "Tim sent you?"',"system");startCombat({name:"TERRIBLE BILLY",level:5,hp:42,min:7,max:12,xp:70,bolts:35,end:"Terrible Billy drops his weapon and collapses beside the road."},"terribleBilly",false);return;}
   if (stage === "encounter" && cmd.startsWith("inspect ")) {
     const e=currentEncounter(), key=choiceKey(cmd,e);
     if(key){ resolveEncounter(cmd); return; }

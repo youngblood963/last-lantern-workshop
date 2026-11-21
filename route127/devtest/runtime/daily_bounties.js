@@ -302,23 +302,12 @@ handleCommandCore=async function(raw){
  }
  return priorCommand.apply(this,arguments);
 };
-const images=new Map();
-const priorModel=GraphicalUI.model;
-GraphicalUI.model=function(...args){
- const model=priorModel.apply(this,args),row=atCurrentRoad();
- const id=combatState?.dailyBountyId?.split(':').at(-1)||(combatState?.source==='terribleBilly'?billy.id:row?.target);
- const target=roster.get(id);
- if(!target||!['encounter','combat','combatItems'].includes(stage))return model;
- const url='../devtest/assets/enemies/'+target.art;
- if(!images.has(url)&&typeof Image==='function'){
-  images.set(url,false);
-  const image=new Image();
-  image.onload=()=>{images.set(url,true);GraphicalUI.schedule();};
-  image.src=url;
- }
- if(images.get(url))model.art=url;
- return model;
-};
+function artTarget(){
+ if(!['encounter','combat','combatItems'].includes(stage))return null;
+ const id=combatState?.dailyBountyId?.split(':').at(-1)||
+  (stage==='encounter'?atCurrentRoad()?.target:null);
+ return id&&id!==billy.id?roster.get(id):null;
+}
 window.addEventListener('keydown',event=>{if(dialog?.open)event.stopImmediatePropagation();},true);
-globalThis.DailyBounties={preview:()=>open('preview'),quote,roster:()=>[...roster.values()]};
+globalThis.DailyBounties={artTarget,preview:()=>open('preview'),quote,roster:()=>[...roster.values()]};
 })();

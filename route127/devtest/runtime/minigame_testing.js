@@ -6,7 +6,8 @@ if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
 const scrapArt='../devtest/assets/minigames/scrap-duel/';
 const games=[
  {title:'Cemetery of Tires',status:'Existing',mount:mountMaze},
- {title:'Scrap Duel',status:'New',mount:mountScrapDuel}
+ {title:'Scrap Duel',status:'Playable',mount:mountScrapDuel},
+ {title:'Scrap Duel Spectator',status:'Playable',mount:mountSpectator}
 ];
 const THROW_COUNT=5;
 function timedScore(elapsed){
@@ -129,7 +130,9 @@ function previewChampionCombat(allMisses){
  frame.title='Isolated Hubcap Champion combat';
  const profile=JSON.parse(JSON.stringify({
   level:player.level,hp:player.hp,maxHp:player.maxHp,turns:player.turns,bolts:player.bolts,
-  weapon:player.weapon,armor:player.armor,accessory:player.accessory,pack:player.pack
+  weapon:player.weapon,armor:player.armor,accessory:player.accessory,pack:player.pack,
+  flags:{equipmentMods:player.flags.equipmentMods,equipmentModSerial:player.flags.equipmentModSerial,
+   r127EquipmentUpgrades:player.flags.r127EquipmentUpgrades}
  }));
  const notice=element('p','Loading simulated combat…','minigame-champion-reaction');
  frame.addEventListener('load',()=>{
@@ -156,10 +159,12 @@ if(globalThis.ROUTE127_ENV.scrapCombatPreview){
  globalThis.Route127ScrapCombatPreview=(profile,allMisses)=>{
   resetPlayer();
   Object.assign(player,{
-   ...profile,handle:'DEVTEST SURVIVOR',
-   pack:JSON.parse(JSON.stringify(profile.pack||[]))
+   ...JSON.parse(JSON.stringify(profile)),handle:'DEVTEST SURVIVOR',
+   flags:{...player.flags,...JSON.parse(JSON.stringify(profile.flags||{}))}
   });
   player.flags.interfaceUnlocked=true;
+  EquipmentMods.hydrate();
+  globalThis.r127HydrateUpgrades?.();
   activeSaveSlot=0;
   hud.classList.remove('hidden');
   utilityPanel.classList.remove('hidden');
@@ -172,23 +177,67 @@ if(globalThis.ROUTE127_ENV.scrapCombatPreview){
  };
 }
 
-globalThis.Route127MinigameTesting={
- fitArt,
- createTireYard,
- open(){
-  showDialog();
-  showMenu();
+globalThis.Route127MinigameTesting={open(){showDialog();showMenu();}};
+function openRoadGame(title){
+ if(dialog?.open||typeof HTMLDialogElement==='undefined')return null;
+ clearGame();
+ showDialog();
+ surface('play');
+ heading.textContent=title;
+ return element('div',null,'minigame-game');
+}
+function rimReaperReward(){
+ if(player.flags.scrapDuelRimReaperAwarded)return;
+ const level=Math.max(1,Math.min(50,Math.floor(Number(player.level)||1)));
+ const base=catalogInstanceName(RIM_REAPER_DEFINITION,level);
+ const weapon=EquipmentMods.createModified(base,'serrated');
+ if(!routeKeepGear(weapon,'weapon')){
+  (player.flags.r5LootQueue||=[]).push({name:weapon,type:'weapon',qty:1});
+  add('Rim Reaper is held until you make room.','system');
+ }
+ player.flags.scrapDuelRimReaperAwarded=true;
+ add('FIRST SCRAP DUEL VICTORY — Rim Reaper, with Serrated Edge installed.','reward');
+}
+globalThis.Route127RoadMinigames={
+ openMaze(){
+  const body=openRoadGame('Cemetery of Tires');
+  if(!body)return false;
+  const leave=button('Leave Maze',()=>dialog.close());
+  roadGame={abandon(){
+   if(stage==='encounter'&&currentEncounter()?.title==='CEMETERY OF TIRES'){completeRoadTurn();v49Autosave();}
+  }};
+  content.replaceChildren(body,leave);
+  mountMaze(body,true,{
+   closeForRescue(){dialog.close();},
+   won(){
+    if(!player.flags.r18MazeClaimed){
+     const reward=r18MazeReward(player.level,typeof v555AwardEquipmentDrop==='function');
+     r18RetainRoadReward('Scrap Metal','material');
+     gainBolts(reward.bolts);gainXp(reward.xp);
+     if(reward.equipment())v555AwardEquipmentDrop();
+     player.flags.r18MazeClaimed=true;
+    }
+    add('You reach the crate and recover its contents.','reward');
+    v49Autosave();
+    if(!CorvetteRestoration.state().active||CorvetteRestoration.state().tiresRecovered>=4)dialog.close();
+    else leave.textContent='Return to Road';
+   }
+  });
+  body.querySelector('button')?.focus();
+  return true;
+ },
+ watch(){
+  const body=openRoadGame('Scrap Duel · Spectator');
+  if(!body)return false;
+  roadGame={abandon(){if(stage==='encounter')renderCurrentChoices();}};
+  const leave=button('Stop Watching',()=>dialog.close());
+  content.replaceChildren(body,leave);
+  mountSpectator(body,true,()=>{leave.textContent='Continue';leave.focus();});
+  return true;
  },
  openRoadScrapDuel(q,stake){
-  if(dialog?.open||typeof HTMLDialogElement==='undefined'){
-   add('Scrap Duel could not open. No wager was taken.','system');
-   return false;
-  }
-  clearGame();
-  showDialog();
-  surface('play');
-  heading.textContent='Scrap Duel';
-  const body=element('div',null,'minigame-game');
+  const body=openRoadGame('Scrap Duel');
+  if(!body){add('Scrap Duel could not open. No wager was taken.','system');return false;}
   const current=()=>stage==='encounter'&&currentEncounter()?.title==='THE SCRAP DUEL'&&
     player.flags.r18ScrapDuelScene===q;
   let settled=false;
@@ -202,13 +251,18 @@ globalThis.Route127MinigameTesting={
    impactLocked:false,
    lockImpact(){this.impactLocked=true;leave.disabled=true;},
    abandon(){
-    if(!settle())return;
-    add(stake?'You forfeit the committed wager.':'You leave the throwing contest.','system');
-    v49Autosave();
+    if(settle()){
+     add(stake?'You forfeit the committed wager.':'You leave the throwing contest.','system');
+     v49Autosave();
+    }
+    if(current())renderCurrentChoices();
    },
    finish(total,opponent){
     if(!settle())return;
     if(stake&&total>=opponent)gainBolts(total>opponent?stake*2:stake);
+    if(total>opponent)rimReaperReward();
+    leave.textContent='Continue';
+    leave.focus();
     if(!player.flags.r18ScrapDuelXpSeen){
      player.flags.r18ScrapDuelXpSeen=true;
      gainXp(Math.max(6,player.level));
@@ -224,12 +278,9 @@ globalThis.Route127MinigameTesting={
   };
   content.replaceChildren(body,leave);
   mountScrapDuel(body,true,roadGame);
-  q.phase='done'; // A committed round cannot be replayed from a refreshed save.
-  if(stake){
-   player.bolts-=stake;
-   player.flags.r18ScrapDuelNextDay=(Number(day)||1)+3;
-   updateHud();
-  }
+  q.phase='idle';q.stake=0;
+  // Deduct and persist before the first throw. A refresh never refunds a wager.
+  if(stake){player.bolts-=stake;updateHud();}
   v49Autosave();
   body.querySelector('button')?.focus();
   return true;
@@ -284,7 +335,7 @@ function createTireYard(grid){
  return {board,paths,survivor,crate};
 }
 
-function mountMaze(body,started){
+function mountMaze(body,started,road=null){
  if(!started){
   body.append(element('p','Stacks of tires form a maze beneath a collapsed overpass. A crate glints inside.'));
   return;
@@ -296,7 +347,7 @@ function mountMaze(body,started){
  const recoveringTires=Boolean(corvette?.active);
  let tires=Math.max(Number(corvette?.tiresRecovered)||0,Number(corvette?.tiresSubmitted)||0);
  let secondChance=player.accessory==="Niko's Collar"&&Number(player.flags.nikoSecondChanceDay)!==(Number(day)||1);
- let hp=maxHp,lastMove=-Infinity;
+ let hp=road?player.hp:maxHp,lastMove=-Infinity;
  const rescueRoute=playerRescueRoute();
  const testResources={maxHp,turns:player.turns,bolts:player.bolts};
  const countdown=element('p',null,'tire-yard-countdown');
@@ -315,7 +366,11 @@ function mountMaze(body,started){
  const movement=element('div',null,'tire-controls');
  const tire=button('Recover Suitable Tire',()=>{
   if(!q.finished||!recoveringTires||tires>=4)return;
-  render('You inspect the rubber and recover suitable tire '+(++tires)+' of 4. Simulated quest item.');
+  if(road){
+   CorvetteRestoration.tires();
+   tires=CorvetteRestoration.state().tiresRecovered;
+   render('Tires recovered '+tires+' of 4.');
+  }else render('You inspect the rubber and recover suitable tire '+(++tires)+' of 4. Simulated quest item.');
  });
  const tireControls=element('div',null,'tire-controls');
  tireControls.append(tire);
@@ -427,16 +482,28 @@ function mountMaze(body,started){
   if(movement.hidden&&movement.contains(document.activeElement))heading.focus();
  }
  function takeDamage(damage,message){
-  hp=Math.max(0,hp-damage);
+  if(road){
+   const lethal=damage>=player.hp;
+   hurt(damage);
+   hp=player.hp;
+   v49Autosave();
+   if(stage!=='encounter'){
+    phase='fallen';
+    stopClock();
+    road.closeForRescue();
+    return message;
+   }
+   if(lethal)message+=" Niko’s Collar grants a Second Chance.";
+  }else hp=Math.max(0,hp-damage);
   view.survivor.classList.remove('tire-yard-hit');
   void view.survivor.offsetWidth;
   view.survivor.classList.add('tire-yard-hit');
-  if(hp===0&&secondChance){
+  if(!road&&hp===0&&secondChance){
    secondChance=false;
    hp=1;
    message+=" NIKO'S COLLAR FLASHES WARM. You collapse to one knee, alive at 1 HP. The collar's Second Chance is spent for today.";
   }
-  if(hp===0){
+  if(!road&&hp===0){
    phase='fallen';
    stopClock();
    warning.textContent='YOU HAVE FALLEN · SIMULATED RESCUE';
@@ -465,9 +532,14 @@ function mountMaze(body,started){
    phase='won';
    stopClock();
    warning.textContent='';
-   const reward=r18MazeReward(level,typeof v555AwardEquipmentDrop==='function');
-   const equipment=reward.equipment()?' · Equipment drop roll succeeded':'';
-   render('You reach the crate and recover its contents. Simulated rewards · Scrap Metal · '+reward.bolts+' Bolts · '+reward.xp+' XP'+equipment+'.');
+   if(road){
+    render('You reach the crate and recover its contents.');
+    road.won();
+   }else{
+    const reward=r18MazeReward(level,typeof v555AwardEquipmentDrop==='function');
+    const equipment=reward.equipment()?' · Equipment drop roll succeeded':'';
+    render('You reach the crate and recover its contents. Simulated rewards · Scrap Metal · '+reward.bolts+' Bolts · '+reward.xp+' XP'+equipment+'.');
+   }
    return;
   }
   if(++moves>=nextShift&&!shiftAt){
@@ -506,19 +578,20 @@ const upperTruck=[86.6,89,12,16];
 const CHAMPION_MISS_CHANCE=.30;
 // Inset over the champion’s torso, to the right of the painted 50.
 const championBody=[89,92,32,38];
-function scrapLanding(score,previous,forceChampion=false){
+function scrapLanding(score,previous,forceChampion=false,spectator=false){
  // Separate cosmetic draws keep champion rolls and timing untouched.
  const category=score===0?crypto.getRandomValues(new Uint32Array(1))[0]/2**32:0;
- const miss=score!==0?null:forceChampion||category<CHAMPION_MISS_CHANCE
+ const chance=spectator?0:CHAMPION_MISS_CHANCE;
+ const miss=score!==0?null:forceChampion||category<chance
   ?['champion',...championBody]
-  :scrapMisses[Math.floor((category-CHAMPION_MISS_CHANCE)/(1-CHAMPION_MISS_CHANCE)*scrapMisses.length)];
+  :scrapMisses[Math.floor((category-chance)/(1-chance)*scrapMisses.length)];
  let impact;
  for(let attempt=0;attempt<6;attempt++){
   const [a,b]=crypto.getRandomValues(new Uint32Array(2));
   const u=a/2**32,v=b/2**32;
   if(miss){
    const [surface,...zone]=miss;
-   const [left,right,top,bottom]=surface==='truck'&&category>CHAMPION_MISS_CHANCE+(1-CHAMPION_MISS_CHANCE)/2?upperTruck:zone;
+   const [left,right,top,bottom]=surface==='truck'&&category>chance+(1-chance)/2?upperTruck:zone;
    impact={x:left+(right-left)*u,y:top+(bottom-top)*v,surface};
   }else{
    const [x,y,rx,ry]=scrapTargets[score];
@@ -531,7 +604,7 @@ function scrapLanding(score,previous,forceChampion=false){
  return impact;
 }
 
-function mountScrapDuel(body,started,road=null){
+function createScrapStage(body){
  const scene=element('div',null,'minigame-target');
  const truck=element('img');
  truck.className='minigame-scrap-background';
@@ -543,17 +616,66 @@ function mountScrapDuel(body,started,road=null){
  const panel=element('div',null,'minigame-hud');
  body.classList.add('minigame-game-active');
  body.append(artwork,panel);
- const detachArt=fitArt(artwork,1250/704);
+ return {scene,panel,detachArt:fitArt(artwork,1250/704)};
+}
+function npcThrow(){
+ const roll=Math.random();
+ return roll<.05?0:roll<.25?10:roll<.65?25:50;
+}
+function flyScrapCap(scene,projectile,{x,y},landed){
+ projectile.style.left=x+'%';
+ projectile.style.top=y+'%';
+ scene.append(projectile);
+ const motion=typeof projectile.animate==='function'&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+ if(!motion){landed();return;}
+ projectile.animate([
+  {left:'14%',top:'32%',transform:'translate(-50%, -50%) rotate(-360deg) scale(1.35)'},
+  {left:x+'%',top:y+'%',transform:'translate(-50%, -50%) rotate(0) scale(.8)'}
+ ],{duration:540,easing:'cubic-bezier(.2,.65,.25,1)'});
+ return setTimeout(landed,540);
+}
+function scrapContact(projectile,surface){
+ projectile.className=surface==='ground'
+  ?'minigame-hubcap minigame-hubcap-ground'
+  :'minigame-hubcap minigame-hubcap-embedded';
+ if(surface==='truck')projectile.classList.add('minigame-hubcap-truck');
+ if(surface==='crate')projectile.classList.add('minigame-hubcap-crate');
+}
+function mountSpectator(body,started,onFinish){
+ if(!started){body.append(element('p','Watch two scavengers take five turns each.'));return;}
+ const {scene,panel,detachArt}=createScrapStage(body);
+ const scores=[[],[]];
+ const status=element('p');status.setAttribute('role','status');
+ panel.append(status);
+ let projectile,flight,timer,throws=0;
+ function play(){
+  projectile?.remove();
+  const contestant=throws%2,score=npcThrow();
+  const impact=scrapLanding(score,null,false,true);
+  projectile=element('span',null,'minigame-hubcap minigame-hubcap-flight');
+  projectile.setAttribute('aria-hidden','true');
+  flight=flyScrapCap(scene,projectile,impact,()=>{
+   scrapContact(projectile,impact.surface);
+   scores[contestant].push(score);
+   const [a,b]=scores.map(totalScore);
+   status.textContent='Scavenger 1: '+a+' · Scavenger 2: '+b+' · Throw '+(++throws)+' / '+(2*THROW_COUNT);
+   if(throws===2*THROW_COUNT){
+    status.textContent+=' · '+(a===b?'Tie.':'Scavenger '+(a>b?1:2)+' wins!');
+    onFinish?.();
+   }else timer=setTimeout(play,950);
+  });
+ }
+ cleanup=()=>{detachArt();clearTimeout(flight);clearTimeout(timer);};
+ play();
+}
+function mountScrapDuel(body,started,road=null){
+ const {scene,panel,detachArt}=createScrapStage(body);
  if(!started){
   panel.append(element('p','Five throws each. Stop the needle near the center to score. Beat the champion’s total to win.'));
   cleanup=detachArt;
   return;
  }
- const scores=[],champion=Array.from({length:THROW_COUNT},()=>{
-  // Match the actual Mia opponent rolls in r6Wager.
-  const roll=Math.random();
-  return roll<.05?0:roll<.25?10:roll<.65?25:50;
- });
+ const scores=[],champion=Array.from({length:THROW_COUNT},npcThrow);
  const status=element('p');status.setAttribute('role','status');
  const opponent=element('p','Champion '+totalScore(champion)+' · Throws '+champion.join(' + '));
  const controls=element('div',null,'tire-controls');
@@ -588,6 +710,7 @@ function mountScrapDuel(body,started,road=null){
   const total=totalScore(scores),opponentTotal=totalScore(champion);
   report(message+' You '+total+' / Champion '+opponentTotal+' — margin '+Math.abs(total-opponentTotal)+'.');
   if(completed)road?.finish(total,opponentTotal);
+  if(completed&&!road&&total>opponentTotal)panel.append(element('p','Simulated first-win reward: Rim Reaper with Serrated Edge.'));
   heading.focus();
  }
  function startAim(){
@@ -626,16 +749,6 @@ function mountScrapDuel(body,started,road=null){
   const {x,y,surface}=landing;
   const allMisses=scores.length===THROW_COUNT&&scores.every(points=>points===0);
   if(surface==='champion'||allMisses)road?.lockImpact();
-  projectile.style.left=x+'%';
-  projectile.style.top=y+'%';
-  scene.append(projectile);
-  const showContact=()=>{
-   projectile.className=surface==='ground'
-    ?'minigame-hubcap minigame-hubcap-ground'
-    :'minigame-hubcap minigame-hubcap-embedded';
-   if(surface==='truck')projectile.classList.add('minigame-hubcap-truck');
-   if(surface==='crate')projectile.classList.add('minigame-hubcap-crate');
-  };
   const landed=()=>{
    flying=false;
    if(surface==='champion'||allMisses){
@@ -643,14 +756,14 @@ function mountScrapDuel(body,started,road=null){
     if(force)force.hidden=true;
     const hit=surface==='champion';
     if(hit)projectile.className='minigame-hubcap minigame-hubcap-champion';
-    else showContact();
+    else scrapContact(projectile,surface);
     const goaded=!hit&&allMisses;
     report((goaded?missedRoundReaction:championReaction).join(' ')+' THE CHAMPION ATTACKS!');
     impact=setTimeout(()=>road?road.champion(goaded):previewChampionCombat(goaded),1100);
     return;
    }
    if(force)force.disabled=false;
-   showContact();
+   scrapContact(projectile,surface);
    const result=score===50?'BULLSEYE! 50 points.':score===0?'MISS — 0 points.':score+' points.';
    if(scores.length===THROW_COUNT){
     const margin=totalScore(scores)-totalScore(champion);
@@ -662,14 +775,8 @@ function mountScrapDuel(body,started,road=null){
     aim.focus();
    }
   };
-  const motion=typeof projectile.animate==='function'&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  if(motion){
-   projectile.animate([
-    {left:'14%',top:'32%',transform:'translate(-50%, -50%) rotate(-360deg) scale(1.35)'},
-    {left:x+'%',top:y+'%',transform:'translate(-50%, -50%) rotate(0) scale(.8)'}
-   ],{duration:540,easing:'cubic-bezier(.2,.65,.25,1)'});
-   impact=setTimeout(landed,540);
-  }else landed();
+  const flight=flyScrapCap(scene,projectile,{x,y},landed);
+  if(flight!==undefined)impact=flight;
  }
  function forfeit(){
   if(!document.hidden||ended||lastLanding.get(0)?.surface==='champion'||scores.length===THROW_COUNT)return;

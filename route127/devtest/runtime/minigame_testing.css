@@ -1,9 +1,3 @@
-.r127-minigame-testing {
-  width: min(94vw, 760px);
-  height: auto;
-  max-height: 90vh;
-  max-height: 90dvh;
-}
 .r127-minigame-testing .minigame-content,
 .r127-minigame-testing .minigame-game {
   width: 100%;
@@ -201,10 +195,98 @@
   background-image: url('../assets/minigames/scrap-duel/flight.webp');
   transform: translate(-50%, -50%) rotate(-18deg);
 }
-.minigame-champion-preview {
-  width: 100%;
-  height: 65vh;
-  height: 65dvh;
-  border: 1px solid #8c7253;
-}
 .minigame-champion-reaction { color: #ffb382; }
+
+/* The modal occupies the browser viewport without requiring browser fullscreen. */
+.r127-tire-maze.r127-minigame-testing[open] {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  padding: clamp(4px, 1.3vmin, 14px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 5px;
+  overflow: hidden;
+}
+.r127-minigame-testing .minigame-content-menu {
+  align-content: center;
+  overflow-y: auto;
+}
+.r127-minigame-testing .minigame-content-play,
+.r127-minigame-testing .minigame-content-combat {
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 5px;
+}
+.r127-minigame-testing .minigame-game-active {
+  min-width: 0;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 5px;
+}
+.minigame-art-slot {
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  overflow: hidden;
+}
+.minigame-art-slot > .minigame-target,
+.minigame-art-slot > .tire-yard {
+  width: var(--minigame-art-width, min(100%, 52vh));
+}
+.minigame-art-slot > .minigame-target {
+  width: var(--minigame-art-width, min(100%, 95vh));
+}
+.minigame-hud {
+  min-width: 0;
+  width: 100%;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 5px;
+}
+.minigame-hud p { overflow-wrap: anywhere; }
+.minigame-combat-viewport {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  position: relative;
+}
+.minigame-combat-viewport .minigame-champion-preview {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+.minigame-combat-viewport .minigame-champion-reaction {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #161410;
+  padding: .5rem;
+}
+@media (orientation: landscape) and (min-width: 560px) {
+  .r127-minigame-testing .minigame-game-active {
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr) clamp(12rem, 27%, 24rem);
+  }
+  .minigame-hud {
+    align-content: safe center;
+    max-height: 100%;
+    overflow-y: auto;
+  }
+}
+@media (max-width: 380px), (max-height: 480px) {
+  .r127-minigame-testing { font-size: 14px; }
+  .r127-minigame-testing h2 { font-size: 1.15rem; }
+  .r127-minigame-testing button { padding-inline: 8px; }
+}

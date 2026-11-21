@@ -36,8 +36,22 @@ function clearGame(){
  cleanup?.();
  cleanup=null;
 }
+// Measure the space left by the controls, then fit the uncut artwork into it.
+function fitArt(slot,ratio){
+ if(typeof ResizeObserver!=='function')return ()=>{};
+ const observer=new ResizeObserver(([entry])=>{
+  const {width,height}=entry.contentRect;
+  if(width>0&&height>0)slot.style.setProperty('--minigame-art-width',Math.min(width,height*ratio)+'px');
+ });
+ observer.observe(slot);
+ return ()=>observer.disconnect();
+}
+function surface(mode){
+ content.className='minigame-content minigame-content-'+mode;
+}
 function showMenu(){
  clearGame();
+ surface('menu');
  heading.textContent='Minigame Testing';
  const rows=games.map(game=>{
   const row=element('div',null,'minigame-row');
@@ -51,6 +65,7 @@ function showMenu(){
 }
 function showGame(game,started=false){
  clearGame();
+ surface(started||game.mount===mountScrapDuel?'play':'menu');
  heading.textContent=game.title;
  const body=element('div',null,'minigame-game');
  const controls=element('div',null,'tire-controls');
@@ -86,8 +101,12 @@ const championReaction=[
  '“YOU JUST HIT ME WITH A DAMN HUBCAP!”',
  'The champion cracks his knuckles. “NOW YOU’RE GONNA PAY FOR THAT!”'
 ];
-function startChampionCombat(){
- for(const line of championReaction)add(line,'danger');
+const missedRoundReaction=[
+ 'Five throws, zero points. The champion steps away from the truck.',
+ '“FIVE MISSES? SHOW ME YOU CAN DO SOMETHING RIGHT.”'
+];
+function startChampionCombat(allMisses=false){
+ for(const line of allMisses?missedRoundReaction:championReaction)add(line,'danger');
  add('THE CHAMPION ATTACKS!','danger');
  // The original Challenge the Champion encounter, including its reward table.
  const level=Math.max(1,Math.min(50,Number(player.level)||1));
@@ -102,8 +121,9 @@ function startChampionCombat(){
 
 }
 
-function previewChampionCombat(){
+function previewChampionCombat(allMisses){
  clearGame();
+ surface('combat');
  heading.textContent='Hubcap Champion · Simulated Combat';
  const frame=element('iframe',null,'minigame-champion-preview');
  frame.title='Isolated Hubcap Champion combat';
@@ -118,7 +138,7 @@ function previewChampionCombat(){
    return;
   }
   try{
-   frame.contentWindow.Route127ScrapCombatPreview(profile);
+   frame.contentWindow.Route127ScrapCombatPreview(profile,allMisses);
    notice.hidden=true;
    frame.focus();
   }catch(error){
@@ -127,11 +147,13 @@ function previewChampionCombat(){
   }
  },{once:true});
  frame.src='../devtest/index.html?scrap-combat-preview=1';
- content.replaceChildren(notice,frame,button('Return to Minigame Menu',showMenu));
+ const viewport=element('div',null,'minigame-combat-viewport');
+ viewport.append(frame,notice);
+ content.replaceChildren(viewport,button('Return to Minigame Menu',showMenu));
  cleanup=()=>{frame.remove();};
 }
 if(globalThis.ROUTE127_ENV.scrapCombatPreview){
- globalThis.Route127ScrapCombatPreview=profile=>{
+ globalThis.Route127ScrapCombatPreview=(profile,allMisses)=>{
   resetPlayer();
   Object.assign(player,{
    ...profile,handle:'DEVTEST SURVIVOR',
@@ -145,12 +167,14 @@ if(globalThis.ROUTE127_ENV.scrapCombatPreview){
   roadGoal='east';
   roadEncounterOrder=[eastEncounters.findIndex(e=>e.title==='THE SCRAP DUEL')];
   updateHud();
-  startChampionCombat();
+  startChampionCombat(allMisses);
   GraphicalUI.setMode('graphics');
  };
 }
 
 globalThis.Route127MinigameTesting={
+ fitArt,
+ createTireYard,
  open(){
   showDialog();
   showMenu();
@@ -162,6 +186,7 @@ globalThis.Route127MinigameTesting={
   }
   clearGame();
   showDialog();
+  surface('play');
   heading.textContent='Scrap Duel';
   const body=element('div',null,'minigame-game');
   const current=()=>stage==='encounter'&&currentEncounter()?.title==='THE SCRAP DUEL'&&
@@ -190,11 +215,11 @@ globalThis.Route127MinigameTesting={
     }
     v49Autosave();
    },
-   champion(){
+   champion(allMisses){
     if(!settle()){dialog.close();return;}
     clearGame();
     dialog.close();
-    startChampionCombat();
+    startChampionCombat(allMisses);
    }
   };
   content.replaceChildren(body,leave);
@@ -276,7 +301,7 @@ function mountMaze(body,started){
  const testResources={maxHp,turns:player.turns,bolts:player.bolts};
  const countdown=element('p',null,'tire-yard-countdown');
  countdown.setAttribute('role','timer');
- const frame=element('div',null,'tire-yard-frame');
+ const frame=element('div',null,'tire-yard-frame minigame-art-slot');
  const warning=element('p',null,'tire-yard-warning');
  warning.setAttribute('role','status');
  const rescue=element('ul',null,'tire-yard-rescue');
@@ -294,8 +319,11 @@ function mountMaze(body,started){
  });
  const tireControls=element('div',null,'tire-controls');
  tireControls.append(tire);
- body.append(element('p','Reach the salvage crate. Stay clear of the burning tires. Use the direction buttons, arrow keys, or WASD.'),
-  countdown,frame,warning,status,rescue,movement,tireControls,retry);
+ body.classList.add('minigame-game-active');
+ const panel=element('div',null,'minigame-hud');
+ panel.append(countdown,status,movement,warning,retry,tireControls,rescue);
+ body.append(frame,panel);
+ const detachArt=fitArt(frame,1);
  for(const direction of ['up','left','down','right'])
   movement.append(button(direction.toUpperCase(),()=>move(direction)));
 
@@ -347,7 +375,7 @@ function mountMaze(body,started){
   smoke.clear();
   if(view)paintSmoke();
  }
- cleanup=stopClock;
+ cleanup=()=>{stopClock();detachArt();};
  function tick(now){
   if(phase!=='playing')return false;
   if(now>=deadline){
@@ -475,7 +503,7 @@ const scrapMisses=[
  ['crate',65,81,84,94]
 ];
 const upperTruck=[86.6,89,12,16];
-const CHAMPION_MISS_CHANCE=.10;
+const CHAMPION_MISS_CHANCE=.30;
 // Inset over the champion’s torso, to the right of the painted 50.
 const championBody=[89,92,32,38];
 function scrapLanding(score,previous,forceChampion=false){
@@ -490,7 +518,7 @@ function scrapLanding(score,previous,forceChampion=false){
   const u=a/2**32,v=b/2**32;
   if(miss){
    const [surface,...zone]=miss;
-   const [left,right,top,bottom]=surface==='truck'&&category>.55?upperTruck:zone;
+   const [left,right,top,bottom]=surface==='truck'&&category>CHAMPION_MISS_CHANCE+(1-CHAMPION_MISS_CHANCE)/2?upperTruck:zone;
    impact={x:left+(right-left)*u,y:top+(bottom-top)*v,surface};
   }else{
    const [x,y,rx,ry]=scrapTargets[score];
@@ -510,9 +538,15 @@ function mountScrapDuel(body,started,road=null){
  truck.src=scrapArt+'truck.webp';
  truck.alt='Scrap Duel truck with 10, 25 and 50-point targets';
  scene.append(truck);
- body.append(scene);
+ const artwork=element('div',null,'minigame-art-slot');
+ artwork.append(scene);
+ const panel=element('div',null,'minigame-hud');
+ body.classList.add('minigame-game-active');
+ body.append(artwork,panel);
+ const detachArt=fitArt(artwork,1250/704);
  if(!started){
-  body.append(element('p','Five throws each. Stop the needle near the center to score. Beat the champion’s total to win.'));
+  panel.append(element('p','Five throws each. Stop the needle near the center to score. Beat the champion’s total to win.'));
+  cleanup=detachArt;
   return;
  }
  const scores=[],champion=Array.from({length:THROW_COUNT},()=>{
@@ -521,7 +555,7 @@ function mountScrapDuel(body,started,road=null){
   return roll<.05?0:roll<.25?10:roll<.65?25:50;
  });
  const status=element('p');status.setAttribute('role','status');
- const opponent=element('p','Champion throws · '+champion.join(' + '));
+ const opponent=element('p','Champion '+totalScore(champion)+' · Throws '+champion.join(' + '));
  const controls=element('div',null,'tire-controls');
  const meter=element('div',null,'minigame-meter');
  const needle=element('span',null,'minigame-needle');
@@ -541,7 +575,7 @@ function mountScrapDuel(body,started,road=null){
  const force=road?null:button('Force Champion Impact',()=>throwCap(true));
  controls.append(aim,throwButton);
  if(force)controls.append(force);
- body.append(status,opponent,meter,controls);
+ panel.append(status,opponent,meter,controls);
  const lastLanding=new Map();
  let began,frame,impact,projectile;
  let flying=false,ended=false;
@@ -553,7 +587,6 @@ function mountScrapDuel(body,started,road=null){
   if(force)force.hidden=true;
   const total=totalScore(scores),opponentTotal=totalScore(champion);
   report(message+' You '+total+' / Champion '+opponentTotal+' — margin '+Math.abs(total-opponentTotal)+'.');
-  opponent.textContent='Champion throws · '+champion.join(' + ');
   if(completed)road?.finish(total,opponentTotal);
   heading.focus();
  }
@@ -591,7 +624,8 @@ function mountScrapDuel(body,started,road=null){
   const landing=scrapLanding(score,lastLanding.get(score),forceChampion);
   lastLanding.set(score,landing);
   const {x,y,surface}=landing;
-  if(surface==='champion')road?.lockImpact();
+  const allMisses=scores.length===THROW_COUNT&&scores.every(points=>points===0);
+  if(surface==='champion'||allMisses)road?.lockImpact();
   projectile.style.left=x+'%';
   projectile.style.top=y+'%';
   scene.append(projectile);
@@ -604,12 +638,15 @@ function mountScrapDuel(body,started,road=null){
   };
   const landed=()=>{
    flying=false;
-   if(surface==='champion'){
+   if(surface==='champion'||allMisses){
     ended=true;
     if(force)force.hidden=true;
-    projectile.className='minigame-hubcap minigame-hubcap-champion';
-    status.textContent=championReaction.join(' ')+' THE CHAMPION ATTACKS! · 0 points.';
-    impact=setTimeout(()=>road?road.champion():previewChampionCombat(),1100);
+    const hit=surface==='champion';
+    if(hit)projectile.className='minigame-hubcap minigame-hubcap-champion';
+    else showContact();
+    const goaded=!hit&&allMisses;
+    report((goaded?missedRoundReaction:championReaction).join(' ')+' THE CHAMPION ATTACKS!');
+    impact=setTimeout(()=>road?road.champion(goaded):previewChampionCombat(goaded),1100);
     return;
    }
    if(force)force.disabled=false;
@@ -646,6 +683,7 @@ function mountScrapDuel(body,started,road=null){
  }
  document.addEventListener('visibilitychange',forfeit);
  cleanup=()=>{
+  detachArt();
   cancelAnimationFrame(frame);
   clearTimeout(impact);
   document.removeEventListener('visibilitychange',forfeit);

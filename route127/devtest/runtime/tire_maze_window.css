@@ -23,33 +23,6 @@
 .r127-tire-maze h2, .r127-tire-maze p { margin: 0; text-align: center; }
 .r127-tire-maze h2 { color: #e6c780; }
 
-.tire-board {
-  flex: 0 0 auto;
-  display: grid;
-  grid-template-columns: repeat(var(--tire-grid-size), minmax(0, 1fr));
-  width: min(100%, 53vh, 520px);
-  width: min(100%, 53dvh, 520px);
-  aspect-ratio: 1;
-  gap: 2px;
-  padding: 3px;
-  background: #090e0a;
-}
-
-.tire-board > span {
-  display: grid;
-  place-items: center;
-  background: #292d21;
-  color: #f8db8d;
-  font-size: clamp(16px, 4vw, 30px);
-}
-
-.tire-board .tire-wall {
-  background: radial-gradient(ellipse, #141711 33%, #454638 35%, #22261d 59%, #10150f 63%);
-}
-
-.tire-board .tire-player { background: #3f583b; }
-.tire-board .tire-goal { background: #664a2b; }
-
 .tire-controls { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; }
 .tire-controls[hidden] { display: none; }
 .tire-controls button {

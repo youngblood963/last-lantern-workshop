@@ -109,12 +109,9 @@
   transform:none!important;top:auto!important;left:auto!important;right:auto!important;
  }
  .gfx-art.r127-demo-art>.gfx-art-caption{position:relative;z-index:9}
- .gfx-art.r127-demo-art[data-demo-period="dawn"]>.gfx-image,
- .gfx-art.r127-demo-art[data-demo-period="dawn"]>.r127-demo-road{filter:brightness(.92) saturate(.91) sepia(.13)}
- .gfx-art.r127-demo-art[data-demo-period="dusk"]>.gfx-image,
- .gfx-art.r127-demo-art[data-demo-period="dusk"]>.r127-demo-road{filter:brightness(.83) saturate(.88) sepia(.18)}
- .gfx-art.r127-demo-art[data-demo-period="night"]>.gfx-image,
- .gfx-art.r127-demo-art[data-demo-period="night"]>.r127-demo-road{filter:brightness(.62) saturate(.68) sepia(.12) hue-rotate(165deg)}
+ .gfx-art:is(.r127-demo-art[data-demo-period="dawn"],.r127-relay-quest-art[data-relay-period="dawn"])>:is(.gfx-image,.r127-demo-road,.r127-relay-ground){filter:brightness(.92) saturate(.91) sepia(.13) var(--r127-road-art-shadow, )}
+ .gfx-art:is(.r127-demo-art[data-demo-period="dusk"],.r127-relay-quest-art[data-relay-period="dusk"])>:is(.gfx-image,.r127-demo-road,.r127-relay-ground){filter:brightness(.83) saturate(.88) sepia(.18) var(--r127-road-art-shadow, )}
+ .gfx-art:is(.r127-demo-art[data-demo-period="night"],.r127-relay-quest-art[data-relay-period="night"])>:is(.gfx-image,.r127-demo-road,.r127-relay-ground){filter:brightness(.62) saturate(.68) sepia(.12) hue-rotate(165deg) var(--r127-road-art-shadow, )}
  .gfx-art.r127-demo-art[data-demo-id="ridgeline"]>.gfx-image,
  .gfx-art.r127-demo-art[data-demo-id="armory"]>.gfx-image{object-fit:cover}
  .gfx-art.r127-demo-art[data-demo-id="solace-guard"]>.gfx-image{object-fit:cover}

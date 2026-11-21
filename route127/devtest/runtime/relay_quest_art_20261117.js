@@ -38,14 +38,12 @@ const style=document.createElement('style');
 style.id='r127-relay-quest-art-style';
 style.textContent=`
 .gfx-art.r127-relay-quest-art{position:relative;isolation:isolate;overflow:hidden;background:#191d20!important}
-.gfx-art.r127-relay-quest-art>.r127-relay-backdrop{position:absolute;inset:0;z-index:0;background-position:center;background-size:cover;background-repeat:no-repeat;pointer-events:none}
-.gfx-art.r127-relay-quest-art>.gfx-image{position:relative;z-index:3!important;width:100%;height:100%;max-width:none;object-fit:contain!important;object-position:center bottom;background:transparent!important;filter:drop-shadow(4px 7px 6px #0009)}
+.gfx-art.r127-relay-quest-art>:is(.r127-relay-backdrop,.r127-relay-ground){position:absolute;inset:0;z-index:0;background-position:center;background-size:cover;background-repeat:no-repeat;pointer-events:none}
+.gfx-art.r127-relay-quest-art>.gfx-image{position:relative;z-index:3!important;width:100%;height:100%;max-width:none;object-fit:contain!important;object-position:center bottom;background:transparent!important;--r127-road-art-shadow:drop-shadow(4px 7px 6px #0009);filter:var(--r127-road-art-shadow)}
 .gfx-art.r127-relay-quest-art>.gfx-art-caption{position:relative;z-index:12}
 .gfx-art.r127-relay-quest-art>.r127-regional-sky{display:none!important}
 /* Random encounter sprites belong to a different event; never overlay a relay discovery. */
 .gfx-art.r127-relay-quest-art :is(.r127-raccoon-layer,.r127-road-art,.r127-bat-layer,.r127-human-layer,.r127-road-npc,.r127-npc-scene,.r127-final-sprites,.r127-final-road,.r127-new-figure){display:none!important}
-.gfx-art.r127-relay-quest-art[data-relay-period="night"]>.gfx-image{filter:brightness(.64) saturate(.8) drop-shadow(4px 7px 6px #0009)}
-.gfx-art.r127-relay-quest-art[data-relay-period="dusk"]>.gfx-image{filter:brightness(.82) saturate(.88) drop-shadow(4px 7px 6px #0009)}
 `;
 document.head.append(style);
 
@@ -59,7 +57,8 @@ GraphicalUI.sync=function(...args){
   const on=!!item;
   e.figure.classList.toggle('r127-relay-quest-art',on);
   let layer=e.figure.querySelector(':scope > .r127-relay-backdrop');
-  if(!on){layer?.remove();delete e.figure.dataset.relayPeriod;return result;}
+  let ground=e.figure.querySelector(':scope > .r127-relay-ground');
+  if(!on){layer?.remove();ground?.remove();delete e.figure.dataset.relayPeriod;return result;}
   if(!layer){
    layer=document.createElement('div');layer.className='r127-relay-backdrop';
    layer.setAttribute('aria-hidden','true');e.figure.insertBefore(layer,e.img);
@@ -67,16 +66,15 @@ GraphicalUI.sync=function(...args){
   const region=typeof route127CurrentRegion==='function'
    ?route127CurrentRegion(typeof lanternState==='function'?lanternState():null):'CENTRAL';
   const world=globalThis.Route127EditorSky?.describe?.(region,player?.flags?.worldHour);
-  if(item.backdrop==='regional'){
-   // Shielded Feed Coupler: normal region ground + sky, not an extra road layer.
-   layer.style.backgroundImage=world
-    ?'url("'+world.ground+'"),url("'+world.sky+'")'
-    :'url("'+new URL(String(region||'central').toLowerCase()+'.png',regions).href+'")';
-  }else{
-   // Servo and module: shared dirt-road foreground over day/night sky.
-   const foreground=new URL('dirt_road_foreground.png',regions).href;
-   layer.style.backgroundImage='url("'+foreground+'"),url("'+sky()+'")';
+  if(!ground){
+   ground=document.createElement('div');ground.className='r127-relay-ground';
+   ground.setAttribute('aria-hidden','true');layer.after(ground);
   }
+  const regional=item.backdrop==='regional';
+  const terrain=regional?(world?.ground||new URL(region.toLowerCase()+'.png',regions).href):
+   new URL('dirt_road_foreground.png',regions).href;
+  layer.style.backgroundImage='url("'+(regional&&world?world.sky:sky())+'")';
+  ground.style.backgroundImage='url("'+terrain+'")';
   e.figure.dataset.relayPeriod=world?.period||period();
   if(e.caption)e.caption.textContent='RELAY COMPONENT — '+item.title;
  }catch(error){console.warn('DEVTEST Relay artwork:',error);}

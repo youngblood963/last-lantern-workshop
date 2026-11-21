@@ -283,8 +283,8 @@ function mountMaze(body,started){
  rescue.hidden=true;
  const retry=button('Try Again',startAttempt);
  retry.hidden=true;
- let clock,deadline,nextSmoke,smokeUntil,nextShift,shiftAt,moves,remaining;
- let smoke=new Set();
+ let clock,deadline,nextSmoke,nextShift,shiftAt,moves,remaining;
+ let clouds=[],smoke=new Set(),firstCollapse;
  let phase='ready';
  const status=element('p');status.setAttribute('role','status');
  const movement=element('div',null,'tire-controls');
@@ -301,6 +301,7 @@ function mountMaze(body,started){
 
  function rebuild(){
   view=createTireYard(grid);
+  positionSurvivor();
   frame.replaceChildren(view.board);
   paintSmoke();
  }
@@ -315,8 +316,10 @@ function mountMaze(body,started){
   countdown.classList.toggle('tire-yard-countdown-last',seconds<=5);
  }
  function resetLayout(){
-  q=r18NewMaze(level);
-  grid=R18_MAZES[q.variant].map(row=>Array.from(row));
+  const layout=hazards.generate();
+  const [x,y]=layout.start;
+  q={x,y,step:0,finished:false};
+  grid=layout.grid;
   rebuild();
  }
  function startAttempt(){
@@ -324,9 +327,9 @@ function mountMaze(body,started){
   phase='playing';
   const now=performance.now();
   deadline=now+rules.duration;
-  smokeUntil=0;
-  nextSmoke=Math.max(smokeUntil||0,now+hazards.randomBetween(rules.smokeInterval));
-  nextShift=rules.firstShift;
+  nextSmoke=now+hazards.randomBetween(rules.firstSmoke);
+  nextShift=hazards.randomBetween(rules.firstShift);
+  firstCollapse=true;
   moves=0;
   shiftAt=0;
   lastMove=-Infinity;
@@ -340,6 +343,7 @@ function mountMaze(body,started){
  }
  function stopClock(){
   clearInterval(clock);
+  clouds=[];
   smoke.clear();
   if(view)paintSmoke();
  }
@@ -350,7 +354,7 @@ function mountMaze(body,started){
    phase='timeout';
    stopClock();
    resetLayout();
-   setTime(rules.duration/1000);
+   setTime(0);
    warning.textContent="TIME'S UP! The salvage attempt failed.";
    retry.hidden=false;
    render('Try again with your remaining HP.');
@@ -360,6 +364,7 @@ function mountMaze(body,started){
   setTime(Math.ceil((deadline-now)/1000));
   if(shiftAt&&now>=shiftAt){
    shiftAt=0;
+   nextShift=moves+hazards.randomBetween(rules.shiftInterval);
    const layout=hazards.shift(grid,[q.x,q.y]);
    warning.textContent='';
    if(layout){
@@ -369,20 +374,24 @@ function mountMaze(body,started){
     warning.textContent='CRASH! Burning tires tumble into the passage!';
    }
   }
-  if(smoke.size&&now>=smokeUntil){
-   smoke.clear();
-   paintSmoke();
+  const before=clouds.length;
+  clouds=clouds.filter(cloud=>now<cloud.expires);
+  const spawn=now>=nextSmoke;
+  if(spawn){
+   clouds.push({cells:hazards.smoke(grid,[q.x,q.y]),expires:now+hazards.randomBetween(rules.smokeDuration)});
+   nextSmoke=now+hazards.randomBetween(rules.smokeInterval);
   }
-  if(now>=nextSmoke){
-   smoke=hazards.smoke(grid,[q.x,q.y]);
-   smokeUntil=now+hazards.randomBetween(rules.smokeDuration);
-   nextSmoke=Math.max(smokeUntil||0,now+hazards.randomBetween(rules.smokeInterval));
+  if(spawn||clouds.length!==before){
+   smoke=new Set(clouds.flatMap(cloud=>[...cloud.cells]));
    paintSmoke();
   }
   return true;
  }
- function render(message){
+ function positionSurvivor(){
   view.survivor.style.gridArea=(q.y+1)+' / '+(q.x+1);
+ }
+ function render(message){
+  positionSurvivor();
   view.crate.hidden=q.finished;
   status.textContent=message+' HP '+hp+' / '+maxHp+' · Row '+(q.y+1)+', column '+(q.x+1);
   movement.hidden=phase!=='playing';
@@ -435,7 +444,8 @@ function mountMaze(body,started){
   }
   if(++moves>=nextShift&&!shiftAt){
    nextShift=moves+hazards.randomBetween(rules.shiftInterval);
-   if(Math.random()<rules.shiftChance){
+   if(firstCollapse||Math.random()<rules.shiftChance){
+    firstCollapse=false;
     shiftAt=now+rules.warning;
     warning.textContent='The burning tire stacks begin to sway…';
    }

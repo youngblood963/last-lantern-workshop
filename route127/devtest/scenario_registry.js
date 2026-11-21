@@ -230,8 +230,17 @@ const encounters = [
   {title:"CEMETERY OF TIRES",exclusive:false,text:"Stacks of tires form a maze beneath a collapsed overpass. A crate glints inside.",prompt(){const q=r18MazeScene();if(!q.started)return 'ENTER TIRE MAZE   LEAVE MAZE';if(q.finished)return 'LEAVE MAZE';return ['UP','DOWN','LEFT','RIGHT'].map(d=>`MOVE ${d} STEP ${q.step}`).concat(['LEAVE MAZE']).join('   ');},resolve(cmd){const q=r18MazeScene(),f=player.flags;
    if(cmd.includes('leave')){add('You leave the tire maze.','system');return true;}
    if(cmd.includes('enter')&&!q.started){q.started=true;q.step++;add('Reach the crate ◆. You are @. Tires are ■.','system');add(r18MazeDraw(q),'system');return true;}
-   if(!q.started||q.finished||!cmd.includes('move'))return false;const d=cmd.includes('up')?[0,-1]:cmd.includes('down')?[0,1]:cmd.includes('left')?[-1,0]:cmd.includes('right')?[1,0]:null;if(!d)return false;const grid=R18_MAZES[q.variant],x=q.x+d[0],y=q.y+d[1];q.step++;
-   if(!grid[y]||grid[y][x]==='#'||grid[y][x]===undefined){const amount=environmentalHurt('minor');add(`You bump the tire wall and lose up to ${amount} HP.`,'danger');if(stage==='fallen')return true;}else{q.x=x;q.y=y;if(grid[y][x]==='G'&&!f.r18MazeClaimed){r18RetainRoadReward('Scrap Metal','material');gainBolts(8);gainXp(Math.max(10,player.level*3));if(typeof v555AwardEquipmentDrop==='function'&&Math.random()<.25)v555AwardEquipmentDrop();f.r18MazeClaimed=true;q.finished=true;add('You reach the crate and recover its contents.','reward');}}
+   if(!q.started||q.finished||!cmd.includes('move'))return false;
+   const direction=['up','down','left','right'].find(dir=>cmd.includes(dir));if(!direction)return false;
+   const tile=r18MazeStep(q,direction);
+   if(tile==='wall'){
+    const amount=environmentalHurt('minor');add(`You bump the tire wall and lose up to ${amount} HP.`,'danger');if(stage==='fallen')return true;
+   }else if(tile==='goal'&&!f.r18MazeClaimed){
+    const reward=r18MazeReward(player.level,typeof v555AwardEquipmentDrop==='function');
+    r18RetainRoadReward('Scrap Metal','material');gainBolts(reward.bolts);gainXp(reward.xp);
+    if(reward.equipment())v555AwardEquipmentDrop();
+    f.r18MazeClaimed=true;q.finished=true;add('You reach the crate and recover its contents.','reward');
+   }
    add(r18MazeDraw(q),'system');return true;
   }},
   {exclusive:true,title:"THE HONEY JAR",text:"A beekeeper's suit hangs in an old orchard. Bees crowd a hollow tree, and honey glistens inside.",choices:"HARVEST HONEY   INSPECT BEEKEEPER GEAR   BACK AWAY",resolve(cmd){

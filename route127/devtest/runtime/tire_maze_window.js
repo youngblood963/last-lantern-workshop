@@ -1,3 +1,15 @@
+function r18RenderMazeBoard(board,q){
+  const grid=R18_MAZES[q.variant];
+  board.style.setProperty('--tire-grid-size',grid[0].length);
+  const cells=grid.flatMap((row,y)=>Array.from(row,(tile,x)=>{
+   const playerHere=x===q.x&&y===q.y;
+   const cell=document.createElement('span');
+   cell.textContent=playerHere?'●':tile==='G'?'◆':'';
+   cell.className=playerHere?'tire-player':tile==='#'?'tire-wall':tile==='G'?'tire-goal':'tire-path';
+   return cell;
+  }));
+  board.replaceChildren(...cells);
+}
 /* DEVTEST graphical surface for the existing Cemetery of Tires encounter. */
 (()=>{
  'use strict';
@@ -51,15 +63,7 @@
   const q=r18MazeScene();
   if(!q.started){close();return;}
   if(!dialog)build();
-  const grid=R18_MAZES[q.variant];
-  board.style.setProperty('--tire-grid-size',grid[0].length);
-  const cells=grid.flatMap((row,y)=>Array.from(row,(tile,x)=>{
-   const playerHere=x===q.x&&y===q.y;
-   const cell=make('span',playerHere?'●':tile==='G'?'◆':'');
-   cell.className=playerHere?'tire-player':tile==='#'?'tire-wall':tile==='G'?'tire-goal':'tire-path';
-   return cell;
-  }));
-  board.replaceChildren(...cells);
+  r18RenderMazeBoard(board,q);
   const hit=lastStep!==undefined&&q.step!==lastStep&&player.hp<lastHp;
   status.textContent=(q.finished?'Crate reached. ':hit?'You hit a tire wall. ':'')+
    'HP '+player.hp+' / '+player.maxHp+' · Row '+(q.y+1)+', column '+(q.x+1);

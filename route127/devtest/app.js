@@ -1463,7 +1463,32 @@ const R18_MAZE_BASE=["#######","#S..#.#","#.#.#.#","#.#...#","#...#.#","###..G#"
 const R18_MAZE_ALT=["#######","#S#...#","#.#.#.#","#...#.#","###.#.#","#....G#","#######"];
 function r18RotateMaze(grid){return grid[0].split('').map((_,x)=>grid.map(row=>row[x]).reverse().join(''));}
 const R18_MAZES=[R18_MAZE_BASE];for(let i=1;i<4;i++)R18_MAZES.push(r18RotateMaze(R18_MAZES[i-1]));R18_MAZES.push(R18_MAZE_ALT);
-function r18MazeScene(){const g=typeof lanternState==='function'?lanternState():null,scene=typeof RoadLifecycle!=='undefined'?RoadLifecycle.sceneKey('early:27'):g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`,f=player.flags;if(typeof RoadLifecycle!=='undefined'&&f.r18MazeScene)f.r18MazeScene.scene=scene;if(f.r18MazeScene?.scene!==scene){const count=Math.min(5,1+Math.floor((Math.max(1,player.level)-1)/10)),variant=Math.floor(Math.random()*count),grid=R18_MAZES[variant],y=grid.findIndex(row=>row.includes('S')),x=grid[y].indexOf('S');f.r18MazeScene={scene,variant,x,y,step:0,started:false,finished:false};}return f.r18MazeScene;}
+function r18NewMaze(level,scene){
+ const count=Math.min(5,1+Math.floor((Math.max(1,level)-1)/10));
+ const variant=Math.floor(Math.random()*count),grid=R18_MAZES[variant];
+ const y=grid.findIndex(row=>row.includes('S')),x=grid[y].indexOf('S');
+ return {scene,variant,x,y,step:0,started:false,finished:false};
+}
+function r18MazeScene(){
+ const g=typeof lanternState==='function'?lanternState():null;
+ const scene=typeof RoadLifecycle!=='undefined'?RoadLifecycle.sceneKey('early:27'):g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`;
+ const f=player.flags;
+ if(typeof RoadLifecycle!=='undefined'&&f.r18MazeScene)f.r18MazeScene.scene=scene;
+ if(f.r18MazeScene?.scene!==scene)f.r18MazeScene=r18NewMaze(player.level,scene);
+ return f.r18MazeScene;
+}
+function r18MazeStep(q,direction){
+ const [dx,dy]={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]}[direction];
+ const grid=R18_MAZES[q.variant],x=q.x+dx,y=q.y+dy;
+ q.step++;
+ const tile=grid[y]?.[x];
+ if(tile==='#'||tile===undefined)return 'wall';
+ q.x=x;q.y=y;
+ return tile==='G'?'goal':'path';
+}
+function r18MazeReward(level,allowEquipment){
+ return {bolts:8,xp:Math.max(10,level*3),equipment:()=>allowEquipment&&Math.random()<.25};
+}
 function r18MazeDraw(q){const grid=R18_MAZES[q.variant];return grid.map((row,y)=>Array.from(row,(v,x)=>x===q.x&&y===q.y?'@':v==='#'?'■':v==='G'?'◆':'·').join(' ')).join('\n');}
 // Station Nine remains attached to the discovered highway segment, preserving the approved map graph.
 const R18_STATION_NEEDS={Electronics:2,Wire:3,'Scrap Metal':2};

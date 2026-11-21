@@ -382,6 +382,11 @@
     });
     combat.dataset.devtestCombatPreview='true';
     panel.insertBefore(combat,close||null);
+    const minigames=this.button('Minigame Testing',()=>{
+      this.close();
+      Route127MinigameTesting.open();
+    });
+    panel.insertBefore(minigames,close||null);
     const formula=this.button('WO41 Combat Simulator',()=>{
       const url=new URL('../devtest/combat_simulator_wo41.html',document.baseURI).href;
       window.open(url,'_blank','noopener');

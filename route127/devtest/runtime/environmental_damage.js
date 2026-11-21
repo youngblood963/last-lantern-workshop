@@ -5,10 +5,14 @@ const ENVIRONMENTAL_DAMAGE_POOLS = Object.freeze({
   severe: Object.freeze([6, 8])
 });
 
-function environmentalHurt(severity) {
+function environmentalDamage(severity, maxHp) {
   const [min, max] = ENVIRONMENTAL_DAMAGE_POOLS[severity];
   const percentage = min + Math.floor(Math.random() * (max - min + 1));
-  const damage = Math.max(1, Math.round(player.maxHp * percentage / 100));
+  return Math.max(1, Math.round(maxHp * percentage / 100));
+}
+
+function environmentalHurt(severity) {
+  const damage = environmentalDamage(severity, player.maxHp);
   hurt(damage);
   return damage;
 }

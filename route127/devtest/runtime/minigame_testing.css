@@ -1,0 +1,76 @@
+.r127-minigame-testing {
+  width: min(94vw, 760px);
+  height: auto;
+  max-height: 90vh;
+  max-height: 90dvh;
+}
+.r127-minigame-testing .minigame-content,
+.r127-minigame-testing .minigame-game {
+  width: 100%;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+.r127-minigame-testing button {
+  min-height: 44px;
+  padding: 4px 12px;
+  border: 1px solid #a59469;
+  background: #252b20;
+  color: #f7ecd0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.r127-minigame-testing [hidden] { display: none; }
+.minigame-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  width: min(100%, 440px);
+  padding: 8px 0;
+  border-bottom: 1px solid #665b47;
+}
+.minigame-row span { color: #d0c1a2; }
+.minigame-target {
+  position: relative;
+  width: min(100%, 75vh, 630px);
+  overflow: hidden;
+  line-height: 0;
+  background: #201711;
+}
+.minigame-target img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.minigame-hubcap {
+  position: absolute;
+  width: 11%;
+  padding-top: 7.8%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  /* Crop the existing hand-held hubcap from the scene and trim the hand. */
+  background: url('../assets/scenarios/the_scrap_duel.png') 2.81% 23.26% / 800% 714% no-repeat;
+  clip-path: polygon(0 79%, 13% 63%, 9% 53%, 24% 45%, 20% 32%, 36% 29%, 42% 19%, 49% 21%, 58% 5%, 62% 16%, 79% 5%, 78% 14%, 90% 9%, 88% 20%, 99% 16%, 94% 29%, 100% 35%, 94% 44%, 99% 52%, 91% 60%, 98% 70%, 83% 73%, 85% 84%, 70% 83%, 72% 99%, 59% 93%, 45% 100%, 38% 90%, 26% 82%, 15% 85%, 9% 91%, 11% 79%);
+}
+.minigame-meter {
+  width: min(90%, 380px);
+  height: 16px;
+  position: relative;
+  border: 1px solid #a77845;
+  background: linear-gradient(90deg, #65271a 25%, #9a5625 25% 37%, #d9bb69 37% 45.5%, #4b9a52 45.5% 54.5%, #d9bb69 54.5% 63%, #9a5625 63% 75%, #65271a 75%);
+}
+.minigame-needle {
+  position: absolute;
+  left: 0;
+  top: -4px;
+  width: 3px;
+  height: 24px;
+  transform: translateX(-50%);
+  background: #fff;
+  box-shadow: 0 0 5px #fff;
+}
+@media (max-width: 380px) {
+  .minigame-row { grid-template-columns: 1fr auto; }
+  .minigame-row strong { grid-column: 1 / -1; }
+}

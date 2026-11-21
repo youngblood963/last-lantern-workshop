@@ -10,6 +10,7 @@
  .r127-env-atmosphere{z-index:1;mix-blend-mode:multiply}
  .r127-env-canvas[data-layer="scenery"]{z-index:4}
  .r127-env-canvas[data-layer="interface"]{z-index:40}
+ .gfx-frame[data-environment-effect="tar"] .gfx-art-caption{z-index:5}
  .r127-env-preview{box-sizing:border-box;width:min(1050px,96vw);max-height:94dvh;overflow:auto;background:#171b21;color:#f4e4d0;border:1px solid #a5754d;padding:14px}
  .r127-env-preview::backdrop{background:#000b}
  .r127-env-controls{display:flex;flex-wrap:wrap;gap:9px;margin:10px 0}
@@ -38,7 +39,9 @@
    this.pointer={x:0,y:0,target:0,strength:0,until:0,focused:false};this.lastPointer=-1000;
    root.classList.add('r127-env-host');scenery.classList.add('r127-env-host');root.dataset.environmentEffect=effect;
    this.atmosphere=document.createElement('div');this.atmosphere.className='r127-env-atmosphere';this.atmosphere.setAttribute('aria-hidden','true');scenery.append(this.atmosphere);
-   for(const [host,name]of [[scenery,'scenery'],[root,'interface']]){
+   const layers=[[scenery,'scenery']];
+   if(effect!=='tar')layers.push([root,'interface']);
+   for(const [host,name]of layers){
     const canvas=document.createElement('canvas');canvas.className='r127-env-canvas';canvas.dataset.layer=name;canvas.setAttribute('aria-hidden','true');host.append(canvas);
     this.layers.push({host,canvas,context:canvas.getContext?.('2d'),width:1,height:1,x:0,y:0});
    }
@@ -157,7 +160,7 @@
   restart(){if(this.stopped)return;this.clearBeads();this.clearSoot();this.elapsed=0;this.state=effects.get(this.effect).create(this);this.pointer.strength=0;this.pointer.target=0;if(this.effect==='wires')this.draw(0);this.play();}
   cancel(){if(this.frame!==null){cancelAnimationFrame(this.frame);this.frame=null;}}
   schedule(){if(this.stopped||document.hidden||!this.running){this.cancel();return;}if(this.reduced){this.cancel();this.draw(0);return;}if(this.effect==='wires'&&!this.powerActive&&this.state.glow===0){this.cancel();return;}if(this.frame!==null)return;
-   this.frame=requestAnimationFrame(time=>{this.frame=null;if(!['wires','furnace'].includes(this.effect)||time-this.last>=32){
+   this.frame=requestAnimationFrame(time=>{this.frame=null;if(!['wires','furnace','tar'].includes(this.effect)||time-this.last>=32){
      const dt=this.last?Math.min(.05,(time-this.last)/1000):0;this.last=time;this.elapsed+=dt;this.draw(dt);
     }
     this.schedule();});
@@ -166,7 +169,7 @@
    if(this.effect==='wires'){
     this.state.glow=this.powerActive?1:this.reduced?0:Math.max(0,this.state.glow-dt*3);
    }
-   this.atmosphere.style.background=this.effect==='rain'?'rgba(96,37,24,.19)':(['glass','wires','furnace'].includes(this.effect))?'transparent':this.effect==='ash'?'rgba(63,59,54,.12)':'rgba(145,154,111,.07)';
+   this.atmosphere.style.background=this.effect==='rain'?'rgba(96,37,24,.19)':(['glass','wires','furnace','tar'].includes(this.effect))?'transparent':this.effect==='ash'?'rgba(63,59,54,.12)':'rgba(145,154,111,.07)';
    this.atmosphere.style.opacity=this.period==='night'?'.85':'.65';
    for(const layer of this.layers){const c=layer.context;if(!c)continue;c.clearRect(0,0,layer.width,layer.height);effects.get(this.effect).draw(c,layer,this,dt);if(layer.canvas.dataset.layer==='interface'&&this.buttonDroplets)this.drawBeads(c,dt);}
   }
@@ -689,9 +692,167 @@
   }
  });
 
+ // Local scene coordinates keep the shoreline and props together as the figure resizes.
+ function tarShore(c){
+  c.beginPath();
+  c.moveTo(4,75);
+  c.bezierCurveTo(1,65,28,55,42,48);
+  c.bezierCurveTo(62,39,55,32,98,34);
+  c.bezierCurveTo(120,32,128,22,160,28);
+  c.bezierCurveTo(184,31,202,24,238,33);
+  c.bezierCurveTo(267,38,299,47,296,61);
+  c.bezierCurveTo(295,72,269,75,252,87);
+  c.bezierCurveTo(224,106,181,107,154,103);
+  c.bezierCurveTo(120,98,109,116,66,103);
+  c.bezierCurveTo(37,95,8,91,4,75);
+  c.closePath();
+ }
+
+ function tarShape(c,points,color){
+  c.beginPath();
+  c.moveTo(...points[0]);
+  for(const point of points.slice(1))c.lineTo(...point);
+  c.closePath();
+  c.fillStyle=color;
+  c.fill();
+ }
+
+ function tarProps(c,night,caseRecovered){
+  const rust=night?'#46342b':'#78503a';
+  const edge=night?'#685a4d':'#a68669';
+  tarShape(c,[[47,68],[59,49],[64,24],[82,28],[73,42],[71,61],[58,71]],rust);
+  tarShape(c,[[64,24],[82,28],[80,33],[63,29]],edge);
+  tarShape(c,[[52,67],[64,31],[69,32],[64,60]],'#23201c');
+  tarShape(c,[[198,46],[216,44],[226,26],[233,27],[225,50],[205,51]],rust);
+  strokePath(c,[[215,45],[225,27],[232,28]],edge,1.6);
+  tarShape(c,[[246,74],[263,55],[280,58],[267,69]],rust);
+  strokePath(c,[[248,72],[263,55],[279,58]],edge,1.4);
+  if(caseRecovered)return;
+  const lip=night?'#65675b':'#a29c7e';
+  tarShape(c,[[109,61],[145,49],[173,55],[170,71],[138,82],[111,74]],night?'#33382f':'#565346');
+  tarShape(c,[[109,61],[145,49],[173,55],[137,68]],night?'#53594e':'#7f7e68');
+  tarShape(c,[[137,68],[173,55],[170,71],[138,82]],night?'#272c27':'#403e33');
+  strokePath(c,[[111,65],[137,72],[172,60]],lip,1.2);
+  strokePath(c,[[133,60],[133,56],[145,52],[149,54],[149,56]],'#272822',2.2);
+  for(const [x,y] of [[143,70],[159,64]]){
+   c.fillStyle=lip;
+   c.fillRect(x,y,3,4);
+  }
+  strokePath(c,[[109,74],[121,78],[138,82],[160,76],[172,71]],'#0a0d0c',3);
+ }
+
+ EnvironmentalEffects.register('tar',{
+  create(engine){
+   return {
+    bubbles:Array.from({length:12},()=>({
+     x:27+engine.random()*250,y:39+engine.random()*53,
+     radius:2+engine.random()*7,cycle:4+engine.random()*8,phase:engine.random()
+    })),
+    rocks:Array.from({length:34},(_,i)=>({
+     angle:(i+engine.random()*.7)/34*Math.PI*2,offset:engine.random()*10-5,
+     size:1.5+engine.random()*5
+    })),
+    wisps:Array.from({length:3},(_,i)=>({
+     x:72+i*73,phase:engine.random(),cycle:13+engine.random()*5
+    }))
+   };
+  },
+  draw(c,layer,engine){
+   const {width,height}=layer;
+   const poolWidth=Math.min(width*.32,height*1.25);
+   c.save();
+   c.translate(width*.98-poolWidth,height*.49);
+   c.scale(poolWidth/300,Math.min(height*.27,poolWidth*.40)/115);
+   const night=engine.period==='night';
+   const time=engine.reduced?0:engine.elapsed;
+   const reflection=night?'157,183,187':engine.period==='day'?'194,195,171':'220,155,105';
+
+   tarShore(c);
+   c.lineJoin='round';
+   c.lineWidth=13;
+   c.strokeStyle=night?'#221f19':'#433723';
+   c.stroke();
+   const pitch=c.createLinearGradient(0,26,0,108);
+   pitch.addColorStop(0,night?'#131c1e':'#30302b');
+   pitch.addColorStop(.38,'#080b0c');
+   pitch.addColorStop(.73,night?'#151d20':'#222828');
+   pitch.addColorStop(1,'#070909');
+   c.fillStyle=pitch;
+   c.fill();
+
+   c.save();
+   c.clip();
+   // Broken highlights on the surface and expanding rings after each bubble bursts.
+   for(let i=0;i<11;i++){
+    const x=37+i*23,y=43+(i*19)%55;
+    c.beginPath();
+    c.ellipse(x+Math.sin(time*.9+i)*2,y,9+i%4*3,1+i%3*.7,0,.15,Math.PI*.88);
+    c.strokeStyle='rgba('+reflection+','+(.10+i%3*.07)+')';
+    c.lineWidth=.8;
+    c.stroke();
+   }
+   for(const bubble of engine.state.bubbles){
+    const {x,y,radius,cycle,phase}=bubble;
+    const age=(time/cycle+phase)%1;
+    if(age>.79){
+     const burst=(age-.79)/.21;
+     c.beginPath();
+     c.ellipse(x,y,radius*(1+burst*2.4),radius*(.32+burst*.9),0,0,Math.PI*2);
+     c.lineWidth=.9;
+     c.strokeStyle='rgba('+reflection+','+(.42*(1-burst))+')';
+     c.stroke();
+    }else if(age>.30){
+     const size=radius*(age-.30)/.49;
+     c.beginPath();
+     c.ellipse(x,y-size*.40,size,size*.68,0,0,Math.PI*2);
+     c.fillStyle='#080d0e';
+     c.fill();
+     c.beginPath();
+     c.ellipse(x,y-size*.40,size*.82,size*.59,0,Math.PI*1.04,Math.PI*1.75);
+     c.strokeStyle='rgba('+reflection+',.67)';
+     c.lineWidth=.85;
+     c.stroke();
+    }
+   }
+   c.restore();
+
+   tarProps(c,night,engine.caseRecovered);
+   for(const {angle,offset,size} of engine.state.rocks){
+    const x=150+Math.cos(angle)*(140+offset);
+    const y=68+Math.sin(angle)*(35+offset*.5);
+    tarShape(c,[[x-size,y],[x-size*.25,y-size*.67],[x+size*.59,y-size*.48],[x+size,y],[x+size*.36,y+size*.45]],night?'#101513':'#242521');
+    strokePath(c,[[x-size,y],[x-size*.25,y-size*.67],[x+size*.59,y-size*.48]],night?'#393930':'#625746',.85);
+   }
+   for(const [x,y,sway] of [[18,74,-1],[36,96,-1],[78,108,1],[211,105,-1],[262,88,1],[289,70,1],[274,44,-1]]){
+    const stem=night?'#484536':'#756144';
+    strokePath(c,[[x-3,y],[x-4+sway*2,y-11],[x-4+sway*7,y-17]],stem,1);
+    strokePath(c,[[x,y],[x+sway*2,y-12],[x+sway*8,y-24]],stem,1.3);
+    strokePath(c,[[x+sway*2,y-12],[x-sway*4,y-18]],stem,1);
+    strokePath(c,[[x+3,y],[x+8,y-9],[x+12,y-13]],stem,1);
+   }
+
+   if(!engine.reduced){
+    for(const {x,phase,cycle} of engine.state.wisps){
+     const age=(time/cycle+phase)%1;
+     if(age>.42)continue;
+     const rise=age/.42;
+     const drift=x+rise*24;
+     const y=47-rise*47;
+     const vapor=c.createRadialGradient(drift,y,0,drift,y,11+rise*10);
+     vapor.addColorStop(0,'rgba('+reflection+','+(.20*Math.sin(rise*Math.PI))+')');
+     vapor.addColorStop(1,'rgba('+reflection+',0)');
+     c.fillStyle=vapor;
+     c.fillRect(drift-22,y-22,44,44);
+    }
+   }
+   c.restore();
+  }
+ });
+
  const descriptors=[{title:'THE RED RAIN',effect:'rain'},{title:'THE LIME FOG',effect:'fog'},{title:'THE BLACK SNOW',effect:'ash'},{title:'THE GLASS FIELD',effect:'glass'},
   {id:'early:186',title:'LIVE WIRES — ELECTRICAL HAZARD',effect:'wires'},
-  {id:'east:7',title:'THE FURNACE PIT',effect:'furnace'}];
+  {id:'east:7',title:'THE FURNACE PIT',effect:'furnace'},
+  {id:'east:31',title:'THE TAR POOL',effect:'tar',region:'LOWLANDS'}];
  function records(){return descriptors.map(d=>({...d,entry:RoadScenarioRegistry.entries.find(r=>d.id?r.id===d.id:r.encounter.title===d.title)})).filter(d=>d.entry);}
  function liveEffect(){if(stage!=='encounter'||combatState||!GraphicalUI.active()||TravelerPanels.dialog||Route127MapOverlay.dialog?.open||previewDialog)return null;const current=currentEncounter();return records().find(d=>d.entry.encounter===current)||null;}
  let live=null,previewDialog=null;
@@ -699,12 +860,16 @@
   if(live&&(live.effect!==spec.effect||live.root!==root)){live.stop();live=null;}
   const period=Route127RegionalSky.phase(player.flags.worldHour);
   const wires=spec.effect==='wires';
-  const region=wires||spec.effect==='furnace'?'INDUSTRIAL':spec.effect==='glass'?route127CurrentRegion(lanternState()):'CENTRAL';
+  const region=spec.region||(wires||spec.effect==='furnace'?'INDUSTRIAL':spec.effect==='glass'?route127CurrentRegion(lanternState()):'CENTRAL');
   if(live&&live.region!==region){live.stop();live=null;}
   // Read the current visit's gameplay flag without initializing or modifying it.
   const visit=player.flags.wo7Scene;
   const powerActive=!wires||visit?.key!==RoadLifecycle.occurrence()+'|I6'||visit.safe!==true;
-  if(!live)live=new EnvironmentalEffects(root,figure,{effect:spec.effect,period,region,powerActive,buttonDroplets:spec.effect==='rain',buttonLimit:4});else if(live.period!==period){live.clearBeads();live.clearSoot();live.period=period;}
+  if(!live)live=new EnvironmentalEffects(root,figure,{effect:spec.effect,period,region,powerActive,buttonDroplets:spec.effect==='rain',buttonLimit:4});else if(live.period!==period){live.clearBeads();live.clearSoot();live.period=period;if(spec.effect==='tar'&&live.reduced)live.draw(0);}
+  if(spec.effect==='tar'){
+   const recovered=player.flags.r18TarCase===true;
+   if(live.caseRecovered!==recovered){live.caseRecovered=recovered;live.draw(0);}
+  }
   if(wires)live.setPowerActive(powerActive);
  }
  function preview(){if(previewDialog?.open)return;live?.stop();live=null;
@@ -744,7 +909,7 @@
   button('STOP',()=>{mode='stopped';controller?.stop();controller=null;status.textContent='Stopped — all weather layers removed';});
   button('Close effects',()=>dialog.close());
   for(const s of [region,period])s.addEventListener('change',render);
-  encounter.addEventListener('change',()=>{if(encounter.value==='furnace')region.value='INDUSTRIAL';render();});
+  encounter.addEventListener('change',()=>{if(encounter.value==='furnace')region.value='INDUSTRIAL';if(encounter.value==='tar')region.value='LOWLANDS';render();});
   dialog.addEventListener('keydown',event=>event.stopPropagation());
   dialog.addEventListener('close',()=>{closed=true;revision++;controller?.stop();dialog.remove();previewDialog=null;GraphicalUI.sync();},{once:true});
   dialog.append(stage,status);document.body.append(dialog);dialog.showModal();encounter.focus();render();

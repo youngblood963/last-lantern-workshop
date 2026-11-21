@@ -47,6 +47,8 @@ test('DEVTEST community shares notices and enforces author and moderator permiss
  assert.equal((await owner.call('board?id='+id)).data.replies[0].message,'Updated response');
  const official=post({identity:'Luna'});
  assert.equal((await admin.call('board',official)).status,201);
+ assert.equal((await other.call('board',post({parent:official.id}))).status,409);
+ assert.equal((await admin.call('board',post({parent:official.id}))).status,409);
  assert.equal((await admin.call('board',{id:official.id,action:'edit',title:'Patch notes',message:'Official update'})).status,200);
  for(const action of ['pinned','locked'])assert.equal((await admin.call('board',{id:official.id,action,enabled:true})).status,200);
  assert.equal((await other.call('board',post({parent:official.id}))).status,409);

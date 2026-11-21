@@ -1588,7 +1588,8 @@ wo3(){
    const action=actions[cmd.toUpperCase()];return action?action()!==false:false;};return e;
  }
  const original=t=>({...eastEncounters.find(e=>e.title===t)?.combat});
- const crawler=original('DRAINAGE STALKER'),drone=original('FLOODLIGHT SWEEP'),dogs=original('SALT MARSH HUNTERS');
+ const crawler={...original('DRAINAGE STALKER'),end:'The crawler falls. The road ahead is clear.'};
+ const drone=original('FLOODLIGHT SWEEP'),dogs=original('SALT MARSH HUNTERS');
  scene('DRAINAGE STALKER','CULVERT CRAWLER',
   'A plated Culvert Crawler hauls itself from the drain. Its armored back blocks the narrow approach; when it climbs broken concrete, its softer underside turns toward you.',{
    'INSPECT THE CRAWLER':()=>{add('The plates blunt attacks. Drawing it over the rubble will expose the underside, but lets it strike while you reposition.');return true;},

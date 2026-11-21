@@ -58,7 +58,7 @@ export async function communityRoute({req,env,auth,ch,path,body,response,fail}){
     const results=await env.DB.batch([
      sql(`INSERT INTO r127_community_posts(id,parent_id,account_id,author,level,identity,title,message,created_at,updated_at)
       SELECT ?,?,?,?,?,?,?,?,?,?
-      WHERE ? IS NULL OR EXISTS(SELECT 1 FROM r127_community_posts WHERE id=? AND parent_id IS NULL AND locked=0)`,
+      WHERE ? IS NULL OR EXISTS(SELECT 1 FROM r127_community_posts WHERE id=? AND parent_id IS NULL AND identity IS NULL AND locked=0)`,
       id,parent,account,ch.name,level,identity,title,message,now,now,parent,parent),
      sql('UPDATE r127_community_posts SET updated_at=max(updated_at,?) WHERE id=? AND changes()=1',now,parent)
     ]);

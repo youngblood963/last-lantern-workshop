@@ -106,7 +106,7 @@ function route127RoadChoiceLabel(command){
  }
  if(!edge||!to)return command;const compass=route127Compass(from,to);if(!compass)return command;
  const action=cmd==='reverse direction'?'Reverse: ':cmd==='return to junction'?'Return: ':'';
- const landmark=route127NearestLandmark(from,to,g);const destination=LG_NODES[to].name;const hint=landmark&&landmark!==destination?` (toward ${landmark})`:'';
+ const landmark=from==='solace'&&to==='works-junction'?LG_NODES.factory.name:route127NearestLandmark(from,to,g);const destination=LG_NODES[to].name;const hint=landmark&&landmark!==destination?` (toward ${landmark})`:'';
  const road = edge.name || (edge.plot ? 'Route 127' : '');
  const label = road ? `${road} → ${destination}` : destination;
  return `${compass} — ${action}${label}${hint} (${cost} turns)`;

@@ -30,6 +30,20 @@ const mainStreet=`${inSolace}
  AND json_extract(s.payload,'$.player.flags.solaceMenu')='town'
  AND json_extract(s.payload,'$.combatState') IS NULL
  AND json_extract(s.payload,'$.townWandererFocus') IS NULL`;
+const atEntrance=(node,stages)=>`(
+ json_extract(s.payload,'$.player.flags.lanternTravel.nodeId')='${node}'
+ AND json_extract(s.payload,'$.player.flags.lanternTravel.currentEdgeId') IS NULL
+ AND NOT COALESCE(json_extract(s.payload,'$.player.flags.lanternTravel.pending'),0)
+ AND json_extract(s.payload,'$.stage') IN (${stages.map(stage=>"'"+stage+"'").join(',')})
+ AND json_extract(s.payload,'$.combatState') IS NULL
+ )`;
+const factoryEntrance=atEntrance('factory',['eastEnd','lanternNode']);
+const seaportEntrance=atEntrance('seaport',['seaport']);
+const areas={
+ solace:{label:'Solace',members:inSolace,roster:mainStreet},
+ factory:{label:'Factory entrance',members:factoryEntrance,roster:factoryEntrance},
+ seaport:{label:'Seaport entrance',members:seaportEntrance,roster:seaportEntrance}
+};
 const online=`EXISTS (SELECT 1 FROM r127_solace_presence p
  JOIN r127_sessions session ON session.token_hash=p.token_hash AND session.account_id=c.account_id
  WHERE p.character_id=c.id AND p.last_seen>? AND session.expires_at>?)`;
@@ -63,11 +77,14 @@ export async function solacePresence({req,env,auth,ch,path,response,fail}){
  const list=path==='/api/presence/survivors'&&req.method==='GET';
  const inspect=path.startsWith('/api/presence/survivors/')&&req.method==='GET';
  if(!heartbeat&&!list&&!inspect)fail(404,'Presence route unavailable');
- const saved=await db.prepare(`SELECT 1 AS present FROM r127_snapshots s
-  WHERE s.character_id=? AND ${heartbeat?inSolace:mainStreet}`).bind(ch.id).first();
- if(!saved){
+ const membership=Object.entries(areas).map(([key,area])=>
+  `WHEN ${heartbeat?area.members:area.roster} THEN '${key}'`).join(' ');
+ const saved=await db.prepare(`SELECT CASE ${membership} END AS area
+  FROM r127_snapshots s WHERE s.character_id=?`).bind(ch.id).first();
+ const area=areas[saved?.area];
+ if(!area){
   if(heartbeat)await revoke();
-  fail(403,'Latest cloud save is outside the required Solace area');
+  fail(403,'Latest cloud save is outside a survivor visibility area');
  }
  if(heartbeat){
   await db.batch([
@@ -75,7 +92,7 @@ export async function solacePresence({req,env,auth,ch,path,response,fail}){
    db.prepare(`INSERT INTO r127_solace_presence(character_id,token_hash,last_seen)
     SELECT s.character_id,?,? FROM r127_snapshots s JOIN r127_sessions session
      ON session.token_hash=? AND session.account_id=? AND session.expires_at>?
-    WHERE s.character_id=? AND ${inSolace}
+    WHERE s.character_id=? AND ${area.members}
     ON CONFLICT(character_id,token_hash) DO UPDATE SET last_seen=MAX(last_seen,excluded.last_seen)`)
     .bind(auth.tokenHash,now,auth.tokenHash,auth.account_id,now,ch.id)
   ]);
@@ -84,10 +101,10 @@ export async function solacePresence({req,env,auth,ch,path,response,fail}){
  // Saved town membership and current session activity are independent.
  const eligible=`FROM r127_characters c JOIN r127_snapshots s ON s.character_id=c.id
   LEFT JOIN r127_solace_activity a ON a.character_id=c.id
-  WHERE c.id<>? AND ${inSolace}
+  WHERE c.id<>? AND ${area.members}
   AND c.id NOT IN (${archived.map(()=>'?').join(',')})
   AND MAX(s.updated_at,COALESCE(a.last_play_at,0))>?
-  AND EXISTS (SELECT 1 FROM r127_snapshots s WHERE s.character_id=? AND ${mainStreet})`;
+  AND EXISTS (SELECT 1 FROM r127_snapshots s WHERE s.character_id=? AND ${area.roster})`;
  const args=[cutoff,now,ch.id,...archived,now-INACTIVE_MS,ch.id];
  if(list){
   const after=new URL(req.url).searchParams.get('after')||'';
@@ -95,13 +112,13 @@ export async function solacePresence({req,env,auth,ch,path,response,fail}){
   const {results}=await db.prepare(`SELECT c.id,c.name,${online} AS online ${eligible} AND c.id>? ORDER BY c.id LIMIT ?`)
    .bind(...args,after,PAGE_SIZE+1).all();
   const survivors=results.slice(0,PAGE_SIZE).map(row=>({...row,online:!!row.online}));
-  return response({survivors,next:results.length>PAGE_SIZE?survivors.at(-1).id:null});
+  return response({area:saved.area,survivors,next:results.length>PAGE_SIZE?survivors.at(-1).id:null});
  }
  const id=path.slice('/api/presence/survivors/'.length);
  if(!ID.test(id)||id===ch.id)fail(404,'Survivor unavailable');
  const row=await db.prepare(`SELECT ${publicFields},${online} AS online ${eligible} AND c.id=?`).bind(...args,id).first();
  if(!row)fail(404,'Survivor unavailable');
- return response({survivor:{id:row.id,name:row.name,location:'Solace',online:!!row.online,
+ return response({survivor:{id:row.id,name:row.name,location:area.label,online:!!row.online,
   level:number(row.level),hp:number(row.hp),maxHp:number(row.maxHp),
   equipment:{weapon:item(row.weapon),armor:item(row.armor),accessory:item(row.accessory)}}});
 }

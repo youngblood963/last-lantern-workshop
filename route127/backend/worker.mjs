@@ -1,3 +1,4 @@
+import {communityRoute} from './community.mjs';
 import {solacePresence} from './solace-presence.mjs';
 import {worldRoute} from './world.mjs';
 import { scrypt as nodeScrypt, timingSafeEqual } from 'node:crypto';
@@ -72,7 +73,8 @@ async function handle(req,env){
  const devtestWorld=path.startsWith('/route127/devtest/api/world/');
  const localWorld=env.DEVTEST_WORLD_LOCAL==='true'&&
   ['https://localhost:8787','https://127.0.0.1:8787'].includes(url.origin);
- if(devtestWorld||devtestPresence){
+ const devtestCommunity=path.startsWith('/route127/devtest/api/community/');
+ if(devtestWorld||devtestPresence||devtestCommunity){
   const referer=req.headers.get('Referer');
   if(!referer||![url.origin+'/route127/devtest/',url.origin+'/route127/devtest/index.html']
    .includes(referer.split('?')[0]))return response({error:'DEVTEST required'},403);
@@ -129,6 +131,10 @@ async function handle(req,env){
   return response({character:{id,name},revision:0,snapshot:s,mode:'untrusted-backup'},201);
  }
  const ch=await character(env,auth.account_id);
+ if(path.startsWith('/api/community/')){
+  if(!devtestCommunity)fail(404,'Community route unavailable');
+  return communityRoute({req,env,auth,ch,path,body,response,fail});
+ }
  if(path.startsWith('/api/presence/')){
   if(!devtestPresence)fail(404,'Presence route unavailable');
   return solacePresence({req,env,auth,ch,path,response,fail});

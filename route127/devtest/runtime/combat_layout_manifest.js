@@ -964,6 +964,15 @@ globalThis.Route127PublishedCombatLayouts={
         "scale": 1,
         "z": 2,
         "flip": false
+      },
+      "0:the_road_eater .png": {
+        "x": 68.08036385851607,
+        "y": 57.64550269889837,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": true
       }
     },
     "early:191/approach/desktop": {
@@ -3839,6 +3848,370 @@ globalThis.Route127PublishedCombatLayouts={
         "scale": 1,
         "z": 2,
         "flip": false
+      }
+    },
+    "east:13/approach/desktop": {},
+    "east:13/combat/desktop": {},
+    "east:29/combat/desktop": {},
+    "east:29/approach/desktop": {},
+    "east:42/approach/desktop": {},
+    "east:42/combat/desktop": {},
+    "east:7/approach/desktop": {},
+    "east:7/combat/desktop": {},
+    "east:1/approach/desktop": {},
+    "east:1/combat/desktop": {},
+    "east:28/approach/desktop": {},
+    "east:28/combat/desktop": {},
+    "east:3/approach/desktop": {},
+    "east:3/combat/desktop": {},
+    "early:55/approach/desktop": {
+      "background:cold_road_camp.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      },
+      "0:cold_road_camp_traveler.png": {
+        "x": 50,
+        "y": 55,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:74/approach/desktop": {
+      "background:collapsing_lookout.png": {
+        "x": 50.3720237841817,
+        "y": 55.02645916462367,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "early:142/approach/desktop": {
+      "0:mountain_lion.png": {
+        "x": 52.30654632660005,
+        "y": 59.894186048037135,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:140/approach/desktop": {
+      "0:mountain_poacher_rifleman.png": {
+        "x": 46.874996806894245,
+        "y": 56.98412702417378,
+        "width": 38,
+        "height": 82,
+        "scale": 0.75,
+        "z": 2,
+        "flip": false
+      },
+      "1:mountain_poacher_trapper.png": {
+        "x": 68.67559283059488,
+        "y": 59.62962972307215,
+        "width": 38,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:29/approach/desktop": {
+      "background:salt_on_the_road.png": {
+        "x": 54.241074545650854,
+        "y": 80.55555919981374,
+        "width": 100,
+        "height": 100,
+        "scale": 0.42,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "early:142/combat/desktop": {
+      "0:mountain_lion.png": {
+        "x": 54.01785800448885,
+        "y": 58.96825404834755,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:140/combat/desktop": {
+      "0:mountain_poacher_rifleman.png": {
+        "x": 46.50297869934499,
+        "y": 53.412697371481784,
+        "width": 38,
+        "height": 76.3,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "1:mountain_poacher_trapper.png": {
+        "x": 69.34523677744843,
+        "y": 62.27513242197052,
+        "width": 38,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:29/combat/desktop": {
+      "background:salt_on_the_road.png": {
+        "x": 52.75297373229161,
+        "y": 77.91006154681133,
+        "width": 100,
+        "height": 100,
+        "scale": 0.36,
+        "z": 1,
+        "flip": false
+      },
+      "0:chair_man.png": {
+        "x": 26.3392878937071,
+        "y": 70.21163799571765,
+        "width": 54,
+        "height": 82,
+        "scale": 0.79,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:141/approach/desktop": {
+      "0:territorial_survivalist_rifleman.png": {
+        "x": 39.88094852895179,
+        "y": 63.99470816707527,
+        "width": 38,
+        "height": 82,
+        "scale": 0.88,
+        "z": 2,
+        "flip": false
+      },
+      "1:territorial_survivalist_shotgun.png": {
+        "x": 66.96428115270608,
+        "y": 66.37566463280056,
+        "width": 38,
+        "height": 82,
+        "scale": 0.82,
+        "z": 2,
+        "flip": true
+      }
+    },
+    "early:141/combat/desktop": {
+      "0:territorial_survivalist_rifleman.png": {
+        "x": 36.681541714336184,
+        "y": 58.57142965269199,
+        "width": 38,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "1:territorial_survivalist_shotgun.png": {
+        "x": 66.96428682933852,
+        "y": 58.83598093176102,
+        "width": 38,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": true
+      }
+    },
+    "east:15/approach/desktop": {
+      "background:the_chain_bridge.gif": {
+        "x": 50,
+        "y": 56.3492054681769,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "east:23/approach/desktop": {
+      "background:the_cinder_wolves.png": {
+        "x": 50,
+        "y": 55.95237602662537,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "east:23/combat/desktop": {
+      "background:the_cinder_wolves.png": {
+        "x": 50.07440362150985,
+        "y": 55.42327851438328,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "east:5/approach/desktop": {
+      "background:the_collapsed_dam.png": {
+        "x": 50.14881291965215,
+        "y": 56.084654189107866,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "east:40/approach/desktop": {
+      "background:the_dust_horses.png": {
+        "x": 50.22321086452955,
+        "y": 56.21694244338227,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      },
+      "0:dust_horse_brown.png": {
+        "x": 54.315478167160705,
+        "y": 61.3492054681769,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:72/approach/desktop": {
+      "background:the_lost_convoy.png": {
+        "x": 50.148807243019704,
+        "y": 55.55556676865768,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "east:75/approach/desktop": {
+      "0:wild_bear.png": {
+        "x": 55.50594746458321,
+        "y": 59.100517073142186,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:75/combat/desktop": {
+      "0:wild_bear.png": {
+        "x": 54.31547249052826,
+        "y": 62.142854259488026,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:12/combat/desktop": {
+      "background:the_quarry_lift.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      },
+      "0:quarry_hookman.png": {
+        "x": 57.58928576496994,
+        "y": 68.49206477356088,
+        "width": 31.666666666666668,
+        "height": 82,
+        "scale": 0.55,
+        "z": 2,
+        "flip": false
+      },
+      "1:quarry_chain_swinger.png": {
+        "x": 44.419637560642045,
+        "y": 67.96296221542282,
+        "width": 31.666666666666668,
+        "height": 82,
+        "scale": 0.42,
+        "z": 2,
+        "flip": false
+      },
+      "2:quarry_strangler.png": {
+        "x": 75.81845118987324,
+        "y": 67.83068909883627,
+        "width": 31.666666666666668,
+        "height": 82,
+        "scale": 0.72,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:12/approach/desktop": {
+      "background:the_quarry_lift.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "east:22/approach/desktop": {
+      "background:salt_miners.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "east:22/combat/desktop": {
+      "background:salt_miners.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      },
+      "0:saltmaster.png": {
+        "x": 38.318455447347596,
+        "y": 65.58201079559348,
+        "width": 38,
+        "height": 82,
+        "scale": 0.83,
+        "z": 2,
+        "flip": false
+      },
+      "1:salt_overseer.png": {
+        "x": 67.55952715468223,
+        "y": 59.36507844400312,
+        "width": 38,
+        "height": 82,
+        "scale": 0.72,
+        "z": 2,
+        "flip": true
       }
     }
   }

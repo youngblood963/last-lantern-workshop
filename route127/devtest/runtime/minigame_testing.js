@@ -87,6 +87,43 @@ window.addEventListener('keydown',event=>{
   event.preventDefault();
 },true);
 
+const tireYardArt='../devtest/assets/minigames/tire-yard/';
+function tireYardSprite(file,className){
+ const sprite=element('img',null,className);
+ sprite.src=tireYardArt+file+'.webp';
+ sprite.alt='';
+ sprite.draggable=false;
+ return sprite;
+}
+
+function createTireYard(grid){
+ const board=element('div',null,'tire-yard');
+ board.setAttribute('aria-hidden','true');
+ const tiles=element('div',null,'tire-yard-grid');
+ tiles.style.setProperty('--yard-columns',grid[0].length);
+ tiles.style.setProperty('--yard-rows',grid.length);
+ const wallAt=(x,y)=>grid[y]?.[x]==='#';
+ const crate=tireYardSprite('crate','tire-yard-crate');
+ grid.forEach((row,y)=>Array.from(row).forEach((tile,x)=>{
+  const cell=element('div',null,tile==='#'?'tire-yard-wall':'tire-yard-path');
+  const position=(y+1)+' / '+(x+1);
+  cell.style.gridArea=position;
+  if(tile==='#'){
+   const horizontal=wallAt(x-1,y)||wallAt(x+1,y);
+   const vertical=wallAt(x,y-1)||wallAt(x,y+1);
+   const pile=tireYardSprite((horizontal||vertical)&&(x+2*y)%3!==0?'embers':'burning','tire-yard-pile');
+   if(vertical&&!horizontal)pile.classList.add('tire-yard-pile-vertical');
+   cell.append(pile);
+  }
+  if(tile==='G')crate.style.gridArea=position;
+  tiles.append(cell);
+ }));
+ const survivor=tireYardSprite('survivor','tire-yard-survivor');
+ tiles.append(crate,survivor);
+ board.append(tiles);
+ return {board,survivor,crate};
+}
+
 function mountMaze(body,started){
  if(!started){
   body.append(element('p','Stacks of tires form a maze beneath a collapsed overpass. A crate glints inside.'));
@@ -99,8 +136,7 @@ function mountMaze(body,started){
  let tires=Math.max(Number(corvette?.tiresRecovered)||0,Number(corvette?.tiresSubmitted)||0);
  let secondChance=player.accessory==="Niko's Collar"&&Number(player.flags.nikoSecondChanceDay)!==(Number(day)||1);
  let hp=maxHp,lastMove=-Infinity;
- const board=element('div',null,'tire-board');
- board.setAttribute('aria-hidden','true');
+ const {board,survivor,crate}=createTireYard(R18_MAZES[q.variant]);
  const status=element('p');status.setAttribute('role','status');
  const movement=element('div',null,'tire-controls');
  const tire=button('Recover Suitable Tire',()=>{
@@ -109,13 +145,14 @@ function mountMaze(body,started){
  });
  const tireControls=element('div',null,'tire-controls');
  tireControls.append(tire);
- body.append(element('p','Reach the salvage crate. Avoid the tire walls. Use the direction buttons, arrow keys, or WASD.'),
+ body.append(element('p','Reach the salvage crate. Stay clear of the burning tires. Use the direction buttons, arrow keys, or WASD.'),
   board,status,movement,tireControls);
  for(const direction of ['up','left','down','right'])
   movement.append(button(direction.toUpperCase(),()=>move(direction)));
 
  function render(message){
-  r18RenderMazeBoard(board,q);
+  survivor.style.gridArea=(q.y+1)+' / '+(q.x+1);
+  crate.hidden=q.finished;
   status.textContent=message+' HP '+hp+' / '+maxHp+' · Row '+(q.y+1)+', column '+(q.x+1);
   movement.hidden=q.finished||hp===0;
   tireControls.hidden=!q.finished||!recoveringTires||tires>=4;
@@ -129,7 +166,11 @@ function mountMaze(body,started){
   if(tile==='wall'){
    const damage=environmentalDamage('minor',maxHp);
    hp=Math.max(0,hp-damage);
-   let message='You bump the tire wall and lose up to '+damage+' HP.';
+   survivor.classList.remove('tire-yard-hit');
+   // Restart the short impact flash when consecutive inputs hit the wall.
+   void survivor.offsetWidth;
+   survivor.classList.add('tire-yard-hit');
+   let message='The burning tires scorch you! −'+damage+' HP.';
    if(hp===0&&secondChance){
     secondChance=false;
     hp=1;
@@ -149,7 +190,7 @@ function mountMaze(body,started){
   move(direction);
   return true;
  };
- render('Reach the crate ◆.');
+ render('Find a path to the crate.');
 }
 
 function mountScrapDuel(body,started){

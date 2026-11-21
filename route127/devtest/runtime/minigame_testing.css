@@ -74,3 +74,69 @@
   .minigame-row { grid-template-columns: 1fr auto; }
   .minigame-row strong { grid-column: 1 / -1; }
 }
+
+.tire-yard {
+  position: relative;
+  width: min(100%, 54vh, 540px);
+  width: min(100%, 54dvh, 540px);
+  aspect-ratio: 1;
+  box-sizing: border-box;
+  background: #292822 url('../assets/minigames/tire-yard/scrapyard.webp') center / cover no-repeat;
+  border: 1px solid #8d7557;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.tire-yard-grid {
+  position: absolute;
+  inset: 5%;
+  display: grid;
+  grid-template-columns: repeat(var(--yard-columns), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--yard-rows), minmax(0, 1fr));
+}
+.tire-yard-path {
+  background: #c4b48620;
+}
+.tire-yard-wall {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: radial-gradient(ellipse, #63321580, #251912b8 60%, #161512c9);
+}
+.tire-yard-pile {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  object-fit: contain;
+}
+.tire-yard-pile-vertical { transform: rotate(90deg); }
+.tire-yard-crate,
+.tire-yard-survivor {
+  align-self: center;
+  justify-self: center;
+  display: block;
+  width: 85%;
+  height: 85%;
+  min-width: 0;
+  min-height: 0;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 1;
+}
+.tire-yard-crate {
+  filter: drop-shadow(0 0 5px #e3bc58);
+}
+.tire-yard-survivor {
+  filter: drop-shadow(0 1px 2px #000) drop-shadow(0 0 2px #d4e5cb);
+  z-index: 2;
+}
+.tire-yard-hit {
+  animation: tire-yard-scorch 260ms ease-out;
+}
+@keyframes tire-yard-scorch {
+  0%, 55% { filter: sepia(1) saturate(7) hue-rotate(320deg) drop-shadow(0 0 6px #ff3022); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tire-yard-hit { animation: none; }
+}

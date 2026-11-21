@@ -63,7 +63,14 @@
   try{
    const e=this.element;
    if(!e?.figure)return result;
-   const figure=e.figure,enabled=!e.frame.hidden&&!figure.hidden&&this.preference()==='graphics'&&eligible();
+   const figure=e.figure;
+   let enabled=!e.frame.hidden&&!figure.hidden&&this.preference()==='graphics'&&eligible();
+   if(enabled){
+    const backdrop=this.model().scenarioBackdrop;
+    // An active scene renderer supplies its own backdrop. Keep the bridge
+    // fallback while that renderer's artwork or dependencies are loading.
+    if(backdrop&&this.displaysArtwork(backdrop.art))enabled=false;
+   }
    figure.classList.toggle('r127-causeway-scene',enabled);
    const imageUrl=e.img?.currentSrc||e.img?.src||'';
    const duplicate=enabled&&imageUrl.split(/[?#]/)[0]===causeway;

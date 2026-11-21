@@ -1621,7 +1621,7 @@ wo4Equipment(rarities,subtype){
 wo4Award(key){
  const r=this;
  if(key==='sniper')return this.wo2Once('wo4Sniper',()=>{gainXp(110);gainBolts(r.wo2Roll(30,45));r.wo2Item('Rifle Ammunition','material',r.wo2Roll(3,6));if(Math.random()<.25)r.wo4Equipment(['common','uncommon'],'rifle');add('You recover ammunition and Bolts from the sniper’s belongings.','reward');});
- if(key==='bear')return this.wo2Once('wo4Bear',()=>{gainXp(Math.max(60,Math.max(1,Math.min(50,Number(player.level)||1))*12));r.wo2Item('Bear Meat','material',r.wo2Roll(2,4));r.wo2Item('Animal Hide');r.wo2Item('Animal Bones');(player.flags.r11Learned||(player.flags.r11Learned={})).hideLining=true;add('Bear Meat can be used in your existing cooking recipes. You learn to prepare Animal Hide into Cloth at the existing workbench.','reward');});
+ if(key==='bear')return this.wo2Once('wo4Bear',()=>{gainXp(Math.max(60,Math.max(1,Math.min(50,Number(player.level)||1))*12));r.wo2Item('Bear Meat','material',r.wo2Roll(2,4));r.wo2Item('Animal Bones');add('Bear Meat can be used in your existing cooking recipes.','reward');});
  if(key==='hospital'){const q=this.wo4Hospital();q.cleared=true;return this.wo2Once('wo4HospitalEntrance',()=>{gainXp(45);gainBolts(r.wo2Roll(25,50));add('The entrance is secure. A reception cashbox holds old trading Bolts.','reward');});}
 },
 wo4Retreat(c){
@@ -1704,11 +1704,11 @@ wo4(){
  Object.assign(GEAR,{
   'Rifle Ammunition':{type:'material',rarity:'common',description:'Recovered rifle cartridges, packed for safe carrying and trade.'},
   'Bear Meat':{type:'material',rarity:'common',description:'Bear meat usable in existing meat-based cooking recipes.'},
-  'Animal Hide':{type:'material',rarity:'common',description:'Prepare into Cloth with the existing workbench recipe.'}
+  'Animal Hide':{type:'material',rarity:'common',description:'A hide recovered from an animal. Legacy crafting material.'}
  });
  VENDOR_BASE['Rifle Ammunition']=10;
  if(!R18_FOOD_GROUPS.meat.includes('Bear Meat'))R18_FOOD_GROUPS.meat.push('Bear Meat');
- CRAFT_RECIPES.hideLining={name:'Cloth',rarity:'common',hide:1,bolts:0,type:'material',chance:1,seconds:30};
+ // Animal Hide-to-Cloth recipe retired; preserve legacy hide items on existing saves.
  function edit(index,name,text,actions,key){
   const e=eastEncounters[index];e.displayName=name;e.text=text;e.combat=null;e.exclusive=false;e.wo4=true;e.wo2NonTerminal=Object.keys(actions).filter(k=>/^(EXAMINE|INSPECT|OBSERVE)/.test(k));
   e.choices=Object.keys(actions).concat('LEAVE').join('   ');if(key){e.prompt=()=>r.wo2State()[key]?'INSPECT AFTERMATH   LEAVE':e.choices;e.description=()=>r.wo2State()[key]?name+' — the confrontation is over.':e.text;}e.resolve=function(cmd){if(['leave','move on','back away'].includes(cmd)){add('You leave the scene.');return true;}if(key&&r.wo2State()[key]){add('This encounter has already been resolved.');return true;}const action=actions[cmd.toUpperCase()];return action?action()!==false:false;};return e;

@@ -340,7 +340,7 @@ GraphicalUI.sync=function(...args){hydrate();const result=oldSync.apply(this,arg
 const oldChoices=GraphicalUI.choices;
 GraphicalUI.choices=function(...args){
  const choices=oldChoices.apply(this,args);
- if(stage==='r11Craft'&&!player.flags.v49MurphyJob&&!player.flags.r18FoodDraft&&player.flags.v49RecipeBandage){
+ if(stage==='r11Craft'&&!player.flags.v49MurphyJob&&!player.flags.devCraftQuote&&!player.flags.r18FoodDraft&&player.flags.v49RecipeBandage){
   return [...['Craft','Upgrade','Modify'].map((tab,i)=>({key:String(i+1),label:tab,command:'r127 bench '+tab.toLowerCase()})),{key:'4',label:'Back',command:'back'}];
  }
  return choices;

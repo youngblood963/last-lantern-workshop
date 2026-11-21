@@ -657,23 +657,11 @@ const ROAD_LIFECYCLE={
   "east:22": {
     "name": "THE SALT MINERS",
     "lifecycle": "One-time",
-    "regions": [
-      "NORTH"
-    ],
+    "regions": ["NORTH"],
     "workOrderId": null,
-    "service": false,
-    "groups": [
-      [
-        "FIGHT THE SALTMASTER"
-      ],
-      [
-        "PERSUADE THE GUARDS"
-      ],
-      [
-        "SNEAK THE WORKERS FREE"
-      ]
-    ],
-    "completion": "Terminal flags: r18SaltWorkersFreed. Existing rewards/quest consequences retained."
+    "service": true,
+    "groups": [["FIGHT THE SALTMASTER"]],
+    "completion": "Marlow's departure to Solace retires the encounter. Legacy Salt Miners completions remain retired."
   },
   "east:14": {
     "name": "THE ROAD EATER",
@@ -3488,7 +3476,7 @@ const RoadLifecycle={
  'early:61':[['r18RunnerReunionDone']],'east:13':[['r18BlackSnowResolved','r18BlackSnowTruck']],
  'east:16':[['r18PickensResolved']],'east:17':[['r18WaxArmorClaimed']],'east:18':[['r18MarthaSettled']],
  'east:19':[['r18QuicksandOutcome','r18QuicksandSatchel']],'east:21':[['r18DanielQuest','r18ClaraStatueSearched']],
- 'east:22':[['r18SaltWorkersFreed']],'east:25':[['r18ArmoryClaimed']],'east:27':[['r18ChapelBoxClaimed']],
+ 'east:22':[['r18SaltWorkersFreed'],['marlowRescued']],'east:25':[['r18ArmoryClaimed']],'east:27':[['r18ChapelBoxClaimed']],
  'east:35':[['r18OilOutcome']],'east:39':[['r18SilasOutcome','r18SilasChestClaimed']],
  'east:57':[['wo2.forklift']],'east:58':[['wo2.patrol']],'east:59':[['wo2.wo3Dogs']],
  'east:60':[['wo2.wo3Drone']],'east:61':[['wo2.wo3Stalker']],

@@ -1894,7 +1894,6 @@ function v49FactoryRoom(){
 // v49.1: tutorial materials are bench-bound, never added to sellable inventory.
 const CRAFT_RECIPES={
   bandage:{name:'Reinforced Bandage',cloth:2,scrap:1,bolts:0,seconds:30,chance:.9,type:'consumable'},
-  pipe:{name:'Rusted Pipe',cloth:0,scrap:2,wire:0,bolts:20,seconds:30,chance:.9,type:'weapon'},
   ironReaper:{name:'Iron Reaper',cloth:3,scrap:8,wire:4,bolts:75,seconds:30,chance:.9,type:'weapon',minLevel:6}
 };
 function v49Terminal(){
@@ -1959,7 +1958,6 @@ function v49MurphyRecipes(){
   add("MURPHY'S MOTOR WORKS — CRAFTING",'place');
   if(!player.flags.v49RecipeBandage){add('NO RECIPES LEARNED. Visit Forge at the Factory for your first lesson.','system');add('(B) BACK','system');return;}
   add('[1] REINFORCED BANDAGE — 2 Cloth, 1 Scrap Metal — 30 sec — 90%','system');
-  add('[2] RUSTED PIPE — 2 Scrap Metal, 20 Bolts — 30 sec — 90%','system');
   if(player.level>=6)add('[3] IRON REAPER — 8 Scrap Metal, 4 Wire, 3 Cloth, 75 Bolts — 120 sec — 90% — LEVEL 6','system');
   add('(B) BACK','system');
 }
@@ -2011,8 +2009,8 @@ function v49MurphyCommand(cmd){
   }
   if(player.flags.v49MurphyMenu==='recipes'){
     if(['b','back'].includes(cmd)){player.flags.v49MurphyMenu='';npcTalk('murphy');return true;}
-    if(player.flags.v49RecipeBandage&&['1','2','reinforced bandage','rusted pipe'].includes(cmd)){
-      v49MurphyRecipe(['1','reinforced bandage'].includes(cmd)?'bandage':'pipe');return true;
+    if(player.flags.v49RecipeBandage&&['1','reinforced bandage'].includes(cmd)){
+      v49MurphyRecipe('bandage');return true;
     }
     if(player.flags.v49RecipeBandage&&player.level>=6&&['3','iron reaper'].includes(cmd)){v49MurphyRecipe('ironReaper');return true;}
     v49MurphyRecipes();return true;

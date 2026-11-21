@@ -63,6 +63,15 @@
    case 'east:5':return combat?null:[scenery('the_collapsed_dam.png')];
    case 'east:72':return combat?null:[scenery('the_lost_convoy.png')];
    case 'east:15':return combat?null:[scenery('the_chain_bridge.gif')];
+   case 'east:22':return [scenery('salt_miners.png'),...(combat?.r18MarlowGuards?
+    [sprite('saltmaster.png'),sprite('salt_overseer.png',1)]:
+    !combat&&player.flags.marlowRescuePending?[sprite('marlow_vance.png',0,'scenarios')]:[])];
+   case 'east:12':{
+    if(!combat?.r18ChainGang)return [scenery('the_quarry_lift.png')];
+    const files={'HOOKMAN':'quarry_hookman.png','CHAIN SWINGER':'quarry_chain_swinger.png','STRANGLER':'quarry_strangler.png'};
+    return [scenery(combat.enemies.some(e=>e.name==='CHAIN SWINGER')?'the_quarry_lift.png':'the_quarry_lift_no_beam.png'),
+     ...combat.enemies.map((enemy,index)=>sprite(files[enemy.name],index))];
+   }
    default:return null;
   }
  }
@@ -162,15 +171,19 @@
    const identity=(target?.type||'north')+'|'+files.map(({name})=>name).join('|');
    if(!layer||layer.dataset.identity!==identity){
     layer?.remove();layer=document.createElement('div');layer.className='r127-final-sprites';layer.dataset.identity=identity;
+    const spriteCount=files.filter(asset=>!asset.scenery).length;
     for(const {name,index=0,dir,scenery} of files){
      const unit=document.createElement('div');unit.className='r127-final-unit'+(scenery?' r127-final-freight':'');
      const img=document.createElement('img');img.alt='';img.src=file(dir,name);
      img.onerror=()=>console.warn('DEVTEST scenario image failed to load:',name);
      const positions=files.length===3?[20,50,80]:[50];
      unit.dataset.index=String(index);
-     if(north)unit.dataset.pair=String(files.length===2&&!files[0].scenery);
+     if(north&&!scenery&&spriteCount>1){
+      unit.style.left=((index+.5)*100/spriteCount)+'%';
+      unit.style.width=(spriteCount===2?'34%':'30%');
+     }else if(north)unit.dataset.pair='false';
      else unit.style.left=positions[index]+'%';
-     if(files.length===3){unit.style.width='31%';unit.style.height='82%';}
+     if(!north&&files.length===3){unit.style.width='31%';unit.style.height='82%';}
      unit.append(img);
      if(!scenery){
       const hp=document.createElement('span');hp.className='r127-final-hp';hp.hidden=true;unit.prepend(hp);

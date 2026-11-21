@@ -47,7 +47,7 @@ function ready(r){
  if(Object.entries(mats(r)).some(([n,q])=>q>have(n)))return false;
  if(r.questInputs&&Object.entries(r.questInputs).some(([n,q])=>CorvetteRestoration.count(n)<q))return false;
  if(r.basicTent&&!r18ExactTent('Tent'))return false;
- if(r.food&&r.food.some(kind=>!r18FoodEligible(kind).length))return false;
+ if(r.food&&r.food.some(kind=>!r18FoodOptions(r,kind).length))return false;
  return true;
 }
 const css=document.createElement('style');css.textContent=`
@@ -106,9 +106,10 @@ function draw(){
  if(r.basicTent)el(detail,'div','Tent — '+(r18ExactTent('Tent')?'1/1':'0/1'),r18ExactTent('Tent')?'good':'bad');
  if(r.bolts){el(detail,'div','Bolts — '+player.bolts+'/'+r.bolts,player.bolts>=r.bolts?'good':'bad')}
  if(r.food)for(const kind of r.food){
-  const available=[...new Set(r18FoodEligible(kind).map(item=>item.name))];
+  const stock=r18FoodOptions(r,kind),amount=r18FoodAmount(r,kind);
+  const available=stock.map(([name])=>name);
   const row=el(detail,'div','','r127-bench-food-row');
-  const label=el(row,'label',kind);
+  const label=el(row,'label',kind+(amount>1?' (×'+amount+' required)':''));
   const select=document.createElement('select');
   select.setAttribute('aria-label',kind+' ingredient');
   label.htmlFor='r127-bench-'+kind;
@@ -117,9 +118,9 @@ function draw(){
   if(!available.includes(names[kind]))names[kind]=available[0]||'';
   if(!available.length){
    const option=document.createElement('option');option.textContent='No eligible '+kind+' in backpack';option.value='';select.append(option);
-   el(detail,'p','Collect an eligible '+kind+' ingredient to craft this recipe.','bad');
-  }else for(const name of available){
-   const option=document.createElement('option');option.textContent=name+' (×'+r18FoodEligible(kind).filter(item=>item.name===name).reduce((sum,item)=>sum+item.qty,0)+')';
+   el(detail,'p','Requires '+amount+' eligible '+kind+' to craft this recipe.','bad');
+  }else for(const [name,qty] of stock){
+   const option=document.createElement('option');option.textContent=name+' (×'+qty+' available'+(amount>1?', ×'+amount+' required':'')+')';
    option.value=name;option.selected=name===names[kind];select.append(option);
   }
   select.disabled=!available.length;
@@ -132,7 +133,7 @@ function draw(){
   if(!ready(r)||player.flags.v49MurphyJob){draw();return;}
   if(r.food){
    const selected=state.foodSelections[key]||{};
-   if(r.food.some(kind=>!r18FoodEligible(kind).some(item=>item.name===selected[kind]))){draw();return;}
+   if(r.food.some(kind=>!r18FoodOptions(r,kind).some(([name])=>name===selected[kind]))){draw();return;}
    close();
    // Start and complete the existing canonical food-selection transaction.
    // Its final confirmation rechecks inventory, recipe gates, and quantities,

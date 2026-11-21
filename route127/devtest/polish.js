@@ -8,6 +8,7 @@ const OLD_WORLD_TREASURES=Object.freeze({
  "Vintage Bus Driver's Badge":{ordinary:50,martha:200,reaction:'My father drove that route. He used to polish his badge before every shift.'},
  'Old Family Pocket Watch':{ordinary:75,martha:300,reaction:'Look at that craftsmanship. Somebody wanted this to last long enough to pass down.'},
  'Art Lantern':{ordinary:100,martha:400,reaction:'People used to make things beautiful just because they could. Not everything had to help you survive.'},
+ 'Old World Gold Bar':{ordinary:500,martha:1000,reaction:'Once, people would have done almost anything for a bar like this.'},
  'Pre-War Silver Coin':{ordinary:125,martha:500,reaction:'Real silver. People collected these long before the world fell apart. Funny how some things never stop being valuable.'},
 });
 const V48_LOOT_PRICES={...Object.fromEntries(Object.entries(OLD_WORLD_TREASURES).map(([name,price])=>[name,price.ordinary])),'Old World Pocket Compass':30,'Scrap Metal':4,Wire:3,Rope:3,Cloth:2,Fuel:4,Electronics:5,Chemicals:4,'Battered Flashlight':5,'Energy Bars':2,'Clean Water':3,'Wild Honey':6,'Raw Wolf Meat':3,'Raw Rabbit Meat':2,'Animal Bones':2,'Raw Rat Meat':2,'Raw Bird Meat':2,'Raw Venison':3,'Raw Boar Meat':3,'Raw Chicken Meat':2,'Raw Snake Meat':2,'Large Animal Bones':3,'Small Animal Bones':1,'Fresh Carrot':2,'Fresh Potato':2,'Fresh Apple':2,'Preserved Vegetables':5,Bandage:3,Tent:3};

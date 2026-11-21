@@ -28,7 +28,7 @@ function hydrate(){
  for(const [name,entry] of Object.entries(rec)){
   const base=GEAR[entry.base];if(!base||!['weapon','armor'].includes(base.type))continue;
   const gear={...base,...(base.type==='weapon'?{min:base.min+entry.bonus,max:base.max+entry.bonus}:{def:base.def+entry.bonus})};
-  if(EquipmentMods.installed(name))Object.defineProperty(GEAR,name,{value:gear,enumerable:false,writable:true,configurable:true});
+  if(EquipmentMods.hasInstance(name))Object.defineProperty(GEAR,name,{value:gear,enumerable:false,writable:true,configurable:true});
   else GEAR[name]=gear;
  }
 }
@@ -81,7 +81,7 @@ let shade=null;
 function button(parent,label,fn,disabled=false,klass=''){const b=document.createElement('button');b.type='button';b.textContent=label;b.disabled=disabled;b.className=klass;b.addEventListener('click',fn);parent.append(b);return b}
 function el(parent,tag,text,klass=''){const n=document.createElement(tag);n.textContent=text;n.className=klass;parent.append(n);return n}
 function close(){shade?.remove();shade=null;state.open=false}
-function open(tab='Craft'){state.tab=tab;state.modify=null;state.open=true;draw()}
+function open(tab='Craft'){state.tab=tab;state.modify=null;state.removing=false;state.confirmRemoval=false;state.open=true;draw()}
 function draw(){
  if(!state.open||stage!=='r11Craft'){close();return}
  hydrate();shade?.remove();shade=document.createElement('div');shade.className='r127-bench-shade';
@@ -163,13 +163,33 @@ function installedLabel(entry){
 function drawModify(panel){
  const entries=inventory(),list=el(panel,'div','','r127-bench-list');
  el(panel,'h3','Equipment Modifications');
- for(const entry of entries)button(list,displayName(entry.name)+(entry.equipped?' (EQUIPPED)':''),()=>{state.modify=entry;draw()});
- if(!entries.length){el(panel,'p','No owned weapons or armor.');return;}
+ button(panel,state.removing?'Install or Replace':'Remove Modification',()=>{
+  state.removing=!state.removing;state.modify=null;state.confirmRemoval=false;draw();
+ });
+ const available=state.removing?entries.filter(entry=>EquipmentMods.installed(entry.name)):entries;
+ for(const entry of available)button(list,displayName(entry.name)+(entry.equipped?' (EQUIPPED)':'')+
+  (state.removing?' — '+installedLabel(entry):''),()=>{state.modify=entry;state.confirmRemoval=false;draw();});
+ if(!available.length){el(panel,'p',state.removing?'No equipment has an installed modification.':'No owned weapons or armor.');return;}
  const target=state.modify;
- if(!target){el(panel,'p','Select equipment to modify.');return;}
+ if(!target){el(panel,'p','Select equipment.');return;}
  const detail=el(panel,'div','','r127-bench-detail');
  el(detail,'h3',displayName(target.name));
  el(detail,'p','Installed modification: '+installedLabel(target));
+ if(state.removing){
+  if(!state.confirmRemoval){
+   button(detail,'Remove '+installedLabel(target),()=>{state.confirmRemoval=true;draw();});
+  }else{
+   el(detail,'p','Removal is free. The modification will be destroyed and no materials will be returned.');
+   button(detail,'Confirm Removal',()=>{
+    const result=EquipmentMods.remove(target);
+    state.removing=false;state.modify=null;state.confirmRemoval=false;draw();
+    const root=shade?.querySelector('.r127-bench-panel');
+    if(root)el(root,'p',result);
+   });
+   button(detail,'Cancel',()=>{state.confirmRemoval=false;draw();});
+  }
+  return;
+ }
  const choices=EquipmentMods.options(target.name);
  if(!choices.length)el(detail,'p','No compatible learned modifications.');
  for(const choice of choices){
@@ -240,7 +260,7 @@ function drawUpgrade(panel){
  },have(material)<cost,'primary');
 }
 globalThis.r127HydrateUpgrades=hydrate;
-let textTab=null,textTarget=null,textEntries=[];
+let textTab=null,textTarget=null,textEntries=[],textConfirmRemoval=false;
 function textWorkbench(){
  add('WORKBENCH — '+textTab.toUpperCase(),'place');
  const job=player.flags.r127UpgradeJob;
@@ -250,9 +270,9 @@ function textWorkbench(){
   return r5DirectChoices([...(remaining?['CHECK UPGRADE']:['COLLECT UPGRADE']),'BACK']);
  }
  if(!textTarget){
-  textEntries=inventory();
+  textEntries=inventory().filter(entry=>textTab!=='Remove'||EquipmentMods.installed(entry.name));
   if(!textEntries.length)add('No owned weapons or armor.','system');
-  return r5DirectChoices([...textEntries.map((entry,i)=>'SELECT EQUIPMENT '+(i+1)+' — '+displayName(entry.name)+(entry.equipped?' (EQUIPPED)':'')),'BACK']);
+  return r5DirectChoices([...textEntries.map((entry,i)=>'SELECT EQUIPMENT '+(i+1)+' — '+displayName(entry.name)+(entry.equipped?' (EQUIPPED)':'')+(textTab==='Remove'?' — '+installedLabel(entry):'')),...(textTab==='Modify'?['REMOVE MODIFICATION']:[]),'BACK']);
  }
  add(displayName(textTarget.name),'bright');
  if(textTab==='Upgrade'){
@@ -263,6 +283,13 @@ function textWorkbench(){
  }
  const current=EquipmentMods.installed(textTarget.name);
  add('Installed modification: '+installedLabel(textTarget),'system');
+ if(textTab==='Remove'){
+  if(textConfirmRemoval){
+   add('Removal is free. The modification will be destroyed and no materials will be returned.','danger');
+   return r5DirectChoices(['CONFIRM REMOVAL','CANCEL REMOVAL']);
+  }
+  return r5DirectChoices(['REMOVE SELECTED MODIFICATION','BACK']);
+ }
  const options=EquipmentMods.options(textTarget.name),choices=[];
  if(!options.length)add('No compatible learned modifications.','system');
  for(const option of options){
@@ -277,10 +304,20 @@ r11CraftCommand=function(cmd){
  cmd=String(cmd||'').trim().toLowerCase();
  if(!player.flags.v49RecipeBandage||player.flags.v49MurphyJob||player.flags.devCraftQuote||player.flags.r18FoodDraft){textTab=null;textTarget=null;return oldCraftCommand.apply(this,arguments);}
  if(cmd==='modify'||cmd==='upgrade'){textTab=cmd==='modify'?'Modify':'Upgrade';textTarget=null;return textWorkbench();}
+ if(cmd==='remove modification'&&textTab==='Modify'){textTab='Remove';textTarget=null;textConfirmRemoval=false;return textWorkbench();}
+ if(textTab==='Remove'&&textTarget){
+  if(cmd==='remove selected modification')textConfirmRemoval=true;
+  if(cmd==='cancel removal')textConfirmRemoval=false;
+  if(cmd==='confirm removal'&&textConfirmRemoval){
+   add(EquipmentMods.remove(textTarget),'system');
+   textTab='Modify';textTarget=null;textConfirmRemoval=false;
+  }
+ }
  if(cmd==='craft'){textTab=null;textTarget=null;}
  if(!textTab)return oldCraftCommand.apply(this,arguments);
  if(cmd==='back'||cmd==='b'){
-  if(textTarget){textTarget=null;return textWorkbench();}
+  if(textTarget){textTarget=null;textConfirmRemoval=false;return textWorkbench();}
+  if(textTab==='Remove'){textTab='Modify';return textWorkbench();}
   textTab=null;return r11CraftMenu();
  }
  const selection=/^select equipment (\d+)(?: |$)/.exec(cmd);

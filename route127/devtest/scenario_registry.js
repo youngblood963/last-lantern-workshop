@@ -227,22 +227,13 @@ const encounters = [
    if(cmd.includes("reinforce")||cmd.includes("stones")){add("You add stones to the warning so travelers can spot the weak shoulder sooner.");if(!player.flags.r18SinkholeReinforced){player.flags.r18SinkholeReinforced=true;gainXp(Math.max(5,player.level));}return true;}
    if(cmd.includes("back")||cmd.includes("away")){add("You take a wide path around the unstable pavement.");return true;}return false;
   }},
-  {title:"CEMETERY OF TIRES",exclusive:false,text:"Stacks of tires form a maze beneath a collapsed overpass. A crate glints inside.",prompt(){const q=r18MazeScene();if(!q.started)return 'ENTER TIRE MAZE   LEAVE MAZE';if(q.finished)return 'LEAVE MAZE';return ['UP','DOWN','LEFT','RIGHT'].map(d=>`MOVE ${d} STEP ${q.step}`).concat(['LEAVE MAZE']).join('   ');},resolve(cmd){const q=r18MazeScene(),f=player.flags;
-   if(cmd.includes('leave')){add('You leave the tire maze.','system');return true;}
-   if(cmd.includes('enter')&&!q.started){q.started=true;q.step++;add('Reach the crate ◆. You are @. Tires are ■.','system');add(r18MazeDraw(q),'system');return true;}
-   if(!q.started||q.finished||!cmd.includes('move'))return false;
-   const direction=['up','down','left','right'].find(dir=>cmd.includes(dir));if(!direction)return false;
-   const tile=r18MazeStep(q,direction);
-   if(tile==='wall'){
-    const amount=environmentalHurt('minor');add(`You bump the tire wall and lose up to ${amount} HP.`,'danger');if(stage==='fallen')return true;
-   }else if(tile==='goal'&&!f.r18MazeClaimed){
-    const reward=r18MazeReward(player.level,typeof v555AwardEquipmentDrop==='function');
-    r18RetainRoadReward('Scrap Metal','material');gainBolts(reward.bolts);gainXp(reward.xp);
-    if(reward.equipment())v555AwardEquipmentDrop();
-    f.r18MazeClaimed=true;q.finished=true;add('You reach the crate and recover its contents.','reward');
+  {title:"CEMETERY OF TIRES",exclusive:false,text:"Stacks of tires form a maze beneath a collapsed overpass. A crate glints inside.",
+   prompt(){return 'ENTER TIRE MAZE   LEAVE MAZE';},
+   resolve(cmd){
+    if(cmd==='leave maze'||cmd==='leave'){add('You leave the tire maze.','system');return true;}
+    return cmd==='enter tire maze'&&globalThis.Route127RoadMinigames.openMaze();
    }
-   add(r18MazeDraw(q),'system');return true;
-  }},
+  },
   {exclusive:true,title:"THE HONEY JAR",text:"A beekeeper's suit hangs in an old orchard. Bees crowd a hollow tree, and honey glistens inside.",choices:"HARVEST HONEY   INSPECT BEEKEEPER GEAR   BACK AWAY",resolve(cmd){
    if(cmd.includes("harvest")){if(player.flags.r18HoneyHarvested){add("This hive has already been harvested; the bees need time undisturbed.","system");return false;}if(!addPack("Wild Honey","consumable"))return false;player.flags.r18HoneyHarvested=true;if(Math.random()<.35){environmentalHurt('minor');add("A few bees sting as you recover the honey.","danger");}else add("You gather a sealed jar of Wild Honey and leave the hive intact.","reward");gainXp(Math.max(8,player.level*2));return true;}
    if(cmd.includes("gear")||cmd.includes("inspect")){add("The veil and gloves are patched. A note says to move slowly and leave enough for the bees.");if(!player.flags.r18HoneyGearSeen){player.flags.r18HoneyGearSeen=true;gainXp(4);}return true;}
@@ -858,20 +849,17 @@ function r18ScrapDuelMenu(){
  const q=r18ScrapDuelScene();
  if(q.phase==='custom')return 'TYPE WAGER <AMOUNT> BOLTS (1–1000)   CANCEL WAGER   BACK AWAY';
  if(q.phase==='confirm')return `CONFIRM ${q.stake} BOLT WAGER   CANCEL WAGER   BACK AWAY`;
- if(q.phase==='done'||q.phase==='playing')return 'WATCH THE CONTEST   BACK AWAY';
- const wagers=(Number(day)||1)>=(Number(player.flags.r18ScrapDuelNextDay)||0)
-  ?['WAGER 10 BOLTS','WAGER 50 BOLTS','WAGER 100 BOLTS','WAGER 500 BOLTS','WAGER CUSTOM AMOUNT']:[];
- return ['WATCH THE CONTEST','COMPETE',...wagers,'BACK AWAY'].join('   ');
+ return 'WATCH THE CONTEST   COMPETE   WAGER 10 BOLTS   WAGER 50 BOLTS   WAGER 100 BOLTS   WAGER 500 BOLTS   WAGER CUSTOM AMOUNT   BACK AWAY';
 }
 const r18ScrapDuel=eastEncounters.find(e=>e.title==='THE SCRAP DUEL');
 if(r18ScrapDuel){
  r18ScrapDuel.prompt=r18ScrapDuelMenu;
  r18ScrapDuel.resolve=function(cmd){
-  const q=r18ScrapDuelScene(),today=Number(day)||1;
+  const q=r18ScrapDuelScene();
   if(['back','back away'].includes(cmd)){q.phase='done';add('You leave the throwing contest behind.','system');return true;}
-  if(['watch','watch the contest'].includes(cmd)){add('Hubcaps clang against the stationary truck. One thrower grins: “The truck has never won.”','bright');return true;}
-  if(cmd==='compete'&&q.phase==='idle')return globalThis.Route127MinigameTesting.openRoadScrapDuel(q,0);
-  if(cmd.startsWith('wager')&&['idle','custom'].includes(q.phase)&&today>=(Number(player.flags.r18ScrapDuelNextDay)||0)){
+  if(['watch','watch the contest'].includes(cmd))return globalThis.Route127RoadMinigames.watch();
+  if(cmd==='compete'&&!['confirm','custom'].includes(q.phase))return globalThis.Route127RoadMinigames.openRoadScrapDuel(q,0);
+  if(cmd.startsWith('wager')&&q.phase!=='confirm'){
    if(cmd==='wager custom amount'){q.phase='custom';add('Type WAGER <AMOUNT> BOLTS. Maximum wager: 1,000 Bolts.','system');return true;}
    const stake=Number((cmd.match(/^wager (\d+) bolts$/)||[])[1]);
    if(!Number.isSafeInteger(stake)||stake<1||stake>1000||player.bolts<stake){add('The wager must be affordable and no more than 1,000 Bolts.','system');return false;}
@@ -886,7 +874,7 @@ if(r18ScrapDuel){
   }
   if(cmd===`confirm ${q.stake} bolt wager`&&q.phase==='confirm'){
    if(player.bolts<q.stake){player.encounterDone?.[roadTurn]?.delete(`WAGER ${q.stake} BOLTS`);q.phase='idle';add('Not enough Bolts. No wager was placed.','system');return true;}
-   return globalThis.Route127MinigameTesting.openRoadScrapDuel(q,q.stake);
+   return globalThis.Route127RoadMinigames.openRoadScrapDuel(q,q.stake);
   }
   return false;
  };

@@ -69,4 +69,11 @@ assert(counts.champion>=390&&counts.champion<=510);
 assert([counts.ground,counts.truck,counts.crate].every(count=>count>=285&&count<=415));
 assert.equal(context.sample(0,undefined,true).surface,'champion');
 for(const score of [10,25,50])assert.equal(context.sample(score,undefined,true).surface,'target');
+const spectatorSurfaces=new Set();
+for(let i=0;i<300;i++){
+ const point=context.sample(0,null,false,true);
+ assert.notEqual(point.surface,'champion');
+ spectatorSurfaces.add(point.surface);
+}
+assert.equal(spectatorSurfaces.size,3);
 console.log('PASS 250 varied impacts per scoring target and 1,500 misses',counts);

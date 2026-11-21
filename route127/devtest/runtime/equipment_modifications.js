@@ -34,7 +34,7 @@ const EquipmentMods=(()=>{
  const installed=name=>modRecord(name)?.key;
  function hydrate(){
   for(const [name,entry] of Object.entries(records())){
-   if(!GEAR[entry.base]||!catalog[entry.key])continue;
+   if(!GEAR[entry.base]||(entry.key!==null&&!catalog[entry.key]))continue;
    Object.defineProperty(GEAR,name,{value:{...GEAR[entry.base],name},enumerable:false,writable:true,configurable:true});
   }
  }
@@ -48,6 +48,35 @@ const EquipmentMods=(()=>{
  }
  function options(name){return Object.values(catalog).filter(mod=>learned(mod.key)&&compatible(mod,name));}
  function cost(mod){return Object.entries(mod.materials).map(([name,qty])=>({name,qty,have:r6MaterialCount(name)}));}
+ function createModified(base,key){
+  const serial=(player.flags.equipmentModSerial||0)+1;
+  player.flags.equipmentModSerial=serial;
+  const root=base+' ['+(key===null?'Piece':catalog[key].name)+' #'+serial+']';
+  (player.flags.equipmentMods||={})[root]={base,key};
+  const gear=GEAR[base];
+  Object.defineProperty(GEAR,root,{value:{...gear,name:root},enumerable:false,writable:true,configurable:true});
+  return root;
+ }
+ function remove(target){
+  const {name,kind,equipped,item}=target,key=installed(name);
+  if(!key)return 'That equipment has no installed modification.';
+  if(equipped?player[kind]!==name:!player.pack.includes(item)||item.name!==name||item.type!==kind||item.qty<1)return 'That equipment is no longer available.';
+  if(player.flags.r127UpgradeJob?.name===name)return 'Collect the equipment upgrade first.';
+  if(item?.qty>1&&packSlotsUsed()>=player.packMax)return 'Free one pack slot to separate this piece from its stack.';
+  const base=modRecord(name).base,prior=player.flags.r127EquipmentUpgrades?.[name];
+  const root=prior?createModified(base,null):base;
+  const result=root+(name.match(upgradeSuffix)?.[0]||'');
+  if(prior){
+   player.flags.r127EquipmentUpgrades[result]={base:root,bonus:prior.bonus};
+   const gear=GEAR[root],bonus=prior.bonus;
+   Object.defineProperty(GEAR,result,{value:{...gear,...(kind==='weapon'?{min:gear.min+bonus,max:gear.max+bonus}:{def:gear.def+bonus})},enumerable:false,writable:true,configurable:true});
+  }
+  if(equipped)player[kind]=result;
+  else if(item.qty>1){item.qty--;player.pack.push({...item,name:result,qty:1});}
+  else item.name=result;
+  updateHud();v49Autosave();
+  return catalog[key].name+' removed and destroyed.';
+ }
  function install(target,key){
   const mod=catalog[key],{name,kind,equipped,item}=target;
   if(!learned(key)||!compatible(mod,name)||installed(name)===key)return 'That modification cannot be installed.';
@@ -61,13 +90,9 @@ const EquipmentMods=(()=>{
   if(!GEAR[base])return 'The equipment definition is unavailable.';
   // Each installed item has its own persisted inventory key. All existing transfer
   // and trade paths already move that key, including when they only move a name.
-  const serial=(player.flags.equipmentModSerial||0)+1;
-  const root=base+' ['+mod.name+' #'+serial+']';
-  const result=root+(name.match(upgradeSuffix)?.[0]||'');
   for(const row of requirements)r6ConsumeMaterial(row.name,row.qty);
-  player.flags.equipmentModSerial=serial;
-  (player.flags.equipmentMods||={})[root]={base,key};
-  hydrate();
+  const root=createModified(base,key);
+  const result=root+(name.match(upgradeSuffix)?.[0]||'');
   if(prior){
    upgrades[result]={base:root,bonus:prior.bonus};
    const gear=GEAR[root],bonus=prior.bonus;
@@ -151,5 +176,5 @@ const EquipmentMods=(()=>{
   if(boss&&(c.name!=='INDUSTRIAL SECURITY DRONE'||c.wo7Id==='I14'))return learn(boss.key);
   return c.r18PowderBlueprint?learn('incendiary'):false;
  }
- return {catalog,learned,learn,purchase,installed,hydrate,options,cost,install,attack,enemyEffect,tick,scaleBoss,defense,victory,weapon,armor};
+ return {catalog,learned,learn,purchase,installed,hydrate,options,cost,install,remove,createModified,hasInstance:name=>!!modRecord(name),attack,enemyEffect,tick,scaleBoss,defense,victory,weapon,armor};
 })();

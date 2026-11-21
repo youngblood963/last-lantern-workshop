@@ -43,3 +43,24 @@ body:not(.full-graphics) .r127-scenario-results { font-family: monospace; }
 @media (max-width: 600px) {
  .r127-scenario-results { width: calc(100vw - 16px); padding: 12px 14px; border-width: 10px; font-size: 14px; max-height: min(70dvh, calc(100dvh - var(--r127-result-bottom, 12px) - 8px)); }
 }
+
+.r127-scenario-results.r127-rescue-summary {
+  inset: 0;
+  transform: none;
+  margin: auto;
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+}
+.r127-rescue-summary::backdrop { background: #030403bc; }
+.r127-rescue-summary h2 { color: #ff957b; }
+.r127-rescue-summary ul {
+  list-style: none;
+  padding: .5rem .65rem;
+  border: 1px solid #775d45;
+  background: #090a08ba;
+}
+.r127-rescue-summary li + li {
+  margin-top: .35rem;
+  padding-top: .35rem;
+  border-top: 1px solid #775d4566;
+}

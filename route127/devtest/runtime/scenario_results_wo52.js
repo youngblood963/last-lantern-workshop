@@ -11,6 +11,7 @@
  const actionWord=/^(?:search|scavenge|salvage)\b/i;
  const combatStart=new WeakMap();
  let action=null,dialog=null;
+ let rescueDialog=null,gettingUp=false;
 
  function quantities(items){
   const counts=new Map();
@@ -47,9 +48,9 @@
   }
   return lines;
  }
- function showResult(title,heading,narrative,changes){
+ function showResult(title,heading,narrative,changes,rescue=false){
   const node=document.createElement('dialog');
-  node.className='r127-scenario-results';
+  node.className=rescue?'r127-scenario-results r127-rescue-summary':'r127-scenario-results';
   node.setAttribute('aria-labelledby','r127-scenario-title');
   const append=(parent,tag,text)=>{
    const child=document.createElement(tag);
@@ -66,11 +67,12 @@
    const list=append(node,'ul','');
    for(const line of changes)append(list,'li',line);
   }
-  const proceed=append(node,'button','Continue');
+  const proceed=append(node,'button',rescue?'Get Up':'Continue');
   proceed.type='button';
   function dismiss(){
    if(dialog!==node)return;
    dialog=null;
+   if(rescue)rescueDialog=null;
    window.removeEventListener('resize',position);
    window.removeEventListener('scroll',position,true);
    node.remove();
@@ -88,8 +90,13 @@
    node.style.setProperty('--r127-result-bottom',Math.max(12,window.innerHeight-rect.bottom+12)+'px');
    node.style.setProperty('--r127-result-center',(rect.left+rect.width/2)+'px');
   }
-  proceed.addEventListener('click',dismiss);
-  node.addEventListener('cancel',event=>{event.preventDefault();dismiss();});
+  proceed.addEventListener('click',rescue?async()=>{
+   if(busy||commandProcessing)return;
+   proceed.disabled=true;
+   try{await handleCommand('get up');}
+   finally{proceed.disabled=false;}
+  }:dismiss);
+  node.addEventListener('cancel',event=>{event.preventDefault();if(!rescue)dismiss();});
   node.addEventListener('close',dismiss);
   document.body.appendChild(node);
   try{
@@ -99,11 +106,33 @@
    throw error;
   }
   dialog=node;
+  if(rescue){
+   rescueDialog={summary:player.flags.rescueSummary,dismiss};
+   proceed.focus({preventScroll:true});
+   return;
+  }
   position();
   window.addEventListener('resize',position);
   window.addEventListener('scroll',position,true);
   proceed.focus({preventScroll:true});
  }
+
+ function scheduleRescue(){
+  Promise.resolve().then(()=>{
+   const summary=stage==='fallen'?player.flags.rescueSummary:null;
+   if(rescueDialog?.summary===summary)return;
+   rescueDialog?.dismiss();
+   if(!summary||dialog||typeof HTMLDialogElement==='undefined')return;
+   showResult('💀 YOU HAVE FALLEN','RESCUE SUMMARY',summary.narrative,rescueSummaryLines(summary),true);
+  }).catch(error=>console.error('[DEVTEST rescue summary] Could not display acknowledgment',error));
+ }
+
+ const previousLoad=loadGame;
+ loadGame=function(...args){
+  const result=previousLoad.apply(this,args);
+  scheduleRescue();
+  return result;
+ };
 
  const previousAdd=add;
  add=function(text='',cls=''){
@@ -133,6 +162,19 @@
 
  const previousCommand=handleCommand;
  handleCommand=async function(raw){
+  if(rescueDialog){
+   if(gettingUp||action||!['1','get up','get','continue'].includes(raw.trim().toLowerCase()))return;
+   gettingUp=true;
+   try{await previousCommand.call(this,'get up');}
+   finally{
+    gettingUp=false;
+    if(stage!=='fallen'){
+     delete player.flags.rescueSummary;
+     rescueDialog?.dismiss();
+    }
+   }
+   return;
+  }
   if(dialog||action)return;
   const combat=combatState;
   if(busy||(!encounterStages.has(stage)&&!roadCombat.has(combat?.source)))return previousCommand.apply(this,arguments);
@@ -156,6 +198,7 @@
    const meaningful=changes.length||current.quest.size||stage==='fallen'||(combat&&!withdrew);
    // Preserve the already-resolved road destination even when no panel is needed.
    v49Autosave();
+   if(stage==='fallen'&&player.flags.rescueSummary){scheduleRescue();return;}
    if(!meaningful)return;
    const heading=stage==='fallen'?'Defeated':
      withdrew?'Retreated':
@@ -174,6 +217,7 @@
   }
  };
  globalThis.Route127ScenarioResults=Object.freeze({
+  scheduleRescue,
   ownsCombat:()=>roadCombat.has(combatState?.source)||!!action?.completed||!!dialog
  });
 })();

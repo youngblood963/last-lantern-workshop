@@ -462,6 +462,7 @@ function tryNikoSecondChance(){
 }
 function handlePlayerDeath(){
   if(stage==="fallen") return;
+  delete player.flags.rescueSummary;
   if(tryNikoSecondChance())return;
   if(player.flags.r18HorseOwned){delete player.flags.r18HorseOwned;add('The horse runs off during your rescue.','system');}
   player.deathStreak=(player.deathStreak||0)+1;
@@ -473,29 +474,45 @@ function handlePlayerDeath(){
   // Remaining road segments are the minimum rescue travel cost; recovery adds two.
   const atHouse=stage==="house" || ["houseStorage","houseDeposit","houseWithdraw"].includes(stage) || (combatState&&combatState.source==="houseBoss");
   const travel=graphRescue?graphRescue.travel:atHouse ? (inTown?roadTripLength:0) : inTown ? (roadGoal==="house"?Math.max(0,roadTripLength-roadTurn):roadGoal==="mercy"?Math.max(0,roadTripLength-roadTurn):roadGoal==="east"?Math.max(0,roadTurn+1):0) : Math.max(0,roadTurn+1);
-  // Rescue travel can be long, but death costs at most 10 turns total,
-  // including the 2 recovery turns. The rescue destination is unchanged.
-  const penalty=Math.min(10,travel+2);
-  player.turns=Math.max(0,player.turns-penalty);
+  const turnsLost=Math.min(Math.max(0,player.turns),5,travel+2);
+  player.turns=Math.max(0,player.turns-turnsLost);
   dailyRoadTurns+=travel; // rescue travels the route; recovery itself is not a road turn
+  const hpAtDeath=player.hp;
   player.hp=Math.max(1,Math.round(player.maxHp*.5));
   // Rescue fee: 10% of carried Bolts, rounded up. Banked Bolts are untouched.
   const carriedBolts=Math.max(0,Math.floor(Number(player.bolts)||0));
   const rescueBoltsLost=Math.min(carriedBolts,Math.ceil(carriedBolts*.10));
   player.bolts=carriedBolts-rescueBoltsLost;
   if(combatState&&combatState.source==="jenBoss")player.flags.jenQuest="raiders";
+  const arrival=graphRescue?`Hours later, you wake in ${LG_NODES[graphRescue.node].name}.`:inTown?"Hours later, you wake on a cot in Solace.":"Hours later, you wake in the old house.";
+  const rescuer=jenGateRescue?"JEN > The gate guards were going to leave you out there. I brought you back myself. Don't make me do that twice.":"Someone dragged you back from the highway. They didn't do it for free.";
+  const summary=player.flags.rescueSummary={
+    narrative:["Your vision fades as the wasteland goes silent.",arrival,rescuer],
+    boltsLost:rescueBoltsLost,boltsRemaining:player.bolts,
+    hpAtDeath,hpRestored:player.hp-hpAtDeath,hpAfter:player.hp,maxHp:player.maxHp,
+    turnsLost,turnsRemaining:player.turns
+  };
   combatState=null; currentRoadWanderer=null; updateHud();
+  stage="fallen";
   add("YOU HAVE FALLEN","danger");
-  add("Your vision fades as the wasteland goes silent.");
-  add(graphRescue?`Hours later, you wake in ${LG_NODES[graphRescue.node].name}.`:inTown?"Hours later, you wake on a cot in Solace.":"Hours later, you wake in the old house.");
-  if(jenGateRescue)add("JEN > The gate guards were going to leave you out there. I brought you back myself. Don't make me do that twice.","bright");
-  else add("Someone dragged you back from the highway. They didn't do it for free.");
-  add(`RESCUE FEE — 10% OF CARRIED BOLTS: ${rescueBoltsLost} BOLTS LOST (${player.bolts} REMAINING)`, "danger");
-  add(`RESCUE TRAVEL: ${Math.min(travel,8)} TURNS   RECOVERY: 2 TURNS   TOTAL: ${penalty}${travel>8?" (10-TURN CAP)":""}`, "system");
-  add(`HP RESTORED: ${player.hp}/${player.maxHp}   EQUIPMENT AND QUEST ITEMS RETAINED`, "system");
-  stage="fallen"; add("(1) GET UP", "system");
+  summary.narrative.forEach((line,i)=>add(line,i===2&&jenGateRescue?"bright":""));
+  for(const line of rescueSummaryLines(summary))add(line,"system");
+  add("(1) GET UP", "system");
+  globalThis.Route127ScenarioResults?.scheduleRescue();
 }
-function hurt(n) { player.hp = Math.max(0, player.hp - n); updateHud(); resultLine(`-${n} HP`, "danger"); if(player.hp<=0) handlePlayerDeath(); }
+function rescueSummaryLines(summary){
+  return [
+    `Bolts lost: ${summary.boltsLost} · carried Bolts remaining: ${summary.boltsRemaining}`,
+    `HP at death: ${summary.hpAtDeath} · HP restored: ${summary.hpRestored} · HP after rescue: ${summary.hpAfter} / ${summary.maxHp}`,
+    `Turns lost: ${summary.turnsLost} · turns remaining: ${summary.turnsRemaining}`,
+    "Equipment: Retained · Quest items: Retained"
+  ];
+}
+function hurt(n) {
+  if(stage==="fallen")return;
+  player.hp=Math.max(0,player.hp-n);updateHud();resultLine(`-${n} HP`,"danger");
+  if(player.hp<=0)handlePlayerDeath();
+}
 function roadHazardDamage(raw) {
   // Fixed road-event injuries scale with the player's R17 base HP progression.
   // Combat retaliation uses its separate enemy-level formula; do not double-scale it.
@@ -1037,6 +1054,7 @@ function showMap(){
 }
 function serializablePlayer(){
   const copy=JSON.parse(JSON.stringify(player, (k,v)=>v instanceof Set?[...v]:v));
+  if(gameplayStageForSave()!=="fallen")delete copy.flags.rescueSummary;
   copy.encounterDone={};
   for(const [k,v] of Object.entries(player.encounterDone||{})) copy.encounterDone[k]=[...(v instanceof Set?v:new Set(v||[]))];
   return copy;
@@ -1117,6 +1135,7 @@ function loadGame(slot=activeSaveSlot){
   player.encounterDone={};
   for(const [k,v] of Object.entries((data.player&&data.player.encounterDone)||{})) player.encounterDone[k]=new Set(v||[]);
   stage=data.stage||"house";
+  if(stage!=="fallen")delete player.flags.rescueSummary;
   if(["confirmDrop","inventory","inventoryItem","quests","interfaceStatus","interfaceMap","interfaceSave","confirmSaveOverwrite","v49TitleConfirm"].includes(stage)) stage="between";
   returnStage=stage;
   day=data.day||1; wandererSerial=data.wandererSerial||0; serviceRoadDepth=data.serviceRoadDepth||0; roadTurn=data.roadTurn||0; dailyRoadTurns=Number(data.dailyRoadTurns)||0; roadTurnCharged=!!data.roadTurnCharged; roadGoal=data.roadGoal||"mercy"; roadTripLength=roadGoal==="east"?6:Math.max(8,data.roadTripLength||8); if(roadTurn>=roadTripLength && stage!=="eastEnd") roadTurn=Math.max(0,roadTripLength-1);

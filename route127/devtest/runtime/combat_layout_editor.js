@@ -194,6 +194,7 @@
  };
  function defaults(row,index,total,background){
   if(background)return {x:50,y:50,width:100,height:100,scale:1,z:1,flip:false};
+  if(row.regionalSprites)return {x:(index+.5)*100/total,y:55,width:total===1?54:100/total,height:78,scale:1,z:2,flip:false};
   const [x,y,width,height,scale=1,flip=false,z=2]=defaultPlaces[row.title]?.[index]||
    [(index+1)*100/(total+1),55,total===1?54:Math.min(38,95/total),82];
   return {x,y,width,height,scale,z,flip};
@@ -222,6 +223,7 @@
  .r127-layout-editor .layout-unit img{width:100%;height:100%;min-height:0;object-fit:contain;object-position:center bottom;pointer-events:none}
  .r127-layout-editor .layout-unit span{font-size:11px;white-space:nowrap;background:#421714;border:1px solid #b25044;padding:2px 4px;pointer-events:none}
  .r127-layout-editor .layout-unit.layout-scene-image img{flex:none;object-fit:contain;object-position:center}
+ .r127-layout-editor .layout-scene-image img:is([src*="/quicksand_cut.gif"],[src*="/river_of_fire.gif"]){object-fit:cover;object-position:right bottom}
  .r127-layout-editor .layout-unit.layout-scene-image img:is([src*="shipwreck_scavengers.png"],[src*="toxic_cargo.png"]){width:100%;height:100%;object-fit:contain!important;object-position:center center!important}
  .r127-layout-editor .layout-stage[data-preview=true] .layout-unit{outline:none;pointer-events:none}
  .r127-layout-editor .layout-empty{position:absolute;inset:auto 0 0;background:#130e09dd;padding:8px;text-align:center}
@@ -389,6 +391,7 @@
    backdrop.value=row.id==='scripted:crazy-steve'?'none':
      row.title==='THE BURIED FREIGHT'?'road':
      (uploadedSprites.has(row.title)||['SHIPWRECK SCAVENGERS','LEAKING FREIGHT TANK'].includes(row.title))?'sky':(sceneLayers.get(row.id)||'none');
+   if(row.regionalSprites)backdrop.value='sky';
    changePhase();
   }
   function changePhase(){
@@ -400,6 +403,7 @@
   function loadDraft(){
    if(!row)return;
    spec=variant.value===''?null:row.variants[Number(variant.value)];
+   if(spec?.composition)backdrop.value=spec.composition;
    const records=(spec?.units||[]).map(descriptor);
    if(spec?.background)records.unshift({path:spec.background,key:'background:'+L.assetName(spec.background),background:true});
    const context={id:row.id,phase:phase.value},live=L.capture(context,device.value),saved=L.get(row.id,phase.value,device.value);
@@ -433,7 +437,7 @@
    bg.src=bridge?new URL('sky_'+(skyTime.value==='dusk'?'dawn':skyTime.value)+'.png',regionalRoot).href:
     layers==='none'?new URL(L.regionArt(background.value),L.root).href:
     new URL('sky_'+(skyTime.value==='dusk'?'dawn':skyTime.value)+'.png',regionalRoot).href;
-   const standalone=row?.fullCinematic&&!!spec?.background&&layers==='none';
+   const standalone=(row?.fullCinematic||spec?.composition==='none')&&!!spec?.background&&layers==='none';
    canvas.replaceChildren(...(standalone?[]:[bg]));
    if(bridge&&!standalone){
     const causeway=el('img');causeway.className='layout-causeway-ground';causeway.alt='';
@@ -444,7 +448,7 @@
    // these owner-provided enemy sprites; do not show only an empty sky.
    const uploadedRegional=new Set(['HARBOR SECURITY DRONE','FLOODLIGHT SWEEP',
      'DOCKSIDE PIRATES','SEAWALL SNIPER','CARGO HIJACKERS','SCRAP CRAB NEST']);
-   const showRegional=layers==='sky'&&row&&uploadedRegional.has(row.title);
+   const showRegional=layers==='sky'&&row&&(row.regionalSprites||uploadedRegional.has(row.title));
    if(showRegional){
     const regionArt=globalThis.Route127EditorSky?.describe(background.value,
      {dawn:6,day:12,dusk:18,night:22}[skyTime.value]);

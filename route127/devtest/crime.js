@@ -14,7 +14,7 @@ function r18BribeConfirm(lawman){const f=player.flags,c=v52Crime(),p=f.r18BribeP
 function r18BribeCancel(){delete player.flags.r18BribePending;add('You withdraw the offer. No Bolts were spent.','system');}
 function r18LegalFine(lawman){const c=v52Crime();if(!c.bounty){add('Your record is clear.','system');return false;}const price=c.bounty;if(player.bolts<price){add('Clearing the bounty costs '+price+' Bolts.','system');return false;}player.bolts-=price;c.bounty=0;c.active=[];delete player.flags.r18BribePending;updateHud();add(lawman+' accepts '+price+' Bolts. Your bounty is cleared.','reward');return true;}
 function v52ItemType(name){return GEAR[name]?.type||(['Bandage','Energy Bars','Clean Water','Reinforced Bandage','Emergency Trauma Kit'].includes(name)?'consumable':name==='Tent'?'supply':name==='Battered Flashlight'?'tool':'material');}
-function v52CrimeLocation(){const names={town:'Main Street',jen:'The Rusty Lantern Tavern',jenTalk:'The Rusty Lantern Tavern',johnny:"Johnny's Trading Post",murphy:"Murphy's Motor Works",wayne:'Last Chance Clinic',amii:'Solace Savings & Loan',mara:'Scrap & Steel Armory',tim:'Tim',gate:'West Gate',eastGate:'East Gate',relay:'Relay Station'};return 'Solace — '+(names[mercyLocation]||mercyLocation);}
+function v52CrimeLocation(){if(stage==='wandererRoad'||combatState?.source==='roadWanderer'){const e=typeof lanternEdge==='function'?lanternEdge():null;if(e)return 'Route 127 — '+(LG_NODES[e.a]?.name||e.a)+' / '+(LG_NODES[e.b]?.name||e.b);return 'Route 127 — open road';}const names={town:'Main Street',jen:'The Rusty Lantern Tavern',jenTalk:'The Rusty Lantern Tavern',johnny:"Johnny's Trading Post",murphy:"Murphy's Motor Works",wayne:'Last Chance Clinic',amii:'Solace Savings & Loan',mara:'Scrap & Steel Armory',tim:'Tim',gate:'West Gate',eastGate:'East Gate',relay:'Relay Station'};return 'Solace — '+(names[mercyLocation]||mercyLocation);}
 function v52Inventory(w){
  const p=v50Profile(w);let inv=p.v52Inventory;
  if(!inv){inv=p.v52Inventory={bolts:4+p.level*3+Math.floor(Math.random()*12),items:(p.stock||[]).map(x=>({...x,type:v52ItemType(x.name),trade:true})),version:2};}
@@ -85,6 +85,16 @@ const v52OldStartCombat=startCombat;startCombat=function(spec,source,townCost,op
   const w=wandererByName(spec.name);if(w){combatState.v52CrimeLocation=v52CrimeLocation();combatState.v52AssaultRecorded=true;v52Record('Assault',w.name,`Attacked ${w.name} at ${combatState.v52CrimeLocation}`,Math.max(20,w.level*12));}
  }
 };
+// Roadside assault is reported only if the player retreats from a living wanderer.
+function v52ReportRoadAssault(c){
+ if(c?.source!=='roadWanderer'||c.hp<=0||c.v52AssaultRecorded)return false;
+ const w=wandererByName(c.name);if(!w||!wandererAlive(w))return false;
+ c.v52AssaultRecorded=true;
+ const location=v52CrimeLocation();
+ add(w.name+' watches you retreat. "The marshal will hear about this!"','danger');
+ v52Record('Assault',w.name,'Attacked '+w.name+' at '+location,Math.max(20,w.level*12));
+ return true;
+}
 let v52CombatContext=null;
 const v52OldHandleCombat=handleCombat;handleCombat=function(cmd){const previous=v52CombatContext;v52CombatContext=combatState;try{return v52OldHandleCombat(cmd);}finally{v52CombatContext=previous;delete player.flags.v52TownFightTarget;}};
 const v52OldWandererLoot=v50WandererLoot;v50WandererLoot=function(name){

@@ -17,7 +17,7 @@
   (northernRuntimeAssets.has(path)?'northern-layout-registry-20261120':'wo27-art-fit');
  const status=new Map();
  const reviewKey='route127-scenario-reviews-v1';
- const animatedTitles=new Set(['THE LIME FOG','THE RED RAIN','THE GLASS FIELD']);
+ const animatedTitles=new Set(['THE LIME FOG','THE RED RAIN','THE GLASS FIELD','THE TAR POOL']);
  // Owner confirmed these Seaport-eligible scenes are complete in Combat Visual Testing.
  const ownerApprovedScenes=new Set(['THE FORGOTTEN ARENA','THE FIGHTING RING']);
  const ownerApproved=row=>ownerApprovedScenes.has(String(row.title||'').toUpperCase())||ownerApprovedScenes.has(String(row.name||'').toUpperCase());
@@ -137,6 +137,13 @@
     for(const row of L.rows.values())if(ownerIndustrialDone(row)||['early:186','east:7'].includes(row.id))reviews.add(row.id);
     localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
     localStorage.setItem(liveWiresFurnaceSeed,'1');
+   }
+   // Owner-approved procedural Tar Pool; seed once, preserving later review toggles.
+   const tarSeed=reviewKey+'-tar-pool-approved-20261121';
+   if(!localStorage.getItem(tarSeed)){
+    for(const row of L.rows.values())if(row.id==='east:31')reviews.add(row.id);
+    localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
+    localStorage.setItem(tarSeed,'1');
    }
    return reviews;
   }catch{return new Set();}

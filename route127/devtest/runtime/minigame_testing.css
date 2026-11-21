@@ -38,20 +38,54 @@
   line-height: 0;
   background: #201711;
 }
-.minigame-target img {
+.minigame-scrap-background {
   display: block;
   width: 100%;
   height: auto;
+  aspect-ratio: 1250 / 704;
 }
 .minigame-hubcap {
   position: absolute;
-  width: 11%;
-  padding-top: 7.8%;
+  width: 9%;
+  aspect-ratio: 1;
   transform: translate(-50%, -50%);
   pointer-events: none;
-  /* Crop the existing hand-held hubcap from the scene and trim the hand. */
-  background: url('../assets/scenarios/the_scrap_duel.png') 2.81% 23.26% / 800% 714% no-repeat;
-  clip-path: polygon(0 79%, 13% 63%, 9% 53%, 24% 45%, 20% 32%, 36% 29%, 42% 19%, 49% 21%, 58% 5%, 62% 16%, 79% 5%, 78% 14%, 90% 9%, 88% 20%, 99% 16%, 94% 29%, 100% 35%, 94% 44%, 99% 52%, 91% 60%, 98% 70%, 83% 73%, 85% 84%, 70% 83%, 72% 99%, 59% 93%, 45% 100%, 38% 90%, 26% 82%, 15% 85%, 9% 91%, 11% 79%);
+  background: center / contain no-repeat;
+}
+.minigame-hubcap-flight {
+  background-image: url('../assets/minigames/scrap-duel/flight.webp');
+}
+.minigame-hubcap-embedded {
+  width: 6.3%;
+  aspect-ratio: 170 / 111;
+  background: bottom center / 100% auto no-repeat url('../assets/minigames/scrap-duel/embedded.webp');
+  transform: translate(-50%, -100%);
+  filter: drop-shadow(1px 1px 1px #190c06);
+  animation: minigame-hubcap-strike 160ms ease-out;
+}
+.minigame-hubcap-embedded::after {
+  content: '';
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  bottom: -3%;
+  height: 13%;
+  border-radius: 50%;
+  background: #150c08a8;
+  z-index: -1;
+}
+.minigame-hubcap-ground {
+  width: 8%;
+  aspect-ratio: 170 / 69;
+  background-image: url('../assets/minigames/scrap-duel/ground.webp');
+  filter: drop-shadow(1px 2px 1px #190c06);
+}
+@keyframes minigame-hubcap-strike {
+  20% { transform: translate(-50%, -100%) rotate(5deg); }
+  55% { transform: translate(-50%, -100%) rotate(-3deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .minigame-hubcap-embedded { animation: none; }
 }
 .minigame-meter {
   width: min(90%, 380px);

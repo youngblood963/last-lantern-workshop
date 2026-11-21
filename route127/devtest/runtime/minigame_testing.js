@@ -3,7 +3,7 @@
 'use strict';
 if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
 
-const art='../devtest/assets/scenarios/the_scrap_duel.png';
+const scrapArt='../devtest/assets/minigames/scrap-duel/';
 const games=[
  {title:'Cemetery of Tires',status:'Existing',mount:mountMaze},
  {title:'Scrap Duel',status:'New',mount:mountScrapDuel}
@@ -193,10 +193,28 @@ function mountMaze(body,started){
  render('Find a path to the crate.');
 }
 
+// Positions and radii are percentages of the uncropped image. The three
+// painted circles are foreshortened into ellipses on the side of the truck.
+const scrapTargets={
+ 10:[45.7,28.7,5.2,11.6],
+ 25:[58.8,27.2,6.2,12.7],
+ 50:[75.5,25.3,8.3,15.5]
+};
+function scrapLanding(score){
+ // Use separate visual randomness so impacts never consume gameplay rolls.
+ const [a,b]=crypto.getRandomValues(new Uint32Array(2));
+ const u=a/2**32,v=b/2**32;
+ if(score===0)return [35+21*u,70+15*v];
+ const [x,y,rx,ry]=scrapTargets[score];
+ const angle=2*Math.PI*u,radius=Math.sqrt(v);
+ return [x+rx*radius*Math.cos(angle),y+ry*radius*Math.sin(angle)];
+}
+
 function mountScrapDuel(body,started){
  const scene=element('div',null,'minigame-target');
  const truck=element('img');
- truck.src=art;
+ truck.className='minigame-scrap-background';
+ truck.src=scrapArt+'truck.webp';
  truck.alt='Scrap Duel truck with 10, 25 and 50-point targets';
  scene.append(truck);
  body.append(scene);
@@ -264,14 +282,17 @@ function mountScrapDuel(body,started){
   const score=timedScore(performance.now()-began);
   stopAim();
   scores.push(score);
-  projectile=element('span',null,'minigame-hubcap');
+  projectile=element('span',null,'minigame-hubcap minigame-hubcap-flight');
   projectile.setAttribute('aria-hidden','true');
-  // Measured against the uncropped truck image.
-  const [x,y]={0:[83,54],10:[45.7,28.7],25:[58.8,27.2],50:[75.5,25.3]}[score];
+   const [x,y]=scrapLanding(score);
   projectile.style.left=x+'%';
   projectile.style.top=y+'%';
   scene.append(projectile);
+  const showContact=()=>{
+   projectile.className='minigame-hubcap '+(score===0?'minigame-hubcap-ground':'minigame-hubcap-embedded');
+  };
   const landed=()=>{
+   showContact();
    const result=score===50?'BULLSEYE! 50 points.':score===0?'MISS — 0 points.':score+' points.';
    if(scores.length===THROW_COUNT){
     const margin=totalScore(scores)-totalScore(champion);
@@ -286,8 +307,8 @@ function mountScrapDuel(body,started){
   const motion=typeof projectile.animate==='function'&&!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   if(motion){
    projectile.animate([
-    {transform:'translate(-350%, 230%) rotate(-420deg) scale(1.55)'},
-    {transform:'translate(-50%, -50%) rotate(0) scale(1)'}
+    {left:'14%',top:'32%',transform:'translate(-50%, -50%) rotate(-360deg) scale(1.35)'},
+    {left:x+'%',top:y+'%',transform:'translate(-50%, -50%) rotate(0) scale(.8)'}
    ],{duration:540,easing:'cubic-bezier(.2,.65,.25,1)'});
    impact=setTimeout(landed,540);
   }else landed();
@@ -296,6 +317,7 @@ function mountScrapDuel(body,started){
   if(!document.hidden||scores.length===THROW_COUNT)return;
   stopAim();
   clearTimeout(impact);
+  projectile?.remove();
   aim.hidden=true;
   while(scores.length<THROW_COUNT)scores.push(0);
   finish('Aim interrupted — remaining throws forfeited. THE CHAMPION WINS.');

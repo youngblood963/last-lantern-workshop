@@ -317,5 +317,5 @@ function artTarget(){
  return id&&id!==billy.id?roster.get(id):null;
 }
 window.addEventListener('keydown',event=>{if(dialog?.open)event.stopImmediatePropagation();},true);
-globalThis.DailyBounties={artTarget,preview:()=>open('preview'),quote,roster:()=>[...roster.values()]};
+globalThis.DailyBounties={openBoard(onClose){open('board');dialog.addEventListener('close',onClose,{once:true});},artTarget,preview:()=>open('preview'),quote,roster:()=>[...roster.values()]};
 })();

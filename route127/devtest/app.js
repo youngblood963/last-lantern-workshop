@@ -2380,7 +2380,7 @@ function isPathChoice(e,key){
   if(e.title==='BROKEN RADIO'||e.title==='SCRATCHING IN THE SHED'||e.title==='THE LIMPING HOUND')return false;
   if(e.title==='COUNTY WORK TRUCK')return ['GIVE WORKER A BANDAGE','HELP WORKER TO SAFETY','LEAVE WORKER','MOVE ON'].includes(key);
   if(e.title==='CEMETERY OF TIRES')return key==='LEAVE MAZE';
-  if(e.title==='THE SCRAP DUEL')return ['BACK AWAY','CHALLENGE CHAMPION'].includes(key);
+  if(e.title==='THE SCRAP DUEL')return key==='BACK AWAY';
   if(e.title==='THE MASK MARKET')return key==='LEAVE MARKET';
   if(e.title==='BROKEN MOTEL')return !['TALK TO HARLAN','INSPECT OFFICE 204','ASK FOR SIGNED CLEARANCE'].includes(key);
   if(e.title==='THE OIL DERRICK')return !['QUESTION HARLAN','QUESTION SARAH','EXAMINE THE NOTEBOOK'].includes(key);

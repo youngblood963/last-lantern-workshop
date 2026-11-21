@@ -19,7 +19,7 @@ const source=fs.readFileSync(path.resolve(__dirname,'../runtime/minigame_testing
 vm.runInContext(source.replace(/\}\)\(\);\s*$/,'globalThis.sample=scrapLanding;})();'),context);
 const targets={10:[45.7,28.7,5.2,11.6],25:[58.8,27.2,6.2,12.7],50:[75.5,25.3,8.3,15.5]};
 const boxes={
- ground:[[35,56,70,85]],truck:[[37,37.6,22,44],[86.6,89,12,16]],crate:[[65,81,84,94]]
+ ground:[[35,56,70,85]],truck:[[37,37.6,22,44],[86.6,89,12,16]],crate:[[65,81,84,94]],champion:[[89,92,32,38]]
 };
 const inside=({x,y},[cx,cy,rx,ry])=>((x-cx)/rx)**2+((y-cy)/ry)**2<=1;
 
@@ -44,15 +44,15 @@ for(const [score,bounds] of Object.entries(targets)){
  assert(nearCenter&&nearEdge);
 }
 
-const counts={ground:0,truck:0,crate:0};
+const counts={ground:0,truck:0,crate:0,champion:0};
 const missPoints=new Set();
 let previous;
 for(let i=0;i<1500;i++){
  const point=context.sample(0,previous);
  const {x,y,surface}=point;
  assert(boxes[surface].some(([left,right,top,bottom])=>x>=left&&x<=right&&y>=top&&y<=bottom));
- const width={ground:8,truck:3.7,crate:5.4}[surface];
- const height=width*1250/704/(surface==='ground'?170/69:170/111);
+ const width={ground:8,truck:3.7,crate:5.4,champion:6}[surface];
+ const height=width*1250/704/(surface==='ground'?170/69:surface==='champion'?1:170/111);
  const halfWidth=width/2+.25; // allow for the short impact wobble
  const top=y-(surface==='ground'?height/2:height)-.25;
  const bottom=y+(surface==='ground'?height/2:0)+.25;
@@ -65,5 +65,8 @@ for(let i=0;i<1500;i++){
  previous=point;
 }
 assert.equal(missPoints.size,1500);
-assert(Object.values(counts).every(count=>count>=400&&count<=600));
+assert(counts.champion>=110&&counts.champion<=190);
+assert([counts.ground,counts.truck,counts.crate].every(count=>count>=385&&count<=515));
+assert.equal(context.sample(0,undefined,true).surface,'champion');
+for(const score of [10,25,50])assert.equal(context.sample(score,undefined,true).surface,'target');
 console.log('PASS 250 varied impacts per scoring target and 1,500 misses',counts);

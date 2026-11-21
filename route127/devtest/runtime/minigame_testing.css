@@ -114,8 +114,8 @@
 
 .tire-yard {
   position: relative;
-  width: min(100%, 54vh, 540px);
-  width: min(100%, 54dvh, 540px);
+  width: min(100%, 62vh, 620px);
+  width: min(100%, 62dvh, 620px);
   aspect-ratio: 1;
   box-sizing: border-box;
   background: #292822 url('../assets/minigames/tire-yard/scrapyard.webp') center / cover no-repeat;

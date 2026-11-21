@@ -1,21 +1,9 @@
-function r18RenderMazeBoard(board,q){
-  const grid=R18_MAZES[q.variant];
-  board.style.setProperty('--tire-grid-size',grid[0].length);
-  const cells=grid.flatMap((row,y)=>Array.from(row,(tile,x)=>{
-   const playerHere=x===q.x&&y===q.y;
-   const cell=document.createElement('span');
-   cell.textContent=playerHere?'●':tile==='G'?'◆':'';
-   cell.className=playerHere?'tire-player':tile==='#'?'tire-wall':tile==='G'?'tire-goal':'tire-path';
-   return cell;
-  }));
-  board.replaceChildren(...cells);
-}
 /* DEVTEST graphical surface for the existing Cemetery of Tires encounter. */
 (()=>{
  'use strict';
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
  const classicControls=r18MazeControls;
- let dialog,board,status,movement,tire;
+ let dialog,slot,status,movement,tire,detachArt;
  let lastStep,lastHp;
  function make(tag,text){
   const node=document.createElement(tag);
@@ -30,14 +18,16 @@ function r18RenderMazeBoard(board,q){
  }
  function close(){
   if(dialog?.open)dialog.close();
+  detachArt?.();
+  detachArt=null;
   lastStep=lastHp=undefined;
  }
  function build(){
-  dialog=make('dialog');dialog.className='r127-tire-maze';
+  dialog=make('dialog');dialog.className='r127-tire-maze r127-minigame-testing';
   dialog.setAttribute('aria-labelledby','r127-tire-maze-title');
   const title=make('h2','Cemetery of Tires');title.id='r127-tire-maze-title';
   const instructions=make('p','Reach the salvage crate. Avoid the tire walls. Use the direction buttons, arrow keys, or WASD.');
-  board=make('div');board.className='tire-board';board.setAttribute('aria-hidden','true');
+  slot=make('div');slot.className='minigame-art-slot';
   status=make('p');status.setAttribute('role','status');
   movement=make('div');movement.className='tire-controls';
   for(const direction of ['up','left','down','right']){
@@ -50,7 +40,13 @@ function r18RenderMazeBoard(board,q){
   const leaveMaze=()=>{if(!busy&&!commandProcessing)handleCommand('leave maze');};
   footer.append(tire,button('Leave Maze',()=>leaveMaze()));
   dialog.addEventListener('cancel',event=>{event.preventDefault();leaveMaze();});
-  dialog.append(title,instructions,board,status,movement,footer);
+  const content=make('div');content.className='minigame-content minigame-content-play';
+  const game=make('div');game.className='minigame-game minigame-game-active';
+  const panel=make('div');panel.className='minigame-hud';
+  panel.append(status,movement,instructions);
+  game.append(slot,panel);
+  content.append(game,footer);
+  dialog.append(title,content);
   document.body.append(dialog);
  }
  r18MazeControls=function(){
@@ -63,13 +59,19 @@ function r18RenderMazeBoard(board,q){
   const q=r18MazeScene();
   if(!q.started){close();return;}
   if(!dialog)build();
-  r18RenderMazeBoard(board,q);
+  const {board,survivor,crate}=Route127MinigameTesting.createTireYard(R18_MAZES[q.variant]);
+  survivor.style.gridArea=(q.y+1)+' / '+(q.x+1);
+  crate.hidden=q.finished;
+  slot.replaceChildren(board);
   const hit=lastStep!==undefined&&q.step!==lastStep&&player.hp<lastHp;
   status.textContent=(q.finished?'Crate reached. ':hit?'You hit a tire wall. ':'')+
    'HP '+player.hp+' / '+player.maxHp+' · Row '+(q.y+1)+', column '+(q.x+1);
   lastStep=q.step;lastHp=player.hp;
   movement.hidden=q.finished;
   tire.hidden=!encounterChoices(encounter).includes('RECOVER SUITABLE TIRE');
-  if(!dialog.open)dialog.showModal();
+  if(!dialog.open){
+   dialog.showModal();
+   detachArt=Route127MinigameTesting.fitArt(slot,1);
+  }
  };
 })();

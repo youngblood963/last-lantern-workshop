@@ -1,6 +1,16 @@
 // v48: targeted presentation and inventory/banking polish; no crafting/workshops.
 const V48_BACKPACK_PRICE=450;
-const V48_LOOT_PRICES={'Old World Pocket Compass':30,'Scrap Metal':4,Wire:3,Rope:3,Cloth:2,Fuel:4,Electronics:5,Chemicals:4,'Battered Flashlight':5,'Energy Bars':2,'Clean Water':3,'Wild Honey':6,'Pre-War Silver Coin':25,'Old Family Pocket Watch':20,'Family Photograph':10,'Rust Parade Medal':10,'Art Lantern':10,'Raw Wolf Meat':3,'Raw Rabbit Meat':2,'Animal Bones':2,'Raw Rat Meat':2,'Raw Bird Meat':2,'Raw Venison':3,'Raw Boar Meat':3,'Raw Chicken Meat':2,'Raw Snake Meat':2,'Large Animal Bones':3,'Small Animal Bones':1,'Fresh Carrot':2,'Fresh Potato':2,'Fresh Apple':2,'Preserved Vegetables':5,Bandage:3,Tent:3};
+const OLD_WORLD_TREASURES=Object.freeze({
+ 'Family Photograph':{ordinary:15,martha:60,reaction:'Look at those faces. They had no idea what was coming. I hope they had some good years together.'},
+ 'Rust Parade Medal':{ordinary:25,martha:100,reaction:"People used to hand these out for a day's celebration. Imagine having enough peace to organize a parade."},
+ "Child's Bus Drawing":{ordinary:10,martha:75,reaction:'Somebody thought this was worth saving. I suppose that makes it worth saving again.'},
+ 'Old Transit Token':{ordinary:30,martha:125,reaction:'Back when you could put one of these in a machine and trust somebody would take you where you needed to go.'},
+ "Vintage Bus Driver's Badge":{ordinary:50,martha:200,reaction:'My father drove that route. He used to polish his badge before every shift.'},
+ 'Old Family Pocket Watch':{ordinary:75,martha:300,reaction:'Look at that craftsmanship. Somebody wanted this to last long enough to pass down.'},
+ 'Art Lantern':{ordinary:100,martha:400,reaction:'People used to make things beautiful just because they could. Not everything had to help you survive.'},
+ 'Pre-War Silver Coin':{ordinary:125,martha:500,reaction:'Real silver. People collected these long before the world fell apart. Funny how some things never stop being valuable.'},
+});
+const V48_LOOT_PRICES={...Object.fromEntries(Object.entries(OLD_WORLD_TREASURES).map(([name,price])=>[name,price.ordinary])),'Old World Pocket Compass':30,'Scrap Metal':4,Wire:3,Rope:3,Cloth:2,Fuel:4,Electronics:5,Chemicals:4,'Battered Flashlight':5,'Energy Bars':2,'Clean Water':3,'Wild Honey':6,'Raw Wolf Meat':3,'Raw Rabbit Meat':2,'Animal Bones':2,'Raw Rat Meat':2,'Raw Bird Meat':2,'Raw Venison':3,'Raw Boar Meat':3,'Raw Chicken Meat':2,'Raw Snake Meat':2,'Large Animal Bones':3,'Small Animal Bones':1,'Fresh Carrot':2,'Fresh Potato':2,'Fresh Apple':2,'Preserved Vegetables':5,Bandage:3,Tent:3};
 function v48Visits(){return player.flags.v48Visits||(player.flags.v48Visits={});}
 function v48Intro(key,lines,returnText='',entered=false){const visits=v48Visits();if(!visits[key]){visits[key]=true;for(const [text,cls]of lines)add(text,cls||'')}else if(entered&&returnText)add(returnText);}
 function v48NpcIntro(key,text,state='',updated=false){const visits=v48Visits(),id='npc_'+key;let first=!visits[id],changed=visits[id]!==state;if(first||changed&&updated){visits[id]=state||'visited';add(text)} }

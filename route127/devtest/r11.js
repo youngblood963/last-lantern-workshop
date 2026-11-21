@@ -95,7 +95,6 @@ Object.assign(R6_TIMES,R11_TIMES);
 if(!GEAR['Bone Tomahawk'])Object.defineProperty(GEAR,'Bone Tomahawk',{value:{type:'weapon',rarity:'uncommon',min:9,max:15,subtype:'hatchet'},enumerable:false});
 if(!GEAR['Bone Armor'])Object.defineProperty(GEAR,'Bone Armor',{value:{type:'armor',rarity:'rare',def:6},enumerable:false});
 // Rare crafting material is non-enumerable so equipment and vendor pools stay unchanged.
-if(!GEAR['Tempered Steel'])Object.defineProperty(GEAR,'Tempered Steel',{value:{type:'material',rarity:'rare'},enumerable:false});
 // Recipe display metadata is separate from the existing level-qualified catalog items.
 if(!GEAR.Widowmaker)Object.defineProperty(GEAR,'Widowmaker',{value:{type:'weapon',rarity:'epic',subtype:'rifle'},enumerable:false});
 Object.assign(CRAFT_RECIPES,{

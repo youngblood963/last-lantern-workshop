@@ -78,14 +78,36 @@ const v53OldShow=showWanderer;showWanderer=function(w,context){v53RenderingWande
 function v53TimMenu(){mercyLocation='tim';townWandererFocus=null;player.flags.solaceMenu='tim53';add('TIM — SOLACE','place');v53Choices(['TALK TIM',...(r18CourierEligible('tim')?['DELIVER TIM LETTER']:[]),...(player.flags.r18ClaraMet&&player.flags.r18DanielQuest!=='done'?['ASK ABOUT DANIEL']:[]),...(v52Crime().bounty>0?['PAY FINE','OFFER BRIBE']:[]),...(player.flags.r18BribePending?.lawman==='Tim'?['CONFIRM BRIBE','CANCEL BRIBE']:[]),'INSPECT TIM','TOWN']);}
 // Martha buys one identified carried valuable per confirmed transaction.
 function r18MarthaEligible(i){return !!i&&i.type==='valuable'&&v48Ordinary(i)&&!i.unique&&!i.protected&&!protectedUniqueEquipment(i.name)&&v48SellPrice(i)>0;}
-function r18MarthaPrice(i){return ({'Old World Pocket Compass':35,'Old Transit Token':25,"Vintage Bus Driver's Badge":35})[i.name]||v48SellPrice(i)*2;}
-function r18MarthaMenu(){mercyLocation='johnny';player.flags.solaceMenu='marthaCounter';add('MARTHA — OLD WORLD COUNTER','place');const q=player.flags.r18MarthaSale;if(q){add('Sell '+q.name+(q.stolen?' (stolen)':'')+' for '+q.price+' Bolts?','system');v53Choices(['CONFIRM MARTHA SALE','CANCEL MARTHA SALE']);return;}const seen=new Set(),options=[];for(const i of player.pack.filter(r18MarthaEligible)){const k=i.name+'|'+!!i.stolen;if(seen.has(k))continue;seen.add(k);options.push('SELL MARTHA '+i.name.toUpperCase()+(i.stolen?' (STOLEN)':''));}v53Choices(options.concat(['RETURN TO JOHNNY']));}
+function r18MarthaPrice(i){return i.name==='Old World Pocket Compass'?35:OLD_WORLD_TREASURES[i.name]?.martha??v48SellPrice(i)*2;}
+function r18MarthaMenu(entering=false){
+ mercyLocation='johnny';
+ const flags=player.flags;
+ flags.solaceMenu='marthaCounter';
+ add('MARTHA — OLD WORLD COUNTER','place');
+ if(!flags.r18MarthaCounterIntroduced){
+  flags.r18MarthaCounterIntroduced=true;
+  add("MARTHA > Johnny buys things he can sell again. Me? I buy pieces of the world we lost.",'bright');
+  add("Old coins, photographs, jewelry, keepsakes. Things people once treasured.",'bright');
+  add("Bring them to me before selling them to an ordinary merchant. I pay considerably more for the right pieces.",'bright');
+  v49Autosave();
+ }else if(entering){
+  add("MARTHA > Find anything interesting out there? Let's see what the Old World left behind.",'bright');
+ }
+ const q=flags.r18MarthaSale;
+ if(q){
+  add('Sell '+q.name+(q.stolen?' (stolen)':'')+' for '+q.price+' Bolts?','system');
+  v53Choices(['CONFIRM MARTHA SALE','CANCEL MARTHA SALE']);return;
+ }
+ const options=player.pack.filter(r18MarthaEligible).map(i=>
+  'SELL '+i.name.toUpperCase()+(i.stolen?' (STOLEN)':'')+' — '+r18MarthaPrice(i)+' BOLTS');
+ v53Choices([...new Set(options),'RETURN TO JOHNNY']);
+}
 function r18MarthaCommand(cmd){if(mercyLocation!=='johnny'||player.flags.solaceMenu!=='marthaCounter'||!player.flags.r18MarthaSettled)return false;const f=player.flags;
  if(['return to johnny','back','b'].includes(cmd)){delete f.r18MarthaSale;johnnyMainMenu();return true;}
  if(cmd==='cancel martha sale'){delete f.r18MarthaSale;r18MarthaMenu();return true;}
- if(cmd.startsWith('sell martha ')){const raw=cmd.slice(12),stolen=raw.endsWith(' (stolen)'),name=stolen?raw.slice(0,-9):raw;const item=player.pack.find(i=>i.name.toLowerCase()===name&&!!i.stolen===stolen&&r18MarthaEligible(i));if(!item){add('That valuable is unavailable or protected. Nothing sold.','system');r18MarthaMenu();return true;}f.r18MarthaSale={name:item.name,stolen,price:r18MarthaPrice(item)};r18MarthaMenu();return true;}
+ if(cmd.startsWith('sell ')){const raw=cmd.replace(/^sell (?:martha )?/,'').replace(/ — \d+ bolts$/,''),stolen=raw.endsWith(' (stolen)'),name=stolen?raw.slice(0,-9):raw;const item=player.pack.find(i=>i.name.toLowerCase()===name&&!!i.stolen===stolen&&r18MarthaEligible(i));if(!item){add('That valuable is unavailable or protected. Nothing sold.','system');r18MarthaMenu();return true;}f.r18MarthaSale={name:item.name,stolen,price:r18MarthaPrice(item)};r18MarthaMenu();return true;}
  if(cmd==='confirm martha sale'){const q=f.r18MarthaSale,i=q&&player.pack.find(i=>i.name===q.name&&!!i.stolen===q.stolen&&r18MarthaEligible(i));if(!i||r18MarthaPrice(i)!==q.price||!Number.isSafeInteger(player.bolts+q.price)){delete f.r18MarthaSale;add('The item or price changed. Nothing sold.','system');r18MarthaMenu();return true;}if(q.stolen){const fday=Number(day)||1,next=Number(f.r18CrimeCooldowns?.sellStolen)||0;if(fday<next){delete f.r18MarthaSale;add('Another stolen-goods sale attempt is unavailable until day '+next+'. Nothing sold.','system');r18MarthaMenu();return true;}if(Math.random()<.2){(f.r18CrimeCooldowns||(f.r18CrimeCooldowns={})).sellStolen=fday+3;delete f.r18MarthaSale;v52Record('Selling Stolen Property','Martha','Attempted to sell stolen property to Martha',25);add('Martha recognizes the stolen item. Nothing was sold.','danger');r18MarthaMenu();return true;}}
-  i.qty--;if(!i.qty)player.pack.splice(player.pack.indexOf(i),1);delete f.r18MarthaSale;gainBolts(q.price);updateHud();add('Martha pays '+q.price+' Bolts for '+q.name+'.','reward');if(q.name==="Vintage Bus Driver's Badge")add('MARTHA > My father drove that route. He used to polish his badge before every shift.','bright');if(typeof v49Autosave==='function')v49Autosave();r18MarthaMenu();return true;}
+  i.qty--;if(!i.qty)player.pack.splice(player.pack.indexOf(i),1);delete f.r18MarthaSale;gainBolts(q.price);updateHud();add('Martha pays '+q.price+' Bolts for '+q.name+'.','reward');const reaction=OLD_WORLD_TREASURES[q.name]?.reaction;if(reaction)add('MARTHA > '+reaction,'bright');if(typeof v49Autosave==='function')v49Autosave();r18MarthaMenu();return true;}
  r18MarthaMenu();return true;}
 function r18GideonMenu(){mercyLocation='gideon';player.flags.solaceMenu='gideon';add('GIDEON — SALT AND PRESERVATION','place');add('GIDEON > Salt gives food a better chance of lasting the road.','bright');v53Choices(['LEARN PRESERVATION','ASK ABOUT PRESERVATION','RETURN TO TOWN']);}
 const v53OldSolace=handleSolace;handleSolace=function(cmd,raw=cmd){
@@ -95,7 +117,7 @@ const v53OldSolace=handleSolace;handleSolace=function(cmd,raw=cmd){
  if(mercyLocation==='tim'&&cmd==='deliver tim letter'&&r18CourierEligible('tim')){r18CourierDeliver('tim');v53TimMenu();return;}
  if(mercyLocation==='jen'&&cmd==='deliver jen letter'&&r18CourierEligible('jen')){r18CourierDeliver('jen');npcTalk('jen');return;}
  if(r18MarthaCommand(cmd))return;
- if(cmd==='old world counter'&&mercyLocation==='johnny'&&player.flags.r18MarthaSettled){r18MarthaMenu();return;}
+ if(cmd==='old world counter'&&mercyLocation==='johnny'&&player.flags.r18MarthaSettled){r18MarthaMenu(true);return;}
  if(v53SaleCommand(cmd))return;
  if(mercyLocation==='jen'&&cmd==='ask about wasteland stew'&&r18StewReady()){const learned=player.flags.r11Learned||(player.flags.r11Learned={});if(!learned.wastelandStew){learned.wastelandStew=true;add('JEN > Meat, fruit and vegetables. Put them together and you have a meal worth sharing. BLUEPRINT LEARNED — WASTELAND STEW.','reward');}else{const lines={'Raw Rat Meat':'Rat stew? Add enough seasoning and nobody asks questions.','Raw Wolf Meat':'Wolf makes a hearty stew. Give it time to cook.','Raw Rabbit Meat':'Rabbit is for the pot only if it was never your pet.','Raw Chicken Meat':'Chicken is a welcome change around here.','Raw Boar Meat':'Boar stew will keep you going on a long road.','Raw Venison':'Venison deserves a good slow simmer.','Raw Bird Meat':'A little bird meat can stretch a long way.','Raw Snake Meat':'Snake works fine. Just watch the bones.'};add('JEN > '+(lines[player.flags.r18LastStewMeat]||'You already know the recipe. Make it your own.'),'bright');}npcTalk('jen');return;}
  if(cmd==='talk to gideon'&&mercyLocation==='town'&&player.flags.r18SaltWorkersFreed){r18GideonMenu();return;}

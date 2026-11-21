@@ -361,6 +361,31 @@ function updateRefillDisplay(){ if(!player.flags)return; processRefill(); const 
 function startRefillTimer(){ if(refillTimer)clearInterval(refillTimer); refillTimer=setInterval(()=>{updateRefillDisplay();},1000); updateRefillDisplay(); }
 // Generated equipment keeps its level/rarity key in inventory and saves.
 // Narrative and reward text show the readable item name instead.
+const RETIRED_MATERIAL_PAYOUTS=Object.freeze({'Animal Fat':2,'Tempered Steel':5});
+const isRetiredMaterial=name=>Object.hasOwn(RETIRED_MATERIAL_PAYOUTS,name);
+function convertRetiredMaterials(savedPlayer){
+ if(!savedPlayer)return [];
+ const flags=savedPlayer.flags||{};
+ const converted=new Map();
+ const containers=new Set([savedPlayer.pack,savedPlayer.stash,savedPlayer.houseStorage,savedPlayer.rustyRoomChest,flags.r6AnchorRoomChest]);
+ for(const items of containers){
+  if(!Array.isArray(items))continue;
+  for(let i=items.length-1;i>=0;i--){
+   const item=items[i];
+   if(!isRetiredMaterial(item?.name))continue;
+   if(Number.isSafeInteger(item.qty)&&item.qty>0)converted.set(item.name,(converted.get(item.name)||0)+item.qty);
+   items.splice(i,1);
+  }
+ }
+ for(const key of ['r5LootQueue','port55PendingRewards']){
+  if(Array.isArray(flags[key]))flags[key]=flags[key].filter(item=>!isRetiredMaterial(item?.name));
+ }
+ for(const stock of [flags.r5Rusty?.stock,flags.r127FinnStock?.items,flags.seaportStaff?.stock]){
+  if(stock)for(const name of Object.keys(RETIRED_MATERIAL_PAYOUTS))delete stock[name];
+ }
+ for(const [name,qty] of converted)savedPlayer.bolts=(Number(savedPlayer.bolts)||0)+qty*RETIRED_MATERIAL_PAYOUTS[name];
+ return [...converted];
+}
 const R127_RETIRED_ITEMS=new Set(['Tent','Mine-Protected Tent','Reinforced Pipe','Tempered Steel Pipe']);
 function r127RetiredItem(name){
  return !!name&&R127_RETIRED_ITEMS.has(GEAR[name]?.base||GEAR[name]?.name||narrativeGearName(name));
@@ -648,6 +673,7 @@ function r18FoodRecord(name,type){const kind=r18FoodKind(name);if(!kind||type!==
 function r18FoodSync(){for(const i of player.pack||[])if(i.qty>0)r18FoodRecord(i.name,i.type);}
 function r18StewReady(){r18FoodSync();const f=player.flags.r18FoodSeen||{};return !!(f.meat&&f.fruit&&f.vegetable);}
 function addPack(name, type="material", qty=1, quietFull=false, stolen=false) {
+  if(isRetiredMaterial(name))return false;
   if(R127_EDIBLE_ITEMS.has(name))type='consumable';
   if(stage==="fallen")return false;
   const existing=player.pack.find(i=>i.name===name && i.type===type && !!i.stolen===!!stolen);
@@ -748,7 +774,6 @@ function inspectItem(name){
     "Bandage":"A clean-enough field dressing. Restore 25% of maximum HP.",
     "Reinforced Bandage":"Forge-crafted dressing. Restore 50% of maximum HP.",
     "Emergency Trauma Kit":"A sealed emergency kit. Restore 75% of maximum HP, including in combat.",
-    "Tempered Steel":"RARE — Heat-treated metal used in the Tempered Steel Pipe blueprint.",
     "Raw Rat Meat":"Raw rat meat. Use shared cooking and preservation recipes after learning them.",
     "Raw Bird Meat":"Raw bird meat. Use shared cooking and preservation recipes after learning them.",
     "Raw Venison":"Raw deer meat. Use shared cooking and preservation recipes after learning them.",
@@ -1054,6 +1079,10 @@ function loadGame(slot=activeSaveSlot){
   const data=getSaveData(slot);
   if(slot!=="auto")activeSaveSlot=slot;else if(data)activeSaveSlot=[1,2,3].includes(data.manualSlot)?data.manualSlot:0;
   if(!data){ add("SAVE GAME 01 is empty.", "system"); return; }
+  const converted=convertRetiredMaterials(data.player);
+  if(converted.length){
+   try{localStorage.setItem(slot==='auto'?FACTORY_AUTOSAVE_KEY:SAVE_KEYS[slot],JSON.stringify(data));}catch{}
+  }
   Object.assign(player,data.player||{});
   EquipmentMods.hydrate();
   globalThis.r127HydrateUpgrades?.();
@@ -1109,6 +1138,7 @@ function loadGame(slot=activeSaveSlot){
   startRefillTimer();
   if(player.flags.interfaceUnlocked!==false){hud.classList.remove("hidden");utilityPanel.classList.remove("hidden");}else{hud.classList.add("hidden");utilityPanel.classList.add("hidden");} updateHud(); screen.innerHTML="";
   add(`SAVE ${slot} — ${(player.handle||"NO HANDLE")}`, "bright"); add("Save loaded.", "reward");
+  for(const [name,qty] of converted)add(`Retired material converted — ${qty} ${name} for ${qty*RETIRED_MATERIAL_PAYOUTS[name]} Bolts.`,'reward');
   if(stage==="combat" && combatState){
     if(combatState.source==="houseBoss" && player.flags.houseQuest!=="active"){combatState=null;arriveHouse();}
     else showCurrentContext();
@@ -1376,6 +1406,7 @@ function r18ScrapFight(spec){
  return {...spec,level,hp:Math.max(25,Math.floor(baseHpForLevel(level)*.32)),xp:Math.max(24,level*7),r18ScrapTrap:!r18ScrapClaimState().disarmed};
 }
 function r18RetainRoadReward(name,type){
+ if(isRetiredMaterial(name))return false;
  if(addPack(name,type))return true;
  (player.flags.r5LootQueue||(player.flags.r5LootQueue=[])).push({name,type,qty:1});
  add(name+" is held until you make room.","system");return true;
@@ -1448,7 +1479,7 @@ function r18StationGeneratorTurn(c){if(c.source!=='r18StationFight'||!c.enemies?
 function r18StationCombatWin(){const q=player.flags.r18Station;if(!q)return completeRoadTurn();q.hunters='defeated';stage='r18Station';r18StationMenu();}
 function r18StationCombatRetreat(){stage='r18Station';add('You withdraw to cover. The Signal Hunters still hold the approach.','system');r18StationMenu();}
 function r18StationTrader(){stage='r18StationTrader';add('TOMORROW NETWORK TRADER','place');const level=Math.max(1,Math.min(50,Math.floor(Number(player.level)||1)));for(const [id,label]of [['weapon-common-pipe-wrench','NETWORK WRENCH'],['armor-common-canvas-work-coat','NETWORK COAT']]){const d=EQUIPMENT_CATALOG.find(x=>x.id===id);add(label+' — '+Economy.value(catalogInstanceName(d,level))+' BOLTS','system');}r5DirectChoices(['BUY ELECTRONICS — 30 BOLTS','BUY WIRE — 8 BOLTS','BUY SCRAP METAL — 5 BOLTS','BUY BANDAGE — 10 BOLTS','BUY NETWORK WRENCH','BUY NETWORK COAT','RETURN TO STATION']);}
-function r18StationCommand(cmd){const q=player.flags.r18Station;if(!q){stage='between';return renderCurrentChoices();}if(stage==='r18StationTrader'){if(['return to station','back','b'].includes(cmd)){stage='r18Station';return r18StationMenu();}if(cmd==='buy network wrench'||cmd==='buy network coat'){const level=Math.max(1,Math.min(50,Math.floor(Number(player.level)||1))),id=cmd==='buy network wrench'?'weapon-common-pipe-wrench':'armor-common-canvas-work-coat',def=EQUIPMENT_CATALOG.find(x=>x.id===id),price=def?Economy.value(catalogInstanceName(def,level)):0;if(!def||player.bolts<price)add('Equipment unavailable or insufficient Bolts.','system');else{const name=catalogInstanceName(def,level);if(addPack(name,def.type,1,true)){player.bolts-=price;updateHud();add('Purchased '+name+'.','reward');}else add('Backpack full. No Bolts charged.','system');}return r18StationTrader();}const offers={'buy electronics — 30 bolts':['Electronics','material',30],'buy wire — 8 bolts':['Wire','material',8],'buy scrap metal — 5 bolts':['Scrap Metal','material',5],'buy bandage — 10 bolts':['Bandage','consumable',10]},o=offers[cmd];if(o){if(player.bolts<o[2])add('Not enough Bolts.','system');else if(addPack(o[0],o[1],1)){player.bolts-=o[2];updateHud();add('Purchased '+o[0]+'.','reward');}}return r18StationTrader();}if(['leave station','back','b'].includes(cmd))return r18StationReturn();if(cmd==='talk to evelyn'){add(q.restored?'EVELYN CROSS > Grand City still sends whispers through the static. If anyone there is listening, we will find them.':'EVELYN CROSS > The Hunters want the transmitter silent. Help me keep the road connected.','bright');return r18StationMenu();}if(q.restored&&cmd==='talk to network trader')return r18StationTrader();if(q.hunters==='active'){if(cmd==='fight signal hunters')return r18StationFight();if(cmd==='sabotage signal hunters'){if(!r6ConsumeMaterial('Wire',1))add('One Wire is needed to disrupt their receiver.','system');else{q.hunters='sabotaged';add('You disrupt their receiver; the Signal Hunters withdraw.','reward');}return r18StationMenu();}if(cmd==='negotiate with signal hunters'){if(player.bolts<25)add('Negotiation requires 25 Bolts.','system');else{player.bolts-=25;updateHud();q.hunters='negotiated';add('The Signal Hunters take the payment and leave Evelyn alone.','reward');}return r18StationMenu();}}if(cmd.startsWith('contribute ')&&q.hunters!=='active'&&!q.restored){const k=Object.keys(R18_STATION_NEEDS).find(k=>k.toLowerCase()===cmd.slice(11));if(!k||(q.parts[k]||0)>=R18_STATION_NEEDS[k])return r18StationMenu();if(!r6ConsumeMaterial(k,1))add('You do not have that material.','system');else{q.parts[k]=(q.parts[k]||0)+1;updateHud();add('One '+k+' contributed to the tower.','reward');}return r18StationMenu();}if(cmd==='restore tower'&&!q.restored&&q.hunters!=='active'&&Object.entries(R18_STATION_NEEDS).every(([k,n])=>(q.parts[k]||0)>=n)){q.restored=true;gainBolts(100);gainXp(Math.max(50,(Number(player.level)||1)*10));if(player.flags.r11Learned?.relayVest){r18RetainRoadReward('Tempered Steel','material');add('Evelyn includes Tempered Steel.','reward');}gainXp(25);gainBolts(25);if(EquipmentMods.learn('circuit'))v49Autosave();add('STATION NINE RESTORED — the Tomorrow Network is on the air.','reward');return r18StationMenu();}return r18StationMenu();}
+function r18StationCommand(cmd){const q=player.flags.r18Station;if(!q){stage='between';return renderCurrentChoices();}if(stage==='r18StationTrader'){if(['return to station','back','b'].includes(cmd)){stage='r18Station';return r18StationMenu();}if(cmd==='buy network wrench'||cmd==='buy network coat'){const level=Math.max(1,Math.min(50,Math.floor(Number(player.level)||1))),id=cmd==='buy network wrench'?'weapon-common-pipe-wrench':'armor-common-canvas-work-coat',def=EQUIPMENT_CATALOG.find(x=>x.id===id),price=def?Economy.value(catalogInstanceName(def,level)):0;if(!def||player.bolts<price)add('Equipment unavailable or insufficient Bolts.','system');else{const name=catalogInstanceName(def,level);if(addPack(name,def.type,1,true)){player.bolts-=price;updateHud();add('Purchased '+name+'.','reward');}else add('Backpack full. No Bolts charged.','system');}return r18StationTrader();}const offers={'buy electronics — 30 bolts':['Electronics','material',30],'buy wire — 8 bolts':['Wire','material',8],'buy scrap metal — 5 bolts':['Scrap Metal','material',5],'buy bandage — 10 bolts':['Bandage','consumable',10]},o=offers[cmd];if(o){if(player.bolts<o[2])add('Not enough Bolts.','system');else if(addPack(o[0],o[1],1)){player.bolts-=o[2];updateHud();add('Purchased '+o[0]+'.','reward');}}return r18StationTrader();}if(['leave station','back','b'].includes(cmd))return r18StationReturn();if(cmd==='talk to evelyn'){add(q.restored?'EVELYN CROSS > Grand City still sends whispers through the static. If anyone there is listening, we will find them.':'EVELYN CROSS > The Hunters want the transmitter silent. Help me keep the road connected.','bright');return r18StationMenu();}if(q.restored&&cmd==='talk to network trader')return r18StationTrader();if(q.hunters==='active'){if(cmd==='fight signal hunters')return r18StationFight();if(cmd==='sabotage signal hunters'){if(!r6ConsumeMaterial('Wire',1))add('One Wire is needed to disrupt their receiver.','system');else{q.hunters='sabotaged';add('You disrupt their receiver; the Signal Hunters withdraw.','reward');}return r18StationMenu();}if(cmd==='negotiate with signal hunters'){if(player.bolts<25)add('Negotiation requires 25 Bolts.','system');else{player.bolts-=25;updateHud();q.hunters='negotiated';add('The Signal Hunters take the payment and leave Evelyn alone.','reward');}return r18StationMenu();}}if(cmd.startsWith('contribute ')&&q.hunters!=='active'&&!q.restored){const k=Object.keys(R18_STATION_NEEDS).find(k=>k.toLowerCase()===cmd.slice(11));if(!k||(q.parts[k]||0)>=R18_STATION_NEEDS[k])return r18StationMenu();if(!r6ConsumeMaterial(k,1))add('You do not have that material.','system');else{q.parts[k]=(q.parts[k]||0)+1;updateHud();add('One '+k+' contributed to the tower.','reward');}return r18StationMenu();}if(cmd==='restore tower'&&!q.restored&&q.hunters!=='active'&&Object.entries(R18_STATION_NEEDS).every(([k,n])=>(q.parts[k]||0)>=n)){q.restored=true;gainBolts(100);gainXp(Math.max(50,(Number(player.level)||1)*10));if(player.flags.r11Learned?.relayVest){r18RetainRoadReward('Scrap Metal','material');add('Evelyn includes Scrap Metal.','reward');}gainXp(25);gainBolts(25);if(EquipmentMods.learn('circuit'))v49Autosave();add('STATION NINE RESTORED — the Tomorrow Network is on the air.','reward');return r18StationMenu();}return r18StationMenu();}
 function r18CountyTruckScene(){const g=typeof lanternState==='function'?lanternState():null,scene=typeof RoadLifecycle!=='undefined'?RoadLifecycle.sceneKey('early:0'):g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`;if(typeof RoadLifecycle!=='undefined'&&player.flags.r18CountyTruckScene)player.flags.r18CountyTruckScene.scene=scene;if(player.flags.r18CountyTruckScene?.scene!==scene)player.flags.r18CountyTruckScene={scene,followed:false};return player.flags.r18CountyTruckScene;}
 // The county depot is a resumable encounter at the original road segment, not a map node.
 function r18DepotTrailDescription(){const q=player.flags.r18CountyDepot,e=q?.edge&&typeof LG_EDGES!=='undefined'?LG_EDGES[q.edge]:null;if(!e||typeof LG_NODES==='undefined')return 'Return to the road where you found the county truck.';return 'County depot trail: '+LG_NODES[e.a].name+' ↔ '+LG_NODES[e.b].name+', position '+q.step+' of '+e.distanceTurns+'.';}

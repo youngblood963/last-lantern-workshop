@@ -912,7 +912,7 @@ const r18Furnace=eastEncounters.find(e=>e.title==='THE FURNACE PIT');
 if(r18Furnace){r18Furnace.exclusive=false;r18Furnace.choices='SHUT DOWN FURNACE   HOOK GLOWING METAL   SEARCH MAINTENANCE LOCKER   BACK AWAY';r18Furnace.resolve=function(cmd){const q=r18FurnaceScene();
  if(cmd.includes('shut')){if(q.shutdown){add('The furnace is already shut down.','system');return true;}q.shutdown=true;add('You close the fuel valve. The furnace begins to cool.','bright');return true;}
  if(cmd.includes('back')||cmd.includes('away')){add('You leave the brickworks behind.');return true;}
- if(cmd.includes('hook')||cmd.includes('locker')){const risk=q.shutdown?.12:.45;if(Math.random()<risk){environmentalHurt('severe');add('Heat catches your arm; you pull back without the salvage.','danger');return true;}const item=cmd.includes('hook')?'Tempered Steel':'Wire';r18RetainRoadReward(item,'material');if(cmd.includes('hook')&&!player.flags.r18FurnaceBlueprintPayout&&!player.flags.r11Learned?.temperedPipe){
+ if(cmd.includes('hook')||cmd.includes('locker')){const risk=q.shutdown?.12:.45;if(Math.random()<risk){environmentalHurt('severe');add('Heat catches your arm; you pull back without the salvage.','danger');return true;}const item=cmd.includes('hook')?'Scrap Metal':'Wire';r18RetainRoadReward(item,'material');if(cmd.includes('hook')&&!player.flags.r18FurnaceBlueprintPayout&&!player.flags.r11Learned?.temperedPipe){
   player.flags.r18FurnaceBlueprintPayout=true;gainXp(10);gainBolts(5);
  }gainXp(Math.max(7,player.level*2));add('You recover '+item+' from the brickworks.','reward');return true;}return false;};}
 // Preserve the existing encounter slot while allowing sequential rescue and satchel choices.
@@ -1527,7 +1527,7 @@ wo3Award(key){
  const r=this;
  if(key==='stalker')return this.wo2Once('wo3Stalker',()=>{gainXp(100);gainBolts(r.wo2Roll(20,30));r.wo2Item('Wire');r.wo2Item('Scrap Metal');add('The crawler falls. A culvert maintenance pouch holds Bolts and useful salvage.','reward');});
  if(key==='drone')return this.wo2Once('wo3Drone',()=>{gainXp(110);gainBolts(r.wo2Roll(25,40));r.wo2Item('Electronics');r.wo2Item('Wire');add('The drone stops. You recover electronic components and a service-case cache of Bolts.','reward');});
- if(key==='dogs')return this.wo2Once('wo3Dogs',()=>{gainXp(90);r.wo2Item('Cloth');r.wo2Item('Scrap Metal');if(Math.random()<.5)r.wo2Item('Animal Fat');add('The marsh dogs fall. Their den holds scraps of abandoned supplies; useful fat can be recovered from the animals. No currency comes from the dogs.','reward');});
+ if(key==='dogs')return this.wo2Once('wo3Dogs',()=>{gainXp(90);r.wo2Item('Cloth');r.wo2Item('Scrap Metal');if(Math.random()<.5)r.wo2Item('Cloth');add('The marsh dogs fall. Their den holds scraps of abandoned supplies. No currency comes from the dogs.','reward');});
 },
 wo3Fight(key,spec){
  const flag={stalker:'wo3Stalker',drone:'wo3Drone',dogs:'wo3Dogs'}[key];
@@ -1608,7 +1608,6 @@ wo3(){
    'SEARCH THE TOOL TRAY':()=>battery('search the tool tray'),
    'RECOVER CORVETTE BATTERY':()=>{if(!r.wo3Needs('battery')){add('You do not need another battery. The tray still holds ordinary salvage.');return true;}return battery('recover corvette battery');}
   });
- GEAR['Animal Fat']={type:'material',rarity:'common',description:'Recovered animal fat; keep it with other crafting materials.'};
  function food(){const item=player.pack.find(i=>i.qty>0&&i.type==='consumable'&&!i.protected&&!i.unique&&['Energy Bars','Preserved Meat'].includes(i.name));if(!item){add('You need an Energy Bar or Preserved Meat to distract the pack.','system');return false;}if(!removeItem(r18ItemLabel(item)))return false;r.wo2Once('wo3Dogs',()=>{r.wo2Item('Cloth');add('The dogs follow the food away from the den. You recover abandoned Cloth and pass without fighting.');});return true;}
  scene('SALT MARSH HUNTERS','MARSH DOG PACK',
   'Two lean marsh dogs close from opposite sides. One holds your attention while the other circles toward your flank. Their den contains scraps dragged from abandoned roadside supplies.',{

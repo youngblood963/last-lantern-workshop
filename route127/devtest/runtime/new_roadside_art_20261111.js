@@ -41,13 +41,30 @@
   }
   return fixed[name()]||fixed[String(currentEncounter()?.title||'').toUpperCase().replace(/^EAST ROAD — /,'').trim()]||null;
  }
+ const composition=file=>['maintenance_box.png','abandoned_sedan.png',...fronts,back].includes(file)?'regional':
+  file==='fresh_meat_butcher.png'?'none':'sky';
+ function scenery(file){
+  const art=scenario(file),mode=composition(file);
+  const hour=player.flags.worldHour;
+  const period=Route127RegionalSky.phase(hour);
+  const region=route127CurrentRegion(lanternState());
+  const layer=Route127EditorSky.describe(region,hour);
+  const skyUrl=new URL('sky_'+(period==='dusk'?'dawn':period)+'.png',regionBase).href;
+  const backdrop=mode==='none'?[]:mode==='regional'&&layer?[layer.ground,layer.sky]:[skyUrl];
+  return {art,mode,period,backdrop};
+ }
  const previousModel=GraphicalUI.model;
  GraphicalUI.model=function(...args){
   const m=previousModel.apply(this,args);
   if(!m.active)return m;
   const file=sceneFile();
-  if(file){m.art=scenario(file);m.title=typeof currentEncounter==='function'?
-    (currentEncounter()?.displayName||currentEncounter()?.title||m.title):m.title;m.regionalSky=null;}
+  if(file){
+   const {art,mode,backdrop}=scenery(file);
+   if([art,...backdrop].map(url=>this.sceneArtworkReady(url)).every(Boolean)){
+    m.art=art;m.title=currentEncounter()?.displayName||currentEncounter()?.title||m.title;
+    m.regionalSky=null;m.scenarioBackdrop={art,mode};
+   }
+  }
   if(isHouse()){m.art=originalHouse;m.title='HOUSE SQUATTER';m.regionalSky=null;}
   return m;
  };
@@ -80,24 +97,16 @@
     e.figure.append(toggle);
    }
    if(toggle){toggle.hidden=!showingBillboard;if(showingBillboard)toggle.textContent=reverse?'View billboard front':'View billboard back';}
-   const scenic=active&&!!sceneFile();
+   const file=active&&sceneFile();
+   const scene=file&&scenery(file);
+   const scenic=!!scene&&this.displaysArtwork(scene.art)&&scene.mode!=='none';
    e.figure.classList.toggle('r127-new-scenic',scenic);
    let sky=e.figure.querySelector('.r127-new-sky');
    if(!scenic){sky?.remove();delete e.figure.dataset.newPeriod;}
    else{
     if(!sky){sky=document.createElement('div');sky.className='r127-new-sky';sky.setAttribute('aria-hidden','true');e.figure.insertBefore(sky,e.img);}
-    const period=typeof Route127RegionalSky?.phase==='function'?
-     Route127RegionalSky.phase(player.flags?.worldHour):'day';
-    const region=typeof route127CurrentRegion==='function'?route127CurrentRegion(lanternState()):'CENTRAL';
-    const regions={CENTRAL:'central',INDUSTRIAL:'industrial',NORTH:'north',EAST:'east',WEST:'west',LOWLANDS:'lowlands',SEAPORT:'seaport',CAUSEWAY:'causeway'};
-    sky.style.backgroundImage='url("'+new URL(period==='dusk'?(regions[region]||'central')+'.png':'sky_'+period+'.png',regionBase).href+'")';
-    if(showingBillboard||region==='CAUSEWAY'){
-     // The Causeway is an in-road visual region. Keep its scenery behind
-     // roadside scenario artwork instead of falling back to a generic sky.
-     const layers=globalThis.Route127EditorSky?.describe(region,player.flags?.worldHour);
-     if(layers)sky.style.backgroundImage='url("'+layers.ground+'"), url("'+layers.sky+'")';
-    }
-    e.figure.dataset.newPeriod=period;
+    sky.style.backgroundImage=scene.backdrop.map(url=>'url("'+url+'")').join(', ');
+    e.figure.dataset.newPeriod=scene.period;
    }
    let layer=e.figure.querySelector('.r127-new-figure');
    const sprite=active&&(isHouse()?'house_squatter.png':isCulvert()?'culvert_crawler.png':null);

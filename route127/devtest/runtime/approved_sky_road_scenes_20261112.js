@@ -62,6 +62,7 @@
   }
   model.causewayBacking=false;
   model.art=scenario(scenes.get(name));
+  model.scenarioBackdrop={art:model.art,mode:'road'};
   model.regionalSky=null;
   return model;
  };

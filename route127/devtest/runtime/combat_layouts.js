@@ -274,7 +274,7 @@
   rows.set(id,{
    id,title,name:id==='east:77'?'The Dominion Survey':title==='MOUNTAIN LIONS'?'Mountain Lion':entry.encounter.displayName||entry.name||entry.encounter.title,
    classification:entry.classification||'GLOBAL',regions:entry.regions||[],
-   combat:!!fight,fullCinematic:industrialCinematics.has(title),regionalSprites,variants
+   combat:!!fight,fullCinematic:industrialCinematics.has(title)||title==='ABANDONED SUPPLY TRUCK',regionalSprites,variants
   });
  }
  // The registry retains the older titles for these repurposed encounter IDs.
@@ -513,6 +513,7 @@
    // Keep the currently available regional presentation until both layers decode.
    if(imageReady&&skyReady){
     model.art=art;
+    model.scenarioBackdrop={art,mode:scene.composition};
     model.causewayBacking=false;
     model.regionalSky=sky&&{region,period:sky.period,sky:new URL(sky.sky).pathname.split('/').at(-1)};
    }
@@ -525,7 +526,17 @@
    return model;
   }
   const file=ownerRoadArt.get(title)||ownerRoadArt.get(normalize(c?.name));
-  if(file)model.art='../devtest/assets/'+(file.startsWith('../scenarios/')?'scenarios/'+file.slice('../scenarios/'.length):'enemies/'+file);
+  if(file){
+   const art='../devtest/assets/'+(file.startsWith('../scenarios/')?'scenarios/'+file.slice('../scenarios/'.length):'enemies/'+file);
+   if(['shipwreck_scavengers.png','toxic_cargo.png'].includes(file)){
+    const phase=Route127RegionalSky.phase(player.flags.worldHour);
+    const sky=new URL('../assets/regions/sky_'+(phase==='dusk'?'dawn':phase)+'.png',root).href;
+    if(![art,sky].map(url=>this.sceneArtworkReady(url)).every(Boolean))return model;
+    model.scenarioBackdrop={art,mode:'sky'};
+    model.regionalSky=null;
+   }
+   model.art=art;
+  }
   return model;
  };
 

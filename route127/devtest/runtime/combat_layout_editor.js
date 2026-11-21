@@ -51,6 +51,7 @@
   ['east:21','sky'],['east:6','road'],['east:11','sky'],['early:2','road'],['east:78','none'],
   ['early:50','none'],['early:54','road'],['early:61','road'],['early:9','road'],
   ['early:64','none'],['east:33','none'],['east:58','road'],
+  ['east:5','sky'],['east:72','sky'],['east:15','sky'],
   ['scripted:serviceboss','sky'],['scripted:crazy-steve','none']
  ]);
  const animated=row=>animatedTitles.has(row.title)||animatedTitles.has(row.name.toUpperCase());
@@ -398,7 +399,7 @@
    backdrop.value=row.id==='scripted:crazy-steve'?'none':
      row.title==='THE BURIED FREIGHT'?'road':
      (uploadedSprites.has(row.title)||['SHIPWRECK SCAVENGERS','LEAKING FREIGHT TANK'].includes(row.title))?'sky':(sceneLayers.get(row.id)||'none');
-   if(row.regionalSprites)backdrop.value='sky';
+   if(row.regionalSprites||row.title==='MAINTENANCE BOX')backdrop.value='sky';
    changePhase();
   }
   function changePhase(){
@@ -455,7 +456,7 @@
    // these owner-provided enemy sprites; do not show only an empty sky.
    const uploadedRegional=new Set(['HARBOR SECURITY DRONE','FLOODLIGHT SWEEP',
      'DOCKSIDE PIRATES','SEAWALL SNIPER','CARGO HIJACKERS','SCRAP CRAB NEST']);
-   const showRegional=layers==='sky'&&row&&(row.regionalSprites||uploadedRegional.has(row.title));
+   const showRegional=layers==='sky'&&row&&(row.regionalSprites||row.title==='MAINTENANCE BOX'||uploadedRegional.has(row.title));
    if(showRegional){
     const regionArt=globalThis.Route127EditorSky?.describe(background.value,
      {dawn:6,day:12,dusk:18,night:22}[skyTime.value]);

@@ -41,6 +41,9 @@
   return {type,combat:phases.has(stage)?combat:null,region:typeof route127CurrentRegion==='function'?
    route127CurrentRegion(typeof lanternState==='function'?lanternState():null):'SEAPORT'};
  }
+ const northernSkyScenes=new Map([
+  ['east:5','the_collapsed_dam.png'],['east:72','the_lost_convoy.png'],['east:15','the_chain_bridge.gif']
+ ]);
  function northArtwork(){
   const scene=globalThis.Route127CombatLayouts?.activeScene();
   if(!scene)return null;
@@ -81,15 +84,32 @@
  const previousModel=GraphicalUI.model;
  GraphicalUI.model=function(...args){
   const model=previousModel.apply(this,args),target=selection();
-  if(!target||!model?.active)return model;
+  if(!model?.active)return model;
+  const active=globalThis.Route127CombatLayouts?.activeScene();
+  const north=active?.phase==='approach'&&northernSkyScenes.get(active.id);
+  if(north){
+   const sky=regional(skyName()),art=file('scenarios',north);
+   if([sky,art].map(url=>this.sceneArtworkReady(url)).every(Boolean)){
+    model.art=sky;model.regionalSky=null;model.causewayBacking=false;
+    model.scenarioBackdrop={art:sky,mode:'sky'};
+   }
+   return model;
+  }
+  if(!target)return model;
   if(target.type==='freight'){
    // Buried freight is a scenery cutout over the shared sky AND dirt-road patch.
-   model.art=regional(skyName());model.regionalSky=null;model.causewayBacking=false;
+   const sky=regional(skyName());
+   const dependencies=[sky,regional('dirt_road_foreground.png'),file('scenarios',artwork.freight.file)];
+   if(dependencies.map(url=>this.sceneArtworkReady(url)).every(Boolean)){
+    model.art=sky;model.regionalSky=null;model.causewayBacking=false;
+    model.scenarioBackdrop={art:sky,mode:'road'};
+   }
   }else{
    // Reuse the exact road-region composite used by normal gameplay.
    const region=['CENTRAL','INDUSTRIAL','NORTH','EAST','WEST','LOWLANDS','SEAPORT','CAUSEWAY'].includes(target.region)?target.region:'SEAPORT';
    const scene=globalThis.Route127EditorSky?.describe(region,player?.flags?.worldHour);
    if(scene){
+    if(![scene.ground,scene.sky].map(url=>this.sceneArtworkReady(url)).every(Boolean))return model;
     model.art=scene.ground;model.regionalSky={region,period:period(),sky:skyName()};
    }
    model.causewayBacking=false;
@@ -150,7 +170,11 @@
     }
     wreckSky.style.backgroundImage='url("'+regional(skyName())+'")';
    }else wreckSky?.remove();
-   const target=selection(),north=northArtwork();
+   let target=selection(),north=northArtwork();
+   const drawsSky=this.displaysArtwork(regional(skyName()));
+   const active=globalThis.Route127CombatLayouts?.activeScene();
+   if(northernSkyScenes.has(active?.id)&&!drawsSky)north=null;
+   if(target?.type==='freight'&&!drawsSky)target=null;
    const on=!!(target||north)&&!e.frame.hidden&&this.preference()==='graphics';
    const figure=e.figure;
    figure.classList.toggle('r127-final-encounter',on&&!!target);

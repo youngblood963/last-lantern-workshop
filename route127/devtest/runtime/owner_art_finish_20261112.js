@@ -41,7 +41,20 @@
  const oldModel=GraphicalUI.model;
  GraphicalUI.model=function(...args){
   const m=oldModel.apply(this,args),spec=current();
-  if(spec&&m.active){m.art=scenario(spec.art);m.regionalSky=null;}
+  if(spec&&m.active){
+   const art=scenario(spec.art);
+   const phase=Route127RegionalSky.phase(player.flags.worldHour);
+   const dependencies=[art];
+   if(spec.backdrop!=='standalone'){
+    const layers=spec.backdrop==='regional'&&Route127EditorSky.describe(route127CurrentRegion(lanternState()),player.flags.worldHour);
+    dependencies.push(layers?.sky||region('sky_'+(phase==='dusk'?'dawn':phase)+'.png'));
+    if(layers)dependencies.push(layers.ground);
+    if(spec.backdrop==='road')dependencies.push(region('dirt_road_foreground.png'));
+   }
+   if(dependencies.map(url=>this.sceneArtworkReady(url)).every(Boolean)){
+    m.art=art;m.regionalSky=null;m.scenarioBackdrop={art,mode:spec.backdrop};
+   }
+  }
   return m;
  };
  const style=document.createElement('style');
@@ -82,7 +95,7 @@
   try{
    const e=this.element;if(!e?.figure)return result;
    const fig=e.figure,spec=current();
-   const showing=!!spec&&!e.frame.hidden&&this.preference()==='graphics';
+   const showing=!!spec&&this.displaysArtwork(scenario(spec.art))&&!e.frame.hidden&&!fig.hidden&&this.preference()==='graphics';
    fig.classList.toggle('r127-finish-art',showing);
    e.frame.classList.remove('r127-finish-combat');
    let sky=fig.querySelector(':scope > .r127-finish-sky');

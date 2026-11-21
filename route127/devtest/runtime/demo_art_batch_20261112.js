@@ -72,7 +72,7 @@
  const oldModel=GraphicalUI.model;
  GraphicalUI.model=function(...args){
   const m=oldModel.apply(this,args),spec=presentation();
-  if(spec&&m.active&&ready(spec)){m.art=spec.file;m.regionalSky=null;}
+  if(spec&&m.active&&ready(spec)){m.art=spec.file;m.regionalSky=null;m.scenarioBackdrop={art:spec.file,mode:spec.layers};}
   return m;
  };
  const css=document.createElement('style');

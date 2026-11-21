@@ -60,7 +60,6 @@ const player = {
   pack: [
     {name:"Energy Bars", qty:2, type:"consumable"},
     {name:"Battered Flashlight", qty:1, type:"tool"},
-    {name:"Tent",qty:1,type:"supply"}
   ], packMax: 8, flags: { maintenanceYardSearched:false, billboard:false, helpedTraveler:false, travelerInSolace:false, houseBandage:false, forkDiscovered:false, mercyDiscovered:false, serviceBossDead:false, serviceReward:false, rentedRoom:false, timQuest:"locked", timQuestSteps:0, murphyQuest:"locked", murphyQuestSteps:0, pendingQuest:"", mainSolaceQuest:"active", relayQuest:"locked", relayUnlocked:false, relayVisited:false, interfaceUnlocked:false, roomSearched:false, introFailed:false, worldHour:8, relayPartsRevealed:false, relayParts:{johnny:false,yard:false,branch:false,east:false}, relayJohnnyAsked:false, relayBranchDiscovered:false, eastRouteDiscovered:false },
   wandererState: {}, recentEncounters: [], deathStreak: 0,
   encounterDone: {},
@@ -318,9 +317,10 @@ function overnightRoomAvailable(){const origin=["zeroTurns","overnightConfirm"].
 function r18ExactTent(name){return player.pack.find(i=>i.name===name&&!['key','quest'].includes(i.type)&&i.qty>0&&!i.protected&&!i.unique);}
 function r18MineCampAllowed(){const origin=['zeroTurns','overnightConfirm'].includes(stage)?player.flags.turnResumeStage:stage;const outdoor=['lanternRoad','lanternNode','encounter','between','turnComplete','questRoadComplete','serviceRoad','relayBranch','roadReady'].includes(origin);const g=typeof lanternState==='function'?lanternState():null;return outdoor&&!(g&&!g.currentEdgeId&&['house','solace','factory','seaport'].includes(g.nodeId));}
 function r18ConsumeExactTent(name){const i=r18ExactTent(name);if(!i)return false;i.qty--;if(i.qty<=0)player.pack.splice(player.pack.indexOf(i),1);updateHud();return true;}
-function overnightChoices(){return ["(C) MAKE CAMP — CONSUMES 1 TENT / LOW LOSS RISK",...(r18ExactTent("Mine-Protected Tent")&&r18MineCampAllowed()?["MAKE CAMP WITH MINE TENT — CONSUMES 1 MINE-PROTECTED TENT / NO LOSS"]:[]),"(R) REMAIN ON ROAD — HIGHER LOSS RISK",...(overnightRoomAvailable()?["(J) USE RENTED ROOM — NO LOSSES"]:[])].join("   ");}
+function overnightChoices(){return ["(R) REMAIN ON ROAD — HIGHER LOSS RISK",...(overnightRoomAvailable()?["(J) USE RENTED ROOM — NO LOSSES"]:[])].join("   ");}
 function legacyOvernightRng(){let seed=0;for(const ch of `${player.characterId||player.handle}|${player.flags.nextRefillAt}|${player.flags.overnight||"road"}`)seed=(Math.imul(seed,31)+ch.charCodeAt(0))>>>0;return ()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};}
 function planOvernight(choice,rng=Math.random){
+ if(choice==="camp"||choice==="minecamp")choice="road";
  const config=OVERNIGHT_RISK[choice]||OVERNIGHT_RISK.road,plan={choice,dueAt:player.flags.nextRefillAt,bolts:0,items:[],applied:false};
  if(rng()>=config.chance)return plan;
  plan.bolts=Math.min(player.bolts,config.maxBolts?1+Math.floor(rng()*config.maxBolts):0);
@@ -332,11 +332,8 @@ function planOvernight(choice,rng=Math.random){
 function sealOvernight(choice){
  if(player.flags.overnightLocked)return false;
  if(player.turns>0){add("Turns have already refilled; no overnight choice is needed.","system");return false;}
- if(choice==="camp"&&!r18ExactTent("Tent")){add("MAKE CAMP REQUIRES 1 TENT. Johnny sells replacements.","system");return false;}
- if(choice==="minecamp"&&(!r18MineCampAllowed()||!r18ExactTent("Mine-Protected Tent"))){add("A Mine-Protected Tent and an outdoor road location are required.","system");return false;}
+ if(choice==="camp"||choice==="minecamp"){add("Tent camping is currently unavailable.","system");return false;}
  if(choice==="room"&&!overnightRoomAvailable()){add("No paid room is available here. Rent one from Jen while in Solace.","system");return false;}
- if(choice==="camp")r18ConsumeExactTent("Tent");
- if(choice==="minecamp")r18ConsumeExactTent("Mine-Protected Tent");
  if(choice==="room")player.flags.rentedRoom=false;
  player.flags.overnight=choice;player.flags.overnightPlan=planOvernight(choice);player.flags.overnightLocked=true;player.flags.pendingOvernight="";
  add(`${overnightLabel(choice)} LOCKED — ${choice==="minecamp"?"1 Mine-Protected Tent consumed. No overnight losses.":choice==="camp"?"1 Tent consumed. Low loss risk.":choice==="room"?"Your paid room guarantees no overnight losses.":"Higher loss risk. No supplies required."} No overnight loot.`,"reward");return true;
@@ -344,7 +341,8 @@ function sealOvernight(choice){
 function resolveOvernight(refillAt){
  const f=player.flags;
  if(!f.overnightPlan&&(f.overnightLocked||player.turns===0)){f.overnight=f.overnight||"road";f.overnightPlan=planOvernight(f.overnight,legacyOvernightRng());}
- const plan=f.overnightPlan;if(!plan||plan.applied||refillAt<plan.dueAt)return;
+ let plan=f.overnightPlan;if(!plan||plan.applied||refillAt<plan.dueAt)return;
+ if(plan.choice==="camp"||plan.choice==="minecamp")plan=f.overnightPlan=planOvernight("road",legacyOvernightRng());
  const lostBolts=Math.min(player.bolts,Math.max(0,plan.bolts));player.bolts-=lostBolts;
  const losses=[];
  for(const requested of plan.items){const item=player.pack.find(i=>i.name===requested.name&&i.type===requested.type&&!!i.stolen===!!requested.stolen);if(!item||["key","quest"].includes(item.type)||item.name===player.weapon||item.name===player.armor||item.name===player.accessory||protectedUniqueEquipment(item.name))continue;
@@ -363,6 +361,10 @@ function updateRefillDisplay(){ if(!player.flags)return; processRefill(); const 
 function startRefillTimer(){ if(refillTimer)clearInterval(refillTimer); refillTimer=setInterval(()=>{updateRefillDisplay();},1000); updateRefillDisplay(); }
 // Generated equipment keeps its level/rarity key in inventory and saves.
 // Narrative and reward text show the readable item name instead.
+const R127_RETIRED_ITEMS=new Set(['Tent','Mine-Protected Tent','Reinforced Pipe','Tempered Steel Pipe']);
+function r127RetiredItem(name){
+ return !!name&&R127_RETIRED_ITEMS.has(GEAR[name]?.base||GEAR[name]?.name||narrativeGearName(name));
+}
 function narrativeGearName(name){return String(name).replace(/ \(L\d{1,2} (?:COMMON|UNCOMMON|RARE|EPIC|LEGENDARY)\)/gi,'');}
 function resultLine(text, cls="reward") { text=narrativeGearName(text); if(resultBuffer) resultBuffer.push([text,cls]); else add(text,cls); }
 function flushResults(){ if(!resultBuffer || !resultBuffer.length){ resultBuffer=null; return; } add("RESULT", "system"); for(const [t,c] of resultBuffer) add(t,c); resultBuffer=null; }
@@ -557,11 +559,18 @@ for(const def of EQUIPMENT_CATALOG)for(let lv=def.minLevel;lv<=def.maxLevel;lv++
   :{def:Math.max(1,2+Math.floor((lv-1)*.35)+q+variation)};
  Object.defineProperty(GEAR,name,{value:{...def,level:lv,...stat},enumerable:false});
 }
+// Keep generated stats and metadata for legacy equipment already in saves.
+for(let i=EQUIPMENT_CATALOG.length-1;i>=0;i--){
+ if(r127RetiredItem(EQUIPMENT_CATALOG[i].name))EQUIPMENT_CATALOG.splice(i,1);
+}
+for(const name of ['Reinforced Pipe','Tempered Steel Pipe']){
+ Object.defineProperty(GEAR,name,{enumerable:false});
+}
 const REGIONAL_EQUIPMENT_CONFIG={solace:{cap:10,rareChance:.10},seaport:{cap:20,rareChance:.10}};
 function regionalEquipmentStock(region){
  ensureRefillClock();const config=REGIONAL_EQUIPMENT_CONFIG[region];if(!config)throw Error('Unknown region');
  const stocks=player.flags.regionalEquipment||(player.flags.regionalEquipment={}),period=Number(player.flags.nextRefillAt);
- if(stocks[region]?.period===period)return stocks[region];
+ if(stocks[region]?.period===period){stocks[region].slots=stocks[region].slots.filter(slot=>!r127RetiredItem(slot.name));return stocks[region];}
  const level=Math.max(1,Math.min(config.cap,Math.floor(Number(player.level)||1))),used=new Set(),slots=[];
  for(const type of ['weapon','weapon','weapon','armor','armor']){
   const rarity=Math.random()<config.rareChance?'rare':'uncommon';
@@ -726,9 +735,9 @@ function showInventory() {
 function inspectItem(name){
   const item=findItem(name); if(!item){add("You aren't carrying that.","system"); return;}
   const info={
-    "Mine-Protected Tent":"UNCOMMON — One-use outdoor shelter that prevents overnight losses when selected and confirmed.",
+    "Mine-Protected Tent":"UNCOMMON — Legacy outdoor shelter. Tent camping is currently unavailable.",
     "Explosive Components":"Salvaged explosive parts used in the Mine-Protected Tent blueprint.",
-    "Tent":"One-use shelter for a lower-risk camp. Consumed only when you confirm MAKE CAMP.","Energy Bars":"ENERGY BAR — Restore 10% of maximum HP.","Clean Water":"Restore 20% of maximum HP outside combat.",
+    "Tent":"Legacy shelter. Tent camping is currently unavailable.","Energy Bars":"ENERGY BAR — Restore 10% of maximum HP.","Clean Water":"Restore 20% of maximum HP outside combat.",
     "Battered Flashlight":"A scratched LED flashlight. Still works. Mostly. Useful anywhere darkness is the problem. Can be dismantled for Bolts and Electronics.",
     "Cloth":"Salvaged fabric. Useful for bandages and basic crafting.",
     "Wire":"Copper wire with enough insulation left to matter.",
@@ -768,8 +777,8 @@ function inspectItem(name){
 }
 function useItem(name){
   if(typeof combatState!=='undefined'&&combatState?.r18Bare){add('No items or healing during a bare-knuckle match.','system');return false;}
-  if(String(name).toLowerCase().includes("tent")){add("Use MAKE CAMP when overnight choices appear. Tent is consumed only after confirmation.","system");return;}
   const item=findItem(name); if(!item){add("You aren't carrying that.","system"); return;}
+  if(R127_RETIRED_ITEMS.has(item?.name)&&item?.type==="supply"){add("Tent camping is currently unavailable.","system");return;}
   const rates={"Energy Bars":.10,"Clean Water":.20,"Bandage":.25,"Reinforced Bandage":.50,"Emergency Trauma Kit":.75,"Wild Honey":.15,"Fresh Carrot":.10,"Fresh Potato":.10,"Fresh Apple":.10,"Fresh Pear":.10,"Fresh Berries":.10,"Fresh Tomato":.10,"Fresh Cabbage":.10,"Preserved Vegetables":.25,"Preserved Meat":.25,"Wasteland Stew":.40,"Roadhouse Hash":.25};
   if(Object.hasOwn(rates,item.name)){
     if(player.hp>=player.maxHp){add("You are already at full health.","system");return;}
@@ -945,7 +954,7 @@ function showV49TitleConfirm(){add('RETURN TO TITLE SCREEN? Unsaved progress wil
 function v49ReturnToTitle(){cancelCasinoOnLoad();currentHotkeys={};numberedChoices={};pendingSaveSlot=null;returnStage=null;titleScreen();}
 function resetPlayer(){
   combatState=null;currentRoadWanderer=null;currentTownWanderer=null;returnStage=null;
-  Object.assign(player,{handle:"",level:1,hp:100,maxHp:100,xp:0,nextXp:100,bolts:12,bankBolts:0,turns:TURN_REFILL_AMOUNT,maxTurns:TURN_CAP,lifetimeTurns:0,weapon:"Rusted Pipe",armor:"Worn Jacket",accessory:null,pack:[{name:"Energy Bars",qty:2,type:"consumable"},{name:"Battered Flashlight",qty:1,type:"tool"},{name:"Tent",qty:1,type:"supply"}],packMax:8,flags:{billboard:false,helpedTraveler:false,travelerInSolace:false,houseBandage:false,forkDiscovered:false,mercyDiscovered:false,serviceBossDead:false,serviceReward:false,rentedRoom:false,timQuest:"locked",timQuestSteps:0,murphyQuest:"locked",murphyQuestSteps:0,pendingQuest:"",mainSolaceQuest:"active",relayQuest:"locked",relayUnlocked:false,relayVisited:false,interfaceUnlocked:false,roomSearched:false,introFailed:false,worldHour:8,relayInspected:{},relayPartsRevealed:false,relayParts:{johnny:false,yard:false,branch:false,east:false},relayJohnnyAsked:false,relayBranchDiscovered:false,eastRouteDiscovered:false},wandererState:{},recentEncounters:[],deathStreak:0,encounterDone:{},houseStorage:[],houseBoxMax:6,stash:[],dailyDeal:["Energy Bars","Bandage","Reinforced Jacket","Claw Hammer","Tire Iron"][Math.floor(Math.random()*5)]});
+  Object.assign(player,{handle:"",level:1,hp:100,maxHp:100,xp:0,nextXp:100,bolts:12,bankBolts:0,turns:TURN_REFILL_AMOUNT,maxTurns:TURN_CAP,lifetimeTurns:0,weapon:"Rusted Pipe",armor:"Worn Jacket",accessory:null,pack:[{name:"Energy Bars",qty:2,type:"consumable"},{name:"Battered Flashlight",qty:1,type:"tool"}],packMax:8,flags:{billboard:false,helpedTraveler:false,travelerInSolace:false,houseBandage:false,forkDiscovered:false,mercyDiscovered:false,serviceBossDead:false,serviceReward:false,rentedRoom:false,timQuest:"locked",timQuestSteps:0,murphyQuest:"locked",murphyQuestSteps:0,pendingQuest:"",mainSolaceQuest:"active",relayQuest:"locked",relayUnlocked:false,relayVisited:false,interfaceUnlocked:false,roomSearched:false,introFailed:false,worldHour:8,relayInspected:{},relayPartsRevealed:false,relayParts:{johnny:false,yard:false,branch:false,east:false},relayJohnnyAsked:false,relayBranchDiscovered:false,eastRouteDiscovered:false},wandererState:{},recentEncounters:[],deathStreak:0,encounterDone:{},houseStorage:[],houseBoxMax:6,stash:[],dailyDeal:["Energy Bars","Bandage","Reinforced Jacket","Claw Hammer","Tire Iron"][Math.floor(Math.random()*5)]});
   ensureHousing();
   player.vendorStock=null;player.vendorSold=[];player.vendorRefreshes=0;refreshVendorStock();
   roadTurn=0; dailyRoadTurns=0; roadTurnCharged=false; roadGoal="mercy"; roadTripLength=9; mercyLocation="town"; rerollRoad(9); updateHud();
@@ -1049,9 +1058,10 @@ function loadGame(slot=activeSaveSlot){
   // Preserve a recipe that old saves already unlocked implicitly before R11.
   const legacyRecipeFlags=data.player?.flags;
   if(legacyRecipeFlags&&legacyRecipeFlags.r11Learned===undefined&&legacyRecipeFlags.v49RecipeBandage&&Number(player.level)>=6){
-    player.flags.r11Learned={bandage:true,pipe:true,ironReaper:true};
+    player.flags.r11Learned={bandage:true};
   }
   if(typeof r11Migrate==='function')r11Migrate();
+  if(player.flags.r18DanielQuest==='done')(player.flags.r11Learned||(player.flags.r11Learned={})).ironReaper=true;
   if(typeof r11RestoreCasinoLedger==='function')r11RestoreCasinoLedger();
   if(player.accessory===undefined)player.accessory=null;
   player.vendorStock=Array.isArray(data.player&&data.player.vendorStock)?[...data.player.vendorStock]:["Rusted Pipe","Worn Jacket","Claw Hammer"];
@@ -1370,6 +1380,13 @@ function r18RetainRoadReward(name,type){
  add(name+" is held until you make room.","system");return true;
 }
 // Called only after eligible supply searches earn their existing rewards.
+function r127FindGlass(){
+ if(Math.random()<.2)r18RetainRoadReward('Glass','material');
+}
+function r127GlassFieldReward(){
+ const qty=2+Math.floor(Math.random()*2);
+ for(let i=0;i<qty;i++)r18RetainRoadReward('Glass','material');
+}
 function r18FindCleanWater(largeCache=false){
  if(Math.random()>=.2)return;
  const qty=largeCache&&Math.random()<.25?2:1;
@@ -1382,7 +1399,7 @@ function r18CampVariant(){
  return player.flags.r18CampScene.occupied;
 }
 // A scene-scoped stock roll survives redraws and save/load without duplicating purchases.
-function r18PeteStock(){const g=typeof lanternState==='function'?lanternState():null,scene=g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`,f=player.flags;if(f.r18PeteStock?.scene===scene){f.r18PeteStock.water??=4;return f.r18PeteStock;}const stock={scene,water:4,potato:Math.random()<.5,equipment:null};if(Math.random()<.25){const pool=EQUIPMENT_CATALOG.filter(x=>x.rarity==='uncommon'&&['weapon','armor'].includes(x.type)),def=pool[Math.floor(Math.random()*pool.length)];if(def){const level=Math.max(def.minLevel,Math.min(def.maxLevel,Math.floor(Number(player.level)||1)));stock.equipment={name:catalogInstanceName(def,level),type:def.type,price:80+level*3,sold:false};}}f.r18PeteStock=stock;return stock;}
+function r18PeteStock(){const g=typeof lanternState==='function'?lanternState():null,scene=g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`,f=player.flags;if(f.r18PeteStock?.scene===scene){if(r127RetiredItem(f.r18PeteStock.equipment?.name))f.r18PeteStock.equipment=null;f.r18PeteStock.water??=4;return f.r18PeteStock;}const stock={scene,water:4,potato:Math.random()<.5,equipment:null};if(Math.random()<.25){const pool=EQUIPMENT_CATALOG.filter(x=>x.rarity==='uncommon'&&['weapon','armor'].includes(x.type)),def=pool[Math.floor(Math.random()*pool.length)];if(def){const level=Math.max(def.minLevel,Math.min(def.maxLevel,Math.floor(Number(player.level)||1)));stock.equipment={name:catalogInstanceName(def,level),type:def.type,price:80+level*3,sold:false};}}f.r18PeteStock=stock;return stock;}
 function r18FreezerScene(){
  const g=typeof lanternState==='function'?lanternState():null;
  const scene=typeof RoadLifecycle!=='undefined'?RoadLifecycle.sceneKey('early:32'):g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`;
@@ -1391,7 +1408,7 @@ function r18FreezerScene(){
 }
 function r18OpenMechanicChest(){
  if(player.flags.r18MechanicChestOpened){add("The mechanic's chest has already been emptied.","system");return true;}
- const eligible=Object.keys(CRAFT_RECIPES).filter(k=>['uncommon','rare'].includes(CRAFT_RECIPES[k].rarity||GEAR[CRAFT_RECIPES[k].name]?.rarity)&&!GEAR[CRAFT_RECIPES[k].name]?.questOnly&&typeof r11Learned==='function'&&!r11Learned(k)),uncommon=eligible.filter(k=>(CRAFT_RECIPES[k].rarity||GEAR[CRAFT_RECIPES[k].name]?.rarity)==='uncommon'),pool=uncommon.length?uncommon:eligible;
+ const eligible=Object.keys(CRAFT_RECIPES).filter(k=>r11Discoverable(k)&&['uncommon','rare'].includes(CRAFT_RECIPES[k].rarity||GEAR[CRAFT_RECIPES[k].name]?.rarity)&&!GEAR[CRAFT_RECIPES[k].name]?.questOnly&&typeof r11Learned==='function'&&!r11Learned(k)),uncommon=eligible.filter(k=>(CRAFT_RECIPES[k].rarity||GEAR[CRAFT_RECIPES[k].name]?.rarity)==='uncommon'),pool=uncommon.length?uncommon:eligible;
  if(pool.length){const key=pool[Math.floor(Math.random()*pool.length)];player.flags.r11Learned=player.flags.r11Learned||{};player.flags.r11Learned[key]=true;add('BLUEPRINT LEARNED — '+CRAFT_RECIPES[key].name,'reward');}
  else{r18RetainRoadReward('Scrap Metal','material');add('The plans are already familiar, but the chest contains usable Scrap Metal.','reward');}
  r18RetainRoadReward('Wire','material');player.flags.r18MechanicChestOpened=true;r18FindCleanWater(true);gainXp(Math.max(8,player.level*2));return true;
@@ -1428,7 +1445,7 @@ function r18StationGeneratorTurn(c){if(c.source!=='r18StationFight'||!c.enemies?
 function r18StationCombatWin(){const q=player.flags.r18Station;if(!q)return completeRoadTurn();q.hunters='defeated';stage='r18Station';r18StationMenu();}
 function r18StationCombatRetreat(){stage='r18Station';add('You withdraw to cover. The Signal Hunters still hold the approach.','system');r18StationMenu();}
 function r18StationTrader(){stage='r18StationTrader';add('TOMORROW NETWORK TRADER','place');const level=Math.max(1,Math.min(50,Math.floor(Number(player.level)||1)));for(const [id,label]of [['weapon-common-pipe-wrench','NETWORK WRENCH'],['armor-common-canvas-work-coat','NETWORK COAT']]){const d=EQUIPMENT_CATALOG.find(x=>x.id===id);add(label+' — '+Economy.value(catalogInstanceName(d,level))+' BOLTS','system');}r5DirectChoices(['BUY ELECTRONICS — 30 BOLTS','BUY WIRE — 8 BOLTS','BUY SCRAP METAL — 5 BOLTS','BUY BANDAGE — 10 BOLTS','BUY NETWORK WRENCH','BUY NETWORK COAT','RETURN TO STATION']);}
-function r18StationCommand(cmd){const q=player.flags.r18Station;if(!q){stage='between';return renderCurrentChoices();}if(stage==='r18StationTrader'){if(['return to station','back','b'].includes(cmd)){stage='r18Station';return r18StationMenu();}if(cmd==='buy network wrench'||cmd==='buy network coat'){const level=Math.max(1,Math.min(50,Math.floor(Number(player.level)||1))),id=cmd==='buy network wrench'?'weapon-common-pipe-wrench':'armor-common-canvas-work-coat',def=EQUIPMENT_CATALOG.find(x=>x.id===id),price=def?Economy.value(catalogInstanceName(def,level)):0;if(!def||player.bolts<price)add('Equipment unavailable or insufficient Bolts.','system');else{const name=catalogInstanceName(def,level);if(addPack(name,def.type,1,true)){player.bolts-=price;updateHud();add('Purchased '+name+'.','reward');}else add('Backpack full. No Bolts charged.','system');}return r18StationTrader();}const offers={'buy electronics — 30 bolts':['Electronics','material',30],'buy wire — 8 bolts':['Wire','material',8],'buy scrap metal — 5 bolts':['Scrap Metal','material',5],'buy bandage — 10 bolts':['Bandage','consumable',10]},o=offers[cmd];if(o){if(player.bolts<o[2])add('Not enough Bolts.','system');else if(addPack(o[0],o[1],1)){player.bolts-=o[2];updateHud();add('Purchased '+o[0]+'.','reward');}}return r18StationTrader();}if(['leave station','back','b'].includes(cmd))return r18StationReturn();if(cmd==='talk to evelyn'){add(q.restored?'EVELYN CROSS > Grand City still sends whispers through the static. If anyone there is listening, we will find them.':'EVELYN CROSS > The Hunters want the transmitter silent. Help me keep the road connected.','bright');return r18StationMenu();}if(q.restored&&cmd==='talk to network trader')return r18StationTrader();if(q.hunters==='active'){if(cmd==='fight signal hunters')return r18StationFight();if(cmd==='sabotage signal hunters'){if(!r6ConsumeMaterial('Wire',1))add('One Wire is needed to disrupt their receiver.','system');else{q.hunters='sabotaged';add('You disrupt their receiver; the Signal Hunters withdraw.','reward');}return r18StationMenu();}if(cmd==='negotiate with signal hunters'){if(player.bolts<25)add('Negotiation requires 25 Bolts.','system');else{player.bolts-=25;updateHud();q.hunters='negotiated';add('The Signal Hunters take the payment and leave Evelyn alone.','reward');}return r18StationMenu();}}if(cmd.startsWith('contribute ')&&q.hunters!=='active'&&!q.restored){const k=Object.keys(R18_STATION_NEEDS).find(k=>k.toLowerCase()===cmd.slice(11));if(!k||(q.parts[k]||0)>=R18_STATION_NEEDS[k])return r18StationMenu();if(!r6ConsumeMaterial(k,1))add('You do not have that material.','system');else{q.parts[k]=(q.parts[k]||0)+1;updateHud();add('One '+k+' contributed to the tower.','reward');}return r18StationMenu();}if(cmd==='restore tower'&&!q.restored&&q.hunters!=='active'&&Object.entries(R18_STATION_NEEDS).every(([k,n])=>(q.parts[k]||0)>=n)){q.restored=true;gainBolts(100);gainXp(Math.max(50,(Number(player.level)||1)*10));if(typeof r11Migrate==='function')r11Migrate();const f=player.flags;f.r11Learned=f.r11Learned||{};const key=!r11Learned('relayVest')?'relayVest':Object.keys(CRAFT_RECIPES).find(k=>GEAR[CRAFT_RECIPES[k].name]?.rarity==='rare'&&!r11Learned(k));if(key){f.r11Learned[key]=true;add('RARE BLUEPRINT LEARNED — '+CRAFT_RECIPES[key].name,'reward');}else{r18RetainRoadReward('Tempered Steel','material');add('All available Rare blueprints are already known; Evelyn offers Tempered Steel.','reward');}add('STATION NINE RESTORED — the Tomorrow Network is on the air.','reward');return r18StationMenu();}return r18StationMenu();}
+function r18StationCommand(cmd){const q=player.flags.r18Station;if(!q){stage='between';return renderCurrentChoices();}if(stage==='r18StationTrader'){if(['return to station','back','b'].includes(cmd)){stage='r18Station';return r18StationMenu();}if(cmd==='buy network wrench'||cmd==='buy network coat'){const level=Math.max(1,Math.min(50,Math.floor(Number(player.level)||1))),id=cmd==='buy network wrench'?'weapon-common-pipe-wrench':'armor-common-canvas-work-coat',def=EQUIPMENT_CATALOG.find(x=>x.id===id),price=def?Economy.value(catalogInstanceName(def,level)):0;if(!def||player.bolts<price)add('Equipment unavailable or insufficient Bolts.','system');else{const name=catalogInstanceName(def,level);if(addPack(name,def.type,1,true)){player.bolts-=price;updateHud();add('Purchased '+name+'.','reward');}else add('Backpack full. No Bolts charged.','system');}return r18StationTrader();}const offers={'buy electronics — 30 bolts':['Electronics','material',30],'buy wire — 8 bolts':['Wire','material',8],'buy scrap metal — 5 bolts':['Scrap Metal','material',5],'buy bandage — 10 bolts':['Bandage','consumable',10]},o=offers[cmd];if(o){if(player.bolts<o[2])add('Not enough Bolts.','system');else if(addPack(o[0],o[1],1)){player.bolts-=o[2];updateHud();add('Purchased '+o[0]+'.','reward');}}return r18StationTrader();}if(['leave station','back','b'].includes(cmd))return r18StationReturn();if(cmd==='talk to evelyn'){add(q.restored?'EVELYN CROSS > Grand City still sends whispers through the static. If anyone there is listening, we will find them.':'EVELYN CROSS > The Hunters want the transmitter silent. Help me keep the road connected.','bright');return r18StationMenu();}if(q.restored&&cmd==='talk to network trader')return r18StationTrader();if(q.hunters==='active'){if(cmd==='fight signal hunters')return r18StationFight();if(cmd==='sabotage signal hunters'){if(!r6ConsumeMaterial('Wire',1))add('One Wire is needed to disrupt their receiver.','system');else{q.hunters='sabotaged';add('You disrupt their receiver; the Signal Hunters withdraw.','reward');}return r18StationMenu();}if(cmd==='negotiate with signal hunters'){if(player.bolts<25)add('Negotiation requires 25 Bolts.','system');else{player.bolts-=25;updateHud();q.hunters='negotiated';add('The Signal Hunters take the payment and leave Evelyn alone.','reward');}return r18StationMenu();}}if(cmd.startsWith('contribute ')&&q.hunters!=='active'&&!q.restored){const k=Object.keys(R18_STATION_NEEDS).find(k=>k.toLowerCase()===cmd.slice(11));if(!k||(q.parts[k]||0)>=R18_STATION_NEEDS[k])return r18StationMenu();if(!r6ConsumeMaterial(k,1))add('You do not have that material.','system');else{q.parts[k]=(q.parts[k]||0)+1;updateHud();add('One '+k+' contributed to the tower.','reward');}return r18StationMenu();}if(cmd==='restore tower'&&!q.restored&&q.hunters!=='active'&&Object.entries(R18_STATION_NEEDS).every(([k,n])=>(q.parts[k]||0)>=n)){q.restored=true;gainBolts(100);gainXp(Math.max(50,(Number(player.level)||1)*10));if(typeof r11Migrate==='function')r11Migrate();const f=player.flags;f.r11Learned=f.r11Learned||{};const key=!r11Learned('relayVest')?'relayVest':Object.keys(CRAFT_RECIPES).find(k=>r11Discoverable(k)&&GEAR[CRAFT_RECIPES[k].name]?.rarity==='rare'&&!r11Learned(k));if(key){f.r11Learned[key]=true;add('RARE BLUEPRINT LEARNED — '+CRAFT_RECIPES[key].name,'reward');}else{r18RetainRoadReward('Tempered Steel','material');add('All available Rare blueprints are already known; Evelyn offers Tempered Steel.','reward');}add('STATION NINE RESTORED — the Tomorrow Network is on the air.','reward');return r18StationMenu();}return r18StationMenu();}
 function r18CountyTruckScene(){const g=typeof lanternState==='function'?lanternState():null,scene=typeof RoadLifecycle!=='undefined'?RoadLifecycle.sceneKey('early:0'):g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`;if(typeof RoadLifecycle!=='undefined'&&player.flags.r18CountyTruckScene)player.flags.r18CountyTruckScene.scene=scene;if(player.flags.r18CountyTruckScene?.scene!==scene)player.flags.r18CountyTruckScene={scene,followed:false};return player.flags.r18CountyTruckScene;}
 // The county depot is a resumable encounter at the original road segment, not a map node.
 function r18DepotTrailDescription(){const q=player.flags.r18CountyDepot,e=q?.edge&&typeof LG_EDGES!=='undefined'?LG_EDGES[q.edge]:null;if(!e||typeof LG_NODES==='undefined')return 'Return to the road where you found the county truck.';return 'County depot trail: '+LG_NODES[e.a].name+' ↔ '+LG_NODES[e.b].name+', position '+q.step+' of '+e.distanceTurns+'.';}
@@ -1527,6 +1544,18 @@ function v555ClaimEquipmentDrop(){
   }else add('EQUIPMENT DROP STILL HELD — FREE A BACKPACK SLOT.','system');
   return true;
 }
+function r127AwardMechanicalParts(combat){
+ if(combat.hp>0||combat.rolledMechanicalParts)return;
+ combat.rolledMechanicalParts=true;
+ // These are opponent identities, not encounter titles or equipment names.
+ const mechanical=/^(?:.*(?: SECURITY HOUND| DRONE)|SECURITY DRONE|MALFUNCTIONING ROBOT|MALFUNCTIONING CLEANER|ROGUE SECURITY UNIT|STATION NINE SECURITY UNIT|COUNTY UNIT 07|MALFUNCTIONING FORKLIFT|MALFUNCTIONING AUTONOMOUS TAXI|THE ROAD EATER|DRIVERLESS COMBINE)$/i;
+ const opponents=combat.r18RoadEater||combat.r18HarvestMachine?[combat]:combat.enemies?.length?combat.enemies:[combat];
+ for(const enemy of opponents){
+  if(enemy.hp>0)continue;
+  const taggedSingle=opponents.length===1&&combat.regionalCombatLoot?.type==='machine';
+  if((taggedSingle||mechanical.test(enemy.name))&&Math.random()<.5)r18RetainRoadReward('Uncommon Electrical Parts','material');
+ }
+}
 function startCombat(spec, source="encounter", townCost=false, openingAttack=false){
   if(townCost){ if(player.turns<=0){add("NO EXPEDITION TURNS REMAIN.","danger");return;} player.turns--; player.lifetimeTurns=(Number(player.lifetimeTurns)||0)+1; updateHud(); }
   combatState={...spec,hp:spec.hp,maxHp:spec.hp,source,bolts:Math.max(0,Number(spec.bolts)||0),enemies:spec.enemies?spec.enemies.map(e=>({...e,maxHp:e.hp})):undefined}; stage="combat";
@@ -1604,6 +1633,7 @@ function handleCombat(cmd){
   add(c.r18Bare?'You land a bare-knuckle punch.':`You swing the ${narrativeGearName(player.weapon).toLowerCase()} and connect.`);
   add("RESULT","system"); add(`YOU DEAL ${actualDamage}   ${c.enemies?.length?"GROUP TOTAL — ":""}${c.name} HP ${c.hp}/${c.maxHp}`,"reward");
   if(c.hp<=0){
+    r127AwardMechanicalParts(c);
     // Gunshop Owner: guaranteed firearm and meaningful victory payout.
     // Respect any reward already configured by the encounter, avoiding duplicate XP/Bolts.
     if(String(c.name||'').toUpperCase()==='GUNSHOP OWNER'){
@@ -1612,7 +1642,7 @@ function handleCombat(cmd){
       r18RetainRoadReward('Specialized Service Revolver','weapon');
       add('You recover the gunshop owner\'s service revolver.','reward');
     }
-    if(c.regionalCombatLoot)RoadScenarioRegistry.regionalCombatAward(c.regionalCombatLoot); if(c.wo2Reward)RoadScenarioRegistry.wo2Award(c.wo2Reward); if(c.wo3Reward)RoadScenarioRegistry.wo3Award(c.wo3Reward); if(c.wo4Reward)RoadScenarioRegistry.wo4Award(c.wo4Reward); if(c.r18BoneHunters&&c.r18BoneKnowledge)r18RetainRoadReward("Rope","material"); if(c.r18PowderBlueprint&&typeof r18PowderAward==='function')r18PowderAward(!c.r18PowderSatchelShot); if(c.r18TunnelBoar){r18RetainRoadReward("Raw Boar Meat","material");r18RetainRoadReward("Large Animal Bones","material");gainXp(Math.ceil(((Number(c.r18TunnelRatXp)||0)+(Number(c.xp)||0))*.5));} if(c.r18Harlan)player.flags.r18HarlanDefeated=true; if(c.r18OilDeke)player.flags.r18OilDekeDefeated=true; if(c.r18SilasFight)player.flags.r18SilasOutcome="defeated"; if(c.r18BlackSnow&&typeof r18BlackSnowCoins==="function")r18BlackSnowCoins(2); if(c.r18RoadEater&&typeof r18RoadEaterSalvage==="function")r18RoadEaterSalvage(); if(c.r18SaltGuards&&typeof r18FreeSaltWorkers==="function")r18FreeSaltWorkers(false); if(c.r18WaxCurator&&typeof r18WaxAward==="function")r18WaxAward(); if(c.r18GnomeCollector)player.flags.r18GnomeDefeated=true; if(c.r18WardenId){(player.flags.r18WardensDefeated||(player.flags.r18WardensDefeated={}))[c.r18WardenId]=true;} if(c.r18ChoirRaiders&&typeof r18ChoirSalvage==="function")r18ChoirSalvage(); if(c.r18HarvestMachine&&typeof r18HarvestSalvage==="function")r18HarvestSalvage(); if(c.r18GardenChickens){r18RetainRoadReward("Raw Chicken Meat","material");r18RetainRoadReward("Small Animal Bones","material");} if(c.r18SiloBoars){r18RetainRoadReward("Raw Boar Meat","material");r18RetainRoadReward("Large Animal Bones","material");} if(c.r18SchoolDeer){r18RetainRoadReward("Raw Venison","material");r18RetainRoadReward("Animal Bones","material");} if(c.r18CraneBirds){r18RetainRoadReward("Raw Bird Meat","material");r18RetainRoadReward("Small Animal Bones","material");} if(c.r18Pickens)player.flags.r18PickensResolved=true; if(c.r18Cellar)player.flags.r18CellarResolved=true; if(c.r18Drone)player.flags.r18DroneDisabled=true; if(c.r18Wheelbarrow){r18RetainRoadReward("Scrap Metal","material");r18RetainRoadReward("Raw Snake Meat","material");r18RetainRoadReward("Small Animal Bones","material");} add(c.end||`${c.name} is finished.`); resultBuffer=[]; if(c.r18WolfPack||c.r18RatPack){for(const name of (c.r18WolfPack?["Raw Wolf Meat","Animal Bones"]:["Raw Rat Meat","Small Animal Bones"])){if(!addPack(name,"material")){(player.flags.r5LootQueue||(player.flags.r5LootQueue=[])).push({name,type:"material",qty:1});add(name+" is held until you make room.","system");}}} if(c.r18ScrapClaim&&!player.flags.r18ScrapWreckLooted){if(!addPack("Scrap Metal","material")){(player.flags.r5LootQueue||(player.flags.r5LootQueue=[])).push({name:"Scrap Metal",type:"material",qty:1});add("The wreck salvage is held until you make room.","system");}player.flags.r18ScrapWreckLooted=true;} if(c.r18WreckersMedical){const med=r18WreckersMedical();addPack(med,"consumable");if(Math.random()<.35)addPack("Cloth","material");} if(c.xp) gainXp(isDark()?Math.ceil(c.xp*1.1):c.xp); const victoryBolts=String(c.name||'').toUpperCase()==='GUNSHOP OWNER'?Math.max(0,Number(c.bolts)||0):c.enemies?.length?c.enemies.filter(e=>e.defeated||e.hp===0).reduce((sum,e)=>sum+Math.max(0,Number(e.bolts)||0),0):c.bolts; if(victoryBolts) gainBolts(isDark()?Math.ceil(victoryBolts*1.1):victoryBolts); flushResults(); const source=c.source; combatState=null; if(source==="encounter"&&String(c.name||'').toUpperCase()!=='GUNSHOP OWNER'&&!c.wo2NoEquipment&&!c.r18WolfPack&&!c.r18RatPack&&!c.r18CraneBirds&&!c.r18SchoolDeer&&!c.r18SiloBoars&&!c.r18GardenChickens&&!c.r18HarvestMachine&&!c.r18RoadEater&&!c.r18TunnelRat&&!c.r18Wheelbarrow&&typeof v555AwardEquipmentDrop==="function")v555AwardEquipmentDrop(!!(c.r18DogPack||c.r18GuaranteeGear)); if(source==="wo4HospitalEntrance"){RoadScenarioRegistry.wo4HospitalMenu();} else if(source==="r11Elephant"){r11SteveVictory();} else if(source==="seaportLiberation"){portLiberationVictory();} else if(source==="seaportRoadFight"){portCombatWin(c);} else if(source==="factoryFight"){factoryCombatWin(c);} else if(source==="r18DepotFight"){r18DepotCombatWin();} else if(source==="r18StationFight"){r18StationCombatWin();} else if(source==="r18TournamentFight"){r18TournamentVictory(c);} else if(source==="r18AshFight"){r18AshVictory();} else if(source==="r18RedFight"){r18RedVictory();} else if(source==="jenBoss"){player.flags.jenQuest="rescued";addPack("Runner's Token","quest");add("QUEST UPDATED — LAST CALL: You rescue Jen's runner and recover their token. Return to Jen.","reward");completeRoadTurn();} else if(source==="terribleBilly"){player.flags.terribleBillyBounty="proof";add("BOUNTY PROOF ACQUIRED — TERRIBLE BILLY IS DOWN. Return to Tim in Solace.","reward");completeRoadTurn();} else if(source==="houseBoss"){player.flags.houseQuest="cleared";if(player.flags.timHouseBounty==="active")player.flags.timHouseBounty="proof";stage="house";add("The occupant abandons the house. Beneath his blanket, one floorboard sits loose.");if(player.flags.timHouseBounty==="proof")add("BOUNTY PROOF ACQUIRED — Return to Tim in Solace.","reward");add("QUEST UPDATED — Lift the floorboard to claim the house.","reward");showHouseChoices();} else if(source==="serviceBoss"){player.flags.serviceBossDead=true;player.flags.serviceReward=true;const oldWeapon=player.weapon,oldStolen=!!player.flags.r18EquippedStolen?.weapon;if(player.flags.r18EquippedStolen)player.flags.r18EquippedStolen.weapon=false; player.weapon="Yardman\'s Wrench"; if(!addPack(oldWeapon,"weapon",1,true,oldStolen)){(player.stash||(player.stash=[])).push({name:oldWeapon,type:"weapon",qty:1,...(oldStolen?{stolen:true}:{})});add("Previous weapon secured in bank storage; pack full.","system");} updateHud();add("UNCOMMON — YARDMAN\'S WRENCH — DMG 11–18","uncommon");add(`Equipped. ${oldWeapon} moved to your backpack.`,"reward");add("Scrap Yard is quiet now. Beyond it, the road disappears beneath collapsed trees and concrete.");stage="serviceRoad";serviceRoadDepth=3;add(serviceRoadChoices(),"system");} else if(source==="roadWanderer"){v50WandererLoot(c.name);markWandererDead(c.name); currentRoadWanderer=null; completeRoadTurn();} else if(source==="townWanderer"){v50WandererLoot(c.name);markWandererDead(c.name); currentTownWanderer=null; stage="mercy";showCurrentContext();} else if(c.r18TunnelRat&&Math.random()<.5){player.flags.r18TunnelBoarPending=true;player.flags.r18TunnelRatXp=Number(c.xp)||0;delete player.encounterDone[roadTurn];stage="encounter";add("A feral boar bursts from the tunnel. Fight or back away.","danger");renderCurrentChoices();} else if(source==="gateGuards"){player.flags.solaceGateChallenge=false;player.flags.mercyDiscovered=true;player.flags.mainSolaceQuest="done";stage="mercy";mercyLocation="town";add("You force the gate guard to stand down. The gate opens, and Tim steps forward to meet you.","bright");if(!player.flags.solaceCheckpointSaved){player.flags.solaceCheckpointSaved=true;saveGame(activeSaveSlot);add("CHECKPOINT REACHED — SOLACE AUTOSAVED","reward");}mercyMenu();} else { completeRoadTurn(); } return; }
+    if(c.regionalCombatLoot)RoadScenarioRegistry.regionalCombatAward(c.regionalCombatLoot); if(c.wo2Reward)RoadScenarioRegistry.wo2Award(c.wo2Reward); if(c.wo3Reward)RoadScenarioRegistry.wo3Award(c.wo3Reward); if(c.wo4Reward)RoadScenarioRegistry.wo4Award(c.wo4Reward); if(c.r18BoneHunters&&c.r18BoneKnowledge)r18RetainRoadReward("Rope","material"); if(c.r18TunnelBoar){r18RetainRoadReward("Raw Boar Meat","material");r18RetainRoadReward("Large Animal Bones","material");gainXp(Math.ceil(((Number(c.r18TunnelRatXp)||0)+(Number(c.xp)||0))*.5));} if(c.r18Harlan)player.flags.r18HarlanDefeated=true; if(c.r18OilDeke)player.flags.r18OilDekeDefeated=true; if(c.r18SilasFight)player.flags.r18SilasOutcome="defeated"; if(c.r18BlackSnow&&typeof r18BlackSnowCoins==="function")r18BlackSnowCoins(2); if(c.r18RoadEater&&typeof r18RoadEaterSalvage==="function")r18RoadEaterSalvage(); if(c.r18SaltGuards&&typeof r18FreeSaltWorkers==="function")r18FreeSaltWorkers(false); if(c.r18WaxCurator&&typeof r18WaxAward==="function")r18WaxAward(); if(c.r18GnomeCollector)player.flags.r18GnomeDefeated=true; if(c.r18WardenId){(player.flags.r18WardensDefeated||(player.flags.r18WardensDefeated={}))[c.r18WardenId]=true;} if(c.r18ChoirRaiders&&typeof r18ChoirSalvage==="function")r18ChoirSalvage(); if(c.r18HarvestMachine&&typeof r18HarvestSalvage==="function")r18HarvestSalvage(); if(c.r18GardenChickens){r18RetainRoadReward("Raw Chicken Meat","material");r18RetainRoadReward("Small Animal Bones","material");} if(c.r18SiloBoars){r18RetainRoadReward("Raw Boar Meat","material");r18RetainRoadReward("Large Animal Bones","material");} if(c.r18SchoolDeer){r18RetainRoadReward("Raw Venison","material");r18RetainRoadReward("Animal Bones","material");} if(c.r18CraneBirds){r18RetainRoadReward("Raw Bird Meat","material");r18RetainRoadReward("Small Animal Bones","material");} if(c.r18Pickens)player.flags.r18PickensResolved=true; if(c.r18Cellar)player.flags.r18CellarResolved=true; if(c.r18Drone)player.flags.r18DroneDisabled=true; if(c.r18Wheelbarrow){r18RetainRoadReward("Scrap Metal","material");r18RetainRoadReward("Raw Snake Meat","material");r18RetainRoadReward("Small Animal Bones","material");} add(c.end||`${c.name} is finished.`); resultBuffer=[]; if(c.r18WolfPack||c.r18RatPack){for(const name of (c.r18WolfPack?["Raw Wolf Meat","Animal Bones"]:["Raw Rat Meat","Small Animal Bones"])){if(!addPack(name,"material")){(player.flags.r5LootQueue||(player.flags.r5LootQueue=[])).push({name,type:"material",qty:1});add(name+" is held until you make room.","system");}}} if(c.r18ScrapClaim&&!player.flags.r18ScrapWreckLooted){if(!addPack("Scrap Metal","material")){(player.flags.r5LootQueue||(player.flags.r5LootQueue=[])).push({name:"Scrap Metal",type:"material",qty:1});add("The wreck salvage is held until you make room.","system");}player.flags.r18ScrapWreckLooted=true;} if(c.r18WreckersMedical){const med=r18WreckersMedical();addPack(med,"consumable");if(Math.random()<.35)addPack("Cloth","material");} if(c.xp) gainXp(isDark()?Math.ceil(c.xp*1.1):c.xp); const victoryBolts=String(c.name||'').toUpperCase()==='GUNSHOP OWNER'?Math.max(0,Number(c.bolts)||0):c.enemies?.length?c.enemies.filter(e=>e.defeated||e.hp===0).reduce((sum,e)=>sum+Math.max(0,Number(e.bolts)||0),0):c.bolts; if(victoryBolts) gainBolts(isDark()?Math.ceil(victoryBolts*1.1):victoryBolts); flushResults(); const source=c.source; combatState=null; if(source==="encounter"&&String(c.name||'').toUpperCase()!=='GUNSHOP OWNER'&&!c.wo2NoEquipment&&!c.r18WolfPack&&!c.r18RatPack&&!c.r18CraneBirds&&!c.r18SchoolDeer&&!c.r18SiloBoars&&!c.r18GardenChickens&&!c.r18HarvestMachine&&!c.r18RoadEater&&!c.r18TunnelRat&&!c.r18Wheelbarrow&&typeof v555AwardEquipmentDrop==="function")v555AwardEquipmentDrop(!!(c.r18DogPack||c.r18GuaranteeGear)); if(source==="wo4HospitalEntrance"){RoadScenarioRegistry.wo4HospitalMenu();} else if(source==="r11Elephant"){r11SteveVictory();} else if(source==="seaportLiberation"){portLiberationVictory();} else if(source==="seaportRoadFight"){portCombatWin(c);} else if(source==="factoryFight"){factoryCombatWin(c);} else if(source==="r18DepotFight"){r18DepotCombatWin();} else if(source==="r18StationFight"){r18StationCombatWin();} else if(source==="r18TournamentFight"){r18TournamentVictory(c);} else if(source==="r18AshFight"){r18AshVictory();} else if(source==="r18RedFight"){r18RedVictory();} else if(source==="jenBoss"){player.flags.jenQuest="rescued";addPack("Runner's Token","quest");add("QUEST UPDATED — LAST CALL: You rescue Jen's runner and recover their token. Return to Jen.","reward");completeRoadTurn();} else if(source==="terribleBilly"){player.flags.terribleBillyBounty="proof";add("BOUNTY PROOF ACQUIRED — TERRIBLE BILLY IS DOWN. Return to Tim in Solace.","reward");completeRoadTurn();} else if(source==="houseBoss"){player.flags.houseQuest="cleared";if(player.flags.timHouseBounty==="active")player.flags.timHouseBounty="proof";stage="house";add("The occupant abandons the house. Beneath his blanket, one floorboard sits loose.");if(player.flags.timHouseBounty==="proof")add("BOUNTY PROOF ACQUIRED — Return to Tim in Solace.","reward");add("QUEST UPDATED — Lift the floorboard to claim the house.","reward");showHouseChoices();} else if(source==="serviceBoss"){player.flags.serviceBossDead=true;player.flags.serviceReward=true;const oldWeapon=player.weapon,oldStolen=!!player.flags.r18EquippedStolen?.weapon;if(player.flags.r18EquippedStolen)player.flags.r18EquippedStolen.weapon=false; player.weapon="Yardman\'s Wrench"; if(!addPack(oldWeapon,"weapon",1,true,oldStolen)){(player.stash||(player.stash=[])).push({name:oldWeapon,type:"weapon",qty:1,...(oldStolen?{stolen:true}:{})});add("Previous weapon secured in bank storage; pack full.","system");} updateHud();add("UNCOMMON — YARDMAN\'S WRENCH — DMG 11–18","uncommon");add(`Equipped. ${oldWeapon} moved to your backpack.`,"reward");add("Scrap Yard is quiet now. Beyond it, the road disappears beneath collapsed trees and concrete.");stage="serviceRoad";serviceRoadDepth=3;add(serviceRoadChoices(),"system");} else if(source==="roadWanderer"){v50WandererLoot(c.name);markWandererDead(c.name); currentRoadWanderer=null; completeRoadTurn();} else if(source==="townWanderer"){v50WandererLoot(c.name);markWandererDead(c.name); currentTownWanderer=null; stage="mercy";showCurrentContext();} else if(c.r18TunnelRat&&Math.random()<.5){player.flags.r18TunnelBoarPending=true;player.flags.r18TunnelRatXp=Number(c.xp)||0;delete player.encounterDone[roadTurn];stage="encounter";add("A feral boar bursts from the tunnel. Fight or back away.","danger");renderCurrentChoices();} else if(source==="gateGuards"){player.flags.solaceGateChallenge=false;player.flags.mercyDiscovered=true;player.flags.mainSolaceQuest="done";stage="mercy";mercyLocation="town";add("You force the gate guard to stand down. The gate opens, and Tim steps forward to meet you.","bright");if(!player.flags.solaceCheckpointSaved){player.flags.solaceCheckpointSaved=true;saveGame(activeSaveSlot);add("CHECKPOINT REACHED — SOLACE AUTOSAVED","reward");}mercyMenu();} else { completeRoadTurn(); } return; }
   // The lookout has two player attacks to blow her whistle. Defeating her
   // before that point prevents reinforcements; once signaled, the gang joins.
   if(c.name==="GANG LOOKOUT" && !c.reinforcementsArrived){
@@ -1898,6 +1928,7 @@ function v49FactoryRoom(){
   add("(T) TOMORROW PROJECT TERMINAL   (F) TALK TO FORGE   (W) WORKBENCH   (D) ENTER INNER FACTORY — FREE (0 TURNS)   (E) EXIT FACTORY"+(typeof portReady==="function"&&player.flags.portChargePrepared?"   ROAD TO SEAPORT":""),"system");
 }
 // v49.1: tutorial materials are bench-bound, never added to sellable inventory.
+const REINFORCED_BANDAGE_SECONDS=120;
 const CRAFT_RECIPES={
   bandage:{name:'Reinforced Bandage',cloth:2,scrap:1,bolts:0,seconds:30,chance:.9,type:'consumable'},
   ironReaper:{name:'Iron Reaper',cloth:3,scrap:8,wire:4,bolts:75,seconds:30,chance:.9,type:'weapon',minLevel:6}
@@ -1955,7 +1986,7 @@ function v49Workbench(){
     add(`REINFORCED BANDAGE — ${remaining?`${remaining} SECONDS REMAINING`:'READY TO COLLECT'}`,'system');
     add(remaining?'(C) CHECK TIMER   (B) BACK':'(C) COLLECT RESULT   (B) BACK','system');return;}
   const kit=player.flags.v49Kit||{cloth:0,scrap:0};
-  add('RECIPE: REINFORCED BANDAGE   TIME: 30 REAL SECONDS   SUCCESS: 90%','system');
+  add('RECIPE: REINFORCED BANDAGE   TIME: 2 MINUTES   SUCCESS: 90%','system');
   add(`WORKSHOP KIT: CLOTH ${kit.cloth}/2   SCRAP METAL ${kit.scrap}/1`,'system');
   add('(I) INSERT MATERIALS   (B) BACK','system');
 }
@@ -1963,8 +1994,7 @@ function v49MurphyRecipes(){
   player.flags.v49MurphyMenu='recipes';
   add("MURPHY'S MOTOR WORKS — CRAFTING",'place');
   if(!player.flags.v49RecipeBandage){add('NO RECIPES LEARNED. Visit Forge at the Factory for your first lesson.','system');add('(B) BACK','system');return;}
-  add('[1] REINFORCED BANDAGE — 2 Cloth, 1 Scrap Metal — 30 sec — 90%','system');
-  if(player.level>=6)add('[3] IRON REAPER — 8 Scrap Metal, 4 Wire, 3 Cloth, 75 Bolts — 120 sec — 90% — LEVEL 6','system');
+  add('[1] REINFORCED BANDAGE — 2 Cloth, 1 Scrap Metal — 120 sec — 70%','system');
   add('(B) BACK','system');
 }
 function v49MurphyRecipe(key){
@@ -2018,7 +2048,7 @@ function v49MurphyCommand(cmd){
     if(player.flags.v49RecipeBandage&&['1','reinforced bandage'].includes(cmd)){
       v49MurphyRecipe('bandage');return true;
     }
-    if(player.flags.v49RecipeBandage&&player.level>=6&&['3','iron reaper'].includes(cmd)){v49MurphyRecipe('ironReaper');return true;}
+    if(player.flags.v49RecipeBandage&&r11Learned('ironReaper')&&player.level>=6&&['3','iron reaper'].includes(cmd)){v49MurphyRecipe('ironReaper');return true;}
     v49MurphyRecipes();return true;
   }
   if(['craft','crafting','recipes','workbench','use workbench','crafting recipes'].includes(cmd)){v49MurphyRecipes();return true;}
@@ -2080,9 +2110,9 @@ function v49FactoryCommand(cmd){
       if(kit.cloth<2||kit.scrap<1){add('NO PRACTICE KIT AT THE BENCH. TALK TO FORGE.','danger');v49Workbench();return true;}
       // Atomically consume the entire workshop-only kit; no regular inventory ever receives it.
       delete player.flags.v49Kit;
-      player.flags.v49Job={endsAt:Date.now()+30000,success:Math.random()<.9};
+      player.flags.v49Job={endsAt:Date.now()+REINFORCED_BANDAGE_SECONDS*1000,success:Math.random()<.9};
       v49Autosave();
-      add('MATERIALS INSERTED — 30-SECOND REAL-TIME CRAFT STARTED. ZERO TURNS SPENT.','reward');v49Workbench();return true;
+      add('MATERIALS INSERTED — 2-MINUTE REAL-TIME CRAFT STARTED. ZERO TURNS SPENT.','reward');v49Workbench();return true;
     }
     if(['c','check','check timer','collect','collect result'].includes(cmd)){
       const job=player.flags.v49Job;
@@ -2519,7 +2549,7 @@ function awardRelayPart(key,name){ const rp=ensureRelayParts(); if(rp[key]){add(
 function inspectRelaySystem(key){ player.flags.relayInspected=player.flags.relayInspected||{}; player.flags.relayInspected[key]=true; const n=Object.values(player.flags.relayInspected).filter(Boolean).length; add(`RELAY DIAGNOSTICS — ${n}/4 SYSTEMS INSPECTED`,"system"); if(n>=4) revealRelayParts(); else add("QUEST UPDATED — New Relay clue recorded in QUESTS.","reward"); }
 function revealRelayParts(){ ensureRelayParts(); if(player.flags.relayPartsRevealed)return; player.flags.relayPartsRevealed=true; player.flags.relayBranchDiscovered=true; add("The failures are not one problem. They're four.","bright"); add("RELAY REPAIR — FOUR COMPONENTS REQUIRED","reward"); add("POWER REGULATOR — Johnny may have something this old.","system"); add("ANTENNA SERVO — Scrap Yard holds the county motor assemblies; the Yardman guards them.","system"); add("SHIELDED FEED COUPLER — A signal cabinet stands on Old Service Road, west of Works Junction.","system"); add("SIGNAL-CONDITIONING MODULE — Old communications equipment waits at the Factory crossroads, south of Solace.","system"); add("QUEST UPDATED — All four clues recorded in QUESTS. LOWER ACCESS ROAD UNLOCKED.","reward"); }
 const RELAY_REWARD_POOL=Object.freeze([
- "Tempered Steel Pipe","Balanced Hunting Knife","Precision Hunting Rifle","Tempered Combat Machete","Specialized Service Revolver",
+ "Balanced Hunting Knife","Precision Hunting Rifle","Tempered Combat Machete","Specialized Service Revolver",
  "Advanced Relay Vest","Padded Tactical Jacket","Tempered Leather Armor","Salvaged Security Vest","Insulated Patrol Coat"
 ]);
 function selectRelayEquipment(rng=Math.random){return RELAY_REWARD_POOL[Math.floor(rng()*RELAY_REWARD_POOL.length)];}
@@ -2595,7 +2625,7 @@ function smallTalk(name){
 }
 // Individual stock is stored with the character, never regenerated by opening the shop.
 const VENDOR_BASE={"Emergency Trauma Kit":200,"Battered Flashlight":20,"Rusted Pipe":12,"Worn Jacket":10,"Tent":12,"Energy Bars":8,"Clean Water":10,"Bandage":12,"Reinforced Jacket":45,"Claw Hammer":50,"Tire Iron":80,"Reinforced Pipe":48,"Tempered Steel Pipe":125,"Padded Jacket":45,"Hardened Scavenger Coat":135,"Devastator's Iron Pipe":320,"Wraith's Reinforced Coat":340,"Worn Leather Wristband":18,"Lucky Bottle Cap":15,"Worn Belt":22,"Scavenger's Charm":55,"Reinforced Dog Tags":60,"Road Warrior's Bracelet":65};
-const VENDOR_POOL=["Rusted Pipe","Worn Jacket","Reinforced Jacket","Claw Hammer","Tire Iron","Reinforced Pipe","Tempered Steel Pipe","Padded Jacket","Hardened Scavenger Coat","Devastator's Iron Pipe","Wraith's Reinforced Coat","Worn Leather Wristband","Lucky Bottle Cap","Worn Belt","Scavenger's Charm","Reinforced Dog Tags","Road Warrior's Bracelet"];
+const VENDOR_POOL=["Rusted Pipe","Worn Jacket","Reinforced Jacket","Claw Hammer","Tire Iron","Padded Jacket","Hardened Scavenger Coat","Devastator's Iron Pipe","Wraith's Reinforced Coat","Worn Leather Wristband","Lucky Bottle Cap","Worn Belt","Scavenger's Charm","Reinforced Dog Tags","Road Warrior's Bracelet"];
 function refreshVendorStock(){
   const common=VENDOR_POOL.filter(x=>GEAR[x].rarity==="common"),uncommon=VENDOR_POOL.filter(x=>GEAR[x].rarity==="uncommon"),rare=VENDOR_POOL.filter(x=>GEAR[x].rarity==="rare");
   const thirdPool=Math.random()<.05?rare:uncommon;
@@ -2610,6 +2640,7 @@ function ensureVendorStock(){
   const retained=player.vendorStock.find(x=>GEAR[x]?.rarity==="uncommon")||"Claw Hammer";player.vendorStock=["Rusted Pipe","Worn Jacket",retained];player.vendorPolicyVersion=44;
  }
  if(!Array.isArray(player.vendorSold))player.vendorSold=[];
+ player.vendorStock=player.vendorStock.filter(name=>!r127RetiredItem(name));
 }
 function johnnyWaterStock(){
  const period=Number(player.flags.nextRefillAt)||0;
@@ -2633,10 +2664,9 @@ function johnnyShop(){
   add(`ENERGY BAR — RESTORE 10% MAX HP — ${johnnyPrice("Energy Bars")} BOLTS`,"system");add(`BANDAGE — RESTORE 25% MAX HP — ${johnnyPrice("Bandage")} BOLTS`,"system");
   johnnyWaterListing();
   add(`BATTERED FLASHLIGHT — 20 BOLTS`,"system");
-  add(`TENT — ${johnnyPrice("Tent")} BOLTS — one use for overnight camp.`,"system");
   if(player.packMax-(player.flags.r5MuleBonus||0)<10)add(`10-SLOT BACKPACK — ${V48_BACKPACK_PRICE} BOLTS`,"system");
   const scrap=findItem("Scrap Metal"),sq=scrap?scrap.qty:0;add(`SCRAP: ${sq} — ${sq*4} BOLTS. Stock refreshes at daily refill.`,"system");
-  add(["BUY ENERGY BAR",...(johnnyWaterStock().qty>0?["BUY CLEAN WATER"]:[]),"BUY BANDAGE","BUY BATTERED FLASHLIGHT","SMALL TALK",...(player.flags.relayPartsRevealed&&player.flags.relayQuest!=="complete"?["ASK ABOUT RELAY PARTS"]:[]),"BUY TENT","BUY","SELL ITEMS",...(player.flags.r18MarthaSettled?["OLD WORLD COUNTER"]:[]),...(player.packMax-(player.flags.r5MuleBonus||0)<10?["BUY 10-SLOT BACKPACK"]:[]),...(sq?["SELL ALL SCRAP"]:[]),"(B) BACK"].join("   "),"system");
+  add(["BUY ENERGY BAR",...(johnnyWaterStock().qty>0?["BUY CLEAN WATER"]:[]),"BUY BANDAGE","BUY BATTERED FLASHLIGHT","SMALL TALK",...(player.flags.relayPartsRevealed&&player.flags.relayQuest!=="complete"?["ASK ABOUT RELAY PARTS"]:[]),"BUY","SELL ITEMS",...(player.flags.r18MarthaSettled?["OLD WORLD COUNTER"]:[]),...(player.packMax-(player.flags.r5MuleBonus||0)<10?["BUY 10-SLOT BACKPACK"]:[]),...(sq?["SELL ALL SCRAP"]:[]),"(B) BACK"].join("   "),"system");
 }
 function showEquipmentShop(){
  player.flags.solaceMenu="equipment";add("SCRAP & STEEL ARMORY — MARA — DAILY EQUIPMENT",'place');
@@ -2645,7 +2675,7 @@ function showEquipmentShop(){
 }
 function vendorReturnMenu(){return player.flags.solaceMenu==="equipment"?showEquipmentShop():johnnyShop();}
 function buyJohnny(item){
- ensureVendorStock();if(!["Energy Bars","Clean Water","Bandage","Tent","Battered Flashlight",...player.vendorStock].includes(item)){add("JOHNNY > Not in today's stock.","system");vendorReturnMenu();return;}
+ ensureVendorStock();if(r127RetiredItem(item)||!["Energy Bars","Clean Water","Bandage","Battered Flashlight",...player.vendorStock].includes(item)){add("JOHNNY > Not in today's stock.","system");vendorReturnMenu();return;}
  if(player.vendorSold.includes(item)||(item==="Clean Water"&&johnnyWaterStock().qty<1)){add("JOHNNY > Sold out. Try tomorrow.","system");vendorReturnMenu();return;}
  if(GEAR[item] && mercyLocation!=="mara"){add("Weapons and armor are sold at Scrap & Steel Armory.","system");return;}
  const price=johnnyPrice(item);if(player.bolts<price){add(`INSUFFICIENT BOLTS — ${price} required; you carry ${player.bolts}.`,"system");vendorReturnMenu();return;}
@@ -2749,7 +2779,7 @@ function handleSolace(cmd, raw=cmd){
   if((cmd.includes("talk to tim")||cmd==="talk tim"||cmd==="tim") && player.flags.timQuest==="found" && hasItem("Tim's Old Badge")){removeItem("Tim's Old Badge");player.flags.timQuest="done";add("Tim turns the badge over in his palm for a long moment.");add(`TIM > Thought I'd lost this part of myself for good. Thanks, ${player.handle}.`,"bright");add("QUEST COMPLETE — THE OLD BADGE","place");gainXp(120);gainBolts(30);return;}
   if((cmd.includes("talk to murphy")||cmd==="talk murphy"||cmd==="murphy") && player.flags.murphyQuest==="found" && hasItem("Usable Serpentine Belt")){removeItem("Usable Serpentine Belt");player.flags.murphyQuest="done";add("Murphy bends the belt, checks the ribs, then actually smiles.");add("MURPHY > That's one good belt. Knew there had to be one left out there.","bright");add("QUEST COMPLETE — ONE GOOD BELT","place");gainXp(120);gainBolts(35);if(!hasItem("Reinforced Work Vest")&&player.armor!=="Reinforced Work Vest")addPack("Reinforced Work Vest","armor");return;}
   // Match only displayed personal stock, never stale hard-coded items.
-  if(mercyLocation==="johnny" && cmd.startsWith("buy ")){ensureVendorStock();const wanted=cmd.slice(4).trim();const item=["Energy Bars","Clean Water","Bandage","Tent","Battered Flashlight",...player.vendorStock].find(x=>x.toLowerCase()===wanted || (x==="Energy Bars"&&wanted==="energy bar"));if(item){buyJohnny(item);return;}add("JOHNNY > I don't have that today.","system");johnnyShop();return;}
+  if(mercyLocation==="johnny" && cmd.startsWith("buy ")){ensureVendorStock();const wanted=cmd.slice(4).trim();const item=["Energy Bars","Clean Water","Bandage","Battered Flashlight",...player.vendorStock].find(x=>x.toLowerCase()===wanted || (x==="Energy Bars"&&wanted==="energy bar"));if(item){buyJohnny(item);return;}add("JOHNNY > I don't have that today.","system");johnnyShop();return;}
   if(mercyLocation==="wayne" && cmd.includes("buy") && cmd.includes("bandage")){ if(player.bolts<8){add("WAYNE > Eight Bolts. Medicine is cheaper than bleeding to death.","system");return;} if(packSlotsUsed()>=player.packMax && !hasItem("Bandage")){add("Your pack is full.","system");return;} player.bolts-=8; updateHud(); addPack("Bandage","consumable"); add("WAYNE > Try using it before you can see bone.","bright"); return; }
   if(cmd.includes("sell") && cmd.includes("scrap")){ const it=findItem("Scrap Metal"); if(!it){add("JOHNNY > You're trying to sell me scrap you don't have. Bold strategy.","system");return;} const qty=cmd.includes("all")?it.qty:1; removeItem("Scrap Metal",qty); player.bolts+=4*qty; updateHud(); add(`+${4*qty} BOLTS`, "reward"); add(`JOHNNY > ${qty} scrap. Fair enough.`); if(mercyLocation==="johnny")johnnyShop(); return; }
   if(cmd.includes("inspect") && (cmd.includes("corvette")||cmd.includes("photo")) || cmd.includes("about corvette")){ add("You step closer to the faded photograph. A bright blue Corvette sits under a sky that looks almost impossibly clean."); add("Murphy glances over and smiles. MURPHY > Blue Corvette. That's what cars were supposed to look like.","bright"); return; }
@@ -3264,7 +3294,7 @@ async function handleCommandCore(raw) {
     if(testMode){ add("TEST MODE ACTIVE — Turns are unlimited. Type TEST OFF to restore the real counter.","reward"); stage="between"; showEncounter(); return; }
     if(player.flags.overnightLocked){ add(`OVERNIGHT STATE LOCKED — ${overnightLabel(player.flags.overnight)}`,"bright"); add(`NEXT TURN REFILL: ${refillText()}`,"system"); add(`SAVE CURRENT   STATUS   INVENTORY   MAP${QA_BUILD?"   TESTING":""}`,"system"); return; }
     const choice=cmd.includes("camp")&&cmd.includes("mine")?"minecamp":cmd==="c"||cmd.includes("camp")?"camp":cmd==="r"||cmd.includes("remain")||cmd.includes("road")?"road":cmd==="j"||cmd.includes("room")?"room":null;
-    if(choice){if(choice==="minecamp"&&(!r18ExactTent("Mine-Protected Tent")||!r18MineCampAllowed())){add("A Mine-Protected Tent and an outdoor road location are required.","system");add(overnightChoices(),"system");return;}if(choice==="camp"&&!r18ExactTent("Tent")){add("MAKE CAMP REQUIRES 1 TENT. Choose REMAIN ON ROAD or a paid room in Solace.","system");add(overnightChoices(),"system");return;}if(choice==="room"&&!overnightRoomAvailable()){add("No paid room is available here.","system");add(overnightChoices(),"system");return;}
+    if(choice){if(choice==="camp"||choice==="minecamp"){add("Tent camping is currently unavailable.","system");add(overnightChoices(),"system");return;}
       player.flags.pendingOvernight=choice;add(`${overnightLabel(choice)}?`,"bright");add(choice==="minecamp"?"Consumes 1 Mine-Protected Tent. No overnight losses. No loot.":choice==="camp"?"Consumes 1 Tent. Low, nonzero loss risk. No loot.":choice==="room"?"Use your prepaid room. No overnight losses. No loot.":"No supplies required. Higher loss risk. No loot.","system");add("(Y) CONFIRM   (N) CANCEL","system");stage="overnightConfirm";
     }else noTurnsMenu();return;
   }

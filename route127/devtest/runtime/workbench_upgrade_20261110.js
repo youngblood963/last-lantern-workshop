@@ -89,7 +89,7 @@ function draw(){
  for(const tab of ['Items','Weapons','Armor','Upgrade'])button(tabs,tab,()=>{state.tab=tab;state.selected=null;state.upgrade=null;draw()},false,tab===state.tab?'active':'');
  button(tabs,'Close',close);
  if(state.tab==='Upgrade'){drawUpgrade(panel);return}
- const category={Items:['consumable','material','supply','tool'],Weapons:['weapon'],Armor:['armor']}[state.tab];
+ const category={Items:['consumable','material','supply','tool','quest'],Weapons:['weapon'],Armor:['armor']}[state.tab];
  const keys=Object.keys(CRAFT_RECIPES).filter(k=>r11Learned(k)&&category.includes(CRAFT_RECIPES[k].type)&&k!=='pipe');
  const list=el(panel,'div','','r127-bench-list');
  for(const key of keys)button(list,CRAFT_RECIPES[key].name,()=>{state.selected=key;draw()},false,state.selected===key?'active':'');

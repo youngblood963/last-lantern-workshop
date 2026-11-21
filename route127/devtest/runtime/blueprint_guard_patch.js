@@ -20,7 +20,7 @@ handleCommandCore=async function(raw){
  if(!busy&&stage==='mercy'&&mercyLocation==='murphy'&&cmd.startsWith('learn ')){
   const key=Object.keys(CRAFT_RECIPES).find(k=>CRAFT_RECIPES[k].name.toLowerCase()===cmd.slice(6));
   if(epic.has(key)){
-   add('Epic blueprints cannot be purchased here. Find them through high-level exploration.','system');
+   add('Epic crafting is currently paused.','system');
    return;
   }
  }

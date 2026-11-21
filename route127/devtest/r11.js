@@ -114,37 +114,33 @@ Object.assign(CRAFT_RECIPES,{
 // Approved library recipe rarity/time; existing saved jobs keep their absolute deadline.
 if(CRAFT_RECIPES.bandage)CRAFT_RECIPES.bandage.rarity='rare';
 for(const recipe of Object.values(CRAFT_RECIPES))recipe.seconds=R11_TIMES[recipe.rarity||GEAR[recipe.name]?.rarity||'common'];
-const REINFORCED_BANDAGE_SECONDS=120;
 if(CRAFT_RECIPES.bandage)CRAFT_RECIPES.bandage.seconds=REINFORCED_BANDAGE_SECONDS;
 
-// DEVTEST loads the shared Factory handler. Override only new tutorial jobs.
-const r11FactoryCommand=v49FactoryCommand;
-v49FactoryCommand=function(cmd){
- const kit=player.flags.v49Kit;
- if(stage!=='factoryBench'||!['i','insert','insert materials'].includes(cmd)||
-    player.flags.v49RecipeBandage||player.flags.v49Job||!(kit?.cloth>=2&&kit?.scrap>=1))
-  return r11FactoryCommand.apply(this,arguments);
- delete player.flags.v49Kit;
- player.flags.v49Job={endsAt:Date.now()+REINFORCED_BANDAGE_SECONDS*1000,success:Math.random()<.9};
- v49Autosave();
- add('MATERIALS INSERTED — 2-MINUTE REAL-TIME CRAFT STARTED. ZERO TURNS SPENT.','reward');
- v49Workbench();
- return true;
-};
-
 const R11_DISABLED_EPIC_RECIPES=new Set(['widowmaker','keeperCoat']);
-function r11Learned(key){if(R11_DISABLED_EPIC_RECIPES.has(key))return false;r11Migrate();return !!player.flags.r11Learned[key]||(player.flags.v49RecipeBandage&&['bandage','pipe'].includes(key));}
+const R11_RETIRED_RECIPES=new Set(['pipe','reinforcedPipe','temperedPipe','mineTent']);
+for(const key of R11_RETIRED_RECIPES){
+ if(CRAFT_RECIPES[key])Object.defineProperty(CRAFT_RECIPES,key,{enumerable:false});
+}
+function r11RecipeAvailable(key){
+ if(R11_DISABLED_EPIC_RECIPES.has(key)||R11_RETIRED_RECIPES.has(key))return false;
+ if(key==='corvetteGlue'||key==='corvetteWindshield'){
+  return !CorvetteRestoration.state().delivered.windshield&&!CorvetteRestoration.count('Restored Corvette Windshield');
+ }
+ return true;
+}
+function r11Discoverable(key){return key!=='ironReaper'&&r11RecipeAvailable(key);}
+function r11Learned(key){if(!r11RecipeAvailable(key))return false;r11Migrate();return !!player.flags.r11Learned[key]||(player.flags.v49RecipeBandage&&['bandage','pipe'].includes(key));}
 function r11Blueprint(source){
  const rates={combat:.02,exploration:.015,salvage:.025,boss:.10};
  if(!rates[source]||Math.random()>=rates[source])return false;
- const pool=['reinforcedPipe','ironReaper','boneTomahawk','boneArmor'].filter(k=>!r11Learned(k));if(!pool.length)return false;
+ const pool=['boneTomahawk','boneArmor'].filter(k=>!r11Learned(k));if(!pool.length)return false;
  const key=pool[Math.floor(Math.random()*pool.length)];player.flags.r11Learned[key]=true;add('BLUEPRINT LEARNED — '+CRAFT_RECIPES[key].name,'reward');return true;
 }
 const r11Drop=v555AwardEquipmentDrop;v555AwardEquipmentDrop=function(...args){r11Drop(...args);r11Blueprint('combat');};
 const r11Resolve=resolveEncounter;resolveEncounter=function(cmd){
  const oldStage=stage,title=currentEncounter()?.title,oldDone=player.encounterDone?.[roadTurn];
  r11Resolve(cmd);
- if(oldStage==='encounter'&&['turnComplete','r6Road'].includes(stage)&&!/^move on|^back away|^leave/.test(cmd)){
+ if(oldStage==='encounter'&&!/POWDER MONKEY/i.test(title||'')&&['turnComplete','r6Road'].includes(stage)&&!/^move on|^back away|^leave/.test(cmd)){
   const key=title+'|'+roadGoal+'|'+roadTurn+'|'+(r6Road()?.serial||0);
   if(player.flags.r11LastBlueprintScene!==key){player.flags.r11LastBlueprintScene=key;r11Blueprint(player.flags.r10LastRoadCategory==='salvage'?'salvage':'exploration');}
  }
@@ -221,8 +217,8 @@ function r11CraftMenu(where=player.flags.r11Bench||'murphy'){
  if(job){add(CRAFT_RECIPES[job.key].name+' — '+(Date.now()>=job.endsAt?'READY TO COLLECT':Math.ceil((job.endsAt-Date.now())/1000)+' seconds remaining'),'system');r5DirectChoices(['COLLECT CRAFT','BACK']);return;}
  if(!player.flags.v49RecipeBandage){add('Learn introductory crafting from Forge before using found blueprints.','system');r5DirectChoices(['BACK']);return;}
  if(player.flags.r18FoodDraft)return r18FoodCraftMenu();
- const keys=Object.keys(CRAFT_RECIPES).filter(k=>!R11_DISABLED_EPIC_RECIPES.has(k)&&r11Learned(k));
- add(`LEARNED: ${keys.length}   UNDISCOVERED: ${Object.keys(CRAFT_RECIPES).filter(k=>!R11_DISABLED_EPIC_RECIPES.has(k)).length-keys.length}`,'system');
+ const keys=Object.keys(CRAFT_RECIPES).filter(k=>r11RecipeAvailable(k)&&r11Learned(k));
+ add(`LEARNED: ${keys.length}   UNDISCOVERED: ${Object.keys(CRAFT_RECIPES).filter(k=>r11RecipeAvailable(k)).length-keys.length}`,'system');
  for(const k of keys){const r=CRAFT_RECIPES[k],m={Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0,'Tempered Steel':r.tempered||0,'Small Animal Bones':r.smallBones||0,'Animal Bones':r.bones||0,'Explosive Components':r.explosives||0,'Animal Hide':r.hide||0,...(r.materials||{})};const missing=Object.entries(m).some(([n,q])=>r6MaterialCount(n)<q)||Object.entries(r.questInputs||{}).some(([n,q])=>CorvetteRestoration.count(n)<q)||!!r.food?.some(k=>!r18FoodOptions(r,k).length)||!!(r.basicTent&&!r18ExactTent('Tent'))||player.bolts<r.bolts||(r.minLevel&&player.level<r.minLevel);add(`${r.name} — ${(r.rarity||GEAR[r.name]?.rarity||'common').toUpperCase()} — ${r.seconds}s — ${Math.round(r.chance*100)}% — ${r.food?'Choose: '+r.food.map(k=>r18FoodAmount(r,k)>1?r18FoodAmount(r,k)+' '+k:k).join(', '):[...(r.basicTent?['Tent '+(r18ExactTent('Tent')?'1/1':'0/1')]:[]),...Object.entries(m).filter(([,q])=>q).map(([n,q])=>`${n} ${r6MaterialCount(n)}/${q}`),...Object.entries(r.questInputs||{}).map(([n,q])=>`${n} ${CorvetteRestoration.count(n)}/${q}`)].join(', ')} — Bolts ${player.bolts}/${r.bolts} — ${missing?'UNAVAILABLE':'READY'}`,r.rarity||GEAR[r.name]?.rarity||'system');}
  r5DirectChoices([...keys.filter(k=>!CRAFT_RECIPES[k].minLevel||player.level>=CRAFT_RECIPES[k].minLevel).map(k=>'CRAFT '+CRAFT_RECIPES[k].name.toUpperCase()),'BACK']);
 }
@@ -511,17 +507,17 @@ Object.assign(GEAR,{'Crude Shiv':{rarity:'common',type:'weapon',min:4,max:9},'Wo
 const R11_WANDERER_KITS={
  Hollis:['Rusted Pipe','Worn Jacket'],June:['Crude Shiv','Worn Canvas Coat'],Ash:['Worn Crowbar','Worn Jacket'],
  Moss:['Rusted Pipe','Padded Jacket'],Vera:['Claw Hammer','Worn Canvas Coat'],Lark:['Crude Shiv','Reinforced Jacket'],
- Rook:['Reinforced Pipe','Padded Jacket'],Kettle:['Heavy Wrench','Reinforced Work Vest'],Bram:['Claw Hammer','Reinforced Jacket'],
- Deke:['Tire Iron','Padded Jacket'],Patch:['Heavy Wrench','Padded Jacket'],Tess:['Reinforced Pipe','Reinforced Work Vest'],
- Flint:['Tempered Steel Pipe','Reinforced Jacket'],Sable:['Balanced Hunting Knife','Tempered Leather Armor'],Cricket:['Claw Hammer','Reinforced Work Vest'],
- Rowan:['Reinforced Pipe','Advanced Relay Vest'],Harlow:['Specialized Service Revolver','Padded Tactical Jacket'],Bolt:['Heavy Wrench','Insulated Patrol Coat'],
+ Rook:['Claw Hammer','Padded Jacket'],Kettle:['Heavy Wrench','Reinforced Work Vest'],Bram:['Claw Hammer','Reinforced Jacket'],
+ Deke:['Tire Iron','Padded Jacket'],Patch:['Heavy Wrench','Padded Jacket'],Tess:['Claw Hammer','Reinforced Work Vest'],
+ Flint:['Claw Hammer','Reinforced Jacket'],Sable:['Balanced Hunting Knife','Tempered Leather Armor'],Cricket:['Claw Hammer','Reinforced Work Vest'],
+ Rowan:['Claw Hammer','Advanced Relay Vest'],Harlow:['Specialized Service Revolver','Padded Tactical Jacket'],Bolt:['Heavy Wrench','Insulated Patrol Coat'],
  Crowley:['Bluefang Hunting Knife','Hardened Scavenger Coat'],Mercer:['Precision Hunting Rifle',"Highway Warden's Coat"],Finch:['Tempered Combat Machete','Salvaged Security Vest'],
- Vale:['Balanced Hunting Knife','Insulated Patrol Coat'],Bishop:['Tempered Steel Pipe','Salvaged Security Vest'],Wren:['Specialized Service Revolver',"Highway Warden's Coat"],Cutter:['Iron Reaper','Hardened Scavenger Coat']
+ Vale:['Balanced Hunting Knife','Insulated Patrol Coat'],Bishop:['Tire Iron','Salvaged Security Vest'],Wren:['Specialized Service Revolver',"Highway Warden's Coat"],Cutter:['Iron Reaper','Hardened Scavenger Coat']
 };
 const r11Profile=v50Profile;v50Profile=function(w){
  const old=ws(w.name).profile,p=r11Profile(w);if(old)return p;
  const kit=R11_WANDERER_KITS[w.name];if(kit)[p.weapon,p.armor]=kit;
- const i=wanderers.indexOf(w),goods={Medic:['Bandage','Cloth','Energy Bars'],Mechanic:['Scrap Metal','Wire','Cloth'],Trader:['Energy Bars','Bandage','Tent'],Guard:['Bandage','Scrap Metal','Cloth'],Scavenger:['Scrap Metal','Wire','Cloth'],Cook:['Energy Bars','Cloth','Wire']}[p.occupation]||['Wire','Cloth','Bandage'];
+ const i=wanderers.indexOf(w),goods={Medic:['Bandage','Cloth','Energy Bars'],Mechanic:['Scrap Metal','Wire','Cloth'],Trader:['Energy Bars','Bandage'],Guard:['Bandage','Scrap Metal','Cloth'],Scavenger:['Scrap Metal','Wire','Cloth'],Cook:['Energy Bars','Cloth','Wire']}[p.occupation]||['Wire','Cloth','Bandage'];
  p.stock=goods.map((name,j)=>({name,qty:1+Math.floor(i/3**j)%3,price:VENDOR_BASE[name]||Math.max(1,(V48_LOOT_PRICES[name]||2)*2)}));return p;
 };
 const R11_PERSONAL_LINES={

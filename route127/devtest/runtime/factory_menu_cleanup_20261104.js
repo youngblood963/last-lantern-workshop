@@ -118,7 +118,7 @@ function renderCraft(){
   if(!keys.length)add('No learned recipes in this category.','system');
   r5DirectChoices([...keys.map(k=>'VIEW RECIPE: '+CRAFT_RECIPES[k].name.toUpperCase()),'BACK']);return;
  }
- const r=CRAFT_RECIPES[craftKey];if(!r){craftKey=null;return renderCraft();}
+ const r=CRAFT_RECIPES[craftKey];if(!r||!r11Learned(craftKey)){craftKey=null;return renderCraft();}
  add('CRAFT — '+r.name.toUpperCase(),'place');
  add('TIME: '+r.seconds+' seconds   SUCCESS: '+Math.round(r.chance*100)+'%','system');
  const required=Object.entries(materials(r)).filter(([,amount])=>amount>0);
@@ -126,13 +126,13 @@ function renderCraft(){
  for(const [name,amount] of Object.entries(r.questInputs||{}))
   add(name+': '+CorvetteRestoration.count(name)+' / '+amount,'system');
  if(r.basicTent)add('Tent: '+(r18ExactTent('Tent')?'1':'0')+' / 1','system');
- if(r.food)add('Ingredients: '+r.food.join(', '),'system');
+ if(r.food)add('Ingredients: '+r.food.map(kind=>r18FoodAmount(r,kind)+' '+(kind==='meat'?'eligible raw meat':kind==='salt'?'Salt':kind)).join(', '),'system');
  if(r.bolts)add('BOLTS: '+player.bolts+' / '+r.bolts,'system');
  if(r.minLevel&&player.level<r.minLevel)add('REQUIRES LEVEL '+r.minLevel,'system');
  const unavailable=required.some(([name,n])=>r6MaterialCount(name)<n)||
   Object.entries(r.questInputs||{}).some(([name,n])=>CorvetteRestoration.count(name)<n)||
   (r.minLevel&&player.level<r.minLevel)||player.bolts<r.bolts||
-  (r.basicTent&&!r18ExactTent('Tent'));
+  (r.basicTent&&!r18ExactTent('Tent'))||!!r.food?.some(kind=>!r18FoodOptions(r,kind).length);
  r5DirectChoices([...(unavailable?[]:['CRAFT '+r.name.toUpperCase()]),'BACK']);
 }
 const oldCraftMenu=r11CraftMenu;

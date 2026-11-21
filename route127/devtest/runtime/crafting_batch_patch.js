@@ -32,6 +32,7 @@ r11CraftCommand=function(cmd){
   updateHud();if(typeof v49Autosave==='function')v49Autosave();return r11CraftMenu();
  }
  if(q){
+  if(job||!player.flags.v49RecipeBandage||!r11Learned(q.key)|| (CRAFT_RECIPES[q.key]?.minLevel||0)>player.level){delete player.flags.devCraftQuote;return r11CraftMenu();}
   if(['cancel batch','back','b'].includes(cmd)){delete player.flags.devCraftQuote;return r11CraftMenu();}
   if(cmd==='custom amount'){q.custom=true;add('Enter a quantity (1–'+maxBatch(CRAFT_RECIPES[q.key])+')','system');return;}
   const r=CRAFT_RECIPES[q.key],max=maxBatch(r);
@@ -53,7 +54,7 @@ r11CraftCommand=function(cmd){
  if(cmd.startsWith('craft ')&&!job){
   const key=Object.keys(CRAFT_RECIPES).find(k=>CRAFT_RECIPES[k].name.toLowerCase()===cmd.slice(6));
   const r=CRAFT_RECIPES[key];
-  if(r&&!r.food&&!r.questInputs&&!r.basicTent&&!r.catalogId&&
+  if(player.flags.v49RecipeBandage&&r&&!r.food&&!r.questInputs&&!r.basicTent&&!r.catalogId&&
     r11Learned(key)&&(!r.minLevel||player.level>=r.minLevel)&&key!=='pipe'){
    player.flags.devCraftQuote={key};
    return menu();

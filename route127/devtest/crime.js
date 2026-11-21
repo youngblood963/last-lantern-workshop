@@ -21,6 +21,13 @@ function v52Inventory(w){
  // Old v52 snapshots contain independent quantities. Keep the lower remaining count;
  // never resurrect goods already stolen/bought/salvaged. v51 simply seeds from its saved stock.
  if(inv.version!==2){for(const item of inv.items){const stock=(p.stock||[]).find(x=>x.name===item.name);item.type=item.type||v52ItemType(item.name);item.trade=!!stock;if(stock){item.qty=Math.min(item.qty,stock.qty);item.price=stock.price;}}inv.version=2;}
+ inv.items=inv.items.filter(i=>!r127RetiredItem(i.name));
+ if(!inv.glassSeeded){
+  inv.glassSeeded=true;
+  if(!p.hostile&&!inv.salvaged&&['Trader','Mechanic','Scavenger'].includes(p.occupation)&&!inv.items.some(i=>i.name==='Glass')&&Math.random()<.3){
+   inv.items.push({name:'Glass',type:'material',qty:1,price:4,trade:true});
+  }
+ }
  if(!inv.cleanWaterSeeded){
   inv.cleanWaterSeeded=true;
   if(!p.hostile&&!inv.salvaged&&!inv.items.some(i=>i.name==='Clean Water')&&Math.random()<.75){

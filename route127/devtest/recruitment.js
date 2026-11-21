@@ -69,7 +69,9 @@ function portStaffRender(){
 }
 function portStoreStock(){
  const state=portStaffState(),period=Number(player.flags.nextRefillAt)||0;
- if(!state.stock||state.stockPeriod!==period){state.stockPeriod=period;state.stock={'Energy Bars':8,'Clean Water':10,Bandage:6,Tent:3,'Scrap Metal':8,Wire:6,Cloth:6,'Emergency Trauma Kit':1};}
+ if(!state.stock||state.stockPeriod!==period){state.stockPeriod=period;state.stock={'Energy Bars':8,'Clean Water':10,Bandage:6,'Scrap Metal':8,Wire:6,Cloth:6,'Emergency Trauma Kit':1};}
+ delete state.stock.Tent;
+ state.stock.Glass??=6;
  state.stock['Clean Water']??=10;
  return state.stock;
 }

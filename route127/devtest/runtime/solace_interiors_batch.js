@@ -47,7 +47,7 @@ const amiiTalk=()=>{section='amiiTalk';npcTalk('amii');};
 const timTalk=()=>{section='timTalk';npcTalk('tim');};
 // Blueprints cost half the market price of the finished item. Players still
 // need to acquire materials, pay crafting costs and wait for completion.
-const murphyBlueprintKeys=['ironReaper','reinforcedPipe','temperedPipe','keeperCoat','widowmaker'];
+const murphyBlueprintKeys=[];
 function murphyBlueprintPrice(key){
  const recipe=CRAFT_RECIPES[key];
  if(!recipe)return 0;
@@ -95,10 +95,9 @@ johnnyShop=function(){
   add(`ENERGY BAR — RESTORE 10% MAX HP — ${johnnyPrice("Energy Bars")} BOLTS`,"system");add(`BANDAGE — RESTORE 25% MAX HP — ${johnnyPrice("Bandage")} BOLTS`,"system");
   johnnyWaterListing();
   add(`BATTERED FLASHLIGHT — 20 BOLTS`,"system");
-  add(`TENT — ${johnnyPrice("Tent")} BOLTS — one use for overnight camp.`,"system");
   if(!player.flags.backpackUpgrade)add(`16-SLOT BACKPACK — ${V48_BACKPACK_PRICE} BOLTS`,"system");
   const scrap=findItem("Scrap Metal"),sq=scrap?scrap.qty:0;add(`SCRAP: ${sq} — ${sq*4} BOLTS. Stock refreshes at daily refill.`,"system");
-  DevtestMenuModel.publishLabels('solace-johnny-stock',["BUY ENERGY BAR",...(johnnyWaterStock().qty>0?["BUY CLEAN WATER"]:[]),"BUY BANDAGE","BUY BATTERED FLASHLIGHT",...(player.flags.relayPartsRevealed&&player.flags.relayQuest!=="complete"?["ASK ABOUT RELAY PARTS"]:[]),"BUY TENT",...(player.flags.r18MarthaSettled?["OLD WORLD COUNTER"]:[]),...(!player.flags.backpackUpgrade?["BUY 16-SLOT BACKPACK"]:[]),"(B) BACK"], "(B) BACK");
+  DevtestMenuModel.publishLabels('solace-johnny-stock',["BUY ENERGY BAR",...(johnnyWaterStock().qty>0?["BUY CLEAN WATER"]:[]),"BUY BANDAGE","BUY BATTERED FLASHLIGHT",...(player.flags.relayPartsRevealed&&player.flags.relayQuest!=="complete"?["ASK ABOUT RELAY PARTS"]:[]),...(player.flags.r18MarthaSettled?["OLD WORLD COUNTER"]:[]),...(!player.flags.backpackUpgrade?["BUY 16-SLOT BACKPACK"]:[]),"(B) BACK"], "(B) BACK");
 };
 const npcMenus={
  johnny:{

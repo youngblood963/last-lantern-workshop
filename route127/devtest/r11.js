@@ -103,7 +103,7 @@ Object.assign(CRAFT_RECIPES,{
  mineTent:{name:'Mine-Protected Tent',rarity:'uncommon',cloth:0,scrap:2,wire:1,explosives:1,basicTent:1,bolts:0,type:'supply',chance:.90},
  wastelandStew:{name:'Wasteland Stew',rarity:'uncommon',food:['meat','fruit','vegetable'],bolts:0,type:'consumable',chance:1},
  preservedMeat:{name:'Preserved Meat',rarity:'uncommon',food:['meat','salt'],foodQuantities:{salt:2},bolts:0,type:'consumable',chance:1},
- preservedVegetables:{name:'Preserved Vegetables',rarity:'uncommon',food:['vegetable'],bolts:0,type:'consumable',chance:1},
+
  boneTomahawk:{name:'Bone Tomahawk',cloth:0,scrap:2,wire:1,smallBones:3,bolts:30,type:'weapon',chance:.90,minLevel:3},
  boneArmor:{name:'Bone Armor',cloth:2,scrap:4,wire:1,bones:4,bolts:75,type:'armor',chance:.90,minLevel:6},
  temperedPipe:{name:'Tempered Steel Pipe',cloth:0,scrap:2,wire:1,parts:0,tempered:2,bolts:40,type:'weapon',chance:.90,minLevel:4},
@@ -114,11 +114,12 @@ Object.assign(CRAFT_RECIPES,{
 // Approved library recipe rarity/time; existing saved jobs keep their absolute deadline.
 if(CRAFT_RECIPES.bandage)CRAFT_RECIPES.bandage.rarity='rare';
 for(const recipe of Object.values(CRAFT_RECIPES))recipe.seconds=R11_TIMES[recipe.rarity||GEAR[recipe.name]?.rarity||'common'];
-function r11Learned(key){r11Migrate();return !!player.flags.r11Learned[key]||(player.flags.v49RecipeBandage&&['bandage','pipe'].includes(key));}
+const R11_DISABLED_EPIC_RECIPES=new Set(['widowmaker','keeperCoat']);
+function r11Learned(key){if(R11_DISABLED_EPIC_RECIPES.has(key))return false;r11Migrate();return !!player.flags.r11Learned[key]||(player.flags.v49RecipeBandage&&['bandage','pipe'].includes(key));}
 function r11Blueprint(source){
  const rates={combat:.02,exploration:.015,salvage:.025,boss:.10};
  if(!rates[source]||Math.random()>=rates[source])return false;
- const pool=['reinforcedPipe','ironReaper','keeperCoat','boneTomahawk','boneArmor'].filter(k=>!r11Learned(k));if(!pool.length)return false;
+ const pool=['reinforcedPipe','ironReaper','boneTomahawk','boneArmor'].filter(k=>!r11Learned(k));if(!pool.length)return false;
  const key=pool[Math.floor(Math.random()*pool.length)];player.flags.r11Learned[key]=true;add('BLUEPRINT LEARNED — '+CRAFT_RECIPES[key].name,'reward');return true;
 }
 const r11Drop=v555AwardEquipmentDrop;v555AwardEquipmentDrop=function(...args){r11Drop(...args);r11Blueprint('combat');};
@@ -202,8 +203,8 @@ function r11CraftMenu(where=player.flags.r11Bench||'murphy'){
  if(job){add(CRAFT_RECIPES[job.key].name+' — '+(Date.now()>=job.endsAt?'READY TO COLLECT':Math.ceil((job.endsAt-Date.now())/1000)+' seconds remaining'),'system');r5DirectChoices(['COLLECT CRAFT','BACK']);return;}
  if(!player.flags.v49RecipeBandage){add('Learn introductory crafting from Forge before using found blueprints.','system');r5DirectChoices(['BACK']);return;}
  if(player.flags.r18FoodDraft)return r18FoodCraftMenu();
- const keys=Object.keys(CRAFT_RECIPES).filter(k=>r11Learned(k));
- add(`LEARNED: ${keys.length}   UNDISCOVERED: ${Object.keys(CRAFT_RECIPES).length-keys.length}`,'system');
+ const keys=Object.keys(CRAFT_RECIPES).filter(k=>!R11_DISABLED_EPIC_RECIPES.has(k)&&r11Learned(k));
+ add(`LEARNED: ${keys.length}   UNDISCOVERED: ${Object.keys(CRAFT_RECIPES).filter(k=>!R11_DISABLED_EPIC_RECIPES.has(k)).length-keys.length}`,'system');
  for(const k of keys){const r=CRAFT_RECIPES[k],m={Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0,'Tempered Steel':r.tempered||0,'Small Animal Bones':r.smallBones||0,'Animal Bones':r.bones||0,'Explosive Components':r.explosives||0,'Animal Hide':r.hide||0,...(r.materials||{})};const missing=Object.entries(m).some(([n,q])=>r6MaterialCount(n)<q)||Object.entries(r.questInputs||{}).some(([n,q])=>CorvetteRestoration.count(n)<q)||!!r.food?.some(k=>!r18FoodOptions(r,k).length)||!!(r.basicTent&&!r18ExactTent('Tent'))||player.bolts<r.bolts||(r.minLevel&&player.level<r.minLevel);add(`${r.name} — ${(r.rarity||GEAR[r.name]?.rarity||'common').toUpperCase()} — ${r.seconds}s — ${Math.round(r.chance*100)}% — ${r.food?'Choose: '+r.food.map(k=>r18FoodAmount(r,k)>1?r18FoodAmount(r,k)+' '+k:k).join(', '):[...(r.basicTent?['Tent '+(r18ExactTent('Tent')?'1/1':'0/1')]:[]),...Object.entries(m).filter(([,q])=>q).map(([n,q])=>`${n} ${r6MaterialCount(n)}/${q}`),...Object.entries(r.questInputs||{}).map(([n,q])=>`${n} ${CorvetteRestoration.count(n)}/${q}`)].join(', ')} — Bolts ${player.bolts}/${r.bolts} — ${missing?'UNAVAILABLE':'READY'}`,r.rarity||GEAR[r.name]?.rarity||'system');}
  r5DirectChoices([...keys.filter(k=>!CRAFT_RECIPES[k].minLevel||player.level>=CRAFT_RECIPES[k].minLevel).map(k=>'CRAFT '+CRAFT_RECIPES[k].name.toUpperCase()),'BACK']);
 }
@@ -223,7 +224,7 @@ function r11CraftCommand(cmd){
  }
  if(!cmd.startsWith('craft ')||job)return r11CraftMenu();
  const key=Object.keys(CRAFT_RECIPES).find(k=>CRAFT_RECIPES[k].name.toLowerCase()===cmd.slice(6));
- const r=CRAFT_RECIPES[key];if(!player.flags.v49RecipeBandage||!r||!r11Learned(key)||r.minLevel&&player.level<r.minLevel){add('That blueprint is not available to craft.','system');return;}
+ const r=CRAFT_RECIPES[key];if(!player.flags.v49RecipeBandage||!r||R11_DISABLED_EPIC_RECIPES.has(key)||!r11Learned(key)||r.minLevel&&player.level<r.minLevel){add('That blueprint is not available to craft.','system');return;}
  if(r.questInputs&&(CorvetteRestoration.state().delivered.windshield||CorvetteRestoration.count('Restored Corvette Windshield'))){add('The windshield is already restored.','system');return;}
  if(r.food){player.flags.r18FoodDraft={key,selected:{}};return r18FoodCraftMenu();}
  const mats={Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0,'Tempered Steel':r.tempered||0,'Small Animal Bones':r.smallBones||0,'Animal Bones':r.bones||0,'Explosive Components':r.explosives||0,'Animal Hide':r.hide||0,...(r.materials||{})};

@@ -301,6 +301,7 @@ function mountMaze(body,started){
 
  function rebuild(){
   view=createTireYard(grid);
+  positionSurvivor();
   frame.replaceChildren(view.board);
   paintSmoke();
  }
@@ -386,8 +387,11 @@ function mountMaze(body,started){
   }
   return true;
  }
- function render(message){
+ function positionSurvivor(){
   view.survivor.style.gridArea=(q.y+1)+' / '+(q.x+1);
+ }
+ function render(message){
+  positionSurvivor();
   view.crate.hidden=q.finished;
   status.textContent=message+' HP '+hp+' / '+maxHp+' · Row '+(q.y+1)+', column '+(q.x+1);
   movement.hidden=phase!=='playing';

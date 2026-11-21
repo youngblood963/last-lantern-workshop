@@ -84,12 +84,14 @@ advance(1000);assert(text('0 seconds remaining'));
 click('Try Again');assert(text('20 seconds remaining'));assert.match(status(),/99 \/ 100 · Row 2, column 2/);
 const originalWalls=()=>find(document.body,n=>n.className==='tire-yard-grid').children
  .filter(n=>n.className==='tire-yard-wall').map(n=>n.style.gridArea).join(',');
+const survivor=()=>find(document.body,n=>n.className.split(' ').includes('tire-yard-survivor'));
 const walls=originalWalls();
 // A high RNG draw would fail the 75% roll. The first collapse still occurs.
 run('Math.random=()=>.99');
 move('RIGHT');assert(!text('The burning tire stacks begin to sway…'));
 move('RIGHT');assert(text('The burning tire stacks begin to sway…'));
 advance(700);assert(text('CRASH! Burning tires tumble into the passage!'));assert.notEqual(originalWalls(),walls);
+assert.equal(survivor().style.gridArea,'2 / 4','Collapse redraw retains the survivor position without movement');
 
 run('Math.random=()=>0');
 click('Restart Game');
@@ -155,4 +157,27 @@ run(`
  }
 `);
 assert(run('layouts.size===100&&cases.length>500&&cases.every(checks=>checks.every(Boolean))'));
+// Exercise real 13×13 board redraws repeatedly with hazards running together.
+run('TireMazeHazards.generate=()=>generateMaze(rng);TireMazeHazards.shift=actualShift;TireMazeHazards.smoke=realSmoke;Math.random=rng;Route127MinigameTesting.open();');
+click('Launch Game');click('Start Game');
+const offsets=[['RIGHT','LEFT',0,1],['LEFT','RIGHT',0,-1],['DOWN','UP',1,0],['UP','DOWN',-1,0]];
+for(let i=0;i<24;i++){
+ if(i)click('Restart Game');
+ const initial=survivor().style.gridArea;
+ const [row,col]=initial.split(' / ').map(Number);
+ const walls=originalWalls().split(',');
+ const [forward,back]=offsets.find(([, ,dy,dx])=>!walls.includes((row+dy)+' / '+(col+dx)));
+ move(forward);move(back);
+ if(!text('The burning tire stacks begin to sway…'))move(forward);
+ const expected=survivor().style.gridArea;
+ assert(expected);
+ advance(700);
+ assert(text('CRASH! Burning tires tumble into the passage!'));
+ assert.equal(survivor().style.gridArea,expected);
+ advance(1500);
+ assert(find(document.body,n=>n.className.includes('tire-yard-smoke')));
+ assert.equal(survivor().style.gridArea,expected);
+}
+click('Return to Minigame Menu');
+assert.equal(clocks.size,0);
 console.log('PASS 100 expanded layouts, validated shifts, early hazards, timeout and retry, victory, rescue and isolation');

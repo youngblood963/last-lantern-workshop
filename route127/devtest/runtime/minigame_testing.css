@@ -188,13 +188,13 @@
 .tire-yard-path.tire-yard-smoke {
   background: radial-gradient(ellipse at 40% 55%, #aaa49996, #716b6580 55%, #645c5940);
 }
-.tire-yard-collapse { animation: tire-yard-collapse 230ms ease-out; }
+.tire-yard-collapse .tire-yard-pile { animation: tire-yard-collapse 230ms ease-out; }
 @keyframes tire-yard-collapse {
-  20%, 65% { transform: translateX(2px); }
-  40%, 80% { transform: translateX(-2px); }
+  20%, 65% { translate: 2px 0; }
+  40%, 80% { translate: -2px 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .tire-yard-collapse { animation: none; }
+  .tire-yard-collapse .tire-yard-pile { animation: none; }
 }
 .minigame-hubcap-champion {
   width: 6%;

@@ -638,6 +638,13 @@
  }
  .r127-layout-attachments{position:absolute;inset:0;z-index:5;pointer-events:none}
  .r127-layout-attachments img{object-fit:contain}
+ .gfx-frame.r127-factory-unit-ready .gfx-main>.gfx-combat{display:none!important}
+ .r127-factory-unit>img{display:block;width:100%;height:100%;object-position:center bottom}
+ .r127-factory-unit>.r127-road-hp{
+  position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  white-space:nowrap;color:#ffaaa4;background:#32100e;border:1px solid #aa413b;
+  border-radius:4px;padding:3px 6px;font:700 clamp(10px,1.5vw,18px)/1.15 sans-serif
+ }
  /* Smaller five-gull composition; leave artwork and regional scenery intact. */
   body.full-graphics .gfx-frame .gfx-art > img.gfx-image[src*="aggressive_seagulls.png"]:not(.r127-layout-unit){
    object-fit:contain!important;
@@ -679,6 +686,7 @@
   const result=oldSync.apply(this,args), e=this.element, scene=activeScene();
   for(const node of styled)node.classList.remove('r127-layout-unit','r127-layout-background','r127-layout-flipped');
   styled.clear();
+  e?.frame?.classList.remove('r127-factory-unit-ready');
   if(!scene||!e?.figure||e.frame.hidden){
    attachmentLayer?.remove();attachmentLayer=null;
    e?.figure?.classList.remove('r127-layout-has-background');
@@ -707,12 +715,14 @@
      {x,y,width,height,scale:1,z:4,flip:false}]);
    });
   }
-  if(scene.id.startsWith('factory:floor:')){
+  const factoryEnemy=combatState&&scene.id.startsWith('factory:floor:')?combatState:null;
+  let factoryKey;
+  if(factoryEnemy){
    // Ordinary Factory encounters have one fighter, identified by the active floor and combat name.
    const [path]=rows.get(scene.id).variants[0].units;
-   const key='attachment:'+assetName(path);
+   const key=factoryKey='attachment:'+assetName(path);
    const index=attachments.findIndex(([id])=>id===key);
-   if(combatState.hp>0){
+   if(factoryEnemy.hp>0){
     if(index<0)attachments.push([key,layouts[unitKey(path,0)]||
      {x:50,y:60,width:48,height:70,scale:1,z:4,flip:false}]);
    }else if(index>=0)attachments.splice(index,1);
@@ -728,12 +738,29 @@
      const image=document.createElement('img');
      image.src=new URL(installed.get(key.slice(11)),root).href;
      image.alt='';
-     attachmentLayer.append(image);
+     if(key===factoryKey){
+      const unit=document.createElement('div');
+      unit.className='r127-factory-unit';
+      const hp=document.createElement('span');
+      hp.className='r127-road-hp';
+      image.addEventListener('load',()=>GraphicalUI.schedule());
+      unit.append(image,hp);
+      attachmentLayer.append(unit);
+     }else attachmentLayer.append(image);
     }
     e.figure.append(attachmentLayer);
    }
   }
-  attachments.forEach(([,layout],index)=>apply(attachmentLayer.children[index],layout));
+  attachments.forEach(([key,layout],index)=>{
+   const node=attachmentLayer.children[index];
+   apply(node,layout);
+   if(key!==factoryKey)return;
+   const image=node.querySelector('img'),label=node.querySelector('.r127-road-hp');
+   const ready=image.complete&&image.naturalWidth>0;
+   label.hidden=!ready;
+   label.textContent=factoryEnemy.hp+' / '+factoryEnemy.maxHp+' HP';
+   e.frame.classList.toggle('r127-factory-unit-ready',ready);
+  });
   return result;
  };
  function capture(scene,device){

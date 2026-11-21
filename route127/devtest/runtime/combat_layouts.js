@@ -238,6 +238,25 @@
   ]]
  ]);
 
+ // The owner uploaded these complete scenes under assets/locations.
+ const lowlandsCinematics=new Map([
+  ['east:27',[
+   ['Surface','sunken_chapel_exterior.png','sky'],
+   ['Underwater','sunken_chapel_interior.png','none']
+  ]],
+  ['early:34',[['Greenhouse','rain_barrel.png','none']]],
+  ['east:19',[['Quicksand cut','quicksand_cut.gif','sky']]],
+  ['east:52',[['River of Fire','river_of_fire.gif','sky']]],
+  ['east:77',[['Dominion Survey','dominion_survey.png','none']]],
+  ['early:1',[['Washout salvage','washout_salvage.png','sky']]]
+ ].map(([id,scenes])=>[id,scenes.map(([variant,file,composition])=>({
+  units:[],phase:'approach',variant,background:locationArt(file),composition
+ }))]));
+ const lowlandsSprites=globalThis.Route127RoadsidePresentation?.lowlandsSprites||{};
+ for(const [title,files] of Object.entries(lowlandsSprites)){
+  register(title,sprite(...files),'both','Individual combatants');
+ }
+
  const rows=new Map();
  const byEncounter=new Map();
  const byTitle=new Map();
@@ -248,13 +267,14 @@
   byEncounter.set(entry.encounter,id);
   byTitle.set(title,id);
   if(rows.has(id))continue;
-  const variants=northernRuntimeScenes.get(id)||states.get(title)||[];
-  const fight=!!entry.encounter.combat||entry.references?.some(ref=>ref.category==='combat')||
+  const variants=lowlandsCinematics.get(id)||northernRuntimeScenes.get(id)||states.get(title)||[];
+  const regionalSprites=Object.hasOwn(lowlandsSprites,title);
+  const fight=regionalSprites||!!entry.encounter.combat||entry.references?.some(ref=>ref.category==='combat')||
    variants.some(spec=>spec.phase==='combat');
   rows.set(id,{
-   id,title,name:title==='MOUNTAIN LIONS'?'Mountain Lion':entry.encounter.displayName||entry.name||entry.encounter.title,
+   id,title,name:id==='east:77'?'The Dominion Survey':title==='MOUNTAIN LIONS'?'Mountain Lion':entry.encounter.displayName||entry.name||entry.encounter.title,
    classification:entry.classification||'GLOBAL',regions:entry.regions||[],
-   combat:!!fight,fullCinematic:industrialCinematics.has(title),variants
+   combat:!!fight,fullCinematic:industrialCinematics.has(title),regionalSprites,variants
   });
  }
  // The registry retains the older titles for these repurposed encounter IDs.
@@ -267,6 +287,7 @@
  }
  // Combat names differ from their saved encounter titles in the reworked scenes.
  for(const [combatName,encounterTitle] of [
+  ['MARSH DOG PACK','SALT MARSH HUNTERS'],
   ['MALFUNCTIONING FORKLIFT','FREIGHT CAR AMBUSH'],
   ['CRANE NEST BIRDS','THE CRANE NEST'],
   ['POWDER MONKEY WITH KNIFE','THE POWDER MONKEY']
@@ -478,6 +499,25 @@
   if(!onRoad)return model;
   const encounter=typeof currentEncounter==='function'?currentEncounter():null;
   const title=normalize(encounter?.title||c?.name);
+  const id=byEncounter.get(encounter);
+  const scenes=stage==='encounter'&&lowlandsCinematics.get(id);
+  if(scenes&&model.active){
+   if(id==='east:77')model.title='THE DOMINION SURVEY';
+   const underwater=id==='east:27'&&player.flags.r18ChapelScene?.underwater===true;
+   const scene=scenes[underwater?1:0];
+   const art=new URL(scene.background,root).href;
+   const region=route127CurrentRegion(lanternState());
+   const sky=scene.composition==='sky'?Route127EditorSky.describe(region,player.flags.worldHour):null;
+   const imageReady=GraphicalUI.sceneArtworkReady(art);
+   const skyReady=!sky||GraphicalUI.sceneArtworkReady(sky.sky);
+   // Keep the currently available regional presentation until both layers decode.
+   if(imageReady&&skyReady){
+    model.art=art;
+    model.causewayBacking=false;
+    model.regionalSky=sky&&{region,period:sky.period,sky:new URL(sky.sky).pathname.split('/').at(-1)};
+   }
+   return model;
+  }
   const cinematic=industrialCinematics.get(title);
   if(cinematic&&route127CurrentRegion(lanternState())==='INDUSTRIAL'){
    model.art='../devtest/'+scenery(cinematic);
@@ -582,6 +622,9 @@
   [src$="/the_trapped_worker.png"],
   [src$="/the_water_shipment.png"]
  ){object-fit:contain;object-position:center}
+ .gfx-frame .gfx-art>.gfx-image:is([src*="/quicksand_cut.gif"],[src*="/river_of_fire.gif"]){
+  object-fit:cover;object-position:right bottom
+ }
  .r127-layout-attachments{position:absolute;inset:0;z-index:5;pointer-events:none}
  .r127-layout-attachments img{object-fit:contain}
  /* Smaller five-gull composition; leave artwork and regional scenery intact. */

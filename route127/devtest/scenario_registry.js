@@ -319,7 +319,7 @@ const eastEncounters = [
   {exclusive:true, title:"THE MASK MARKET", text:"Three masked traders auction items without speaking. Their bids are made with hand signs.", choices:"TRADE HAND SIGNS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("signs") && !cmd.includes("trade")) return false; gainBolts(17);gainXp(20);add("Your clumsy bid earns a laugh and a pouch of Bolts.");return true;}},
   {exclusive:true, title:"THE CRACKED AQUEDUCT", text:"A narrow aqueduct crosses the road overhead. The supports are buckling.", choices:"RUN UNDER ARCH   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("arch") && !cmd.includes("run")) return false; environmentalHurt('severe');gainBolts(7);addPack("Wire","material");gainXp(24);add("Stone rains down behind you. You salvage a fallen tool pouch.");return true;}},
   {exclusive:true, title:"THE BONE FLAGS", text:"Polished bones hang from red flags at a ravine crossing.", choices:"SEARCH RAVINE   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("ravine") && !cmd.includes("search")) return false; environmentalHurt('moderate');gainBolts(11);addPack("Cloth","material");gainXp(22);add("You uncover an abandoned expedition pack.");return true;}},
-  {exclusive:true, title:"THE SCRAP DUEL", text:"Two armored scavengers settle a dispute by throwing sharpened hubcaps at targets.", choices:"CHALLENGE WINNER   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("winner") && !cmd.includes("challenge")) return false; roadHurt(6);gainBolts(20);gainXp(26);add("You win a small wager, though one hubcap clips your arm.");return true;}},
+  {exclusive:false, title:"THE SCRAP DUEL",text:"Two armored scavengers settle a dispute by throwing sharpened hubcaps at targets.",choices:"COMPETE   BACK AWAY"},
   {exclusive:true, title:"THE QUARRY LIFT", text:"An industrial lift hangs above a flooded quarry. Its hand crank still turns.", choices:"LOWER PLATFORM   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("platform") && !cmd.includes("lower")) return false; environmentalHurt('severe');gainBolts(14);addPack("Scrap Metal","material");gainXp(23);add("The platform reaches a ledge with forgotten mining supplies.");return true;}},
   {exclusive:true, title:"THE BLACK SNOW", text:"Ash flakes fall like snow from a distant burn. Fresh bootprints appear through the dust.", choices:"TRACK FOOTPRINTS   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("footprints") && !cmd.includes("track")) return false; environmentalHurt('minor');gainBolts(16);gainXp(24);add("The prints lead to a hidden smuggler cache.");return true;}},
   {exclusive:true, title:"THE ROAD EATER", text:"A massive burrowing creature tears through the pavement ahead.", choices:"HIDE FROM BEAST   BACK AWAY", resolve(cmd){ if(cmd.includes("back")||cmd.includes("away")){add("You leave the scene undisturbed.");return true;} if(!cmd.includes("beast") && !cmd.includes("hide")) return false; gainXp(30);add("You survive by lying motionless as the road buckles nearby.");return true;}},
@@ -847,20 +847,50 @@ for(const e of eastEncounters){const d=R5_DISCOVERIES[e.title];if(!d)continue;co
  if(e.title==='THE FIGHTING RING'||e.title==='THE CINDER WOLVES'){startCombat({name:e.title==='THE FIGHTING RING'?'RING CHAMPION':'CINDER WOLF',level:5,hp:42,min:6,max:10,xp:38,bolts:e.title==='THE FIGHTING RING'?18:0},'encounter');return true;}
  if(Math.random()<.35){add(d[2],'danger');environmentalHurt(d[4]);return true;}
  add(d[1]+' You use what you noticed to make a careful approach.','bright');if(d[3]){addPack(d[3],v52ItemType(d[3]));add('RECOVERED: '+d[3]+' from the remaining supplies.','reward');}else{gainBolts(6);add('A lost travel pouch contains six Bolts.','reward');}gainXp(9);return true;};}
-function r18ScrapDuelScene(){const g=typeof lanternState==='function'?lanternState():null,scene=g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`,f=player.flags;if(f.r18ScrapDuelScene?.scene!==scene)f.r18ScrapDuelScene={scene,phase:'idle',stake:0,round:1,playerScore:0,opponentScore:0};return f.r18ScrapDuelScene;}
-function r18ScrapDuelMenu(){const q=r18ScrapDuelScene(),f=player.flags,today=Number(day)||1;if(q.phase==='custom')return 'TYPE WAGER <AMOUNT> BOLTS (1–1000)   CANCEL WAGER   BACK AWAY';if(q.phase==='confirm')return `CONFIRM ${q.stake} BOLT WAGER   CANCEL WAGER   BACK AWAY`;if(q.phase==='playing')return [`ROUND ${q.round} AIM 10`,`ROUND ${q.round} AIM 25`,`ROUND ${q.round} AIM 50`,'BACK AWAY'].join('   ');if(q.phase==='done'||today<(Number(f.r18ScrapDuelNextDay)||0))return 'WATCH THE CONTEST   CHALLENGE CHAMPION   BACK AWAY';return ['WATCH THE CONTEST','WAGER 10 BOLTS','WAGER 50 BOLTS','WAGER 100 BOLTS','WAGER 500 BOLTS','WAGER CUSTOM AMOUNT','CHALLENGE CHAMPION','BACK AWAY'].join('   ');}
+function r18ScrapDuelScene(){
+ const g=typeof lanternState==='function'?lanternState():null;
+ const scene=g?.sceneId||(g?.currentEdgeId?`${g.currentEdgeId}:${g.stepIndex}:${day}:${dailyRoadTurns}`:`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`);
+ const f=player.flags;
+ if(f.r18ScrapDuelScene?.scene!==scene)f.r18ScrapDuelScene={scene,phase:'idle',stake:0};
+ return f.r18ScrapDuelScene;
+}
+function r18ScrapDuelMenu(){
+ const q=r18ScrapDuelScene();
+ if(q.phase==='custom')return 'TYPE WAGER <AMOUNT> BOLTS (1–1000)   CANCEL WAGER   BACK AWAY';
+ if(q.phase==='confirm')return `CONFIRM ${q.stake} BOLT WAGER   CANCEL WAGER   BACK AWAY`;
+ if(q.phase==='done'||q.phase==='playing')return 'WATCH THE CONTEST   BACK AWAY';
+ const wagers=(Number(day)||1)>=(Number(player.flags.r18ScrapDuelNextDay)||0)
+  ?['WAGER 10 BOLTS','WAGER 50 BOLTS','WAGER 100 BOLTS','WAGER 500 BOLTS','WAGER CUSTOM AMOUNT']:[];
+ return ['WATCH THE CONTEST','COMPETE',...wagers,'BACK AWAY'].join('   ');
+}
 const r18ScrapDuel=eastEncounters.find(e=>e.title==='THE SCRAP DUEL');
-if(r18ScrapDuel){r18ScrapDuel.text='Two scavengers throw sharpened hubcaps at a stationary truck marked with 10, 25 and 50-point rings.';r18ScrapDuel.exclusive=false;r18ScrapDuel.prompt=r18ScrapDuelMenu;r18ScrapDuel.resolve=function(cmd){const q=r18ScrapDuelScene(),f=player.flags,today=Number(day)||1;
- if(cmd.includes('back')||cmd.includes('away')){if(q.phase==='playing'){q.phase='done';add('You leave the contest; the committed wager is forfeited.','system');}else{q.phase='done';add('You leave the throwing contest behind.','system');}return true;}
- if(cmd.includes('watch')){add('Hubcaps clang against the stationary truck. One thrower grins: “The truck has never won.”','bright');return true;}
- if(cmd.includes('challenge')){if(q.phase==='playing'){add('Finish or leave the contest first.','system');return false;}const level=Math.max(1,Math.min(50,Number(player.level)||1));startCombat({name:'HUBCAP CHAMPION',level,hp:Math.max(22,Math.floor(baseHpForLevel(level)*.28)),min:3,max:6,xp:Math.max(20,level*6),bolts:5,end:'The champion yields beside the truck.'},'encounter');return true;}
- if(cmd.startsWith('wager')&&['idle','custom'].includes(q.phase)&&today>=(Number(f.r18ScrapDuelNextDay)||0)){if(cmd==='wager custom amount'){q.phase='custom';add('Type WAGER <AMOUNT> BOLTS. Maximum wager: 1,000 Bolts.','system');return true;}const stake=Number((cmd.match(/^wager (\d+) bolts$/)||[])[1]);if(!Number.isSafeInteger(stake)||stake<1||stake>1000||player.bolts<stake){add('The wager must be affordable and no more than 1,000 Bolts.','system');return false;}player.encounterDone?.[roadTurn]?.delete('CANCEL WAGER');player.encounterDone?.[roadTurn]?.delete(`CONFIRM ${stake} BOLT WAGER`);q.stake=stake;q.phase='confirm';add(`Confirm a ${stake}-Bolt wager. A win pays ${stake*2} Bolts total.`,'system');return true;}
- if(cmd.includes('cancel')&&['confirm','custom'].includes(q.phase)){player.encounterDone?.[roadTurn]?.delete(`WAGER ${q.stake} BOLTS`);player.encounterDone?.[roadTurn]?.delete('WAGER ALL IN');player.encounterDone?.[roadTurn]?.delete('WAGER CUSTOM AMOUNT');q.phase='idle';q.stake=0;add('Wager cancelled. No Bolts spent.','system');return true;}
- if(cmd.startsWith('confirm')&&q.phase==='confirm'){if(player.bolts<q.stake){player.encounterDone?.[roadTurn]?.delete(`WAGER ${q.stake} BOLTS`);player.encounterDone?.[roadTurn]?.delete('WAGER ALL IN');q.phase='idle';add('Not enough Bolts. No wager was placed.','system');return true;}player.bolts-=q.stake;updateHud();q.phase='playing';f.r18ScrapDuelNextDay=today+3;add(`Wager placed: ${q.stake} Bolts. Three throws each.`,'system');return true;}
- if(cmd.includes('aim')&&q.phase==='playing'){const match=cmd.match(/aim\s+(10|25|50)/),target=Number(match?.[1]);if(!target)return false;const chance=target===10?.9:target===25?.65:.35,playerHit=Math.random()<chance?target:0,opponentHit=[0,10,25,50][Math.floor(Math.random()*4)];q.playerScore+=playerHit;q.opponentScore+=opponentHit;add(`THROW ${q.round}: You score ${playerHit}; the champion scores ${opponentHit}. TOTAL ${q.playerScore}–${q.opponentScore}.`,'system');q.round++;
-  if(q.round>3){if(q.playerScore===q.opponentScore){q.playerScore=0;q.opponentScore=0;add('Tie: sudden death.','bright');}else{if(q.playerScore>q.opponentScore){gainBolts(q.stake*2);add(`You win ${q.stake*2} Bolts total.`,'reward');}else add('The champion wins the wager.','system');if(!f.r18ScrapDuelXpSeen){f.r18ScrapDuelXpSeen=true;gainXp(Math.max(6,player.level));}q.phase='done';}}return true;}
- return false;
- };}
+if(r18ScrapDuel){
+ r18ScrapDuel.prompt=r18ScrapDuelMenu;
+ r18ScrapDuel.resolve=function(cmd){
+  const q=r18ScrapDuelScene(),today=Number(day)||1;
+  if(['back','back away'].includes(cmd)){q.phase='done';add('You leave the throwing contest behind.','system');return true;}
+  if(['watch','watch the contest'].includes(cmd)){add('Hubcaps clang against the stationary truck. One thrower grins: “The truck has never won.”','bright');return true;}
+  if(cmd==='compete'&&q.phase==='idle')return globalThis.Route127MinigameTesting.openRoadScrapDuel(q,0);
+  if(cmd.startsWith('wager')&&['idle','custom'].includes(q.phase)&&today>=(Number(player.flags.r18ScrapDuelNextDay)||0)){
+   if(cmd==='wager custom amount'){q.phase='custom';add('Type WAGER <AMOUNT> BOLTS. Maximum wager: 1,000 Bolts.','system');return true;}
+   const stake=Number((cmd.match(/^wager (\d+) bolts$/)||[])[1]);
+   if(!Number.isSafeInteger(stake)||stake<1||stake>1000||player.bolts<stake){add('The wager must be affordable and no more than 1,000 Bolts.','system');return false;}
+   player.encounterDone?.[roadTurn]?.delete('CANCEL WAGER');
+   player.encounterDone?.[roadTurn]?.delete(`CONFIRM ${stake} BOLT WAGER`);
+   q.stake=stake;q.phase='confirm';add(`Confirm a ${stake}-Bolt wager. A win pays ${stake*2} Bolts total.`,'system');return true;
+  }
+  if(cmd==='cancel wager'&&['confirm','custom'].includes(q.phase)){
+   player.encounterDone?.[roadTurn]?.delete(`WAGER ${q.stake} BOLTS`);
+   player.encounterDone?.[roadTurn]?.delete('WAGER CUSTOM AMOUNT');
+   q.phase='idle';q.stake=0;add('Wager cancelled. No Bolts spent.','system');return true;
+  }
+  if(cmd===`confirm ${q.stake} bolt wager`&&q.phase==='confirm'){
+   if(player.bolts<q.stake){player.encounterDone?.[roadTurn]?.delete(`WAGER ${q.stake} BOLTS`);q.phase='idle';add('Not enough Bolts. No wager was placed.','system');return true;}
+   return globalThis.Route127MinigameTesting.openRoadScrapDuel(q,q.stake);
+  }
+  return false;
+ };
+}
 function r18MaskMarketScene(){
  const g=typeof lanternState==='function'?lanternState():null,scene=g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`,f=player.flags;if(f.r18MaskMarketScene?.scene===scene)return f.r18MaskMarketScene;
  const level=Math.max(1,Math.min(50,Number(player.level)||1)),rarity=Math.random()<.8?'uncommon':'rare',pool=EQUIPMENT_CATALOG.filter(x=>['weapon','armor'].includes(x.type)&&x.rarity===rarity&&level>=x.minLevel&&level<=x.maxLevel&&!GEAR[x.name]?.questOnly),def=pool[Math.floor(Math.random()*pool.length)];

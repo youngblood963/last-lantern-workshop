@@ -1549,7 +1549,7 @@ const ROAD_LIFECYCLE={
     "service": false,
     "groups": [
       [
-        "CHALLENGE CHAMPION"
+        "COMPETE"
       ]
     ],
     "completion": "New road occurrence permits ordinary rewards; duplicate rewarded action/victory blocked within current occurrence. Existing unique sub-reward flags remain permanent."

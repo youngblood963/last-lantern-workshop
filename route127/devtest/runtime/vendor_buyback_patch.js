@@ -1,8 +1,23 @@
-/* DEVTEST: keep rare gear buyback separate from ordinary vendor stock. */
+/* DEVTEST: keep vendor buyback separate from ordinary vendor stock. */
 (()=>{'use strict';if(!location.pathname.includes('/route127/devtest/'))return;
 const shops=new Set(['johnny','mara','jen','wayne']);
-const ledger=()=>player.flags.devBuybacks||(player.flags.devBuybacks={});
-const rarity=i=>GEAR[i.name]?.rarity||'common';
+const rarity=item=>GEAR[item.name]?.rarity||'common';
+function loadBuybackStock(){
+ const stock=player.flags.devBuybacks;
+ if(stock){
+  for(const [shop,items] of Object.entries(stock)){
+   stock[shop]=items.filter(item=>rarity(item)!=='common');
+  }
+ }
+ return stock;
+}
+const ledger=()=>loadBuybackStock()||(player.flags.devBuybacks={});
+const baseLoad=loadGame;
+loadGame=function(...args){
+ const result=baseLoad.apply(this,args);
+ loadBuybackStock();
+ return result;
+};
 const base=v53SaleCommand;
 v53SaleCommand=function(cmd){
  const q=player.flags.v53Sale,shop=mercyLocation;
@@ -10,7 +25,7 @@ v53SaleCommand=function(cmd){
  const item=player.pack.find(i=>i.name===q.name&&i.type===q.type&&!!i.stolen===!!q.stolen);
  const oldQty=item?.qty||0,before=player.bolts,copy=item&&{...item};
  const result=base.apply(this,arguments);
- if(copy&&oldQty>0&&player.bolts>before&&['uncommon','rare','epic'].includes(rarity(copy))){
+ if(copy&&oldQty>0&&player.bolts>before&&rarity(copy)!=='common'){
   const sold=Math.min(oldQty,Math.floor((player.bolts-before)/q.unit));
   if(sold>0){
    const stock=ledger()[shop]||(ledger()[shop]=[]);
@@ -25,7 +40,7 @@ v53SaleCommand=function(cmd){
 function menu(){
  const shop=player.flags.devBuybackShop,stock=ledger()[shop]||[];
  add('VENDOR BUYBACK — '+shop.toUpperCase(),'place');
- if(!stock.length)add('No Uncommon, Rare, or Epic equipment available for buyback.','system');
+ if(!stock.length)add('No items available for buyback.','system');
  for(const [n,i]of stock.entries())add((n+1)+'. '+i.name+' — '+i.buybackPrice+' BOLTS','system');
  v53Choices(stock.map((i,n)=>'BUYBACK '+(n+1)).concat('CLOSE BUYBACK'));
 }

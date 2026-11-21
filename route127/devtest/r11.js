@@ -87,7 +87,7 @@ factoryAwardBossWeapon=function(floor){
  else if(floor===3){rollGear('rare');if(Math.random()<.10)rollGear('epic');}
  else return;
  f.weaponAwards[floor]=awards;
- r11Blueprint('boss');r11Quiet(()=>v49Autosave());
+ r11Quiet(()=>v49Autosave());
 };
 // Crafting uses absolute deadlines; existing jobs retain their original deadline/result.
 Object.assign(R6_TIMES,R11_TIMES);
@@ -117,7 +117,7 @@ for(const recipe of Object.values(CRAFT_RECIPES))recipe.seconds=R11_TIMES[recipe
 if(CRAFT_RECIPES.bandage)CRAFT_RECIPES.bandage.seconds=REINFORCED_BANDAGE_SECONDS;
 
 const R11_DISABLED_EPIC_RECIPES=new Set(['widowmaker','keeperCoat']);
-const R11_RETIRED_RECIPES=new Set(['pipe','reinforcedPipe','temperedPipe','mineTent']);
+const R11_RETIRED_RECIPES=new Set(['pipe','reinforcedPipe','temperedPipe','mineTent','boneTomahawk','ironReaper','boneArmor','relayVest']);
 for(const key of R11_RETIRED_RECIPES){
  if(CRAFT_RECIPES[key])Object.defineProperty(CRAFT_RECIPES,key,{enumerable:false});
 }
@@ -128,23 +128,8 @@ function r11RecipeAvailable(key){
  }
  return true;
 }
-function r11Discoverable(key){return key!=='ironReaper'&&r11RecipeAvailable(key);}
+function r11Discoverable(key){return r11RecipeAvailable(key);}
 function r11Learned(key){if(!r11RecipeAvailable(key))return false;r11Migrate();return !!player.flags.r11Learned[key]||(player.flags.v49RecipeBandage&&['bandage','pipe'].includes(key));}
-function r11Blueprint(source){
- const rates={combat:.02,exploration:.015,salvage:.025,boss:.10};
- if(!rates[source]||Math.random()>=rates[source])return false;
- const pool=['boneTomahawk','boneArmor'].filter(k=>!r11Learned(k));if(!pool.length)return false;
- const key=pool[Math.floor(Math.random()*pool.length)];player.flags.r11Learned[key]=true;add('BLUEPRINT LEARNED — '+CRAFT_RECIPES[key].name,'reward');return true;
-}
-const r11Drop=v555AwardEquipmentDrop;v555AwardEquipmentDrop=function(...args){r11Drop(...args);r11Blueprint('combat');};
-const r11Resolve=resolveEncounter;resolveEncounter=function(cmd){
- const oldStage=stage,title=currentEncounter()?.title,oldDone=player.encounterDone?.[roadTurn];
- r11Resolve(cmd);
- if(oldStage==='encounter'&&!/POWDER MONKEY/i.test(title||'')&&['turnComplete','r6Road'].includes(stage)&&!/^move on|^back away|^leave/.test(cmd)){
-  const key=title+'|'+roadGoal+'|'+roadTurn+'|'+(r6Road()?.serial||0);
-  if(player.flags.r11LastBlueprintScene!==key){player.flags.r11LastBlueprintScene=key;r11Blueprint(player.flags.r10LastRoadCategory==='salvage'?'salvage':'exploration');}
- }
-};
 R18_FOOD_GROUPS.salt=['Salt'];
 function r18FoodEligible(kind){return (player.pack||[]).filter(i=>i.qty>0&&!i.protected&&!i.unique&&i.type===(['meat','salt'].includes(kind)?'material':'consumable')&&R18_FOOD_GROUPS[kind]?.includes(i.name));}
 function r18FoodAmount(recipe,kind){return recipe.foodQuantities?.[kind]||1;}

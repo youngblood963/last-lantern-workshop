@@ -602,9 +602,14 @@ const R5_ROAD_REWORK={
   const f=player.flags;if(f.r18LibraryResolved){add('The surviving recipe shelves have already been searched.','system');return true;}
   if(n===2){r18RetainRoadReward('Cloth','material');add('The children’s shelf holds a drawing and a usable piece of Cloth.','reward');return true;}
   if(typeof r11Learned!=='function'||!f.r11Learned){if(typeof r11Migrate==='function')r11Migrate();}
-  const key=n===0?'bandage':Object.keys(CRAFT_RECIPES).find(k=>r11Discoverable(k)&&CRAFT_RECIPES[k].type==='weapon'&&GEAR[CRAFT_RECIPES[k].name]?.rarity==='rare'&&typeof r11Learned==='function'&&!r11Learned(k));
+  if(n===1){
+   f.r18LibraryResolved=true;r18RetainRoadReward('Electronics','material');
+   gainXp(Math.max(10,player.level*2)+10);gainBolts(5);
+   add('Among the ruined manuals, you recover Electronics and a handful of Bolts.','reward');return true;
+  }
+  const key='bandage';
   if(key&&CRAFT_RECIPES[key]&&typeof r11Learned==='function'&&!r11Learned(key)){f.r11Learned=f.r11Learned||{};f.r11Learned[key]=true;add('BLUEPRINT LEARNED — '+CRAFT_RECIPES[key].name,'reward');}
-  else{r18RetainRoadReward(n===0?'Bandage':'Electronics',n===0?'consumable':'material');add('The useful plans are already familiar; you recover supplies instead.','reward');}
+  else{r18RetainRoadReward('Bandage','consumable');add('The useful plans are already familiar; you recover supplies instead.','reward');}
   f.r18LibraryResolved=true;gainXp(Math.max(10,player.level*2));return true;
  }},
  'THE FENCE ARTIST':{options:['TALK TO ENID','HELP WITH SCRAP METAL','DISMANTLE THE SCULPTURE','BACK AWAY'],run(n){
@@ -616,7 +621,7 @@ const R5_ROAD_REWORK={
  'THE BONE COLLECTOR':{options:['ASK ABOUT THE TROPHIES','SELL SMALL BONES FOR 2 BOLTS','SELL ANIMAL BONES FOR 4 BOLTS','SELL RAW MEAT FOR 3 BOLTS','FIGHT THE COLLECTOR','BACK AWAY'],run(n){
   if(n===0){add('The hunter displays human bones as trophies, but warns you that larger animals nest beyond the road.','danger');return true;}
   if(n>=1&&n<=3){const names=n===1?['Small Animal Bones']:n===2?['Animal Bones','Large Animal Bones']:['Raw Rat Meat','Raw Wolf Meat','Raw Bird Meat','Raw Boar Meat','Raw Chicken Meat','Raw Snake Meat','Raw Rabbit Meat','Raw Venison'];const item=player.pack.find(i=>names.includes(i.name)&&i.type==='material'&&i.qty>0&&!i.protected&&!i.unique);if(!item){add('You have none of the requested animal materials to trade.','system');return false;}if(item.stolen&&r18SaleDetected(item,'Bone Collector'))return true;item.qty--;if(item.qty===0)player.pack=player.pack.filter(i=>i!==item);const price=n===1?2:n===2?4:3;gainBolts(price);updateHud();add('The collector pays '+price+' Bolts for '+item.name+'.','reward');return true;}
-  const level=Math.max(1,Math.min(50,(Number(player.level)||1)+1));startCombat({name:'THE BONE COLLECTOR',level,hp:Math.max(28,Math.floor(baseHpForLevel(level)*.35)),min:4,max:8,xp:Math.max(28,level*8),bolts:10,end:'The hunter falls among the trophies.'},'encounter');return true;
+  const level=Math.max(1,Math.min(50,(Number(player.level)||1)+1));startCombat({name:'THE BONE COLLECTOR',level,hp:Math.max(28,Math.floor(baseHpForLevel(level)*.35)),min:4,max:8,xp:Math.max(28,level*8)+10,bolts:15,end:'The hunter falls among the trophies.'},'encounter');return true;
  }},
  'THE GATELESS WALL':{options:['ASK THE GUARDS','PAY TEN BOLTS','SNEAK AND SABOTAGE THE GUN','FIND A BREACH','FIGHT THE GUARDS','BACK AWAY'],run(n){
   if(n===0){add('The guards say the wall is their toll post, not a route to any town.','system');return true;}
@@ -906,7 +911,9 @@ const r18Furnace=eastEncounters.find(e=>e.title==='THE FURNACE PIT');
 if(r18Furnace){r18Furnace.exclusive=false;r18Furnace.choices='SHUT DOWN FURNACE   HOOK GLOWING METAL   SEARCH MAINTENANCE LOCKER   BACK AWAY';r18Furnace.resolve=function(cmd){const q=r18FurnaceScene();
  if(cmd.includes('shut')){if(q.shutdown){add('The furnace is already shut down.','system');return true;}q.shutdown=true;add('You close the fuel valve. The furnace begins to cool.','bright');return true;}
  if(cmd.includes('back')||cmd.includes('away')){add('You leave the brickworks behind.');return true;}
- if(cmd.includes('hook')||cmd.includes('locker')){const risk=q.shutdown?.12:.45;if(Math.random()<risk){environmentalHurt('severe');add('Heat catches your arm; you pull back without the salvage.','danger');return true;}const item=cmd.includes('hook')?'Tempered Steel':'Wire';r18RetainRoadReward(item,'material');if(cmd.includes('hook')&&CRAFT_RECIPES.temperedPipe&&!(typeof r11Learned==='function'?r11Learned('temperedPipe'):player.flags.r11Learned?.temperedPipe)){(player.flags.r11Learned||(player.flags.r11Learned={})).temperedPipe=true;add('BLUEPRINT LEARNED — TEMPERED STEEL PIPE','reward');}gainXp(Math.max(7,player.level*2));add('You recover '+item+' from the brickworks.','reward');return true;}return false;};}
+ if(cmd.includes('hook')||cmd.includes('locker')){const risk=q.shutdown?.12:.45;if(Math.random()<risk){environmentalHurt('severe');add('Heat catches your arm; you pull back without the salvage.','danger');return true;}const item=cmd.includes('hook')?'Tempered Steel':'Wire';r18RetainRoadReward(item,'material');if(cmd.includes('hook')&&!player.flags.r18FurnaceBlueprintPayout&&!player.flags.r11Learned?.temperedPipe){
+  player.flags.r18FurnaceBlueprintPayout=true;gainXp(10);gainBolts(5);
+ }gainXp(Math.max(7,player.level*2));add('You recover '+item+' from the brickworks.','reward');return true;}return false;};}
 // Preserve the existing encounter slot while allowing sequential rescue and satchel choices.
 const r18Quicksand=eastEncounters.find(e=>e.title==='THE QUICKSAND CUT');
 if(r18Quicksand){

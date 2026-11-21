@@ -78,14 +78,4 @@ for(const r of Object.values(CRAFT_RECIPES)){
  if(rarity==='rare')r.chance=Math.min(r.chance,.70);
  if(rarity==='epic'){r.chance=Math.min(r.chance,.50);r.minLevel=Math.max(25,r.minLevel||1);}
 }
-const oldBlueprint=r11Blueprint;
-r11Blueprint=function(source){
- if(Number(player.level||1)<20){
-  const known=player.flags.r11Learned||{},saved=known.keeperCoat;
-  known.keeperCoat=true;
-  try{return oldBlueprint.apply(this,arguments);}
-  finally{if(saved===undefined)delete known.keeperCoat;else known.keeperCoat=saved;}
- }
- return oldBlueprint.apply(this,arguments);
-};
 })();

@@ -1,4 +1,4 @@
-/* Source-controlled DEVTEST layouts merged from the owner’s November 20 export. */
+/* Source-controlled DEVTEST layouts merged from the owner’s November 21 export. */
 /* Published positions are defaults; browser-saved layouts always take precedence. */
 globalThis.Route127PublishedCombatLayouts={
   "version": 1,
@@ -4210,6 +4210,384 @@ globalThis.Route127PublishedCombatLayouts={
         "width": 38,
         "height": 82,
         "scale": 0.72,
+        "z": 2,
+        "flip": true
+      }
+    },
+    "early:160/approach/desktop": {
+      "0:alligator.png": {
+        "x": 67.70832872106946,
+        "y": 61.878308026314954,
+        "width": 54,
+        "height": 78,
+        "scale": 1,
+        "z": 2,
+        "flip": true
+      }
+    },
+    "early:160/combat/desktop": {
+      "0:alligator.png": {
+        "x": 65.77380617865111,
+        "y": 64.39153760862679,
+        "width": 54,
+        "height": 78,
+        "scale": 1,
+        "z": 2,
+        "flip": true
+      }
+    },
+    "early:162/approach/desktop": {
+      "0:backwoods_cannibal_1.png": {
+        "x": 48.95833510728098,
+        "y": 64.52381072521332,
+        "width": 33.333333333333336,
+        "height": 78,
+        "scale": 0.91,
+        "z": 2,
+        "flip": false
+      },
+      "1:backwoods_cannibal_2.png": {
+        "x": 64.88095136726801,
+        "y": 49.8412677187898,
+        "width": 33.333333333333336,
+        "height": 78,
+        "scale": 0.68,
+        "z": 1,
+        "flip": true
+      },
+      "2:backwoods_cannibal_3.png": {
+        "x": 85.26785019911922,
+        "y": 64.52380567931736,
+        "width": 33.333333333333336,
+        "height": 78,
+        "scale": 0.91,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:162/combat/desktop": {
+      "0:backwoods_cannibal_1.png": {
+        "x": 47.69345083508372,
+        "y": 63.59787872552375,
+        "width": 33.333333333333336,
+        "height": 78,
+        "scale": 0.91,
+        "z": 2,
+        "flip": false
+      },
+      "1:backwoods_cannibal_2.png": {
+        "x": 64.13690947553707,
+        "y": 51.693121626377035,
+        "width": 33.333333333333336,
+        "height": 78,
+        "scale": 0.68,
+        "z": 2,
+        "flip": true
+      },
+      "2:backwoods_cannibal_3.png": {
+        "x": 82.51488782009253,
+        "y": 60.42327851438327,
+        "width": 33.333333333333336,
+        "height": 78,
+        "scale": 0.91,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:164/approach/desktop": {
+      "0:giant_mosquito.png": {
+        "x": 38.1249975164733,
+        "y": 9.629632246020124,
+        "width": 20,
+        "height": 78,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "1:giant_mosquito.png": {
+        "x": 46.220236422658886,
+        "y": 48.38623316096216,
+        "width": 20,
+        "height": 78,
+        "scale": 1.09,
+        "z": 2,
+        "flip": false
+      },
+      "2:giant_mosquito.png": {
+        "x": 55.95238054690721,
+        "y": 31.058202593328133,
+        "width": 20,
+        "height": 78,
+        "scale": 0.76,
+        "z": 2,
+        "flip": true
+      },
+      "3:giant_mosquito.png": {
+        "x": 73.0505995715959,
+        "y": 7.248683349138762,
+        "width": 20,
+        "height": 78,
+        "scale": 1,
+        "z": 2,
+        "flip": true
+      },
+      "4:giant_mosquito.png": {
+        "x": 77.87201101175869,
+        "y": 42.301589063646205,
+        "width": 20,
+        "height": 78,
+        "scale": 1,
+        "z": 2,
+        "flip": true
+      }
+    },
+    "early:164/combat/desktop": {
+      "0:giant_mosquito.png": {
+        "x": 20.49106957859746,
+        "y": 28.809524290085328,
+        "width": 20,
+        "height": 78,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "1:giant_mosquito.png": {
+        "x": 46.07142634132297,
+        "y": 32.64550017595039,
+        "width": 20,
+        "height": 78,
+        "scale": 1.06,
+        "z": 2,
+        "flip": false
+      },
+      "2:giant_mosquito.png": {
+        "x": 49.1071451886169,
+        "y": 13.465608131885189,
+        "width": 20,
+        "height": 78,
+        "scale": 0.73,
+        "z": 2,
+        "flip": false
+      },
+      "3:giant_mosquito.png": {
+        "x": 70.2976144860394,
+        "y": 22.063489380356913,
+        "width": 20,
+        "height": 78,
+        "scale": 1,
+        "z": 2,
+        "flip": true
+      },
+      "4:giant_mosquito.png": {
+        "x": 68.34821689595152,
+        "y": 53.015867929930266,
+        "width": 20,
+        "height": 78,
+        "scale": 1.16,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:165/approach/desktop": {
+      "0:swamp_dweller_1.png": {
+        "x": 78.12499467815707,
+        "y": 59.10052716493409,
+        "width": 50,
+        "height": 78,
+        "scale": 1,
+        "z": 2,
+        "flip": true
+      },
+      "1:swamp_dweller_2.png": {
+        "x": 45.16369364395412,
+        "y": 50.23809716034131,
+        "width": 50,
+        "height": 78,
+        "scale": 0.31,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:165/combat/desktop": {
+      "0:swamp_dweller_1.png": {
+        "x": 77.60415797432323,
+        "y": 60.95238611841729,
+        "width": 50,
+        "height": 78,
+        "scale": 1,
+        "z": 2,
+        "flip": true
+      },
+      "1:swamp_dweller_2.png": {
+        "x": 45.83333191417522,
+        "y": 51.42856151699009,
+        "width": 50,
+        "height": 78,
+        "scale": 0.31,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:59/approach/desktop": {
+      "0:marsh_dog_1.png": {
+        "x": 46.874993968578025,
+        "y": 54.206356254584826,
+        "width": 50,
+        "height": 78,
+        "scale": 0.52,
+        "z": 2,
+        "flip": false
+      },
+      "1:marsh_dog_2.png": {
+        "x": 74.553566917676,
+        "y": 65.31746960831636,
+        "width": 50,
+        "height": 78,
+        "scale": 0.92,
+        "z": 2,
+        "flip": true
+      }
+    },
+    "east:59/combat/desktop": {
+      "0:marsh_dog_1.png": {
+        "x": 48.73511572780275,
+        "y": 54.603175604344436,
+        "width": 50,
+        "height": 78,
+        "scale": 0.52,
+        "z": 2,
+        "flip": false
+      },
+      "1:marsh_dog_2.png": {
+        "x": 75.07440362150984,
+        "y": 66.11110830783558,
+        "width": 50,
+        "height": 78,
+        "scale": 0.92,
+        "z": 2,
+        "flip": true
+      }
+    },
+    "early:163/approach/desktop": {
+      "0:snapping_turtle_1.png": {
+        "x": 52.97619311176983,
+        "y": 52.08995106792856,
+        "width": 50,
+        "height": 78,
+        "scale": 0.57,
+        "z": 2,
+        "flip": false
+      },
+      "1:snapping_turtle_1.png": {
+        "x": 75,
+        "y": 59.76190788555464,
+        "width": 50,
+        "height": 78,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:163/combat/desktop": {
+      "0:snapping_turtle_1.png": {
+        "x": 53.94344870634655,
+        "y": 57.380951419829344,
+        "width": 50,
+        "height": 78,
+        "scale": 0.52,
+        "z": 2,
+        "flip": false
+      },
+      "1:snapping_turtle_1.png": {
+        "x": 77.08333546207051,
+        "y": 63.068781213281646,
+        "width": 50,
+        "height": 78,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:77/approach/desktop": {
+      "background:dominion_survey.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "early:34/approach/desktop": {
+      "background:rain_barrel.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "east:27/approach/desktop": {
+      "background:sunken_chapel_exterior.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "early:1/approach/desktop": {
+      "background:washout_salvage.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "early:161/approach/desktop": {
+      "0:water_moccasin_1.png": {
+        "x": 21.80059602370062,
+        "y": 54.73545376682693,
+        "width": 50,
+        "height": 78,
+        "scale": 0.34,
+        "z": 2,
+        "flip": false
+      },
+      "1:water_moccasin_2.png": {
+        "x": 71.50297302271254,
+        "y": 65.31746960831636,
+        "width": 50,
+        "height": 78,
+        "scale": 1,
+        "z": 2,
+        "flip": true
+      }
+    },
+    "early:161/combat/desktop": {
+      "0:water_moccasin_1.png": {
+        "x": 22.023809726546396,
+        "y": 55.79364626836315,
+        "width": 50,
+        "height": 78,
+        "scale": 0.31,
+        "z": 2,
+        "flip": false
+      },
+      "1:water_moccasin_2.png": {
+        "x": 69.12202875123509,
+        "y": 60.29100539779674,
+        "width": 50,
+        "height": 78,
+        "scale": 1,
         "z": 2,
         "flip": true
       }

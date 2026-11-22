@@ -14,9 +14,9 @@
  const assetName=path=>decodeURIComponent(new URL(path,root).pathname.split('/').at(-1));
  const unitKey=(path,index)=>index+':'+assetName(path);
  const states=new Map();
- function register(title,units,phase='both',variant='Standard',background=null){
+ function register(title,units,phase='both',variant='Standard',background=null,composition=null){
   const rows=states.get(title)||[];
-  rows.push({units,phase,variant,background});
+  rows.push({units,phase,variant,background,composition});
   states.set(title,rows);
  }
  const industrialCinematics=new Map([
@@ -82,11 +82,30 @@
   'DRAINAGE STALKER':['culvert_crawler.png'],
   'THE WAX MUSEUM':['The Curator.png'],
   'THE WRECKERS':['Lone Scavenger - Friendly Scrapper.png','The Wreckers - Chain.png'],
-  'RATS IN THE PANTRY':['Snarling Rats at a Rusted Sewer Drain.png'],
+  // Replaced below with the pantry-specific scene and combatants.
   'CHEMICAL BURNERS':['Chemical Burner 1.png','Chemical Burner 2.png'],
   'THE GRINDER CREW':['rivet.png','masked_scavenger.png'],
   'THE STEEL ORCHARD':['martha.png']
  }))register(title,sprite(...files));
+ // Owner's rural encounter artwork. These variants feed the existing DEVTEST
+ // visual editor; the shared scene files remain distinct from movable sprites.
+ const ruralScene=(title,background,composition='sky',units=[],phase='approach',variant='Owner artwork')=>
+  register(title,units,phase,variant,scenery(background),composition);
+ ruralScene('THE COIN WELL','the_coin_well.png');
+ ruralScene('RATS IN THE PANTRY','rats_in_the_pantry.png','sky',[],'approach','Abandoned pantry');
+ ruralScene('RATS IN THE PANTRY','rats_in_the_pantry.png','sky',sprite('pantry_rat.png','pantry_rat.png','pantry_rat.png'),'combat','Three pantry rats');
+ ruralScene('DUST OVER THE SCHOOLYARD','dust_over_the_schoolyard.png','sky',[],'approach','Fawn and mother in scene');
+ ruralScene('DUST OVER THE SCHOOLYARD','dust_over_the_schoolyard.png','sky',[],'combat','Adult deer — sprite unavailable');
+ ruralScene('DUST OVER THE SCHOOLYARD','dust_over_the_schoolyard.png','sky',sprite('territorial_buck.png'),'combat','Buck fight');
+ ruralScene('CORNFIELD STALKERS','cornfield_stalkers_scene.png','sky',sprite('cornfield_stalker_1.png','cornfield_stalker_2.png'),'both','Two independent stalkers');
+ ruralScene('THE DARK CELLAR','dark_cellar_scene.png','sky',[],'approach','Frightened resident embedded');
+ ruralScene('THE DARK CELLAR','dark_cellar_scene.png','sky',[],'combat','Frightened resident embedded');
+ ruralScene('THE SAGGING FARMHOUSE','the_sagging_farmhouse.png','sky',[],'approach','Farmhouse exploration');
+ register('THE WHEELBARROW',[scenery('the_wheelbarrow.png')],'approach','Wheelbarrow prop',null,'regional');
+ register('THE WHEELBARROW',[scenery('the_wheelbarrow.png'),enemy('wheelbarrow_snake.gif')],'combat','Wheelbarrow and triggered snake',null,'regional');
+ register('TERRITORIAL FARMERS',sprite('territorial_farmer_1.png','territorial_farmer_2.png'),'both','Neutral farmers — independent sprites',null,'regional');
+ register('FERAL BULL',sprite('feral_bull.png'),'both','Feral bull',null,'regional');
+ register('WARD OF THE FORGOTTEN',[],'approach','St. Mercy Hospital discovery',locationArt('st_mercy_hospital.png'),'none');
  register('GANG LOOKOUT',sprite('gang_lookout_1.png','gang_lookout_2.png'),'combat','Reinforcements');
  register('THE PAINTED ARROWS',sprite('Painted Arrows - Club Scavenger.png','Painted Arrows - Knife Scavenger.png'),'combat','Red arrow ambush');
  register('THE HANGING CAGE',sprite('silas_crowe_caged.png'),'approach','Caged');
@@ -278,6 +297,22 @@
    classification:entry.classification||'GLOBAL',regions:entry.regions||[],
    combat:!!fight,western:!!westernVariants,fullCinematic:industrialCinematics.has(title)||title==='ABANDONED SUPPLY TRUCK',regionalSprites,variants
   });
+ }
+ const ruralRows=new Map([
+  ['THE COIN WELL',{initialPositions:[]}],
+  ['RATS IN THE PANTRY',{initialPositions:[[50,61,24,48,1,false,2],[40,67,20,42,.88,false,2],[61,67,20,42,.88,true,3]]}],
+  ['DUST OVER THE SCHOOLYARD',{missingCombatArtwork:'adult deer sprite (no reusable asset found)',initialPositions:[[50,56,34,64,1,false,2]]}],
+  ['CORNFIELD STALKERS',{initialPositions:[[40,59,28,74,.82,false,1],[62,56,28,74,.9,true,3]]}],
+  ['THE DARK CELLAR',{initialPositions:[]}],
+  ['THE SAGGING FARMHOUSE',{initialPositions:[]}],
+  ['THE WHEELBARROW',{nonCombatantAssets:['the_wheelbarrow.png'],initialPositions:[[52,72,45,50,.92,false,2],[55,60,26,58,.8,false,3]]}],
+  ['TERRITORIAL FARMERS',{initialPositions:[[36,61,32,76,.92,false,2],[67,61,32,76,.92,true,3]]}],
+  ['FERAL BULL',{initialPositions:[[51,67,54,69,.9,false,2]]}],
+  ['WARD OF THE FORGOTTEN',{initialPositions:[]}]
+ ]);
+ for(const row of rows.values()){
+  const config=ruralRows.get(row.title);
+  if(config){Object.assign(row,config);row.fullCinematic=['THE COIN WELL','RATS IN THE PANTRY','DUST OVER THE SCHOOLYARD','CORNFIELD STALKERS','THE DARK CELLAR','THE SAGGING FARMHOUSE','WARD OF THE FORGOTTEN'].includes(row.title);}
  }
  // The registry retains the older titles for these repurposed encounter IDs.
  for(const [id,variant] of [

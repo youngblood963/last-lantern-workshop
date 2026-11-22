@@ -30,13 +30,14 @@
  const lastCallAndBillyApproved=row=>['scripted:jenboss','scripted:terriblebilly'].includes(row.id);
  // These approved compositions contain the character(s) within a complete scene asset.
  // A combat encounter does not require separately registered sprites to review its artwork.
- const embeddedCombatArtwork=new Set(['THE CINDER WOLVES','THE IRON HARVEST','THE DRY FOUNTAIN','IRRADIATED ROACHES',
+ const embeddedCombatArtwork=new Set(['THE CINDER WOLVES','THE IRON HARVEST','THE DRY FOUNTAIN','IRRADIATED ROACHES','THE DARK CELLAR',
   'THE KNIFE WIND','BROKEN TOLL CREW','THE YARDMAN','THE LAST PATROL',
   'AGGRESSIVE SEAGULLS','SHIPWRECK SCAVENGERS']);
  // Batch selector is deliberately independent of review state; completed scenes
  // stay in the batch until the owner finishes checking every composition.
  const latestBatch=new Set(['east:38','east:66','east:21','east:6','east:11','early:2','east:78','early:50','early:54','early:61','early:9','early:64',
   'east:33','east:58','scripted:serviceboss','scripted:crazy-steve']);
+ const november22Uploads=new Set(['early:7','early:40','early:42','early:47','early:63','early:65','early:166','early:167','early:168','east:81']);
  const november16Uploads=new Set(['LEAKING FREIGHT TANK','FREIGHT CAR AMBUSH','THE CRANE NEST',
   'THE WASHED-OUT SHOULDER','THE POWDER MONKEY','AGGRESSIVE SEAGULLS','SHIPWRECK SCAVENGERS']);
  const industrialUploads=new Set([
@@ -144,6 +145,7 @@
  }
  const progressLabels={green:'🟢 Reviewed / Done',yellow:'🟡 Artwork ready · Needs review',red:'🔴 Missing artwork',checking:'⏳ Checking artwork'};
  function progress(row,reviews){
+  if(row.missingCombatArtwork)return 'red';
   // Owner-approved standalone GIF is complete despite its scenario being combat-tagged.
   // No separate combat sprites are required for this fully illustrated scene.
   if(row.title==='THE MUD CANNON'&&reviews.has(row.id))return 'green';
@@ -196,6 +198,8 @@
  function defaults(row,index,total,background){
   if(row.western)return globalThis.Route127WesternArt.placement(index,total,background);
   if(background)return {x:50,y:50,width:100,height:100,scale:1,z:1,flip:false};
+  const preset=row.initialPositions?.[index];
+  if(preset){const [x,y,width,height,scale=1,flip=false,z=2]=preset;return {x,y,width,height,scale,z,flip};}
   if(row.regionalSprites)return {x:(index+.5)*100/total,y:55,width:total===1?54:100/total,height:78,scale:1,z:2,flip:false};
   const [x,y,width,height,scale=1,flip=false,z=2]=defaultPlaces[row.title]?.[index]||
    [(index+1)*100/(total+1),55,total===1?54:Math.min(38,95/total),82];
@@ -276,7 +280,7 @@
   const coverage=select(filters,'Artwork',['All','Art present','Art missing / review','Art broken','Art unassigned / review','Checking art']);
   const multi=select(filters,'Sprites',['Any','Multiple sprites']);
   const sort=select(filters,'Sort by',['Name','Region','Artwork']);
-  const batch=select(filters,'Review batch',[['Western artwork','Western artwork batch'],['Industrial & Roadside','Industrial & Roadside uploads'],['New uploads (Nov 16)','New uploads (Nov 16)'],['New uploads (9)','Previous uploads'],['All encounters','All encounters']]);
+  const batch=select(filters,'Review batch',[['Western artwork','Western artwork batch'],['Industrial & Roadside','Industrial & Roadside uploads'],['New uploads (Nov 22)','New uploads (Nov 22)'],['New uploads (Nov 16)','New uploads (Nov 16)'],['New uploads (9)','Previous uploads'],['All encounters','All encounters']]);
   if(L.activeScene())batch.value='All encounters';
   const picker=el('select');picker.className='layout-picker';picker.setAttribute('aria-label','Encounter');dialog.append(picker);
   let reviews=readReviews();
@@ -332,7 +336,7 @@
   const saveIndicator=el('span','Not saved locally');saveIndicator.className='layout-save-indicator';saveIndicator.setAttribute('role','status');saveIndicator.setAttribute('aria-live','polite');actions.append(saveIndicator);
   const transfer=el('textarea');transfer.rows=7;transfer.setAttribute('aria-label','Layout JSON');transfer.hidden=true;dialog.append(transfer);
   let row,spec,initial={},draft={},baseline={},nodes=new Map(),preview=false,closed=false;
-  const descriptor=(path,index)=>({path,key:L.unitKey(path,index),index});
+  const descriptor=(path,index)=>({path,key:L.unitKey(path,index),index,nonCombatant:row?.nonCombatantAssets?.includes(L.assetName(path))});
   const selected=()=>nodes.get(units.value);
   const updateStatus=text=>{message.textContent=text;};
   const hasOwn=(obj,key)=>Object.prototype.hasOwnProperty.call(obj,key);
@@ -359,6 +363,7 @@
    const term=search.value.trim().toLowerCase(),all=[...L.rows.values()];
    const visible=all.filter(row=>{
     if(batch.value==='Western artwork'&&!row.western)return false;
+    if(batch.value==='New uploads (Nov 22)'&&!november22Uploads.has(row.id))return false;
     if(batch.value==='Industrial & Roadside'&&!industrialUploads.has(row.title)&&!northernRuntimeScenes.has(row.id))return false;
     if(batch.value==='New uploads (9)'&&!latestBatch.has(row.id))return false;
     if(batch.value==='New uploads (Nov 16)'&&!november16Uploads.has(row.title))return false;
@@ -424,7 +429,8 @@
    baseline=JSON.parse(JSON.stringify(draft));
    metadata.textContent=row.name+' · '+row.id+' · '+regionLabel(row)+' · '+(row.combat?'Combat available':'Noncombat')+
     ' · '+(spec?.units.length||0)+' sprites · '+row.variants.length+' variants · '+
-    (records.map(record=>L.assetName(record.path)+' ('+(status.get(record.path)||'unchecked')+')').join(', ')||state(row));
+    (records.map(record=>L.assetName(record.path)+' ('+(status.get(record.path)||'unchecked')+')').join(', ')||state(row))+
+    (row.missingCombatArtwork?' · MISSING COMBAT ART: '+row.missingCombatArtwork:'');
    nodes=new Map(records.map(record=>[record.key,record]));
    options(units,records.map(record=>[record.key,record.background?'Scene artwork':(record.index+1)+' · '+L.assetName(record.path)]));
    paint();
@@ -481,7 +487,7 @@
     const img=el('img');img.draggable=false;img.alt='';img.src=previewURL(record.path);
     img.addEventListener('error',()=>{img.alt='Missing: '+L.assetName(record.path);});
     node.append(img);
-    if(phase.value==='combat'&&!record.background)node.append(el('span','HP'));
+    if(phase.value==='combat'&&!record.background&&!record.nonCombatant)node.append(el('span','HP'));
     node.addEventListener('click',()=>{units.value=key;updateFields();});
     node.addEventListener('pointerdown',event=>{
      if(preview||event.button!==0)return;

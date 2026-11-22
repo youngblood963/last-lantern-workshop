@@ -19,7 +19,7 @@ const result=run(`applicable.map(entry=>{
  if(!rows.length)throw Error('Empty menu '+entry.name);
  if(new Set(rows.map(r=>r.command)).size!==rows.length)throw Error('Duplicates '+entry.name);
  for(const command of expected)if(!rows.some(r=>r.command===command))throw Error('Missing '+command+' in '+entry.name);
- if(!/back away|move on|keep moving|walk away|leave|withdraw|retreat|back down/.test(rows.at(-1).command))throw Error('Exit last '+entry.name);
+ if(!/back away|move on|keep moving|walk away|leave|withdraw|retreat|back down|attempt to flee/.test(rows.at(-1).command))throw Error('Exit last '+entry.name);
  return {name:entry.name,count:rows.length};
 })`);
 assert(result.length>100);

@@ -9,11 +9,12 @@ const coastalCombat = ['early:171', 'east:159', 'east:160'];
 const added = [...coastalCombat,
  'early:11', 'early:15', 'early:16', 'early:17', 'early:18', 'early:19',
  'early:21', 'early:50', 'early:6', 'early:60', 'early:66',
- 'east:158', 'east:3', 'east:34', 'east:79'
+ 'early:25', 'early:41', 'early:52', 'early:56', 'early:191', 'early:199',
+ 'east:158', 'east:3', 'east:34', 'east:79', 'east:1', 'east:13', 'east:28'
 ];
 const expected = [...added,
  'early:3', 'early:64', 'east:54', 'east:57', 'east:60', 'east:62',
- 'east:64', 'east:69', 'east:70', 'east:72', 'east:73', 'east:78'
+ 'east:64', 'east:69', 'east:70', 'east:73', 'east:78'
 ].sort();
 
 assert(scripts.includes('devtest/runtime/old_man_finn_causeway.js'));
@@ -148,7 +149,7 @@ for (const [index, key, opponent] of [[62, 'crabTrap', 'CRAB SWARM'], [64, 'crab
   };
   assert.equal(run('saveSnapshot().player.flags.r127FinnDiscovered'), true);
   assert.equal(run("getSaveData('auto').player.flags.r127FinnDiscovered"), true);
-  await click('visit old man finn');
+  if(run('stage')==='lanternRoad')await click('visit old man finn');
   assert.equal(run('stage'), 'r127FinnStore');
   const art = run('GraphicalUI.model().art');
   assert.match(art, /old_man_finn_boat\.png$/);

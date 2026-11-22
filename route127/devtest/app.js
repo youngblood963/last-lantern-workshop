@@ -307,7 +307,7 @@ function spendTurns(count=1){
   updateHud(); return true;
 }
 function spendTurn(){ return spendTurns(1); }
-function timePhase(){ const h=player.flags.worldHour??8; return h<6?"DARK":h<8?"DAWN":h<17?"DAY":h<20?"DUSK":"DARK"; }
+function timePhase(h=player.flags.worldHour??8){ return h<6?"DARK":h<8?"DAWN":h<17?"DAY":h<20?"DUSK":"DARK"; }
 function isDark(){ return timePhase()==="DARK"; }
 function ensureRefillClock(){ if(!player.flags) player.flags={}; if(!player.flags.nextRefillAt) player.flags.nextRefillAt=Date.now()+REFILL_MS; }
 function restoreTurnLocation(){

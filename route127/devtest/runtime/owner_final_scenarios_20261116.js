@@ -146,7 +146,18 @@
   }
   if(target?.type==='rural'){
    const spec=target.spec;
-   if(spec.scene&&spec.composition==='sky'){
+   // Sprite-only rural encounters (including Feral Bull) must use the regional
+   // terrain + sky, not inherit a sky-only backdrop from another renderer.
+   if(spec.composition==='regional'){
+    const region=target.region;
+    const scene=globalThis.Route127EditorSky?.describe(region,player?.flags?.worldHour);
+    if(scene&&[scene.ground,scene.sky].map(url=>this.sceneArtworkReady(url)).every(Boolean)){
+     model.art=scene.ground;
+     model.regionalSky={region,period:period(),sky:skyName()};
+     model.scenarioBackdrop=null;
+     model.causewayBacking=false;
+    }
+   }else if(spec.scene&&spec.composition==='sky'){
     const sky=regional(skyName()),art=file(spec.dir||'scenarios',spec.scene);
     if([sky,art].map(url=>this.sceneArtworkReady(url)).every(Boolean)){
      model.art=sky;model.regionalSky=null;model.causewayBacking=false;

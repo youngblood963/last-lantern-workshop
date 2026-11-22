@@ -609,6 +609,7 @@
    player.flags.portHireOffer.origin==='wandererRoad'))return {id:gideon,phase:'approach'};
   if(!c&&stage==='r18Station'&&globalThis.Route127StationNinePresentation?.viewingEvelyn())
    return {id:'scripted:r18stationevelyn',phase:'approach'};
+  if(!c&&stage==='r11Caleb'&&player.flags.r18CalebRescued)return {id:'seaport:caleb-docks',phase:'approach'};
   if(c?.r18Harlan)return {id:'early:12',phase:'combat'};
   if(c?.r18DanielCaptors)return {id:'factory:captors',phase:'combat'};
   if(stage==='factoryDungeonRoom'&&!c){

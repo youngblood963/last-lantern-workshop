@@ -98,8 +98,8 @@
  ruralScene('DUST OVER THE SCHOOLYARD','dust_over_the_schoolyard.png','sky',sprite('schoolyard_deer.png'),'combat','Schoolyard doe');
  ruralScene('DUST OVER THE SCHOOLYARD','dust_over_the_schoolyard.png','sky',sprite('territorial_buck.png'),'combat','Buck fight');
  ruralScene('CORNFIELD STALKERS','cornfield_stalkers_scene.png','sky',sprite('cornfield_stalker_1.png','cornfield_stalker_2.png'),'both','Two independent stalkers');
- ruralScene('THE DARK CELLAR','dark_cellar_scene.png','sky',[],'approach','Frightened resident embedded');
- ruralScene('THE DARK CELLAR','dark_cellar_scene.png','sky',[],'combat','Frightened resident embedded');
+ ruralScene('THE DARK CELLAR','dark_cellar_scene.png','road',[],'approach','Frightened resident embedded');
+ ruralScene('THE DARK CELLAR','dark_cellar_scene.png','road',[],'combat','Frightened resident embedded');
  ruralScene('THE SAGGING FARMHOUSE','the_sagging_farmhouse.png','sky',[],'approach','Farmhouse exploration');
  register('THE WHEELBARROW',[scenery('the_wheelbarrow.png')],'approach','Wheelbarrow prop',null,'regional');
  register('THE WHEELBARROW',[scenery('the_wheelbarrow.png'),enemy('wheelbarrow_snake.gif')],'combat','Wheelbarrow and triggered snake',null,'regional');

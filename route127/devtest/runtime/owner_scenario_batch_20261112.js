@@ -50,6 +50,19 @@
  }
  const css=document.createElement('style');
  css.textContent=`
+ /* Tommy's roadside artwork is a complete composition. Keep the approved
+    layout transform and fill only the space outside the contained image. */
+ body.full-graphics .gfx-frame .gfx-art:has(>.gfx-image[src*="/tommy_briggs_roadside.png"]){
+  isolation:isolate;
+ }
+ body.full-graphics .gfx-frame .gfx-art:has(>.gfx-image[src*="/tommy_briggs_roadside.png"])::before{
+  content:"";position:absolute;inset:-12px;z-index:-1;pointer-events:none;
+  background:url('/route127/devtest/assets/scenarios/tommy_briggs_roadside.png') center/cover no-repeat;
+  filter:blur(12px) brightness(.48);
+ }
+ body.full-graphics .gfx-frame .gfx-art>.gfx-image[src*="/tommy_briggs_roadside.png"]{
+  position:relative;object-fit:contain;object-position:center;background:transparent!important;
+ }
  .gfx-art>.r127-tool-chest-prop{position:absolute;z-index:5;left:50%;bottom:8%;width:44%;height:52%;transform:translateX(-50%);object-fit:contain;object-position:center bottom;pointer-events:none}
  /* Full-scene animated GIFs: fit the whole frame at 95% (desktop + mobile).
     Target only the primary scenario artwork, not UI animations or combat sprites.

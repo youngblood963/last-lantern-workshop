@@ -417,6 +417,63 @@
   nonCombatantAssets:['ash_cemetery_gate_closed.png'],initialPositions:[[50,59,80,76,1,false,2]],
   variants:[{units:[ashGate],phase:'approach',variant:'Closed gate',
    background:'assets/cemetery/ash_cemetery_stage_0_abandoned.png',composition:'sky'}]});
+ const cemeteryAsset=name=>'assets/cemetery/'+name+'.png';
+ const cemeteryStages=[
+  ['discovery','Discovery',0],['day0','Day 0',0],['day3','Day 3',1],
+  ['day7','Day 7',1],['day14','Day 14',1],['day30','Day 30+',2]
+ ];
+ const cemeteryEndings=[['mercy','Mercy'],['justice','Justice'],['redemption','Redemption'],['violent','Violent confrontation']];
+ const cemeteryEvents=[['normal','Normal Cemetery Visit'],['restoration','Cemetery Restoration'],['reunion',"Ruth's Reunion"]];
+ const cemeteryId=(stage,ending,event)=>'ash:editor:'+stage+':'+ending+':'+event;
+ const cemeteryBackgrounds=["ash_cemetery_stage_0_abandoned","ash_cemetery_stage_1_restoration","ash_cemetery_stage_2_restored"].map(cemeteryAsset);
+ const cemeteryUnits=[
+  'ash_cemetery_gate_closed',
+  'ash_cemetery_gate_open',
+  'ash_elias_vane_undertaker',
+  'ash_miriam_hiding_grave',
+  'ash_miriam_tending_restored_grave',
+  'ash_procession_mourners_coffin_sprite',
+  'ash_anya_scattering_seed',
+  'ash_ruth_planting_seeds',
+  'ash_tomas_raking_soil',
+  'ash_leah_clearing_weeds',
+  'ash_jo_brushing_headstone',
+  'ash_hal_tending_grave',
+  'ash_ruth_mother_laying_flowers',
+  'ash_ruth_mother_reunion'
+ ].map(cemeteryAsset);
+ const [closedGate,openGate,elias,hiddenMiriam,tendingMiriam,mourners,anya,ruth,tomas,leah,jo,hal,mother,reunion]=cemeteryUnits;
+ const cemeteryWorkers=[anya,ruth,tomas,leah,jo,hal,tendingMiriam,mother];
+ const cemeteryEditor=Object.freeze({stages:cemeteryStages,endings:cemeteryEndings,events:cemeteryEvents,id:cemeteryId});
+ for(const [stage,label,background] of cemeteryStages){
+  for(const [ending] of cemeteryEndings){
+   for(const [event] of cemeteryEvents){
+    const id=cemeteryId(stage,ending,event);
+    const discovery=stage==='discovery';
+    const visible=new Set([cemeteryBackgrounds[background],discovery?closedGate:openGate]);
+    if(event==='reunion')visible.add(reunion);
+    else if(event==='restoration'){
+     const workers=background===0?[anya,tomas]:background===1?[ruth,leah,jo]:[hal,tendingMiriam,mother];
+     workers.forEach(path=>visible.add(path));
+    }else if(discovery){visible.add(mourners);visible.add(hiddenMiriam);}
+    else if(background===1){visible.add(anya);visible.add(jo);}
+    else if(background===2){visible.add(tendingMiriam);visible.add(mother);}
+    if(ending!=='violent'&&(discovery||ending==='redemption'&&event==='restoration'))visible.add(elias);
+    const units=ending==='violent'?cemeteryUnits.filter(path=>path!==elias):cemeteryUnits;
+    rows.set(id,{id,title:'ASH CEMETERY — '+label,name:label,classification:'FIXED',regions:['WEST'],
+     combat:false,fullCinematic:true,previewOnly:true,initialPositions:units.map(path=>{
+      if(path===closedGate||path===openGate)return [50,59,80,76,1,false,20];
+      if(path===mourners)return [50,65,61,55,1,false,6];
+      if(path===reunion)return [51,63,36,58,1,false,9];
+      const index=cemeteryWorkers.indexOf(path);
+      return [index<0?(path===elias?73:25):20+(index%4)*20,61+(index>=4?10:0),28,51,1,false,5+Math.max(index,0)];
+     }),
+     cemetery:{backgrounds:cemeteryBackgrounds,visible,gates:[closedGate,openGate],
+      shared:cemeteryId(stage,'mercy','normal')},
+     variants:[{units,phase:'approach',variant:label,background:cemeteryBackgrounds[background],composition:'sky'}]});
+   }
+  }
+ }
  // The scripted loop above allocates the canonical serviceBoss row; attach its
  // cinematic art AFTER that loop so it is not overwritten with an empty variant.
  // Red fights in the same fully illustrated Rusty Anchor portrait used in dialogue.
@@ -459,7 +516,7 @@
  rows.set(gideon,{id:gideon,title:'GIDEON BRIGGS',name:'Gideon Briggs',classification:'GLOBAL',
   regions:[],site:'Road wanderer',combat:false,variants:[{units:['assets/wanderers/rob_gideon.png'],
    phase:'approach',variant:'Road portrait',background:null}]});
- const installed=new Map([...rows.values()].flatMap(row=>row.variants.flatMap(v=>
+ const installed=new Map([...rows.values()].filter(row=>!row.previewOnly).flatMap(row=>row.variants.flatMap(v=>
   v.units.map(path=>[assetName(path),path]))));
  const bounds={x:[0,100],y:[0,100],width:[2,150],height:[2,150],scale:[.1,3],z:[0,30]};
  function unit(value){
@@ -479,13 +536,23 @@
   const scenes=Object.create(null);
   for(const [scene,units] of Object.entries(doc.scenes)){
    const [id,phase,device,...extra]=scene.split('/');
-   if(!rows.has(id)||!['approach','combat'].includes(phase)||!['desktop','phone'].includes(device)||extra.length||
+   const row=rows.get(id);
+   if(!row||!['approach','combat'].includes(phase)||!['desktop','phone'].includes(device)||extra.length||
       !units||typeof units!=='object'||Array.isArray(units)||Object.keys(units).length>256)throw new Error('Invalid scene '+scene);
+   const validCemeteryUnits=row.previewOnly?new Set([
+    ...row.cemetery.backgrounds.map(path=>'background:'+assetName(path)),
+    ...row.variants[0].units.map(unitKey)
+   ]):null;
    const safe=Object.create(null);
    for(const [id,layout] of Object.entries(units)){
     if(!/^(?:background|attachment|\d{1,3}):[^/\\]{1,150}$/.test(id))throw new Error('Invalid unit key');
     if(id.startsWith('attachment:')&&!installed.has(id.slice(11)))throw new Error('Unknown attached asset');
+    if(validCemeteryUnits&&!validCemeteryUnits.has(id))throw new Error('Unknown cemetery artwork');
     safe[id]=unit(layout);
+    if(row.previewOnly&&Object.hasOwn(layout,'visible')){
+     if(typeof layout.visible!=='boolean')throw new Error('Invalid artwork visibility');
+     safe[id].visible=layout.visible;
+    }
    }
    scenes[scene]=safe;
   }
@@ -865,6 +932,6 @@
   }));
  }
  globalThis.Route127CombatLayouts=Object.freeze({
-  rows,installed,root,regionArt,assetName,unitKey,sceneKey,get,applyOverlay,local:()=>local,published:()=>published,merged,json,save,importJSON,capture,activeScene
+  rows,installed,root,cemeteryEditor,regionArt,assetName,unitKey,sceneKey,get,applyOverlay,local:()=>local,published:()=>published,merged,json,save,importJSON,capture,activeScene
  });
 })();

@@ -95,7 +95,7 @@
  ruralScene('RATS IN THE PANTRY','rats_in_the_pantry.png','sky',[],'approach','Abandoned pantry');
  ruralScene('RATS IN THE PANTRY','rats_in_the_pantry.png','sky',sprite('pantry_rat.png','pantry_rat.png','pantry_rat.png'),'combat','Three pantry rats');
  ruralScene('DUST OVER THE SCHOOLYARD','dust_over_the_schoolyard.png','sky',[],'approach','Fawn and mother in scene');
- ruralScene('DUST OVER THE SCHOOLYARD','dust_over_the_schoolyard.png','sky',[],'combat','Adult deer — sprite unavailable');
+ ruralScene('DUST OVER THE SCHOOLYARD','dust_over_the_schoolyard.png','sky',sprite('schoolyard_deer.png'),'combat','Schoolyard doe');
  ruralScene('DUST OVER THE SCHOOLYARD','dust_over_the_schoolyard.png','sky',sprite('territorial_buck.png'),'combat','Buck fight');
  ruralScene('CORNFIELD STALKERS','cornfield_stalkers_scene.png','sky',sprite('cornfield_stalker_1.png','cornfield_stalker_2.png'),'both','Two independent stalkers');
  ruralScene('THE DARK CELLAR','dark_cellar_scene.png','sky',[],'approach','Frightened resident embedded');
@@ -301,7 +301,7 @@
  const ruralRows=new Map([
   ['THE COIN WELL',{initialPositions:[]}],
   ['RATS IN THE PANTRY',{initialPositions:[[50,61,24,48,1,false,2],[40,67,20,42,.88,false,2],[61,67,20,42,.88,true,3]]}],
-  ['DUST OVER THE SCHOOLYARD',{missingCombatArtwork:'adult deer sprite (no reusable asset found)',initialPositions:[[50,56,34,64,1,false,2]]}],
+  ['DUST OVER THE SCHOOLYARD',{initialPositions:[[50,56,34,64,1,false,2]]}],
   ['CORNFIELD STALKERS',{initialPositions:[[40,59,28,74,.82,false,1],[62,56,28,74,.9,true,3]]}],
   ['THE DARK CELLAR',{initialPositions:[]}],
   ['THE SAGGING FARMHOUSE',{initialPositions:[]}],

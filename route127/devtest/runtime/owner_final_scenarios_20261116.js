@@ -32,6 +32,7 @@
   ['RATS IN THE PANTRY',{scene:'rats_in_the_pantry.png',units(combat){return combat?Array(3).fill(0).map((_,index)=>({name:'pantry_rat.png',index,hp:true})):[];}}],
   ['DUST OVER THE SCHOOLYARD',{scene:'dust_over_the_schoolyard.png',units(combat){
    if(combat?.name==='SCHOOLYARD BUCK')return [{name:'territorial_buck.png',index:0,hp:true}];
+   if(combat?.name==='SCHOOLYARD DEER')return [{name:'schoolyard_deer.png',index:0,hp:true}];
    return [];
   }}],
   ['CORNFIELD STALKERS',{scene:'cornfield_stalkers_scene.png',units(){return [

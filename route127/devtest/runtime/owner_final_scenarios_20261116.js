@@ -28,6 +28,7 @@
  };
  const clean=v=>String(v||'').toUpperCase().replace(/^EAST ROAD — /,'').trim();
  const ruralByTitle=new Map([
+  ['THE ASH PROCESSION',{scene:'ash_procession_road_arrival.png',dir:'cemetery',composition:'sky'}],
   ['COUNTY OFFICES',{scene:'county_offices.png',composition:'road',units(combat){
    if(!combat&&player.flags.r18CalebRescued&&player.encounterDone?.[roadTurn]?.has?.('FORCE OFFICE 204'))
     return [{name:'caleb_reed.png',dir:'scenarios',index:0,hp:false}];
@@ -57,6 +58,7 @@
   ['WARD OF THE FORGOTTEN',{scene:'st_mercy_hospital.png',dir:'locations',composition:'none'}]
  ]);
  const ruralById=new Map([
+  ['east:4','THE ASH PROCESSION'],
   ['early:12','COUNTY OFFICES'],['early:7','THE DARK CELLAR'],['early:40','THE WHEELBARROW'],['early:42','THE COIN WELL'],
   ['early:47','RATS IN THE PANTRY'],['early:63','THE SAGGING FARMHOUSE'],['early:65','DUST OVER THE SCHOOLYARD'],
   ['early:166','CORNFIELD STALKERS'],['early:167','TERRITORIAL FARMERS'],['early:168','FERAL BULL'],
@@ -171,8 +173,9 @@
   const active=globalThis.Route127CombatLayouts?.activeScene();
   const interior=active?.id==='scripted:r18stationevelyn'?'evelyn_cross_station_nine.png':
    active?.id==='seaport:caleb-docks'?'caleb_seaport_docks.png':null;
-  if(interior){
-   const art=file('locations',interior);
+  const cottage=stage==='mercy'&&mercyLocation==='ashSurvivorCottage';
+  if(interior||cottage){
+   const art=cottage?file('cemetery','ash_ruth_mother_solace_cottage.png'):file('locations',interior);
    if(this.sceneArtworkReady(art)){
     model.art=art;model.regionalSky=null;model.scenarioBackdrop=null;model.causewayBacking=false;
    }
@@ -311,6 +314,7 @@
    const drawsSky=this.displaysArtwork(regional(skyName()));
    const active=globalThis.Route127CombatLayouts?.activeScene();
    if(northernSkyScenes.has(active?.id)&&!drawsSky)north=null;
+   if(!drawsSky&&target?.title==='THE ASH PROCESSION'){target=null;north=null;}
    if(target?.title==='COUNTY OFFICES'&&!drawsSky)north=null;
    if((target?.type==='freight'||target?.type==='rural'&&target.spec.composition==='road')&&!drawsSky)target=null;
    const on=!!(target||north)&&!e.frame.hidden&&this.preference()==='graphics';

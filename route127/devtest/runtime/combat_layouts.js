@@ -781,7 +781,17 @@
   return units;
  }
  const styled=new Set();
+ // Contain fits the pixels inside the image box. Saved transforms can still
+ // move that box beyond the clipped road figure, especially with old drafts.
+ function fitMilesRoadLayout(layout){
+  const scale=Math.min(layout.scale,100/layout.width,100/layout.height);
+  const halfWidth=layout.width*scale/2,halfHeight=layout.height*scale/2;
+  return {...layout,scale,
+   x:Math.min(100-halfWidth,Math.max(halfWidth,layout.x)),
+   y:Math.min(100-halfHeight,Math.max(halfHeight,layout.y))};
+ }
  function apply(node,layout,background=false){
+  if(node.hasAttribute('data-miles-road'))layout=fitMilesRoadLayout(layout);
   node.classList.add('r127-layout-unit');
   node.classList.toggle('r127-layout-background',background);
   node.classList.toggle('r127-layout-flipped',layout.flip);

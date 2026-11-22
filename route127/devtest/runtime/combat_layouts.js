@@ -271,7 +271,8 @@
   units:[],phase:'approach',variant,background:locationArt(file),composition
  }))]));
  // Fixed location art follows the canonical encounter ID across registry aliases.
- const fixedLocationScenes=new Map([
+ const canonicalScenes=new Map([
+  ['east:4',[{units:[],phase:'approach',variant:'Roadside procession',background:'assets/cemetery/ash_procession_road_arrival.png',composition:'sky'}]],
   ['early:12',[
    {units:[enemy('janitor_harlan.png')],phase:'approach',variant:'County Offices — Harlan',background:scenery('county_offices.png'),composition:'road'},
    {units:[scenery('caleb_reed.png')],phase:'approach',variant:'Caleb Reed freed',background:scenery('county_offices.png'),composition:'road'},
@@ -298,7 +299,7 @@
   byTitle.set(title,id);
   if(rows.has(id))continue;
   const westernVariants=western?.scenes.get(title);
-  const fixedVariants=fixedLocationScenes.get(id);
+  const fixedVariants=canonicalScenes.get(id);
   const variants=fixedVariants||westernVariants||lowlandsCinematics.get(id)||northernRuntimeScenes.get(id)||states.get(title)||[];
   const regionalSprites=Object.hasOwn(lowlandsSprites,title);
   const fight=regionalSprites||!!entry.encounter.combat||entry.references?.some(ref=>ref.category==='combat')||

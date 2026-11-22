@@ -142,6 +142,7 @@ function ashSurvivorCommand(cmd){
  add("RUTH'S MOTHER > "+answer,'bright');
  add("RUTH'S MOTHER > Tell her I'm coming. Please. Tell her I'm alive.",'bright');
  q.reunion=true;
+ lanternSave();
  return r5DirectChoices(['RETURN TO TOWN']);
 }
 const v53OldSolace=handleSolace;handleSolace=function(cmd,raw=cmd){

@@ -71,6 +71,11 @@ function current(){
  const origin=typeof currentEncounter==='function'&&['encounter','combat','combatItems'].includes(stage)?currentEncounter():null;
  const target=globalThis.DailyBounties?.artTarget();
  if(target)return {title:target.name.toUpperCase(),items:[file(target.art)],combat};
+ const western=globalThis.Route127WesternArt?.current();
+ if(western){
+  const {title,variant}=western;
+  return {title,items:variant.units.map(path=>file(path.split('/').at(-1))),combat,lowlands:true,western:true};
+ }
  const aliases={'THE MILK CRATES':'THE HIGHWAY HUNTERS','SCAVENGER':'LONE SCAVENGER','WRECKERS':'THE WRECKERS','DRAIN CREATURE':'SOMETHING IN THE DRAIN',
  'FERAL BOAR':'TUNNEL RATS','PANTRY RAT PACK':'RATS IN THE PANTRY','LARGE CONTAMINATED ROACHES':'ROACH NEST','AGGRESSIVE ROACH SWARM':'ROACH NEST'};
  const raw=normalize(combat?.name||encounter?.title);
@@ -219,7 +224,7 @@ GraphicalUI.sync=function(...args){
   const combat=typeof combatState!=='undefined'?combatState:null;
   if(scene&&combat&&['HIGHWAY ROBBERS'].includes(scene.title))scene.items=[];
   const completeUnits=!scene?.combat?.enemies?.length||scene.combat.enemies.length===scene.items.length;
-  e.frame.classList.toggle('r127-road-combat-active',!!scene?.combat&&completeUnits);
+  e.frame.classList.toggle('r127-road-combat-active',!!scene?.combat&&completeUnits&&(!scene.western||!!scene.items.length));
   if(!scene||!scene.items.length){layer?.remove();return result}
   const key=scene.title+':'+scene.items.map(x=>x.name).join('|')+':'+!!scene.combat;
   if(layer?.dataset.key!==key){

@@ -17,7 +17,7 @@
   (northernRuntimeAssets.has(path)?'northern-layout-registry-20261120':'wo27-art-fit');
  const status=new Map();
  const reviewKey='route127-scenario-reviews-v1';
- const animatedTitles=new Set(['THE LIME FOG','THE RED RAIN','THE GLASS FIELD','THE TAR POOL']);
+ const animatedTitles=new Set(['THE LIME FOG','THE RED RAIN','THE GLASS FIELD']);
  // Owner confirmed these Seaport-eligible scenes are complete in Combat Visual Testing.
  const ownerApprovedScenes=new Set(['THE FORGOTTEN ARENA','THE FIGHTING RING']);
  const ownerApproved=row=>ownerApprovedScenes.has(String(row.title||'').toUpperCase())||ownerApprovedScenes.has(String(row.name||'').toUpperCase());
@@ -139,13 +139,6 @@
     localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
     localStorage.setItem(liveWiresFurnaceSeed,'1');
    }
-   // Owner-approved procedural Tar Pool; seed once, preserving later review toggles.
-   const tarSeed=reviewKey+'-tar-pool-approved-20261121';
-   if(!localStorage.getItem(tarSeed)){
-    for(const row of L.rows.values())if(row.id==='east:31')reviews.add(row.id);
-    localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
-    localStorage.setItem(tarSeed,'1');
-   }
    return reviews;
   }catch{return new Set();}
  }
@@ -165,7 +158,7 @@
   if(animated(row))return reviews.has(row.id)?'green':'yellow';
   const art=state(row);
   if(art==='Checking art')return 'checking';
-  if(art!=='Art present'||(row.combat&&!row.fullCinematic&&!embeddedCombatArtwork.has(row.title)&&!row.variants.some(v=>v.units.length)))return 'red';
+  if(art!=='Art present'||(!row.western&&row.combat&&!row.fullCinematic&&!embeddedCombatArtwork.has(row.title)&&!row.variants.some(v=>v.units.length)))return 'red';
   return reviews.has(row.id)?'green':'yellow';
  }
  const state=row=>{
@@ -201,6 +194,7 @@
   'THE SHATTERED SILO':[[51,67,46,67,1,false,3],[19,70,31,49,1,false,2],[81,76,23,38,1,false,4]]
  };
  function defaults(row,index,total,background){
+  if(row.western)return globalThis.Route127WesternArt.placement(index,total,background);
   if(background)return {x:50,y:50,width:100,height:100,scale:1,z:1,flip:false};
   if(row.regionalSprites)return {x:(index+.5)*100/total,y:55,width:total===1?54:100/total,height:78,scale:1,z:2,flip:false};
   const [x,y,width,height,scale=1,flip=false,z=2]=defaultPlaces[row.title]?.[index]||
@@ -226,6 +220,11 @@
  .r127-layout-editor .layout-stage[data-sky-time=night] .layout-scene-image{filter:brightness(.62) saturate(.68) sepia(.12) hue-rotate(165deg)}
  .r127-layout-editor .layout-stage[data-sky-time=dusk] .layout-scene-image{filter:brightness(.83) saturate(.88) sepia(.18)}
  .r127-layout-editor .layout-stage[data-sky-time=dawn] .layout-scene-image{filter:brightness(.92) saturate(.91) sepia(.13)}
+ .r127-layout-editor .layout-stage[data-western=true] .layout-region-overlay{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}
+ .r127-layout-editor .layout-stage[data-western=true][data-sky-time=night] img:not(.layout-base){filter:brightness(.65) saturate(.65) sepia(.12) hue-rotate(165deg)}
+ .r127-layout-editor .layout-stage[data-western=true][data-sky-time=dawn] img:not(.layout-base){filter:brightness(.94) saturate(.92) sepia(.16)}
+ .r127-layout-editor .layout-stage[data-western=true][data-sky-time=dusk] img:not(.layout-base){filter:brightness(.83) saturate(.88) sepia(.18)}
+ .r127-layout-editor .layout-stage[data-western=true] .layout-scene-image{filter:none}
  .r127-layout-editor .layout-unit{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:end;touch-action:none;cursor:grab;transform-origin:center;min-height:0;padding:0;border:0;background:transparent}
  .r127-layout-editor .layout-unit[aria-pressed=true]{outline:1px dashed #f6c87d}
  .r127-layout-editor .layout-unit img{width:100%;height:100%;min-height:0;object-fit:contain;object-position:center bottom;pointer-events:none}
@@ -277,7 +276,7 @@
   const coverage=select(filters,'Artwork',['All','Art present','Art missing / review','Art broken','Art unassigned / review','Checking art']);
   const multi=select(filters,'Sprites',['Any','Multiple sprites']);
   const sort=select(filters,'Sort by',['Name','Region','Artwork']);
-  const batch=select(filters,'Review batch',[['Industrial & Roadside','Industrial & Roadside uploads'],['New uploads (Nov 16)','New uploads (Nov 16)'],['New uploads (9)','Previous uploads'],['All encounters','All encounters']]);
+  const batch=select(filters,'Review batch',[['Western artwork','Western artwork batch'],['Industrial & Roadside','Industrial & Roadside uploads'],['New uploads (Nov 16)','New uploads (Nov 16)'],['New uploads (9)','Previous uploads'],['All encounters','All encounters']]);
   if(L.activeScene())batch.value='All encounters';
   const picker=el('select');picker.className='layout-picker';picker.setAttribute('aria-label','Encounter');dialog.append(picker);
   let reviews=readReviews();
@@ -301,7 +300,7 @@
   // Backdrop is a preview-only choice, independent of the artwork variant.
   // "None" restores the selected regional background rather than blank sky.
   const backdrop=select(variants,'Backdrop',[
-   ['none','None — regional background'],['sky','Sky only'],['road','Sky + dirt road']
+   ['none','None — regional background'],['sky','Sky only'],['regional','Regional sky + landscape'],['road','Sky + dirt road']
   ]);
   const background=select(variants,'Background region',regions);
   const skyTime=select(variants,'Sky preview',['dawn','day','dusk','night']);
@@ -359,6 +358,7 @@
    const keep=picker.value||L.activeScene()?.id;
    const term=search.value.trim().toLowerCase(),all=[...L.rows.values()];
    const visible=all.filter(row=>{
+    if(batch.value==='Western artwork'&&!row.western)return false;
     if(batch.value==='Industrial & Roadside'&&!industrialUploads.has(row.title)&&!northernRuntimeScenes.has(row.id))return false;
     if(batch.value==='New uploads (9)'&&!latestBatch.has(row.id))return false;
     if(batch.value==='New uploads (Nov 16)'&&!november16Uploads.has(row.title))return false;
@@ -437,6 +437,7 @@
    node.setAttribute('aria-pressed',String(units.value===key));
   }
   function paint(){
+   canvas.dataset.western=String(!!row?.western);
    canvas.dataset.device=device.value;canvas.dataset.preview=String(preview);
    const layers=backdrop.value;
    const regionalRoot=new URL('../assets/regions/',L.root);
@@ -456,7 +457,7 @@
    // these owner-provided enemy sprites; do not show only an empty sky.
    const uploadedRegional=new Set(['HARBOR SECURITY DRONE','FLOODLIGHT SWEEP',
      'DOCKSIDE PIRATES','SEAWALL SNIPER','CARGO HIJACKERS','SCRAP CRAB NEST']);
-   const showRegional=layers==='sky'&&row&&(row.regionalSprites||row.title==='MAINTENANCE BOX'||uploadedRegional.has(row.title));
+   const showRegional=layers==='regional'||layers==='sky'&&row&&(row.regionalSprites||row.title==='MAINTENANCE BOX'||uploadedRegional.has(row.title));
    if(showRegional){
     const regionArt=globalThis.Route127EditorSky?.describe(background.value,
      {dawn:6,day:12,dusk:18,night:22}[skyTime.value]);
@@ -496,6 +497,11 @@
      node.onlostpointercapture=()=>{node.onpointermove=null;};
     });
     canvas.append(node);position(node,key);
+   }
+   if(phase.value==='combat'&&spec?.embedded){
+    const hp=el('div');hp.className='r127-factory-boss-hp';
+    hp.innerHTML='<div class="r127-factory-boss-track"><div class="r127-factory-boss-fill"></div></div><span class="r127-factory-boss-count">HP</span>';
+    canvas.append(hp);
    }
    updateFields();
   }

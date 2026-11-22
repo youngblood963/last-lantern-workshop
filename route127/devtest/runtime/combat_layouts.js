@@ -257,6 +257,7 @@
   register(title,sprite(...files),'both','Individual combatants');
  }
 
+ const western=globalThis.Route127WesternArt;
  const rows=new Map();
  const byEncounter=new Map();
  const byTitle=new Map();
@@ -267,14 +268,15 @@
   byEncounter.set(entry.encounter,id);
   byTitle.set(title,id);
   if(rows.has(id))continue;
-  const variants=lowlandsCinematics.get(id)||northernRuntimeScenes.get(id)||states.get(title)||[];
+  const westernVariants=western?.scenes.get(title);
+  const variants=westernVariants||lowlandsCinematics.get(id)||northernRuntimeScenes.get(id)||states.get(title)||[];
   const regionalSprites=Object.hasOwn(lowlandsSprites,title);
   const fight=regionalSprites||!!entry.encounter.combat||entry.references?.some(ref=>ref.category==='combat')||
-   variants.some(spec=>spec.phase==='combat');
+   variants.some(spec=>spec.phase==='combat'||spec.embedded);
   rows.set(id,{
    id,title,name:id==='east:77'?'The Dominion Survey':title==='MOUNTAIN LIONS'?'Mountain Lion':entry.encounter.displayName||entry.name||entry.encounter.title,
    classification:entry.classification||'GLOBAL',regions:entry.regions||[],
-   combat:!!fight,fullCinematic:industrialCinematics.has(title)||title==='ABANDONED SUPPLY TRUCK',regionalSprites,variants
+   combat:!!fight,western:!!westernVariants,fullCinematic:industrialCinematics.has(title)||title==='ABANDONED SUPPLY TRUCK',regionalSprites,variants
   });
  }
  // The registry retains the older titles for these repurposed encounter IDs.
@@ -696,6 +698,14 @@
   e.figure.dataset.r127CharacterLight=typeof Route127RegionalSky?.phase==='function'?Route127RegionalSky.phase(player?.flags?.worldHour):'day';
   const device=viewportDevice();
   const layouts=get(scene.id,scene.phase,device);
+  const westernScene=rows.get(scene.id)?.western?western.current()?.variant:null;
+  if(westernScene){
+   if(westernScene.composition==='none')e.figure.dataset.r127CharacterLight='day';
+   westernScene.units.forEach((path,index)=>{
+    layouts[unitKey(path,index)]??=western.placement(index,westernScene.units.length,false);
+   });
+   if(westernScene.background)layouts['background:'+assetName(westernScene.background)]??=western.placement(0,0,true);
+  }
   e.figure.classList.toggle('r127-layout-has-background',!!e.img?.src&&!!layouts['background:'+assetName(e.img.src)]);
   if(Object.keys(layouts).length)for(const item of figureUnits(e,scene)){
    if(!item.node.classList.contains('r127-final-unit')&&layouts[item.key])apply(item.node,layouts[item.key],item.background);

@@ -65,13 +65,22 @@
   ['east:81','WARD OF THE FORGOTTEN']
  ]);
  const cemeteryTitle='ASH CEMETERY — ARRIVAL';
- const cemeterySpec={
-  scene:'ash_cemetery_stage_0_abandoned.png',dir:'cemetery',composition:'sky',
-  units:()=>[{name:'ash_cemetery_gate_closed.png',dir:'cemetery',index:0,hp:false}]
- };
+ function cemeteryTarget(){
+  const combat=phases.has(stage)&&combatState?.source==='r18AshFight'?combatState:null;
+  if(stage!=='r18Ash'&&!combat)return null;
+  const mode=combat?'combat':r18AshReunionShowing===player.flags.r18Ash?'reunion':'normal';
+  const device=typeof matchMedia==='function'&&matchMedia('(max-width:600px)').matches?'phone':'desktop';
+  const scene=globalThis.Route127CombatLayouts?.cemeteryPresentation(player.flags.r18Ash,day,mode,device);
+  if(!scene)return null;
+  const [background,...units]=scene.layers;
+  const name=path=>path.split('/').at(-1);
+  return {type:'rural',title:cemeteryTitle,combat,cemetery:scene,
+   spec:{scene:name(background.path),dir:'cemetery',composition:'sky',
+    units:()=>units.map(unit=>({name:name(unit.path),dir:'cemetery',index:unit.index,hp:unit.hp,placement:unit.placement}))},
+   backgroundPlacement:background.placement};
+ }
  function ruralSelection(){
   const active=globalThis.Route127CombatLayouts?.activeScene();
-  if(active?.id==='ash:arrival')return {title:cemeteryTitle,spec:cemeterySpec,combat:null,active};
   if(typeof stage==='undefined'||!(stage==='encounter'||phases.has(stage)))return null;
   const combat=typeof combatState!=='undefined'?combatState:null;
   if(phases.has(stage)&&combat?.source!=='encounter')return null;
@@ -81,6 +90,8 @@
   return spec?{title,spec,combat:phases.has(stage)?combat:null,active}:null;
  }
  function selection(){
+  const cemetery=cemeteryTarget();
+  if(cemetery)return cemetery;
   if(typeof stage==='undefined'||!(stage==='encounter'||stage==='r18Ash'||phases.has(stage)))return null;
   const encounter=typeof currentEncounter==='function'?currentEncounter():null;
   const combat=typeof combatState!=='undefined'?combatState:null;
@@ -119,18 +130,18 @@
   return stationReturn.apply(this,arguments);
  };
  globalThis.Route127StationNinePresentation=Object.freeze({viewingEvelyn:()=>evelynPortrait});
- function northArtwork(){
+ function northArtwork(target){
   const scene=globalThis.Route127CombatLayouts?.activeScene();
-  if(!scene)return null;
+  if(!scene&&!target?.cemetery)return null;
   const combat=phases.has(stage)?combatState:null;
   const scenery=(name,dir='scenarios')=>({name,dir,scenery:true});
   const sprite=(name,index=0,dir='enemies')=>({name,dir,index});
-  const rural=ruralSelection();
+  const rural=target?.cemetery?target:ruralSelection();
   if(rural){
    const {spec}=rural;
    const files=typeof spec.units==='function'?spec.units(combat):[];
-   return [...(spec.scene&&spec.dir!=='locations'?[scenery(spec.scene,spec.dir||'scenarios')]:[]),
-    ...files.map(asset=>({name:asset.name,index:asset.index||0,dir:asset.dir||'enemies',hp:asset.hp,scenery:false}))];
+   return [...(spec.scene&&spec.dir!=='locations'?[{...scenery(spec.scene,spec.dir||'scenarios'),placement:rural.backgroundPlacement}]:[]),
+    ...files.map(asset=>({name:asset.name,index:asset.index||0,dir:asset.dir||'enemies',hp:asset.hp,placement:asset.placement,scenery:false}))];
   }
   switch(scene.id){
    case 'scripted:r18stationfight':{
@@ -288,6 +299,8 @@
   .gfx-art.r127-ash-arrival[data-r127-final-period="dusk"]>.gfx-image{filter:sepia(.42) hue-rotate(-18deg) saturate(1.4)}
   .gfx-art.r127-ash-arrival>.r127-final-sprites .r127-final-unit:not(.r127-final-freight){left:50%;width:80%;height:76%;bottom:3%;pointer-events:none}
   .gfx-art.r127-ash-arrival>.r127-final-sprites .r127-final-unit:not(.r127-final-freight)>img{height:100%}
+  .gfx-art.r127-ash-arrival>.r127-final-sprites .r127-final-unit:has(>progress)>img{height:calc(100% - 16px)}
+  .gfx-art.r127-ash-arrival>.r127-final-sprites .r127-final-unit>progress{width:85%;height:12px;flex:none;accent-color:#b92524;padding:0}
   @media(max-width:600px){.gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-unit{height:79%;width:42%}.gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-unit.r127-final-freight{height:90%;width:98%}}
  `;
  document.head.append(style);
@@ -322,11 +335,12 @@
     }
     wreckSky.style.backgroundImage='url("'+regional(skyName())+'")';
    }else wreckSky?.remove();
-   let target=selection(),north=northArtwork();
+   let target=selection(),north=northArtwork(target);
    const drawsSky=this.displaysArtwork(regional(skyName()));
    const active=globalThis.Route127CombatLayouts?.activeScene();
    if(northernSkyScenes.has(active?.id)&&!drawsSky)north=null;
-   if(!drawsSky&&['THE ASH PROCESSION',cemeteryTitle].includes(target?.title)){target=null;north=null;}
+   const cemeteryReady=!target?.cemetery||target.cemetery.layers.every(({path})=>this.sceneArtworkReady(file('cemetery',path.split('/').at(-1))));
+   if(!cemeteryReady||!drawsSky&&['THE ASH PROCESSION',cemeteryTitle].includes(target?.title)){target=null;north=null;}
    if(target?.title==='COUNTY OFFICES'&&!drawsSky)north=null;
    if((target?.type==='freight'||target?.type==='rural'&&target.spec.composition==='road')&&!drawsSky)target=null;
    const on=!!(target||north)&&!e.frame.hidden&&this.preference()==='graphics';
@@ -350,7 +364,7 @@
     ['floodlight_drone_destroyed.gif']:art.files).map((name,index)=>({
      name,index,dir:art.scenery?'scenarios':'enemies',scenery:art.scenery
     }));
-   const identity=(target?.type||'north')+'|'+files.map(({name})=>name).join('|');
+   const identity=(target?.cemetery?.mode||target?.type||'north')+'|'+files.map(({name})=>name).join('|');
    if(!layer||layer.dataset.identity!==identity){
     layer?.remove();layer=document.createElement('div');layer.className='r127-final-sprites';layer.dataset.identity=identity;
     const spriteCount=files.filter(asset=>!asset.scenery).length;
@@ -371,7 +385,10 @@
      if(!north&&files.length===3){unit.style.width='31%';unit.style.height='82%';}
      unit.append(img);
      if(!scenery&&asset.hp!==false){
-      const hp=document.createElement('span');hp.className='r127-final-hp';hp.hidden=true;unit.prepend(hp);
+      const hp=document.createElement(target?.cemetery?'progress':'span');
+      hp.className='r127-final-hp';hp.hidden=true;
+      if(target?.cemetery){hp.setAttribute('aria-label','Elias Vane HP');unit.append(hp);}
+      else unit.prepend(hp);
      }
      layer.append(unit);
     }
@@ -379,9 +396,10 @@
    }
    const combat=north&&phases.has(stage)?combatState:target?.combat;
    const fighters=Array.isArray(combat?.enemies)?combat.enemies:null;
-   [...layer.children].forEach(unit=>{
-    const i=Number(unit.dataset.index);
-    globalThis.Route127CombatLayouts?.applyOverlay(unit,i);
+   [...layer.children].forEach((unit,slot)=>{
+    const i=Number(unit.dataset.index),asset=files[slot];
+    if(asset.placement)globalThis.Route127CombatLayouts?.applyCemeteryLayout(unit,asset.placement,asset.scenery);
+    else globalThis.Route127CombatLayouts?.applyOverlay(unit,i);
     const hp=unit.querySelector('.r127-final-hp');
     if(!hp)return;
     const combatIndex=Number(unit.dataset.combatIndex??i);
@@ -389,7 +407,11 @@
     const show=!!fighter;
     hp.hidden=!show;
     unit.hidden=!!combat&&(fighters?(!fighter||Number(fighter.hp)<=0):!!north&&Number(fighter?.hp)<=0);
-    if(show){const current=Math.max(0,Number(fighter.hp)||0);hp.textContent=current+' HP';}
+    if(show){
+     const current=Math.max(0,Number(fighter.hp)||0);
+     if(hp.tagName==='PROGRESS'){hp.max=Math.max(1,Number(fighter.maxHp)||current);hp.value=current;}
+     hp.textContent=current+' HP';
+    }
    });
   }catch(error){console.warn('DEVTEST final encounter art:',error);}
   return result;

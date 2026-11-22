@@ -40,7 +40,8 @@
     'Nadia Rill':'nadia_rill.png',
     'Rhea Tarrant':'rhea_tarrant.png',
     'Eli Mercer':'eli_mercer.png', Enid:'Enid.png',
-    'Gideon Briggs':'rob_gideon.png'
+    'Gideon Briggs':'rob_gideon.png',
+    'Lisa Stevens':'lisa_stevens.png'
   });
   // Shared read-only identity-to-portrait map for Seaport staffed shop visuals.
   globalThis.Route127WandererPortraitFiles = art;

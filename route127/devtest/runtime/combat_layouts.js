@@ -411,6 +411,12 @@
   rows.set(id,{id,name,title:normalize(name),classification:'FIXED',regions:[region],
    combat:false,fullCinematic:true,variants:[{units:[],phase:'approach',variant:name,background:locationArt(file),composition:'none'}]});
  }
+ const ashGate='assets/cemetery/ash_cemetery_gate_closed.png';
+ rows.set('ash:arrival',{id:'ash:arrival',title:'ASH CEMETERY — ARRIVAL',name:'Ash Cemetery — Arrival',
+  classification:'FIXED',regions:['WEST'],combat:false,fullCinematic:true,
+  nonCombatantAssets:['ash_cemetery_gate_closed.png'],initialPositions:[[50,59,80,76,1,false,2]],
+  variants:[{units:[ashGate],phase:'approach',variant:'Closed gate',
+   background:'assets/cemetery/ash_cemetery_stage_0_abandoned.png',composition:'sky'}]});
  // The scripted loop above allocates the canonical serviceBoss row; attach its
  // cinematic art AFTER that loop so it is not overwritten with an empty variant.
  // Red fights in the same fully illustrated Rusty Anchor portrait used in dialogue.
@@ -612,6 +618,10 @@
   if(!c&&stage==='r18Station'&&globalThis.Route127StationNinePresentation?.viewingEvelyn())
    return {id:'scripted:r18stationevelyn',phase:'approach'};
   if(!c&&stage==='r11Caleb'&&player.flags.r18CalebRescued)return {id:'seaport:caleb-docks',phase:'approach'};
+  if(!c&&stage==='r18Ash'){
+   const q=player.flags.r18Ash;
+   if(q&&!q.ending&&!q.focus&&!q.confronting)return {id:'ash:arrival',phase:'approach'};
+  }
   if(c?.r18Harlan)return {id:'early:12',phase:'combat'};
   if(c?.r18DanielCaptors)return {id:'factory:captors',phase:'combat'};
   if(stage==='factoryDungeonRoom'&&!c){

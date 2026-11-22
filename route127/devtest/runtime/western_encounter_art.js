@@ -29,7 +29,7 @@
   ['THE ANT COLONY',[scene('Ant colony','road',sprites('ant_colony.png')[0])]],
   ['THE TAR POOL',[scene('Animated tar pool','regional',scenery('the_tar_pool.gif'))]],
   ['THE BURIED BUNKER',[
-   scene('Exterior','sky',scenery('the_buried_bunker.png'),[],'approach'),
+   scene('Exterior','road',scenery('the_buried_bunker.png'),[],'approach'),
    indoor('Interior and survivor',bunker,sprites('bunker_survivor.png')),
    indoor('Survivor combat',bunker,sprites('bunker_survivor.png'),'combat')
   ]],

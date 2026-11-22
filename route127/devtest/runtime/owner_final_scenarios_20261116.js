@@ -28,6 +28,12 @@
  };
  const clean=v=>String(v||'').toUpperCase().replace(/^EAST ROAD — /,'').trim();
  const ruralByTitle=new Map([
+  ['COUNTY OFFICES',{scene:'county_offices.png',composition:'road',units(combat){
+   if(!combat&&player.flags.r18CalebRescued&&player.encounterDone?.[roadTurn]?.has?.('FORCE OFFICE 204'))
+    return [{name:'caleb_reed.png',dir:'scenarios',index:0,hp:false}];
+   return combat?.r18Harlan||!combat&&!player.flags.r18HarlanDefeated?
+    [{name:'janitor_harlan.png',index:0,hp:true}]:[];
+  }}],
   ['THE COIN WELL',{scene:'the_coin_well.png',composition:'road'}],
   ['RATS IN THE PANTRY',{scene:'rats_in_the_pantry.png',composition:'road',units(combat){return combat?Array(3).fill(0).map((_,index)=>({name:'pantry_rat.png',index,hp:true})):[];}}],
   ['DUST OVER THE SCHOOLYARD',{scene:'dust_over_the_schoolyard.png',units(combat){
@@ -51,7 +57,7 @@
   ['WARD OF THE FORGOTTEN',{scene:'st_mercy_hospital.png',dir:'locations',composition:'none'}]
  ]);
  const ruralById=new Map([
-  ['early:7','THE DARK CELLAR'],['early:40','THE WHEELBARROW'],['early:42','THE COIN WELL'],
+  ['early:12','COUNTY OFFICES'],['early:7','THE DARK CELLAR'],['early:40','THE WHEELBARROW'],['early:42','THE COIN WELL'],
   ['early:47','RATS IN THE PANTRY'],['early:63','THE SAGGING FARMHOUSE'],['early:65','DUST OVER THE SCHOOLYARD'],
   ['early:166','CORNFIELD STALKERS'],['early:167','TERRITORIAL FARMERS'],['early:168','FERAL BULL'],
   ['east:81','WARD OF THE FORGOTTEN']
@@ -86,6 +92,24 @@
  const northernSkyScenes=new Map([
   ['east:5','the_collapsed_dam.png'],['east:72','the_lost_convoy.png'],['east:15','the_chain_bridge.gif']
  ]);
+ let evelynPortrait=false;
+ const stationCommand=r18StationCommand;
+ r18StationCommand=function(cmd){
+  if(stage==='r18Station'&&evelynPortrait&&cmd==='back to station'){
+   evelynPortrait=false;
+   return r18StationMenu();
+  }
+  evelynPortrait=stage==='r18Station'&&cmd==='talk to evelyn'&&!!player.flags.r18Station;
+  const result=stationCommand.apply(this,arguments);
+  if(evelynPortrait&&stage==='r18Station')lanternAppendChoices(['BACK TO STATION']);
+  return result;
+ };
+ const stationReturn=r18StationReturn;
+ r18StationReturn=function(){
+  evelynPortrait=false;
+  return stationReturn.apply(this,arguments);
+ };
+ globalThis.Route127StationNinePresentation=Object.freeze({viewingEvelyn:()=>evelynPortrait});
  function northArtwork(){
   const scene=globalThis.Route127CombatLayouts?.activeScene();
   if(!scene)return null;
@@ -100,6 +124,16 @@
     ...files.map(asset=>({name:asset.name,index:asset.index||0,dir:asset.dir||'enemies',hp:asset.hp,scenery:false}))];
   }
   switch(scene.id){
+   case 'scripted:r18stationfight':{
+    if(!combat)return null;
+    const names=['TRACKER','BREACHER'];
+    const files=['station_nine_tracker.png','station_nine_breacher.png'];
+    return names.flatMap((name,index)=>{
+     const combatIndex=combat.enemies?.findIndex(fighter=>fighter.name===name)??-1;
+     return combatIndex<0?[]:[{...sprite(files[index],index),combatIndex}];
+    });
+   }
+   case 'scripted:stationninesecurity':return combat?[sprite('station_nine_security_unit.png')]:null;
    case 'early:55':return combat?null:[scenery('cold_road_camp.png'),
     ...(r18CampVariant()?[sprite('cold_road_camp_traveler.png',0,'scenarios')]:[])];
    case 'early:29':return [scenery('salt_on_the_road.png'),
@@ -135,6 +169,15 @@
   const model=previousModel.apply(this,args),target=selection();
   if(!model?.active)return model;
   const active=globalThis.Route127CombatLayouts?.activeScene();
+  const interior=active?.id==='scripted:r18stationevelyn'?'evelyn_cross_station_nine.png':
+   active?.id==='seaport:caleb-docks'?'caleb_seaport_docks.png':null;
+  if(interior){
+   const art=file('locations',interior);
+   if(this.sceneArtworkReady(art)){
+    model.art=art;model.regionalSky=null;model.scenarioBackdrop=null;model.causewayBacking=false;
+   }
+   return model;
+  }
   const north=active?.phase==='approach'&&northernSkyScenes.get(active.id);
   if(north){
    const sky=regional(skyName()),art=file('scenarios',north);
@@ -268,6 +311,7 @@
    const drawsSky=this.displaysArtwork(regional(skyName()));
    const active=globalThis.Route127CombatLayouts?.activeScene();
    if(northernSkyScenes.has(active?.id)&&!drawsSky)north=null;
+   if(target?.title==='COUNTY OFFICES'&&!drawsSky)north=null;
    if((target?.type==='freight'||target?.type==='rural'&&target.spec.composition==='road')&&!drawsSky)target=null;
    const on=!!(target||north)&&!e.frame.hidden&&this.preference()==='graphics';
    const figure=e.figure;

@@ -29,7 +29,7 @@
  const clean=v=>String(v||'').toUpperCase().replace(/^EAST ROAD — /,'').trim();
  const ruralByTitle=new Map([
   ['THE COIN WELL',{scene:'the_coin_well.png'}],
-  ['RATS IN THE PANTRY',{scene:'rats_in_the_pantry.png',units(combat){return combat?Array(3).fill(0).map((_,index)=>({name:'pantry_rat.png',index,hp:true})):[];}}],
+  ['RATS IN THE PANTRY',{scene:'rats_in_the_pantry.png',composition:'road',units(combat){return combat?Array(3).fill(0).map((_,index)=>({name:'pantry_rat.png',index,hp:true})):[];}}],
   ['DUST OVER THE SCHOOLYARD',{scene:'dust_over_the_schoolyard.png',units(combat){
    if(combat?.name==='SCHOOLYARD BUCK')return [{name:'territorial_buck.png',index:0,hp:true}];
    if(combat?.name==='SCHOOLYARD DEER')return [{name:'schoolyard_deer.png',index:0,hp:true}];
@@ -157,6 +157,13 @@
      model.scenarioBackdrop=null;
      model.causewayBacking=false;
     }
+   }else if(spec.scene&&spec.composition==='road'){
+    const sky=regional(skyName());
+    const dependencies=[sky,regional('dirt_road_foreground.png'),file(spec.dir||'scenarios',spec.scene)];
+    if(dependencies.map(url=>this.sceneArtworkReady(url)).every(Boolean)){
+     model.art=sky;model.regionalSky=null;model.causewayBacking=false;
+     model.scenarioBackdrop={art:sky,mode:'road'};
+    }
    }else if(spec.scene&&spec.composition==='sky'){
     const sky=regional(skyName()),art=file(spec.dir||'scenarios',spec.scene);
     if([sky,art].map(url=>this.sceneArtworkReady(url)).every(Boolean)){
@@ -256,7 +263,7 @@
    const drawsSky=this.displaysArtwork(regional(skyName()));
    const active=globalThis.Route127CombatLayouts?.activeScene();
    if(northernSkyScenes.has(active?.id)&&!drawsSky)north=null;
-   if(target?.type==='freight'&&!drawsSky)target=null;
+   if((target?.type==='freight'||target?.type==='rural'&&target.spec.composition==='road')&&!drawsSky)target=null;
    const on=!!(target||north)&&!e.frame.hidden&&this.preference()==='graphics';
    const figure=e.figure;
    figure.classList.toggle('r127-final-encounter',on&&!!target);
@@ -266,7 +273,7 @@
    let road=figure.querySelector(':scope > .r127-final-road');
    if(!on){layer?.remove();road?.remove();delete figure.dataset.r127FinalPeriod;return result;}
    figure.dataset.r127FinalPeriod=period();
-   if(target?.type==='freight'){
+   if(target?.type==='freight'||target?.type==='rural'&&target.spec.composition==='road'){
     if(!road){road=document.createElement('img');road.className='r127-final-road';road.alt='';road.setAttribute('aria-hidden','true');figure.insertBefore(road,e.img.nextSibling);}
     const src=regional('dirt_road_foreground.png');if(road.src!==src)road.src=src;
    }else road?.remove();

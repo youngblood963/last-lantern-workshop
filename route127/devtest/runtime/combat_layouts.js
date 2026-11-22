@@ -440,9 +440,10 @@
   'ash_jo_brushing_headstone',
   'ash_hal_tending_grave',
   'ash_ruth_mother_laying_flowers',
-  'ash_ruth_mother_reunion'
+  'ash_ruth_mother_reunion',
+  'ash_elias_vane_restoration'
  ].map(cemeteryAsset);
- const [closedGate,openGate,elias,hiddenMiriam,tendingMiriam,mourners,anya,ruth,tomas,leah,jo,hal,mother,reunion]=cemeteryUnits;
+ const [closedGate,openGate,elias,hiddenMiriam,tendingMiriam,mourners,anya,ruth,tomas,leah,jo,hal,mother,reunion,restoringElias]=cemeteryUnits;
  const cemeteryWorkers=[anya,ruth,tomas,leah,jo,hal,tendingMiriam,mother];
  const cemeteryEditor=Object.freeze({stages:cemeteryStages,endings:cemeteryEndings,events:cemeteryEvents,id:cemeteryId});
  for(const [stage,label,background] of cemeteryStages){
@@ -458,15 +459,18 @@
     }else if(discovery){visible.add(mourners);visible.add(hiddenMiriam);}
     else if(background===1){visible.add(anya);visible.add(jo);}
     else if(background===2){visible.add(tendingMiriam);visible.add(mother);}
-    if(ending!=='violent'&&(discovery||ending==='redemption'&&event==='restoration'))visible.add(elias);
-    const units=ending==='violent'?cemeteryUnits.filter(path=>path!==elias):cemeteryUnits;
+    const vaneCanRestore=!discovery&&(ending==='mercy'||ending==='redemption');
+    if(ending!=='violent'&&discovery)visible.add(elias);
+    if(vaneCanRestore&&event==='restoration')visible.add(restoringElias);
+    const units=cemeteryUnits.filter(path=>(path!==elias||ending!=='violent')&&
+     (path!==restoringElias||vaneCanRestore));
     rows.set(id,{id,title:'ASH CEMETERY — '+label,name:label,classification:'FIXED',regions:['WEST'],
      combat:false,fullCinematic:true,previewOnly:true,initialPositions:units.map(path=>{
       if(path===closedGate||path===openGate)return [50,59,80,76,1,false,20];
       if(path===mourners)return [50,65,61,55,1,false,6];
       if(path===reunion)return [51,63,36,58,1,false,9];
       const index=cemeteryWorkers.indexOf(path);
-      return [index<0?(path===elias?73:25):20+(index%4)*20,61+(index>=4?10:0),28,51,1,false,5+Math.max(index,0)];
+      return [index<0?(path===elias||path===restoringElias?73:25):20+(index%4)*20,61+(index>=4?10:0),28,51,1,false,5+Math.max(index,0)];
      }),
      cemetery:{backgrounds:cemeteryBackgrounds,visible,gates:[closedGate,openGate],
       shared:cemeteryId(stage,'mercy','normal')},

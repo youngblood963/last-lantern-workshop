@@ -1,5 +1,5 @@
-/* Source-controlled DEVTEST layouts merged from the owner’s November 21 export. */
-/* Published positions are defaults; browser-saved layouts always take precedence. */
+/* Published DEVTEST layouts include the owner’s November 22 desktop export. */
+/* Browser-saved layouts take precedence over published defaults. */
 globalThis.Route127PublishedCombatLayouts={
   "version": 1,
   "scenes": {
@@ -4588,6 +4588,892 @@ globalThis.Route127PublishedCombatLayouts={
         "width": 50,
         "height": 78,
         "scale": 1,
+        "z": 2,
+        "flip": true
+      }
+    },
+    "early:143/approach/desktop": {
+      "0:carrion_vulture.png": {
+        "x": 11.755953850794713,
+        "y": 9.820105432986816,
+        "width": 33.333333333333336,
+        "height": 82,
+        "scale": 0.94,
+        "z": 4,
+        "flip": false
+      },
+      "1:carrion_vulture.png": {
+        "x": 51.7113116778888,
+        "y": 38.5238132481613,
+        "width": 33.333333333333336,
+        "height": 82,
+        "scale": 1,
+        "z": 4,
+        "flip": false
+      },
+      "2:carrion_vulture.png": {
+        "x": 83.33333333333333,
+        "y": 54,
+        "width": 33.333333333333336,
+        "height": 82,
+        "scale": 1,
+        "z": 4,
+        "flip": true
+      }
+    },
+    "early:143/combat/desktop": {
+      "0:carrion_vulture.png": {
+        "x": 10.416665957087613,
+        "y": 13.788364527230332,
+        "width": 33.333333333333336,
+        "height": 82,
+        "scale": 0.93,
+        "z": 4,
+        "flip": false
+      },
+      "1:carrion_vulture.png": {
+        "x": 50.5952403253437,
+        "y": 41.83068657588831,
+        "width": 33.333333333333336,
+        "height": 82,
+        "scale": 1,
+        "z": 4,
+        "flip": false
+      },
+      "2:carrion_vulture.png": {
+        "x": 83.33333333333333,
+        "y": 54,
+        "width": 33.333333333333336,
+        "height": 82,
+        "scale": 1,
+        "z": 4,
+        "flip": true
+      }
+    },
+    "early:144/approach/desktop": {
+      "0:rabid_badger.png": {
+        "x": 50.52083670383385,
+        "y": 54.52910255813806,
+        "width": 50,
+        "height": 82,
+        "scale": 0.68,
+        "z": 4,
+        "flip": false
+      },
+      "1:rabid_badger.png": {
+        "x": 80.50594746458322,
+        "y": 60.61375674724592,
+        "width": 50,
+        "height": 82,
+        "scale": 0.83,
+        "z": 4,
+        "flip": true
+      }
+    },
+    "early:144/combat/desktop": {
+      "0:rabid_badger.png": {
+        "x": 48.6607121062929,
+        "y": 53.86772688341346,
+        "width": 50,
+        "height": 82,
+        "scale": 0.68,
+        "z": 4,
+        "flip": false
+      },
+      "1:rabid_badger.png": {
+        "x": 75.44643308232399,
+        "y": 65.64021086597363,
+        "width": 50,
+        "height": 82,
+        "scale": 0.83,
+        "z": 4,
+        "flip": true
+      }
+    },
+    "early:53/approach/desktop": {
+      "background:stones_under_the_oak.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:53/combat/desktop": {
+      "background:stones_under_the_oak.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:145/approach/desktop": {
+      "0:territorial_buck.png": {
+        "x": 59.15178736152281,
+        "y": 57.70370781517448,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 4,
+        "flip": false
+      }
+    },
+    "early:145/combat/desktop": {
+      "0:territorial_buck.png": {
+        "x": 56.5476208722509,
+        "y": 56.380951419829344,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 4,
+        "flip": false
+      }
+    },
+    "early:174/approach/desktop": {
+      "background:abandoned_trading_post.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:174/combat/desktop": {
+      "background:abandoned_trading_post.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:176/approach/desktop": {
+      "background:ant_colony.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:176/combat/desktop": {
+      "background:ant_colony.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:177/approach/desktop": {
+      "background:the_buried_bunker.png": {
+        "x": 49.7023855139606,
+        "y": 51.1904731869667,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:177/combat/desktop": {
+      "background:buried_bunker_interior.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "0:bunker_survivor.png": {
+        "x": 43.377975506239245,
+        "y": 57.57142965269199,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 4,
+        "flip": false
+      }
+    },
+    "early:178/approach/desktop": {
+      "background:counterfeit_rations.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:178/combat/desktop": {
+      "background:counterfeit_rations.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:175/approach/desktop": {
+      "background:the_false_scarecrow.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:175/combat/desktop": {
+      "background:the_false_scarecrow.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:36/combat/desktop": {
+      "background:the_garden_gnomes.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "0:gnome_collector.png": {
+        "x": 76.04167056935148,
+        "y": 57.306878373622965,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 4,
+        "flip": false
+      }
+    },
+    "early:36/approach/desktop": {
+      "background:the_garden_gnomes.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "0:gnome_collector.png": {
+        "x": 78.64583705862339,
+        "y": 55.98412702417378,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 4,
+        "flip": false
+      }
+    },
+    "early:179/approach/desktop": {
+      "background:the_graveside_gambler.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:179/combat/desktop": {
+      "background:the_graveside_gambler.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:28/approach/desktop": {
+      "background:the_honey_jar.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:28/combat/desktop": {
+      "background:the_honey_jar.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:173/approach/desktop": {
+      "background:the_hunters_trap.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:173/combat/desktop": {
+      "background:the_hunters_trap.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:43/approach/desktop": {
+      "background:the_last_orchard.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:43/combat/desktop": {
+      "background:the_last_orchard.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "0:orchard_scavenger_1.png": {
+        "x": 16.44345012550467,
+        "y": 67.35978661107838,
+        "width": 50,
+        "height": 82,
+        "scale": 0.79,
+        "z": 4,
+        "flip": false
+      },
+      "1:orchard_scavenger_2.png": {
+        "x": 70.53571458981959,
+        "y": 66.56614034271523,
+        "width": 50,
+        "height": 82,
+        "scale": 0.79,
+        "z": 4,
+        "flip": true
+      }
+    },
+    "early:32/approach/desktop": {
+      "background:the_locked_freezer.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "background:the_open_freezer.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "0:freezer_prisoner.png": {
+        "x": 70.75892829266537,
+        "y": 61.010581142901486,
+        "width": 54,
+        "height": 82,
+        "scale": 0.77,
+        "z": 4,
+        "flip": false
+      }
+    },
+    "early:32/combat/desktop": {
+      "background:the_open_freezer.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "0:restaurant_raider.png": {
+        "x": 51.11606851422888,
+        "y": 48.04761388158272,
+        "width": 50,
+        "height": 82,
+        "scale": 0.5,
+        "z": 4,
+        "flip": false
+      },
+      "1:freezer_raider.png": {
+        "x": 44.79167553640487,
+        "y": 66.03702516983729,
+        "width": 50,
+        "height": 82,
+        "scale": 0.81,
+        "z": 4,
+        "flip": false
+      }
+    },
+    "early:37/approach/desktop": {
+      "background:the_missing_stairs.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:37/combat/desktop": {
+      "background:the_missing_stairs.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:35/approach/desktop": {
+      "background:the_oil_derrick.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:35/combat/desktop": {
+      "background:oil_derrick_combat.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "0:oil_saboteur_deke.png": {
+        "x": 50.96725843289295,
+        "y": 62.33333249235067,
+        "width": 54,
+        "height": 82,
+        "scale": 0.86,
+        "z": 4,
+        "flip": false
+      }
+    },
+    "east:31/approach/desktop": {
+      "background:the_tar_pool.gif": {
+        "x": 67.70832872106948,
+        "y": 80.42328608322721,
+        "width": 100,
+        "height": 100,
+        "scale": 0.46,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "east:31/combat/desktop": {
+      "background:the_tar_pool.gif": {
+        "x": 67.85714164072162,
+        "y": 77.38096403456923,
+        "width": 100,
+        "height": 100,
+        "scale": 0.43,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:172/approach/desktop": {
+      "background:the_stranded_family.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:172/combat/desktop": {
+      "background:the_stranded_family.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:180/approach/desktop": {
+      "background:the_traveling_taxidermist.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:180/combat/desktop": {
+      "background:the_traveling_taxidermist.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:166/approach/desktop": {
+      "background:cornfield_stalkers_scene.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      },
+      "0:cornfield_stalker_1.png": {
+        "x": 40,
+        "y": 59,
+        "width": 28,
+        "height": 74,
+        "scale": 0.82,
+        "z": 1,
+        "flip": false
+      },
+      "1:cornfield_stalker_2.png": {
+        "x": 62,
+        "y": 56,
+        "width": 28,
+        "height": 74,
+        "scale": 0.9,
+        "z": 3,
+        "flip": true
+      }
+    },
+    "early:166/combat/desktop": {
+      "background:cornfield_stalkers_scene.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      },
+      "0:cornfield_stalker_1.png": {
+        "x": 40,
+        "y": 59,
+        "width": 28,
+        "height": 74,
+        "scale": 0.82,
+        "z": 1,
+        "flip": false
+      },
+      "1:cornfield_stalker_2.png": {
+        "x": 62,
+        "y": 56,
+        "width": 28,
+        "height": 74,
+        "scale": 0.9,
+        "z": 3,
+        "flip": true
+      }
+    },
+    "early:65/approach/desktop": {
+      "background:dust_over_the_schoolyard.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "early:65/combat/desktop": {
+      "background:dust_over_the_schoolyard.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      },
+      "0:schoolyard_deer.png": {
+        "x": 39.58333404291239,
+        "y": 66.8465620746625,
+        "width": 34,
+        "height": 64,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:168/approach/desktop": {
+      "0:feral_bull.png": {
+        "x": 51,
+        "y": 67,
+        "width": 54,
+        "height": 69,
+        "scale": 0.9,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:168/combat/desktop": {
+      "0:feral_bull.png": {
+        "x": 51,
+        "y": 67,
+        "width": 54,
+        "height": 69,
+        "scale": 0.9,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:47/approach/desktop": {
+      "background:rats_in_the_pantry.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "early:47/combat/desktop": {
+      "background:rats_in_the_pantry.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      },
+      "0:pantry_rat.png": {
+        "x": 50,
+        "y": 61,
+        "width": 24,
+        "height": 48,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "1:pantry_rat.png": {
+        "x": 31.22024209929134,
+        "y": 69.11640518665627,
+        "width": 20,
+        "height": 42,
+        "scale": 0.88,
+        "z": 2,
+        "flip": false
+      },
+      "2:pantry_rat.png": {
+        "x": 68.88690308932556,
+        "y": 68.85185390758724,
+        "width": 20,
+        "height": 42,
+        "scale": 0.88,
+        "z": 3,
+        "flip": true
+      }
+    },
+    "early:167/approach/desktop": {
+      "0:territorial_farmer_1.png": {
+        "x": 36,
+        "y": 61,
+        "width": 32,
+        "height": 76,
+        "scale": 0.92,
+        "z": 2,
+        "flip": false
+      },
+      "1:territorial_farmer_2.png": {
+        "x": 67,
+        "y": 61,
+        "width": 32,
+        "height": 76,
+        "scale": 0.92,
+        "z": 3,
+        "flip": true
+      }
+    },
+    "early:40/approach/desktop": {
+      "0:the_wheelbarrow.png": {
+        "x": 52,
+        "y": 72,
+        "width": 45,
+        "height": 50,
+        "scale": 0.92,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:40/combat/desktop": {
+      "0:the_wheelbarrow.png": {
+        "x": 52,
+        "y": 72,
+        "width": 45,
+        "height": 50,
+        "scale": 0.92,
+        "z": 2,
+        "flip": false
+      },
+      "1:wheelbarrow_snake.gif": {
+        "x": 47.633933614508294,
+        "y": 48.88889169216443,
+        "width": 26,
+        "height": 58,
+        "scale": 0.8,
+        "z": 3,
+        "flip": false
+      }
+    },
+    "early:12/approach/desktop": {
+      "background:county_offices.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      },
+      "0:janitor_harlan.png": {
+        "x": 61.30952076847071,
+        "y": 60.02645411872771,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      },
+      "0:caleb_reed.png": {
+        "x": 60.86309903941161,
+        "y": 58.70370276927853,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "early:12/combat/desktop": {
+      "background:county_offices.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      },
+      "0:janitor_harlan.png": {
+        "x": 60.78868974126931,
+        "y": 58.4391514902095,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "scripted:stationninesecurity/combat/desktop": {
+      "0:station_nine_security_unit.png": {
+        "x": 53.4226233557776,
+        "y": 58.042317002762026,
+        "width": 54,
+        "height": 82,
+        "scale": 1,
+        "z": 2,
+        "flip": false
+      }
+    },
+    "scripted:r18stationevelyn/approach/desktop": {
+      "background:evelyn_cross_station_nine.png": {
+        "x": 50,
+        "y": 50,
+        "width": 100,
+        "height": 100,
+        "scale": 1,
+        "z": 1,
+        "flip": false
+      }
+    },
+    "scripted:r18stationfight/combat/desktop": {
+      "0:station_nine_tracker.png": {
+        "x": 40.84821263847719,
+        "y": 66.37565958690462,
+        "width": 38,
+        "height": 82,
+        "scale": 0.78,
+        "z": 2,
+        "flip": false
+      },
+      "1:station_nine_breacher.png": {
+        "x": 65.10416790843001,
+        "y": 62.804234980108575,
+        "width": 38,
+        "height": 82,
+        "scale": 0.64,
         "z": 2,
         "flip": true
       }

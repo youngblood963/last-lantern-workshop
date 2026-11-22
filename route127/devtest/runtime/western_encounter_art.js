@@ -33,7 +33,11 @@
    indoor('Interior and survivor',bunker,sprites('bunker_survivor.png')),
    indoor('Survivor combat',bunker,sprites('bunker_survivor.png'),'combat')
   ]],
-  ['THE GARDEN GNOMES',[scene('Collector','sky',scenery('the_garden_gnomes.png'),sprites('gnome_collector.png'))]],
+  ['THE GARDEN GNOMES',[
+   scene('Garden approach','sky',scenery('the_garden_gnomes.png'),[],'approach'),
+   scene('Collector revealed','sky',scenery('the_garden_gnomes.png'),sprites('gnome_collector.png'),'approach'),
+   scene('Collector combat','sky',scenery('the_garden_gnomes.png'),sprites('gnome_collector.png'),'combat')
+  ]],
   ['THE LAST ORCHARD',[
    scene('Orchard','sky',scenery('the_last_orchard.png'),[],'approach'),
    scene('Scavengers','sky',scenery('the_last_orchard.png'),sprites('orchard_scavenger_1.png','orchard_scavenger_2.png'),'combat')
@@ -61,6 +65,11 @@
   if(title==='THE BURIED BUNKER'){
    const bunkerState=player.flags.wo7Scene;
    index=combat?2:bunkerState?.id==='W6'&&bunkerState.entered?1:0;
+  }
+  if(title==='THE GARDEN GNOMES'){
+   const travel=lanternState();
+   const key=travel?.sceneId||[day,dailyRoadTurns,roadGoal,roadTurn].join(':');
+   index=combat?2:!player.flags.r18GnomeDefeated&&player.flags.r18GnomeRevealKey===key?1:0;
   }
   if(title==='THE LOCKED FREEZER'){
    index=combat?(combat.name==='FREEZER AMBUSH'?3:2):player.flags.r18FreezerScene?.opened?1:0;

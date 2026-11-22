@@ -149,6 +149,13 @@
     localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
     localStorage.setItem(wardSeed,'1');
    }
+   // Owner approved the existing Fresh Mart artwork for Cleanup on Aisle Nine.
+   const freshMartSeed=reviewKey+'-fresh-mart-approved-20261122';
+   if(L.rows.has('east:67')&&!localStorage.getItem(freshMartSeed)){
+    reviews.add('east:67');
+    localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
+    localStorage.setItem(freshMartSeed,'1');
+   }
    return reviews;
   }catch{return new Set();}
  }

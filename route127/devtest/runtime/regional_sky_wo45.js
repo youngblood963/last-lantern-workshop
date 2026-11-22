@@ -14,7 +14,11 @@
   CAUSEWAY:['causeway.png','causeway.png','Causeway']
  });
  const url=file=>new URL(file,base).href;
- const phase=hour=>{const h=((Number(hour??8)%24)+24)%24;return h>=5&&h<7?'dawn':h>=7&&h<18?'day':h>=18&&h<20?'dusk':'night';};
+ const phase=hour=>{
+  const h=((Number(hour??8)%24)+24)%24;
+  const state=timePhase(h);
+  return state==='DARK'?'night':state.toLowerCase();
+ };
  const assets=new Map();
  function warm(file){
   if(assets.has(file))return assets.get(file);

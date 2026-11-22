@@ -100,7 +100,7 @@
  ruralScene('CORNFIELD STALKERS','cornfield_stalkers_scene.png','sky',sprite('cornfield_stalker_1.png','cornfield_stalker_2.png'),'both','Two independent stalkers');
  ruralScene('THE DARK CELLAR','dark_cellar_scene.png','road',[],'approach','Frightened resident embedded');
  ruralScene('THE DARK CELLAR','dark_cellar_scene.png','road',[],'combat','Frightened resident embedded');
- ruralScene('THE SAGGING FARMHOUSE','the_sagging_farmhouse.png','sky',[],'approach','Farmhouse exploration');
+ ruralScene('THE SAGGING FARMHOUSE','the_sagging_farmhouse.png','road',[],'approach','Farmhouse exploration');
  register('THE WHEELBARROW',[scenery('the_wheelbarrow.png')],'approach','Wheelbarrow prop',null,'regional');
  register('THE WHEELBARROW',[scenery('the_wheelbarrow.png'),enemy('wheelbarrow_snake.gif')],'combat','Wheelbarrow and triggered snake',null,'regional');
  register('TERRITORIAL FARMERS',sprite('territorial_farmer_1.png','territorial_farmer_2.png'),'both','Neutral farmers — independent sprites',null,'regional');

@@ -46,17 +46,19 @@
   const mask=svgNode('mask',{id,maskUnits:'userSpaceOnUse',maskContentUnits:'userSpaceOnUse',x:0,y:0,width:W,height:H});
   const clear=svgNode('radialGradient',{id:id+'-clear'});
   for(const [offset,opacity] of [[0,1],[.68,1],[1,0]])clear.append(svgNode('stop',{offset,'stop-color':'black','stop-opacity':opacity}));
-  const mist=svgNode('radialGradient',{id:id+'-mist'});
-  mist.append(svgNode('stop',{offset:0,'stop-color':'#666b6b'}),svgNode('stop',{offset:1,'stop-color':'#323638'}));
-  mask.append(svgNode('rect',{width:W,height:H,fill:'white'}));
-  definitions.append(clear,mist,mask);svg.append(definitions);
+  const edgeFilter=svgNode('filter',{id:id+'-edge',x:0,y:0,width:W,height:H,filterUnits:'userSpaceOnUse'});
+  edgeFilter.append(
+   svgNode('feTurbulence',{type:'fractalNoise',baseFrequency:'.025 .036',numOctaves:2,seed:127,result:'wisps'}),
+   svgNode('feDisplacementMap',{in:'SourceGraphic',in2:'wisps',scale:9,xChannelSelector:'R',yChannelSelector:'G'}),
+   svgNode('feGaussianBlur',{stdDeviation:2.6})
+  );
+  definitions.append(clear,edgeFilter,mask);svg.append(definitions);
   const fog=svgNode('g',{'data-exploration-fog':'','pointer-events':'none','aria-hidden':'true'});
   const texture=svgNode('g',{mask:'url(#'+id+')'});
-  texture.append(svgNode('rect',{width:W,height:H,fill:'#45494a'}));
-  for(let n=0;n<42;n++){
-   const x=((n*173+79)%997)/997*W,y=((n*263+37)%991)/991*H;
-   texture.append(svgNode('ellipse',{cx:x,cy:y,rx:110+n%7*13,ry:55+n%5*14,fill:'url(#'+id+'-mist)',opacity:.22}));
-  }
+  texture.append(
+   svgNode('rect',{width:W,height:H,fill:'#34383a'}),
+   svgNode('image',{href:'../devtest/assets/map-smoke.svg',width:W,height:H,preserveAspectRatio:'none'})
+  );
   fog.append(texture);
   for(const source of [marker,label]){
    if(!source)continue;
@@ -65,6 +67,8 @@
   svg.append(fog);
   const originalGroup=marker?.closest('[data-pearl-original]')||
    svg.querySelector('[data-pearl-guide]')?.parentElement?.parentElement;
+  const reveal=svgNode('g',{filter:'url(#'+id+'-edge)'});
+  mask.append(svgNode('rect',{width:W,height:H,fill:'white'}),reveal);
   const refresh=()=>{
    fog.style.display=enabled?'':'none';
    for(const source of [marker,label])if(source)source.style.visibility=enabled?'hidden':'';
@@ -91,7 +95,7 @@
    for(const site of data.sites)cuts.push(circle(lanternVisualEdgePoint(LG_EDGES[site.edge],site.step),W*.087));
    const here=lanternMarker();
    cuts.push(circle(here,W*.048));
-   mask.replaceChildren(svgNode('rect',{width:W,height:H,fill:'white'}),...cuts);
+   reveal.replaceChildren(...cuts);
    const [x,y]=project(here);
    if(marker){fog.children[1].setAttribute('cx',x);fog.children[1].setAttribute('cy',y);}
    if(label){const copy=fog.lastElementChild;copy.setAttribute('x',x+15);copy.setAttribute('y',y-16);}

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="584" viewBox="0 0 640 584">
+  <defs>
+    <filter id="smoke" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency=".008 .017" numOctaves="5" seed="127" result="plumes"/>
+      <feTurbulence type="fractalNoise" baseFrequency=".004 .007" numOctaves="3" seed="31" result="drift"/>
+      <feDisplacementMap in="plumes" in2="drift" scale="95" xChannelSelector="R" yChannelSelector="G"/>
+      <feColorMatrix type="matrix" values=".65 .2 .15 0 0 .65 .2 .15 0 0 .65 .2 .15 0 0 0 0 0 0 1"/>
+      <feComponentTransfer>
+        <feFuncR type="table" tableValues=".10 .13 .20 .32 .53 .68 .76"/>
+        <feFuncG type="table" tableValues=".11 .14 .21 .33 .53 .67 .75"/>
+        <feFuncB type="table" tableValues=".13 .16 .23 .34 .52 .65 .73"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect width="640" height="584" fill="#34383a"/>
+  <rect x="-64" y="-64" width="768" height="712" filter="url(#smoke)"/>
+</svg>

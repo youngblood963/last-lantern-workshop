@@ -119,7 +119,8 @@ if(globalThis.ROUTE127_ENV?.name==='DEVTEST'){
 </script>
 <script src="../devtest/runtime/environmental_damage.js?v=minigame-testing-1"></script>
 <script src="../devtest/runtime/bat_combat_visual.js?v=road-repair-1"></script>
-<script src="../devtest/runtime/dev_options.js?v=on-demand-layout-editor-1"></script>
+<script id="r127-dev-options" src="../devtest/runtime/dev_options.js?v=shared-layout-editor-url-1"
+ data-layout-editor="../devtest/runtime/combat_layout_editor.js?v=artwork-check-lifecycle-20261122"></script>
 <script src="../devtest/runtime/wanderer_live.js?v=lisa-rescue-20261122"></script>
 <script src="../devtest/runtime/legacy_wanderer_profiles.js?v=2"></script>
 <script src="../devtest/runtime/wanderer_level_stars.js?v=1"></script>
@@ -438,10 +439,10 @@ GraphicalUI.schedule();
 <script src="../devtest/runtime/false_shoulder_art_20261111.js?v=false-shoulder-1"></script>
 <script src="../devtest/runtime/new_roadside_art_20261111.js?v=composition-audit-1"></script>
 <script src="../devtest/runtime/combat_layout_manifest.js?v=lowlands-approved-layouts-20261121"></script>
-<script src="../devtest/runtime/combat_layouts.js?v=farmhouse-side-crop-20261122"></script>
+<script src="../devtest/runtime/combat_layouts.js?v=ward-canonical-art-20261122"></script>
 <script>
 if(new URLSearchParams(location.search).get('visual-testing')==='1')
- document.write('<script src="../devtest/runtime/combat_layout_editor.js?v=ward-reviewed-fix2-20261122"><\/script>');
+ document.write('<script src="'+document.getElementById('r127-dev-options').dataset.layoutEditor+'"><\/script>');
 </script>
 <script src="../devtest/runtime/pearl_map_wo30.js?v=road-join-smoothing-20261112"></script>
 <script src="../devtest/runtime/world_map_presentation.js?v=luna-fix-2"></script>

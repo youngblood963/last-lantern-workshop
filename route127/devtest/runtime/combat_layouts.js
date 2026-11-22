@@ -105,7 +105,6 @@
  register('THE WHEELBARROW',[scenery('the_wheelbarrow.png'),enemy('wheelbarrow_snake.gif')],'combat','Wheelbarrow and triggered snake',null,'regional');
  register('TERRITORIAL FARMERS',sprite('territorial_farmer_1.png','territorial_farmer_2.png'),'both','Neutral farmers — independent sprites',null,'regional');
  register('FERAL BULL',sprite('feral_bull.png'),'both','Feral bull',null,'regional');
- register('WARD OF THE FORGOTTEN',[],'approach','St. Mercy Hospital discovery',locationArt('st_mercy_hospital.png'),'none');
  register('GANG LOOKOUT',sprite('gang_lookout_1.png','gang_lookout_2.png'),'combat','Reinforcements');
  register('THE PAINTED ARROWS',sprite('Painted Arrows - Club Scavenger.png','Painted Arrows - Knife Scavenger.png'),'combat','Red arrow ambush');
  register('THE HANGING CAGE',sprite('silas_crowe_caged.png'),'approach','Caged');
@@ -271,6 +270,11 @@
  ].map(([id,scenes])=>[id,scenes.map(([variant,file,composition])=>({
   units:[],phase:'approach',variant,background:locationArt(file),composition
  }))]));
+ // Fixed location art follows the canonical encounter ID across registry aliases.
+ const fixedLocationScenes=new Map([
+  ['east:81',[{units:[],phase:'approach',variant:'St. Mercy Hospital discovery',
+   background:locationArt('st_mercy_hospital.png'),composition:'none'}]]
+ ]);
  const lowlandsSprites=globalThis.Route127RoadsidePresentation?.lowlandsSprites||{};
  for(const [title,files] of Object.entries(lowlandsSprites)){
   register(title,sprite(...files),'both','Individual combatants');
@@ -288,14 +292,15 @@
   byTitle.set(title,id);
   if(rows.has(id))continue;
   const westernVariants=western?.scenes.get(title);
-  const variants=westernVariants||lowlandsCinematics.get(id)||northernRuntimeScenes.get(id)||states.get(title)||[];
+  const fixedVariants=fixedLocationScenes.get(id);
+  const variants=fixedVariants||westernVariants||lowlandsCinematics.get(id)||northernRuntimeScenes.get(id)||states.get(title)||[];
   const regionalSprites=Object.hasOwn(lowlandsSprites,title);
   const fight=regionalSprites||!!entry.encounter.combat||entry.references?.some(ref=>ref.category==='combat')||
    variants.some(spec=>spec.phase==='combat'||spec.embedded);
   rows.set(id,{
    id,title,name:id==='east:77'?'The Dominion Survey':title==='MOUNTAIN LIONS'?'Mountain Lion':entry.encounter.displayName||entry.name||entry.encounter.title,
    classification:entry.classification||'GLOBAL',regions:entry.regions||[],
-   combat:!!fight,western:!!westernVariants,fullCinematic:industrialCinematics.has(title)||title==='ABANDONED SUPPLY TRUCK',regionalSprites,variants
+   combat:!!fight,western:!!westernVariants,fullCinematic:!!fixedVariants||industrialCinematics.has(title)||title==='ABANDONED SUPPLY TRUCK',regionalSprites,variants
   });
  }
  const ruralRows=new Map([
@@ -307,12 +312,11 @@
   ['THE SAGGING FARMHOUSE',{initialPositions:[]}],
   ['THE WHEELBARROW',{nonCombatantAssets:['the_wheelbarrow.png'],initialPositions:[[52,72,45,50,.92,false,2],[55,60,26,58,.8,false,3]]}],
   ['TERRITORIAL FARMERS',{initialPositions:[[36,61,32,76,.92,false,2],[67,61,32,76,.92,true,3]]}],
-  ['FERAL BULL',{initialPositions:[[51,67,54,69,.9,false,2]]}],
-  ['WARD OF THE FORGOTTEN',{initialPositions:[]}]
+  ['FERAL BULL',{initialPositions:[[51,67,54,69,.9,false,2]]}]
  ]);
  for(const row of rows.values()){
   const config=ruralRows.get(row.title);
-  if(config){Object.assign(row,config);row.fullCinematic=['THE COIN WELL','RATS IN THE PANTRY','DUST OVER THE SCHOOLYARD','CORNFIELD STALKERS','THE DARK CELLAR','THE SAGGING FARMHOUSE','WARD OF THE FORGOTTEN'].includes(row.title);}
+  if(config){Object.assign(row,config);row.fullCinematic=['THE COIN WELL','RATS IN THE PANTRY','DUST OVER THE SCHOOLYARD','CORNFIELD STALKERS','THE DARK CELLAR','THE SAGGING FARMHOUSE'].includes(row.title);}
  }
  // The registry retains the older titles for these repurposed encounter IDs.
  for(const [id,variant] of [

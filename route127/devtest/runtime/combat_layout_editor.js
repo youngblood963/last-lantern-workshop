@@ -187,7 +187,7 @@
   return files.every(file=>status.get(file)==='working')?'Art present':'Checking art';
  };
  function checkAssets(refresh){
-  const pending=[...new Set([...L.rows.values()].flatMap(assets))].filter(file=>!status.has(file));
+  const pending=[...new Set([...L.rows.values()].filter(row=>!row.previewOnly).flatMap(assets))].filter(file=>!status.has(file));
   const active=new Map();
   function pump(){
    while(active.size<6&&pending.length){
@@ -236,6 +236,7 @@
  const css=el('style');
  css.textContent=`
  .r127-layout-editor{width:min(1120px,96vw);max-height:94dvh;overflow:auto;background:#181411;color:#f5e6cf;border:1px solid #a67f4c;padding:14px}
+ .r127-cemetery-editor [hidden]{display:none!important}
  .r127-layout-editor::backdrop{background:#000b}
  .r127-layout-editor .layout-workshop-link{display:inline-block;color:#edbe83;margin-bottom:.5rem}
  .r127-layout-editor h2{margin:0 0 10px}
@@ -274,22 +275,23 @@
  .r127-layout-editor .layout-save-indicator[data-state=unsaved]{color:#ddd0bb}
  `;
  document.head.append(css);
- function show(legacy){
-  const dialog=el('dialog');dialog.className='r127-layout-editor';dialog.setAttribute('aria-label','Combat Visual Testing');
-  const heading=el('h2','Combat Visual Testing');dialog.append(heading);
+ function show(legacy,cemeteryMode=false){
+  const title=cemeteryMode?'Ash Cemetery — Visual Editor':'Combat Visual Testing';
+  const dialog=el('dialog');dialog.className=cemeteryMode?'r127-layout-editor r127-cemetery-editor':'r127-layout-editor';dialog.setAttribute('aria-label',title);
+  const heading=el('h2',title);dialog.append(heading);
   const workshop=el('a',"Luna's Workshop");
   workshop.href='../devtest/lunas-workshop.html';
   workshop.target='_blank';
   workshop.rel='noopener';
   workshop.className='layout-workshop-link';
-  dialog.append(workshop);
+  if(!cemeteryMode)dialog.append(workshop);
   function button(parent,label,action){
    const b=el('button',label);b.type='button';b.addEventListener('click',action);parent.append(b);return b;
   }
   function controls(){const n=el('div');n.className='layout-controls';dialog.append(n);return n;}
   const top=controls();
   const close=button(top,'Close',()=>dialog.close());
-  button(top,'Legacy Composition Preview',()=>{dialog.close();legacy?.();});
+  if(!cemeteryMode)button(top,'Legacy Composition Preview',()=>{dialog.close();legacy?.();});
   const summary=el('p');dialog.append(summary);
   const filters=controls();
   function select(parent,label,values){
@@ -301,6 +303,13 @@
     const option=el('option',label);option.value=key;return option;
    }));
   }
+  const cemeteryControls=cemeteryMode?controls():null;
+  const cemetery=L.cemeteryEditor;
+  const stageSelect=cemeteryMode?select(cemeteryControls,'Restoration stage',cemetery.stages.map(([id,label])=>[id,label])):null;
+  const endingSelect=cemeteryMode?select(cemeteryControls,'Story ending',cemetery.endings):null;
+  const eventSelect=cemeteryMode?select(cemeteryControls,'Special event',cemetery.events):null;
+  const sceneArtSelect=cemeteryMode?select(cemeteryControls,'Cemetery background',[]):null;
+  const gateSelect=cemeteryMode?select(cemeteryControls,'Gate',[['closed','Closed'],['open','Open'],['none','None'],['both','Both']]):null;
   const searchWrap=el('label','Search encounters'),search=el('input');search.type='search';searchWrap.append(search);filters.append(searchWrap);
   const region=select(filters,'Region',['All regions','CENTRAL + GLOBAL',...regions,'GLOBAL']);
   const classification=select(filters,'Classification',['Active','GLOBAL','REGIONAL','FIXED','INACTIVE']);
@@ -311,7 +320,7 @@
   const batch=select(filters,'Review batch',[['Western artwork','Western artwork batch'],['Industrial & Roadside','Industrial & Roadside uploads'],['New uploads (Nov 22)','New uploads (Nov 22)'],['New uploads (Nov 16)','New uploads (Nov 16)'],['New uploads (9)','Previous uploads'],['All encounters','All encounters']]);
   if(L.activeScene())batch.value='All encounters';
   const picker=el('select');picker.className='layout-picker';picker.setAttribute('aria-label','Encounter');dialog.append(picker);
-  let reviews=readReviews();
+  let reviews=cemeteryMode?new Set():readReviews();
   const reviewControls=controls();
   const reviewStatus=el('span');reviewStatus.setAttribute('role','status');reviewControls.append(reviewStatus);
   const reviewButton=button(reviewControls,'Mark Reviewed / Done',()=>{
@@ -350,8 +359,12 @@
    options(units,[...nodes.values()].map(r=>[r.key,L.assetName(r.path)]));units.value=key;paint();
    updateStatus('Sprite attached to this draft. Save Layout on This Browser to apply it.');
   });
+  if(cemeteryMode){
+   filters.hidden=picker.hidden=reviewControls.hidden=summary.hidden=metadata.hidden=attach.hidden=true;
+   for(const input of [phase,variant,backdrop,background])input.parentElement.hidden=true;
+  }
   const fields=controls();fields.classList.add('layout-fields');
-  const units=select(fields,'Unit',[]);
+  const units=select(fields,cemeteryMode?'Available artwork':'Unit',[]);
   const values={};
   for(const [name,min,max,step] of [
    ['x',0,100,.1],['y',0,100,.1],['width',2,150,.1],['height',2,150,.1],['scale',.1,3,.01],['z',0,30,1]
@@ -360,10 +373,18 @@
    input.type='number';input.min=min;input.max=max;input.step=step;label.append(input);fields.append(label);values[name]=input;
   }
   const flipWrap=el('label','Mirror'),flip=el('input');flip.type='checkbox';flipWrap.append(flip);fields.append(flipWrap);
+  const visibleWrap=el('label','Visible'),visibleInput=el('input');visibleInput.type='checkbox';
+  visibleWrap.append(visibleInput);if(cemeteryMode)fields.append(visibleWrap);
   const actions=controls(),message=el('p');message.setAttribute('role','status');dialog.append(message);
   const saveIndicator=el('span','Not saved locally');saveIndicator.className='layout-save-indicator';saveIndicator.setAttribute('role','status');saveIndicator.setAttribute('aria-live','polite');actions.append(saveIndicator);
   const transfer=el('textarea');transfer.rows=7;transfer.setAttribute('aria-label','Layout JSON');transfer.hidden=true;dialog.append(transfer);
   let row,spec,initial={},draft={},baseline={},nodes=new Map(),preview=false,closed=false;
+  let previewRevision=0;
+  const cemeteryOnly=scenes=>Object.fromEntries(Object.entries(scenes).filter(([key])=>L.rows.get(key.split('/')[0])?.previewOnly));
+  function chooseCemeteryScene(){
+   const id=cemetery.id(stageSelect.value,endingSelect.value,eventSelect.value);
+   options(picker,[[id,id]]);changeScene();
+  }
   const descriptor=(path,index)=>({path,key:L.unitKey(path,index),index,nonCombatant:row?.nonCombatantAssets?.includes(L.assetName(path))});
   const selected=()=>nodes.get(units.value);
   const updateStatus=text=>{message.textContent=text;};
@@ -388,7 +409,7 @@
   function rebuildPicker(){
    if(closed)return;
    const keep=picker.value||L.activeScene()?.id;
-   const term=search.value.trim().toLowerCase(),all=[...L.rows.values()];
+   const term=search.value.trim().toLowerCase(),all=[...L.rows.values()].filter(row=>!row.previewOnly);
    const visible=all.filter(row=>{
     if(batch.value==='Western artwork'&&!row.western)return false;
     if(batch.value==='New uploads (Nov 22)'&&!november22Uploads.has(row.id))return false;
@@ -446,21 +467,33 @@
    spec=variant.value===''?null:row.variants[Number(variant.value)];
    if(spec?.composition)backdrop.value=spec.composition;
    const records=(spec?.units||[]).map(descriptor);
-   if(spec?.background)records.unshift({path:spec.background,key:'background:'+L.assetName(spec.background),background:true});
-   const context={id:row.id,phase:phase.value},live=L.capture(context,device.value),saved=L.get(row.id,phase.value,device.value);
+   const backgrounds=cemeteryMode?row.cemetery.backgrounds:spec?.background?[spec.background]:[];
+   records.unshift(...backgrounds.map(path=>({path,key:'background:'+L.assetName(path),background:true})));
+   const context={id:row.id,phase:phase.value};
+   const live=cemeteryMode?{}:L.capture(context,device.value);
+   const saved=cemeteryMode?L.local()[L.sceneKey(row.id,phase.value,device.value)]||{}:L.get(row.id,phase.value,device.value);
+   const shared=cemeteryMode?L.local()[L.sceneKey(row.cemetery.shared,phase.value,device.value)]||{}:{};
+   const selectedBackground=cemeteryMode?backgrounds.find(path=>saved['background:'+L.assetName(path)]?.visible===true)||spec.background:null;
    for(const key of Object.keys(saved))if(key.startsWith('attachment:')&&L.installed.has(key.slice(11))){
     records.push({key,path:L.installed.get(key.slice(11)),index:records.length});
    }
    initial=Object.fromEntries(records.map(record=>[record.key,live[record.key]||
     defaults(row,record.index,spec?.units.length,record.background)]));
-   draft=Object.fromEntries(records.map(record=>[record.key,{...saved[record.key]||initial[record.key]}]));
+   draft=Object.fromEntries(records.map(record=>{
+    const {key,path}=record;
+    if(!cemeteryMode)return [key,{...saved[key]||initial[key]}];
+    const {visible:ignored,...sharedPlacement}=shared[key]||{};
+    const show=record.background?path===selectedBackground:saved[key]?.visible??row.cemetery.visible.has(path);
+    return [key,{...initial[key],...sharedPlacement,...saved[key],visible:show}];
+   }));
    baseline=JSON.parse(JSON.stringify(draft));
    metadata.textContent=row.name+' · '+row.id+' · '+regionLabel(row)+' · '+(row.combat?'Combat available':'Noncombat')+
     ' · '+(spec?.units.length||0)+' sprites · '+row.variants.length+' variants · '+
     (records.map(record=>L.assetName(record.path)+' ('+(status.get(record.path)||'unchecked')+')').join(', ')||state(row))+
     (row.missingCombatArtwork?' · MISSING COMBAT ART: '+row.missingCombatArtwork:'');
    nodes=new Map(records.map(record=>[record.key,record]));
-   options(units,records.map(record=>[record.key,record.background?'Scene artwork':(record.index+1)+' · '+L.assetName(record.path)]));
+   if(cemeteryMode)options(sceneArtSelect,backgrounds.map((path,i)=>[path,['Abandoned cemetery','Partially restored cemetery','Restored memorial'][i]]));
+   options(units,records.map(record=>[record.key,record.background&&!cemeteryMode?'Scene artwork':(record.index+1)+' · '+L.assetName(record.path)]));
    paint();
   }
   function position(node,key){
@@ -471,8 +504,11 @@
    node.setAttribute('aria-pressed',String(units.value===key));
   }
   function paint(){
-   canvas.dataset.western=String(!!row?.western);
-   canvas.dataset.device=device.value;canvas.dataset.preview=String(preview);
+   const revision=++previewRevision;
+   const frame=cemeteryMode?document.createDocumentFragment():canvas;
+   const settings={};
+   settings.western=String(!!row?.western);
+   settings.device=device.value;settings.preview=String(preview);
    const layers=backdrop.value;
    const regionalRoot=new URL('../assets/regions/',L.root);
    const bg=el('img');bg.className='layout-base';bg.alt='';
@@ -481,11 +517,12 @@
     layers==='none'?new URL(L.regionArt(background.value),L.root).href:
     new URL('sky_'+(skyTime.value==='dusk'?'dawn':skyTime.value)+'.png',regionalRoot).href;
    const standalone=(row?.fullCinematic||spec?.composition==='none')&&!!spec?.background&&layers==='none';
-   canvas.replaceChildren(...(standalone?[]:[bg]));
+   if(!cemeteryMode)canvas.replaceChildren();
+   if(!standalone)frame.append(bg);
    if(bridge&&!standalone){
     const causeway=el('img');causeway.className='layout-causeway-ground';causeway.alt='';
     causeway.src=new URL(L.regionArt('CAUSEWAY'),L.root).href;
-    canvas.append(causeway);
+    frame.append(causeway);
    }
    // Composite the region's terrain overlay above the time-of-day sky for
    // these owner-provided enemy sprites; do not show only an empty sky.
@@ -497,19 +534,20 @@
      {dawn:6,day:12,dusk:18,night:22}[skyTime.value]);
     if(regionArt){
      const ground=el('img');ground.className='layout-region-overlay';ground.alt='';
-     ground.src=regionArt.ground;canvas.append(ground);
+     ground.src=regionArt.ground;frame.append(ground);
     }
    }
    if(layers==='road'){
     const dirt=el('img');dirt.className='layout-dirt-road';dirt.alt='';
     dirt.src=new URL('dirt_road_foreground.png',regionalRoot).href;
-    canvas.append(dirt);
+    frame.append(dirt);
    }
-   canvas.dataset.skyTime=layers==='none'&&!bridge?'none':skyTime.value;
+   settings.skyTime=layers==='none'&&!bridge?'none':skyTime.value;
    skyTime.parentElement.hidden=layers==='none'&&!bridge;
    background.parentElement.hidden=standalone||layers!=='none'&&!showRegional;
-   if(!nodes.size){const empty=el('p',state(row));empty.className='layout-empty';canvas.append(empty);}
+   if(!nodes.size){const empty=el('p',state(row));empty.className='layout-empty';frame.append(empty);}
    for(const [key,record] of nodes){
+    if(cemeteryMode&&!draft[key].visible){record.element=null;continue;}
     const node=el('button');node.type='button';node.className='layout-unit'+(record.background?' layout-scene-image':'');
     node.setAttribute('aria-label',L.assetName(record.path));record.element=node;
     const img=el('img');img.draggable=false;img.alt='';img.src=previewURL(record.path);
@@ -530,13 +568,22 @@
      };
      node.onlostpointercapture=()=>{node.onpointermove=null;};
     });
-    canvas.append(node);position(node,key);
+    frame.append(node);position(node,key);
    }
    if(phase.value==='combat'&&spec?.embedded){
     const hp=el('div');hp.className='r127-factory-boss-hp';
     hp.innerHTML='<div class="r127-factory-boss-track"><div class="r127-factory-boss-fill"></div></div><span class="r127-factory-boss-count">HP</span>';
-    canvas.append(hp);
+    frame.append(hp);
    }
+   if(cemeteryMode){
+    updateStatus('Loading cemetery artwork…');
+    Promise.all([...frame.querySelectorAll('img')].map(img=>img.decode())).then(()=>{
+     if(closed||revision!==previewRevision)return;
+     Object.assign(canvas.dataset,settings);
+     canvas.replaceChildren(frame);
+     updateStatus('');
+    }).catch(()=>{if(!closed&&revision===previewRevision)updateStatus('Some cemetery artwork could not load. The previous preview is still visible.');});
+   }else Object.assign(canvas.dataset,settings);
    updateFields();
   }
   function updateFields(){
@@ -545,15 +592,45 @@
     input.disabled=!u||preview;input.value=u?Number(u[name].toFixed(2)):'';
    }
    flip.disabled=!u||preview;flip.checked=!!u?.flip;
+   if(cemeteryMode){
+    visibleInput.disabled=!u||preview||!!active.background;
+    visibleInput.checked=!!u?.visible;
+    const [closedGate,openGate]=row.cemetery.gates.map(path=>[...nodes.values()].find(record=>record.path===path));
+    const closedVisible=draft[closedGate.key].visible,openVisible=draft[openGate.key].visible;
+    gateSelect.value=closedVisible?(openVisible?'both':'closed'):(openVisible?'open':'none');
+    sceneArtSelect.value=[...nodes.values()].find(record=>record.background&&draft[record.key].visible)?.path||'';
+   }
    for(const [key,record] of nodes)if(record.element&&draft[key])position(record.element,key);
    updateSaveIndicator();
   }
   for(const [name,input] of Object.entries(values))input.addEventListener('input',()=>{
    if(!selected()||!input.validity.valid||input.value==='')return;
-   draft[units.value][name]=Number(input.value);position(selected().element,units.value);updateSaveIndicator();
+   draft[units.value][name]=Number(input.value);if(selected().element)position(selected().element,units.value);updateSaveIndicator();
   });
   flip.addEventListener('change',()=>{if(selected()){draft[units.value].flip=flip.checked;updateFields();}});
   units.addEventListener('change',updateFields);
+  if(cemeteryMode){
+   for(const control of [stageSelect,endingSelect,eventSelect])control.addEventListener('change',chooseCemeteryScene);
+   visibleInput.addEventListener('change',()=>{
+    const record=selected();
+    if(!record||record.background)return;
+    if(visibleInput.checked&&row.cemetery.gates.includes(record.path)){
+     for(const gate of nodes.values())if(row.cemetery.gates.includes(gate.path))draft[gate.key].visible=false;
+    }
+    draft[record.key].visible=visibleInput.checked;paint();
+   });
+   sceneArtSelect.addEventListener('change',()=>{
+    for(const record of nodes.values())if(record.background)draft[record.key].visible=record.path===sceneArtSelect.value;
+    paint();
+   });
+   gateSelect.addEventListener('change',()=>{
+    for(const [index,path] of row.cemetery.gates.entries()){
+     const record=[...nodes.values()].find(record=>record.path===path);
+     draft[record.key].visible=gateSelect.value==='both'||gateSelect.value===['closed','open'][index];
+    }
+    paint();
+   });
+  }
   picker.addEventListener('change',changeScene);
   phase.addEventListener('change',changePhase);
   for(const input of [variant,device])input.addEventListener('change',loadDraft);
@@ -562,17 +639,22 @@
   skyTime.addEventListener('change',paint);
   backdrop.addEventListener('change',paint);
   for(const input of [search,region,classification,combat,coverage,multi,sort,batch])input.addEventListener('input',rebuildPicker);
-  button(actions,'Reset Unit',()=>{if(selected()){draft[units.value]={...initial[units.value]};updateFields();}});
-  button(actions,'Remove Attached Sprite',()=>{
+  button(actions,'Reset Unit',()=>{
+   if(selected()){draft[units.value]={...initial[units.value],...(cemeteryMode?{visible:draft[units.value].visible}:{})};updateFields();}
+  });
+  if(!cemeteryMode)button(actions,'Remove Attached Sprite',()=>{
    const key=units.value;
    if(!key.startsWith('attachment:'))return;
    nodes.delete(key);delete initial[key];delete draft[key];
    options(units,[...nodes.values()].map(r=>[r.key,L.assetName(r.path)]));paint();
    updateStatus('Sprite removed from this draft. Save Layout on This Browser to apply it.');
   });
-  button(actions,'Reset Scene',()=>{draft=Object.fromEntries(Object.entries(initial).map(([key,value])=>[key,{...value}]));updateFields();});
-  const previewButton=button(actions,'Preview Gameplay',()=>{
-   if(!row)return;preview=!preview;previewButton.textContent=preview?'Return to editing':'Preview Gameplay';paint();
+  button(actions,cemeteryMode?'Reset Unsaved Changes':'Reset Scene',()=>{
+   if(cemeteryMode){loadDraft();return;}
+   draft=Object.fromEntries(Object.entries(initial).map(([key,value])=>[key,{...value}]));updateFields();
+  });
+  const previewButton=button(actions,cemeteryMode?'Preview Scene':'Preview Gameplay',()=>{
+   if(!row)return;preview=!preview;previewButton.textContent=preview?'Return to editing':cemeteryMode?'Preview Scene':'Preview Gameplay';paint();
   });
   button(actions,'Save Layout on This Browser',()=>{
    if(!row)return;
@@ -581,7 +663,7 @@
     const previous=Object.fromEntries(Object.entries(L.local()[key]||{}).filter(([unit])=>!unit.startsWith('attachment:')));
     L.save({...L.local(),[key]:{...previous,...draft}});
     baseline=JSON.parse(JSON.stringify(draft));updateSaveIndicator();
-    updateStatus('Saved on this browser. Gameplay uses it now and after refresh.');
+    updateStatus(cemeteryMode?'Saved cemetery preview in this browser.':'Saved on this browser. Gameplay uses it now and after refresh.');
    }catch(error){updateStatus(error.message);}
   });
   const removeLocalSave=button(actions,'Unsave this layout',()=>{
@@ -595,15 +677,23 @@
    }catch(error){updateStatus(error.message);}
   });
   button(actions,'Export Layout JSON',()=>{
-   transfer.hidden=false;transfer.value=L.json(L.merged());transfer.select();
+   transfer.hidden=false;transfer.value=L.json(cemeteryMode?cemeteryOnly(L.local()):L.merged());transfer.select();
    updateStatus('Copy this JSON to share exact saved layouts.');
   });
   button(actions,'Import / Apply Layout JSON',()=>{
    if(transfer.hidden){transfer.hidden=false;transfer.focus();updateStatus('Paste layout JSON and select Import / Apply again.');return;}
-   try{L.importJSON(transfer.value);loadDraft();updateStatus('Imported layouts are active in gameplay on this browser.');}
+   try{
+    if(cemeteryMode){
+     const doc=JSON.parse(transfer.value);
+     if(!doc?.scenes||doc.legacyStorage||!Object.keys(doc.scenes).length||Object.keys(doc.scenes).length!==Object.keys(cemeteryOnly(doc.scenes)).length)
+      throw new Error('Choose a cemetery editor layout export.');
+    }
+    L.importJSON(transfer.value);loadDraft();
+    updateStatus(cemeteryMode?'Imported cemetery preview layouts.':'Imported layouts are active in gameplay on this browser.');
+   }
    catch(error){updateStatus(error.message);}
   });
-  button(actions,'Export Existing Layouts',()=>{
+  if(!cemeteryMode)button(actions,'Export Existing Layouts',()=>{
    const older={};
    for(let i=0;i<localStorage.length;i++){
     const key=localStorage.key(i);
@@ -618,10 +708,11 @@
     'No recognizable older layout key on this origin. If the older editor still shows your edits, export from that editor and share the JSON.');
   });
   dialog.addEventListener('close',()=>{closed=true;cancelAssetChecks();dialog.remove();},{once:true});
-  document.body.append(dialog);rebuildPicker();dialog.showModal();close.focus();
-  const cancelAssetChecks=checkAssets(()=>{rebuildPicker();if(row&&spec)metadata.dataset.artStatus=state(row);});
+  document.body.append(dialog);if(cemeteryMode)chooseCemeteryScene();else rebuildPicker();
+  dialog.showModal();close.focus();
+  const cancelAssetChecks=cemeteryMode?()=>{}:checkAssets(()=>{rebuildPicker();if(row&&spec)metadata.dataset.artStatus=state(row);});
  }
- globalThis.Route127CombatLayoutEditor=Object.freeze({show});
+ globalThis.Route127CombatLayoutEditor=Object.freeze({show,showCemetery:()=>show(null,true)});
  if(new URLSearchParams(location.search).get('visual-testing')==='1')
   document.addEventListener('DOMContentLoaded',show,{once:true});
 })();

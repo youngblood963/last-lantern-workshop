@@ -713,7 +713,7 @@
   return model;
  };
 
- const selector='.r127-live-wanderer-road,.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-figure,.r127-npc-combat,.r127-road-unit,.r127-silo-boar,.r127-final-unit';
+ const selector='.r127-live-wanderer-road,.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-figure,.r127-npc-combat,.r127-road-unit,.r127-silo-boar,.r127-final-unit,[data-miles-road]';
  function activeScene(){
   // The level-five Crazy Steve promotional menu is a standalone graphical stage.
   if(typeof stage!=='undefined'&&stage==='r127StevePromo')return {id:'scripted:crazy-steve',phase:'approach'};
@@ -769,8 +769,8 @@
    const img=node.tagName==='IMG'?node:node.querySelector('img');
    if(!img?.src)return [];
    const slot=getSlot(node,index);
-   const placement=node.classList.contains('r127-final-unit')?
-    artworkPlacement(img,scene,slot,node.classList.contains('r127-final-freight')):
+   const placement=node.matches('.r127-final-unit,[data-miles-road]')?
+    artworkPlacement(img,scene,slot,node.matches('.r127-final-freight,[data-miles-road]')):
     {key:unitKey(img.src,slot),background:false};
    return placement?[{node,img,...placement}]:[];
   });
@@ -794,7 +794,7 @@
  function applyOverlay(node,index){
   const scene=activeScene(),img=node.querySelector('img');
   if(!scene||!img?.src)return;
-  const placement=artworkPlacement(img,scene,index,node.classList.contains('r127-final-freight'));
+  const placement=artworkPlacement(img,scene,index,node.matches('.r127-final-freight,[data-miles-road]'));
   const layout=placement&&get(scene.id,scene.phase,viewportDevice())[placement.key];
   if(layout)apply(node,layout);
  }

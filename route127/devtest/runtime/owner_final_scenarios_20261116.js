@@ -169,8 +169,10 @@
   const model=previousModel.apply(this,args),target=selection();
   if(!model?.active)return model;
   const active=globalThis.Route127CombatLayouts?.activeScene();
-  if(active?.id==='scripted:r18stationevelyn'){
-   const art=file('locations','evelyn_cross_station_nine.png');
+  const interior=active?.id==='scripted:r18stationevelyn'?'evelyn_cross_station_nine.png':
+   active?.id==='seaport:caleb-docks'?'caleb_seaport_docks.png':null;
+  if(interior){
+   const art=file('locations',interior);
    if(this.sceneArtworkReady(art)){
     model.art=art;model.regionalSky=null;model.scenarioBackdrop=null;model.causewayBacking=false;
    }

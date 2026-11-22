@@ -67,8 +67,9 @@
  const cemeteryTitle='ASH CEMETERY — ARRIVAL';
  function cemeteryTarget(){
   const combat=phases.has(stage)&&combatState?.source==='r18AshFight'?combatState:null;
-  if(stage!=='r18Ash'&&!combat)return null;
-  const mode=combat?'combat':r18AshReunionShowing===player.flags.r18Ash?'reunion':'normal';
+  const locked=stage==='lanternRoad'&&r18AshPreviewState();
+  if(stage!=='r18Ash'&&!combat&&!locked)return null;
+  const mode=locked?'locked':combat?'combat':r18AshReunionShowing===player.flags.r18Ash?'reunion':'normal';
   const device=typeof matchMedia==='function'&&matchMedia('(max-width:600px)').matches?'phone':'desktop';
   const scene=globalThis.Route127CombatLayouts?.cemeteryPresentation(player.flags.r18Ash,day,mode,device);
   if(!scene)return null;
@@ -230,6 +231,7 @@
     }
    }else if(spec.scene&&spec.composition==='sky'){
     const sky=regional(skyName()),art=file(spec.dir||'scenarios',spec.scene);
+    if(target.cemetery?.mode==='locked')model.title='An Abandoned Cemetery';
     const dependencies=[sky,art];
     if(target.title===cemeteryTitle)dependencies.push(...spec.units().map(asset=>file(asset.dir,asset.name)));
     if(dependencies.map(url=>this.sceneArtworkReady(url)).every(Boolean)){

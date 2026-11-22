@@ -216,6 +216,11 @@
   .gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-unit>img{width:100%;height:calc(100% - 22px);object-fit:contain;object-position:center bottom;filter:drop-shadow(3px 6px 5px #000a)}
   .gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-unit.r127-final-freight{left:50%;width:94%;height:92%;bottom:0;pointer-events:none}
   .gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-unit.r127-final-freight>img{height:100%;object-fit:contain}
+  /* Coin Well is a complete painting: remove its painted left/right scenery
+     without clipping the roof or base, and let the road show at the sides. */
+  .gfx-art[data-r127-coin-well="true"]>.r127-final-sprites .r127-final-unit.r127-final-freight>img{
+    clip-path:inset(0 14% 0 14%);
+  }
   .gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-hp{font:700 clamp(10px,1.2vw,14px)/1 sans-serif;color:#fff5ef;background:#36140ff0;border:1px solid #d84b39;border-radius:3px;padding:3px 5px;margin-bottom:3px;white-space:nowrap;min-width:45px;text-align:center}
   .gfx-art.r127-final-encounter>.gfx-art-caption{position:relative;z-index:10}
   .gfx-art:is(.r127-final-encounter,.r127-north-art)[data-r127-final-period="night"]>.r127-final-sprites img{filter:brightness(.66) saturate(.72) drop-shadow(3px 6px 5px #000a)}
@@ -269,6 +274,8 @@
    figure.classList.toggle('r127-final-encounter',on&&!!target);
    figure.classList.toggle('r127-north-art',on&&!!north);
    figure.classList.toggle('r127-final-cinematic',on&&target?.type==='rural'&&!!target.spec.scene&&target.spec.composition==='sky');
+   if(on&&target?.type==='rural'&&target.title==='THE COIN WELL')figure.dataset.r127CoinWell='true';
+   else delete figure.dataset.r127CoinWell;
    let layer=figure.querySelector(':scope > .r127-final-sprites');
    let road=figure.querySelector(':scope > .r127-final-road');
    if(!on){layer?.remove();road?.remove();delete figure.dataset.r127FinalPeriod;return result;}

@@ -67,7 +67,7 @@ body.full-graphics{display:block;padding:8px;background:#080a09;color:#ddd3bc;ov
 .gfx-frame .gfx-nav svg{width:34px;height:34px;flex-basis:34px;stroke:#c7b79d;filter:drop-shadow(1px 2px 1px #000)}
 .gfx-frame .gfx-main{border:14px solid transparent;border-image:var(--ui-frame) 24 stretch;gap:9px;background:#050605;padding:0 0 8px}
 .gfx-frame .gfx-art{border:0;border-image:none;border-radius:0;background:#080a09!important;box-shadow:none;min-height:0;position:relative}
-.gfx-frame .gfx-image{width:100%;height:auto;max-height:620px;aspect-ratio:16/9;object-fit:cover;object-position:center 20%;background:#060807}
+.gfx-frame .gfx-image{width:100%;height:auto;max-height:620px;aspect-ratio:16/9;object-fit:contain;object-position:center;background:#060807}
 .gfx-frame .gfx-art-caption{position:absolute;left:14px;bottom:12px;width:auto;max-width:calc(100% - 28px);padding:7px 14px;border:1px solid #9f7146;background:#080907d9;color:#eed8b8;font:22px/1.1 Impact,'Arial Narrow',sans-serif;letter-spacing:2px;text-transform:uppercase}
 .gfx-frame .gfx-art-failed .gfx-art-caption{position:static}
 .gfx-frame .gfx-narrative{margin:0 8px;padding:4px 8px;border-width:9px}
@@ -172,7 +172,7 @@ body.full-graphics{display:block;padding:8px;background:#080a09;color:#ddd3bc;ov
 .gfx-frame .gfx-art .gfx-image{
  display:block;width:100%;min-width:100%;max-width:100%;
  height:auto;min-height:0;max-height:none;aspect-ratio:16/9;
- object-fit:cover;object-position:center;
+ object-fit:contain;object-position:center;
 }
 .gfx-frame .gfx-art.gfx-neutral{min-height:110px}
 .gfx-frame .gfx-choices{
@@ -189,7 +189,7 @@ body.full-graphics{display:block;padding:8px;background:#080a09;color:#ddd3bc;ov
 }
 @media(max-width:760px){
  .gfx-frame .gfx-choices{grid-template-columns:minmax(0,1fr)}
- .gfx-frame .gfx-art .gfx-image{aspect-ratio:16/9;max-height:none;object-fit:cover}
+ .gfx-frame .gfx-art .gfx-image{aspect-ratio:16/9;max-height:none;object-fit:contain}
 }
 
 /* Continuous illustrated surface includes the command form below the frame. */
@@ -263,11 +263,15 @@ body.full-graphics .gfx-frame .gfx-main{box-sizing:border-box;min-height:0;max-h
 body.full-graphics .gfx-frame .gfx-settings{flex:0 1 auto;min-height:0;overflow:auto}
 @media(max-width:760px){body.full-graphics{padding:0}}
 
-/* WO15 artwork fill: preserve the viewport layout; fill the existing art panel.
-   Cover preserves image proportions and crops excess edges instead of letterboxing. */
+/* Primary artwork uses the editor's centered, uncropped fit on all viewports. */
 body.full-graphics .gfx-frame .gfx-art .gfx-image{
- object-fit:cover;
+ object-fit:contain;
  object-position:center;
+}
+
+/* Region and sky imagery deliberately fills the environment layer. */
+body.full-graphics .gfx-frame .gfx-art .gfx-image[src*="/assets/regions/"]{
+ object-fit:cover;
 }
 
 /* WO15 panel scrollbars: transparent track and muted rust thumb. */

@@ -271,8 +271,8 @@
  style.id='r127-final-encounter-art-style';
  style.textContent=`
   .gfx-art.r127-final-encounter{position:relative;isolation:isolate;overflow:hidden}
-  .gfx-art.r127-final-encounter>.gfx-image{position:relative;z-index:1;object-fit:cover;background:transparent!important}
-  .gfx-art.r127-final-cinematic>.gfx-image{position:relative;z-index:0;object-fit:cover;background:transparent!important}
+  .gfx-art.r127-final-encounter>.gfx-image{position:relative;z-index:1;background:transparent!important}
+  .gfx-art.r127-final-cinematic>.gfx-image{position:relative;z-index:0;background:transparent!important}
   .gfx-art.r127-final-cinematic>.r127-final-sprites .r127-final-unit.r127-final-freight{z-index:1;left:50%;width:94%;height:92%;bottom:0;pointer-events:none}
   .gfx-art.r127-final-cinematic>.r127-final-sprites .r127-final-unit.r127-final-freight>img{height:100%;object-fit:contain;object-position:center}
   .gfx-art.r127-final-cinematic[data-r127-final-period="night"]>.r127-final-sprites .r127-final-freight>img{filter:brightness(.62) saturate(.68) sepia(.12) hue-rotate(165deg)}

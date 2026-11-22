@@ -39,7 +39,7 @@
    {name:'cornfield_stalker_1.png',index:0,hp:true},{name:'cornfield_stalker_2.png',index:1,hp:true}
   ];}}],
   ['THE DARK CELLAR',{scene:'dark_cellar_scene.png',composition:'road'}],
-  ['THE SAGGING FARMHOUSE',{scene:'the_sagging_farmhouse.png'}],
+  ['THE SAGGING FARMHOUSE',{scene:'the_sagging_farmhouse.png',composition:'road'}],
   ['THE WHEELBARROW',{composition:'regional',units(combat){return [
    {name:'the_wheelbarrow.png',dir:'scenarios',index:0,hp:false},
    ...(combat?.r18Wheelbarrow?[{name:'wheelbarrow_snake.gif',index:1,combatIndex:0,hp:true}]:[])
@@ -274,7 +274,7 @@
    figure.classList.toggle('r127-final-encounter',on&&!!target);
    figure.classList.toggle('r127-north-art',on&&!!north);
    figure.classList.toggle('r127-final-cinematic',on&&target?.type==='rural'&&!!target.spec.scene&&target.spec.composition==='sky');
-   if(on&&target?.type==='rural'&&['THE COIN WELL','THE DARK CELLAR'].includes(target.title))figure.dataset.r127SideCrop='true';
+   if(on&&target?.type==='rural'&&['THE COIN WELL','THE DARK CELLAR','THE SAGGING FARMHOUSE'].includes(target.title))figure.dataset.r127SideCrop='true';
    else delete figure.dataset.r127SideCrop;
    let layer=figure.querySelector(':scope > .r127-final-sprites');
    let road=figure.querySelector(':scope > .r127-final-road');

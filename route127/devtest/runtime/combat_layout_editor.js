@@ -140,6 +140,15 @@
     localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
     localStorage.setItem(liveWiresFurnaceSeed,'1');
    }
+   // Owner approved Ward of the Forgotten (St. Mercy Hospital) artwork.
+   // Mark reviewed once per browser without changing layout coordinates or
+   // preventing a later manual Needs Review toggle.
+   const wardSeed=reviewKey+'-ward-forgotten-approved-20261122';
+   if(!localStorage.getItem(wardSeed)){
+    reviews.add('east:81');
+    localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
+    localStorage.setItem(wardSeed,'1');
+   }
    return reviews;
   }catch{return new Set();}
  }

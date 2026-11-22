@@ -179,17 +179,29 @@
   if(files.some(file=>status.get(file)==='broken'))return 'Art broken';
   return files.every(file=>status.get(file)==='working')?'Art present':'Checking art';
  };
- function checkAssets(refresh,isClosed){
+ function checkAssets(refresh){
   const pending=[...new Set([...L.rows.values()].flatMap(assets))].filter(file=>!status.has(file));
-  let running=0;
+  const active=new Map();
   function pump(){
-   while(!isClosed()&&running<6&&pending.length){
-    const file=pending.shift(),img=new Image();running++;status.set(file,'checking');
-    const done=result=>{img.onload=img.onerror=null;status.set(file,result);running--;if(!isClosed()){refresh();pump();}};
-    img.onload=()=>done('working');img.onerror=()=>done('broken');img.src=previewURL(file);
+   while(active.size<6&&pending.length){
+    const file=pending.shift(),img=new Image();
+    const cleanup=()=>{clearTimeout(timer);img.onload=img.onerror=null;active.delete(file);};
+    const done=result=>{cleanup();status.set(file,result);refresh();pump();};
+    const timer=setTimeout(()=>done('broken'),15000);
+    active.set(file,cleanup);
+    status.set(file,'checking');
+    img.onload=()=>done('working');
+    img.onerror=()=>done('broken');
+    img.src=previewURL(file);
    }
   }
   pump();
+  return ()=>{
+   for(const [file,cleanup] of active){
+    cleanup();
+    status.delete(file);
+   }
+  };
  }
  const defaultPlaces={
   'BAT COLONY':[[31,16,27,35],[65,27,27,35],[43,37,27,35],[72,48,27,35]],
@@ -598,9 +610,9 @@
    updateStatus(Object.keys(older).length?'Copy this legacy data for conversion. The original browser data was preserved.':
     'No recognizable older layout key on this origin. If the older editor still shows your edits, export from that editor and share the JSON.');
   });
-  dialog.addEventListener('close',()=>{closed=true;dialog.remove();},{once:true});
+  dialog.addEventListener('close',()=>{closed=true;cancelAssetChecks();dialog.remove();},{once:true});
   document.body.append(dialog);rebuildPicker();dialog.showModal();close.focus();
-  checkAssets(()=>{rebuildPicker();if(row&&spec)metadata.dataset.artStatus=state(row);},()=>closed);
+  const cancelAssetChecks=checkAssets(()=>{rebuildPicker();if(row&&spec)metadata.dataset.artStatus=state(row);});
  }
  globalThis.Route127CombatLayoutEditor=Object.freeze({show});
  if(new URLSearchParams(location.search).get('visual-testing')==='1')

@@ -27,11 +27,52 @@
   crabNest:{files:['scrap_crab_nest.png']}
  };
  const clean=v=>String(v||'').toUpperCase().replace(/^EAST ROAD — /,'').trim();
+ const ruralByTitle=new Map([
+  ['THE COIN WELL',{scene:'the_coin_well.png'}],
+  ['RATS IN THE PANTRY',{scene:'rats_in_the_pantry.png',units(combat){return combat?Array(3).fill(0).map((_,index)=>({name:'pantry_rat.png',index,hp:true})):[];}}],
+  ['DUST OVER THE SCHOOLYARD',{scene:'dust_over_the_schoolyard.png',units(combat){
+   if(combat?.name==='SCHOOLYARD BUCK')return [{name:'territorial_buck.png',index:0,hp:true}];
+   return [];
+  }}],
+  ['CORNFIELD STALKERS',{scene:'cornfield_stalkers_scene.png',units(){return [
+   {name:'cornfield_stalker_1.png',index:0,hp:true},{name:'cornfield_stalker_2.png',index:1,hp:true}
+  ];}}],
+  ['THE DARK CELLAR',{scene:'dark_cellar_scene.png'}],
+  ['THE SAGGING FARMHOUSE',{scene:'the_sagging_farmhouse.png'}],
+  ['THE WHEELBARROW',{composition:'regional',units(combat){return [
+   {name:'the_wheelbarrow.png',dir:'scenarios',index:0,hp:false},
+   ...(combat?.r18Wheelbarrow?[{name:'wheelbarrow_snake.gif',index:1,combatIndex:0,hp:true}]:[])
+  ];}}],
+  ['TERRITORIAL FARMERS',{composition:'regional',units(){return [
+   {name:'territorial_farmer_1.png',index:0,hp:true},{name:'territorial_farmer_2.png',index:1,hp:true}
+  ];}}],
+  ['FERAL BULL',{composition:'regional',units(){return [{name:'feral_bull.png',index:0,hp:true}];}}],
+  ['WARD OF THE FORGOTTEN',{scene:'st_mercy_hospital.png',dir:'locations',composition:'none'}]
+ ]);
+ const ruralById=new Map([
+  ['early:7','THE DARK CELLAR'],['early:40','THE WHEELBARROW'],['early:42','THE COIN WELL'],
+  ['early:47','RATS IN THE PANTRY'],['early:63','THE SAGGING FARMHOUSE'],['early:65','DUST OVER THE SCHOOLYARD'],
+  ['early:166','CORNFIELD STALKERS'],['early:167','TERRITORIAL FARMERS'],['early:168','FERAL BULL'],
+  ['east:81','WARD OF THE FORGOTTEN']
+ ]);
+ function ruralSelection(){
+  if(typeof stage==='undefined'||!(stage==='encounter'||phases.has(stage)))return null;
+  const combat=typeof combatState!=='undefined'?combatState:null;
+  if(phases.has(stage)&&combat?.source!=='encounter')return null;
+  const active=globalThis.Route127CombatLayouts?.activeScene();
+  const encounter=typeof currentEncounter==='function'?currentEncounter():null;
+  const title=ruralById.get(active?.id)||clean(encounter?.title||combat?.name);
+  const spec=ruralByTitle.get(title);
+  return spec?{title,spec,combat:phases.has(stage)?combat:null,active}:null;
+ }
  function selection(){
   if(typeof stage==='undefined'||!(stage==='encounter'||phases.has(stage)))return null;
   const encounter=typeof currentEncounter==='function'?currentEncounter():null;
   const combat=typeof combatState!=='undefined'?combatState:null;
   if(phases.has(stage)&&combat?.source!=='encounter')return null;
+  const rural=ruralSelection();
+  if(rural)return {type:'rural',...rural,region:typeof route127CurrentRegion==='function'?
+   route127CurrentRegion(typeof lanternState==='function'?lanternState():null):'EAST'};
   const type=aliases[clean(encounter?.title)]||aliases[clean(encounter?.displayName)]||
    (phases.has(stage)?combat?.wo3Drone?'floodlight':combat?.wo4Sniper?'sniper':
     aliases[clean(combat?.name)]:null);
@@ -50,6 +91,13 @@
   const combat=phases.has(stage)?combatState:null;
   const scenery=(name,dir='scenarios')=>({name,dir,scenery:true});
   const sprite=(name,index=0,dir='enemies')=>({name,dir,index});
+  const rural=ruralSelection();
+  if(rural){
+   const {spec}=rural;
+   const files=typeof spec.units==='function'?spec.units(combat):[];
+   return [...(spec.scene&&spec.dir!=='locations'?[scenery(spec.scene,spec.dir||'scenarios')]:[]),
+    ...files.map(asset=>({name:asset.name,index:asset.index||0,dir:asset.dir||'enemies',hp:asset.hp,scenery:false}))];
+  }
   switch(scene.id){
    case 'early:55':return combat?null:[scenery('cold_road_camp.png'),
     ...(r18CampVariant()?[sprite('cold_road_camp_traveler.png',0,'scenarios')]:[])];
@@ -95,6 +143,22 @@
    }
    return model;
   }
+  if(target?.type==='rural'){
+   const spec=target.spec;
+   if(spec.scene&&spec.composition==='sky'){
+    const sky=regional(skyName()),art=file(spec.dir||'scenarios',spec.scene);
+    if([sky,art].map(url=>this.sceneArtworkReady(url)).every(Boolean)){
+     model.art=sky;model.regionalSky=null;model.causewayBacking=false;
+     model.scenarioBackdrop={art:sky,mode:'sky'};
+    }
+   }else if(spec.scene&&spec.dir==='locations'){
+    const art=file('locations',spec.scene);
+    if(this.sceneArtworkReady(art)){
+     model.art=art;model.regionalSky=null;model.causewayBacking=false;
+    }
+   }
+   return model;
+  }
   if(!target)return model;
   if(target.type==='freight'){
    // Buried freight is a scenery cutout over the shared sky AND dirt-road patch.
@@ -121,6 +185,12 @@
  style.textContent=`
   .gfx-art.r127-final-encounter{position:relative;isolation:isolate;overflow:hidden}
   .gfx-art.r127-final-encounter>.gfx-image{position:relative;z-index:1;object-fit:cover;background:transparent!important}
+  .gfx-art.r127-final-cinematic>.gfx-image{position:relative;z-index:0;object-fit:cover;background:transparent!important}
+  .gfx-art.r127-final-cinematic>.r127-final-sprites .r127-final-unit.r127-final-freight{z-index:1;left:50%;width:94%;height:92%;bottom:0;pointer-events:none}
+  .gfx-art.r127-final-cinematic>.r127-final-sprites .r127-final-unit.r127-final-freight>img{height:100%;object-fit:contain;object-position:center}
+  .gfx-art.r127-final-cinematic[data-r127-final-period="night"]>.r127-final-sprites .r127-final-freight>img{filter:brightness(.62) saturate(.68) sepia(.12) hue-rotate(165deg)}
+  .gfx-art.r127-final-cinematic[data-r127-final-period="dusk"]>.r127-final-sprites .r127-final-freight>img{filter:brightness(.83) saturate(.88) sepia(.18)}
+  .gfx-art.r127-final-cinematic[data-r127-final-period="dawn"]>.r127-final-sprites .r127-final-freight>img{filter:brightness(.92) saturate(.91) sepia(.13)}
   .gfx-art.r127-final-encounter>.r127-final-road{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:2;pointer-events:none}
   .gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites{position:absolute;inset:0;z-index:5;pointer-events:none}
   .gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-unit{position:absolute;bottom:3%;transform:translateX(-50%);height:85%;width:40%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;pointer-events:auto}
@@ -179,6 +249,7 @@
    const figure=e.figure;
    figure.classList.toggle('r127-final-encounter',on&&!!target);
    figure.classList.toggle('r127-north-art',on&&!!north);
+   figure.classList.toggle('r127-final-cinematic',on&&target?.type==='rural'&&!!target.spec.scene&&target.spec.composition==='sky');
    let layer=figure.querySelector(':scope > .r127-final-sprites');
    let road=figure.querySelector(':scope > .r127-final-road');
    if(!on){layer?.remove();road?.remove();delete figure.dataset.r127FinalPeriod;return result;}
@@ -196,20 +267,23 @@
    if(!layer||layer.dataset.identity!==identity){
     layer?.remove();layer=document.createElement('div');layer.className='r127-final-sprites';layer.dataset.identity=identity;
     const spriteCount=files.filter(asset=>!asset.scenery).length;
-    for(const {name,index=0,dir,scenery} of files){
+    for(const asset of files){
+     const {name,index=0,dir,scenery}=asset;
      const unit=document.createElement('div');unit.className='r127-final-unit'+(scenery?' r127-final-freight':'');
      const img=document.createElement('img');img.alt='';img.src=file(dir,name);
      img.onerror=()=>console.warn('DEVTEST scenario image failed to load:',name);
      const positions=files.length===3?[20,50,80]:[50];
      unit.dataset.index=String(index);
+     if(asset.combatIndex!==undefined)unit.dataset.combatIndex=String(asset.combatIndex);
      if(north&&!scenery&&spriteCount>1){
       unit.style.left=((index+.5)*100/spriteCount)+'%';
       unit.style.width=(spriteCount===2?'34%':'30%');
      }else if(north)unit.dataset.pair='false';
      else unit.style.left=positions[index]+'%';
+     if(target?.type==='rural'&&target.title==='CORNFIELD STALKERS'&&!scenery)unit.style.zIndex=index===0?'2':'3';
      if(!north&&files.length===3){unit.style.width='31%';unit.style.height='82%';}
      unit.append(img);
-     if(!scenery){
+     if(!scenery&&asset.hp!==false){
       const hp=document.createElement('span');hp.className='r127-final-hp';hp.hidden=true;unit.prepend(hp);
      }
      layer.append(unit);
@@ -223,7 +297,8 @@
     globalThis.Route127CombatLayouts?.applyOverlay(unit,i);
     const hp=unit.querySelector('.r127-final-hp');
     if(!hp)return;
-    const fighter=fighters?.[i]||(!fighters&&i===0?combat:null);
+    const combatIndex=Number(unit.dataset.combatIndex??i);
+    const fighter=fighters?.[combatIndex]||(!fighters&&combatIndex===0?combat:null);
     const show=!!fighter;
     hp.hidden=!show;
     unit.hidden=!!combat&&(fighters?(!fighter||Number(fighter.hp)<=0):!!north&&Number(fighter?.hp)<=0);

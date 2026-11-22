@@ -67,9 +67,9 @@
  const cemeteryTitle='ASH CEMETERY — ARRIVAL';
  function cemeteryTarget(){
   const combat=phases.has(stage)&&combatState?.source==='r18AshFight'?combatState:null;
-  const locked=stage==='lanternRoad'&&r18AshPreviewState();
+  const locked=stage==='lanternRoad'&&typeof r18AshPreviewState==='function'&&r18AshPreviewState();
   if(stage!=='r18Ash'&&!combat&&!locked)return null;
-  const mode=locked?'locked':combat?'combat':r18AshReunionShowing===player.flags.r18Ash?'reunion':'normal';
+  const mode=locked?'locked':combat?'combat':typeof r18AshReunionShowing!=='undefined'&&r18AshReunionShowing===player.flags.r18Ash?'reunion':'normal';
   const device=typeof matchMedia==='function'&&matchMedia('(max-width:600px)').matches?'phone':'desktop';
   const scene=globalThis.Route127CombatLayouts?.cemeteryPresentation(player.flags.r18Ash,day,mode,device);
   if(!scene)return null;

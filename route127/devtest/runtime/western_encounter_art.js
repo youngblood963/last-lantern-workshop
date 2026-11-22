@@ -25,7 +25,7 @@
   ['THE MISSING STAIRS',[cinematic('the_missing_stairs.png')]],
   ['THE COUNTERFEIT RATIONS',[cinematic('counterfeit_rations.png',true)]],
   ['THE GRAVESIDE GAMBLER',[cinematic('the_graveside_gambler.png',true)]],
-  ['THE TRAVELING TAXIDERMIST',[cinematic('the_traveling_taxidermist.png',true)]],
+  ['THE TRAVELING TAXIDERMIST',[scene('Cinematic','road',scenery('the_traveling_taxidermist.png'),[],'both',true)]],
   ['THE ANT COLONY',[scene('Ant colony','road',sprites('ant_colony.png')[0])]],
   ['THE TAR POOL',[scene('Animated tar pool','regional',scenery('the_tar_pool.gif'))]],
   ['THE BURIED BUNKER',[

@@ -92,8 +92,8 @@
  const ruralScene=(title,background,composition='sky',units=[],phase='approach',variant='Owner artwork')=>
   register(title,units,phase,variant,scenery(background),composition);
  ruralScene('THE COIN WELL','the_coin_well.png');
- ruralScene('RATS IN THE PANTRY','rats_in_the_pantry.png','sky',[],'approach','Abandoned pantry');
- ruralScene('RATS IN THE PANTRY','rats_in_the_pantry.png','sky',sprite('pantry_rat.png','pantry_rat.png','pantry_rat.png'),'combat','Three pantry rats');
+ ruralScene('RATS IN THE PANTRY','rats_in_the_pantry.png','road',[],'approach','Abandoned pantry');
+ ruralScene('RATS IN THE PANTRY','rats_in_the_pantry.png','road',sprite('pantry_rat.png','pantry_rat.png','pantry_rat.png'),'combat','Three pantry rats');
  ruralScene('DUST OVER THE SCHOOLYARD','dust_over_the_schoolyard.png','sky',[],'approach','Fawn and mother in scene');
  ruralScene('DUST OVER THE SCHOOLYARD','dust_over_the_schoolyard.png','sky',sprite('schoolyard_deer.png'),'combat','Schoolyard doe');
  ruralScene('DUST OVER THE SCHOOLYARD','dust_over_the_schoolyard.png','sky',sprite('territorial_buck.png'),'combat','Buck fight');

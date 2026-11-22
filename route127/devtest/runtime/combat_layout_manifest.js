@@ -5480,3 +5480,3841 @@ globalThis.Route127PublishedCombatLayouts={
     }
   }
 };
+
+/* Owner-approved Ash Cemetery desktop layouts. Gameplay reads the published records. */
+Object.assign(globalThis.Route127PublishedCombatLayouts.scenes,{
+  "ash:editor:discovery:mercy:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 52.0089261639282,
+      "y": 61.116405186656266,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 51.1,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": true
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 18.314879305143858,
+      "y": 54.25396004437563,
+      "width": 28,
+      "height": 51,
+      "scale": 0.66,
+      "z": 5,
+      "flip": false,
+      "visible": true
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 60,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 11,
+      "flip": false,
+      "visible": false
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": true
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 20,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 40,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 20,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 80,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": false
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    }
+  },
+  "ash:editor:discovery:mercy:reunion/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 52.0089261639282,
+      "y": 61.116405186656266,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": true
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 51.1,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": true
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 18.314879305143858,
+      "y": 54.25396004437563,
+      "width": 28,
+      "height": 51,
+      "scale": 0.66,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 60,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 11,
+      "flip": false,
+      "visible": false
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 20,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 40,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 20,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 80,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": false
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": true
+    }
+  },
+  "ash:editor:day0:mercy:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 19.226193821348872,
+      "y": 57.90475457619873,
+      "width": 28,
+      "height": 51,
+      "scale": 0.66,
+      "z": 11,
+      "flip": false,
+      "visible": true
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 68.2142790239689,
+      "y": 64.57143469858795,
+      "width": 28,
+      "height": 51,
+      "scale": 0.76,
+      "z": 5,
+      "flip": false,
+      "visible": true
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 54.434523961576474,
+      "y": 50.68254048347555,
+      "width": 28,
+      "height": 51,
+      "scale": 0.49,
+      "z": 6,
+      "flip": true,
+      "visible": true
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 42.068454737768526,
+      "y": 69.33333249235068,
+      "width": 28,
+      "height": 51,
+      "scale": 0.83,
+      "z": 7,
+      "flip": true,
+      "visible": true
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 20,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 80,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": false
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "14:ash_elias_vane_restoration.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    }
+  },
+  "ash:editor:day3:mercy:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 60,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 11,
+      "flip": false,
+      "visible": false
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 26.324404331088907,
+      "y": 57.82540483475549,
+      "width": 28,
+      "height": 51,
+      "scale": 0.72,
+      "z": 5,
+      "flip": true,
+      "visible": true
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 40,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 68.51189918664075,
+      "y": 62.66666750764932,
+      "width": 28,
+      "height": 51,
+      "scale": 0.71,
+      "z": 9,
+      "flip": false,
+      "visible": true
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 80,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": false
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "14:ash_elias_vane_restoration.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    }
+  },
+  "ash:editor:day7:mercy:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": true
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 60,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 11,
+      "flip": false,
+      "visible": false
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 20,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 40,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 28.85417003716718,
+      "y": 61.74074559975166,
+      "width": 28,
+      "height": 51,
+      "scale": 0.63,
+      "z": 9,
+      "flip": true,
+      "visible": true
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 50.93750266092146,
+      "y": 52.87829541157507,
+      "width": 28,
+      "height": 51,
+      "scale": 0.45,
+      "z": 10,
+      "flip": false,
+      "visible": true
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 80,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": false
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "14:ash_elias_vane_restoration.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 0.99,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    }
+  },
+  "ash:editor:day14:mercy:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 22.35119133782219,
+      "y": 60.55026736688901,
+      "width": 28,
+      "height": 51,
+      "scale": 0.71,
+      "z": 11,
+      "flip": false,
+      "visible": true
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 20,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 47.21725914247201,
+      "y": 74.88888412332048,
+      "width": 28,
+      "height": 51,
+      "scale": 0.92,
+      "z": 1,
+      "flip": true,
+      "visible": true
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 20,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 80,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": true
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "14:ash_elias_vane_restoration.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    }
+  },
+  "ash:editor:day30:mercy:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 36.988096555884916,
+      "y": 66.1587221894183,
+      "width": 28,
+      "height": 51,
+      "scale": 1.25,
+      "z": 5,
+      "flip": true,
+      "visible": true
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 44.07738090169673,
+      "y": 60.81481360006208,
+      "width": 28,
+      "height": 51,
+      "scale": 0.8,
+      "z": 11,
+      "flip": false,
+      "visible": false
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 23.79464430164308,
+      "y": 59.544975533964276,
+      "width": 28,
+      "height": 51,
+      "scale": 0.68,
+      "z": 5,
+      "flip": false,
+      "visible": true
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 40,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 20,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 73.74999929042094,
+      "y": 72.45502951193167,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": true
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "14:ash_elias_vane_restoration.png": {
+      "x": 35.42559779764826,
+      "y": 68.14284669064409,
+      "width": 28,
+      "height": 51,
+      "scale": 1.25,
+      "z": 5,
+      "flip": true,
+      "visible": false
+    }
+  },
+  "ash:editor:day0:justice:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 19.226193821348872,
+      "y": 57.90475457619873,
+      "width": 28,
+      "height": 51,
+      "scale": 0.66,
+      "z": 11,
+      "flip": false,
+      "visible": true
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 68.2142790239689,
+      "y": 64.57143469858795,
+      "width": 28,
+      "height": 51,
+      "scale": 0.76,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 54.434523961576474,
+      "y": 50.68254048347555,
+      "width": 28,
+      "height": 51,
+      "scale": 0.49,
+      "z": 6,
+      "flip": true,
+      "visible": false
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 59.92559637849014,
+      "y": 61.39682439565557,
+      "width": 28,
+      "height": 51,
+      "scale": 0.83,
+      "z": 7,
+      "flip": true,
+      "visible": true
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 20,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 80,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": false
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    }
+  },
+  "ash:editor:day3:justice:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 60,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 11,
+      "flip": false,
+      "visible": false
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 26.324404331088907,
+      "y": 57.82540483475549,
+      "width": 28,
+      "height": 51,
+      "scale": 0.72,
+      "z": 5,
+      "flip": true,
+      "visible": true
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 40,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 68.51189918664075,
+      "y": 62.66666750764932,
+      "width": 28,
+      "height": 51,
+      "scale": 0.71,
+      "z": 9,
+      "flip": false,
+      "visible": true
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 80,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": false
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    }
+  },
+  "ash:editor:day7:justice:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 60,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 11,
+      "flip": false,
+      "visible": false
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 20,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 28.91369009605884,
+      "y": 57.5608485097905,
+      "width": 28,
+      "height": 42.6,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": true
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 53.15476464170969,
+      "y": 47.90475962209469,
+      "width": 28,
+      "height": 51,
+      "scale": 0.61,
+      "z": 7,
+      "flip": false,
+      "visible": true
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 28.85417003716718,
+      "y": 61.74074559975166,
+      "width": 28,
+      "height": 51,
+      "scale": 0.63,
+      "z": 9,
+      "flip": true,
+      "visible": false
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 50.93750266092146,
+      "y": 52.87829541157507,
+      "width": 28,
+      "height": 51,
+      "scale": 0.45,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 80,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": false
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    }
+  },
+  "ash:editor:day14:justice:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 22.35119133782219,
+      "y": 60.55026736688901,
+      "width": 28,
+      "height": 51,
+      "scale": 0.71,
+      "z": 11,
+      "flip": false,
+      "visible": false
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 32.12797479666018,
+      "y": 61.26454623317307,
+      "width": 28,
+      "height": 51,
+      "scale": 0.77,
+      "z": 5,
+      "flip": false,
+      "visible": true
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 47.21725914247201,
+      "y": 74.88888412332048,
+      "width": 28,
+      "height": 51,
+      "scale": 0.92,
+      "z": 1,
+      "flip": true,
+      "visible": false
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 67.32141853595333,
+      "y": 60.417989204406524,
+      "width": 28,
+      "height": 51,
+      "scale": 0.81,
+      "z": 9,
+      "flip": false,
+      "visible": true
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 23.30356620809694,
+      "y": 74.04233718634586,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": true,
+      "visible": true
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    }
+  },
+  "ash:editor:day30:justice:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 36.988096555884916,
+      "y": 66.1587221894183,
+      "width": 28,
+      "height": 51,
+      "scale": 1.25,
+      "z": 5,
+      "flip": true,
+      "visible": false
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 28.303577561361838,
+      "y": 55.78835948133437,
+      "width": 28,
+      "height": 51,
+      "scale": 0.73,
+      "z": 11,
+      "flip": false,
+      "visible": true
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 23.79464430164308,
+      "y": 59.544975533964276,
+      "width": 28,
+      "height": 51,
+      "scale": 0.68,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 40,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 20,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 48.70535427919881,
+      "y": 71.26454623317308,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": true,
+      "visible": true
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 53.28868548379498,
+      "y": 48.24868082619077,
+      "width": 28,
+      "height": 24.2,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    }
+  },
+  "ash:editor:day0:redemption:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 19.226193821348872,
+      "y": 57.90475457619873,
+      "width": 28,
+      "height": 51,
+      "scale": 0.66,
+      "z": 11,
+      "flip": false,
+      "visible": false
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 68.2142790239689,
+      "y": 64.57143469858795,
+      "width": 28,
+      "height": 51,
+      "scale": 0.76,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 63.660709267976685,
+      "y": 64.70370781517448,
+      "width": 28,
+      "height": 51,
+      "scale": 0.6,
+      "z": 6,
+      "flip": true,
+      "visible": true
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 18.258935388455924,
+      "y": 54.65080210066704,
+      "width": 28,
+      "height": 51,
+      "scale": 0.67,
+      "z": 7,
+      "flip": true,
+      "visible": true
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 35.69940539545749,
+      "y": 72.45502951193167,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": true
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 80,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": false
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "14:ash_elias_vane_restoration.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    }
+  },
+  "ash:editor:day3:redemption:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 60,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 11,
+      "flip": false,
+      "visible": false
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 26.324404331088907,
+      "y": 57.82540483475549,
+      "width": 28,
+      "height": 51,
+      "scale": 0.72,
+      "z": 5,
+      "flip": true,
+      "visible": true
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 40,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 66.5029673460801,
+      "y": 64.12169197368505,
+      "width": 28,
+      "height": 51,
+      "scale": 0.71,
+      "z": 9,
+      "flip": false,
+      "visible": true
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 80,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": false
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "14:ash_elias_vane_restoration.png": {
+      "x": 52.31548100547693,
+      "y": 47.640213388921616,
+      "width": 28,
+      "height": 51,
+      "scale": 0.8,
+      "z": 5,
+      "flip": false,
+      "visible": true
+    }
+  },
+  "ash:editor:day7:redemption:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 26.071429179639193,
+      "y": 54.730144273266355,
+      "width": 28,
+      "height": 43.5,
+      "scale": 1,
+      "z": 11,
+      "flip": false,
+      "visible": true
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 53.70535427919881,
+      "y": 64.30687837362296,
+      "width": 28,
+      "height": 51,
+      "scale": 0.96,
+      "z": 5,
+      "flip": false,
+      "visible": true
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 40,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 28.85417003716718,
+      "y": 61.74074559975166,
+      "width": 28,
+      "height": 51,
+      "scale": 0.63,
+      "z": 9,
+      "flip": true,
+      "visible": false
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 50.93750266092146,
+      "y": 52.87829541157507,
+      "width": 28,
+      "height": 51,
+      "scale": 0.45,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 80,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": false
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "14:ash_elias_vane_restoration.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 0.99,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    }
+  },
+  "ash:editor:day14:redemption:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 73,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 22.35119133782219,
+      "y": 60.55026736688901,
+      "width": 28,
+      "height": 51,
+      "scale": 0.71,
+      "z": 11,
+      "flip": false,
+      "visible": false
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 20,
+      "y": 60.86772688341346,
+      "width": 28,
+      "height": 51,
+      "scale": 0.76,
+      "z": 5,
+      "flip": true,
+      "visible": true
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 47.21725914247201,
+      "y": 74.88888412332048,
+      "width": 28,
+      "height": 51,
+      "scale": 0.92,
+      "z": 1,
+      "flip": true,
+      "visible": false
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 56.383924389980564,
+      "y": 75.76190283965867,
+      "width": 28,
+      "height": 51,
+      "scale": 0.81,
+      "z": 9,
+      "flip": false,
+      "visible": true
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 28.735121404435198,
+      "y": 73.64550269889837,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": true,
+      "visible": true
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "14:ash_elias_vane_restoration.png": {
+      "x": 49.56250159655288,
+      "y": 47.64021338892161,
+      "width": 28,
+      "height": 51,
+      "scale": 0.67,
+      "z": 5,
+      "flip": false,
+      "visible": true
+    }
+  },
+  "ash:editor:day30:redemption:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_elias_vane_undertaker.png": {
+      "x": 36.988096555884916,
+      "y": 66.1587221894183,
+      "width": 28,
+      "height": 51,
+      "scale": 1.25,
+      "z": 5,
+      "flip": true,
+      "visible": false
+    },
+    "3:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_miriam_tending_restored_grave.png": {
+      "x": 23.913690096058833,
+      "y": 58.698403367509854,
+      "width": 28,
+      "height": 51,
+      "scale": 0.64,
+      "z": 11,
+      "flip": false,
+      "visible": true
+    },
+    "5:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_anya_scattering_seed.png": {
+      "x": 23.79464430164308,
+      "y": 59.544975533964276,
+      "width": 28,
+      "height": 51,
+      "scale": 0.68,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "7:ash_ruth_planting_seeds.png": {
+      "x": 40,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "8:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "9:ash_leah_clearing_weeds.png": {
+      "x": 53.88393148577113,
+      "y": 58.88360238218766,
+      "width": 28,
+      "height": 51,
+      "scale": 0.7,
+      "z": 4,
+      "flip": false,
+      "visible": true
+    },
+    "10:ash_jo_brushing_headstone.png": {
+      "x": 20,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "11:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_laying_flowers.png": {
+      "x": 73.74999929042094,
+      "y": 72.45502951193167,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": true
+    },
+    "13:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "14:ash_elias_vane_restoration.png": {
+      "x": 41.377978344555466,
+      "y": 67.74602229498852,
+      "width": 28,
+      "height": 51,
+      "scale": 1.25,
+      "z": 5,
+      "flip": true,
+      "visible": true
+    }
+  },
+  "ash:editor:day0:violent:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "3:ash_miriam_tending_restored_grave.png": {
+      "x": 60,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 11,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "5:ash_anya_scattering_seed.png": {
+      "x": 20,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_ruth_planting_seeds.png": {
+      "x": 40,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "7:ash_tomas_raking_soil.png": {
+      "x": 60.14881291965215,
+      "y": 66.95238107252133,
+      "width": 28,
+      "height": 51,
+      "scale": 1.19,
+      "z": 7,
+      "flip": false,
+      "visible": true
+    },
+    "8:ash_leah_clearing_weeds.png": {
+      "x": 34.166665247508554,
+      "y": 56.50264339351439,
+      "width": 28,
+      "height": 51,
+      "scale": 0.82,
+      "z": 8,
+      "flip": false,
+      "visible": true
+    },
+    "9:ash_jo_brushing_headstone.png": {
+      "x": 20,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "11:ash_ruth_mother_laying_flowers.png": {
+      "x": 80,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    }
+  },
+  "ash:editor:day3:violent:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "3:ash_miriam_tending_restored_grave.png": {
+      "x": 60,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 11,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "5:ash_anya_scattering_seed.png": {
+      "x": 20,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_ruth_planting_seeds.png": {
+      "x": 59.642856940120275,
+      "y": 72.24338142442213,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 6,
+      "flip": true,
+      "visible": true
+    },
+    "7:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "8:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "9:ash_jo_brushing_headstone.png": {
+      "x": 31.979167553640483,
+      "y": 63.328038136477964,
+      "width": 28,
+      "height": 51,
+      "scale": 0.82,
+      "z": 9,
+      "flip": false,
+      "visible": true
+    },
+    "10:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "11:ash_ruth_mother_laying_flowers.png": {
+      "x": 54.10714802693313,
+      "y": 50.10052464198611,
+      "width": 28,
+      "height": 51,
+      "scale": 0.33,
+      "z": 4,
+      "flip": false,
+      "visible": true
+    },
+    "12:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    }
+  },
+  "ash:editor:day7:violent:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "3:ash_miriam_tending_restored_grave.png": {
+      "x": 60,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 11,
+      "flip": false,
+      "visible": false
+    },
+    "4:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "5:ash_anya_scattering_seed.png": {
+      "x": 20,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": true
+    },
+    "6:ash_ruth_planting_seeds.png": {
+      "x": 40,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "7:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "8:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "9:ash_jo_brushing_headstone.png": {
+      "x": 50.80357046557128,
+      "y": 73.64551783658624,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": true
+    },
+    "10:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "11:ash_ruth_mother_laying_flowers.png": {
+      "x": 80,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    }
+  },
+  "ash:editor:day14:violent:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "3:ash_miriam_tending_restored_grave.png": {
+      "x": 24.13690379890462,
+      "y": 57.90476466799064,
+      "width": 28,
+      "height": 51,
+      "scale": 0.74,
+      "z": 11,
+      "flip": false,
+      "visible": true
+    },
+    "4:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "5:ash_anya_scattering_seed.png": {
+      "x": 20,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "6:ash_ruth_planting_seeds.png": {
+      "x": 40,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "7:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "8:ash_leah_clearing_weeds.png": {
+      "x": 55.52083954215007,
+      "y": 71.31745951652445,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": true,
+      "visible": true
+    },
+    "9:ash_jo_brushing_headstone.png": {
+      "x": 20,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_hal_tending_grave.png": {
+      "x": 40,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": false
+    },
+    "11:ash_ruth_mother_laying_flowers.png": {
+      "x": 80,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": false
+    },
+    "12:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    }
+  },
+  "ash:editor:day30:violent:normal/approach/desktop": {
+    "background:ash_cemetery_stage_0_abandoned.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_1_restoration.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": false
+    },
+    "background:ash_cemetery_stage_2_restored.png": {
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 100,
+      "scale": 1,
+      "z": 1,
+      "flip": false,
+      "visible": true
+    },
+    "0:ash_cemetery_gate_closed.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "1:ash_cemetery_gate_open.png": {
+      "x": 50,
+      "y": 59,
+      "width": 80,
+      "height": 76,
+      "scale": 1,
+      "z": 20,
+      "flip": false,
+      "visible": false
+    },
+    "2:ash_miriam_hiding_grave.png": {
+      "x": 25,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 5,
+      "flip": false,
+      "visible": false
+    },
+    "3:ash_miriam_tending_restored_grave.png": {
+      "x": 27.187503370500515,
+      "y": 57.640208343025655,
+      "width": 28,
+      "height": 51,
+      "scale": 0.72,
+      "z": 10,
+      "flip": false,
+      "visible": true
+    },
+    "4:ash_procession_mourners_coffin_sprite.png": {
+      "x": 50,
+      "y": 65,
+      "width": 61,
+      "height": 55,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "5:ash_anya_scattering_seed.png": {
+      "x": 50.43154384307336,
+      "y": 51.21163799571765,
+      "width": 28,
+      "height": 51,
+      "scale": 0.51,
+      "z": 5,
+      "flip": true,
+      "visible": true
+    },
+    "6:ash_ruth_planting_seeds.png": {
+      "x": 40,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 6,
+      "flip": false,
+      "visible": false
+    },
+    "7:ash_tomas_raking_soil.png": {
+      "x": 60,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 7,
+      "flip": false,
+      "visible": false
+    },
+    "8:ash_leah_clearing_weeds.png": {
+      "x": 80,
+      "y": 61,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 8,
+      "flip": false,
+      "visible": false
+    },
+    "9:ash_jo_brushing_headstone.png": {
+      "x": 20,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    },
+    "10:ash_hal_tending_grave.png": {
+      "x": 46.1755970880692,
+      "y": 74.30687837362296,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 10,
+      "flip": false,
+      "visible": true
+    },
+    "11:ash_ruth_mother_laying_flowers.png": {
+      "x": 80,
+      "y": 71,
+      "width": 28,
+      "height": 51,
+      "scale": 1,
+      "z": 12,
+      "flip": false,
+      "visible": true
+    },
+    "12:ash_ruth_mother_reunion.png": {
+      "x": 51,
+      "y": 63,
+      "width": 36,
+      "height": 58,
+      "scale": 1,
+      "z": 9,
+      "flip": false,
+      "visible": false
+    }
+  }
+});

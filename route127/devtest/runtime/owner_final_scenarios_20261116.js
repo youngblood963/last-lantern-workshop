@@ -28,6 +28,7 @@
  };
  const clean=v=>String(v||'').toUpperCase().replace(/^EAST ROAD — /,'').trim();
  const ruralByTitle=new Map([
+  ['THE ASH PROCESSION',{scene:'ash_procession_road_arrival.png',dir:'cemetery',composition:'sky'}],
   ['COUNTY OFFICES',{scene:'county_offices.png',composition:'road',units(combat){
    if(!combat&&player.flags.r18CalebRescued&&player.encounterDone?.[roadTurn]?.has?.('FORCE OFFICE 204'))
     return [{name:'caleb_reed.png',dir:'scenarios',index:0,hp:false}];
@@ -57,29 +58,37 @@
   ['WARD OF THE FORGOTTEN',{scene:'st_mercy_hospital.png',dir:'locations',composition:'none'}]
  ]);
  const ruralById=new Map([
+  ['east:4','THE ASH PROCESSION'],
   ['early:12','COUNTY OFFICES'],['early:7','THE DARK CELLAR'],['early:40','THE WHEELBARROW'],['early:42','THE COIN WELL'],
   ['early:47','RATS IN THE PANTRY'],['early:63','THE SAGGING FARMHOUSE'],['early:65','DUST OVER THE SCHOOLYARD'],
   ['early:166','CORNFIELD STALKERS'],['early:167','TERRITORIAL FARMERS'],['early:168','FERAL BULL'],
   ['east:81','WARD OF THE FORGOTTEN']
  ]);
+ const cemeteryTitle='ASH CEMETERY — ARRIVAL';
+ const cemeterySpec={
+  scene:'ash_cemetery_stage_0_abandoned.png',dir:'cemetery',composition:'sky',
+  units:()=>[{name:'ash_cemetery_gate_closed.png',dir:'cemetery',index:0,hp:false}]
+ };
  function ruralSelection(){
+  const active=globalThis.Route127CombatLayouts?.activeScene();
+  if(active?.id==='ash:arrival')return {title:cemeteryTitle,spec:cemeterySpec,combat:null,active};
   if(typeof stage==='undefined'||!(stage==='encounter'||phases.has(stage)))return null;
   const combat=typeof combatState!=='undefined'?combatState:null;
   if(phases.has(stage)&&combat?.source!=='encounter')return null;
-  const active=globalThis.Route127CombatLayouts?.activeScene();
   const encounter=typeof currentEncounter==='function'?currentEncounter():null;
   const title=ruralById.get(active?.id)||clean(encounter?.title||combat?.name);
   const spec=ruralByTitle.get(title);
   return spec?{title,spec,combat:phases.has(stage)?combat:null,active}:null;
  }
  function selection(){
-  if(typeof stage==='undefined'||!(stage==='encounter'||phases.has(stage)))return null;
+  if(typeof stage==='undefined'||!(stage==='encounter'||stage==='r18Ash'||phases.has(stage)))return null;
   const encounter=typeof currentEncounter==='function'?currentEncounter():null;
   const combat=typeof combatState!=='undefined'?combatState:null;
   if(phases.has(stage)&&combat?.source!=='encounter')return null;
   const rural=ruralSelection();
   if(rural)return {type:'rural',...rural,region:typeof route127CurrentRegion==='function'?
    route127CurrentRegion(typeof lanternState==='function'?lanternState():null):'EAST'};
+  if(stage==='r18Ash')return null;
   const type=aliases[clean(encounter?.title)]||aliases[clean(encounter?.displayName)]||
    (phases.has(stage)?combat?.wo3Drone?'floodlight':combat?.wo4Sniper?'sniper':
     aliases[clean(combat?.name)]:null);
@@ -171,8 +180,9 @@
   const active=globalThis.Route127CombatLayouts?.activeScene();
   const interior=active?.id==='scripted:r18stationevelyn'?'evelyn_cross_station_nine.png':
    active?.id==='seaport:caleb-docks'?'caleb_seaport_docks.png':null;
-  if(interior){
-   const art=file('locations',interior);
+  const cottage=stage==='mercy'&&mercyLocation==='ashSurvivorCottage';
+  if(interior||cottage){
+   const art=cottage?file('cemetery','ash_ruth_mother_solace_cottage.png'):file('locations',interior);
    if(this.sceneArtworkReady(art)){
     model.art=art;model.regionalSky=null;model.scenarioBackdrop=null;model.causewayBacking=false;
    }
@@ -209,7 +219,9 @@
     }
    }else if(spec.scene&&spec.composition==='sky'){
     const sky=regional(skyName()),art=file(spec.dir||'scenarios',spec.scene);
-    if([sky,art].map(url=>this.sceneArtworkReady(url)).every(Boolean)){
+    const dependencies=[sky,art];
+    if(target.title===cemeteryTitle)dependencies.push(...spec.units().map(asset=>file(asset.dir,asset.name)));
+    if(dependencies.map(url=>this.sceneArtworkReady(url)).every(Boolean)){
      model.art=sky;model.regionalSky=null;model.causewayBacking=false;
      model.scenarioBackdrop={art:sky,mode:'sky'};
     }
@@ -273,6 +285,9 @@
   .gfx-art.r127-north-art>.r127-final-sprites .r127-final-unit:not(.r127-final-freight){z-index:2}
   .gfx-art.r127-north-art>.r127-final-sprites .r127-final-unit[data-pair='false']:not(.r127-final-freight){left:50%}
   .gfx-art.r127-north-art>.gfx-art-caption{z-index:10}
+  .gfx-art.r127-ash-arrival[data-r127-final-period="dusk"]>.gfx-image{filter:sepia(.42) hue-rotate(-18deg) saturate(1.4)}
+  .gfx-art.r127-ash-arrival>.r127-final-sprites .r127-final-unit:not(.r127-final-freight){left:50%;width:80%;height:76%;bottom:3%;pointer-events:none}
+  .gfx-art.r127-ash-arrival>.r127-final-sprites .r127-final-unit:not(.r127-final-freight)>img{height:100%}
   @media(max-width:600px){.gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-unit{height:79%;width:42%}.gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-unit.r127-final-freight{height:90%;width:98%}}
  `;
  document.head.append(style);
@@ -311,12 +326,14 @@
    const drawsSky=this.displaysArtwork(regional(skyName()));
    const active=globalThis.Route127CombatLayouts?.activeScene();
    if(northernSkyScenes.has(active?.id)&&!drawsSky)north=null;
+   if(!drawsSky&&['THE ASH PROCESSION',cemeteryTitle].includes(target?.title)){target=null;north=null;}
    if(target?.title==='COUNTY OFFICES'&&!drawsSky)north=null;
    if((target?.type==='freight'||target?.type==='rural'&&target.spec.composition==='road')&&!drawsSky)target=null;
    const on=!!(target||north)&&!e.frame.hidden&&this.preference()==='graphics';
    const figure=e.figure;
    figure.classList.toggle('r127-final-encounter',on&&!!target);
    figure.classList.toggle('r127-north-art',on&&!!north);
+   figure.classList.toggle('r127-ash-arrival',on&&target?.title===cemeteryTitle);
    figure.classList.toggle('r127-final-cinematic',on&&target?.type==='rural'&&!!target.spec.scene&&target.spec.composition==='sky');
    if(on&&target?.type==='rural'&&['THE COIN WELL','THE DARK CELLAR','THE SAGGING FARMHOUSE'].includes(target.title))figure.dataset.r127SideCrop='true';
    else delete figure.dataset.r127SideCrop;

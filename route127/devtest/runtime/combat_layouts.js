@@ -271,7 +271,8 @@
   units:[],phase:'approach',variant,background:locationArt(file),composition
  }))]));
  // Fixed location art follows the canonical encounter ID across registry aliases.
- const fixedLocationScenes=new Map([
+ const canonicalScenes=new Map([
+  ['east:4',[{units:[],phase:'approach',variant:'Roadside procession',background:'assets/cemetery/ash_procession_road_arrival.png',composition:'sky'}]],
   ['early:12',[
    {units:[enemy('janitor_harlan.png')],phase:'approach',variant:'County Offices — Harlan',background:scenery('county_offices.png'),composition:'road'},
    {units:[scenery('caleb_reed.png')],phase:'approach',variant:'Caleb Reed freed',background:scenery('county_offices.png'),composition:'road'},
@@ -298,7 +299,7 @@
   byTitle.set(title,id);
   if(rows.has(id))continue;
   const westernVariants=western?.scenes.get(title);
-  const fixedVariants=fixedLocationScenes.get(id);
+  const fixedVariants=canonicalScenes.get(id);
   const variants=fixedVariants||westernVariants||lowlandsCinematics.get(id)||northernRuntimeScenes.get(id)||states.get(title)||[];
   const regionalSprites=Object.hasOwn(lowlandsSprites,title);
   const fight=regionalSprites||!!entry.encounter.combat||entry.references?.some(ref=>ref.category==='combat')||
@@ -410,6 +411,12 @@
   rows.set(id,{id,name,title:normalize(name),classification:'FIXED',regions:[region],
    combat:false,fullCinematic:true,variants:[{units:[],phase:'approach',variant:name,background:locationArt(file),composition:'none'}]});
  }
+ const ashGate='assets/cemetery/ash_cemetery_gate_closed.png';
+ rows.set('ash:arrival',{id:'ash:arrival',title:'ASH CEMETERY — ARRIVAL',name:'Ash Cemetery — Arrival',
+  classification:'FIXED',regions:['WEST'],combat:false,fullCinematic:true,
+  nonCombatantAssets:['ash_cemetery_gate_closed.png'],initialPositions:[[50,59,80,76,1,false,2]],
+  variants:[{units:[ashGate],phase:'approach',variant:'Closed gate',
+   background:'assets/cemetery/ash_cemetery_stage_0_abandoned.png',composition:'sky'}]});
  // The scripted loop above allocates the canonical serviceBoss row; attach its
  // cinematic art AFTER that loop so it is not overwritten with an empty variant.
  // Red fights in the same fully illustrated Rusty Anchor portrait used in dialogue.
@@ -611,6 +618,10 @@
   if(!c&&stage==='r18Station'&&globalThis.Route127StationNinePresentation?.viewingEvelyn())
    return {id:'scripted:r18stationevelyn',phase:'approach'};
   if(!c&&stage==='r11Caleb'&&player.flags.r18CalebRescued)return {id:'seaport:caleb-docks',phase:'approach'};
+  if(!c&&stage==='r18Ash'){
+   const q=player.flags.r18Ash;
+   if(q&&!q.ending&&!q.focus&&!q.confronting)return {id:'ash:arrival',phase:'approach'};
+  }
   if(c?.r18Harlan)return {id:'early:12',phase:'combat'};
   if(c?.r18DanielCaptors)return {id:'factory:captors',phase:'combat'};
   if(stage==='factoryDungeonRoom'&&!c){

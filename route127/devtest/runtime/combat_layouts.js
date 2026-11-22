@@ -586,22 +586,24 @@
   for(const [scene,units] of Object.entries(incoming))next[scene]={...next[scene],...units};
   save(next);
  }
+ const ashGateClosed=cemeteryAsset('ash_cemetery_gate_closed');
  const ashGateOpen=cemeteryAsset('ash_cemetery_gate_open');
  const ashElias=cemeteryAsset('ash_elias_vane_undertaker');
  const ashReunion=cemeteryAsset('ash_ruth_mother_reunion');
  const ashMother=cemeteryAsset('ash_ruth_mother_laying_flowers');
  function cemeteryPresentation(q,currentDay,mode,device='desktop'){
-  if(!q)return null;
-  const elapsed=Math.max(0,(Number(currentDay)||1)-(Number(q.completedDay)||1));
+  const locked=mode==='locked';
+  if(!q&&!locked)return null;
+  const elapsed=Math.max(0,(Number(currentDay)||1)-(Number(q?.completedDay)||1));
   const milestone=elapsed>=30?'day30':elapsed>=14?'day14':elapsed>=7?'day7':elapsed>=3?'day3':'day0';
   const special=mode==='reunion'||mode==='combat';
-  const resolved=!!q.ending&&!special;
+  const resolved=!!q?.ending&&!special;
   const id=cemeteryId(resolved?milestone:'discovery',resolved?q.ending:'mercy',mode==='reunion'?'reunion':'normal');
   const row=rows.get(id);
   const supported=row?.variants[0];
   if(!supported)return null;
   const placements={...published[sceneKey(id,'approach','desktop')],...published[sceneKey(id,'approach',device)]};
-  const selected=mode==='reunion'?[ashGateOpen,ashReunion]:mode==='combat'?[ashGateOpen,ashElias]:null;
+  const selected=locked?[ashGateClosed]:mode==='reunion'?[ashGateOpen,ashReunion]:mode==='combat'?[ashGateOpen,ashElias]:null;
   const background=resolved?row.cemetery.backgrounds.find(path=>placements['background:'+assetName(path)]?.visible)||supported.background:cemeteryBackgrounds[0];
   const backdrop=placements['background:'+assetName(background)];
   if(!backdrop)return null;
@@ -611,8 +613,8 @@
    if(!placement)continue;
    const gate=row.cemetery.gates.includes(path);
    const visible=selected?selected.includes(path):gate?!resolved&&path===ashGateOpen:placement.visible;
-   if(!visible||path===ashMother&&!q.reunionSeen||!special&&path===ashReunion||
-      q.ending==='violent'&&[ashElias,restoringElias].includes(path))continue;
+   if(!visible||path===ashMother&&!q?.reunionSeen||!special&&path===ashReunion||
+      q?.ending==='violent'&&[ashElias,restoringElias].includes(path))continue;
    const hp=mode==='combat'&&path===ashElias;
    const gateLayer=hp?placements['1:'+assetName(ashGateOpen)]?.z??0:0;
    layers.push({path,index,placement:{...placement,z:Math.max(placement.z,backdrop.z+1,gateLayer+1)},hp});

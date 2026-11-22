@@ -1,7 +1,45 @@
 // Ash Cemetery preserves the chosen resolution and inscription in saved player flags.
 if(!GEAR["Keeper's Lantern"])Object.defineProperty(GEAR,"Keeper's Lantern",{value:{type:'accessory',rarity:'epic',combatXpBonus:.05,questOnly:true},enumerable:false});
 const R18_ASH_INSCRIPTIONS={mercy:'For those who deserved another chance.',justice:'For those who were never given justice.',violent:'For those who refused to surrender the living.',redemption:'For those who chose to carry the weight of their sins.'};
-function r18AshDiscover(){const g=lanternState();if(!g?.currentEdgeId)return false;player.flags.r18Ash=player.flags.r18Ash||{edge:g.currentEdgeId,step:g.stepIndex,clues:{},ending:null};return true;}
+const r18AshSite=Object.freeze({edge:'trade-route--industrial-junction',step:2});
+let r18AshPreviewVisit=null;
+function r18AshPreviewState(){
+ const g=lanternState();
+ if(player.flags.r18Ash||g?.pending||g?.currentEdgeId!==r18AshSite.edge||g.stepIndex!==r18AshSite.step)return null;
+ if(r18AshPreviewVisit?.road!==g||r18AshPreviewVisit.serial!==g.moveSerial)
+  r18AshPreviewVisit={road:g,serial:g.moveSerial,phase:'arrival'};
+ return r18AshPreviewVisit.phase==='dismissed'?null:r18AshPreviewVisit;
+}
+function r18AshPreviewMenu(preview){
+ add('AN ABANDONED CEMETERY','place');
+ if(preview.phase==='examined'){
+  add('Beyond a rusted iron gate lies an abandoned cemetery. Weathered headstones lean beneath the weeds, and a crumbling mausoleum stands beyond the fence. The gate is chained shut. Whatever happened here, nobody seems eager to remember it.','system');
+  return r5DirectChoices(['CONTINUE TRAVELING']);
+ }
+ return r5DirectChoices(['EXAMINE THE CEMETERY','CONTINUE TRAVELING']);
+}
+function r18AshPreviewCommand(cmd,preview){
+ if(cmd==='examine the cemetery'){
+  preview.phase='examined';
+  r18AshPreviewMenu(preview);
+  return true;
+ }
+ if(['continue traveling','back','b'].includes(cmd)){
+  preview.phase='dismissed';
+  lanternRoadMenu();
+  return true;
+ }
+ return false;
+}
+function r18AshDiscover(){
+ const g=lanternState();
+ if(!g?.currentEdgeId)return false;
+ if(!player.flags.r18Ash){
+  player.flags.r18Ash={...r18AshSite,clues:{},ending:null};
+  add('ASH CEMETERY MARKED — On the road from Trade Route toward Industrial Junction.','system');
+ }
+ return true;
+}
 function r18AshAtOrigin(){const q=player.flags.r18Ash,g=lanternState();if(!q||!g)return false;if(g.currentEdgeId)return q.edge===g.currentEdgeId&&q.step===g.stepIndex;const e=LG_EDGES[q.edge];return !!e&&(q.step===0&&g.nodeId===e.a||q.step===e.distanceTurns&&g.nodeId===e.b);}
 function r18AshAvailable(){const g=lanternState();return !!g&&!g.pending&&r18AshAtOrigin();}
 function r18AshEnter(){if(!r18AshAtOrigin())return false;stage='r18Ash';r18AshMenu();return true;}

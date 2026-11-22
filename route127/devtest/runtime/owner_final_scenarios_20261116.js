@@ -28,7 +28,7 @@
  };
  const clean=v=>String(v||'').toUpperCase().replace(/^EAST ROAD — /,'').trim();
  const ruralByTitle=new Map([
-  ['THE COIN WELL',{scene:'the_coin_well.png'}],
+  ['THE COIN WELL',{scene:'the_coin_well.png',composition:'road'}],
   ['RATS IN THE PANTRY',{scene:'rats_in_the_pantry.png',composition:'road',units(combat){return combat?Array(3).fill(0).map((_,index)=>({name:'pantry_rat.png',index,hp:true})):[];}}],
   ['DUST OVER THE SCHOOLYARD',{scene:'dust_over_the_schoolyard.png',units(combat){
    if(combat?.name==='SCHOOLYARD BUCK')return [{name:'territorial_buck.png',index:0,hp:true}];

@@ -63,6 +63,7 @@ function v53WandererMenu(w,road){
 }
 const v53OldRender=renderCurrentChoices;
 renderCurrentChoices=function(){
+ if(stage==='mercy'&&['ashSurvivorTownsfolk','ashSurvivorCottage'].includes(mercyLocation))return player.flags.r18Ash?.reunionAvailable?ashSurvivorMenu():ashSurvivorCommand('return to town');
  if(player.flags.v53Sale&&['mercy','wandererRoad'].includes(stage))return v53SaleMenu();
  if(player.flags.v53BoardEntry)return v53BoardPrompt();
  if(player.flags.v53BoardDraft!==undefined)return v53BoardConfirm();
@@ -110,8 +111,45 @@ function r18MarthaCommand(cmd){if(mercyLocation!=='johnny'||player.flags.solaceM
   i.qty--;if(!i.qty)player.pack.splice(player.pack.indexOf(i),1);delete f.r18MarthaSale;gainBolts(q.price);updateHud();add('Martha pays '+q.price+' Bolts for '+q.name+'.','reward');const reaction=(typeof OLD_WORLD_TREASURES==='undefined'?null:OLD_WORLD_TREASURES[q.name]?.reaction);if(reaction)add('MARTHA > '+reaction,'bright');if(typeof v49Autosave==='function')v49Autosave();r18MarthaMenu();return true;}
  r18MarthaMenu();return true;}
 function r18GideonMenu(){mercyLocation='gideon';player.flags.solaceMenu='gideon';add('GIDEON — SALT AND PRESERVATION','place');add('GIDEON > Salt gives food a better chance of lasting the road.','bright');v53Choices(['LEARN PRESERVATION','ASK ABOUT PRESERVATION','RETURN TO TOWN']);}
+const ashMotherResponses=new Map([
+ ['i found your daughter',"Ruth? My Ruth? She's alive? After all these years?"],
+ ["ruth thinks you're dead","Of course she does. I tried to find her. I never stopped looking."],
+ ["she's waiting at ash cemetery","Ash Cemetery? Then that's where I need to be."]
+]);
+function ashSurvivorMenu(){
+ if(mercyLocation==='ashSurvivorTownsfolk'){
+  add('SOLACE — ASK THE TOWNSFOLK','place');
+  add("TOWNFOLK > You're looking for a woman who survived the abandonment? There's an older lady living in a cottage near the edge of town. Might be who you're looking for.",'bright');
+  return r5DirectChoices(['VISIT THE COTTAGE','RETURN TO TOWN']);
+ }
+ add("SOLACE — RUTH'S MOTHER'S COTTAGE",'place');
+ if(player.flags.r18Ash.reunion)return r5DirectChoices(['RETURN TO TOWN']);
+ add("RUTH'S MOTHER > You found me. But why? What happened?",'bright');
+ return r5DirectChoices([...Array.from(ashMotherResponses.keys(),choice=>choice.toUpperCase()),'RETURN TO TOWN']);
+}
+function ashSurvivorCommand(cmd){
+ const q=player.flags.r18Ash;
+ if(['return to town','back','b'].includes(cmd)||!q?.reunionAvailable){
+  mercyLocation='town';
+  return mercyMenu();
+ }
+ if(mercyLocation==='ashSurvivorTownsfolk'){
+  if(!q.reunion&&cmd==='visit the cottage')mercyLocation='ashSurvivorCottage';
+  return ashSurvivorMenu();
+ }
+ const answer=ashMotherResponses.get(cmd.trim().replace(/[.]+$/,'').replaceAll('’',"'"));
+ if(q.reunion||!answer)return ashSurvivorMenu();
+ add("RUTH'S MOTHER > "+answer,'bright');
+ add("RUTH'S MOTHER > Tell her I'm coming. Please. Tell her I'm alive.",'bright');
+ q.reunion=true;
+ return r5DirectChoices(['RETURN TO TOWN']);
+}
 const v53OldSolace=handleSolace;handleSolace=function(cmd,raw=cmd){
- if(mercyLocation==='town'&&cmd==='seek ash survivor'&&player.flags.r18Ash?.reunionAvailable&&!player.flags.r18Ash?.reunion){player.flags.r18Ash.reunion=true;add('A Solace resident recognizes the letter. She agrees to meet her daughter at Ash Cemetery.','reward');mercyMenu();return;}
+ if(mercyLocation==='town'&&cmd==='seek ash survivor'&&player.flags.r18Ash?.reunionAvailable&&!player.flags.r18Ash.reunion){
+  mercyLocation='ashSurvivorTownsfolk';
+  return ashSurvivorMenu();
+ }
+ if(['ashSurvivorTownsfolk','ashSurvivorCottage'].includes(mercyLocation))return ashSurvivorCommand(cmd);
  if(mercyLocation==='town'&&cmd==='post office'&&player.flags.r18Courier?.phase==='service'){r18CourierMenu();return;}
  if(mercyLocation==='postOffice'&&player.flags.r18Courier?.phase==='service'){r18CourierCommand(cmd);return;}
  if(mercyLocation==='tim'&&cmd==='deliver tim letter'&&r18CourierEligible('tim')){r18CourierDeliver('tim');v53TimMenu();return;}

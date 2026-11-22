@@ -376,20 +376,24 @@
     preview.dataset.devtestWandererPreview='true';
     panel.insertBefore(turns,close||null);
     panel.insertBefore(preview,close||null);
-    const combat=this.button('Combat Visual Testing',()=>{
+    const openArtwork=(show,fallback)=>{
       this.close();
-      const show=()=>Route127CombatLayoutEditor.show(showCombatPreview);
       if(globalThis.Route127CombatLayoutEditor){show();return;}
       if(document.querySelector('script[data-r127-layout-editor-loading]'))return;
       const script=document.createElement('script');
       script.dataset.r127LayoutEditorLoading='true';
       script.src=layoutEditorSource;
-      script.onload=()=>{script.remove();if(globalThis.Route127CombatLayoutEditor)show();else showCombatPreview();};
-      script.onerror=()=>{script.remove();showCombatPreview();};
+      script.onload=()=>{script.remove();if(globalThis.Route127CombatLayoutEditor)show();else fallback();};
+      script.onerror=()=>{script.remove();fallback();};
       document.head.appendChild(script);
-    });
+    };
+    const combat=this.button('Combat Visual Testing',()=>openArtwork(
+      ()=>Route127CombatLayoutEditor.show(showCombatPreview),showCombatPreview));
     combat.dataset.devtestCombatPreview='true';
     panel.insertBefore(combat,close||null);
+    const cemetery=this.button('Ash Cemetery Visual Editor',()=>openArtwork(
+      ()=>Route127CombatLayoutEditor.showCemetery(),()=>add('Ash Cemetery Visual Editor could not load.','system')));
+    panel.insertBefore(cemetery,close||null);
     const minigames=this.button('Minigame Testing',()=>{
       this.close();
       Route127MinigameTesting.open();

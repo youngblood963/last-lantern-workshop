@@ -19,7 +19,7 @@
  const reviewKey='route127-scenario-reviews-v1';
  const animatedTitles=new Set(['THE LIME FOG','THE RED RAIN','THE GLASS FIELD']);
  // Owner confirmed these Seaport-eligible scenes are complete in Combat Visual Testing.
- const ownerApprovedScenes=new Set(['THE FORGOTTEN ARENA','THE FIGHTING RING','WARD OF THE FORGOTTEN']);
+ const ownerApprovedScenes=new Set(['THE FORGOTTEN ARENA','THE FIGHTING RING']);
  const ownerApproved=row=>ownerApprovedScenes.has(String(row.title||'').toUpperCase())||ownerApprovedScenes.has(String(row.name||'').toUpperCase());
  const industrialApproved=row=>['THE BLACK SNOW','CEMETERY OF TIRES'].includes(String(row.title||'').toUpperCase());
  const ownerIndustrialDone=row=>['LIVE WIRES','THE FURNACE PIT','FURNACE PIT'].includes(String(row.title||'').toUpperCase());
@@ -145,7 +145,7 @@
    // preventing a later manual Needs Review toggle.
    const wardSeed=reviewKey+'-ward-forgotten-approved-20261122-v2';
    if(!localStorage.getItem(wardSeed)){
-    for(const row of L.rows.values())if(row.id==='east:81'||String(row.title||'').toUpperCase()==='WARD OF THE FORGOTTEN')reviews.add(row.id);
+    for(const row of L.rows.values())if(row.id==='east:81')reviews.add(row.id);
     localStorage.setItem(reviewKey,JSON.stringify([...reviews]));
     localStorage.setItem(wardSeed,'1');
    }
@@ -154,10 +154,6 @@
  }
  const progressLabels={green:'🟢 Reviewed / Done',yellow:'🟡 Artwork ready · Needs review',red:'🔴 Missing artwork',checking:'⏳ Checking artwork'};
  function progress(row,reviews){
-  // The approved Ward of the Forgotten is a complete location scene, not an
-  // enemy-sprite encounter. Respect manual review toggles even if a legacy
-  // missing-combat flag survives on its registry row.
-  if(row.id==='east:81'||String(row.title||'').toUpperCase()==='WARD OF THE FORGOTTEN')return reviews.has(row.id)?'green':'yellow';
   if(row.missingCombatArtwork)return 'red';
   // Owner-approved standalone GIF is complete despite its scenario being combat-tagged.
   // No separate combat sprites are required for this fully illustrated scene.

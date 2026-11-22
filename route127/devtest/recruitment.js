@@ -1,10 +1,17 @@
 // Seaport rebuilding. All ownership belongs to this player's existing save.
+// Lisa only joins the roaming roster after a peaceful Locked Freezer rescue.
+// Keep one definition in the roster so save/load and standard wanderer systems work.
+const lisaStevens={name:'Lisa Stevens',level:4,definitionLevel:4,occupation:'Cook',vibe:'resilient and upbeat',
+ lines:['LISA > I thought that freezer was going to be my grave. Good to see open sky again.',
+        'Lisa checks her supplies and smiles. "No more locked doors for me."']};
+if(!wandererByName(lisaStevens.name))wanderers.push(lisaStevens);
+if(!Object.prototype.hasOwnProperty.call(wandererLocations,lisaStevens.name))wandererLocations[lisaStevens.name]='road';
 const PORT_STAFF_ROLES={clinic:{name:'Clinic',job:'Medic',skill:'medicine'},'general store':{name:'General Store',job:'Trader',skill:'trading'},workshop:{name:'Workshop',job:'Mechanic',skill:'mechanics'},bank:{name:'Bank',job:'Banker',skill:'banking'}};
 function r18EnsureEli(){if(!player.flags.r18EliRescued||player.flags.seaport55?.freed!==true)return;let w=wandererByName('Eli Mercer');if(!w){w={name:'Eli Mercer',level:6,definitionLevel:6,occupation:'Mechanic',vibe:'practical',lines:['ELI > I can keep a machine running if you give me the parts.','Eli checks the tools in his battered county bag.']};wanderers.push(w);}if(!Number.isInteger(w.definitionLevel))w.definitionLevel=6;if(typeof v50EnsureWandererLevel==='function')v50EnsureWandererLevel(w);const st=ws(w.name);if(!st.seaportAptitudes)st.seaportAptitudes={medicine:2,trading:2,mechanics:5,banking:2};if(!Object.prototype.hasOwnProperty.call(wandererLocations,w.name))wandererLocations[w.name]='road';}
 function r18QuestNpcAllowed(name){const f=player.flags;if(f.seaport55?.freed!==true)return false;if(name==='Eli Mercer')return !!f.r18EliRescued;if(name==='Enid')return !!f.r18EnidLanternPromised;if(name==='Owen Mercer')return f.r18OilOutcome==='rescued';return true;}
 function r18EnsureQuestNpc(name,lines,aptitudes){if(!r18QuestNpcAllowed(name))return;let w=wandererByName(name);if(!w){w={name,level:6,definitionLevel:6,occupation:'Mechanic',vibe:'practical',lines};wanderers.push(w);}if(!Number.isInteger(w.definitionLevel))w.definitionLevel=6;if(typeof v50EnsureWandererLevel==='function')v50EnsureWandererLevel(w);const st=ws(name);if(!st.seaportAptitudes)st.seaportAptitudes={...aptitudes};if(!Object.prototype.hasOwnProperty.call(wandererLocations,name))wandererLocations[name]='road';}
 function r18EnsureOtherRescues(){r18EnsureQuestNpc('Enid',['ENID > A little metal and patience can build more than you think.','Enid checks the tools in her bag.'],{medicine:2,trading:3,mechanics:5,banking:2});r18EnsureQuestNpc('Owen Mercer',['OWEN > I know my way around a broken pump.','Owen checks the fasteners on his repair kit.'],{medicine:2,trading:2,mechanics:4,banking:3});}
-const r18OldWandererAlive=wandererAlive;wandererAlive=function(w){if(w&&['Eli Mercer','Enid','Owen Mercer'].includes(w.name)&&!r18QuestNpcAllowed(w.name))return false;return r18OldWandererAlive(w);};
+const r18OldWandererAlive=wandererAlive;wandererAlive=function(w){if(w?.name==='Lisa Stevens'&&!player.flags.r18FreezerRescueReward)return false;if(w&&['Eli Mercer','Enid','Owen Mercer'].includes(w.name)&&!r18QuestNpcAllowed(w.name))return false;return r18OldWandererAlive(w);};
 function portRecruitUnlocked(){const unlocked=player.flags.seaport55?.freed===true;if(unlocked){r18EnsureEli();r18EnsureOtherRescues();}return unlocked;}
 function portStaffState(){return player.flags.seaportStaff||(player.flags.seaportStaff={hired:[],assignments:{}});}
 function portIsHired(name){return !!player.flags.seaportStaff?.hired.includes(name);}

@@ -471,7 +471,8 @@
    records.unshift(...backgrounds.map(path=>({path,key:'background:'+L.assetName(path),background:true})));
    const context={id:row.id,phase:phase.value};
    const live=cemeteryMode?{}:L.capture(context,device.value);
-   const saved=cemeteryMode?L.local()[L.sceneKey(row.id,phase.value,device.value)]||{}:L.get(row.id,phase.value,device.value);
+   const layoutKey=L.sceneKey(row.id,phase.value,device.value);
+   const saved=cemeteryMode?{...L.published()[layoutKey],...L.local()[layoutKey]}:L.get(row.id,phase.value,device.value);
    const shared=cemeteryMode?L.local()[L.sceneKey(row.cemetery.shared,phase.value,device.value)]||{}:{};
    const selectedBackground=cemeteryMode?backgrounds.find(path=>saved['background:'+L.assetName(path)]?.visible===true)||spec.background:null;
    for(const key of Object.keys(saved))if(key.startsWith('attachment:')&&L.installed.has(key.slice(11))){
@@ -677,7 +678,7 @@
    }catch(error){updateStatus(error.message);}
   });
   button(actions,'Export Layout JSON',()=>{
-   transfer.hidden=false;transfer.value=L.json(cemeteryMode?cemeteryOnly(L.local()):L.merged());transfer.select();
+   transfer.hidden=false;transfer.value=L.json(cemeteryMode?cemeteryOnly(L.merged()):L.merged());transfer.select();
    updateStatus('Copy this JSON to share exact saved layouts.');
   });
   button(actions,'Import / Apply Layout JSON',()=>{

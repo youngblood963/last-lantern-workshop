@@ -586,6 +586,41 @@
   for(const [scene,units] of Object.entries(incoming))next[scene]={...next[scene],...units};
   save(next);
  }
+ const ashGateClosed=cemeteryAsset('ash_cemetery_gate_closed');
+ const ashGateOpen=cemeteryAsset('ash_cemetery_gate_open');
+ const ashElias=cemeteryAsset('ash_elias_vane_undertaker');
+ const ashReunion=cemeteryAsset('ash_ruth_mother_reunion');
+ const ashMother=cemeteryAsset('ash_ruth_mother_laying_flowers');
+ function cemeteryPresentation(q,currentDay,mode,device='desktop'){
+  const locked=mode==='locked';
+  if(!q&&!locked)return null;
+  const elapsed=Math.max(0,(Number(currentDay)||1)-(Number(q?.completedDay)||1));
+  const milestone=elapsed>=30?'day30':elapsed>=14?'day14':elapsed>=7?'day7':elapsed>=3?'day3':'day0';
+  const special=mode==='reunion'||mode==='combat';
+  const resolved=!!q?.ending&&!special;
+  const id=cemeteryId(resolved?milestone:'discovery',resolved?q.ending:'mercy',mode==='reunion'?'reunion':'normal');
+  const row=rows.get(id);
+  const supported=row?.variants[0];
+  if(!supported)return null;
+  const placements={...published[sceneKey(id,'approach','desktop')],...published[sceneKey(id,'approach',device)]};
+  const selected=locked?[ashGateClosed]:mode==='reunion'?[ashGateOpen,ashReunion]:mode==='combat'?[ashGateOpen,ashElias]:null;
+  const background=resolved?row.cemetery.backgrounds.find(path=>placements['background:'+assetName(path)]?.visible)||supported.background:cemeteryBackgrounds[0];
+  const backdrop=placements['background:'+assetName(background)];
+  if(!backdrop)return null;
+  const layers=[{path:background,placement:backdrop,scenery:true}];
+  for(const [index,path] of supported.units.entries()){
+   const placement=placements[unitKey(path,index)];
+   if(!placement)continue;
+   const gate=row.cemetery.gates.includes(path);
+   const visible=selected?selected.includes(path):gate?!resolved&&path===ashGateOpen:placement.visible;
+   if(!visible||path===ashMother&&!q?.reunionSeen||!special&&path===ashReunion||
+      q?.ending==='violent'&&[ashElias,restoringElias].includes(path))continue;
+   const hp=mode==='combat'&&path===ashElias;
+   const gateLayer=hp?placements['1:'+assetName(ashGateOpen)]?.z??0:0;
+   layers.push({path,index,placement:{...placement,z:Math.max(placement.z,backdrop.z+1,gateLayer+1)},hp});
+  }
+  return {id,mode,layers};
+ }
  function get(id,phase,device){
   const scene=sceneKey(id,phase,device),desktop=sceneKey(id,phase,'desktop');
   const layouts={...published[desktop],...local[desktop],...published[scene],...local[scene]};
@@ -689,10 +724,6 @@
   if(!c&&stage==='r18Station'&&globalThis.Route127StationNinePresentation?.viewingEvelyn())
    return {id:'scripted:r18stationevelyn',phase:'approach'};
   if(!c&&stage==='r11Caleb'&&player.flags.r18CalebRescued)return {id:'seaport:caleb-docks',phase:'approach'};
-  if(!c&&stage==='r18Ash'){
-   const q=player.flags.r18Ash;
-   if(q&&!q.ending&&!q.focus&&!q.confronting)return {id:'ash:arrival',phase:'approach'};
-  }
   if(c?.r18Harlan)return {id:'early:12',phase:'combat'};
   if(c?.r18DanielCaptors)return {id:'factory:captors',phase:'combat'};
   if(stage==='factoryDungeonRoom'&&!c){
@@ -936,6 +967,6 @@
   }));
  }
  globalThis.Route127CombatLayouts=Object.freeze({
-  rows,installed,root,cemeteryEditor,regionArt,assetName,unitKey,sceneKey,get,applyOverlay,local:()=>local,published:()=>published,merged,json,save,importJSON,capture,activeScene
+  rows,installed,root,cemeteryEditor,cemeteryPresentation,applyCemeteryLayout:apply,regionArt,assetName,unitKey,sceneKey,get,applyOverlay,local:()=>local,published:()=>published,merged,json,save,importJSON,capture,activeScene
  });
 })();

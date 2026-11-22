@@ -181,6 +181,19 @@ function normalizeQuestNotice(text,cls){
   if(/^(NEW QUEST|QUEST UPDATED|QUEST COMPLETED)\b/.test(text))cls="quest-banner";
   return {text,cls};
 }
+async function typeOutput(div,text,speed){
+  const node=document.createTextNode('');
+  div.appendChild(node);
+  const characters=Array.from(text);
+  const graphical=typeof GraphicalUI!=='undefined'&&GraphicalUI.active();
+  const interval=graphical?32:speed;
+  const batch=graphical?Math.max(1,Math.ceil(characters.length/28),Math.ceil(interval/speed)):1;
+  for(let i=0;i<characters.length;i+=batch){
+    node.appendData(characters.slice(i,i+batch).join(''));
+    followOutput();
+    await sleep(interval);
+  }
+}
 function add(text = "", cls = "") {
   ({text,cls}=normalizeQuestNotice(text,cls));
   if(cls.includes("place") || (!cls.includes("system") && text)) { currentHotkeys={}; numberedChoices={}; usedHotkeys=new Set(); }
@@ -194,12 +207,7 @@ function add(text = "", cls = "") {
     const paced = finalText && !cls.includes("system") && !cls.includes("reward") && !cls.includes("danger") && !cls.includes("quest-banner");
     if(paced){
       const speed = cls.includes("place") ? 24 : 18;
-      // Update one text node rather than creating a DOM node per character.
-      // Long roadside narratives otherwise produce hundreds of nodes and
-      // cause excess layout work on older iPad/Safari hardware.
-      const animatedText=document.createTextNode('');
-      div.appendChild(animatedText);
-      for(const ch of finalText){ animatedText.appendData(ch); followOutput(); await sleep(speed); }
+      await typeOutput(div,finalText,speed);
       await sleep(cls.includes("place") ? 220 : 145);
     } else { div.textContent = finalText; await sleep(finalText ? 45 : 10); }
     applyLevelEvolution(div, finalText, cls);
@@ -227,7 +235,7 @@ async function typeLine(text, cls = "", speed = 18) {
   const div = document.createElement("div");
   div.className = `line ${cls}`;
   screen.appendChild(div);
-  for (const ch of text) { div.textContent += ch; followOutput(); await sleep(speed); }
+  await typeOutput(div,text,speed);
   applyLevelEvolution(div,text,cls);
   followOutput();
 }
@@ -2427,6 +2435,7 @@ function resolveEncounter(cmd) {
   // Old Pete's browsing and purchases stay within the same encounter.
   // Do not mark wares as consumed or automatically finish the road turn:
   // this merchant was historically exclusive, which closed after EVERY purchase.
+  if(e.title==='THE WALKING PEDDLER'&&cmd==='leave')cmd='back away';
   if(e.title==='THE WALKING PEDDLER'&&cmd!=='back away'){
     // Some older graphical menus still dispatch TRADE for Browse Wares.
     // Map it to Pete's real submenu before validating encounter choices.

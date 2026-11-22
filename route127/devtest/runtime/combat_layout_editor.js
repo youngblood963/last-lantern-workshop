@@ -175,13 +175,13 @@
   if(files.some(file=>status.get(file)==='broken'))return 'Art broken';
   return files.every(file=>status.get(file)==='working')?'Art present':'Checking art';
  };
- function checkAssets(refresh){
+ function checkAssets(refresh,isClosed){
   const pending=[...new Set([...L.rows.values()].flatMap(assets))].filter(file=>!status.has(file));
   let running=0;
   function pump(){
-   while(running<6&&pending.length){
+   while(!isClosed()&&running<6&&pending.length){
     const file=pending.shift(),img=new Image();running++;status.set(file,'checking');
-    const done=result=>{status.set(file,result);running--;refresh();pump();};
+    const done=result=>{img.onload=img.onerror=null;status.set(file,result);running--;if(!isClosed()){refresh();pump();}};
     img.onload=()=>done('working');img.onerror=()=>done('broken');img.src=previewURL(file);
    }
   }
@@ -579,7 +579,7 @@
   });
   dialog.addEventListener('close',()=>{closed=true;dialog.remove();},{once:true});
   document.body.append(dialog);rebuildPicker();dialog.showModal();close.focus();
-  checkAssets(()=>{rebuildPicker();if(row&&spec)metadata.dataset.artStatus=state(row);});
+  checkAssets(()=>{rebuildPicker();if(row&&spec)metadata.dataset.artStatus=state(row);},()=>closed);
  }
  globalThis.Route127CombatLayoutEditor=Object.freeze({show});
  if(new URLSearchParams(location.search).get('visual-testing')==='1')

@@ -377,8 +377,15 @@
     panel.insertBefore(preview,close||null);
     const combat=this.button('Combat Visual Testing',()=>{
       this.close();
-      if(globalThis.Route127CombatLayoutEditor)Route127CombatLayoutEditor.show(showCombatPreview);
-      else showCombatPreview();
+      const show=()=>Route127CombatLayoutEditor.show(showCombatPreview);
+      if(globalThis.Route127CombatLayoutEditor){show();return;}
+      if(document.querySelector('script[data-r127-layout-editor-loading]'))return;
+      const script=document.createElement('script');
+      script.dataset.r127LayoutEditorLoading='true';
+      script.src='../devtest/runtime/combat_layout_editor.js?v=on-demand-1';
+      script.onload=()=>{script.remove();if(globalThis.Route127CombatLayoutEditor)show();else showCombatPreview();};
+      script.onerror=()=>{script.remove();showCombatPreview();};
+      document.head.appendChild(script);
     });
     combat.dataset.devtestCombatPreview='true';
     panel.insertBefore(combat,close||null);

@@ -7,6 +7,7 @@
       !/^\/route127\/devtest\/(?:index\.html)?$/.test(location.pathname)) return;
   if (typeof TravelerPanels === 'undefined' || typeof GraphicalUI === 'undefined') return;
 
+  const layoutEditorSource = document.currentScript.dataset.layoutEditor;
   const REGIONS = ['CENTRAL','NORTH','WEST','INDUSTRIAL','LOWLANDS','SEAPORT','EAST'];
   const TOWNS = [
     {name:'Solace',file:'solace.png'},
@@ -382,7 +383,7 @@
       if(document.querySelector('script[data-r127-layout-editor-loading]'))return;
       const script=document.createElement('script');
       script.dataset.r127LayoutEditorLoading='true';
-      script.src='../devtest/runtime/combat_layout_editor.js?v=on-demand-1';
+      script.src=layoutEditorSource;
       script.onload=()=>{script.remove();if(globalThis.Route127CombatLayoutEditor)show();else showCombatPreview();};
       script.onerror=()=>{script.remove();showCombatPreview();};
       document.head.appendChild(script);

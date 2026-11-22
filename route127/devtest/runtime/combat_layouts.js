@@ -277,6 +277,7 @@
    {units:[scenery('caleb_reed.png')],phase:'approach',variant:'Caleb Reed freed',background:scenery('county_offices.png'),composition:'road'},
    {units:[enemy('janitor_harlan.png')],phase:'combat',variant:'Janitor Harlan fight',background:scenery('county_offices.png'),composition:'road'}
   ]],
+  ['east:67',[{units:[],phase:'approach',variant:'Fresh Mart',background:locationArt('fresh_mart.png'),composition:'none'}]],
   ['east:81',[{units:[],phase:'approach',variant:'St. Mercy Hospital discovery',
    background:locationArt('st_mercy_hospital.png'),composition:'none'}]]
  ]);

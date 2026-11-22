@@ -38,7 +38,7 @@
   ['CORNFIELD STALKERS',{scene:'cornfield_stalkers_scene.png',units(){return [
    {name:'cornfield_stalker_1.png',index:0,hp:true},{name:'cornfield_stalker_2.png',index:1,hp:true}
   ];}}],
-  ['THE DARK CELLAR',{scene:'dark_cellar_scene.png'}],
+  ['THE DARK CELLAR',{scene:'dark_cellar_scene.png',composition:'road'}],
   ['THE SAGGING FARMHOUSE',{scene:'the_sagging_farmhouse.png'}],
   ['THE WHEELBARROW',{composition:'regional',units(combat){return [
    {name:'the_wheelbarrow.png',dir:'scenarios',index:0,hp:false},
@@ -218,7 +218,7 @@
   .gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-unit.r127-final-freight>img{height:100%;object-fit:contain}
   /* Coin Well is a complete painting: remove its painted left/right scenery
      without clipping the roof or base, and let the road show at the sides. */
-  .gfx-art[data-r127-coin-well="true"]>.r127-final-sprites .r127-final-unit.r127-final-freight>img{
+  .gfx-art[data-r127-side-crop="true"]>.r127-final-sprites .r127-final-unit.r127-final-freight>img{
     clip-path:inset(0 14% 0 14%);
   }
   .gfx-art:is(.r127-final-encounter,.r127-north-art)>.r127-final-sprites .r127-final-hp{font:700 clamp(10px,1.2vw,14px)/1 sans-serif;color:#fff5ef;background:#36140ff0;border:1px solid #d84b39;border-radius:3px;padding:3px 5px;margin-bottom:3px;white-space:nowrap;min-width:45px;text-align:center}
@@ -274,8 +274,8 @@
    figure.classList.toggle('r127-final-encounter',on&&!!target);
    figure.classList.toggle('r127-north-art',on&&!!north);
    figure.classList.toggle('r127-final-cinematic',on&&target?.type==='rural'&&!!target.spec.scene&&target.spec.composition==='sky');
-   if(on&&target?.type==='rural'&&target.title==='THE COIN WELL')figure.dataset.r127CoinWell='true';
-   else delete figure.dataset.r127CoinWell;
+   if(on&&target?.type==='rural'&&['THE COIN WELL','THE DARK CELLAR'].includes(target.title))figure.dataset.r127SideCrop='true';
+   else delete figure.dataset.r127SideCrop;
    let layer=figure.querySelector(':scope > .r127-final-sprites');
    let road=figure.querySelector(':scope > .r127-final-road');
    if(!on){layer?.remove();road?.remove();delete figure.dataset.r127FinalPeriod;return result;}

@@ -272,6 +272,11 @@
  }))]));
  // Fixed location art follows the canonical encounter ID across registry aliases.
  const fixedLocationScenes=new Map([
+  ['early:12',[
+   {units:[enemy('janitor_harlan.png')],phase:'approach',variant:'County Offices — Harlan',background:scenery('county_offices.png'),composition:'road'},
+   {units:[scenery('caleb_reed.png')],phase:'approach',variant:'Caleb Reed freed',background:scenery('county_offices.png'),composition:'road'},
+   {units:[enemy('janitor_harlan.png')],phase:'combat',variant:'Janitor Harlan fight',background:scenery('county_offices.png'),composition:'road'}
+  ]],
   ['east:81',[{units:[],phase:'approach',variant:'St. Mercy Hospital discovery',
    background:locationArt('st_mercy_hospital.png'),composition:'none'}]]
  ]);
@@ -298,9 +303,9 @@
   const fight=regionalSprites||!!entry.encounter.combat||entry.references?.some(ref=>ref.category==='combat')||
    variants.some(spec=>spec.phase==='combat'||spec.embedded);
   rows.set(id,{
-   id,title,name:id==='east:77'?'The Dominion Survey':title==='MOUNTAIN LIONS'?'Mountain Lion':entry.encounter.displayName||entry.name||entry.encounter.title,
+   id,title,name:id==='early:12'?'County Offices — Harlan / Caleb Reed':id==='east:77'?'The Dominion Survey':title==='MOUNTAIN LIONS'?'Mountain Lion':entry.encounter.displayName||entry.name||entry.encounter.title,
    classification:entry.classification||'GLOBAL',regions:entry.regions||[],
-   combat:!!fight,western:!!westernVariants,fullCinematic:!!fixedVariants||industrialCinematics.has(title)||title==='ABANDONED SUPPLY TRUCK',regionalSprites,variants
+   combat:!!fight,nonCombatantAssets:id==='early:12'?['caleb_reed.png']:undefined,western:!!westernVariants,fullCinematic:!!fixedVariants||industrialCinematics.has(title)||title==='ABANDONED SUPPLY TRUCK',regionalSprites,variants
   });
  }
  const ruralRows=new Map([
@@ -377,9 +382,9 @@
   ['gateGuards','Solace Gate Guard','Solace Gate','CENTRAL'],
   ['jenBoss','Raider Captain','Last Call quest'],
   ['terribleBilly','Terrible Billy','Bounty encounter'],
-  ['r18StationFight','Signal Hunters','Station Nine storyline'],
+  ['r18StationFight','Station Nine Tracker & Breacher','Station Nine tower','WEST'],
   ['r18DepotFight','County Unit 07','County Depot'],
-  ['stationNineSecurity','Station Nine Security Unit','Station Nine garage'],
+  ['stationNineSecurity','Station Nine Security Unit','Station Nine garage','WEST'],
   ['r18RedFight','Red’s Fight','Rusty Anchor','SEAPORT'],
  ];
  const scriptIds=new Map();
@@ -390,6 +395,19 @@
   rows.set(id,{id,name,title:normalize(name),classification:'FIXED',site,
    regions:region?[region]:[],combat:true,variants:source==='r18DepotFight'?
     [{units:[enemy('county_unit_07.png')],background:scenery('county_depot_interior.png'),phase:'combat',variant:'County Depot fight'}]:[]});
+ }
+ rows.get('scripted:r18stationfight').variants=[
+  {units:sprite('station_nine_tracker.png','station_nine_breacher.png'),phase:'combat',variant:'Station Nine Tracker and Breacher'}
+ ];
+ rows.get('scripted:stationninesecurity').variants=[
+  {units:sprite('station_nine_security_unit.png'),phase:'combat',variant:'Station Nine garage security'}
+ ];
+ for(const [id,name,region,file] of [
+  ['scripted:r18stationevelyn','Evelyn Cross — Station Nine','WEST','evelyn_cross_station_nine.png'],
+  ['seaport:caleb-docks','Caleb Reed — Seaport Docks','SEAPORT','caleb_seaport_docks.png']
+ ]){
+  rows.set(id,{id,name,title:normalize(name),classification:'FIXED',regions:[region],
+   combat:false,fullCinematic:true,variants:[{units:[],phase:'approach',variant:name,background:locationArt(file),composition:'none'}]});
  }
  // The scripted loop above allocates the canonical serviceBoss row; attach its
  // cinematic art AFTER that loop so it is not overwritten with an empty variant.
@@ -589,6 +607,9 @@
   if(!c&&(stage==='wandererRoad'&&currentRoadWanderer==='Gideon Briggs'||
    stage==='port55Recruit'&&player.flags.portHireOffer?.name==='Gideon Briggs'&&
    player.flags.portHireOffer.origin==='wandererRoad'))return {id:gideon,phase:'approach'};
+  if(!c&&stage==='r18Station'&&globalThis.Route127StationNinePresentation?.viewingEvelyn())
+   return {id:'scripted:r18stationevelyn',phase:'approach'};
+  if(c?.r18Harlan)return {id:'early:12',phase:'combat'};
   if(c?.r18DanielCaptors)return {id:'factory:captors',phase:'combat'};
   if(stage==='factoryDungeonRoom'&&!c){
    const f=player.flags.factoryDungeon;

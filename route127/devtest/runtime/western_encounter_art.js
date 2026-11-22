@@ -19,7 +19,7 @@
   ['STONES UNDER THE OAK',[cinematic('stones_under_the_oak.png')]],
   ['THE ABANDONED TRADING POST',[cinematic('abandoned_trading_post.png')]],
   ['THE FALSE SCARECROW',[cinematic('the_false_scarecrow.png')]],
-  ['THE HONEY JAR',[cinematic('the_honey_jar.png')]],
+  ['THE HONEY JAR',[scene('Cinematic','road',scenery('the_honey_jar.png'))]],
   ["THE HUNTER'S TRAP",[cinematic('the_hunters_trap.png')]],
   ['THE STRANDED FAMILY',[cinematic('the_stranded_family.png')]],
   ['THE MISSING STAIRS',[cinematic('the_missing_stairs.png')]],

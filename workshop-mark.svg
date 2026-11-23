@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Last Lantern Workshop lantern in a gear">
+<defs>
+<linearGradient id="iron" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8c8e8a"/><stop offset=".25" stop-color="#414544"/><stop offset=".52" stop-color="#25282b"/><stop offset=".78" stop-color="#64605b"/><stop offset="1" stop-color="#1a1d20"/></linearGradient>
+<linearGradient id="bronze" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0ad60"/><stop offset=".28" stop-color="#945a32"/><stop offset=".6" stop-color="#4e352a"/><stop offset="1" stop-color="#d48b48"/></linearGradient>
+<radialGradient id="flame"><stop stop-color="#fff7b9"/><stop offset=".25" stop-color="#ffcb61"/><stop offset=".57" stop-color="#ef831d"/><stop offset="1" stop-color="#8a3d12"/></radialGradient>
+<radialGradient id="halo"><stop stop-color="#dc8436" stop-opacity=".42"/><stop offset=".66" stop-color="#db8033" stop-opacity=".1"/><stop offset="1" stop-color="#db8033" stop-opacity="0"/></radialGradient>
+<filter id="glow"><feGaussianBlur stdDeviation="11"/></filter>
+<path id="tooth" d="M236 27 Q256 20 276 27 L289 70 Q256 79 223 70Z"/>
+<circle id="rivet" cx="256" cy="98" r="8"/>
+</defs>
+<circle cx="256" cy="256" r="224" fill="url(#halo)"/>
+<g fill="url(#iron)" stroke="#a66b43" stroke-width="3" stroke-linejoin="round">
+<use href="#tooth"/><use href="#tooth" transform="rotate(30 256 256)"/><use href="#tooth" transform="rotate(60 256 256)"/><use href="#tooth" transform="rotate(90 256 256)"/><use href="#tooth" transform="rotate(120 256 256)"/><use href="#tooth" transform="rotate(150 256 256)"/><use href="#tooth" transform="rotate(180 256 256)"/><use href="#tooth" transform="rotate(210 256 256)"/><use href="#tooth" transform="rotate(240 256 256)"/><use href="#tooth" transform="rotate(270 256 256)"/><use href="#tooth" transform="rotate(300 256 256)"/><use href="#tooth" transform="rotate(330 256 256)"/>
+</g>
+<circle cx="256" cy="256" r="189" fill="url(#iron)" stroke="#bc814e" stroke-width="8"/>
+<circle cx="256" cy="256" r="172" fill="#121417" stroke="#0b0d10" stroke-width="12"/>
+<circle cx="256" cy="256" r="162" fill="none" stroke="url(#bronze)" stroke-width="12"/>
+<circle cx="256" cy="256" r="144" fill="#171b1e" stroke="#4d4540" stroke-width="3"/>
+<circle cx="256" cy="256" r="130" fill="url(#halo)"/>
+<g fill="url(#bronze)" stroke="#30231e" stroke-width="2">
+<use href="#rivet"/><use href="#rivet" transform="rotate(45 256 256)"/><use href="#rivet" transform="rotate(90 256 256)"/><use href="#rivet" transform="rotate(135 256 256)"/><use href="#rivet" transform="rotate(180 256 256)"/><use href="#rivet" transform="rotate(225 256 256)"/><use href="#rivet" transform="rotate(270 256 256)"/><use href="#rivet" transform="rotate(315 256 256)"/>
+</g>
+<ellipse cx="256" cy="289" rx="74" ry="93" fill="#ff9b30" opacity=".20" filter="url(#glow)"/>
+<path d="M240 160V148a16 16 0 0 1 32 0v12" fill="none" stroke="#b97d49" stroke-width="9" stroke-linecap="round"/>
+<path d="M197 199Q256 155 315 199" fill="none" stroke="#8e8b82" stroke-width="8"/>
+<path d="M197 200Q176 264 193 328M315 200Q336 264 319 328" fill="none" stroke="#938a7d" stroke-width="10" stroke-linecap="round"/>
+<path d="M227 180h58l18 24h-94z" fill="url(#iron)" stroke="#b9804c" stroke-width="4"/>
+<path d="M212 207Q256 190 300 207L290 238h-68z" fill="url(#iron)" stroke="#a86f41" stroke-width="3"/>
+<path d="M224 237Q256 228 288 237L299 326Q256 343 213 326Z" fill="#342519" stroke="#aa7340" stroke-width="8"/>
+<path d="M235 252Q256 243 277 252L284 317Q256 326 228 317Z" fill="url(#flame)"/>
+<path d="M255 291Q238 274 253 254Q250 274 269 281Q275 300 257 313Q264 297 255 291Z" fill="#fff4b7" opacity=".8"/>
+<path d="M222 240L290 323M290 240L222 323" stroke="#5a5d59" stroke-width="9" stroke-linecap="round"/>
+<path d="M222 240L290 323M290 240L222 323" stroke="#d09a5c" stroke-width="2" opacity=".8"/>
+<path d="M205 329Q256 313 307 329L321 355Q256 370 191 355Z" fill="url(#iron)" stroke="#bc8048" stroke-width="4"/>
+<path d="M195 357Q256 372 317 357L326 376Q256 395 186 376Z" fill="url(#iron)" stroke="#b9824c" stroke-width="4"/>
+</svg>

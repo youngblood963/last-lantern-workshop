@@ -31,7 +31,6 @@ let townWandererFocus = null;
 let returnStage = null;
 let inventoryMode = null;
 let pendingSaveSlot = null;
-let pendingNewGameSlot = null;
 let introFailureCount = 0;
 let usedHotkeys = new Set();
 let reservedChoiceKeys = new Set();
@@ -983,38 +982,27 @@ function saveLocationLabel(data){
   if(s==="eastEnd")return "FACTORY EXTERIOR";
   return s.toUpperCase();
 }
+function devtestTitleActions(){
+  return newestSave() ? ["Continue", "Reset Character"] : ["New Game"];
+}
 function titleScreen(){
-  input.placeholder="Command"; pendingNewGameSlot=null; busy=false; input.disabled=false; hud.classList.add("hidden"); screen.innerHTML=""; stage="title"; utilityPanel.classList.add("hidden");v49LiveMap();
+  input.placeholder="Command"; busy=false; input.disabled=false; hud.classList.add("hidden"); screen.innerHTML=""; stage="title"; utilityPanel.classList.add("hidden");v49LiveMap();
+  currentHotkeys={};numberedChoices={};
   add("", "system");
   add("ROUTE 127", "title-logo");
   add("LAST LANTERN WORKSHOP", "system");
   add("");
-  const newest=newestSave();
-  if(newest){
-    add("(C) CONTINUE   (N) NEW GAME", "system");add("");
-    allSaveData().forEach(({slot,data})=>{
-      if(data)add(`(L) LOAD ${slot} — ${(data.player&&data.player.handle)||"NO HANDLE"} — LV ${String((data.player&&data.player.level)||1).padStart(2,"0")} — DAY ${data.day||1} — ${saveLocationLabel(data)} — ${new Date(data.savedAt||0).toLocaleString()}`,"system");
-      else add(`SAVE ${slot} — EMPTY`, "system");
-    });
-    if(getSaveData("auto")){const d=getSaveData("auto");add(`(A) AUTOSAVE — ${(d.player&&d.player.handle)||"NO HANDLE"} — LV ${(d.player&&d.player.level)||1} — DAY ${d.day||1} — ${saveLocationLabel(d)} — ${new Date(d.savedAt).toLocaleString()}`,"system");}
-    add("CONTINUE loads the newest save. LOAD 1 / LOAD 2 / LOAD 3 loads a specific slot.", "system");
-  } else {
-    add("NO SAVE FOUND","system");add("(N) NEW GAME   (K) SKIP INTRO","system");add("");
-    add("No save exists in this build yet. SKIP INTRO starts at the old house so you do not have to replay the transmission while testing.", "system");
-  }
+  devtestTitleActions().forEach((label,index)=>{
+    add(`[${index+1}] ${label}`,"system");
+    numberedChoices[String(index+1)]=label.toLowerCase();
+  });
   input.focus();
 }
 function showV49SaveMenu(){
- add('SAVE / LOAD','place');
- add('[1] SAVE GAME   [2] LOAD GAME   [3] RETURN TO TITLE SCREEN   [4] BACK TO GAME','system');
+ add('LOCAL CHARACTER','place');
+ r5DirectChoices(['Return to Title Screen','Back to Game']);
 }
-function showV49LoadMenu(){
- add('LOAD GAME — SELECT A SLOT','place');
- for(const {slot,data} of allSaveData())add(`[${slot}] ${data?`${data.player?.handle||'NO HANDLE'} | LV ${data.player?.level||1} | DAY ${data.day||1} | ${saveLocationLabel(data)} | ${new Date(data.savedAt||0).toLocaleString()}`:'EMPTY'}`,'system');
- const auto=getSaveData('auto');if(auto)add(`[A] AUTOSAVE — ${auto.player?.handle||'NO HANDLE'} | LV ${auto.player?.level||1} | DAY ${auto.day||1} | ${saveLocationLabel(auto)} | ${new Date(auto.savedAt||0).toLocaleString()}`,'system');
- add('Type LOAD 1, LOAD 2, LOAD 3, LOAD AUTOSAVE, or 4 to return.','system');
-}
-function showV49TitleConfirm(){add('RETURN TO TITLE SCREEN? Unsaved progress will be lost.','danger');add('[1] SAVE AND RETURN   [2] RETURN WITHOUT SAVING   [3] CANCEL','system');}
+function showV49TitleConfirm(){add('SAVE AND RETURN TO TITLE SCREEN?','danger');r5DirectChoices(['Save and Return','Cancel']);}
 function v49ReturnToTitle(){cancelCasinoOnLoad();currentHotkeys={};numberedChoices={};pendingSaveSlot=null;returnStage=null;titleScreen();}
 function resetPlayer(){
   combatState=null;currentRoadWanderer=null;currentTownWanderer=null;returnStage=null;
@@ -1096,7 +1084,7 @@ function v49RollingAutosave(label='CHECKPOINT'){
   const data={...saveSnapshot(),manualSlot:activeSaveSlot};
   localStorage.setItem(FACTORY_AUTOSAVE_KEY,JSON.stringify(data));
   add(`AUTOSAVED — ${label}`,'system');return true;
- }catch(e){add('Autosave unavailable — use a manual save.','system');return false;}
+ }catch(e){add('Autosave unavailable — check browser storage.','system');return false;}
 }
 function v49Boundary(){
  const st=gameplayStageForSave();
@@ -1107,12 +1095,8 @@ function v49Boundary(){
  if(st==='settlement')return 'WEST GATE';
  return null;
 }
-function saveGame(slot=activeSaveSlot){
-  if(!slot){ add("UNSAVED GAME — Choose SAVE 1, SAVE 2, or SAVE 3.","system"); return; }
-  if(getSaveData(slot) && slot!==activeSaveSlot && pendingSaveSlot!==slot){ pendingSaveSlot=slot; add(`SAVE ${slot} ALREADY EXISTS — OVERWRITE?`,"danger"); add("(Y) YES   (N) NO","system"); stage="confirmSaveOverwrite"; return; }
-  pendingSaveSlot=null; activeSaveSlot=slot; const data=saveSnapshot();
-  try{ localStorage.setItem(SAVE_KEYS[slot],JSON.stringify(data)); add(`SAVE ${slot} — ${player.handle || "NO HANDLE"}`, "bright"); add("Game saved.", "reward"); }
-  catch(e){ add("SAVE FAILED — This browser did not allow local storage for this file.", "danger"); }
+function saveGame(){
+  return v49RollingAutosave('LOCAL CHARACTER');
 }
 function loadGame(slot=activeSaveSlot){
   cancelCasinoOnLoad();
@@ -1178,7 +1162,7 @@ function loadGame(slot=activeSaveSlot){
   migrateXpProgress();
   startRefillTimer();
   if(player.flags.interfaceUnlocked!==false){hud.classList.remove("hidden");utilityPanel.classList.remove("hidden");}else{hud.classList.add("hidden");utilityPanel.classList.add("hidden");} updateHud(); screen.innerHTML="";
-  add(`SAVE ${slot} — ${(player.handle||"NO HANDLE")}`, "bright"); add("Save loaded.", "reward");
+  add(`LOCAL CHARACTER — ${(player.handle||"NO HANDLE")}`, "bright"); add("Save loaded.", "reward");
   for(const [name,qty] of converted)add(`Retired material converted — ${qty} ${name} for ${qty*RETIRED_MATERIAL_PAYOUTS[name]} Bolts.`,'reward');
   if(stage==="combat" && combatState){
     if(combatState.source==="houseBoss" && player.flags.houseQuest!=="active"){combatState=null;arriveHouse();}
@@ -2049,7 +2033,7 @@ function showFactory(entered=false){
 }
 function v49Autosave(){
   try{localStorage.setItem(FACTORY_AUTOSAVE_KEY,JSON.stringify({...saveSnapshot(),manualSlot:activeSaveSlot}));}
-  catch(e){add("AUTOSAVE UNAVAILABLE — Use a manual slot.","system");}
+  catch(e){add("AUTOSAVE UNAVAILABLE — Check browser storage.","system");}
 }
 function v49FactoryRoom(){
   stage="factoryWorkshop";
@@ -3147,9 +3131,6 @@ function renderCurrentChoices(){
   if(stage==="listen")return add("LISTEN","system");
   if(stage==="savecoords")return add("LOG COORDINATES","system");
   if(stage==="confirmHandle")return add("(Y) YES   (N) CHANGE","system");
-  if(stage==="confirmNewSlot")return add("(Y) YES   (N) CANCEL","system");
-  if(stage==="selectNewOverwrite")return add("SAVE 1   SAVE 2   SAVE 3   CANCEL","system");
-  if(stage==="confirmNewOverwrite")return add("(Y) CONFIRM OVERWRITE   (N) CANCEL   (B) BACK","system");
   if(stage==="confirmSaveOverwrite")return add("(Y) YES   (N) NO","system");
   if(stage==='r127StevePromo')return add('ASK ABOUT GAMES   ASK ABOUT SANDWICH BOARD   BACK','system');
   if(stage==="r18HorseTravel")return r18HorseTravelMenu();
@@ -3237,7 +3218,7 @@ async function handleCommandCore(raw) {
     const name=raw.trim().replace(/\s+/g,' ');if(!/^[\p{L}\p{N}][\p{L}\p{N} '\-]{0,23}$/u.test(name)){add('Use 1–24 letters, numbers, spaces, apostrophes or hyphens.','system');return;}
     if(!port55Owned().includes('Rescued Hound'))port55Owned().push('Rescued Hound');player.flags.r18HoundName=name;player.flags.r18HoundAdopted=true;delete player.flags.r18HoundNaming;gainXp(Math.max(8,player.level*2));add(`${name} joins your companions. Equip your hound from Manage Pets.`,'reward');completeRoadTurn();return;
   }
-  if(!cmd && !["confirmNewSlot","confirmHandle"].includes(stage)){ add("> [ENTER]","bright"); renderCurrentChoices(); return; }
+  if(!cmd && stage!=="confirmHandle"){ add("> [ENTER]","bright"); renderCurrentChoices(); return; }
   if(/^\d+$/.test(cmd) && !(stage==="port55Service"&&player.flags.portStaffUI?.page==="money") && numberedChoices[cmd] && stage!=="factoryTerminal" && !(stage==="mercy" && mercyLocation==="murphy" && player.flags.v49MurphyMenu) && !["inventory","combatItems","fallen"].includes(stage) && !(stage==="mercy"&&player.flags.v49BankCustom) && !["interfaceSave","v49TitleConfirm"].includes(stage)) cmd=numberedChoices[cmd];
   if(player.flags.interfaceUnlocked && stage!=="combatItems" && !["interfaceSave","v49TitleConfirm"].includes(stage)) {
     const global={i:"inventory",inventory:"inventory",inv:"inventory",s:"status",status:"status",stats:"status",m:"map",map:"map",q:"quests",quest:"quests",quests:"quests",v:"save",save:"save","save current":"save"};
@@ -3309,63 +3290,34 @@ async function handleCommandCore(raw) {
 
   if(cmd==="load autosave"){loadGame("auto");return;}
   if(stage === "title") {
-    if(cmd === "continue" || cmd === "load" || cmd === "load game" || cmd === "load game 01") {
-      const latest=newestSave(); if(latest) loadGame(latest.slot); else { add("No save exists yet. Type SKIP INTRO for testing or NEW GAME for the full opening.", "system"); }
-    } else if(cmd === "new game" || cmd === "new") {
-      const empty = allSaveData().find(x=>!x.data);
-      if(empty){
-        pendingNewGameSlot=empty.slot; stage="confirmNewSlot";
-        add("EXISTING SAVE DATA DETECTED.","bright");
-        allSaveData().forEach(({slot,data})=>add(data?`SAVE ${slot} — ${(data.player&&data.player.handle)||"NO HANDLE"} — LV ${String((data.player&&data.player.level)||1).padStart(2,"0")}`:`SAVE ${slot} — EMPTY`,"system"));
-        add(""); add(`Start a new game in SAVE ${empty.slot}?`,"bright"); add("(Y) YES [ENTER]    (N) CANCEL","system");
-      } else {
-        pendingNewGameSlot=null; stage="selectNewOverwrite";
-        add("ALL SAVE SLOTS ARE OCCUPIED.","danger");
-        allSaveData().forEach(({slot,data})=>add(`SAVE ${slot} — ${(data.player&&data.player.handle)||"NO HANDLE"} — LV ${String((data.player&&data.player.level)||1).padStart(2,"0")}`,"system"));
-        add("Choose SAVE 1, SAVE 2, or SAVE 3 to replace, or CANCEL.","system");
-      }
-    } else if(/^load [123]$/.test(cmd)){ const slot=Number(cmd.slice(-1)); if(getSaveData(slot)) loadGame(slot); else add(`SAVE ${slot} is empty.`,"system"); }
-    else if(cmd === "skip intro" || cmd === "skip" || (QA_BUILD && cmd === "testing")) { skipIntroForTesting(); }
-    else add("Type CONTINUE, LOAD 1/2/3, NEW GAME, or SKIP INTRO.", "system");
-    return;
-  }
-  if(stage === "confirmNewSlot") {
-    if(cmd === "" || cmd === "y" || cmd === "yes" || cmd === String(pendingNewGameSlot)) { const slot=pendingNewGameSlot; pendingNewGameSlot=null; resetPlayer(); activeSaveSlot=slot; screen.innerHTML=""; stage="wake"; hud.classList.add("hidden"); utilityPanel.classList.add("hidden"); updateHud(); add(`NEW GAME — SAVE ${slot}`,"system"); await outputQueue; await intro(); }
-    else if(cmd === "n" || cmd === "no" || cmd === "cancel") { pendingNewGameSlot=null; titleScreen(); }
-    else add(`Press ENTER, Y, or ${pendingNewGameSlot} to start the new game; N cancels.`,"system");
-    return;
-  }
-  if(stage === "selectNewOverwrite") {
-    if(cmd === "cancel" || cmd === "n" || cmd === "no") { titleScreen(); return; }
-    const m=cmd.match(/^(?:save\s*)?([123])$/);
-    if(m){ pendingNewGameSlot=Number(m[1]); stage="confirmNewOverwrite"; const data=getSaveData(pendingNewGameSlot); add(`WARNING — SAVE ${pendingNewGameSlot}: ${(data&&data.player&&data.player.handle)||"NO HANDLE"}`,"danger"); add("This character’s saved progress will be replaced only after you confirm.","system"); add("(Y) CONFIRM OVERWRITE   (N) CANCEL   (B) BACK","system"); input.placeholder="Type Y to confirm, N to cancel"; }
-    else add("Choose SAVE 1, SAVE 2, or SAVE 3, or CANCEL.","system");
-    return;
-  }
-  if(stage === "confirmNewOverwrite") {
-    if(cmd === "y" || cmd === "yes" || cmd === "confirm" || cmd === "confirm overwrite") {
-      const slot=pendingNewGameSlot;
-      if(![1,2,3].includes(slot)){ add("No save slot selected. Returning to title.","danger"); pendingNewGameSlot=null; titleScreen(); return; }
-      pendingNewGameSlot=null; input.placeholder="Command";
-      resetPlayer(); activeSaveSlot=slot; screen.innerHTML=""; stage="wake";
-      hud.classList.add("hidden"); utilityPanel.classList.add("hidden"); updateHud();
-      add(`NEW GAME — SAVE ${slot}`,"system");
-      add("Old save remains stored until you explicitly save this new character.","system");
-      await outputQueue; await intro();
-    } else if(["n","no","cancel","b","back"].includes(cmd)) {
-      pendingNewGameSlot=null; input.placeholder="Command"; titleScreen();
-    } else {
-      add("(Y) CONFIRM OVERWRITE   (N) CANCEL   (B) BACK", "system");
-    }
+    const latest=newestSave();
+    if(cmd === "continue" || cmd === "c"){
+      if(latest){
+        loadGame(latest.slot);
+        activeSaveSlot=0;
+        if(latest.slot!=="auto")v49RollingAutosave("LOCAL CHARACTER");
+      }else titleScreen();
+    }else if(cmd==="reset character"&&latest){
+      if(!confirm("Reset this browser's DEVTEST character? This removes its local progress."))return;
+      for(const key of [FACTORY_AUTOSAVE_KEY,...SAVE_KEYS.slice(1),...V24_SAVE_KEYS.slice(1),LEGACY_SAVE_KEY])localStorage.removeItem(key);
+      activeSaveSlot=0;
+      titleScreen();
+    }else if(!latest&&(cmd==="new game"||cmd==="new"||cmd==="n")){
+      resetPlayer();activeSaveSlot=0;screen.innerHTML="";stage="wake";
+      hud.classList.add("hidden");utilityPanel.classList.add("hidden");updateHud();
+      await intro();
+    }else if(!latest&&(cmd==="skip intro"||cmd==="skip")){
+      skipIntroForTesting();
+    }else titleScreen();
     return;
   }
   if(QA_BUILD && stage === "testingCode"){ if(cmd==="cancel"){ stage=player.flags.testingReturnStage||(player.turns<=0?"zeroTurns":"between");delete player.flags.testingReturnStage;add("Testing access cancelled.","system"); return; } if(TEST_ACCESS_CODE && raw.trim().toUpperCase()===TEST_ACCESS_CODE.toUpperCase()){ testMode=true;stage=player.flags.testingReturnStage||(player.turns<=0?"zeroTurns":"between");delete player.flags.testingReturnStage; updateHud(); add("TEST MODE ACTIVE","reward"); add("Expedition Turn limit disabled. HP, XP, Bolts, loot, quests and combat remain live.","system"); add("Type TEST OFF at any time to restore normal Turn limits.","system"); return; } add("ACCESS DENIED","danger"); return; }
-  if(stage === "confirmHandle"){ if(cmd===""||cmd==="y"||cmd==="yes"){player.handle=pendingHandle;pendingHandle="";updateHud();add(`The faded letters read: ${player.handle.toUpperCase()}.`,"bright");add("Still yours. That's something.");stage="standing";await outputQueue;showStandingOptions();} else if(cmd==="n"||cmd==="no"||cmd==="change"){const old=pendingHandle;pendingHandle="";stage="handle";add(`CHANGE HANDLE — current entry: ${old}`,"system");add("Enter a new Handle, or RANDOM for a suggestion.","system");} else add("(Y) YES [ENTER]   (N) CHANGE","system"); return; }
+  if(stage === "confirmHandle"){ if(cmd===""||cmd==="y"||cmd==="yes"){player.handle=pendingHandle;pendingHandle="";updateHud();add(`The faded letters read: ${player.handle.toUpperCase()}.`,"bright");add("Still yours. That's something.");stage="standing";v49Autosave();await outputQueue;showStandingOptions();} else if(cmd==="n"||cmd==="no"||cmd==="change"){const old=pendingHandle;pendingHandle="";stage="handle";add(`CHANGE HANDLE — current entry: ${old}`,"system");add("Enter a new Handle, or RANDOM for a suggestion.","system");} else add("(Y) YES [ENTER]   (N) CHANGE","system"); return; }
   if(stage === "handle"){ if(cmd==="random"||cmd==="autofill"){ const names=["Drifter","Rook","Rust","Crow","Hollow","Slate","Nomad","Flint"]; const h=names[Math.floor(Math.random()*names.length)]; add(`Suggested Handle: ${h}`,"bright"); add(`Type ${h} to accept, or RANDOM to reroll.`,"system"); } else setHandle(raw); return; }
   if(stage==="confirmSaveOverwrite"){ if(cmd==="y"||cmd==="yes"){const sl=pendingSaveSlot; stage=returnStage||"between"; pendingSaveSlot=sl; saveGame(sl);} else {pendingSaveSlot=null;stage=returnStage||"between";add("SAVE CANCELLED","system");redrawState();} return; }
   if(stage==="fallen"){ if(cmd==="1"||cmd==="get up"||cmd==="get"||cmd==="continue"){stage=player.flags.mercyDiscovered?"mercy":"house";mercyLocation="town";if(stage==="mercy")mercyMenu();else arriveHouse();}else add("[1] GET UP","system");return;}
   if(stage==="combatItems" && /^save(?: game)?(?: current| [123])?$/.test(cmd)){saveGame(Number((cmd.match(/[123]$/)||[])[0])||activeSaveSlot);showCombatItems();return;}
-  if(stage==="combatItems" && /^load(?: game)?(?: [123])?$/.test(cmd)){loadGame(Number((cmd.match(/[123]$/)||[])[0])||activeSaveSlot);return;}
+  if(stage==="combatItems" && /^load(?: game)?(?: [123])?$/.test(cmd)){loadGame("auto");return;}
   if(["encounter","wandererRoad","turnComplete","questRoadComplete"].includes(stage)&&cmd.startsWith("search ")){
     const f=player.flags;
     const searches=[["jenQuest","cart","supply cart","recovered","Jen's Supply Crate"],["johnnyQuest","ledger","ledger","recovered","Johnny's Ledger"],["amiiQuest","deposit","satchel","recovered","Bank Satchel"],["waynePatientQuest","supplies","ambulance","recovered","Clinic Medicine"]];
@@ -3383,24 +3335,16 @@ async function handleCommandCore(raw) {
   if(stage==="inventoryItem"){ const name=inventoryMode&&inventoryMode.item; if((cmd==="e"||cmd==="equip") && name){ const item=findItem(name); if(item && (item.type==="weapon"||item.type==="armor"||item.type==="accessory")){ const slot=item.type,actualName=item.name,previousStolen=!!player.flags.r18EquippedStolen?.[slot]; const previous=player[slot]; const equippedFlags=player.flags.r18EquippedStolen||(player.flags.r18EquippedStolen={});equippedFlags[slot]=!!item.stolen; removeItem(r18ItemLabel(item)); player[slot]=actualName; if(slot==="accessory"||slot==="armor"){const hpDelta=(GEAR[actualName]?.maxHpBonus||0)-(GEAR[previous]?.maxHpBonus||0);player.maxHp=Math.max(1,player.maxHp+hpDelta);player.hp=Math.min(player.hp,player.maxHp);} if(previous && !addPack(previous,slot,1,true,previousStolen)){(player.stash||(player.stash=[])).push({name:previous,type:slot,qty:1,...(previousStolen?{stolen:true}:{})});add(`Previous ${slot} secured in bank storage; pack full.`,"system");} updateHud();add(`EQUIPPED — ${name}. Previous ${slot}: ${previous||"none"}.`,"reward");stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} add("That item cannot be equipped.","system");return;} if(cmd==="b"||cmd==="back"){stage="inventory";showInventory();showInterfaceNav();return;} if(cmd==="u"||cmd==="use"||cmd.startsWith("use ")){useItem(name);stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} if(name==="Battered Flashlight" && (cmd==="d"||cmd.includes("dismantle"))){dismantleItem(name);stage="inventory";inventoryMode=null;showInventory();showInterfaceNav();return;} if(cmd==="d"||cmd==="drop"||cmd.startsWith("drop ")){inventoryMode={item:name};stage="confirmDrop";add(`DROP ${name.toUpperCase()}? This cannot be undone.`,"danger");add("(Y) CONFIRM DROP   (N) CANCEL","system");return;} add(name==="Battered Flashlight"?"Choose (D) DISMANTLE or (B) BACK.":"Choose (U) USE, (D) DROP, or (B) BACK.","system");return; }
   if(stage==="v49TitleConfirm"){
     if(cmd==="1"||cmd==="save and return"){
-      if(![1,2,3].includes(activeSaveSlot)){add('Choose a manual save slot before returning, or return without saving.','system');showV49TitleConfirm();return;}
-      // Saving the active manual slot never changes another character's slot.
-      const previous=getSaveData(activeSaveSlot);
-      if(previous && previous.player?.handle && previous.player.handle!==player.handle){add('Active slot belongs to another character. Save to a correct slot first.','danger');showV49TitleConfirm();return;}
-      saveGame(activeSaveSlot);if(stage==='confirmSaveOverwrite')return;v49ReturnToTitle();return;
-    }
-    if(cmd==="2"||cmd==="return without saving"){v49ReturnToTitle();return;}
-    if(cmd==="3"||cmd==="cancel"||cmd==="b"||cmd==="back"){stage="interfaceSave";showV49SaveMenu();return;}
-    showV49TitleConfirm();return;
+      if(saveGame())v49ReturnToTitle();else showV49TitleConfirm();
+    }else if(["2","cancel","b","back"].includes(cmd)){stage="interfaceSave";showV49SaveMenu();}
+    else showV49TitleConfirm();
+    return;
   }
   if(stage==="interfaceSave"){
-    if(cmd==="1"||cmd==="save game"||/^save(?: game)? ?[123]$/.test(cmd)){const sl=/[123]$/.test(cmd)&&cmd!=="1"?Number(cmd.slice(-1)):activeSaveSlot;stage=returnStage||"between";saveGame(sl);if(stage==="confirmSaveOverwrite")return;stage="interfaceSave";showV49SaveMenu();return;}
-    if(cmd==="2"||cmd==="load game"){showV49LoadMenu();return;}
-    if(cmd==="3"||cmd==="return to title screen"){stage="v49TitleConfirm";showV49TitleConfirm();return;}
-    if(cmd==="4"||cmd==="b"||cmd==="back"){stage=returnStage||"between";redrawState();return;}
-    if(/^load [123]$/.test(cmd)){loadGame(Number(cmd.slice(-1)));return;}
-    if(cmd==="load autosave"||cmd==="a"){loadGame('auto');return;}
-    showV49SaveMenu();return;
+    if(cmd==="1"||cmd==="return to title screen"){stage="v49TitleConfirm";showV49TitleConfirm();}
+    else if(["2","back to game","b","back"].includes(cmd)){stage=returnStage||"between";redrawState();}
+    else showV49SaveMenu();
+    return;
   }
   if(["quests","interfaceStatus","interfaceMap"].includes(stage)){ if(cmd==="b"||cmd==="back"){stage=returnStage||"between";redrawState();} else { if(stage==="quests")showQuests(); else if(stage==="interfaceStatus")showStatus(); else if(stage==="interfaceMap")showMap(); else add("(B) BACK — RETURN TO GAME","system"); if(stage!=="interfaceSave")showInterfaceNav(); } return; }
   if (cmd === "status" || cmd === "stats") { if(player.flags.interfaceUnlocked)openInterface("status"); else showStatus(); return; }
@@ -3412,8 +3356,8 @@ async function handleCommandCore(raw) {
   if(QA_BUILD && (cmd === "testing access" || cmd === "testing")){ player.flags.testingReturnStage=stage;stage="testingCode"; add("TESTING ACCESS","place"); add("Enter access code. Type CANCEL to return.","system");add("(B) CANCEL","system"); return; }
   if(QA_BUILD && testMode && /^test (?:add|refill) (?:[1-9]\d{0,2})$/.test(cmd)){const amount=Number(cmd.split(" ").pop());player.turns=Math.min(TURN_CAP,player.turns+amount);updateHud();add(`QA TURN REFILL — +${amount} REQUESTED; ${player.turns}/${TURN_CAP} STORED.`,"reward");return;}
   if(QA_BUILD && (cmd === "test off" || cmd === "disable test mode")){ testMode=false; updateHud(); add("TEST MODE DISABLED — normal Turn limits restored.","system"); if(player.turns<=0)noTurnsMenu(); return; }
-  if (/^load( game)? ?[123]$/.test(cmd)) { loadGame(Number(cmd.match(/[123]$/)[0])); return; }
-  if (cmd === "load" || cmd === "load game") { loadGame(activeSaveSlot); return; }
+  if (/^load( game)? ?[123]$/.test(cmd)) { loadGame("auto"); return; }
+  if (cmd === "load" || cmd === "load game") { loadGame("auto"); return; }
   if(stage==="turnComplete" || stage==="questRoadComplete"){
     if(cmd==="r"||cmd.includes("reverse")){
       if(roadGoal==="east"){

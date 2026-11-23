@@ -356,8 +356,8 @@
    if(cmd==='fight'||(title==='Fuel Thieves'&&cmd==='take the fuel'))return r.regionalCombatFight(d);
    if(cmd!==alternative.toLowerCase()&&cmd!==choiceCommand(alternative))return false;
    if(alternative.startsWith('PAY ')){const cost=alternative.includes('FIVE')?5:6;if(player.bolts<cost){add('You do not have '+cost+' Bolts. You can still leave.','system');return false;}player.bolts-=cost;updateHud();}
-   if(alternative==='OFFER FOOD'){if(!hasItem('Energy Bars')){add('You need Energy Bars to offer food.','system');return false;}if(!removeItem('Energy Bars'))return false;}
-   if(alternative==='OFFER SCRAP'&&!r6ConsumeMaterial('Scrap Metal',1)){add('You need Scrap Metal.','system');return false;}
+   if(alternative==='OFFER FOOD'){if(!hasItem('Energy Bars')){add('You don’t have any Energy Bars to offer.','system');return false;}if(!removeItem('Energy Bars'))return false;}
+   if(alternative==='OFFER SCRAP'&&!r6ConsumeMaterial('Scrap Metal',1)){add('You don’t have any Scrap Metal to offer.','system');return false;}
    if(alternative==='INTIMIDATE'&&Math.random()<.35){add('The looters call your bluff.','danger');return r.regionalCombatFight(d);}
    add(title==='Payment Required'?'The robot accepts payment and powers down its weapons.':title==='Gunshop Owner'?'The owner lowers the gun and lets you pass.':title==='Aggressive Seagulls'?'You shield your supplies and withdraw without losing food.':'You resolve the encounter without combat.');return true;
   }};

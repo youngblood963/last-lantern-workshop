@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 550" role="img" aria-label="An old workshop in the woods, glowing warmly beneath a gray moon">
+<defs>
+<linearGradient id="sky" x2="0" y2="1"><stop stop-color="#161c24"/><stop offset=".65" stop-color="#383c42"/><stop offset="1" stop-color="#161b1e"/></linearGradient>
+<linearGradient id="wood" x2="1" y2=".3"><stop stop-color="#131414"/><stop offset=".5" stop-color="#3d3128"/><stop offset="1" stop-color="#1b1b1b"/></linearGradient>
+<linearGradient id="roof" x2=".6" y2="1"><stop stop-color="#151719"/><stop offset=".5" stop-color="#4a4844"/><stop offset="1" stop-color="#131516"/></linearGradient>
+<radialGradient id="window"><stop stop-color="#ffe9a5"/><stop offset=".35" stop-color="#eeae4b"/><stop offset="1" stop-color="#724018"/></radialGradient>
+<radialGradient id="moonGlow"><stop stop-color="#c6d1d4" stop-opacity=".34"/><stop offset="1" stop-color="#dce6ef" stop-opacity="0"/></radialGradient>
+<filter id="blur"><feGaussianBlur stdDeviation="18"/></filter>
+<pattern id="plank" width="33" height="500" patternUnits="userSpaceOnUse"><path d="M0 0V500" stroke="#090d0e" stroke-width="5"/><path d="M5 0V500" stroke="#77644e" stroke-width="1" opacity=".32"/><path d="M29 0V500" stroke="#b59a71" stroke-width="1" opacity=".2"/></pattern>
+<pattern id="shingles" width="55" height="22" patternUnits="userSpaceOnUse"><path d="M0 10H55M27 10V22M0 0V10M55 0V10" stroke="#15191a" stroke-width="3" opacity=".65"/></pattern>
+</defs>
+<rect width="980" height="550" fill="url(#sky)"/>
+<circle cx="715" cy="113" r="158" fill="url(#moonGlow)"/>
+<circle cx="715" cy="113" r="77" fill="#bdc8cc"/>
+<path d="M673 72q24-32 46-2t54 21q-15 38-49 50t-59-3z" fill="#97a3a8" opacity=".34"/>
+<g fill="#151b1d" opacity=".8">
+<path d="M0 420L55 290 95 420 144 260 206 421 263 318 309 424 370 230 439 431 507 265 559 430 627 316 674 427 763 280 834 427 918 308 980 427V550H0Z"/>
+</g>
+<g fill="#0b1315" opacity=".9">
+<path d="M0 480l40-186 39 186 41-224 52 224 37-166 43 166 68-245 67 245 78-192 64 192 54-198 63 198 81-228 83 228 45-147 63 147 62-215 39 215v70H0Z"/>
+</g>
+<path d="M0 466Q150 428 295 454t245-18q215-26 440 36v78H0Z" fill="#202122"/>
+<path d="M68 483Q235 458 355 473" stroke="#6a5c4b" stroke-width="15" opacity=".3" fill="none"/>
+<g transform="translate(70 58)">
+<path d="M4 194L360 33l355 173-10 21-347-155L20 218Z" fill="url(#roof)" stroke="#777269" stroke-width="9"/>
+<path d="M66 212L364 82l300 141V448H66Z" fill="url(#wood)" stroke="#141414" stroke-width="9"/>
+<path d="M66 212L364 82l300 141V448H66Z" fill="url(#plank)" opacity=".72"/>
+<path d="M11 187l350-166 363 178-21 33L362 75 28 229Z" fill="url(#roof)" stroke="#6e6860" stroke-width="9"/>
+<path d="M11 187l350-166 363 178-21 33L362 75 28 229Z" fill="url(#shingles)" opacity=".35"/>
+<path d="M246 93v-73h73v41" fill="#2d2b28" stroke="#141515" stroke-width="8"/>
+<path d="M249 23h69" stroke="#64635e" stroke-width="7"/>
+<g stroke="#655340" stroke-width="12" opacity=".9"><path d="M100 224v221M615 224v221M365 99v350"/><path d="M67 445h597"/></g>
+<path d="M424 243h158v166H424Z" fill="#35251b" stroke="#0b1114" stroke-width="12"/>
+<path d="M437 253h132v144H437Z" fill="url(#window)"/>
+<ellipse cx="500" cy="332" rx="105" ry="115" fill="#f9aa3f" opacity=".28" filter="url(#blur)"/>
+<path d="M503 253v144M437 324h132" stroke="#2d2925" stroke-width="12"/>
+<path d="M439 254h130v141H439Z" fill="none" stroke="#978267" stroke-width="4"/>
+<path d="M139 297h174v153H139Z" fill="#131719" stroke="#7d6550" stroke-width="9"/>
+<path d="M158 312h139v112H158Z" fill="url(#window)" opacity=".81"/>
+<path d="M224 314v110M156 369h144" stroke="#281f1b" stroke-width="12"/>
+<path d="M154 431h156" stroke="#41362d" stroke-width="7"/>
+<path d="M336 315h77v137h-77Z" fill="#16191b" stroke="#68523d" stroke-width="9"/>
+<circle cx="393" cy="387" r="4" fill="#e5b269"/>
+<g transform="translate(580 294)">
+<circle r="60" fill="#090d0e" stroke="#775f46" stroke-width="8"/>
+<circle r="42" fill="none" stroke="#a6855e" stroke-width="6"/>
+<circle r="16" fill="#282a2a" stroke="#af8b61" stroke-width="6"/>
+<path d="M-57 0H57M0-57V57M-40-40L40 40M40-40L-40 40" stroke="#705a41" stroke-width="7"/>
+</g>
+<path d="M90 418h240" stroke="#9c7d57" stroke-width="4" opacity=".35"/>
+</g>
+<path d="M0 537q208-38 390-19t590 0v32H0Z" fill="#121718"/>
+<g stroke="#6a5a46" stroke-width="7" opacity=".6"><path d="M0 511l75-23 56 22M720 512l93-22 72 20"/></g>
+</svg>

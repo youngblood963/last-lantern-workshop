@@ -1,0 +1,17 @@
+/* Center the support content column and give the existing cards room. */
+body.midnight-workshop .support-page .support-wrap{max-width:820px}
+body.midnight-workshop .support-page .support-intro{
+ margin-left:auto;
+ margin-right:auto;
+ text-align:center;
+}
+body.midnight-workshop .support-page .support-card + .support-card{margin-top:28px}
+body.midnight-workshop .support-page .workshop-back{
+ display:flex;
+ width:fit-content;
+ margin:28px auto 0;
+}
+@media(max-width:520px){
+ body.midnight-workshop .support-page .support-card + .support-card{margin-top:24px}
+ body.midnight-workshop .support-page .workshop-back{margin-top:24px}
+}

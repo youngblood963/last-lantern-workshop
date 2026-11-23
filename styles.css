@@ -488,3 +488,23 @@ footer{color:#b7cbc7}
 }
 .btn:focus-visible,.route127-home-play:focus-visible{outline:3px solid #e7f6ef;outline-offset:3px}
 @media(max-width:480px){.btn{min-width:min(140px,100%)}}
+
+/* Workshop homepage: genuine Route 127 regional daytime sky, not generated art.
+   The charcoal wash protects white text without hiding the sky entirely. */
+body:has(.hero){
+  background:
+    linear-gradient(rgba(12,27,35,.62),rgba(12,27,35,.77)),
+    url('route127/playtest/assets/regions/sky_day.png') center top / cover no-repeat;
+}
+body:has(.hero) .hero{
+  background:linear-gradient(180deg,rgba(16,33,40,.13),rgba(16,33,40,.38));
+}
+body:has(.hero) .projects{
+  background:linear-gradient(180deg,rgba(18,37,44,.70),rgba(18,37,44,.78));
+}
+body:has(.hero) .about{
+  background:rgba(19,37,44,.77);
+}
+@media(max-width:650px){
+ body:has(.hero){background-position:center top;background-size:auto 100%}
+}

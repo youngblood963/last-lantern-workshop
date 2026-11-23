@@ -969,8 +969,11 @@ function getSaveData(slot=activeSaveSlot){
   } catch(e) { return null; }
 }
 function allSaveData(){ return [1,2,3].map(slot=>({slot,data:getSaveData(slot)})); }
+function isResumableLocalSave(data){
+  return typeof data?.player?.handle==="string" && !!data.player.handle.trim() && data.stage!=="confirmNewSlot";
+}
 function newestSave(){
-  return [...allSaveData(),{slot:"auto",data:getSaveData("auto")}].filter(x=>x.data).sort((a,b)=>new Date(b.data.savedAt||0)-new Date(a.data.savedAt||0))[0]||null;
+  return [...allSaveData(),{slot:"auto",data:getSaveData("auto")}].filter(({data})=>isResumableLocalSave(data)).sort((a,b)=>new Date(b.data.savedAt||0)-new Date(a.data.savedAt||0))[0]||null;
 }
 function saveLocationLabel(data){
   const s=(data&&data.stage)||"unknown";
@@ -1079,7 +1082,7 @@ function gameplayStageForSave(){
 function saveSnapshot(){return {version:38,combatState:combatState?{...combatState}:null,day,wandererSerial,savedAt:new Date().toISOString(),stage:gameplayStageForSave(),roadTurn,dailyRoadTurns,roadGoal,roadTripLength,roadTurnCharged,serviceRoadDepth,mercyLocation,roadEncounterOrder,wandererLocations,currentRoadWanderer,currentTownWanderer,townWandererFocus,player:serializablePlayer()};}
 function saveFactoryAutosave(){v49RollingAutosave('FACTORY EXTERIOR');}
 function v49RollingAutosave(label='CHECKPOINT'){
- if(['title','wake','standing','handle'].includes(stage))return false;
+ if(!isResumableLocalSave({player,stage})||['title','wake','standing','handle'].includes(stage))return false;
  try{
   const data={...saveSnapshot(),manualSlot:activeSaveSlot};
   localStorage.setItem(FACTORY_AUTOSAVE_KEY,JSON.stringify(data));
@@ -1099,10 +1102,10 @@ function saveGame(){
   return v49RollingAutosave('LOCAL CHARACTER');
 }
 function loadGame(slot=activeSaveSlot){
-  cancelCasinoOnLoad();
   const data=getSaveData(slot);
+  if(!isResumableLocalSave(data)){add("No local character to continue.","system");return;}
+  cancelCasinoOnLoad();
   if(slot!=="auto")activeSaveSlot=slot;else if(data)activeSaveSlot=[1,2,3].includes(data.manualSlot)?data.manualSlot:0;
-  if(!data){ add("SAVE GAME 01 is empty.", "system"); return; }
   const converted=convertRetiredMaterials(data.player);
   if(converted.length){
    try{localStorage.setItem(slot==='auto'?FACTORY_AUTOSAVE_KEY:SAVE_KEYS[slot],JSON.stringify(data));}catch{}
@@ -2032,6 +2035,7 @@ function showFactory(entered=false){
   add(`(E) ENTER FACTORY — FREE (0 TURNS)${ensureRelayParts().east?"":"   (S) SEARCH EQUIPMENT RACK"}   (R) REVERSE DIRECTION`,"system");
 }
 function v49Autosave(){
+  if(!isResumableLocalSave({player,stage}))return;
   try{localStorage.setItem(FACTORY_AUTOSAVE_KEY,JSON.stringify({...saveSnapshot(),manualSlot:activeSaveSlot}));}
   catch(e){add("AUTOSAVE UNAVAILABLE — Check browser storage.","system");}
 }

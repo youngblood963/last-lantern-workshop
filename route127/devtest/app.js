@@ -22,7 +22,7 @@ let roadTurnCharged = false;
 let serviceRoadDepth = 0;
 let day = 1;
 let wandererSerial = 0;
-let testMode = false;
+let testMode = globalThis.ROUTE127_ENV?.name === 'DEVTEST';
 let refillTimer = null;
 let currentHotkeys = {};
 let numberedChoices = {};
@@ -1140,7 +1140,7 @@ function loadGame(slot=activeSaveSlot){
   if(!Number.isFinite(Number(player.lifetimeTurns))) player.lifetimeTurns=Math.max(0,Number(data.dailyRoadTurns)||0);
   player.maxTurns=TURN_CAP; player.turns=Math.max(0,Math.min(TURN_CAP,Number(player.turns)||0));
   if(player.flags.relayQuest==="complete" && player.flags.factoryQuest===undefined) player.flags.factoryQuest="active";
-  testMode=false;
+  testMode=globalThis.ROUTE127_ENV?.name === 'DEVTEST';
   player.encounterDone={};
   for(const [k,v] of Object.entries((data.player&&data.player.encounterDone)||{})) player.encounterDone[k]=new Set(v||[]);
   stage=data.stage||"house";

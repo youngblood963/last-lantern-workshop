@@ -55,21 +55,53 @@ body{background:#090a09;color:#ebe1ce}
 .r127-play:hover::after,.r127-play:focus-visible::after{opacity:1}
 .r127-play:focus-visible{outline:2px solid #ffd395;outline-offset:4px}
 @media(max-width:450px){.r127-actions{align-items:stretch;flex-direction:column}.r127-actions .r127-back{text-align:center}}
+
+/* Route 127 public playtest artwork showcase */
+.r127-gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.r127-shot{margin:0;background:#141410;border:1px solid #66503a;overflow:hidden}
+.r127-shot a{display:block;position:relative;overflow:hidden}
+.r127-shot img{display:block;width:100%;height:auto;aspect-ratio:1021/574;object-fit:contain;background:#080908;transition:filter .2s ease}
+.r127-shot a:hover img,.r127-shot a:focus-visible img{filter:brightness(1.12)}
+.r127-shot a:focus-visible{outline:2px solid #e5ab64;outline-offset:-3px}
+.r127-shot figcaption{padding:13px 17px;color:#d5b38e;font:700 .83rem/1.6 monospace;letter-spacing:.04em}
+.r127-shot figcaption span{display:block;font-weight:400;color:#a99b87;letter-spacing:0}
+.r127-feature{position:relative;isolation:isolate;overflow:hidden}
+.r127-feature-with-art{min-height:275px;padding-right:38%}
+.r127-feature-with-art>*:not(img){position:relative;z-index:1}
+.r127-feature-art{position:absolute;right:-5px;bottom:-5px;z-index:0;width:39%;max-height:90%;object-fit:contain;object-position:right bottom;pointer-events:none;filter:drop-shadow(-6px 4px 12px #000b)}
+.r127-feature-with-art::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 40%,rgba(12,12,10,.1));pointer-events:none}
+.r127-gallery-sub{font:700 .78rem monospace;letter-spacing:.13em;color:#dba569;text-transform:uppercase;margin-bottom:14px}
+@media(max-width:720px){.r127-feature-with-art{min-height:235px;padding-right:34%}.r127-feature-art{width:37%}}
+@media(max-width:650px){.r127-gallery{grid-template-columns:1fr}.r127-feature-with-art{padding-right:36%}}
+@media(max-width:390px){.r127-feature-with-art{padding-right:30%}.r127-feature-art{width:32%;opacity:.75}}
+@media(prefers-reduced-motion:reduce){.r127-shot img{transition:none}}
+
 </style>
 </head>
 <body>
 <header><div class="nav-wrap"><a class="brand" href="../" aria-label="Last Lantern Workshop home"><img src="../last-lantern-logo.png" alt=""><span>Last Lantern Workshop™</span></a><nav><a href="../#projects">Projects</a><a href="../support.html">Support</a><a href="../privacy.html">Privacy</a></nav></div></header>
 <main>
 <section class="r127-hero"><div class="r127-container"><div class="r127-overline">Incoming transmission // game project</div><h1>ROUTE 127</h1><p class="r127-tagline">THE ROAD REMEMBERS.<br>THE WASTELAND DOESN'T FORGIVE.</p><span class="r127-label">Public Playtest — Now Live</span><p class="r127-intro">Civilization is gone. The roads are dangerous. Every stranger has a story, and every decision has a cost. Route 127 brings the spirit of classic BBS door games into a persistent, post-apocalyptic world built around exploration, survival, and the choices you make.</p><div class="r127-actions"><a class="r127-play" href="/route127/playtest/"><span aria-hidden="true">▶</span><span class="iron-title-text">PLAY ROUTE 127</span></a><a class="r127-back" href="#features">Explore the wasteland ↓</a></div><a class="r127-support-link" href="https://ko-fi.com/lastlanternworkshop" target="_blank" rel="noopener noreferrer" aria-label="Support Last Lantern Workshop on Ko-fi (opens in a new tab)">☕ Enjoying the wasteland? Support the Workshop ↗</a></div></section>
+
+<section class="r127-section" id="gallery"><div class="r127-container">
+<div class="r127-overline">Field recordings // dispatches from the road</div>
+<h2>Glimpses from the wasteland.</h2>
+<p class="r127-section-lead">Every road has a story. Four moments from the public playtest, captured in the actual game interface. Select a scene to see it full size.</p>
+<div class="r127-gallery">
+<figure class="r127-shot"><a href="showcase/station-nine-night.webp" target="_blank" rel="noopener" aria-label="View Station Nine nighttime exploration screenshot full size"><img src="showcase/station-nine-night.webp" alt="Route 127 at night: moonlit abandoned harbor road during the Station Nine storyline, showing gameplay interface and choices" loading="lazy" width="1021" height="574"></a><figcaption>01 // AFTER DARK<span>Station Nine · Night exploration</span></figcaption></figure>
+<figure class="r127-shot"><a href="showcase/iona-pike-day.webp" target="_blank" rel="noopener" aria-label="View Iona Pike daytime encounter screenshot full size"><img src="showcase/iona-pike-day.webp" alt="Route 127 daytime industrial road scene with wanderer Iona Pike and dialogue options" loading="lazy" width="1021" height="574"></a><figcaption>02 // LIFE ON THE ROAD<span>Iona Pike · Daytime encounters</span></figcaption></figure>
+<figure class="r127-shot"><a href="showcase/old-house.webp" target="_blank" rel="noopener" aria-label="View Old House screenshot full size"><img src="showcase/old-house.webp" alt="Route 127's Old House interior: a candlelit, abandoned home with exploration actions" loading="lazy" width="1021" height="574"></a><figcaption>03 // WHERE IT BEGINS<span>Old House · Home base</span></figcaption></figure>
+<figure class="r127-shot"><a href="showcase/forge-workshop.webp" target="_blank" rel="noopener" aria-label="View Forge's Workshop screenshot full size"><img src="showcase/forge-workshop.webp" alt="Forge relaxing in his cluttered workshop beside a small sweeping robot, with in-game menu options" loading="lazy" width="1021" height="574"></a><figcaption>04 // FRIENDS IN THE RUINS<span>Forge's Workshop · A little humanity</span></figcaption></figure>
+</div></div></section>
 <section class="r127-section" id="features"><div class="r127-container"><div class="r127-overline">Field manual // what makes Route 127 different</div><h2>Survive your way.</h2><p class="r127-section-lead">More than a retro terminal. Build, bargain, gamble, fight, or earn a reputation nobody can ignore. These are the gameplay systems shaping the journey.</p>
 <div class="r127-grid">
-<article class="r127-feature"><small>01 // Workbenches</small><h3>Real-Time Crafting</h3><p>Scavenge materials and craft equipment at wasteland workbenches. Crafting runs on real-time timers, and success isn't guaranteed.</p></article>
+<article class="r127-feature r127-feature-with-art"><img class="r127-feature-art" src="showcase/martha.webp" alt="Martha, an elderly wasteland trader" loading="lazy"><small>01 // Workbenches</small><h3>Real-Time Crafting</h3><p>Scavenge materials and craft equipment at wasteland workbenches. Crafting runs on real-time timers, and success isn't guaranteed.</p></article>
 <article class="r127-feature"><small>02 // Reputation</small><h3>Crime &amp; Bounties</h3><p>Assault, murder, and theft carry consequences. Build a bounty, pay your dues, and chase a place on the Most Wanted or all-time Most Notorious boards.</p></article>
 <article class="r127-feature"><small>03 // The Road</small><h3>Persistent Wanderers</h3><p>Encounter named travelers with possessions of their own. Talk, trade, steal, or fight. What happens on the road can change what you find next time.</p></article>
 <article class="r127-feature"><small>04 // Your Screen</small><h3>Two Ways to Play</h3><p>Experience Route 127 through richly illustrated Full Graphics or return to its roots with Classic BBS mode. Switch between both interfaces whenever you want.</p></article>
-<article class="r127-feature"><small>05 // Survival</small><h3>Loot, Bosses &amp; Progression</h3><p>Scavenge equipment, upgrade your survivor, and battle dangerous enemies across the wasteland. Discover increasingly powerful gear, develop your character, and take on challenging bosses.</p></article>
-<article class="r127-feature"><small>06 // Off Duty</small><h3>Wasteland Gambling</h3><p>Risk your Bolts on dice, blackjack, slots, and other games between expeditions. Sometimes the biggest gamble isn't out on the road.</p></article>
-<article class="r127-feature"><small>07 // Every Step Counts</small><h3>Turn-Based Exploration</h3><p>Make your daily turns count as you travel between settlements, scavenge, and face unpredictable encounters along the highway.</p></article>
+<article class="r127-feature r127-feature-with-art"><img class="r127-feature-art" src="showcase/bone-collector.webp" alt="Bone Collector, a formidable wasteland enemy" loading="lazy"><small>05 // Survival</small><h3>Loot, Bosses &amp; Progression</h3><p>Scavenge equipment, upgrade your survivor, and battle dangerous enemies across the wasteland. Discover increasingly powerful gear, develop your character, and take on challenging bosses.</p></article>
+<article class="r127-feature r127-feature-with-art"><img class="r127-feature-art" src="showcase/crazy-steve.webp" alt="Crazy Steve advertising his wasteland casino" loading="lazy"><small>06 // Off Duty</small><h3>Wasteland Gambling</h3><p>Risk your Bolts on dice, blackjack, slots, and other games between expeditions. Sometimes the biggest gamble isn't out on the road.</p></article>
+<article class="r127-feature r127-feature-with-art"><img class="r127-feature-art" src="showcase/cornfield-stalker.webp" alt="A masked cornfield stalker holding a sickle" loading="lazy"><small>07 // Every Step Counts</small><h3>Turn-Based Exploration</h3><p>Make your daily turns count as you travel between settlements, scavenge, and face unpredictable encounters along the highway.</p></article>
 <article class="r127-feature"><small>08 // Liberation</small><h3>Liberate Seaport</h3><p>Fight to free a settlement from the gangs controlling it. Complete quests, confront dangerous enemies, and help the survivors reclaim their home.</p></article>
 <article class="r127-feature"><small>09 // Persistent Progress</small><h3>Cloud Saves</h3><p>Your journey doesn't have to end when you close your browser. Sign in to save your character and continue your adventures across supported devices.</p></article>
 <article class="r127-feature"><small>10 // The Wasteland Connects</small><h3>Asynchronous Multiplayer — In Development</h3><p>The wasteland is being built for more than one survivor. Future asynchronous multiplayer features will let players leave their mark on a shared world without needing to be online at the same time.</p></article>

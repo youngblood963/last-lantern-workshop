@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 132" role="img" aria-label="Glowing oil lantern">
+<defs><radialGradient id="f"><stop stop-color="#fff3bc"/><stop offset=".28" stop-color="#ffca61"/><stop offset=".7" stop-color="#d57b24"/><stop offset="1" stop-color="#422b1b"/></radialGradient></defs>
+<path d="M37 17v-7a13 13 0 0 1 26 0v7" stroke="#ae855e" stroke-width="7" fill="none"/>
+<path d="M24 36q26-17 52 0l-5 10H29z" fill="#64605b" stroke="#bc885b" stroke-width="4"/>
+<path d="M31 43q-14 24-8 55m46-55q14 24 8 55" fill="none" stroke="#817c71" stroke-width="7"/>
+<path d="M33 53q17-7 34 0l7 51q-24 12-48 0z" fill="url(#f)" stroke="#b27c42" stroke-width="6"/>
+<path d="M33 54l34 50M67 54l-34 50" stroke="#484743" stroke-width="6"/>
+<path d="M23 104q27-8 54 0l7 15q-34 15-68 0z" fill="#54504b" stroke="#ac7744" stroke-width="5"/>
+</svg>

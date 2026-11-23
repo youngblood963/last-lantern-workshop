@@ -17,4 +17,10 @@ for(const file of ['the_road_enforcer.png','the_shattered_silo.png','the_hollow_
 }
 const sprite=run(`(()=>{const values={};const node={tagName:'IMG',hasAttribute:()=>false,classList:{contains:()=>false,add(){},toggle(){}},style:{setProperty:(k,v)=>values[k]=v}};Route127CombatLayouts.applyCemeteryLayout(node,{x:95,y:5,width:140,height:120,scale:2,z:4,flip:false},false);return values;})()`);
 assert.equal(sprite['--r127-layout-scale'],'2','Foreground sprite composition is preserved');
+for(const region of ['central','industrial','lowlands','west','north','east','seaport','causeway']){
+ const values=run(`(()=>{const values={};const node={tagName:'IMG',src:'http://localhost/route127/assets/regions/${region}.png',hasAttribute:()=>false,classList:{contains:c=>c==='gfx-image',add(){},toggle(){}},style:{setProperty:(k,v)=>values[k]=v}};Route127CombatLayouts.applyCemeteryLayout(node,{x:97,y:2,width:140,height:120,scale:2,z:1,flip:false},true);return values;})()`);
+ assert.equal(values['--r127-layout-scale'],'2',region+' regional saved scale must remain unchanged');
+ assert.equal(values['--r127-layout-x'],'97%',region+' regional saved placement must remain unchanged');
+}
 console.log('PASS: oversized saved primary-scene boxes stay inside the viewport for all five reported scenes; foreground sprite layouts and saved values remain unchanged');
+console.log('PASS: all eight regional backgrounds retain their existing saved geometry');

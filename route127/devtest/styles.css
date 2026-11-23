@@ -327,3 +327,42 @@ body { grid-template-columns:minmax(0,1fr); }
  .utility-panel button { min-width:0; min-height:44px; white-space:normal; overflow-wrap:anywhere; }
  #command { min-width:0; }
 }
+
+/* Legacy entry actions sit outside the traveler overlay and graphics frame. */
+.terminal-shell .entry-legacy-actions .entry-action,
+.terminal-shell .gfx-classic-switch {
+  --entry-fg: #ffe3b4;
+  --entry-border: #a36b44;
+  --entry-hover: #34271e;
+  box-sizing: border-box;
+  min-height: 44px;
+  min-width: 44px;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font: 600 14px/1.35 system-ui, sans-serif;
+  color: var(--entry-fg);
+  background: #211e1a;
+  border: 1px solid var(--entry-border);
+  cursor: pointer;
+}
+.terminal-shell .entry-legacy-actions .entry-action-reset {
+  --entry-fg: #ffd4bf;
+  --entry-border: #b5725e;
+  --entry-hover: #3d2723;
+}
+.terminal-shell :is(.entry-legacy-actions .entry-action, .gfx-classic-switch):enabled:is(:hover, :focus-visible) {
+  background: var(--entry-hover);
+  border-color: var(--entry-fg);
+}
+.terminal-shell :is(.entry-legacy-actions .entry-action, .gfx-classic-switch):focus-visible {
+  outline: 2px solid var(--entry-fg);
+  outline-offset: 2px;
+}
+.terminal-shell :is(.entry-legacy-actions .entry-action, .gfx-classic-switch):disabled {
+  color: #b4a99a;
+  background: #252321;
+  border-color: #716456;
+  opacity: 1;
+  cursor: default;
+}

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 390" role="img" aria-label="Shadowed workshop landscape with a windmill under the moon">
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#171c22"/><stop offset=".7" stop-color="#3c4146"/><stop offset="1" stop-color="#171b1f"/></linearGradient><radialGradient id="moon"><stop stop-color="#cfd4d8" stop-opacity=".65"/><stop offset="1" stop-color="#cfd4d8" stop-opacity="0"/></radialGradient></defs>
+<rect width="960" height="390" fill="url(#sky)"/>
+<circle cx="720" cy="112" r="158" fill="url(#moon)"/><circle cx="720" cy="112" r="65" fill="#c1c7cb"/><path d="M675 94q40-56 61-8t48 20l-12 37-56 29-38-29z" fill="#929da3" opacity=".3"/>
+<g fill="#10161a"><path d="M0 283L74 160l43 123 79-151 81 151 82-120 62 120 68-147 67 147 72-157 79 157 76-125 67 125 110-176 70 176v107H0Z"/></g>
+<g fill="#0a1014"><path d="M0 328l54-147 50 147 42-177 63 177 50-135 52 135 66-191 72 191 51-134 59 134 65-184 61 184 62-151 67 151 70-190 86 190v62H0Z"/></g>
+<path d="M0 341q210-49 391-17t569 1v65H0Z" fill="#151a1d"/>
+<g stroke="#111618" fill="none" stroke-width="13">
+<path d="M545 339l48-170 42 170"/><path d="M554 305h74m-60-39h51m-41-37h29m-35 100h47"/>
+</g>
+<g transform="translate(592 166)" stroke="#0b1114" fill="#22292c"><circle r="19" stroke-width="8"/><path d="M-6-15l-40-106 27-5 29 104zM14-5l104-37 5 27L21 14zM7 16l36 104-27 6L-13 23zM-16 7l-107 34-5-28 105-29z" stroke-width="5"/></g>
+<g opacity=".32"><path d="M0 355q210-36 437-4t523-9" fill="none" stroke="#997b5e" stroke-width="2"/></g>
+</svg>

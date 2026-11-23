@@ -494,7 +494,7 @@ footer{color:#b7cbc7}
 body:has(.hero){
   background:
     linear-gradient(rgba(12,27,35,.62),rgba(12,27,35,.77)),
-    url('route127/assets/regions/sky_day.png') center top / cover no-repeat;
+    url('route127/assets/regions/sky_night.png') center top / cover no-repeat;
 }
 body:has(.hero) .hero{
   background:linear-gradient(180deg,rgba(16,33,40,.13),rgba(16,33,40,.38));
@@ -519,12 +519,12 @@ body:has(.hero) .about{
 body:has(.hero){
   background:
     linear-gradient(rgba(9,25,32,.20),rgba(9,25,32,.28)),
-    url('route127/assets/regions/sky_day.png') center top / cover fixed no-repeat;
+    url('route127/assets/regions/sky_night.png') center top / cover fixed no-repeat;
 }
 body:has(.hero) .hero{
   background:
     linear-gradient(180deg,rgba(12,29,37,.16),rgba(12,29,37,.39)),
-    url('route127/assets/regions/sky_day.png') center center / cover no-repeat;
+    url('route127/assets/regions/sky_night.png') center center / cover no-repeat;
 }
 body:has(.hero) .projects{background:rgba(18,36,42,.65)}
 body:has(.hero) .about{background:rgba(18,36,42,.70)}
@@ -593,7 +593,7 @@ body:has(.hero) .about{background:rgba(18,36,42,.70)}
 /* Put the real daytime sky directly on the hero image plane, without a tinted
    blue wash obscuring it. Text retains its own shadows for legibility. */
 body:has(.hero) .hero{
- background-image:url('route127/assets/regions/sky_day.png');
+ background-image:url('route127/assets/regions/sky_night.png');
  background-color:#7194a7;
  background-position:center center;
  background-repeat:no-repeat;
@@ -634,4 +634,12 @@ input.btn,
 .route127-home-play:focus-visible{outline:3px solid #f6f7ee;outline-offset:3px}
 @media(max-width:480px){
   .btn,.btn-secondary,.route127-home-play{min-height:60px;padding:13px 16px}
+}
+
+/* Night-sky final: keep the actual Route 127 night sky in view. */
+body:has(.hero) .hero{
+  background-image:url('route127/assets/regions/sky_night.png')!important;
+  background-color:#101d31;
+  background-position:center center;
+  background-size:cover;
 }

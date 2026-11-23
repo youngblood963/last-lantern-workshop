@@ -60,7 +60,16 @@ assert.equal(second.run("lanternChoose(lanternConnections('solace')[0].id)"),tru
 assert.equal(second.run('stage'),'lanternRoad');
 for(const [key,value] of physicalRecords)assert.equal(second.storage.get(key),value,key);
 async function startupAndReset(){
- const fresh=boot(physicalRecords);
+ const placeholder=JSON.stringify({...saved,stage:'confirmNewSlot',player:{...saved.player,handle:''},savedAt:'2099-01-01'});
+ const fresh=boot([...physicalRecords,[local+auto,placeholder]]);
+ const fallback=boot([...physicalRecords,[local+auto,placeholder],[local+slot,JSON.stringify(saved)]]);
+ await fallback.run('handleCommandCore("continue")');
+ assert.equal(fallback.run('player.handle'),'Local Ranger');
+ assert.equal(fallback.run('stage'),'house');
+ await fresh.run('handleCommandCore("continue")');
+ assert.equal(fresh.run('stage'),'title');
+ fresh.run('v49Autosave()');
+ assert.equal(fresh.storage.get(local+auto),placeholder);
  assert.equal(fresh.run('devtestTitleActions().join(",")'),'New Game');
  // Remove animation delays while retaining the real intro and command handling.
  fresh.ctx.setTimeout=callback=>{queueMicrotask(callback);return 1;};

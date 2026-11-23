@@ -200,3 +200,26 @@ body.midnight-workshop:has(> main > .workshop-hero) .lantern-secret{
  body.midnight-workshop:has(> main > .workshop-hero) .hero h1 .workshop-initials{font-size:clamp(55px,12vh,82px)}
  body.midnight-workshop:has(> main > .workshop-hero) .workshop-hero-copy .buttons{margin-top:10px}
 }
+
+
+/* Veiled Moon has a dedicated studio showcase, without changing its oracle app. */
+body.midnight-workshop.veiled-showcase-page .veiled-showcase{
+ background:linear-gradient(135deg,#101119e6,#1a1b28dd),url('iron-texture.webp') repeat;
+ color:#f2ede3;
+}
+body.midnight-workshop .veiled-showcase-hero{padding:clamp(45px,7vw,100px) 22px}
+body.midnight-workshop .veiled-showcase-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);align-items:center;gap:clamp(24px,5vw,65px)}
+body.midnight-workshop .veiled-showcase-art{text-align:center}
+body.midnight-workshop .veiled-showcase-art img{display:block;max-width:min(100%,310px);width:100%;height:auto;max-height:440px;object-fit:contain;margin:auto;box-shadow:0 15px 40px #0009;border:1px solid #94735e}
+body.midnight-workshop .veiled-showcase-copy h1{font-size:clamp(2.6rem,5vw,5rem);line-height:1.1;margin:15px 0 23px}
+body.midnight-workshop .veiled-showcase-copy p{font-size:1.05rem;line-height:1.7;color:#ded8dc;max-width:620px}
+body.midnight-workshop .veiled-showcase-copy .veiled-lead{font:italic 1.35rem Georgia,serif;color:#ebd8e4}
+body.midnight-workshop .veiled-showcase-copy .buttons{justify-content:flex-start}
+body.midnight-workshop .veiled-showcase-detail{padding:55px 22px 72px;text-align:center;background:linear-gradient(#12151cde,#12151ce8),url('wood-texture.webp') repeat;border-top:1px solid #85654b}
+body.midnight-workshop .veiled-showcase-detail h2{font-size:clamp(2rem,4vw,3rem);margin:12px 0}
+body.midnight-workshop .veiled-showcase-detail p{color:#dcd7db}
+@media(max-width:700px){
+ body.midnight-workshop .veiled-showcase-grid{grid-template-columns:1fr;text-align:center}
+ body.midnight-workshop .veiled-showcase-copy .buttons{justify-content:center}
+ body.midnight-workshop .veiled-showcase-art img{max-width:240px}
+}

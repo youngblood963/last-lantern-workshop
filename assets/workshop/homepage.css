@@ -87,3 +87,24 @@ body.midnight-workshop #projects{scroll-margin-top:125px}
 body.midnight-workshop .hero.workshop-hero{background-size:auto,220% auto!important;background-position:center,left bottom!important}
 body.midnight-workshop .workshop-hero-scene{box-shadow:none;mask-image:linear-gradient(to right,transparent,#000 12px,#000 calc(100% - 22px),transparent),linear-gradient(to bottom,#000 calc(100% - 16px),transparent);mask-composite:intersect}
 @media(max-width:900px){body.midnight-workshop .hero.workshop-hero{background-size:auto,auto 180%!important;background-position:center,left bottom!important}}
+
+/* Carry the homepage workshop treatment onto its support and policy pages. */
+body.midnight-workshop .support-page,
+body.midnight-workshop .privacy-page{
+  background:linear-gradient(rgba(26,29,33,.91),rgba(26,29,33,.96)),url('iron-texture.webp') repeat;
+  border-top:1px solid #73573d;
+}
+body.midnight-workshop .support-card{
+  border:9px solid transparent;
+  border-image:url('secondary-frame.webp') 12 stretch;
+  background:linear-gradient(rgba(33,37,40,.94),rgba(33,37,40,.94)),url('iron-texture.webp') repeat;
+  box-shadow:0 12px 30px #0008;
+}
+body.midnight-workshop .support-card h2{font-weight:700}
+body.midnight-workshop .support-tip{margin-top:20px}
+body.midnight-workshop .privacy-copy{color:#d1d0cc}
+body.midnight-workshop .privacy-copy section{border-color:rgba(202,147,95,.25)}
+body.midnight-workshop .privacy-copy h2{font-weight:700}
+body.midnight-workshop .privacy-copy a{color:#e9c18f}
+body.midnight-workshop .privacy-copy a:hover{color:#f3d4ad}
+body.midnight-workshop .privacy-intro{border-color:#73573d}

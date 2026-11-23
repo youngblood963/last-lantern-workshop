@@ -701,6 +701,18 @@
   const file=ownerRoadArt.get(title)||ownerRoadArt.get(normalize(c?.name));
   if(file){
    const art='../devtest/assets/'+(file.startsWith('../scenarios/')?'scenarios/'+file.slice('../scenarios/'.length):'enemies/'+file);
+   if(file==='unauthorized_cargo.png'){
+    const region=route127CurrentRegion(lanternState());
+    const ground=Route127RegionalSky.regions[region]?.[0];
+    if(!ground)return model;
+    const period=Route127RegionalSky.phase(player.flags.worldHour);
+    const sky='sky_'+(period==='dusk'?'dawn':period)+'.png';
+    const regionalAsset=name=>new URL('../assets/regions/'+name,root).href;
+    if(![art,regionalAsset(ground),regionalAsset(sky)].map(url=>this.sceneArtworkReady(url)).every(Boolean))return model;
+    model.regionalSky={region,period,sky,ground};
+    model.scenarioBackdrop={art,mode:'regional'};
+    model.causewayBacking=false;
+   }
    if(['shipwreck_scavengers.png','toxic_cargo.png'].includes(file)){
     const phase=Route127RegionalSky.phase(player.flags.worldHour);
     const sky=new URL('../assets/regions/sky_'+(phase==='dusk'?'dawn':phase)+'.png',root).href;

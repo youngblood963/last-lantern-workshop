@@ -251,3 +251,33 @@ body.midnight-workshop:has(> main > .workshop-hero) > main > .hero.workshop-hero
  body.midnight-workshop:has(> main > .workshop-hero) .workshop-hero-copy .btn{min-height:39px;padding:5px 8px;font-size:.7rem}
  body.midnight-workshop:has(> main > .workshop-hero) > footer{padding:4px 12px}
 }
+
+
+/* Navigation emblem cleanup: cover any emblem baked into the extracted
+   navigation-frame art; render only our standalone lantern-gear artwork. */
+body.midnight-workshop .nav-wrap{
+ position:relative;
+ isolation:isolate;
+}
+body.midnight-workshop .nav-wrap .brand{
+ position:relative;
+ z-index:1;
+ display:inline-flex;
+ align-items:center;
+ gap:10px;
+ padding:2px 10px 2px 0;
+ background:
+   linear-gradient(90deg,rgba(27,30,33,.97),rgba(27,30,33,.97)),
+   url('iron-texture.webp') repeat;
+}
+body.midnight-workshop .nav-wrap .brand img{
+ display:block!important;
+ flex:none;
+ width:56px!important;
+ height:56px!important;
+ object-fit:contain;
+}
+@media(max-width:520px){
+ body.midnight-workshop .nav-wrap .brand img{width:42px!important;height:42px!important}
+ body.midnight-workshop .nav-wrap .brand{gap:5px;padding-right:5px}
+}

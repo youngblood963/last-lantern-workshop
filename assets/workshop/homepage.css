@@ -152,3 +152,51 @@ body.midnight-workshop .mk-policy-link a{color:#f2c995;text-underline-offset:4px
  body.midnight-workshop .workshop-about-links{grid-template-columns:1fr}
  body.midnight-workshop .workshop-about-intro{padding:45px 18px}
 }
+
+
+/* One-screen LLW landing: full cinematic entrance, project pages are elsewhere. */
+body.midnight-workshop:not(.project-landing):has(> main > .workshop-hero){
+ min-height:100vh;
+ min-height:100svh;
+ display:flex;
+ flex-direction:column;
+}
+body.midnight-workshop:has(> main > .workshop-hero) > header{flex:0 0 auto;position:relative}
+body.midnight-workshop:has(> main > .workshop-hero) > main{
+ flex:1 1 auto;
+ min-height:0;
+ display:flex;
+ flex-direction:column;
+}
+body.midnight-workshop:has(> main > .workshop-hero) > main > .hero.workshop-hero{
+ flex:1 1 auto;
+ min-height:0!important;
+ padding-top:clamp(12px,2.5vh,30px)!important;
+ padding-bottom:clamp(12px,2.5vh,30px)!important;
+}
+body.midnight-workshop:has(> main > .workshop-hero) > footer{
+ flex:0 0 auto;
+ padding:10px 20px;
+ font-size:.75rem;
+}
+body.midnight-workshop:has(> main > .workshop-hero) .lantern-secret{
+ position:fixed;
+ right:8px;bottom:6px;
+ z-index:50;
+}
+/* On narrow or short screens allow scrolling rather than clipping controls. */
+@media(max-width:900px){
+ body.midnight-workshop:has(> main > .workshop-hero) > main > .hero.workshop-hero{
+  padding-top:12px!important;padding-bottom:18px!important;gap:12px;
+ }
+ body.midnight-workshop:has(> main > .workshop-hero) .workshop-hero-scene{max-width:min(500px,100%)}
+ body.midnight-workshop:has(> main > .workshop-hero) .workshop-hero-scene img{max-height:29svh;object-fit:contain}
+ body.midnight-workshop:has(> main > .workshop-hero) .hero .hero-logo{width:clamp(72px,10svh,110px);margin-bottom:4px}
+ body.midnight-workshop:has(> main > .workshop-hero) .hero h1 .workshop-initials{font-size:clamp(54px,9svh,80px)}
+ body.midnight-workshop:has(> main > .workshop-hero) .workshop-hero-copy .buttons{margin-top:12px}
+}
+@media(max-height:590px) and (min-width:901px){
+ body.midnight-workshop:has(> main > .workshop-hero) .hero .hero-logo{width:clamp(65px,12vh,100px)}
+ body.midnight-workshop:has(> main > .workshop-hero) .hero h1 .workshop-initials{font-size:clamp(55px,12vh,82px)}
+ body.midnight-workshop:has(> main > .workshop-hero) .workshop-hero-copy .buttons{margin-top:10px}
+}

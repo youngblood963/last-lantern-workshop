@@ -2,9 +2,7 @@
 (() => {
  'use strict';
  if(new URLSearchParams(location.search).get('offline')==='1')return;
- const configuredPrefix=document.currentScript?.dataset.apiPrefix;
- const apiPrefix=['/route127/devtest/api/','/route127/devtest/api/devtest/','/route127/devtest/api/playtest/']
-  .includes(configuredPrefix)?configuredPrefix:'/api/';
+ const apiPrefix=document.currentScript?.dataset.apiPrefix==='/route127/devtest/api/'?'/route127/devtest/api/':'/api/';
  const template=document.getElementById('route127-cloud-login');
  const loginTemplate=template?.tagName==='TEMPLATE'?template:null;
  const storage=localStorage, KEY='r127-dev-pending:';

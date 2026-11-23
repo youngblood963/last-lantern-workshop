@@ -17,7 +17,7 @@
 <meta property="og:site_name" content="Last Lantern Workshop™">
 
 <link rel="icon" type="image/svg+xml" href="workshop-mark.svg?v=1">
-<link rel="stylesheet" href="styles.css?v=graphite-20261123">
+<link rel="stylesheet" href="styles.css?v=workshop-scenes-20261123">
 <style>
 /* Homepage Route 127 play action reuses the exact iron button artwork from route127/index.html. */
 @font-face{font-family:'Route 127 Stencil';src:url('route127/playtest/assets/fonts/SairaStencilOne-Regular.woff') format('woff');font-weight:400;font-style:normal;font-display:swap}
@@ -112,14 +112,17 @@
 
 <main>
 
-<section class="hero">
-  <img class="hero-logo" src="workshop-mark.svg?v=1" alt="Last Lantern Workshop emblem: lantern and tools within a weathered gear" width="176" height="117">
-  <div class="eyebrow">Apps • Games • Digital Creations</div>
-  <h1 class="workshop-wordmark"><span class="workshop-initials">LLW<sup>™</sup></span><span class="workshop-fullname">Last Lantern Workshop</span></h1>
-  <p>Small projects built with care, curiosity, and a light kept burning for whatever comes next.</p>
-  <div class="buttons">
-    <a class="btn" href="#projects">Explore Projects</a>
-    <a class="btn btn-secondary" href="support.html">Support</a>
+<section class="hero workshop-hero">
+  <div class="workshop-hero-scene"><img src="workshop-house.svg" alt="A moonlit, weathered wooden workshop with glowing windows and an old gear on its wall" width="980" height="550" fetchpriority="high"></div>
+  <div class="workshop-hero-copy">
+    <img class="hero-logo" src="workshop-mark.svg?v=1" alt="Last Lantern Workshop emblem: a glowing lantern within a metal gear" width="512" height="512">
+    <div class="eyebrow">Apps • Games • Digital Creations</div>
+    <h1 class="workshop-wordmark"><span class="workshop-initials">LLW<sup>™</sup></span><span class="workshop-fullname">Last Lantern Workshop</span></h1>
+    <p>Small projects built with care, curiosity, and a light kept burning for whatever comes next.</p>
+    <div class="buttons">
+      <a class="btn" href="#projects">Explore Projects</a>
+      <a class="btn btn-secondary" href="support.html">Support</a>
+    </div>
   </div>
 </section>
 
@@ -129,6 +132,7 @@
     <div class="section-heading">
       <div class="eyebrow">From the Workshop</div>
       <h2>Projects</h2>
+      <div class="workshop-divider" aria-hidden="true"><span></span><img src="workshop-gear.svg" alt="" width="34" height="34"><span></span></div>
       <p>Different worlds, different tools, one workshop.</p>
     </div>
 
@@ -179,12 +183,14 @@
   </div>
 </section>
 
-<section class="section about">
+<section class="section about workshop-about">
   <div class="wrap narrow">
     <div class="eyebrow">About</div>
     <h2>About the Workshop</h2>
+    <div class="workshop-divider" aria-hidden="true"><span></span><img src="workshop-lantern.svg" alt="" width="28" height="40"><span></span></div>
     <p>Last Lantern Workshop™ is an independent home for apps, games and digital creations—built one project at a time.</p>
     <p class="closing-line">More things are being built in the Workshop.</p>
+    <div class="workshop-detail-icons" aria-hidden="true"><img src="workshop-gear.svg" alt="" width="38" height="38"><img src="workshop-lantern.svg" alt="" width="29" height="39"><img src="workshop-gear.svg" alt="" width="38" height="38"></div>
   </div>
 </section>
 

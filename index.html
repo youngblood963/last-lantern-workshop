@@ -30,6 +30,101 @@
 .route127-home-play:hover::after,.route127-home-play:focus-visible::after{opacity:1}
 .route127-home-play:focus-visible{outline:2px solid #ffd395;outline-offset:4px}
 @media(max-width:480px){.route127-home-actions{flex-direction:column;align-items:stretch}.route127-home-actions .btn{text-align:center;flex:none}}
+
+/* Workshop atmosphere experiment: light, CSS-only and scoped to the homepage.
+   Preserve the established layout, project buttons and distinct project identities. */
+.hero{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  background:
+    radial-gradient(ellipse 48% 38% at 50% 33%,rgba(194,121,45,.13),transparent 78%),
+    radial-gradient(ellipse 68% 30% at 50% 88%,rgba(73,52,27,.11),transparent 78%),
+    linear-gradient(180deg,#080807 0%,#0d0b09 58%,#080807 100%);
+}
+.hero::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:0;
+  pointer-events:none;
+  opacity:.52;
+  background-image:
+    radial-gradient(circle at 19% 34%,rgba(235,166,83,.44) 0 1px,transparent 2px),
+    radial-gradient(circle at 75% 22%,rgba(238,176,101,.34) 0 1px,transparent 2px),
+    radial-gradient(circle at 87% 67%,rgba(201,128,51,.24) 0 1px,transparent 2px),
+    radial-gradient(circle at 35% 79%,rgba(223,155,78,.28) 0 1px,transparent 2px),
+    radial-gradient(ellipse at 50% 42%,rgba(198,124,48,.1),transparent 52%);
+}
+.hero::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  pointer-events:none;
+  width:min(660px,90vw);
+  aspect-ratio:1;
+  left:50%;
+  top:7%;
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(211,135,48,.10) 0%,rgba(177,98,35,.045) 37%,transparent 68%);
+  filter:blur(21px);
+}
+.hero-logo{
+  position:relative;
+  filter:drop-shadow(0 0 24px rgba(213,137,51,.22)) drop-shadow(0 0 58px rgba(175,100,38,.10));
+}
+.hero .eyebrow{color:#d8b077}
+.hero h1{text-shadow:0 2px 30px rgba(0,0,0,.64),0 0 32px rgba(202,139,60,.07)}
+.projects{
+  background:
+    radial-gradient(ellipse 70% 27% at 15% 24%,rgba(122,78,36,.075),transparent 72%),
+    radial-gradient(ellipse 55% 23% at 85% 62%,rgba(92,83,102,.052),transparent 72%),
+    linear-gradient(180deg,#090908 0%,#0c0b0a 52%,#090908 100%);
+}
+.projects .section-heading::after{
+  content:"";
+  display:block;
+  width:118px;
+  height:1px;
+  margin:23px auto 0;
+  background:linear-gradient(90deg,transparent,rgba(205,153,81,.75),transparent);
+}
+.projects .project-showcase{
+  position:relative;
+  border-top-color:rgba(193,153,94,.20);
+}
+.projects .project-showcase::before{
+  content:"";
+  position:absolute;
+  top:-1px;
+  left:0;
+  width:65px;
+  height:1px;
+  pointer-events:none;
+  background:linear-gradient(90deg,rgba(222,161,79,.7),transparent);
+}
+.projects .project-showcase:first-of-type::before{display:none}
+.projects .project-art{
+  border-color:rgba(192,155,95,.31);
+  box-shadow:0 18px 45px rgba(0,0,0,.4),0 0 35px rgba(191,126,48,.045);
+}
+.projects .project-showcase:nth-of-type(2) .project-art{
+  box-shadow:0 18px 45px rgba(0,0,0,.4),0 0 35px rgba(190,153,91,.055);
+}
+.projects .project-showcase:nth-of-type(3) .project-art{
+  box-shadow:0 18px 45px rgba(0,0,0,.4),0 0 35px rgba(149,138,196,.065);
+}
+.about{
+  background:
+    radial-gradient(ellipse 42% 85% at 50% 100%,rgba(180,108,40,.085),transparent 80%),
+    linear-gradient(180deg,#090908,#0a0908);
+}
+.about .closing-line{color:#d8b784}
+@media (max-width:650px){
+  .hero::after{top:15%;width:94vw}
+  .projects{background:linear-gradient(180deg,#090908,#0c0b0a 52%,#090908)}
+}
 </style>
 </head>
 

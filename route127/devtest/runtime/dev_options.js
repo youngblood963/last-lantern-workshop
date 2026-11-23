@@ -363,15 +363,15 @@
     if(!panel)return result;
     const close=[...panel.querySelectorAll('button')].find(btn=>btn.textContent==='Close');
     offerRoachRecovery(panel,close,this);
-    const turns=this.button('Unlimited Turns: '+(testMode?'ON':'OFF'),()=>{
+    const turns=this.button('Turn Limits: '+(testMode?'OFF — Unlimited':'ON — Limited'),()=>{
       testMode=!testMode;
       updateHud();
       if(typeof updateRefillDisplay==='function')updateRefillDisplay();
-      turns.textContent='Unlimited Turns: '+(testMode?'ON':'OFF');
-      turns.setAttribute('aria-pressed',String(testMode));
+      turns.textContent='Turn Limits: '+(testMode?'OFF — Unlimited':'ON — Limited');
+      turns.setAttribute('aria-pressed',String(!testMode));
     });
     turns.dataset.devtestUnlimited='true';
-    turns.setAttribute('aria-pressed',String(testMode));
+    turns.setAttribute('aria-pressed',String(!testMode));
     const preview=this.button('Wanderer Portrait Preview',showPortraitPreview);
     preview.dataset.devtestWandererPreview='true';
     panel.insertBefore(turns,close||null);

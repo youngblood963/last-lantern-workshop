@@ -810,3 +810,19 @@ body:has(.workshop-hero) .btn:hover{
  body:has(.workshop-hero) .hero.workshop-hero{padding:30px 18px 55px!important}
  body:has(.workshop-hero) .hero h1 .workshop-fullname{font-size:11px!important;letter-spacing:.1em!important}
 }
+
+/* Workshop material textures: smoke, worn iron, oxidation and dark woodgrain. */
+body:has(.workshop-hero) .projects{
+ background:
+  radial-gradient(circle at 18% 28%,rgba(156,86,49,.085) 0 1px,transparent 3px),
+  radial-gradient(circle at 77% 65%,rgba(183,113,58,.07) 0 2px,transparent 5px),
+  repeating-linear-gradient(35deg,rgba(255,255,255,.012) 0 2px,transparent 3px 14px),
+  linear-gradient(180deg,#2b3033,#202429 65%,#32383c)!important;
+}
+body:has(.workshop-hero) footer{
+ background:
+  repeating-linear-gradient(0deg,transparent 0 9px,rgba(0,0,0,.22) 10px 12px,rgba(210,170,111,.055) 13px,transparent 15px 27px),
+  linear-gradient(110deg,#26201c,#1b1d20 35%,#292724 80%,#17191b);
+ border-top:2px solid #806047;
+ color:#dac7b3;
+}

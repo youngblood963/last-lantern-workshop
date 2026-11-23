@@ -13,11 +13,11 @@
 <meta property="og:description" content="Last Lantern Workshop™ creates independent apps, games and digital experiences, including MetalKeep, Veiled Moon Oracle and Route 127.">
 <meta property="og:url" content="https://lastlanternworkshop.com/">
 <meta property="og:type" content="website">
-<meta property="og:image" content="https://lastlanternworkshop.com/workshop-mark.svg?v=1">
+<meta property="og:image" content="https://lastlanternworkshop.com/assets/workshop/lantern-gear.webp">
 <meta property="og:site_name" content="Last Lantern Workshop™">
 
-<link rel="icon" type="image/svg+xml" href="workshop-mark.svg?v=1">
-<link rel="stylesheet" href="styles.css?v=workshop-scenes-20261123">
+<link rel="icon" type="image/webp" href="assets/workshop/lantern-gear-nav.webp">
+<link rel="stylesheet" href="styles.css?v=midnight-artwork-20261123">
 <style>
 /* Homepage Route 127 play action reuses the exact iron button artwork from route127/index.html. */
 @font-face{font-family:'Route 127 Stencil';src:url('route127/playtest/assets/fonts/SairaStencilOne-Regular.woff') format('woff');font-weight:400;font-style:normal;font-display:swap}
@@ -30,76 +30,16 @@
 .route127-home-play:focus-visible{outline:2px solid #e4f3ed;outline-offset:4px}
 @media(max-width:480px){.route127-home-actions{flex-direction:column;align-items:stretch}.route127-home-actions .btn{text-align:center;flex:none}}
 
-/* Distinct workshop identity: blue-slate / verdigris, no orange spotlight. */
-.hero{
-  position:relative;
-  background:
-    radial-gradient(ellipse at 50% 12%,rgba(152,197,191,.18),transparent 58%),
-    repeating-linear-gradient(105deg,transparent 0 54px,rgba(255,255,255,.012) 55px 56px),
-    linear-gradient(155deg,#253d43,#1b3038 65%,#25383d);
-}
-.hero::before,.hero::after{content:none}
-.hero .eyebrow{color:#c8dcd7}
-.hero h1{text-shadow:none}
-.projects{background:linear-gradient(180deg,#243940,#1a3036 54%,#22393d)}
-.projects .section-heading::after{content:"";display:block;width:110px;height:2px;margin:24px auto 0;background:#82aca8}
-.projects .project-showcase{border-top-color:rgba(177,213,208,.3)}
-.projects .project-showcase::before{content:none}
-.projects .project-art{border-color:#698f8d;box-shadow:0 12px 24px rgba(11,30,34,.18)}
-.projects .project-showcase:nth-of-type(2) .project-art,
-.projects .project-showcase:nth-of-type(3) .project-art{box-shadow:0 12px 24px rgba(11,30,34,.18)}
-.about{background:linear-gradient(180deg,#20363d,#2d4447)}
-.about .closing-line{color:#d9e6df}
-@media(max-width:650px){.projects{background:linear-gradient(180deg,#243940,#1a3036 54%,#22393d)}}
-
-
-/* Primary wordmark: LLW is the focal point; studio name stays a quiet subtitle.
-   Kept inline so older cached stylesheets cannot flatten the stacked layout. */
-.hero h1.workshop-wordmark{
-  display:flex!important;
-  flex-direction:column!important;
-  align-items:center!important;
-  justify-content:center;
-  gap:3px!important;
-  width:min(100%,850px);
-  margin:12px auto 25px!important;
-  line-height:1.05!important;
-  text-align:center;
-}
-.hero h1.workshop-wordmark > .workshop-initials{
-  display:block!important;
-  font:italic 700 clamp(74px,12vw,145px)/1 Georgia,"Palatino Linotype",serif!important;
-  letter-spacing:.045em!important;
-  color:#f4f0e7;
-}
-.hero h1.workshop-wordmark > .workshop-initials sup{
-  font:normal 14px/1 Arial,sans-serif!important;
-  vertical-align:super;
-  top:0!important;
-  margin-left:.1em;
-}
-.hero h1.workshop-wordmark > .workshop-fullname{
-  display:block!important;
-  font:500 clamp(12px,1.5vw,17px)/1.5 Arial,Helvetica,sans-serif!important;
-  letter-spacing:.22em!important;
-  text-transform:uppercase;
-  color:#e0e8e4;
-  max-width:100%;
-}
-@media(max-width:480px){
-  .hero h1.workshop-wordmark > .workshop-initials{font-size:clamp(66px,19vw,92px)!important}
-  .hero h1.workshop-wordmark > .workshop-fullname{font-size:11px!important;letter-spacing:.1em!important}
-}
-
 </style>
+<link rel="stylesheet" href="assets/workshop/homepage.css?v=1">
 </head>
 
-<body>
+<body class="midnight-workshop">
 
 <header>
   <div class="nav-wrap">
     <a class="brand" href="index.html" aria-label="Last Lantern Workshop home">
-      <img src="workshop-mark.svg?v=1" alt="" width="34" height="34">
+      <img src="assets/workshop/lantern-gear-nav.webp" alt="" width="80" height="78">
       <span class="brand-lockup"><span class="brand-monogram">LLW<sup>™</sup></span></span>
     </a>
     <nav>
@@ -113,9 +53,9 @@
 <main>
 
 <section class="hero workshop-hero">
-  <div class="workshop-hero-scene"><img src="workshop-house.svg" alt="A moonlit, weathered wooden workshop with glowing windows and an old gear on its wall" width="980" height="550" fetchpriority="high"></div>
+  <div class="workshop-hero-scene"><img src="assets/workshop/workshop-scene.webp" alt="A moonlit, weathered wooden workshop with glowing windows and an old gear on its wall" width="596" height="250" fetchpriority="high"></div>
   <div class="workshop-hero-copy">
-    <img class="hero-logo" src="workshop-mark.svg?v=1" alt="Last Lantern Workshop emblem: a glowing lantern within a metal gear" width="512" height="512">
+    <img class="hero-logo" src="assets/workshop/lantern-gear.webp" alt="Last Lantern Workshop emblem: a glowing lantern within a metal gear" width="285" height="278">
     <div class="eyebrow">Apps • Games • Digital Creations</div>
     <h1 class="workshop-wordmark"><span class="workshop-initials">LLW<sup>™</sup></span><span class="workshop-fullname">Last Lantern Workshop</span></h1>
     <p>Small projects built with care, curiosity, and a light kept burning for whatever comes next.</p>
@@ -132,7 +72,7 @@
     <div class="section-heading">
       <div class="eyebrow">From the Workshop</div>
       <h2>Projects</h2>
-      <div class="workshop-divider" aria-hidden="true"><span></span><img src="workshop-gear.svg" alt="" width="34" height="34"><span></span></div>
+      <div class="workshop-divider" aria-hidden="true"><img src="assets/workshop/copper-divider.webp" alt="" width="231" height="36" loading="lazy"></div>
       <p>Different worlds, different tools, one workshop.</p>
     </div>
 
@@ -145,7 +85,7 @@
         <h3>Route 127</h3>
         <p>A post-apocalyptic online RPG inspired by the spirit of classic BBS door games. Scavenge ruined highways, discover settlements, fight for survival and uncover a persistent wasteland shaped by exploration, danger and the people trying to survive it.</p>
         <p class="project-note">The road remembers.</p>
-        <div class="buttons route127-home-actions"><a class="route127-home-play" href="route127/playtest/"><span aria-hidden="true">▶</span><span class="iron-title-text">PLAY ROUTE 127</span></a><a class="btn" href="route127/">Explore Route 127</a></div>
+        <div class="buttons route127-home-actions"><a class="route127-home-play" href="route127/playtest/"><span class="iron-title-text">PLAY ROUTE 127</span></a><a class="btn" href="route127/">Explore Route 127</a></div>
       </div>
     </article>
 
@@ -187,10 +127,10 @@
   <div class="wrap narrow">
     <div class="eyebrow">About</div>
     <h2>About the Workshop</h2>
-    <div class="workshop-divider" aria-hidden="true"><span></span><img src="workshop-lantern.svg" alt="" width="28" height="40"><span></span></div>
+    <div class="workshop-divider" aria-hidden="true"><img src="assets/workshop/copper-divider.webp" alt="" width="231" height="36" loading="lazy"></div>
     <p>Last Lantern Workshop™ is an independent home for apps, games and digital creations—built one project at a time.</p>
     <p class="closing-line">More things are being built in the Workshop.</p>
-    <div class="workshop-detail-icons" aria-hidden="true"><img src="workshop-gear.svg" alt="" width="38" height="38"><img src="workshop-lantern.svg" alt="" width="29" height="39"><img src="workshop-gear.svg" alt="" width="38" height="38"></div>
+    <div class="workshop-detail-icons" aria-hidden="true"><img src="assets/workshop/gear.webp" alt="" width="48" height="47" loading="lazy"><img src="assets/workshop/lantern.webp" alt="" width="42" height="58" loading="lazy"><img src="assets/workshop/gear.webp" alt="" width="48" height="47" loading="lazy"></div>
   </div>
 </section>
 

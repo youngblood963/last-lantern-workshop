@@ -1,0 +1,200 @@
+{
+  "source": "Owner-supplied Last Lantern Workshop Moodboard-2.png",
+  "sha256": "a80cfc8116a554ca85a6c17ea208b5fd95f23ed22eff1752958fda4a8194079c",
+  "source_pixels": [
+    1536,
+    1024
+  ],
+  "method": "Exact raster crops; hand-traced alpha mattes for isolated ornaments. No generated or redrawn imagery. Frames used as border images without their text-bearing centers.",
+  "assets": [
+    {
+      "file": "workshop-scene.webp",
+      "source_box": [
+        0,
+        0,
+        596,
+        250
+      ],
+      "pixels": [
+        596,
+        250
+      ],
+      "bytes": 43016,
+      "alpha": false
+    },
+    {
+      "file": "lantern-gear.webp",
+      "source_box": [
+        1204,
+        5,
+        1489,
+        283
+      ],
+      "pixels": [
+        285,
+        278
+      ],
+      "bytes": 22872,
+      "alpha": true
+    },
+    {
+      "file": "lantern-gear-nav.webp",
+      "derived_from": "lantern-gear.webp",
+      "pixels": [
+        80,
+        78
+      ],
+      "bytes": 4618
+    },
+    {
+      "file": "lantern.webp",
+      "source_box": [
+        938,
+        743,
+        998,
+        826
+      ],
+      "pixels": [
+        60,
+        83
+      ],
+      "bytes": 2490,
+      "alpha": true
+    },
+    {
+      "file": "gear.webp",
+      "source_box": [
+        1034,
+        746,
+        1113,
+        823
+      ],
+      "pixels": [
+        79,
+        77
+      ],
+      "bytes": 2866,
+      "alpha": true
+    },
+    {
+      "file": "copper-divider.webp",
+      "source_box": [
+        1138,
+        765,
+        1369,
+        801
+      ],
+      "pixels": [
+        231,
+        36
+      ],
+      "bytes": 1808,
+      "alpha": true
+    },
+    {
+      "file": "copper-corner.webp",
+      "source_box": [
+        1404,
+        748,
+        1492,
+        818
+      ],
+      "pixels": [
+        88,
+        70
+      ],
+      "bytes": 1376,
+      "alpha": true
+    },
+    {
+      "file": "iron-texture.webp",
+      "source_box": [
+        307,
+        869,
+        509,
+        989
+      ],
+      "pixels": [
+        202,
+        120
+      ],
+      "bytes": 5744,
+      "alpha": false
+    },
+    {
+      "file": "rust-texture.webp",
+      "source_box": [
+        529,
+        869,
+        727,
+        989
+      ],
+      "pixels": [
+        198,
+        120
+      ],
+      "bytes": 8240,
+      "alpha": false
+    },
+    {
+      "file": "wood-texture.webp",
+      "source_box": [
+        749,
+        869,
+        950,
+        989
+      ],
+      "pixels": [
+        201,
+        120
+      ],
+      "bytes": 9040,
+      "alpha": false
+    },
+    {
+      "file": "navigation-frame.webp",
+      "source_box": [
+        816,
+        303,
+        1519,
+        394
+      ],
+      "pixels": [
+        703,
+        91
+      ],
+      "bytes": 16642,
+      "alpha": false
+    },
+    {
+      "file": "button-frame.webp",
+      "source_box": [
+        517,
+        516,
+        849,
+        580
+      ],
+      "pixels": [
+        332,
+        64
+      ],
+      "bytes": 6528,
+      "alpha": false
+    },
+    {
+      "file": "secondary-frame.webp",
+      "source_box": [
+        517,
+        664,
+        849,
+        725
+      ],
+      "pixels": [
+        332,
+        61
+      ],
+      "bytes": 5416,
+      "alpha": false
+    }
+  ]
+}

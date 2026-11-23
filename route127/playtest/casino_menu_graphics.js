@@ -18,7 +18,7 @@
    const m=oldModel.call(this);
    if(graphic()&&atMenu()){
      m.layout='casino-menu';
-     m.art='assets/locations/rusty_lantern_casino.png';
+     m.art='../playtest/assets/locations/rusty_lantern_casino.png';
      m.title=player.flags.port55Casino?'The Rusty Anchor — Casino':'The Rusty Lantern — Casino';
    }
    return m;

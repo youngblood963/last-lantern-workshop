@@ -19,6 +19,18 @@
 <meta property="og:image:width" content="1536">
 <meta property="og:image:height" content="1024">
 <link rel="stylesheet" href="styles.css">
+<style>
+/* Homepage Route 127 play action reuses the exact iron button artwork from route127/index.html. */
+@font-face{font-family:'Route 127 Stencil';src:url('route127/playtest/assets/fonts/SairaStencilOne-Regular.woff') format('woff');font-weight:400;font-style:normal;font-display:swap}
+.route127-home-actions{align-items:center}
+.route127-home-play{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:66px;max-width:100%;padding:4px 14px;text-align:center;text-decoration:none;border:12px solid transparent;border-image:url('route127/playtest/assets/ui/iron-button-plate.webp') 150 fill stretch;background:none;border-radius:0;box-shadow:0 3px 5px #0009;font:400 clamp(16px,4vw,24px)/1.2 'Route 127 Stencil',Impact,'Arial Narrow',sans-serif;font-synthesis:none;letter-spacing:.7px;color:#deceb0;text-shadow:0 1px 0 #fff2,1px 2px 1px #000,0 -1px 1px #2b1e12}
+.route127-home-play .iron-title-text{mask:url('route127/playtest/assets/ui/stencil-wear.svg') 0 0/120px 32px repeat}
+.route127-home-play::after{content:'';position:absolute;inset:-3px;border:1px solid #da973c;border-radius:2px;box-shadow:0 0 5px #d18a2655;opacity:0;pointer-events:none}
+.route127-home-play:hover,.route127-home-play:focus-visible{color:#ffe4b2;filter:brightness(1.16)}
+.route127-home-play:hover::after,.route127-home-play:focus-visible::after{opacity:1}
+.route127-home-play:focus-visible{outline:2px solid #ffd395;outline-offset:4px}
+@media(max-width:480px){.route127-home-actions{flex-direction:column;align-items:stretch}.route127-home-actions .btn{text-align:center;flex:none}}
+</style>
 </head>
 
 <body>
@@ -99,7 +111,7 @@
         <h3>Route 127</h3>
         <p>A post-apocalyptic online RPG inspired by the spirit of classic BBS door games. Scavenge ruined highways, discover settlements, fight for survival and uncover a persistent wasteland shaped by exploration, danger and the people trying to survive it.</p>
         <p class="project-note">The road remembers.</p>
-        <div class="buttons"><a class="btn" href="route127/">Explore Route 127</a></div>
+        <div class="buttons route127-home-actions"><a class="route127-home-play" href="route127/playtest/"><span aria-hidden="true">▶</span><span class="iron-title-text">PLAY ROUTE 127</span></a><a class="btn" href="route127/">Explore Route 127</a></div>
       </div>
     </article>
 

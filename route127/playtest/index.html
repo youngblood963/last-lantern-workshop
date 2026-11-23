@@ -80,7 +80,7 @@
 
   <script src="runtime/tire_maze_hazards.js?v=playtest-9c8be9d"></script>
 
-  <script src="scenario_registry.js?v=playtest-9c8be9d"></script>
+  <script src="scenario_registry.js?v=missing-items-1"></script>
 <script src="app.js?v=playtest-9c8be9d-public"></script>
 <script src="runtime/enemy_scaling_wo33.js?v=playtest-9c8be9d"></script>
 <script src="casino.js?v=steve-promo-menu-2"></script>
@@ -109,7 +109,7 @@
 <script>RoadScenarioRegistry.wo2();RoadScenarioRegistry.wo3();RoadScenarioRegistry.wo4();RoadScenarioRegistry.finalize();RoadScenarioRegistry.installRegions();</script>
 <script src="corvette_guard-release.js?v=playtest-9c8be9d"></script>
 <script src="station_nine.js?v=1"></script>
-<script src="regional_combat.js?v=playtest-9c8be9d"></script>
+<script src="regional_combat.js?v=missing-items-1"></script>
 <script src="wanderer_world_expansion.js?v=1"></script>
 <script src="wo7_roadside.js?v=playtest-9c8be9d"></script>
 <script src="wo8_autonomous.js?v=playtest-9c8be9d"></script>
@@ -121,7 +121,7 @@
 <script src="graphics.js?v=playtest-9c8be9d"></script>
 <script src="traveler_panels.js?v=playtest-9c8be9d"></script>
 <script src="../playtest/location_lettering.js?v=stencil-1"></script>
-<script src="../playtest/input_dialogs.js?v=playtest-9c8be9d-public"></script>
+<script src="../playtest/input_dialogs.js?v=intro-transcript-1"></script>
 <script src="../playtest/playthrough_repairs.js?v=wo18"></script>
 <script src="../playtest/identity_colors.js?v=1"></script>
 <script src="../playtest/road_repairs.js?v=wo24"></script>
@@ -495,33 +495,6 @@ GraphicalUI.schedule();
 <script src="runtime/casino_wagers_rat_odds_20261116.js?v=playtest-9c8be9d"></script>
 <script src="runtime/arena_spectator_exhibitions_20261116.js?v=playtest-9c8be9d"></script>
 <script>
-/* DEVTEST-only: keep the opening transmission's typed prompts available after HI.
- * The shared graphics entry modal previously covered HELLO only, while graphics
- * mode hid the underlying command form during LISTEN and LOG COORDINATES. */
-(()=>{
-  if(typeof FocusedEntry==='undefined')return;
-  const previousDescribe=FocusedEntry.describe;
-  FocusedEntry.describe=function(){
-    if(stage==='listen')return {key:'intro-listen',title:'Continue transmission',label:'Type LISTEN',hint:'The Tomorrow Project is waiting for you to listen.',maxLength:40,format:v=>v};
-    if(stage==='savecoords')return {key:'intro-coordinates',title:'Save the coordinates',label:'Type LOG COORDINATES',hint:'Enter LOG COORDINATES to save the destination and begin your journey.',maxLength:60,format:v=>v};
-    return previousDescribe.call(this);
-  };
-  // The shared submit handler marks the NEXT prompt as dismissed when the
-  // current prompt changes. Clear that marker only on intro transitions.
-  const previousSubmit=FocusedEntry.submit;
-  FocusedEntry.submit=async function(...args){
-    const before=stage;
-    const result=await previousSubmit.apply(this,args);
-    if((before==='hello'&&stage==='listen')||(before==='listen'&&stage==='savecoords')){
-      this.dismissed=null;
-      this.schedule();
-    }
-    return result;
-  };
-  FocusedEntry.schedule();
-})();
-</script>
-<script>
 /* DEVTEST-only new-game graphics handoff.
  * After logging coordinates, the original house/roadReady stages are playable
  * before lanternTravel has been initialized. Do not hide graphics at that point. */
@@ -671,6 +644,7 @@ if(globalThis.ROUTE127_ENV?.name==='PLAYTEST')V48_LOOT_PRICES['Old World Gold Ba
 <script src="runtime/daily_bounty_roster.js?v=playtest-9c8be9d"></script>
 <script src="runtime/daily_bounties.js?v=playtest-9c8be9d"></script>
 <link rel="stylesheet" href="runtime/community_board.css?v=playtest-9c8be9d">
+  <link rel="stylesheet" href="../runtime/primary-buttons.css?v=1">
 <script src="runtime/community_board.js?v=playtest-9c8be9d"></script>
 <script src="runtime/regional_sprite_backdrop_guard_20261122.js?v=playtest-9c8be9d"></script>
 <script src="runtime/map_fog.js?v=playtest-9c8be9d"></script>

@@ -1,0 +1,58 @@
+/* The title, cloud login, and game overlays each use different button classes. */
+:is(.terminal-shell .entry-legacy-actions .entry-action,
+    .terminal-shell .gfx-classic-switch,
+    .terminal-shell .utility-panel button,
+    .gfx-frame button:is(.gfx-choice, .gfx-nav-button, .entry-action),
+    .gfx-frame :is(.gfx-settings, .gfx-mobile-bar) button,
+    .traveler-overlay button.traveler-button,
+    .cloud-login button,
+    .community-paper button) {
+  color: #fff;
+  background: #0b0b0b;
+}
+
+/* Choice labels have their own color in the graphical renderer. */
+.gfx-frame .gfx-choice:first-child .gfx-choice-label,
+.gfx-frame .gfx-choice .gfx-choice-label {
+  color: inherit;
+}
+
+:is(.terminal-shell .entry-legacy-actions .entry-action,
+    .terminal-shell .gfx-classic-switch,
+    .terminal-shell .utility-panel button,
+    .gfx-frame button:is(.gfx-choice, .gfx-nav-button, .entry-action),
+    .gfx-frame :is(.gfx-settings, .gfx-mobile-bar) button,
+    .traveler-overlay button.traveler-button,
+    .cloud-login button,
+    .community-paper button):enabled:is(:hover, :focus-visible, [aria-pressed="true"], [aria-selected="true"]) {
+  color: #fff;
+  background: #191919;
+  border-color: #e59f69;
+}
+
+:is(.terminal-shell .entry-legacy-actions .entry-action,
+    .terminal-shell .gfx-classic-switch,
+    .terminal-shell .utility-panel button,
+    .gfx-frame button:is(.gfx-choice, .gfx-nav-button, .entry-action),
+    .gfx-frame :is(.gfx-settings, .gfx-mobile-bar) button,
+    .traveler-overlay button.traveler-button,
+    .cloud-login button,
+    .community-paper button):focus-visible {
+  outline: 2px solid #ffbb82;
+  outline-offset: 2px;
+}
+
+:is(.terminal-shell .entry-legacy-actions .entry-action,
+    .terminal-shell .gfx-classic-switch,
+    .terminal-shell .utility-panel button,
+    .gfx-frame button:is(.gfx-choice, .gfx-nav-button, .entry-action),
+    .gfx-frame :is(.gfx-settings, .gfx-mobile-bar) button,
+    .traveler-overlay button.traveler-button,
+    .cloud-login button,
+    .community-paper button):disabled {
+  color: #d0d0d0;
+  background: #222;
+  border-color: #777;
+  opacity: 1;
+  cursor: default;
+}

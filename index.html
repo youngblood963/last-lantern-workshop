@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Last Lantern Workshop™ | Independent Apps, Games & Digital Creations</title>
-<link rel="icon" type="image/png" href="/Favicon.png">
+
 <meta name="description" content="Last Lantern Workshop™ is an independent studio creating apps, games and digital projects, including MetalKeep, Veiled Moon Oracle and Route 127.">
 <link rel="canonical" href="https://lastlanternworkshop.com/">
 <meta name="robots" content="index, follow">
@@ -14,10 +14,7 @@
 <meta property="og:url" content="https://lastlanternworkshop.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Last Lantern Workshop™">
-<meta property="og:image" content="https://lastlanternworkshop.com/last-lantern-logo.png">
-<meta property="og:image:alt" content="Last Lantern Workshop lantern logo">
-<meta property="og:image:width" content="1536">
-<meta property="og:image:height" content="1024">
+
 <link rel="stylesheet" href="styles.css">
 <style>
 /* Homepage Route 127 play action reuses the exact iron button artwork from route127/index.html. */
@@ -25,106 +22,34 @@
 .route127-home-actions{align-items:center}
 .route127-home-play{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:66px;max-width:100%;padding:4px 14px;text-align:center;text-decoration:none;border:12px solid transparent;border-image:url('route127/playtest/assets/ui/iron-button-plate.webp') 150 fill stretch;background:none;border-radius:0;box-shadow:0 3px 5px #0009;font:400 clamp(16px,4vw,24px)/1.2 'Route 127 Stencil',Impact,'Arial Narrow',sans-serif;font-synthesis:none;letter-spacing:.7px;color:#deceb0;text-shadow:0 1px 0 #fff2,1px 2px 1px #000,0 -1px 1px #2b1e12}
 .route127-home-play .iron-title-text{mask:url('route127/playtest/assets/ui/stencil-wear.svg') 0 0/120px 32px repeat}
-.route127-home-play::after{content:'';position:absolute;inset:-3px;border:1px solid #da973c;border-radius:2px;box-shadow:0 0 5px #d18a2655;opacity:0;pointer-events:none}
-.route127-home-play:hover,.route127-home-play:focus-visible{color:#ffe4b2;filter:brightness(1.16)}
+.route127-home-play::after{content:'';position:absolute;inset:-3px;border:1px solid #9dc2bc;border-radius:2px;box-shadow:0 0 5px #88b6b055;opacity:0;pointer-events:none}
+.route127-home-play:hover,.route127-home-play:focus-visible{color:#f1fff9;filter:brightness(1.16)}
 .route127-home-play:hover::after,.route127-home-play:focus-visible::after{opacity:1}
-.route127-home-play:focus-visible{outline:2px solid #ffd395;outline-offset:4px}
+.route127-home-play:focus-visible{outline:2px solid #e4f3ed;outline-offset:4px}
 @media(max-width:480px){.route127-home-actions{flex-direction:column;align-items:stretch}.route127-home-actions .btn{text-align:center;flex:none}}
 
-/* Workshop atmosphere experiment: light, CSS-only and scoped to the homepage.
-   Preserve the established layout, project buttons and distinct project identities. */
+/* Distinct workshop identity: blue-slate / verdigris, no orange spotlight. */
 .hero{
   position:relative;
-  isolation:isolate;
-  overflow:hidden;
   background:
-    radial-gradient(ellipse 48% 38% at 50% 33%,rgba(194,121,45,.13),transparent 78%),
-    radial-gradient(ellipse 68% 30% at 50% 88%,rgba(73,52,27,.11),transparent 78%),
-    linear-gradient(180deg,#080807 0%,#0d0b09 58%,#080807 100%);
+    radial-gradient(ellipse at 50% 12%,rgba(152,197,191,.18),transparent 58%),
+    repeating-linear-gradient(105deg,transparent 0 54px,rgba(255,255,255,.012) 55px 56px),
+    linear-gradient(155deg,#253d43,#1b3038 65%,#25383d);
 }
-.hero::before{
-  content:"";
-  position:absolute;
-  z-index:-1;
-  inset:0;
-  pointer-events:none;
-  opacity:.52;
-  background-image:
-    radial-gradient(circle at 19% 34%,rgba(235,166,83,.44) 0 1px,transparent 2px),
-    radial-gradient(circle at 75% 22%,rgba(238,176,101,.34) 0 1px,transparent 2px),
-    radial-gradient(circle at 87% 67%,rgba(201,128,51,.24) 0 1px,transparent 2px),
-    radial-gradient(circle at 35% 79%,rgba(223,155,78,.28) 0 1px,transparent 2px),
-    radial-gradient(ellipse at 50% 42%,rgba(198,124,48,.1),transparent 52%);
-}
-.hero::after{
-  content:"";
-  position:absolute;
-  z-index:-1;
-  pointer-events:none;
-  width:min(660px,90vw);
-  aspect-ratio:1;
-  left:50%;
-  top:7%;
-  transform:translateX(-50%);
-  border-radius:50%;
-  background:radial-gradient(circle,rgba(211,135,48,.10) 0%,rgba(177,98,35,.045) 37%,transparent 68%);
-  filter:blur(21px);
-}
-.hero-logo{
-  position:relative;
-  filter:drop-shadow(0 0 24px rgba(213,137,51,.22)) drop-shadow(0 0 58px rgba(175,100,38,.10));
-}
-.hero .eyebrow{color:#d8b077}
-.hero h1{text-shadow:0 2px 30px rgba(0,0,0,.64),0 0 32px rgba(202,139,60,.07)}
-.projects{
-  background:
-    radial-gradient(ellipse 70% 27% at 15% 24%,rgba(122,78,36,.075),transparent 72%),
-    radial-gradient(ellipse 55% 23% at 85% 62%,rgba(92,83,102,.052),transparent 72%),
-    linear-gradient(180deg,#090908 0%,#0c0b0a 52%,#090908 100%);
-}
-.projects .section-heading::after{
-  content:"";
-  display:block;
-  width:118px;
-  height:1px;
-  margin:23px auto 0;
-  background:linear-gradient(90deg,transparent,rgba(205,153,81,.75),transparent);
-}
-.projects .project-showcase{
-  position:relative;
-  border-top-color:rgba(193,153,94,.20);
-}
-.projects .project-showcase::before{
-  content:"";
-  position:absolute;
-  top:-1px;
-  left:0;
-  width:65px;
-  height:1px;
-  pointer-events:none;
-  background:linear-gradient(90deg,rgba(222,161,79,.7),transparent);
-}
-.projects .project-showcase:first-of-type::before{display:none}
-.projects .project-art{
-  border-color:rgba(192,155,95,.31);
-  box-shadow:0 18px 45px rgba(0,0,0,.4),0 0 35px rgba(191,126,48,.045);
-}
-.projects .project-showcase:nth-of-type(2) .project-art{
-  box-shadow:0 18px 45px rgba(0,0,0,.4),0 0 35px rgba(190,153,91,.055);
-}
-.projects .project-showcase:nth-of-type(3) .project-art{
-  box-shadow:0 18px 45px rgba(0,0,0,.4),0 0 35px rgba(149,138,196,.065);
-}
-.about{
-  background:
-    radial-gradient(ellipse 42% 85% at 50% 100%,rgba(180,108,40,.085),transparent 80%),
-    linear-gradient(180deg,#090908,#0a0908);
-}
-.about .closing-line{color:#d8b784}
-@media (max-width:650px){
-  .hero::after{top:15%;width:94vw}
-  .projects{background:linear-gradient(180deg,#090908,#0c0b0a 52%,#090908)}
-}
+.hero::before,.hero::after{content:none}
+.hero .eyebrow{color:#c8dcd7}
+.hero h1{text-shadow:none}
+.projects{background:linear-gradient(180deg,#243940,#1a3036 54%,#22393d)}
+.projects .section-heading::after{content:"";display:block;width:110px;height:2px;margin:24px auto 0;background:#82aca8}
+.projects .project-showcase{border-top-color:rgba(177,213,208,.3)}
+.projects .project-showcase::before{content:none}
+.projects .project-art{border-color:#698f8d;box-shadow:0 12px 24px rgba(11,30,34,.18)}
+.projects .project-showcase:nth-of-type(2) .project-art,
+.projects .project-showcase:nth-of-type(3) .project-art{box-shadow:0 12px 24px rgba(11,30,34,.18)}
+.about{background:linear-gradient(180deg,#20363d,#2d4447)}
+.about .closing-line{color:#d9e6df}
+@media(max-width:650px){.projects{background:linear-gradient(180deg,#243940,#1a3036 54%,#22393d)}}
+
 </style>
 </head>
 
@@ -133,7 +58,6 @@
 <header>
   <div class="nav-wrap">
     <a class="brand" href="index.html" aria-label="Last Lantern Workshop home">
-      <img src="last-lantern-logo.png" alt="">
       <span>Last Lantern Workshop™</span>
     </a>
     <nav>
@@ -147,7 +71,6 @@
 <main>
 
 <section class="hero">
-  <img class="hero-logo" src="last-lantern-logo.png" alt="Last Lantern Workshop logo">
   <div class="eyebrow">Apps • Games • Digital Creations</div>
   <h1>Last Lantern<br>Workshop<sup>™</sup></h1>
   <p>Small projects built with care, curiosity, and a light kept burning for whatever comes next.</p>

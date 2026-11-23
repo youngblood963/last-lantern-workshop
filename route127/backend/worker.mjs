@@ -17,7 +17,7 @@ const equal=(a,b)=>typeof a==='string'&&typeof b==='string'&&a.length===b.length
 function fail(status,error){throw Object.assign(new Error(error),{status});}
 const response=(data,status=200,headers={})=>Response.json(data,{status,headers:{
  'Cache-Control':'no-store','X-Content-Type-Options':'nosniff',...headers}});
-function cookie(token='',max=SESSION_MS/1000){return `${COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${max}`;}
+function cookie(cookieName,token='',max=SESSION_MS/1000){return `${cookieName}=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${max}`;}
 async function body(req){
  if(!/^application\/json(?:;|$)/i.test(req.headers.get('Content-Type')||''))fail(415,'JSON required');
  const reader=req.body?.getReader();if(!reader)fail(400,'Body required');
@@ -58,8 +58,8 @@ async function limit(env,req,login){
   if(row.attempts>10)fail(429,'Too many attempts; wait a minute');
  }
 }
-async function session(env,req){
- const token=(req.headers.get('Cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(COOKIE+'='))?.slice(COOKIE.length+1)||'';
+async function session(env,req,cookieName){
+ const token=(req.headers.get('Cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(cookieName+'='))?.slice(cookieName.length+1)||'';
  if(!/^[a-f0-9]{64}$/.test(token))fail(401,'Sign in required');
  const tokenHash=await sha(token);
  const row=await env.DB.prepare('SELECT account_id FROM r127_sessions WHERE token_hash=? AND expires_at>?').bind(tokenHash,Date.now()).first();
@@ -69,6 +69,9 @@ async function character(env,account){return env.DB.prepare('SELECT id,name FROM
 async function handle(req,env){
  const url=new URL(req.url);
  let path=url.pathname;
+ const isolation=env.ROUTE127_SAVE_ISOLATION==='true';
+ let cookieName=COOKIE;
+ let devLane=false;
  const devtestPresence=path.startsWith('/route127/devtest/api/presence/');
  const devtestWorld=path.startsWith('/route127/devtest/api/world/');
  const localWorld=env.DEVTEST_WORLD_LOCAL==='true'&&
@@ -83,7 +86,26 @@ async function handle(req,env){
   if(!localWorld&&(env.WO61_DIRECT_DEVTEST!=='true'||url.origin!=='https://lastlanternworkshop.com'))
    return response({error:'Not found'},404);
   path=path.slice('/route127/devtest'.length);
+  const scoped=path.match(/^\/api\/(devtest|playtest)(?=\/)/);
+  if(scoped){
+   if(!isolation)return response({error:'Save isolation has not been enabled'},503);
+   devLane=scoped[1]==='devtest';
+   path='/api'+path.slice(scoped[0].length);
+  }else if(isolation&&path!=='/api/health'){
+   if(!devtestWorld&&!devtestPresence&&!devtestCommunity)
+    return response({error:'This client is outdated; reload before accessing cloud saves'},409);
+   devLane=true;
+  }
  }
+ if(isolation){
+  if(!env.DEVTEST_DB||env.DEVTEST_DB===env.DB||!env.DEVTEST_LEGACY_ACCOUNT_ID)
+   return response({error:'Save isolation configuration incomplete'},503);
+  if(devLane){
+   env={...env,DB:env.DEVTEST_DB};
+   cookieName='__Host-r127dev-isolated';
+  }
+ }
+ const reserved=account=>isolation&&!devLane&&account===env.DEVTEST_LEGACY_ACCOUNT_ID;
  if(env.ENVIRONMENT!=='development')return response({error:'Development backend disabled'},503);
  if(!path.startsWith('/api/')){
   if(!env.ASSETS)return response({error:'Not found'},404);
@@ -91,7 +113,7 @@ async function handle(req,env){
   h.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
   h.set('X-Content-Type-Options','nosniff');return new Response(asset.body,{status:asset.status,headers:h});
  }
- if(path==='/api/health'&&req.method==='GET')return response({environment:'development',phase:1,mode:'untrusted-backup',enabled:env.DEV_BACKUP_ENABLED==='true'});
+ if(path==='/api/health'&&req.method==='GET')return response({environment:'development',phase:1,mode:'untrusted-backup',saveIsolation:isolation,enabled:env.DEV_BACKUP_ENABLED==='true'});
  if(!env.DB||typeof env.AUTH_PEPPER!=='string'||env.AUTH_PEPPER.length<32)return response({error:'Development configuration incomplete'},503);
  if(req.method!=='GET'&&req.method!=='POST')fail(405,'Method not allowed');
  // Same-origin only. Cookies are HttpOnly and CSRF requests must carry exact Origin.
@@ -110,14 +132,16 @@ async function handle(req,env){
    try{await env.DB.prepare('INSERT INTO r127_accounts(id,login,password_hash,salt,created_at) VALUES(?,?,?,?,?)').bind(account,login,hash,salt,Date.now()).run();}
    catch(e){if(/UNIQUE/.test(String(e)))fail(409,'Login unavailable');throw e;}
   }else if(!existing||!equal(existing.password_hash,hash))fail(401,'Invalid login or password');
+  if(reserved(account))fail(403,'Use a separate PLAYTEST account for public progression');
   const token=random();
   await env.DB.prepare('INSERT INTO r127_sessions(token_hash,account_id,expires_at) VALUES(?,?,?)').bind(await sha(token),account,Date.now()+SESSION_MS).run();
-  return response({ok:true,accountId:account,character:await character(env,account)},200,{'Set-Cookie':cookie(token)});
+  return response({ok:true,accountId:account,character:await character(env,account)},200,{'Set-Cookie':cookie(cookieName,token)});
  }
- const auth=await session(env,req);
+ const auth=await session(env,req,cookieName);
  if(path==='/api/logout'&&req.method==='POST'){
-  await env.DB.prepare('DELETE FROM r127_sessions WHERE token_hash=?').bind(auth.tokenHash).run();return response({ok:true},200,{'Set-Cookie':cookie('',0)});
+  await env.DB.prepare('DELETE FROM r127_sessions WHERE token_hash=?').bind(auth.tokenHash).run();return response({ok:true},200,{'Set-Cookie':cookie(cookieName,'',0)});
  }
+ if(reserved(auth.account_id))fail(403,'Use a separate PLAYTEST account for public progression');
  if(path==='/api/me'&&req.method==='GET')return response({accountId:auth.account_id,character:await character(env,auth.account_id)});
  if(env.DEV_BACKUP_ENABLED!=='true')fail(503,'Development backup is disabled');
  if(path==='/api/character'&&req.method==='POST'){

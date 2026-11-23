@@ -565,3 +565,39 @@ body:has(.hero) .about{background:rgba(18,36,42,.70)}
   .nav-wrap nav{gap:10px}
   .nav-wrap nav a{font-size:.72rem}
 }
+
+/* Homepage LLW identity: large custom typographic initials, small full name. */
+.hero h1.workshop-wordmark{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  margin:12px 0 26px;line-height:1.05;
+}
+.hero h1 .workshop-initials{
+  font-family:Georgia,"Palatino Linotype","Book Antiqua",serif;
+  font-size:clamp(74px,12vw,148px);
+  font-weight:700;font-style:italic;letter-spacing:.065em;
+  color:#f1f3e9;text-shadow:0 3px 14px rgba(0,0,0,.34);
+}
+.hero h1 .workshop-initials sup{
+  font:normal clamp(12px,1.65vw,21px)/1 Arial,Helvetica,sans-serif;
+  position:relative;top:-.8em;margin-left:.12em;vertical-align:baseline;
+}
+.hero h1 .workshop-fullname{
+  font:500 clamp(13px,2.2vw,23px)/1.5 Arial,Helvetica,sans-serif;
+  text-transform:uppercase;letter-spacing:.27em;
+  color:#e6eeeb;text-shadow:0 1px 5px #152c36;
+}
+@media(max-width:480px){
+ .hero h1 .workshop-initials{font-size:clamp(65px,19vw,95px)}
+ .hero h1 .workshop-fullname{font-size:12px;letter-spacing:.16em}
+}
+/* Put the real daytime sky directly on the hero image plane, without a tinted
+   blue wash obscuring it. Text retains its own shadows for legibility. */
+body:has(.hero) .hero{
+ background-image:url('route127/assets/regions/sky_day.png');
+ background-color:#7194a7;
+ background-position:center center;
+ background-repeat:no-repeat;
+ background-size:cover;
+}
+body:has(.hero) .hero::before,
+body:has(.hero) .hero::after{content:none!important;display:none!important}

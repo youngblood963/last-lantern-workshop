@@ -17,7 +17,7 @@
 <meta property="og:site_name" content="Last Lantern Workshop™">
 
 <link rel="icon" type="image/webp" href="workshop-emblem.webp?v=3">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=llw-hero-20261123">
 <style>
 /* Homepage Route 127 play action reuses the exact iron button artwork from route127/index.html. */
 @font-face{font-family:'Route 127 Stencil';src:url('route127/playtest/assets/fonts/SairaStencilOne-Regular.woff') format('woff');font-weight:400;font-style:normal;font-display:swap}
@@ -51,6 +51,45 @@
 .about{background:linear-gradient(180deg,#20363d,#2d4447)}
 .about .closing-line{color:#d9e6df}
 @media(max-width:650px){.projects{background:linear-gradient(180deg,#243940,#1a3036 54%,#22393d)}}
+
+
+/* Primary wordmark: LLW is the focal point; studio name stays a quiet subtitle.
+   Kept inline so older cached stylesheets cannot flatten the stacked layout. */
+.hero h1.workshop-wordmark{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center;
+  gap:3px!important;
+  width:min(100%,850px);
+  margin:12px auto 25px!important;
+  line-height:1.05!important;
+  text-align:center;
+}
+.hero h1.workshop-wordmark > .workshop-initials{
+  display:block!important;
+  font:italic 700 clamp(74px,12vw,145px)/1 Georgia,"Palatino Linotype",serif!important;
+  letter-spacing:.045em!important;
+  color:#f4f0e7;
+}
+.hero h1.workshop-wordmark > .workshop-initials sup{
+  font:normal 14px/1 Arial,sans-serif!important;
+  vertical-align:super;
+  top:0!important;
+  margin-left:.1em;
+}
+.hero h1.workshop-wordmark > .workshop-fullname{
+  display:block!important;
+  font:500 clamp(12px,1.5vw,17px)/1.5 Arial,Helvetica,sans-serif!important;
+  letter-spacing:.22em!important;
+  text-transform:uppercase;
+  color:#e0e8e4;
+  max-width:100%;
+}
+@media(max-width:480px){
+  .hero h1.workshop-wordmark > .workshop-initials{font-size:clamp(66px,19vw,92px)!important}
+  .hero h1.workshop-wordmark > .workshop-fullname{font-size:11px!important;letter-spacing:.1em!important}
+}
 
 </style>
 </head>

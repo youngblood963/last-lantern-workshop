@@ -1,0 +1,173 @@
+/* MetalKeep — The Collector's Vault
+   Dedicated visual identity beneath LLW's shared workshop navigation.
+   Uses existing bullion artwork; never changes application functionality. */
+body.midnight-workshop.metalkeep-page{
+  --mk-gold:#d6af72;
+  --mk-copper:#af7852;
+  --mk-silver:#c7d0d3;
+  --mk-ink:#11171b;
+  --mk-panel:#20272c;
+  --mk-border:rgba(199,168,122,.45);
+  background:#11171b;
+  color:#f4f0e8;
+}
+.metalkeep-page main{overflow:hidden;background:linear-gradient(180deg,#10191e,#222b30 49%,#11191e)}
+.metalkeep-page .mk-hero{
+  position:relative;
+  padding:clamp(58px,7vw,106px) 24px clamp(62px,7vw,102px);
+  border-bottom:1px solid #94724f;
+  background:
+    radial-gradient(ellipse at 70% 42%,rgba(224,167,80,.16),transparent 39%),
+    radial-gradient(ellipse at 28% 58%,rgba(161,183,191,.11),transparent 50%),
+    linear-gradient(105deg,rgba(10,18,22,.95),rgba(33,43,49,.94)),
+    url('../assets/workshop/iron-texture.webp') repeat;
+}
+.metalkeep-page .mk-hero::after{
+  content:"";position:absolute;inset:auto 0 0;height:17px;
+  background:linear-gradient(180deg,#0000,#080e11b3);
+  pointer-events:none;
+}
+.metalkeep-page .mk-grid{max-width:1130px;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:clamp(34px,6vw,92px)}
+.metalkeep-page .mk-hero-copy{min-width:0}
+.metalkeep-page .mk-kicker{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:7px 11px;border:1px solid rgba(208,173,119,.55);
+  background:rgba(17,22,25,.73);
+  color:#ead3a9;font:700 .72rem/1.2 Arial,sans-serif;
+  letter-spacing:.17em;text-transform:uppercase;
+}
+.metalkeep-page .mk-kicker::before{
+  content:"";width:7px;height:7px;border-radius:50%;
+  background:#d8af70;box-shadow:0 0 9px #d8af7070;
+}
+.metalkeep-page .mk-hero h1{
+  margin:19px 0 8px;
+  font:700 clamp(3.6rem,6.7vw,6.5rem)/.99 Georgia,serif;
+  letter-spacing:-.052em;color:#f7f2e7;
+  text-shadow:0 3px 14px #0008;
+}
+.metalkeep-page .mk-hero h1 span{
+  color:#ddb981;
+}
+.metalkeep-page .mk-hero .mk-lead{
+  margin:17px 0 0;color:#e0ded6;
+  font-size:clamp(1rem,1.35vw,1.2rem);line-height:1.7;
+}
+.metalkeep-page .mk-hero .mk-lead.mk-tagline{
+  color:#d8b681;font:italic 1.4rem/1.5 Georgia,serif;
+  max-width:540px;
+}
+.metalkeep-page .mk-metal-legend{
+  display:flex;align-items:center;flex-wrap:wrap;gap:8px 18px;
+  margin:27px 0 0;padding:16px 0 0;border-top:1px solid #6f655a;
+  color:#d7d8d5;text-transform:uppercase;letter-spacing:.1em;
+  font:700 .75rem/1.5 Arial,sans-serif;
+}
+.metalkeep-page .mk-metal-legend span{display:inline-flex;align-items:center;gap:7px}
+.metalkeep-page .mk-metal-legend i{display:inline-block;width:9px;height:9px;border-radius:50%}
+.metalkeep-page .mk-metal-legend .gold i{background:linear-gradient(130deg,#f8d78d,#bb8137)}
+.metalkeep-page .mk-metal-legend .silver i{background:linear-gradient(130deg,#edf4f3,#879fa8)}
+.metalkeep-page .mk-metal-legend .copper i{background:linear-gradient(130deg,#e2a16e,#935033)}
+.metalkeep-page .mk-actions{align-items:center;gap:14px 20px}
+.metalkeep-page .mk-actions a img{display:block}
+.metalkeep-page .mk-link{
+  padding:10px 0;color:#e7c694;
+  border-color:#b3895c;
+  font-weight:700;letter-spacing:.02em;
+}
+.metalkeep-page .mk-link:hover{color:#fff0d4}
+.metalkeep-page .mk-art-wrap{
+  position:relative;isolation:isolate;max-width:520px;
+  justify-self:end;
+}
+.metalkeep-page .mk-art-wrap::before{
+  content:"";position:absolute;inset:-24px;z-index:-1;
+  background:radial-gradient(circle,rgba(229,171,75,.17),transparent 64%);
+  filter:blur(10px);
+}
+.metalkeep-page .mk-art-frame{
+  padding:13px;background:linear-gradient(135deg,#57554a,#202b30 45%,#4b4540);
+  border:1px solid #ac885f;box-shadow:0 24px 55px #0009,inset 0 0 0 3px #1c252a,inset 0 0 0 5px #7b6249;
+}
+.metalkeep-page .mk-art{width:100%;height:auto;display:block;border:0;border-radius:0;box-shadow:none}
+.metalkeep-page .mk-art-caption{
+  color:#c0b29d;font:.72rem/1.4 Arial,sans-serif;
+  text-align:center;letter-spacing:.16em;text-transform:uppercase;
+  margin:14px 0 0;
+}
+.metalkeep-page .mk-section{padding:clamp(60px,7vw,94px) 24px;border-bottom:1px solid #655444}
+.metalkeep-page .mk-section:nth-of-type(2){
+  background:
+    linear-gradient(rgba(21,27,32,.94),rgba(24,30,35,.96)),
+    url('../assets/workshop/iron-texture.webp') repeat;
+}
+.metalkeep-page .mk-section:nth-of-type(3){
+  background:linear-gradient(160deg,#273138,#151d22 63%,#232a2d);
+}
+.metalkeep-page .mk-wrap{max-width:1120px}
+.metalkeep-page .mk-section .eyebrow,.metalkeep-page .mk-end .eyebrow{
+  color:#dcb782;letter-spacing:.18em;
+}
+.metalkeep-page .mk-section h2,
+.metalkeep-page .mk-end h2{
+  margin:12px 0 17px;color:#f4ede2;
+  font:700 clamp(2.2rem,4vw,3.5rem)/1.12 Georgia,serif;
+}
+.metalkeep-page .mk-desc{
+  max-width:750px;color:#cbd1d1;line-height:1.75;
+  margin-bottom:31px;font-size:1rem;
+}
+.metalkeep-page .mk-cards{gap:22px}
+.metalkeep-page .mk-card,
+.metalkeep-page .mk-plan{
+  border-radius:0;position:relative;
+  border:1px solid #846b51;
+  background:linear-gradient(145deg,#303b40,#1c262c 77%,#222c31);
+  box-shadow:0 12px 26px #0004,inset 0 1px #ffffff17;
+  padding:clamp(23px,3vw,34px);
+}
+.metalkeep-page .mk-card::before,.metalkeep-page .mk-plan::before{
+  content:"";position:absolute;top:8px;right:8px;
+  width:12px;height:12px;border-radius:50%;
+  border:1px solid #8f785c;
+  background:radial-gradient(circle at 35% 35%,#d5b47e,#554536);
+}
+.metalkeep-page .mk-card .mk-number{color:#d3b388;font-size:.72rem}
+.metalkeep-page .mk-card h3{color:#f2ebe0;font:700 1.48rem/1.25 Georgia,serif;margin-bottom:15px}
+.metalkeep-page .mk-card p,.metalkeep-page .mk-plan li{color:#d1d5d3;line-height:1.7}
+.metalkeep-page .mk-plans{gap:24px}
+.metalkeep-page .mk-plan h3{font:700 1.85rem Georgia,serif}
+.metalkeep-page .mk-plan.premium{
+  border-color:#d6ad72;
+  background:radial-gradient(circle at 100% 0,rgba(198,146,68,.14),transparent 46%),linear-gradient(150deg,#353736,#1e262a 78%);
+  box-shadow:0 0 0 1px #a87b4a,0 15px 35px #0005;
+}
+.metalkeep-page .mk-price{font-size:1.32rem;color:#e7c28a}
+.metalkeep-page .mk-small{color:#bec9ca}
+.metalkeep-page .mk-end{
+  padding:clamp(65px,7vw,98px) 24px;
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(218,168,83,.13),transparent 61%),
+    linear-gradient(#121b20,#0d1519);
+  border-bottom:1px solid #87664e;
+}
+.metalkeep-page .mk-end .mk-desc{margin-inline:auto}
+.metalkeep-page .mk-policy-link{
+  background:#1a2228;border-top:1px solid #83654a;
+  padding:23px 20px;text-align:center;
+}
+.metalkeep-page .mk-policy-link a{color:#e8c796;font-weight:600}
+.metalkeep-page .mk-policy-link a:hover{color:#fff1d6}
+.metalkeep-page footer{background:#11181c}
+@media(max-width:850px){
+  .metalkeep-page .mk-grid{grid-template-columns:1fr;gap:35px}
+  .metalkeep-page .mk-hero{padding:56px 20px 64px}
+  .metalkeep-page .mk-art-wrap{justify-self:center;max-width:400px}
+  .metalkeep-page .mk-cards,.metalkeep-page .mk-plans{grid-template-columns:1fr}
+  .metalkeep-page .mk-section{padding:58px 20px}
+}
+@media(max-width:450px){
+  .metalkeep-page .mk-hero h1{font-size:clamp(3.1rem,13vw,4.4rem)}
+  .metalkeep-page .mk-art-frame{padding:8px}
+  .metalkeep-page .mk-metal-legend{gap:5px 13px}
+}

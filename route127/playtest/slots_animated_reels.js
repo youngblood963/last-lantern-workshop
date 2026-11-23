@@ -14,8 +14,7 @@
  const SYMBOLS=['SCRAP','BOLTS','LANTERN','SKULL','RAT','BLACKGLASS'];
  const FRAME='assets/locations/slots/slot_machine_frame.png';
  const STRIP='assets/locations/slots/slot_reel_strip.png';
- const reelArt=src=>typeof ROUTE127_ASSET_BASE!=='undefined'&&ROUTE127_ASSET_BASE?
-   new URL(src,ROUTE127_ASSET_BASE).href:src;
+ const reelArt=src=>new URL('../playtest/'+src,document.baseURI).href;
  const previousModel=GraphicalUI.model;
  GraphicalUI.model=function(){
    const m=previousModel.call(this);

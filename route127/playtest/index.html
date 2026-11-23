@@ -121,7 +121,7 @@
 <script src="graphics.js?v=playtest-9c8be9d"></script>
 <script src="traveler_panels.js?v=playtest-9c8be9d"></script>
 <script src="../playtest/location_lettering.js?v=stencil-1"></script>
-<script src="../playtest/input_dialogs.js?v=playtest-9c8be9d-public"></script>
+<script src="../playtest/input_dialogs.js?v=intro-transcript-1"></script>
 <script src="../playtest/playthrough_repairs.js?v=wo18"></script>
 <script src="../playtest/identity_colors.js?v=1"></script>
 <script src="../playtest/road_repairs.js?v=wo24"></script>
@@ -494,33 +494,6 @@ GraphicalUI.schedule();
 <script src="runtime/graphical_transcript_display_guard_20261116.js?v=playtest-9c8be9d"></script>
 <script src="runtime/casino_wagers_rat_odds_20261116.js?v=playtest-9c8be9d"></script>
 <script src="runtime/arena_spectator_exhibitions_20261116.js?v=playtest-9c8be9d"></script>
-<script>
-/* DEVTEST-only: keep the opening transmission's typed prompts available after HI.
- * The shared graphics entry modal previously covered HELLO only, while graphics
- * mode hid the underlying command form during LISTEN and LOG COORDINATES. */
-(()=>{
-  if(typeof FocusedEntry==='undefined')return;
-  const previousDescribe=FocusedEntry.describe;
-  FocusedEntry.describe=function(){
-    if(stage==='listen')return {key:'intro-listen',title:'Continue transmission',label:'Type LISTEN',hint:'The Tomorrow Project is waiting for you to listen.',maxLength:40,format:v=>v};
-    if(stage==='savecoords')return {key:'intro-coordinates',title:'Save the coordinates',label:'Type LOG COORDINATES',hint:'Enter LOG COORDINATES to save the destination and begin your journey.',maxLength:60,format:v=>v};
-    return previousDescribe.call(this);
-  };
-  // The shared submit handler marks the NEXT prompt as dismissed when the
-  // current prompt changes. Clear that marker only on intro transitions.
-  const previousSubmit=FocusedEntry.submit;
-  FocusedEntry.submit=async function(...args){
-    const before=stage;
-    const result=await previousSubmit.apply(this,args);
-    if((before==='hello'&&stage==='listen')||(before==='listen'&&stage==='savecoords')){
-      this.dismissed=null;
-      this.schedule();
-    }
-    return result;
-  };
-  FocusedEntry.schedule();
-})();
-</script>
 <script>
 /* DEVTEST-only new-game graphics handoff.
  * After logging coordinates, the original house/roadReady stages are playable

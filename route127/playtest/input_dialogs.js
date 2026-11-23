@@ -116,6 +116,12 @@ const FocusedEntry={
   if(d.numeric){const n=Number(value),max=item?.max??d.max;if(!/^\d+$/.test(value)||!Number.isSafeInteger(n)||n<(d.min||1)||Number.isSafeInteger(max)&&n>max)error='Enter a whole number from '+(d.min||1)+(Number.isSafeInteger(max)?' to '+max:'')+'.';}
   if(!error&&d.validate)error=d.validate(value);
   if(error){this.feedback.textContent=error;this.field.focus();return;}
+  if(d.key==='terminal-reply'){
+   // Reveal the transcript before the terminal starts printing its answer.
+   this.close();
+   numberedChoices={};currentHotkeys={};
+   return this.dispatch(d.format(value,item));
+  }
   this.working=true;this.submitButton.disabled=true;this.closeButton.disabled=true;
   const oldNodes=new Set(screen.children),wallet=player.bolts,board=JSON.stringify(getBoardPosts());
   try{

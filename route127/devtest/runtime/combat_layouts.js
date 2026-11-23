@@ -803,7 +803,7 @@
    y:Math.min(100-halfHeight,Math.max(halfHeight,layout.y))};
  }
  function apply(node,layout,background=false){
-  if(node.hasAttribute('data-miles-road'))layout=fitMilesRoadLayout(layout);
+  if(node.hasAttribute('data-miles-road')||background&&node.tagName==='IMG'&&node.classList.contains('gfx-image'))layout=fitMilesRoadLayout(layout);
   node.classList.add('r127-layout-unit');
   node.classList.toggle('r127-layout-background',background);
   node.classList.toggle('r127-layout-flipped',layout.flip);

@@ -1,0 +1,6 @@
+/* DEVTEST: fit the complete primary illustration inside its scene viewport.
+   Sprite overlays, layered skies/roads, captions and combat stats stay unchanged. */
+body.full-graphics .gfx-frame .gfx-art > img.gfx-image{
+ object-fit:contain!important;
+ object-position:center center!important;
+}

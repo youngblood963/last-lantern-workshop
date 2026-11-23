@@ -601,3 +601,37 @@ body:has(.hero) .hero{
 }
 body:has(.hero) .hero::before,
 body:has(.hero) .hero::after{content:none!important;display:none!important}
+
+/* FIX: actually render the metal plate as the button face, not a faint border.
+   The full Route 127 plate is used as a stretchable background on homepage
+   and supporting-page CTA buttons, with white lettering above it. */
+.btn,
+.btn-secondary,
+a.btn,
+button.btn,
+input.btn,
+.route127-home-play{
+  box-sizing:border-box;
+  background-image:url('route127/playtest/assets/ui/iron-button-plate.webp')!important;
+  background-position:center!important;
+  background-size:100% 100%!important;
+  background-repeat:no-repeat!important;
+  background-color:#1b2328!important;
+  border:0!important;
+  border-image:none!important;
+  min-height:64px;
+  padding:15px 25px;
+  color:#fff!important;
+  font-weight:700;
+  text-shadow:0 2px 2px #000,1px 1px 0 #000!important;
+  box-shadow:0 4px 9px #07111580;
+  filter:none;
+}
+.btn:hover,
+.btn-secondary:hover,
+.route127-home-play:hover{filter:brightness(1.17)!important}
+.btn:focus-visible,
+.route127-home-play:focus-visible{outline:3px solid #f6f7ee;outline-offset:3px}
+@media(max-width:480px){
+  .btn,.btn-secondary,.route127-home-play{min-height:60px;padding:13px 16px}
+}

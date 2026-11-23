@@ -257,3 +257,32 @@ body.midnight-workshop .wasteland-announcement-button.btn{
  body.midnight-workshop .wasteland-announcement-creature{width:31px;height:31px}
  body.midnight-workshop .wasteland-announcement-button.btn{padding:3px 5px;font-size:10px;min-height:33px}
 }
+
+/* Approved cleaning robot sticker: reserve space on narrow screens while
+   keeping the existing announcement height, lettering and button treatment. */
+body.midnight-workshop:has(> main > .workshop-hero) > main > .wasteland-announcement{
+ position:relative;
+ z-index:1;
+ overflow:visible;
+}
+body.midnight-workshop .wasteland-announcement-robot{
+ position:absolute;
+ right:calc(50% + 230px);
+ bottom:-2px;
+ display:block;
+ width:116px;
+ height:auto;
+ max-width:none;
+ pointer-events:none;
+ filter:drop-shadow(0 2px 3px #0008);
+}
+@media(max-width:900px){
+ body.midnight-workshop:has(> main > .workshop-hero) > main > .wasteland-announcement{padding-left:112px;padding-right:16px}
+ body.midnight-workshop .wasteland-announcement-robot{left:16px;right:auto;width:86px}
+}
+@media(max-width:620px){
+ body.midnight-workshop:has(> main > .workshop-hero) > main > .wasteland-announcement{padding-left:86px;padding-right:8px}
+ body.midnight-workshop .wasteland-announcement-robot{left:10px;width:68px}
+ body.midnight-workshop .wasteland-announcement-copy{min-width:0}
+ body.midnight-workshop .wasteland-announcement-button{flex:none}
+}

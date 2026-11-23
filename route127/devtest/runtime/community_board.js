@@ -1,19 +1,17 @@
 (() => {
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
  // DEVTEST characters are browser-local. This board preview never contacts the public service.
- const canDiscuss=()=>testMode||player.turns>0;
+ const canDiscuss=()=>player.turns>0;
  const sampleDate=Date.UTC(2026,10,22);
  const samples=[
   {id:'sample-news',identity:'Last Lantern Workshop',title:'DEVTEST camp preview',message:'This sample notice shows how pinned news appears while waiting for dawn.',pinned:true,locked:true},
   {id:'sample-discussion',title:'Stories from the road',author:'Sample Survivor',level:1,message:'What did you find on the road today?'}
  ].map(post=>({created_at:sampleDate,replies:0,...post,preview:post.message}));
  let lastDiscussionPost=0;
- const campTitle='Camp — Waiting for Dawn';
- const readOnlyMessage='Your travels are finished for today. You can still read what other survivors are saying. Return when your turns replenish to join the conversation.';
- const outOfTurns=()=>stage==='zeroTurns'&&player.turns<=0&&!testMode;
+ const readOnlyMessage='Read-only while you have no turns. Posting and replies return when your turns replenish.';
  const entries=[['announcement','Wasteland News'],['discussion','Community Discussions']];
  const categories=['Report a Bug','Suggest a Feature','Gameplay Balancing','Artwork or Visual Issue','General Feedback'];
- let dialog,renderVersion=0,returningFromBounties=false,origin='town';
+ let dialog,renderVersion=0,returningFromBounties=false,origin='town',view=null,permission=canDiscuss();
  const make=(tag,text)=>{
   const node=document.createElement(tag);
   if(text!==undefined)node.textContent=text;
@@ -83,35 +81,19 @@
   const panel=make('section'),heading=make('h2',title);
   panel.className='community-paper';heading.id='community-board-title';heading.tabIndex=-1;
   panel.append(heading);
-  if(back)panel.append(control(back===backToOrigin&&origin==='camp'?'Return to Camp':'Back',back));
+  if(back)panel.append(control(back===backToOrigin&&origin==='waiting'?'Return to Waiting for Dawn':'Back',back));
   dialog.replaceChildren(panel);
   dialog.scrollTop=0;
   heading.focus();
   return {panel,version:++renderVersion};
  }
- function camp(){
-  if(!outOfTurns()){town();return;}
-  const {panel}=page(campTitle);
-  panel.append(
-   make('p',"The road grows quiet. Your supplies are packed away, and the fire burns low. There's nothing left to do but listen to the wasteland and wait for another day."),
-   make('p',`Turns: ${player.turns} · Next refill: ${new Date(player.flags.nextRefillAt).toLocaleString()}`),
-   control('Wasteland News',()=>listing('announcement')),
-   control('Community Discussions',()=>listing('discussion')),
-   control('Workshop Feedback',feedback),
-   control('Character Status',()=>openTraveler('status')),
-   control('Options',()=>openTraveler('options')),
-   control('Close Camp',town));
- }
- function openTraveler(which){
-  town();
-  TravelerPanels.open(which);
- }
  function backToOrigin(){
-  if(origin==='camp')camp();
+  if(origin==='waiting')town();
   else if(origin==='news')town();
   else home();
  }
  function home(){
+  view=home;
   const {panel,version}=page('Community Bulletin Board');
   panel.classList.add('community-home');
   for(const [kind,label] of entries){
@@ -149,6 +131,7 @@
  const when=post=>new Date(post.created_at).toLocaleString();
  const byline=post=>post.identity?'Official · '+post.identity+' · '+when(post):post.author+' · Level '+post.level+' · '+when(post);
  async function listing(kind,index=0){
+  view=()=>listing(kind,index);
   const {panel,version}=page(entries.find(entry=>entry[0]===kind)[1],backToOrigin);
   const line=status();line.textContent='Reading the board…';panel.append(line);
   try{
@@ -169,6 +152,7 @@
   }catch(error){if(version===renderVersion){line.textContent=error.message;panel.append(control('Retry',()=>listing(kind,index)));}}
  }
  async function thread(kind,id,index=0){
+  view=()=>thread(kind,id,index);
   const {panel,version}=page('Notice',()=>listing(kind));
   const line=status();line.textContent='Reading the notice…';panel.append(line);
   try{
@@ -203,6 +187,8 @@
   }catch(error){if(version===renderVersion){line.textContent=error.message;panel.append(control('Retry',()=>thread(kind,id,index)));}}
  }
  function editor({kind,parent,post,threadId}){
+  if(!canDiscuss())return listing('discussion');
+  view=()=>listing('discussion');
   const back=()=>threadId?thread(kind,threadId):listing(kind);
   const {panel,version}=page(post?'Edit Notice':parent?'Write a Response':kind==='announcement'?'Publish an Announcement':'Leave a Note',back);
   const form=make('form');
@@ -214,6 +200,7 @@
   panel.append(form);
  }
  function feedback(){
+  view=null;
   const {panel,version}=page('Workshop Feedback',backToOrigin);
   const form=make('form'),id=crypto.randomUUID();
   panel.append(make('p','DEVTEST preview. This form tests private feedback locally. No message or character information is sent.'));
@@ -248,6 +235,14 @@
   mercyLocation='town';townWandererFocus=null;player.flags.solaceMenu='board';
   openBoard('town',home);
  };
+ // Public-service enforcement is a separate release requirement; this adapter stays local.
+ globalThis.Route127Community=Object.freeze({
+  news(){openBoard('waiting',()=>listing('announcement'));},
+  discussions(){openBoard('waiting',()=>listing('discussion'));},
+  feedback(){openBoard('waiting',feedback);},
+  close(){if(dialog?.open)dialog.close();},
+  refreshPermissions(){const next=canDiscuss();if(next!==permission){permission=next;if(dialog?.open&&view)view();}}
+ });
  const previousOptions=TravelerPanels.options;
  TravelerPanels.options=function(...args){
   const result=previousOptions.apply(this,args);
@@ -255,36 +250,9 @@
   const panel=this.body.querySelector('.traveler-detail');
   if(!panel)return result;
   const close=[...panel.querySelectorAll('button')].find(button=>button.textContent==='Close');
-  panel.insertBefore(this.button('Wasteland News',()=>{
-   this.close();
-   openBoard(outOfTurns()?'camp':'news',()=>listing('announcement'));
-  }),close||null);
-  return result;
- };
- const campCommand='waiting for dawn';
- const previousChoices=GraphicalUI.choices;
- GraphicalUI.choices=function(...args){
-  const rows=previousChoices.apply(this,args);
-  return outOfTurns()?[{key:'w',command:campCommand,label:campTitle},...rows]:rows;
- };
- const previousDispatch=GraphicalUI.dispatch;
- GraphicalUI.dispatch=async function(choice){
-  if(choice?.command===campCommand&&outOfTurns()&&!busy){
-   openBoard('camp',camp);return true;
+  for(const [label,draw] of [['Wasteland News',()=>listing('announcement')],['Workshop Feedback',feedback]]){
+   panel.insertBefore(this.button(label,()=>{this.close();openBoard('news',draw);}),close||null);
   }
-  return previousDispatch.apply(this,arguments);
- };
- const previousCommand=handleCommand;
- handleCommand=async function(raw,...args){
-  if(outOfTurns()&&!busy&&[campCommand,'w'].includes(raw.trim().toLowerCase())){
-   openBoard('camp',camp);return;
-  }
-  return previousCommand.call(this,raw,...args);
- };
- const previousNoTurns=noTurnsMenu;
- noTurnsMenu=function(...args){
-  const result=previousNoTurns.apply(this,args);
-  if(outOfTurns()&&!dialog?.open&&!TravelerPanels.dialog)openBoard('camp',camp);
   return result;
  };
 })();

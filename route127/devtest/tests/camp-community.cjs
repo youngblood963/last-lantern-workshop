@@ -18,14 +18,13 @@ class Element {
 (async () => {
  const body = new Element('body');
  const player = {turns:0,level:1,flags:{nextRefillAt:Date.now()+3600000}};
- let openedPanel;
  const context = {
   ROUTE127_ENV:{name:'DEVTEST'}, player, stage:'lanternRoad', busy:false, testMode:false,
   URL, crypto:require('node:crypto'), document:{body,createElement:tag=>new Element(tag)},
   localStorage:{getItem(){},setItem(){}},
   fetch(){ assert.fail('Local camp must not access the network'); },
   GraphicalUI:{choices:()=>[{command:'devtest emergency one turn'}],dispatch(){}},
-  TravelerPanels:{options(){},open(which){ openedPanel=which; }},
+  TravelerPanels:{options(){}},
   handleCommand(){}, showBulletinBoard(){},
   mercyMenu(){ assert.fail('Camp must not return to town'); },
   noTurnsMenu(){ context.stage='zeroTurns'; }
@@ -37,38 +36,35 @@ class Element {
  const settle = () => new Promise(resolve=>setImmediate(resolve));
 
  context.noTurnsMenu();
- assert.ok(find('Camp — Waiting for Dawn'));
- assert.ok(find('Turns: 0'));
- assert.equal(context.GraphicalUI.choices().length,2);
- click('Wasteland News');
+ assert.equal(body.children.length,0,'Waiting menu must not open the old camp popup');
+ context.Route127Community.news();
  await settle();
  click('Important Notice');
  await settle();
  assert.ok(find('This sample notice'));
  click('Back');
  await settle();
- click('Return to Camp');
- click('Community Discussions');
+ click('Return to Waiting for Dawn');
+ context.Route127Community.discussions();
  await settle();
- assert.ok(find('Your travels are finished'));
+ assert.ok(find('turns replenish'));
  assert.equal(find('Leave a Test Note'),undefined);
  click('Stories from the road');
  await settle();
  assert.equal(find('Write a Test Response'),undefined);
  click('Back');
  await settle();
- click('Return to Camp');
- click('Workshop Feedback');
+ click('Return to Waiting for Dawn');
+ context.Route127Community.feedback();
  const form=[...nodes(body)].find(node=>node.tag==='form');
  await form.events.submit({preventDefault(){}});
  assert.ok(find('Feedback Preview Complete'));
- click('Return to Camp');
- click('Character Status');
- assert.equal(openedPanel,'status');
+ click('Return to Waiting for Dawn');
  assert.equal(context.stage,'zeroTurns');
  assert.equal(player.turns,0);
- context.testMode=true;
- assert.equal(context.GraphicalUI.choices().length,1);
+ context.testMode=true;context.Route127Community.discussions();await settle();
+ assert.equal(find('Leave a Test Note'),undefined,'Unlimited testing mode does not bypass the zero-turn discussion gate');
+ context.Route127Community.close();
  context.testMode=false;
  player.turns=30;
  context.stage='lanternRoad';
@@ -85,5 +81,5 @@ class Element {
  assert.ok(find('Still no network writes.'));
  assert.ok(find('Write a Test Response'));
  assert.equal(player.turns,30);
- console.log('DEVTEST Camp navigation, read-only discussion, mock feedback, and rescue entry passed.');
+ console.log('DEVTEST local board navigation, read-only discussion, isolated feedback and normal posting passed.');
 })().catch(error=>{ console.error(error); process.exitCode=1; });

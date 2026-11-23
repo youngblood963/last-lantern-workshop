@@ -311,7 +311,7 @@ function addTracingControls(dialog){
  // These controls were authoring/debug UI, not player-facing map controls.
  // Keep them in the DOM for the visual overlay's setup and sync behavior,
  // but show only when the owner explicitly opens DEVTEST map-editor mode.
- if(new URLSearchParams(location.search).get('mapEditor')!=='1')controls.style.display='none';
+ if(true)controls.style.display='none';
  controls.style.flexShrink='0';
  report.style.flexShrink='0';
  figure.before(controls,report);

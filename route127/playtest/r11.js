@@ -2,7 +2,8 @@
 const R11_DRINKS={e:['BEER',5,5],beer:['BEER',5,5],o:['SHOT',9,10],shot:['SHOT',9,10],h:['HOUSE SPECIAL',15,15],'house special':['HOUSE SPECIAL',15,15]};
 const R11_BOARD="Crazy Steve's Sandwich Board";
 const R11_TIMES={common:30,uncommon:120,rare:1800,epic:28800,legendary:43200};
-const R11_ALIASES={'Reinforced Belt':'Worn Belt','Rusted Dog Tags':'Reinforced Dog Tags','Scrap Dog':'Rust Hound','Reinforced Combat Machete':'Tempered Combat Machete','Refurbished Service Revolver':'Specialized Service Revolver','Reinforced Relay Vest':'Advanced Relay Vest','Reinforced Leather Armor':'Tempered Leather Armor'};
+const R11_COMMUNICATIONS_MODULE='Pre-War Communications Interface Module';
+const R11_ALIASES={'Harbor Floodlight Controller':R11_COMMUNICATIONS_MODULE,'Reinforced Belt':'Worn Belt','Rusted Dog Tags':'Reinforced Dog Tags','Scrap Dog':'Rust Hound','Reinforced Combat Machete':'Tempered Combat Machete','Refurbished Service Revolver':'Specialized Service Revolver','Reinforced Relay Vest':'Advanced Relay Vest','Reinforced Leather Armor':'Tempered Leather Armor'};
 Object.assign(VENDOR_BASE,{"Niko's Lucky Vest":10,"Chemist's Injector":320});
 Object.assign(GEAR["Niko's Lucky Vest"],{rarity:'epic',def:10,questOnly:true});
 Object.assign(GEAR["Chemist's Injector"],{rarity:'rare',min:20,max:27,questOnly:true});
@@ -53,16 +54,6 @@ applyLevelEvolution=function(div,text,cls=''){
  if(gear)return;
  const pet=Object.keys(PORT55_PETS).find(n=>String(text).includes(n));if(pet){const start=String(text).indexOf(pet);colorField(div,String(text),'rarity-'+r11PetRarity(pet),1,start,start+pet.length);}
 };
-// Common/Uncommon gear uses the existing protected transaction, immediately for one item.
-const r11SaleStart=v53SaleStart;
-v53SaleStart=function(name,merchant=null){
- const clean=String(name).replace(/\s+[×x]\d+$/i,'').trim(),item=r18NamedStack(player.pack,clean);
- const cheap=item&&['weapon','armor'].includes(item.type)&&['common','uncommon'].includes(GEAR[item.name]?.rarity);
- if(!cheap)return r11SaleStart(name,merchant);
- const unit=v48SellPrice(item);if(!unit)return r11SaleStart(name,merchant);
- player.flags.v53Sale={name:item.name,type:item.type,stolen:!!item.stolen,available:item.qty,unit,qty:1,merchant,location:mercyLocation,mode:'confirm'};
- return v53SaleCommand('confirm sale');
-};
 const r11Store=portStaffServiceCommand;
 portStaffServiceCommand=function(cmd){
  const ui=player.flags.portStaffUI;
@@ -96,7 +87,7 @@ factoryAwardBossWeapon=function(floor){
  else if(floor===3){rollGear('rare');if(Math.random()<.10)rollGear('epic');}
  else return;
  f.weaponAwards[floor]=awards;
- r11Blueprint('boss');r11Quiet(()=>v49Autosave());
+ r11Quiet(()=>v49Autosave());
 };
 // Crafting uses absolute deadlines; existing jobs retain their original deadline/result.
 Object.assign(R6_TIMES,R11_TIMES);
@@ -104,15 +95,14 @@ Object.assign(R6_TIMES,R11_TIMES);
 if(!GEAR['Bone Tomahawk'])Object.defineProperty(GEAR,'Bone Tomahawk',{value:{type:'weapon',rarity:'uncommon',min:9,max:15,subtype:'hatchet'},enumerable:false});
 if(!GEAR['Bone Armor'])Object.defineProperty(GEAR,'Bone Armor',{value:{type:'armor',rarity:'rare',def:6},enumerable:false});
 // Rare crafting material is non-enumerable so equipment and vendor pools stay unchanged.
-if(!GEAR['Tempered Steel'])Object.defineProperty(GEAR,'Tempered Steel',{value:{type:'material',rarity:'rare'},enumerable:false});
 // Recipe display metadata is separate from the existing level-qualified catalog items.
 if(!GEAR.Widowmaker)Object.defineProperty(GEAR,'Widowmaker',{value:{type:'weapon',rarity:'epic',subtype:'rifle'},enumerable:false});
 Object.assign(CRAFT_RECIPES,{
  relayVest:{name:'Advanced Relay Vest',cloth:4,scrap:4,wire:3,parts:1,bolts:80,type:'armor',chance:.90,minLevel:6},
  mineTent:{name:'Mine-Protected Tent',rarity:'uncommon',cloth:0,scrap:2,wire:1,explosives:1,basicTent:1,bolts:0,type:'supply',chance:.90},
  wastelandStew:{name:'Wasteland Stew',rarity:'uncommon',food:['meat','fruit','vegetable'],bolts:0,type:'consumable',chance:1},
- preservedMeat:{name:'Preserved Meat',rarity:'uncommon',food:['meat'],bolts:0,type:'consumable',chance:1},
- preservedVegetables:{name:'Preserved Vegetables',rarity:'uncommon',food:['vegetable'],bolts:0,type:'consumable',chance:1},
+ preservedMeat:{name:'Preserved Meat',rarity:'uncommon',food:['meat','salt'],foodQuantities:{salt:2},bolts:0,type:'consumable',chance:1},
+
  boneTomahawk:{name:'Bone Tomahawk',cloth:0,scrap:2,wire:1,smallBones:3,bolts:30,type:'weapon',chance:.90,minLevel:3},
  boneArmor:{name:'Bone Armor',cloth:2,scrap:4,wire:1,bones:4,bolts:75,type:'armor',chance:.90,minLevel:6},
  temperedPipe:{name:'Tempered Steel Pipe',cloth:0,scrap:2,wire:1,parts:0,tempered:2,bolts:40,type:'weapon',chance:.90,minLevel:4},
@@ -123,25 +113,86 @@ Object.assign(CRAFT_RECIPES,{
 // Approved library recipe rarity/time; existing saved jobs keep their absolute deadline.
 if(CRAFT_RECIPES.bandage)CRAFT_RECIPES.bandage.rarity='rare';
 for(const recipe of Object.values(CRAFT_RECIPES))recipe.seconds=R11_TIMES[recipe.rarity||GEAR[recipe.name]?.rarity||'common'];
-function r11Learned(key){r11Migrate();return !!player.flags.r11Learned[key]||(player.flags.v49RecipeBandage&&['bandage','pipe'].includes(key));}
-function r11Blueprint(source){
- const rates={combat:.02,exploration:.015,salvage:.025,boss:.10};
- if(!rates[source]||Math.random()>=rates[source])return false;
- const pool=['reinforcedPipe','ironReaper','keeperCoat','boneTomahawk','boneArmor'].filter(k=>!r11Learned(k));if(!pool.length)return false;
- const key=pool[Math.floor(Math.random()*pool.length)];player.flags.r11Learned[key]=true;add('BLUEPRINT LEARNED — '+CRAFT_RECIPES[key].name,'reward');return true;
+if(CRAFT_RECIPES.bandage)CRAFT_RECIPES.bandage.seconds=REINFORCED_BANDAGE_SECONDS;
+
+const R11_DISABLED_EPIC_RECIPES=new Set(['widowmaker','keeperCoat']);
+const R11_RETIRED_RECIPES=new Set(['pipe','reinforcedPipe','temperedPipe','mineTent','boneTomahawk','ironReaper','boneArmor','relayVest']);
+for(const key of R11_RETIRED_RECIPES){
+ if(CRAFT_RECIPES[key])Object.defineProperty(CRAFT_RECIPES,key,{enumerable:false});
 }
-const r11Drop=v555AwardEquipmentDrop;v555AwardEquipmentDrop=function(...args){r11Drop(...args);r11Blueprint('combat');};
-const r11Resolve=resolveEncounter;resolveEncounter=function(cmd){
- const oldStage=stage,title=currentEncounter()?.title,oldDone=player.encounterDone?.[roadTurn];
- r11Resolve(cmd);
- if(oldStage==='encounter'&&['turnComplete','r6Road'].includes(stage)&&!/^move on|^back away|^leave/.test(cmd)){
-  const key=title+'|'+roadGoal+'|'+roadTurn+'|'+(r6Road()?.serial||0);
-  if(player.flags.r11LastBlueprintScene!==key){player.flags.r11LastBlueprintScene=key;r11Blueprint(player.flags.r10LastRoadCategory==='salvage'?'salvage':'exploration');}
+function r11RecipeAvailable(key){
+ if(R11_DISABLED_EPIC_RECIPES.has(key)||R11_RETIRED_RECIPES.has(key))return false;
+ if(key==='corvetteGlue'||key==='corvetteWindshield'){
+  return !CorvetteRestoration.state().delivered.windshield&&!CorvetteRestoration.count('Restored Corvette Windshield');
  }
-};
-function r18FoodEligible(kind){return (player.pack||[]).filter(i=>i.qty>0&&!i.protected&&!i.unique&&i.type===(kind==='meat'?'material':'consumable')&&R18_FOOD_GROUPS[kind]?.includes(i.name));}
-function r18FoodCraftMenu(){const q=player.flags.r18FoodDraft,r=q&&CRAFT_RECIPES[q.key];if(!r?.food){delete player.flags.r18FoodDraft;return r11CraftMenu();}add('CHOOSE INGREDIENTS — '+r.name.toUpperCase(),'place');for(const kind of r.food)add(kind.toUpperCase()+': '+(q.selected[kind]||'not selected'),'system');const options=[];for(const kind of r.food)for(const name of [...new Set(r18FoodEligible(kind).map(i=>i.name))])options.push('SELECT '+kind.toUpperCase()+' — '+name.toUpperCase());options.push('CONFIRM INGREDIENTS','CANCEL INGREDIENTS');r5DirectChoices(options);}
-function r18FoodCraftCommand(cmd){const q=player.flags.r18FoodDraft,r=q&&CRAFT_RECIPES[q.key];if(!r?.food){delete player.flags.r18FoodDraft;return r11CraftMenu();}if(['cancel ingredients','back','b'].includes(cmd)){delete player.flags.r18FoodDraft;return r11CraftMenu();}const match=cmd.match(/^select (meat|fruit|vegetable) — (.+)$/);if(match&&r.food.includes(match[1])){const item=r18FoodEligible(match[1]).find(i=>i.name.toLowerCase()===match[2]);if(item)q.selected[match[1]]=item.name;else add('That ingredient is no longer available.','system');return r18FoodCraftMenu();}if(cmd!=='confirm ingredients')return r18FoodCraftMenu();if(player.flags.v49MurphyJob||!player.flags.v49RecipeBandage||!r11Learned(q.key)){add('The recipe or workshop job changed; nothing was spent.','danger');delete player.flags.r18FoodDraft;return r11CraftMenu();}const picks=r.food.map(kind=>r18FoodEligible(kind).find(i=>i.name===q.selected[kind]));if(picks.some(i=>!i)){add('Select one available ingredient for each category. Nothing was spent.','danger');return r18FoodCraftMenu();}const counts=new Map();for(const item of picks)counts.set(item,(counts.get(item)||0)+1);if([...counts].some(([item,n])=>item.qty<n)){add('The available quantity changed. Nothing was spent.','danger');return r18FoodCraftMenu();}for(const [item,n] of counts){item.qty-=n;if(!item.qty)player.pack.splice(player.pack.indexOf(item),1);}const key=q.key;if(key==='wastelandStew')player.flags.r18LastStewMeat=q.selected.meat;delete player.flags.r18FoodDraft;player.flags.v49MurphyJob={key,endsAt:Date.now()+r.seconds*1000,success:Math.random()<r.chance};r11Quiet(()=>v49Autosave());updateHud();add('Ingredients committed. '+r.name+' is underway.','reward');return r11CraftMenu();}
+ return true;
+}
+function r11Discoverable(key){return r11RecipeAvailable(key);}
+function r11Learned(key){if(!r11RecipeAvailable(key))return false;r11Migrate();return !!player.flags.r11Learned[key]||(player.flags.v49RecipeBandage&&['bandage','pipe'].includes(key));}
+R18_FOOD_GROUPS.salt=['Salt'];
+function r18FoodEligible(kind){return (player.pack||[]).filter(i=>i.qty>0&&!i.protected&&!i.unique&&i.type===(['meat','salt'].includes(kind)?'material':'consumable')&&R18_FOOD_GROUPS[kind]?.includes(i.name));}
+function r18FoodAmount(recipe,kind){return recipe.foodQuantities?.[kind]||1;}
+function r18FoodOptions(recipe,kind){
+ const stock=new Map();
+ for(const item of r18FoodEligible(kind))stock.set(item.name,(stock.get(item.name)||0)+item.qty);
+ return [...stock].filter(([,qty])=>qty>=r18FoodAmount(recipe,kind));
+}
+function r18FoodCraftMenu(){
+ const q=player.flags.r18FoodDraft,r=q&&CRAFT_RECIPES[q.key];
+ if(!r?.food){delete player.flags.r18FoodDraft;return r11CraftMenu();}
+ add('CHOOSE INGREDIENTS — '+r.name.toUpperCase(),'place');
+ const options=[];
+ for(const kind of r.food){
+  const amount=r18FoodAmount(r,kind),label=kind.toUpperCase();
+  add(label+(amount>1?' (×'+amount+' required)':'')+': '+(q.selected[kind]||'not selected'),'system');
+  for(const [name] of r18FoodOptions(r,kind))options.push('SELECT '+label+' — '+name.toUpperCase());
+ }
+ options.push('CONFIRM INGREDIENTS','CANCEL INGREDIENTS');
+ r5DirectChoices(options);
+}
+function r18FoodCraftCommand(cmd){
+ const q=player.flags.r18FoodDraft,r=q&&CRAFT_RECIPES[q.key];
+ if(!r?.food||['cancel ingredients','back','b'].includes(cmd)){
+  delete player.flags.r18FoodDraft;
+  return r11CraftMenu();
+ }
+ const match=cmd.match(/^select (meat|fruit|vegetable|salt) — (.+)$/);
+ if(match&&r.food.includes(match[1])){
+  const [,kind,wanted]=match;
+  const pick=r18FoodOptions(r,kind).find(([name])=>name.toLowerCase()===wanted);
+  if(pick)q.selected[kind]=pick[0];
+  else add('The required quantity of that ingredient is unavailable.','system');
+  return r18FoodCraftMenu();
+ }
+ if(cmd!=='confirm ingredients')return r18FoodCraftMenu();
+ if(player.flags.v49MurphyJob||!player.flags.v49RecipeBandage||!r11Learned(q.key)){
+  add('The recipe or workshop job changed; nothing was spent.','danger');
+  delete player.flags.r18FoodDraft;
+  return r11CraftMenu();
+ }
+ const counts=new Map();
+ for(const kind of r.food){
+  let remaining=r18FoodAmount(r,kind);
+  for(const item of r18FoodEligible(kind)){
+   if(item.name!==q.selected[kind])continue;
+   const consumed=counts.get(item)||0,take=Math.min(remaining,item.qty-consumed);
+   if(take>0)counts.set(item,consumed+take);
+   remaining-=take;
+   if(!remaining)break;
+  }
+  if(remaining){
+   add('Select '+r18FoodAmount(r,kind)+' eligible '+kind+' for this recipe. Nothing was spent.','danger');
+   return r18FoodCraftMenu();
+  }
+ }
+ for(const [item,n] of counts){item.qty-=n;if(!item.qty)player.pack.splice(player.pack.indexOf(item),1);}
+ const key=q.key;
+ if(key==='wastelandStew')player.flags.r18LastStewMeat=q.selected.meat;
+ delete player.flags.r18FoodDraft;
+ player.flags.v49MurphyJob={key,endsAt:Date.now()+r.seconds*1000,success:Math.random()<r.chance};
+ r11Quiet(()=>v49Autosave());updateHud();add('Ingredients committed. '+r.name+' is underway.','reward');
+ return r11CraftMenu();
+}
 function r11CraftMenu(where=player.flags.r11Bench||'murphy'){
  if(where==='seaport'&&(!portRecruitUnlocked()||!portStaffRating('workshop')))return;
  player.flags.r11Bench=where;stage='r11Craft';add((where==='seaport'?'SEAPORT WORKSHOP':where==='forge'?"FORGE'S WORKBENCH":"MURPHY'S WORKBENCH")+' — CRAFTING','place');
@@ -150,9 +201,9 @@ function r11CraftMenu(where=player.flags.r11Bench||'murphy'){
  if(job){add(CRAFT_RECIPES[job.key].name+' — '+(Date.now()>=job.endsAt?'READY TO COLLECT':Math.ceil((job.endsAt-Date.now())/1000)+' seconds remaining'),'system');r5DirectChoices(['COLLECT CRAFT','BACK']);return;}
  if(!player.flags.v49RecipeBandage){add('Learn introductory crafting from Forge before using found blueprints.','system');r5DirectChoices(['BACK']);return;}
  if(player.flags.r18FoodDraft)return r18FoodCraftMenu();
- const keys=Object.keys(CRAFT_RECIPES).filter(k=>r11Learned(k));
- add(`LEARNED: ${keys.length}   UNDISCOVERED: ${Object.keys(CRAFT_RECIPES).length-keys.length}`,'system');
- for(const k of keys){const r=CRAFT_RECIPES[k],m={Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0,'Tempered Steel':r.tempered||0,'Small Animal Bones':r.smallBones||0,'Animal Bones':r.bones||0,'Explosive Components':r.explosives||0,'Animal Hide':r.hide||0,...(r.materials||{})};const missing=Object.entries(m).some(([n,q])=>r6MaterialCount(n)<q)||Object.entries(r.questInputs||{}).some(([n,q])=>CorvetteRestoration.count(n)<q)||!!r.food?.some(k=>!r18FoodEligible(k).length)||!!(r.basicTent&&!r18ExactTent('Tent'))||player.bolts<r.bolts||(r.minLevel&&player.level<r.minLevel);add(`${r.name} — ${(r.rarity||GEAR[r.name]?.rarity||'common').toUpperCase()} — ${r.seconds}s — ${Math.round(r.chance*100)}% — ${r.food?'Choose: '+r.food.join(', '):[...(r.basicTent?['Tent '+(r18ExactTent('Tent')?'1/1':'0/1')]:[]),...Object.entries(m).filter(([,q])=>q).map(([n,q])=>`${n} ${r6MaterialCount(n)}/${q}`),...Object.entries(r.questInputs||{}).map(([n,q])=>`${n} ${CorvetteRestoration.count(n)}/${q}`)].join(', ')} — Bolts ${player.bolts}/${r.bolts} — ${missing?'UNAVAILABLE':'READY'}`,r.rarity||GEAR[r.name]?.rarity||'system');}
+ const keys=Object.keys(CRAFT_RECIPES).filter(k=>r11RecipeAvailable(k)&&r11Learned(k));
+ add(`LEARNED: ${keys.length}   UNDISCOVERED: ${Object.keys(CRAFT_RECIPES).filter(k=>r11RecipeAvailable(k)).length-keys.length}`,'system');
+ for(const k of keys){const r=CRAFT_RECIPES[k],m={Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0,'Tempered Steel':r.tempered||0,'Small Animal Bones':r.smallBones||0,'Animal Bones':r.bones||0,'Explosive Components':r.explosives||0,'Animal Hide':r.hide||0,...(r.materials||{})};const missing=Object.entries(m).some(([n,q])=>r6MaterialCount(n)<q)||Object.entries(r.questInputs||{}).some(([n,q])=>CorvetteRestoration.count(n)<q)||!!r.food?.some(k=>!r18FoodOptions(r,k).length)||!!(r.basicTent&&!r18ExactTent('Tent'))||player.bolts<r.bolts||(r.minLevel&&player.level<r.minLevel);add(`${r.name} — ${(r.rarity||GEAR[r.name]?.rarity||'common').toUpperCase()} — ${r.seconds}s — ${Math.round(r.chance*100)}% — ${r.food?'Choose: '+r.food.map(k=>r18FoodAmount(r,k)>1?r18FoodAmount(r,k)+' '+k:k).join(', '):[...(r.basicTent?['Tent '+(r18ExactTent('Tent')?'1/1':'0/1')]:[]),...Object.entries(m).filter(([,q])=>q).map(([n,q])=>`${n} ${r6MaterialCount(n)}/${q}`),...Object.entries(r.questInputs||{}).map(([n,q])=>`${n} ${CorvetteRestoration.count(n)}/${q}`)].join(', ')} — Bolts ${player.bolts}/${r.bolts} — ${missing?'UNAVAILABLE':'READY'}`,r.rarity||GEAR[r.name]?.rarity||'system');}
  r5DirectChoices([...keys.filter(k=>!CRAFT_RECIPES[k].minLevel||player.level>=CRAFT_RECIPES[k].minLevel).map(k=>'CRAFT '+CRAFT_RECIPES[k].name.toUpperCase()),'BACK']);
 }
 function r11CraftCommand(cmd){
@@ -171,7 +222,7 @@ function r11CraftCommand(cmd){
  }
  if(!cmd.startsWith('craft ')||job)return r11CraftMenu();
  const key=Object.keys(CRAFT_RECIPES).find(k=>CRAFT_RECIPES[k].name.toLowerCase()===cmd.slice(6));
- const r=CRAFT_RECIPES[key];if(!player.flags.v49RecipeBandage||!r||!r11Learned(key)||r.minLevel&&player.level<r.minLevel){add('That blueprint is not available to craft.','system');return;}
+ const r=CRAFT_RECIPES[key];if(!player.flags.v49RecipeBandage||!r||R11_DISABLED_EPIC_RECIPES.has(key)||!r11Learned(key)||r.minLevel&&player.level<r.minLevel){add('That blueprint is not available to craft.','system');return;}
  if(r.questInputs&&(CorvetteRestoration.state().delivered.windshield||CorvetteRestoration.count('Restored Corvette Windshield'))){add('The windshield is already restored.','system');return;}
  if(r.food){player.flags.r18FoodDraft={key,selected:{}};return r18FoodCraftMenu();}
  const mats={Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0,'Tempered Steel':r.tempered||0,'Small Animal Bones':r.smallBones||0,'Animal Bones':r.bones||0,'Explosive Components':r.explosives||0,'Animal Hide':r.hide||0,...(r.materials||{})};
@@ -306,28 +357,40 @@ const r11SolaceBoard=showBulletinBoard;showBulletinBoard=function(){r11SolaceBoa
 function r11PortBoard(){stage='r11Board';add('SEAPORT — DOCK BULLETIN BOARD','place');
  add('SHIPPING: Register cargo before unloading. Unmarked crates will be held at the quay.');add('DOCKWORKERS: Check mooring ropes after every squall.');add('MISSING CARGO: Report altered freight manifests to the docks clerk.');add('HARBOR HAZARD: The western freight spur has unstable decking.');add('LOCAL NOTICE: Mia wants her cups back. Kaiden wants everyone to stop blaming the gulls.');r11SharedBoard();r5DirectChoices(['POST A MESSAGE','VIEW BOUNTIES','RETURN TO DOCKS']);
 }
-const r11Docks=r5Docks;r5Docks=function(){if(!portRecruitUnlocked())return r11Docks();stage='port55Docks';add('SEAPORT — HARBOR DOCKS','place');add('Hollis Reed checks water-stained manifests beside the freed quay.','bright');r5DirectChoices(['DOCK BULLETIN BOARD','TALK TO HOLLIS REED',...(r18CourierEligible('docks')?['DELIVER SEAPORT PARCEL']:[]),...(player.flags.port55PendingRewards?.length?['CLAIM PENDING REWARD']:[]),'RETURN TO SEAPORT']);};
+const r11Docks=r5Docks;r5Docks=function(){if(!portRecruitUnlocked())return r11Docks();stage='port55Docks';add('SEAPORT — HARBOR DOCKS','place');add('Hollis Reed checks water-stained manifests beside the freed quay.','bright');r5DirectChoices(['DOCK BULLETIN BOARD','TALK TO HOLLIS REED',...(player.flags.r18CalebRescued?['TALK TO CALEB']:[]),...(r18CourierEligible('docks')?['DELIVER SEAPORT PARCEL']:[]),...(player.flags.port55PendingRewards?.length?['CLAIM PENDING REWARD']:[]),'RETURN TO SEAPORT']);};
+function r11CalebMenu(){
+ if(!portRecruitUnlocked()||!player.flags.r18CalebRescued)return r5Docks();
+ stage='r11Caleb';
+ add('CALEB REED — SEAPORT DOCKS','place');
+ add('CALEB > Thanks for getting me out of Office 204. It feels good to be back on the docks.','bright');
+ r5DirectChoices(['RETURN TO DOCKS']);
+}
 function r11HollisMenu(){stage='r11Hollis';add('HOLLIS REED — DOCKS CLERK','place');add('Hollis sets aside a water-stained manifest and looks up from his ledger.','bright');r5DirectChoices(['ASK ABOUT THE LAST SHIPMENT','BACK']);}
 port55MiaMenu=function(){stage='port55Mia';port55Submenu('The Rusty Anchor — Mia',['SMALL TALK','BUY DRINKS','GAMBLE',player.flags.r6AnchorRoomOwned?'GO TO ROOM':'RENT ROOM — 3000 BOLTS',...(portRecruitUnlocked()?['ASK ABOUT HOUSE RULES']:[]),'RETURN TO HARBOR']);};
 function r11Drinks(){stage='r11Drinks';add('MIA — DRINKS','place');r5DirectChoices(['BEER — 5 BOLTS / 5% MAX HP (MIN 5)','SHOT — 9 BOLTS / 9% MAX HP (MIN 10)','HOUSE SPECIAL — 15 BOLTS / 15% MAX HP (MIN 15)','BACK']);}
+function r11HasCommunicationsModule(){return player.pack.some(i=>i.name===R11_COMMUNICATIONS_MODULE&&i.qty>0);}
 const R11_QUESTS={shipment:{name:'The Last Shipment',xp:120,bolts:75,giver:'Hollis Reed'},houseRules:{name:'House Rules',xp:100,bolts:100,giver:'Mia'},lights:{name:'Keeping the Lights On',xp:150,bolts:0,giver:'Kaiden'}};
 function r11QuestState(){return player.flags.r11Quests||(player.flags.r11Quests={});}
 function r11QuestMenu(key){
  if(!portRecruitUnlocked())return;
  stage='r11Quest';player.flags.r11QuestFocus=key;const q=R11_QUESTS[key],state=r11QuestState()[key];add(q.giver.toUpperCase()+' — '+q.name.toUpperCase(),'place');
- const intro={shipment:'The relief cargo was signed over to an empty freight spur. Find the redirected crates and the duplicate manifest before the harbor blames its own workers.',houseRules:'A gambler left owing Mia money, but his room still holds everything he owns. Look for his camp on the coastal approach to Seaport, near the Causeway. Ask why he vanished before deciding what to do.',lights:'The harbor still has power, but the outer dock security floodlights are down. Forge at the Factory has a replacement floodlight controller. Buy one from him and bring it back so the harbor can watch its approaches after dark.'};
+ const intro={shipment:'The relief cargo was signed over to an empty freight spur. Find the redirected crates and the duplicate manifest before the harbor blames its own workers.',houseRules:'A gambler left owing Mia money, but his room still holds everything he owns. Look for his camp on the coastal approach to Seaport, near the Causeway. Ask why he vanished before deciding what to do.',lights:'I used to work with the Tomorrow Project. Their old communications terminal is in the Rusty Anchor back room. If you want to reach them, ask Forge at the Factory for a Pre-War Communications Interface Module. Install it in the terminal and see who answers.'};
  if(!state){add(intro[key]);r5DirectChoices(['ACCEPT QUEST','BACK']);}
+ else if(state==='ready'&&key==='lights'){add('Install the communications module in the Rusty Anchor back room with FIX COMPUTER.','system');r5DirectChoices(['BACK']);}
  else if(state==='ready'){add('You have what you need. Report what happened.','system');r5DirectChoices(['COMPLETE QUEST','BACK']);}
  else if(state==='done'){add('This job is finished. The harbor remembers your help.','bright');r5DirectChoices(['BACK']);}
- else{add(key==='shipment'?'Search the abandoned loading area on the Causeway, between Boulder Junction and Seaport.':key==='houseRules'?'Search the gambler’s camp on the coastal approach to Seaport, near the Causeway.':'Visit Forge at the Factory and buy his replacement harbor floodlight controller for 100 Bolts.','system');r5DirectChoices(['BACK']);}
+ else{add(key==='shipment'?'Search the abandoned loading area on the Causeway, between Boulder Junction and Seaport.':key==='houseRules'?'Search the gambler’s camp on the coastal approach to Seaport, near the Causeway.':'Visit Forge at the Factory and buy the Pre-War Communications Interface Module for 100 Bolts.','system');r5DirectChoices(['BACK']);}
 }
 function r11QuestReturn(){const k=player.flags.r11QuestFocus;if(k==='shipment')r11HollisMenu();else if(k==='houseRules')port55MiaMenu();else{stage='port55Kaiden';port55Submenu('Kaiden — Town Lawman',['SMALL TALK','ASK ABOUT KEEPING THE LIGHTS ON','RETURN TO HARBOR']);}}
-function r11QuestComplete(key){
+function r11QuestComplete(key,onComplete=r11QuestReturn){
  if(!portRecruitUnlocked()||r11QuestState()[key]!=='ready')return;
+ if(key==='lights'&&(stage!=='port55TomorrowBackRoom'||!r11HasCommunicationsModule()))return;
  r11QuestState()[key]='done';const q=R11_QUESTS[key];gainXp(q.xp);if(q.bolts)gainBolts(q.bolts);
- if(key==='lights'){player.pack=player.pack.filter(i=>i.name!=='Harbor Floodlight Controller');delete player.flags.r11FloodlightPart; if(!addPack('Uncommon Electrical Parts','material',2,true))(player.stash||(player.stash=[])).push({name:'Uncommon Electrical Parts',type:'material',qty:2});add('Kaiden has the new controller fitted. The harbor security floodlights sweep the dark water again. Two spare Uncommon Electrical Parts are yours.','reward');}
+ if(key==='lights'){player.pack=player.pack.filter(i=>i.name!==R11_COMMUNICATIONS_MODULE);delete player.flags.r11FloodlightPart; if(!addPack('Uncommon Electrical Parts','material',2,true))(player.stash||(player.stash=[])).push({name:'Uncommon Electrical Parts',type:'material',qty:2});add('You install the communications module. The Tomorrow Project terminal powers up. Two spare Uncommon Electrical Parts are yours.','reward');}
  if(key==='houseRules')add(player.flags.r11GamblerChoice==='forgive'?"MIA > You gave him a chance to come back. I can live with that. Here's your fee.":player.flags.r11GamblerChoice==='work'?"MIA > He offered to work it off? Good. I'll find him a broom.":"MIA > He paid what he could. Next time he wants a room, he talks to me first.",'bright');
- add('QUEST COMPLETE — '+q.name,'reward');r11Quiet(()=>v49Autosave());r11QuestReturn();
+ add('QUEST COMPLETE — '+q.name,'reward');if(key==='lights')onComplete();
+ r11Quiet(()=>v49Autosave());
+ if(key!=='lights')onComplete();
 }
 function r11RoadQuestOptions(){if(!portRecruitUnlocked()||!r6Road()?.active||r6Road().leg!=='coast')return [];const q=r6Road(),s=r11QuestState();return [...(s.shipment==='active'&&q.pos===3?['SEARCH FREIGHT SPUR']:[]),...(s.houseRules==='active'&&q.pos===1?['SEARCH GAMBLER CAMP']:[])];}
 const r11RoadMenu=r6RoadMenu;r6RoadMenu=function(){r11RoadMenu();if(stage==='r6Road'){const extra=r11RoadQuestOptions();if(extra.length)r5DirectChoices(['CONTINUE '+(r6Road().dir>0?'EAST':'WEST'),'REVERSE DIRECTION','INSPECT ROAD',...extra]);}};
@@ -339,7 +402,7 @@ function r11RoadQuest(cmd){
  updateHud();r11Quiet(()=>v49Autosave());return true;
 }
 function r11GamblerMenu(){stage='r11Gambler';add('The missing gambler shelters beside a broken handcart. He fled after losing his wages, afraid Mia would have him beaten. He offers his last few Bolts.','bright');r5DirectChoices(['TAKE WHAT HE CAN PAY','ASK HIM TO WORK IT OFF','FORGIVE THE DEBT AND SEND HIM HOME']);}
-const r11Quests=showQuests;showQuests=function(){r11Quests();if(!portRecruitUnlocked())return;for(const [k,state]of Object.entries(r11QuestState())){add(`${state==='done'?'COMPLETE':'SIDE QUEST'} — ${R11_QUESTS[k].name}`,'place');add(state==='ready'?'Report to '+R11_QUESTS[k].giver:state==='done'?'Completed.':k==='shipment'?'Search the abandoned loading area on the Causeway, between Boulder Junction and Seaport.':k==='houseRules'?'Search the coastal approach to Seaport for the gambler camp.':'Visit Forge at the Factory and buy his replacement harbor floodlight controller for 100 Bolts.','system');}};
+const r11Quests=showQuests;showQuests=function(){r11Quests();if(!portRecruitUnlocked())return;for(const [k,state]of Object.entries(r11QuestState())){add(`${state==='done'?'COMPLETE':'SIDE QUEST'} — ${R11_QUESTS[k].name}`,'place');add(state==='ready'?(k==='lights'?'Install the communications module in the Rusty Anchor back room.':'Report to '+R11_QUESTS[k].giver):state==='done'?'Completed.':k==='shipment'?'Search the abandoned loading area on the Causeway, between Boulder Junction and Seaport.':k==='houseRules'?'Search the coastal approach to Seaport for the gambler camp.':'Visit Forge at the Factory and buy the Pre-War Communications Interface Module for 100 Bolts.','system');}};
 // Local ownership prototype. No server/global authority is fabricated.
 const R11_LEGEND_KEY='route127-local-legendary-r11-v1';
 function r11LegendDB(){try{const db=JSON.parse(localStorage.getItem(R11_LEGEND_KEY)||'null');if(db&&db.version===1&&Array.isArray(db.announcements))return db;}catch{}return {version:1,board:null,announcements:[]};}
@@ -375,7 +438,7 @@ showCurrentContext=function(...args){
  }
  return r11Context.apply(this,args);
 };
-const r11Choices=renderCurrentChoices;renderCurrentChoices=function(){if(stage==='r11Gambler')return r11GamblerMenu();if(stage==='r11Hollis')return r11HollisMenu();if(stage==='r11Craft')return r11CraftMenu();if(stage==='r11Drinks')return r11Drinks();if(stage==='r11Board')return r11PortBoard();if(stage==='r11Quest')return r11QuestMenu(player.flags.r11QuestFocus);if(stage==='r11Steve'||stage==='r11SteveReward'){add('Crazy Steve is temporarily unavailable. Returning to your journey.','system');return r11SteveFinish();}return r11Choices();};
+const r11Choices=renderCurrentChoices;renderCurrentChoices=function(){if(stage==='r11Gambler')return r11GamblerMenu();if(stage==='r11Hollis')return r11HollisMenu();if(stage==='r11Caleb')return r11CalebMenu();if(stage==='r11Craft')return r11CraftMenu();if(stage==='r11Drinks')return r11Drinks();if(stage==='r11Board')return r11PortBoard();if(stage==='r11Quest')return r11QuestMenu(player.flags.r11QuestFocus);if(stage==='r11Steve'||stage==='r11SteveReward'){add('Crazy Steve is temporarily unavailable. Returning to your journey.','system');return r11SteveFinish();}return r11Choices();};
 const r11Core=handleCommandCore;
 handleCommandCore=async function(raw){
  const cmd=r5Mapped(raw);if(busy)return;
@@ -386,6 +449,10 @@ handleCommandCore=async function(raw){
  if(stage==='r11Drinks'){
   if(['back','b'].includes(cmd))return port55MiaMenu();const d=R11_DRINKS[cmd.split(' — ')[0]];
   if(d)Economy.drink(d);return r11Drinks();
+ }
+ if(stage==='r11Caleb'){
+  if(['return to docks','back','b'].includes(cmd))return r5Docks();
+  return r11CalebMenu();
  }
  if(stage==='r11Hollis'){
   if(cmd==='ask about the last shipment')return r11QuestMenu('shipment');
@@ -409,6 +476,7 @@ handleCommandCore=async function(raw){
  if(portRecruitUnlocked()){
   if(stage==='port55Docks'&&cmd==='deliver seaport parcel'&&r18CourierEligible('docks')){r18CourierDeliver('docks');return r5Docks();}
   if(stage==='port55Docks'&&cmd==='dock bulletin board')return r11PortBoard();
+  if(stage==='port55Docks'&&cmd==='talk to caleb'&&player.flags.r18CalebRescued)return r11CalebMenu();
   if(stage==='port55Docks'&&cmd==='talk to hollis reed')return r11HollisMenu();
   if(stage==='port55Mia'&&cmd==='ask about house rules')return r11QuestMenu('houseRules');
   if(stage==='port55Kaiden'&&['pay fine','clear bounty','offer bribe','confirm bribe','cancel bribe'].includes(cmd)){if(player.flags.port55CurrentStop!==port55PatrolName()){delete player.flags.r18BribePending;stage='seaport';add('Kaiden has continued his patrol.','system');return port55Menu();}if(cmd==='pay fine'||cmd==='clear bounty')r18LegalFine('Kaiden');else if(cmd==='offer bribe')r18BribeOffer('Kaiden');else if(cmd==='confirm bribe')r18BribeConfirm('Kaiden');else r18BribeCancel();return r18KaidenChoices();}
@@ -435,17 +503,17 @@ Object.assign(GEAR,{'Crude Shiv':{rarity:'common',type:'weapon',min:4,max:9},'Wo
 const R11_WANDERER_KITS={
  Hollis:['Rusted Pipe','Worn Jacket'],June:['Crude Shiv','Worn Canvas Coat'],Ash:['Worn Crowbar','Worn Jacket'],
  Moss:['Rusted Pipe','Padded Jacket'],Vera:['Claw Hammer','Worn Canvas Coat'],Lark:['Crude Shiv','Reinforced Jacket'],
- Rook:['Reinforced Pipe','Padded Jacket'],Kettle:['Heavy Wrench','Reinforced Work Vest'],Bram:['Claw Hammer','Reinforced Jacket'],
- Deke:['Tire Iron','Padded Jacket'],Patch:['Heavy Wrench','Padded Jacket'],Tess:['Reinforced Pipe','Reinforced Work Vest'],
- Flint:['Tempered Steel Pipe','Reinforced Jacket'],Sable:['Balanced Hunting Knife','Tempered Leather Armor'],Cricket:['Claw Hammer','Reinforced Work Vest'],
- Rowan:['Reinforced Pipe','Advanced Relay Vest'],Harlow:['Specialized Service Revolver','Padded Tactical Jacket'],Bolt:['Heavy Wrench','Insulated Patrol Coat'],
+ Rook:['Claw Hammer','Padded Jacket'],Kettle:['Heavy Wrench','Reinforced Work Vest'],Bram:['Claw Hammer','Reinforced Jacket'],
+ Deke:['Tire Iron','Padded Jacket'],Patch:['Heavy Wrench','Padded Jacket'],Tess:['Claw Hammer','Reinforced Work Vest'],
+ Flint:['Claw Hammer','Reinforced Jacket'],Sable:['Balanced Hunting Knife','Tempered Leather Armor'],Cricket:['Claw Hammer','Reinforced Work Vest'],
+ Rowan:['Claw Hammer','Advanced Relay Vest'],Harlow:['Specialized Service Revolver','Padded Tactical Jacket'],Bolt:['Heavy Wrench','Insulated Patrol Coat'],
  Crowley:['Bluefang Hunting Knife','Hardened Scavenger Coat'],Mercer:['Precision Hunting Rifle',"Highway Warden's Coat"],Finch:['Tempered Combat Machete','Salvaged Security Vest'],
- Vale:['Balanced Hunting Knife','Insulated Patrol Coat'],Bishop:['Tempered Steel Pipe','Salvaged Security Vest'],Wren:['Specialized Service Revolver',"Highway Warden's Coat"],Cutter:['Iron Reaper','Hardened Scavenger Coat']
+ Vale:['Balanced Hunting Knife','Insulated Patrol Coat'],Bishop:['Tire Iron','Salvaged Security Vest'],Wren:['Specialized Service Revolver',"Highway Warden's Coat"],Cutter:['Iron Reaper','Hardened Scavenger Coat']
 };
 const r11Profile=v50Profile;v50Profile=function(w){
  const old=ws(w.name).profile,p=r11Profile(w);if(old)return p;
  const kit=R11_WANDERER_KITS[w.name];if(kit)[p.weapon,p.armor]=kit;
- const i=wanderers.indexOf(w),goods={Medic:['Bandage','Cloth','Energy Bars'],Mechanic:['Scrap Metal','Wire','Cloth'],Trader:['Energy Bars','Bandage','Tent'],Guard:['Bandage','Scrap Metal','Cloth'],Scavenger:['Scrap Metal','Wire','Cloth'],Cook:['Energy Bars','Cloth','Wire']}[p.occupation]||['Wire','Cloth','Bandage'];
+ const i=wanderers.indexOf(w),goods={Medic:['Bandage','Cloth','Energy Bars'],Mechanic:['Scrap Metal','Wire','Cloth'],Trader:['Energy Bars','Bandage'],Guard:['Bandage','Scrap Metal','Cloth'],Scavenger:['Scrap Metal','Wire','Cloth'],Cook:['Energy Bars','Cloth','Wire']}[p.occupation]||['Wire','Cloth','Bandage'];
  p.stock=goods.map((name,j)=>({name,qty:1+Math.floor(i/3**j)%3,price:VENDOR_BASE[name]||Math.max(1,(V48_LOOT_PRICES[name]||2)*2)}));return p;
 };
 const R11_PERSONAL_LINES={

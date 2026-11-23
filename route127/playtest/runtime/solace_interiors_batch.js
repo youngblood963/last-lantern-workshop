@@ -47,7 +47,7 @@ const amiiTalk=()=>{section='amiiTalk';npcTalk('amii');};
 const timTalk=()=>{section='timTalk';npcTalk('tim');};
 // Blueprints cost half the market price of the finished item. Players still
 // need to acquire materials, pay crafting costs and wait for completion.
-const murphyBlueprintKeys=['ironReaper','reinforcedPipe','temperedPipe','keeperCoat','widowmaker'];
+const murphyBlueprintKeys=[];
 function murphyBlueprintPrice(key){
  const recipe=CRAFT_RECIPES[key];
  if(!recipe)return 0;
@@ -76,6 +76,11 @@ function shopList(){
     add(r.name+' — '+(learned(key)?'LEARNED':price+' BOLTS'),r.rarity||GEAR[r.name]?.rarity||'system');
     if(!learned(key))choices.push('LEARN '+r.name.toUpperCase());
   }
+  for(const key of ['precision','impact']){
+    const recipe=EquipmentMods.catalog[key];
+    add(recipe.name+' — '+(EquipmentMods.learned(key)?'LEARNED':'500 BOLTS'),'system');
+    if(!EquipmentMods.learned(key))choices.push('LEARN '+recipe.name.toUpperCase());
+  }
   if(!choices.length)add('No new blueprints available.','system');
   DevtestMenuModel.publishLabels('solace-blueprints',[...choices,backLabel],backLabel);
 }
@@ -93,11 +98,11 @@ johnnyShop=function(){
   ensureVendorStock();player.flags.solaceMenu="shop";
   add("JOHNNY'S STOCK — PERSONAL DAILY SELECTION","place");
   add(`ENERGY BAR — RESTORE 10% MAX HP — ${johnnyPrice("Energy Bars")} BOLTS`,"system");add(`BANDAGE — RESTORE 25% MAX HP — ${johnnyPrice("Bandage")} BOLTS`,"system");
+  johnnyWaterListing();
   add(`BATTERED FLASHLIGHT — 20 BOLTS`,"system");
-  add(`TENT — ${johnnyPrice("Tent")} BOLTS — one use for overnight camp.`,"system");
   if(!player.flags.backpackUpgrade)add(`16-SLOT BACKPACK — ${V48_BACKPACK_PRICE} BOLTS`,"system");
   const scrap=findItem("Scrap Metal"),sq=scrap?scrap.qty:0;add(`SCRAP: ${sq} — ${sq*4} BOLTS. Stock refreshes at daily refill.`,"system");
-  DevtestMenuModel.publishLabels('solace-johnny-stock',["BUY ENERGY BAR","BUY BANDAGE","BUY BATTERED FLASHLIGHT",...(player.flags.relayPartsRevealed&&player.flags.relayQuest!=="complete"?["ASK ABOUT RELAY PARTS"]:[]),"BUY TENT",...(player.flags.r18MarthaSettled?["OLD WORLD COUNTER"]:[]),...(!player.flags.backpackUpgrade?["BUY 16-SLOT BACKPACK"]:[]),"(B) BACK"], "(B) BACK");
+  DevtestMenuModel.publishLabels('solace-johnny-stock',["BUY ENERGY BAR",...(johnnyWaterStock().qty>0?["BUY CLEAN WATER"]:[]),"BUY BANDAGE","BUY BATTERED FLASHLIGHT",...(player.flags.relayPartsRevealed&&player.flags.relayQuest!=="complete"?["ASK ABOUT RELAY PARTS"]:[]),...(player.flags.r18MarthaSettled?["OLD WORLD COUNTER"]:[]),...(!player.flags.backpackUpgrade?["BUY 16-SLOT BACKPACK"]:[]),"(B) BACK"], "(B) BACK");
 };
 const npcMenus={
  johnny:{
@@ -273,6 +278,8 @@ handleCommandCore=async function(raw){
    if(cmd==='crafting'){section='murphyCraft';return r11CraftMenu('murphy');}
    if(cmd==='small talk'||cmd==='small talk murphy'||cmd==='talk'){return murphyTalk();}
    if(section==='murphyRecipes'&&cmd.startsWith('learn ')){
+     const mod=['precision','impact'].find(key=>cmd==='learn '+EquipmentMods.catalog[key].name.toLowerCase());
+     if(mod){EquipmentMods.purchase(mod,500);return shopList();}
      const key=Object.keys(CRAFT_RECIPES).find(k=>CRAFT_RECIPES[k].name.toLowerCase()===cmd.slice(6));
      const price=key&&murphyBlueprintKeys.includes(key)?murphyBlueprintPrice(key):0;
      if(price>0){
@@ -306,18 +313,15 @@ handleCommandCore=async function(raw){
 v53TimMenu=function(){
  section='timMain';mercyLocation='tim';townWandererFocus=null;player.flags.solaceMenu='tim53';
  const wanted=v52Crime().bounty>0;
- menu('solace-tim','TIM — SOLACE',['TALK TIM',...(typeof r18CourierEligible==='function'&&r18CourierEligible('tim')?['DELIVER TIM LETTER']:[]),...(player.flags.r18ClaraMet&&player.flags.r18DanielQuest!=='done'?['ASK ABOUT DANIEL']:[]),...(wanted?['PAY FINE','OFFER BRIBE']:[]),...(player.flags.r18BribePending?.lawman==='Tim'?['CONFIRM BRIBE','CANCEL BRIBE']:[]),'TOWN'],'TOWN');
+ menu('solace-tim','TIM — SOLACE',['TALK TIM','BOUNTIES','VIEW WARRANTS',...(typeof r18CourierEligible==='function'&&r18CourierEligible('tim')?['DELIVER TIM LETTER']:[]),...(player.flags.r18ClaraMet&&player.flags.r18DanielQuest!=='done'?['ASK ABOUT DANIEL']:[]),...(wanted?['PAY FINE','OFFER BRIBE']:[]),...(player.flags.r18BribePending?.lawman==='Tim'?['CONFIRM BRIBE','CANCEL BRIBE']:[]),'TOWN'],'TOWN');
 };
 // Reward eligible NPC bounty targets at defeat, independently of reopening Tim.
 const oldCombat=handleCombat;
 handleCombat=function(...args){
  const defeatedSource=combatState?.source;
- const before=defeatedSource==='terribleBilly'?player.flags.terribleBillyBounty:defeatedSource==='houseBoss'?player.flags.timHouseBounty:null;
+ const before=defeatedSource==='houseBoss'?player.flags.timHouseBounty:null;
  const result=oldCombat.apply(this,args);
  const f=player.flags;
- if(before==='active'&&defeatedSource==='terribleBilly'&&f.terribleBillyBounty==='proof'){
-   f.terribleBillyBounty='done';gainXp(140);gainBolts(100);add('BOUNTY PAID — TERRIBLE BILLY: +140 XP, +100 BOLTS.','reward');v49Autosave();
- }
  if(before==='active'&&defeatedSource==='houseBoss'&&f.timHouseBounty==='proof'){
    f.timHouseBounty='done';gainXp(100);gainBolts(75);add('BOUNTY PAID — OLD HOUSE: +100 XP, +75 BOLTS.','reward');v49Autosave();
  }

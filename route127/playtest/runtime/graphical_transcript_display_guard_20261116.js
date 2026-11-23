@@ -1,6 +1,4 @@
-/* DEVTEST — final graphical transcript presentation guard.
- * DOM visibility only. The text/commands remain intact for Classic BBS.
- * Do not filter wanderer, narrative, quest, reward, or warning messages. */
+/* DEVTEST transcript visibility for graphical presentation and cloud saves. */
 (() => {
  'use strict';
  if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||typeof GraphicalUI==='undefined')return;
@@ -8,13 +6,22 @@
  if(!log)return;
  const location=/^(?:SEAPORT|SOLACE|FACTORY|INDUSTRIAL|CENTRAL|LOWLANDS|CAUSEWAY|NORTH|EAST|WEST|RUSTY LANTERN|RUSTY ANCHOR|SCRAP YARD|ROUTE 127)\s*[—–-]\s*[A-Z0-9][A-Z0-9 '&’()./-]{1,75}$/;
  const command=/^>\s*(?:\d{1,2}|[a-z])\s*$/i;
+ const legacySlot=/^(?:SAVE [123] — EMPTY|\(L\) LOAD [123] —|\(A\) AUTOSAVE —|CONTINUE loads the newest save\.)/;
  const important=/\b(?:QUEST|REWARD|WARNING|BOUNTY|XP|BOLTS|DAMAGE|HP|WANDERER)\b/;
  function apply(line,graphics){
   if(!line?.classList?.contains('line'))return;
   const value=(line.textContent||'').trim();
   const redundant=line.classList.contains('place')||
     command.test(value)||(location.test(value)&&!important.test(value));
-  if(graphics&&redundant){
+  const cloudSlot=document.body.classList.contains('r127-cloud-game')&&legacySlot.test(value);
+  // Rusty's verbose legacy stock listing is only a binding source in Graphics.
+  // The actual graphical shop buttons show the same live prices and quantities.
+  // Keep the text listing available in Classic BBS.
+  if(stage==='factoryRusty'&&player.flags?.r5RustyUI==='buy'&&
+     /\[\d+\]\s*BUY\s/i.test(value)&&/\bBOLTS\b/i.test(value))
+   line.dataset.r127RustyBuyListing='true';
+  const rustyListing=graphics&&line.dataset.r127RustyBuyListing==='true';
+  if((graphics&&(redundant||rustyListing))||cloudSlot){
    if(line.style.getPropertyValue('display')!=='none'||line.style.getPropertyPriority('display')!=='important')
     line.style.setProperty('display','none','important');
    line.dataset.r127GraphicsHidden='true';

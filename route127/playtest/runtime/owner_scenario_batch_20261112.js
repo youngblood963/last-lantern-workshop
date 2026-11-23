@@ -50,6 +50,14 @@
  }
  const css=document.createElement('style');
  css.textContent=`
+ /* Tommy's roadside art is a complete frame. Keep it inside the gameplay panel. */
+ body.full-graphics .gfx-frame .gfx-art>.gfx-image[src*="tommy_briggs_roadside.png"]{
+  object-fit:contain!important;object-position:center!important;
+ }
+ body.full-graphics .gfx-frame .gfx-art>.gfx-image[src*="tommy_briggs_roadside.png"]:not(.r127-layout-unit){
+  width:100%!important;height:100%!important;min-width:0;min-height:0;
+  max-width:100%;max-height:100%;aspect-ratio:auto;
+ }
  .gfx-art>.r127-tool-chest-prop{position:absolute;z-index:5;left:50%;bottom:8%;width:44%;height:52%;transform:translateX(-50%);object-fit:contain;object-position:center bottom;pointer-events:none}
  /* Full-scene animated GIFs: fit the whole frame at 95% (desktop + mobile).
     Target only the primary scenario artwork, not UI animations or combat sprites.

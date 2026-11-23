@@ -2,8 +2,9 @@
  * No map edits, movement or turn changes. */
 (()=>{'use strict';if(!/\/route127\/playtest\/(?:index\.html)?$/.test(location.pathname))return;
 if(typeof HEALING_ITEM_RATES!=='undefined')Object.assign(HEALING_ITEM_RATES,{
- 'Fresh Carrot':.05,'Fresh Potato':.05,'Fresh Tomato':.05,'Fresh Cabbage':.05,
- 'Roadhouse Hash':.30
+ 'Energy Bars':.10,'Bandage':.25,'Reinforced Bandage':.50,'Emergency Trauma Kit':.75,'Wild Honey':.15,
+ 'Fresh Carrot':.10,'Fresh Potato':.10,'Fresh Apple':.10,'Fresh Pear':.10,'Fresh Berries':.10,'Fresh Tomato':.10,'Fresh Cabbage':.10,
+ 'Preserved Vegetables':.25,'Preserved Meat':.25,'Wasteland Stew':.40,'Roadhouse Hash':.25
 });
 if(typeof GraphicalUI==='undefined')return;
 const oldChoices=GraphicalUI.choices;

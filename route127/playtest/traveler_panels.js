@@ -64,6 +64,12 @@ const TravelerPanels={
    for(const row of screen.children){if(row.classList.contains('ui-choice-output'))continue;const t=row.textContent.trim();if(t&&!/^>/.test(t))log.appendChild(row.cloneNode(true));}detail.appendChild(log);
    const actions=this.node('div','traveler-actions');
    const choices=stage==='confirmDrop'?[['Confirm Drop','yes'],['Cancel','no']]:Object.entries(currentHotkeys).filter(([key])=>['e','u','d'].includes(key)).map(([key,cmd])=>[key==='e'?'Equip':key==='u'?'Use':i.name==='Battered Flashlight'?'Dismantle':'Drop',key]);
+   // The graphical Backpack must not hide Use because a legacy merchant
+   // stored edible produce as a material, or a transcript writer lost its
+   // currentHotkeys while item details were being rendered.
+   if(stage==='inventoryItem'&&i.qty>0&&player.hp<player.maxHp&&
+      typeof R127_EDIBLE_ITEMS!=='undefined'&&R127_EDIBLE_ITEMS.has(i.name)&&
+      !choices.some(([label])=>label==='Use'))choices.unshift(['Use','u']);
    for(const [label,cmd]of choices){const b=this.button(label,()=>this.action(cmd),label==='Confirm Drop'?'danger':'');b.disabled=this.working;actions.appendChild(b);}detail.appendChild(actions);
   }
   this.body.appendChild(detail);
@@ -116,6 +122,10 @@ const TravelerPanels={
   if(this.which==='menu')for(const [command,label]of GraphicalUI.nav(GraphicalUI.model()))panel.appendChild(this.button(label,async()=>{this.close();await handleCommand(command);GraphicalUI.sync();}));
   panel.appendChild(this.button('Full Graphics',()=>{this.close();GraphicalUI.setMode('graphics');}));
   panel.appendChild(this.button('Classic BBS',()=>{this.close();GraphicalUI.setMode('classic');}));
+  const expedition=globalThis.Route127SharedExpedition;
+  if(this.which==='options'&&expedition?.available()){
+   panel.appendChild(this.button('Shared Expedition',()=>{this.close();expedition.open();}));
+  }
   panel.appendChild(this.button('Close',()=>this.close()));this.body.appendChild(panel);
  },
  async journalPage(page){
@@ -190,6 +200,5 @@ GraphicalUI.sync=function(){
 const wo17GraphicsLayout=GraphicalUI.layout;
 GraphicalUI.layout=function(){return TravelerPanels.dialog?TravelerPanels.snapshot.layout:wo17GraphicsLayout.call(this);};
 
-// Override the legacy purchase binding after registry installation.
+// Preserve the live purchase binding after registry installation.
 v48BuyBackpack=buyTravelerBackpack;
-

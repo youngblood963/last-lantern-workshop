@@ -1,0 +1,50 @@
+.r127-wanted-board {
+ inset: 0;
+ box-sizing: border-box;
+ width: min(75rem, 97vw);
+ max-height: 94vh;
+ margin: auto;
+ overflow: auto;
+ padding: clamp(12px, 3vw, 32px);
+ border: 2px solid #a07850;
+ color: #f5e3bc;
+ background: #201712 url('../assets/bounties/board.webp') center / cover;
+}
+.r127-wanted-board::backdrop { background: #090604d9; }
+.r127-wanted-board h2 { margin: 0; text-transform: uppercase; letter-spacing: .08em; }
+.wanted-section h3 { margin: 1rem 0 .45rem; }
+.wanted-grid {
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+ gap: 12px;
+}
+.wanted-poster {
+ display: grid;
+ justify-items: center;
+ align-content: start;
+ gap: 7px;
+ min-width: 0;
+ padding: .8rem;
+ border: 1px solid #936636;
+ color: #25160d;
+ background: #dfbf86 url('../assets/bounties/poster.webp') center / 100% 100%;
+ text-align: center;
+}
+button.wanted-poster { cursor: pointer; }
+.wanted-poster img {
+ width: 100%;
+ height: clamp(5.5rem, 15vh, 10rem);
+ object-fit: contain;
+}
+.wanted-poster img[hidden] { display: none; }
+.wanted-poster h3, .wanted-poster p { margin: .2rem 0; }
+.wanted-detail { max-width: 44rem; margin: 0 auto; }
+.wanted-controls { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 1rem; }
+.wanted-controls button, .wanted-detail button {
+ min-height: 44px;
+ padding: .45rem .75rem;
+ color: #f5e3bc;
+ background: #251911;
+ border: 1px solid #ae8a64;
+ cursor: pointer;
+}

@@ -9,7 +9,21 @@ resolveEncounter=function(cmd){
  if(title==='THE STEEL ORCHARD'&&c.includes('examine the keepsakes')){
   add('You examine the keepsakes carefully. Martha waits for your response.','system');renderCurrentChoices();return;
  }
- return original.apply(this,arguments);
+ const encounter=currentEncounter();
+ const offered=encounter&&encounterChoices(encounter).split(/\s{2,}/).some(label=>choiceCommand(label)===c);
+ if(!offered)return original.apply(this,arguments);
+ // A recognized action can legitimately fail a prerequisite. Keep the
+ // handler's explanation and retry menu instead of also reporting bad input.
+ const write=add;
+ let explained=false;
+ add=function(message,...args){
+  if(String(message)==="That's not an option."){
+   if(explained)return;
+  }else if(String(message??'').trim())explained=true;
+  return write.call(this,message,...args);
+ };
+ try{return original.apply(this,arguments);}
+ finally{add=write;}
 };
 
 const oldCombat=startCombat;

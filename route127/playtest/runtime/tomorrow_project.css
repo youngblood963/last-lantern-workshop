@@ -1,0 +1,160 @@
+.tomorrow-visual {
+  display: grid;
+  place-items: center;
+  container-type: size;
+  width: 100%;
+  height: min(40dvh, 360px);
+}
+
+.tomorrow-visual[hidden],
+.tomorrow-composition img[hidden] {
+  display: none;
+}
+
+.tomorrow-visual.tomorrow-overlay {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  pointer-events: none;
+}
+
+.tomorrow-scene .gfx-art:has(> .tomorrow-overlay:not([hidden])) > .gfx-image {
+  opacity: 0;
+}
+
+.tomorrow-composition {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100%;
+  width: min(100cqw, 177.3cqh);
+  aspect-ratio: 1670 / 942;
+}
+
+.tomorrow-composition img {
+  position: absolute;
+  display: block;
+  object-fit: contain;
+}
+
+.tomorrow-background {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+
+
+.tomorrow-computer {
+  top: 20%;
+  left: 30%;
+  width: 25%;
+}
+
+.tomorrow-actor {
+  height: auto;
+  transform: translate(-50%, -50%);
+}
+
+.tomorrow-moving {
+  transform: translate(-50%, -50%) scaleX(var(--tomorrow-facing, 1));
+  animation: tomorrow-traverse var(--tomorrow-duration) linear both;
+}
+
+@keyframes tomorrow-traverse {
+  from { left: var(--tomorrow-from-x); top: var(--tomorrow-from-y); }
+  to { left: var(--tomorrow-to-x); top: var(--tomorrow-to-y); }
+}
+
+.tomorrow-terminal #screen { background: #0a120e; }
+.tomorrow-startup #screen { animation: tomorrow-signal 480ms ease-out; }
+/* The Workshop signal flicker also plays on the real headquarters video feed. */
+.tomorrow-visual.tomorrow-signal-in .tomorrow-composition { animation: tomorrow-signal 480ms ease-out both; }
+
+@keyframes tomorrow-signal {
+  0%, 45% { opacity: .65; }
+  25%, 100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tomorrow-startup #screen { animation: none; }
+  .tomorrow-visual.tomorrow-signal-in .tomorrow-composition { animation: none; }
+}
+
+.tomorrow-overlay { z-index: 1; }
+.tomorrow-scene .gfx-art-caption { z-index: 2; }
+
+/* Mia’s Bar treatment. The centered composition keeps all authored edges;
+   only the dark, blurred backing is allowed to expand beyond the frame. */
+.tomorrow-visual {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.tomorrow-visual::before {
+  content: "";
+  position: absolute;
+  inset: -12px;
+  z-index: -1;
+  background: var(--tomorrow-backing, none) center / cover no-repeat;
+  filter: blur(9px) brightness(.42);
+  pointer-events: none;
+}
+
+.tomorrow-visual.tomorrow-overlay { position: absolute; }
+
+/* The monitor casing is behind the entire transmission, not an overlay. */
+.tomorrow-visual.tomorrow-has-frame .tomorrow-composition {
+  /* Restore the original scene dimensions; do not shrink Syn or animations. */
+  width: min(100cqw, 177.3cqh);
+  z-index: 1;
+}
+
+.tomorrow-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Fill the wide terminal viewport rather than shrinking to a centered 16:9 box. */
+  object-fit: fill;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.tomorrow-frame[hidden] { display: none; }
+
+/* Tomorrow Project: only the left and right metal side pieces are used.
+   Crop the upper/lower bezel out of the source with centered background
+   positioning, then expand the two sides into the available letterbox gaps.
+   The original full-size composition and all choreography remain untouched. */
+.tomorrow-visual.tomorrow-has-frame .tomorrow-frame { display: none; }
+
+.tomorrow-visual.tomorrow-has-frame::before,
+.tomorrow-visual.tomorrow-has-frame::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: max(0px, calc((100% - min(100cqw, 177.3cqh)) / 2));
+  background-image: url("../assets/tomorrow_project/backgrounds/tomorrow_project_monitor_frame.png");
+  background-repeat: no-repeat;
+  /* Sample only the outermost ~8% of each side: exclude the recessed black groove. */
+  background-size: 1250% 180%;
+  filter: none;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.tomorrow-visual.tomorrow-has-frame::before {
+  left: 0;
+  right: auto;
+  background-position: left center;
+}
+
+.tomorrow-visual.tomorrow-has-frame::after {
+  right: 0;
+  left: auto;
+  background-position: right center;
+}

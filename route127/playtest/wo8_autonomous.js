@@ -2,11 +2,11 @@
 const WO8={
  entries:[
   {id:'WO8-HOUNDS',title:'AUTONOMOUS SECURITY HOUNDS',text:'Metallic claws click against pavement. Two rusted robotic security dogs emerge behind an overturned delivery vehicle. One scans you: "UNAUTHORIZED PERSONNEL DETECTED." The other lowers its armored head: "SECURITY RESPONSE AUTHORIZED."'},
-  {id:'WO8-TAXI',title:'THE LAST AUTONOMOUS TAXI',text:'A battered yellow taxi emerges from the dust without a driver. Its roof sign reads AVAILABLE. "WELCOME TO METRO AUTOMATED TRANSPORTATION! PLEASE SELECT YOUR DESTINATION." A navigation fault blocks pedestrian departure until a fare is paid.'}
+  {id:'WO8-TAXI',title:'THE LAST AUTONOMOUS TAXI',text:'A battered yellow taxi emerges from the dust without a driver. Its roof sign reads AVAILABLE. "WELCOME TO METRO AUTOMATED TRANSPORTATION! PLEASE SELECT YOUR DESTINATION." Its damaged navigation system insists on offering a fare, but you can walk away.'}
  ],
  is(id){return this.entries.some(d=>d.id===id);},
  fare(q){if(!Number.isSafeInteger(q.fare)||q.fare<1)q.fare=WO7.bolts();return q.fare;},
- choices(id){const q=WO7.state(id);if(q.done)return ['LEAVE'];if(id==='WO8-HOUNDS')return ['FIGHT THE HOUNDS','ATTEMPT TO DISABLE THEM','ATTEMPT TO FLEE'];return q.farePending?['CONFIRM FARE PAYMENT','CANCEL FARE PAYMENT','REFUSE AND FIGHT','ATTEMPT TO ESCAPE','ATTEMPT TO DISABLE THE TAXI']:['PAY THE FARE','REFUSE AND FIGHT','ATTEMPT TO ESCAPE','ATTEMPT TO DISABLE THE TAXI'];},
+ choices(id){const q=WO7.state(id);if(q.done)return ['LEAVE'];if(id==='WO8-HOUNDS')return ['FIGHT THE HOUNDS','ATTEMPT TO DISABLE THEM','ATTEMPT TO FLEE'];return q.farePending?['CONFIRM FARE PAYMENT','CANCEL FARE PAYMENT','REFUSE AND FIGHT','ATTEMPT TO ESCAPE','ATTEMPT TO DISABLE THE TAXI','LEAVE']:['PAY THE FARE','REFUSE AND FIGHT','ATTEMPT TO ESCAPE','ATTEMPT TO DISABLE THE TAXI','LEAVE'];},
  fight(id,q){const level=WO7.level(),base=baseHpForLevel(level),hounds=id==='WO8-HOUNDS';
   const enemies=hounds?[{name:'SCOUT SECURITY HOUND',hp:Math.max(6,Math.round(base*.16)),bolts:0,r18Min:1,r18Max:3},{name:'ARMORED SECURITY HOUND',hp:Math.max(8,Math.round(base*.20)),bolts:0,r18Min:2,r18Max:4}]:undefined;
   q.combat=true;q.combatReward={xp:WO7.xp(hounds?1.3:1.2),bolts:0,items:hounds?[['Scrap Metal','material',2],['Electronics']]:[['Scrap Metal','material',2],['Electronics'],['Fuel']]};
@@ -14,6 +14,7 @@ const WO8={
   startCombat({name:hounds?'AUTONOMOUS SECURITY HOUNDS':'MALFUNCTIONING AUTONOMOUS TAXI',level,hp:hounds?enemies.reduce((s,e)=>s+e.hp,0):Math.max(14,Math.round(base*.42)),min:hounds?1:3,max:hounds?4:6,xp:0,bolts:0,enemies,wo2Reward:'wo7Victory',wo7Key:q.key,wo7Id:id,wo2NoEquipment:true,end:hounds?'Both security hounds fall silent.':'The taxi stops. Its CUSTOMER FEEDBACK UNIT is offline.'},'encounter');WO7.save();return true;
  },
  act(id,raw){const q=WO7.state(id),cmd=String(raw).trim().toUpperCase();if(q.done){add('This encounter has already ended.','system');if(cmd==='LEAVE')completeRoadTurn();return true;}if(!this.choices(id).includes(cmd)){add('That is not an available choice.','system');return false;}
+  if(cmd==='LEAVE'&&id==='WO8-TAXI'){delete q.farePending;return WO7.finish(q,'You leave the malfunctioning taxi behind and continue along Route 127. No fare is charged.');}
   const hounds=id==='WO8-HOUNDS';
   if(cmd==='FIGHT THE HOUNDS'||cmd==='REFUSE AND FIGHT')return this.fight(id,q);
   if(cmd==='ATTEMPT TO FLEE'||cmd==='ATTEMPT TO ESCAPE'){
@@ -38,6 +39,20 @@ const WO8={
    const index=encounters.push(e)-1,key='early:'+index,metadata={number:null,id:key,workOrder8Id:d.id,legacyName:d.title,name:d.title,classification:'REGIONAL',regions:['INDUSTRIAL'],encounter:e,authority:'Owner approved WO8'};r.originalIds.set(e,key);r.regionalCatalog.push(metadata);r.regionalById.set(key,metadata);r.regionalByTitle.set(d.title,metadata);const entry={id:key,canonicalId:key,name:d.title,classification:'REGIONAL',region:'INDUSTRIAL',regions:['INDUSTRIAL'],encounter:e,references:[]};
    for(const road of ['early','east','coast']){const pool=r.pool(road);let i=pool.indexOf(e);if(i<0)i=pool.push(e)-1;R10_POOLS[road].combat.push(i);entry.references.push({road,category:'combat',index:i});}r.entries.push(entry);r.byId[key]=entry;
   }
+  // Taxi LEAVE must reach the exit even when older encounter/menu wrappers
+  // intercept the command before the WO7 scenario resolver.
+  const core=handleCommandCore;
+  handleCommandCore=async function(raw){
+   const cmd=r5Mapped(raw);
+   if(!busy && stage==='encounter' && cmd==='leave' && currentEncounter()?.wo7==='WO8-TAXI'){
+    const q=WO7.state('WO8-TAXI');
+    delete q.farePending;
+    if(q.done){completeRoadTurn();return;}
+    WO7.finish(q,'You leave the malfunctioning taxi behind and continue along Route 127. No fare is charged.');
+    return;
+   }
+   return core.apply(this,arguments);
+  };
   const choices=WO7.choices;WO7.choices=function(id){return wo.is(id)?wo.choices(id):choices.call(this,id);};
   const act=WO7.act;WO7.act=function(id,cmd){return wo.is(id)?wo.act(id,cmd):act.call(this,id,cmd);};
  }

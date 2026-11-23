@@ -41,15 +41,20 @@ function reconcileTownTravel(){
  }
  g.solaceAdmitted=true;g.lastSettlement='solace';
 }
-function hub(){
+function hub({quiet=false}={}){
  player.flags.solaceMenu='town';mercyLocation='town';townWandererFocus=null;
  reconcileTownTravel();
- add('SOLACE — MAIN STREET','place');
+ if(!quiet)add('SOLACE — MAIN STREET','place');
  const visitor=featured();
- DevtestMenuModel.publishLabels('solace-town',['SHOPS','THE RUSTY LANTERN',...(player.flags.relayUnlocked?['RELAY STATION']:[]),
-   'FIND TIM','GATES',...(visitor?['TALK TO '+visitor.name.toUpperCase()]:[]),'BULLETIN BOARD',
-   ...(player.flags.r18Courier?.phase==='service'?['POST OFFICE']:[])]);
+ const labels=['SHOPS','THE RUSTY LANTERN',...(player.flags.relayUnlocked?['RELAY STATION']:[]),
+   'FIND TIM','GATES',...(player.flags.marlowRescued?['TALK TO MARLOW']:[]),...(visitor?['TALK TO '+visitor.name.toUpperCase()]:[]),'BULLETIN BOARD',
+   ...(player.flags.r18Courier?.phase==='service'?['POST OFFICE']:[])];
+ DevtestMenuModel.publish('solace-town',[...labels.map(label=>[choiceCommand(label),label]),
+  ...(globalThis.Route127SolaceCloud?.choices()||[])],{explicitBindings:true});
 }
+globalThis.Route127RefreshSolaceMenu=()=>{
+ if(canHub()&&player.flags.solaceMenu==='town'&&!combatState)hub({quiet:true});
+};
 function submenu(which){
  player.flags.solaceMenu=which;mercyLocation='town';
  reconcileTownTravel();

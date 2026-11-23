@@ -44,6 +44,11 @@
  .gfx-art[data-sky-period="dawn"] .r127-miles-courier img{
    filter:brightness(.9) sepia(.12) drop-shadow(4px 7px 6px #000b)}
  @media(max-width:650px){.gfx-art .r127-miles-courier img{height:94%;max-width:92%}}
+ .gfx-art .r127-miles-courier[data-miles-road]{overflow:visible}
+ .gfx-art .r127-miles-courier[data-miles-road] img{height:87%;max-width:87%}
+ .gfx-art .r127-miles-courier[data-miles-road].r127-layout-unit img{height:100%;width:100%;max-width:none}
+ .gfx-art .r127-miles-courier[data-miles-road].r127-layout-flipped img{transform:scaleX(-1)}
+
  `;
  document.head.append(style);
  const oldSync=GraphicalUI.sync;
@@ -56,13 +61,17 @@
      const visible=!!place&&!e.frame.hidden&&this.preference()==='graphics'&&!e.figure.hidden;
      let layer=e.figure.querySelector('.r127-miles-courier');
      if(!visible){layer?.remove();return result;}
-     if(layer)return result;
+     if(layer&&layer.dataset.milesPlace!==place){layer.remove();layer=null;}
+     if(layer){if(place==='road')globalThis.Route127CombatLayouts?.applyOverlay(layer,0);return result;}
      layer=document.createElement('div');layer.className='r127-miles-courier';
      layer.setAttribute('aria-hidden','true');
+     layer.dataset.milesPlace=place;
+     if(place==='road')layer.dataset.milesRoad='';
      const img=document.createElement('img');
      img.src=src+'?v=miles-1';img.alt='';img.decoding='async';img.draggable=false;
      img.onerror=()=>{console.warn('Miles portrait image missing:',src);layer.remove();};
      layer.append(img);e.figure.append(layer);
+     if(place==='road')globalThis.Route127CombatLayouts?.applyOverlay(layer,0);
    }catch(err){console.warn('DEVTEST Miles artwork:',err);}
    return result;
  };

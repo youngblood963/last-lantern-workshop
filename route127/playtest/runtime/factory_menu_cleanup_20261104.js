@@ -33,15 +33,15 @@ v49Forge=function(...args){
  finally{portForgeDialogue=fn;}
  numberedChoices={};currentHotkeys={};
  const lightsActive=player.flags.r11Quests?.lights==='active';
- const hasFloodlight=(player.pack||[]).some(i=>i.name==='Harbor Floodlight Controller'&&i.qty>0);
+ const hasModule=r11HasCommunicationsModule();
  const options=[];
  if(ready()){
   add('FORGE > You have everything. Hand me the equipment, and I\'ll prepare the charge.','bright');
   options.push('PREPARE DYNAMITE');
  }
- if(lightsActive&&!hasFloodlight){
-  add('FORGE > Kaiden sent word about Seaport\'s dark docks. I have the replacement floodlight controller. 100 Bolts.','bright');
-  options.push('BUY HARBOR FLOODLIGHT CONTROLLER — 100 BOLTS');
+ if(lightsActive){
+  if(!hasModule)add('FORGE > Kaiden told me about the Tomorrow Project terminal. I have the communications module you need. 100 Bolts.','bright');
+  options.push(hasModule?'CONFIRM COMMUNICATIONS MODULE':'BUY PRE-WAR COMMUNICATIONS INTERFACE MODULE — 100 BOLTS');
  }
  r5DirectChoices([...options,'BACK']);
 };
@@ -51,19 +51,19 @@ const priorCore=handleCommandCore;
 handleCommandCore=async function(raw){
  const cmd=String(typeof r5Mapped==='function'?r5Mapped(raw):raw).toLowerCase().trim();
  if(!busy&&stage==='factoryForge'){
-  if(cmd==='buy harbor floodlight controller — 100 bolts'||cmd==='buy harbor floodlight controller - 100 bolts'){
+  if((cmd==='confirm communications module'&&r11HasCommunicationsModule())||/^buy (?:pre-war communications interface module|harbor floodlight controller)(?: [—-] 100 bolts)?$/.test(cmd)){
    const quests=player.flags.r11Quests||{};
-   if(quests.lights!=='active'){add('FORGE > Kaiden has not requested a controller.','system');v49Forge();return;}
-   if((player.pack||[]).some(i=>i.name==='Harbor Floodlight Controller'&&i.qty>0)){
-    quests.lights='ready';add('FORGE > You already have the replacement controller. Take it to Kaiden.','system');v49Forge();return;
+   if(quests.lights!=='active'){add('FORGE > Kaiden has not requested the communications module.','system');v49Forge();return;}
+   if(r11HasCommunicationsModule()){
+    quests.lights='ready';add('FORGE > You already have the module. Install it in the Rusty Anchor back room.','system');v49Autosave();v49Forge();return;
    }
-   if(player.bolts<100){add('FORGE > You need 100 Bolts for the controller.','system');v49Forge();return;}
+   if(player.bolts<100){add('FORGE > You need 100 Bolts for the communications module.','system');v49Forge();return;}
    // Quest items bypass normal pack capacity. Debit only after pickup succeeds.
-   if(!addPack('Harbor Floodlight Controller','quest',1,true)){add('FORGE > Could not transfer the controller.','danger');v49Forge();return;}
+   if(!addPack(R11_COMMUNICATIONS_MODULE,'quest',1,true)){add('FORGE > Could not transfer the communications module.','danger');v49Forge();return;}
    player.bolts-=100;
    quests.lights='ready';
    player.flags.r11FloodlightPart=true;
-   add('PURCHASED — Harbor Floodlight Controller (100 Bolts). Return to Sheriff Kaiden in Seaport.','reward');
+   add('PURCHASED — Pre-War Communications Interface Module (100 Bolts). Install it in the Rusty Anchor back room.','reward');
    updateHud();
    if(typeof v49Autosave==='function')v49Autosave();
    v49Forge();return;
@@ -110,7 +110,7 @@ function renderCraft(){
   craftKey=null;
   add(title+' — CRAFTING','place');
   add('Choose a category to browse your learned recipes.','system');
-  r5DirectChoices(['ITEMS','WEAPONS','ARMOR','BACK']);return;
+  r5DirectChoices(['CRAFT','UPGRADE','MODIFY','BACK']);return;
  }
  if(!craftKey){
   add(title+' — '+craftCategory.toUpperCase(),'place');
@@ -118,7 +118,7 @@ function renderCraft(){
   if(!keys.length)add('No learned recipes in this category.','system');
   r5DirectChoices([...keys.map(k=>'VIEW RECIPE: '+CRAFT_RECIPES[k].name.toUpperCase()),'BACK']);return;
  }
- const r=CRAFT_RECIPES[craftKey];if(!r){craftKey=null;return renderCraft();}
+ const r=CRAFT_RECIPES[craftKey];if(!r||!r11Learned(craftKey)){craftKey=null;return renderCraft();}
  add('CRAFT — '+r.name.toUpperCase(),'place');
  add('TIME: '+r.seconds+' seconds   SUCCESS: '+Math.round(r.chance*100)+'%','system');
  const required=Object.entries(materials(r)).filter(([,amount])=>amount>0);
@@ -126,13 +126,13 @@ function renderCraft(){
  for(const [name,amount] of Object.entries(r.questInputs||{}))
   add(name+': '+CorvetteRestoration.count(name)+' / '+amount,'system');
  if(r.basicTent)add('Tent: '+(r18ExactTent('Tent')?'1':'0')+' / 1','system');
- if(r.food)add('Ingredients: '+r.food.join(', '),'system');
+ if(r.food)add('Ingredients: '+r.food.map(kind=>r18FoodAmount(r,kind)+' '+(kind==='meat'?'eligible raw meat':kind==='salt'?'Salt':kind)).join(', '),'system');
  if(r.bolts)add('BOLTS: '+player.bolts+' / '+r.bolts,'system');
  if(r.minLevel&&player.level<r.minLevel)add('REQUIRES LEVEL '+r.minLevel,'system');
  const unavailable=required.some(([name,n])=>r6MaterialCount(name)<n)||
   Object.entries(r.questInputs||{}).some(([name,n])=>CorvetteRestoration.count(name)<n)||
   (r.minLevel&&player.level<r.minLevel)||player.bolts<r.bolts||
-  (r.basicTent&&!r18ExactTent('Tent'));
+  (r.basicTent&&!r18ExactTent('Tent'))||!!r.food?.some(kind=>!r18FoodOptions(r,kind).length);
  r5DirectChoices([...(unavailable?[]:['CRAFT '+r.name.toUpperCase()]),'BACK']);
 }
 const oldCraftMenu=r11CraftMenu;
@@ -149,6 +149,7 @@ r11CraftCommand=function(cmd){
  cmd=String(cmd||'').trim().toLowerCase();
  if(player.flags.v49MurphyJob||player.flags.devCraftQuote||player.flags.r18FoodDraft)
   return oldCraftCommand.apply(this,arguments);
+ if(cmd==='craft')cmd='items';
  if(['items','weapons','armor'].includes(cmd)){
   craftCategory=cmd;craftKey=null;return renderCraft();
  }

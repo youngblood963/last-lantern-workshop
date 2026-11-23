@@ -202,7 +202,7 @@ if(typeof Route127JournalFix!=='undefined'&&typeof TravelerPanels!=='undefined')
    'Chemical Processing — defeat the Chemist for authorization 3.',
    'Restricted Basement — after the first three, defeat the Foreman to recover the final charge component.'
   ];
-  if(this.page==='active'&&milestone!=='meet'){
+  if(this.page==='active'&&milestone!=='meet'&&milestone!=='cleared'){
    const existing=this.questEntries.find(x=>x.title==='Factory — Prepare the Dynamite');
    const details=guidance.map((line,i)=>(done.includes(i)?'RECOVERED — ':'NEEDED — ')+line);
    details.unshift('Factory milestones completed: '+done.length+'/4.');
@@ -227,7 +227,7 @@ const previousQuest=showQuests;
 showQuests=function(...args){
  const result=previousQuest.apply(this,args);
  const {f,done,met,all}=resultFlags();
- if(f.relayQuest==='complete'&&met&&!f.chapterOneComplete){
+ if(f.relayQuest==='complete'&&met&&!f.chapterOneComplete&&!f.portRoadCleared&&!f.seaportRoute?.arrived){
   add('FACTORY — PREPARE THE DYNAMITE','bright');
   floors.forEach((name,i)=>add((done.includes(i)?'RECOVERED':'NEEDED')+' — '+name+': '+bossNames[i]+' ('+(i<3?'supervisor authorization':'final charge component')+')','system'));
   if(all&&!f.portChargePrepared)add('RETURN TO FORGE — All four Factory milestones complete.','reward');

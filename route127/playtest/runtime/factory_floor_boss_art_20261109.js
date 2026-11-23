@@ -35,7 +35,7 @@ GraphicalUI.model=function(...args){
 const style=document.createElement('style');
 style.textContent=`
 .gfx-frame.r127-factory-boss-active .gfx-main>.gfx-combat{display:none!important}
-.gfx-frame .r127-factory-boss-hp{position:absolute;z-index:5;bottom:12px;left:50%;transform:translateX(-50%);width:clamp(160px,43%,350px);box-sizing:border-box;background:#1c0d0deb;border:1px solid #b46f54;border-radius:5px;padding:6px 9px;color:#fff;text-align:center;pointer-events:none;box-shadow:0 2px 12px #000a;font-family:system-ui,sans-serif}
+:is(.gfx-frame,.r127-layout-editor) .r127-factory-boss-hp{position:absolute;z-index:5;bottom:12px;left:50%;transform:translateX(-50%);width:clamp(160px,43%,350px);box-sizing:border-box;background:#1c0d0deb;border:1px solid #b46f54;border-radius:5px;padding:6px 9px;color:#fff;text-align:center;pointer-events:none;box-shadow:0 2px 12px #000a;font-family:system-ui,sans-serif}
 .r127-factory-boss-name{display:block;font-weight:800;font-size:clamp(12px,1.6vw,16px);letter-spacing:.05em;text-shadow:0 1px 2px #000}
 .r127-factory-boss-track{height:13px;margin-top:5px;border:1px solid #d08a82;background:#330c0c;border-radius:3px;overflow:hidden}
 .r127-factory-boss-fill{height:100%;width:100%;background:#d42d32;transition:width .16s ease}
@@ -46,7 +46,10 @@ const previousSync=GraphicalUI.sync;
 GraphicalUI.sync=function(...args){
  const result=previousSync.apply(this,args),e=this.element;
  if(!e?.figure)return result;
- const f=state(),active=!!f?.bossCombat&&!e.frame.hidden;
+ const f=state(),western=globalThis.Route127WesternArt?.current();
+ const embedded=western?.combat&&western.variant.embedded&&
+  this.displaysArtwork(globalThis.Route127WesternArt.url(western.variant.background));
+ const active=!!(f?.bossCombat||embedded)&&!e.frame.hidden&&!e.figure.hidden;
  e.frame.classList.toggle('r127-factory-boss-active',active);
  let overlay=e.figure.querySelector('.r127-factory-boss-hp');
  if(!active){overlay?.remove();return result;}
@@ -55,9 +58,9 @@ GraphicalUI.sync=function(...args){
   overlay.innerHTML='<strong class="r127-factory-boss-name"></strong><div class="r127-factory-boss-track" role="progressbar" aria-valuemin="0"><div class="r127-factory-boss-fill"></div></div><span class="r127-factory-boss-count"></span>';
   e.figure.append(overlay);
  }
- const c=f.combat,enemy=Array.isArray(c.enemies)&&c.enemies.length===1?c.enemies[0]:c;
+ const c=embedded?western.combat:f.combat,enemy=Array.isArray(c.enemies)&&c.enemies.length===1?c.enemies[0]:c;
  const hp=Math.max(0,Number(enemy.hp)||0),max=Math.max(1,Number(enemy.maxHp)||Number(c.maxHp)||1);
- overlay.querySelector('.r127-factory-boss-name').textContent=f.info.boss;
+ overlay.querySelector('.r127-factory-boss-name').textContent=embedded?c.name:f.info.boss;
  const track=overlay.querySelector('.r127-factory-boss-track');
  track.setAttribute('aria-valuenow',String(hp));track.setAttribute('aria-valuemax',String(max));
  overlay.querySelector('.r127-factory-boss-fill').style.width=Math.min(100,hp/max*100)+'%';

@@ -64,6 +64,13 @@ add=function(text='',cls=''){
   text='NO SAVE FOUND.';
  }
  if(!graphical())return previousAdd.call(this,text,cls);
+ // The Backpack/Character panels are interactive UI, not animated dialogue.
+ // Their item inspections and healing feedback must complete immediately,
+ // otherwise TravelerPanels.select/action waits for each typed character.
+ if(TravelerPanels.dialog&&['inventory','status'].includes(TravelerPanels.which)){
+  instantRow(text,cls);
+  return;
+ }
  // WO43: restore the original terminal typewriter for dialogue and story
  // prose. Menus, rewards, and status lines stay immediate so navigation and
  // combat are responsive; Classic BBS remains exactly as it was.

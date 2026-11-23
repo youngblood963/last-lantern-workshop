@@ -39,7 +39,9 @@
     'Hector Vale':'hector_vale.png',
     'Nadia Rill':'nadia_rill.png',
     'Rhea Tarrant':'rhea_tarrant.png',
-    'Eli Mercer':'eli_mercer.png', Enid:'Enid.png'
+    'Eli Mercer':'eli_mercer.png', Enid:'Enid.png',
+    'Gideon Briggs':'rob_gideon.png',
+    'Lisa Stevens':'lisa_stevens.png'
   });
   // Shared read-only identity-to-portrait map for Seaport staffed shop visuals.
   globalThis.Route127WandererPortraitFiles = art;
@@ -110,11 +112,16 @@
          typeof townWandererFocus !== 'undefined' &&
          townWandererFocus === currentTownWanderer))
       return { name:currentTownWanderer, kind:'town' };
-    // Recruitment conversation may be launched separately from the town menu.
+    // Keep the same portrait visible while a road wanderer is being recruited.
+    // The recruitment stage temporarily replaces wandererRoad, but the offer
+    // retains its origin so the correct road overlay can remain in place.
     if (stage === 'port55Recruit' &&
         typeof player !== 'undefined' &&
-        player?.flags?.portHireOffer?.origin !== 'wandererRoad')
-      return { name:player.flags.portHireOffer.name,kind:'town' };
+        player?.flags?.portHireOffer?.name)
+      return {
+        name:player.flags.portHireOffer.name,
+        kind:player.flags.portHireOffer.origin === 'wandererRoad' ? 'road' : 'town'
+      };
     // A genuinely visiting (not yet hired) Seaport wanderer has the same
     // portrait affordance as other town encounters.
     if ((stage==='port55Guest'||(stage==='port55Stop'&&
@@ -132,8 +139,30 @@
     return null;
   }
 
+  function townPortrait(name,img,open,slot=0){
+    const frame=document.createElement('div');
+    frame.className='r127-live-wanderer-town';
+    if(slot){
+      frame.classList.add('r127-live-player');
+      frame.style.setProperty('--r127-player-slot',slot);
+    }
+    const label=document.createElement('span');
+    label.className='r127-live-wanderer-label';
+    label.textContent=(typeof RouteIdentity!=='undefined'?RouteIdentity.wanderer?.[name]:null)||name;
+    frame.tabIndex=0;
+    frame.setAttribute('role','button');
+    frame.setAttribute('aria-label','Open full portrait of '+name);
+    frame.addEventListener('click',open);
+    frame.addEventListener('keydown',event=>{
+      if(event.key==='Enter'||event.key===' '){event.preventDefault();open();}
+    });
+    frame.append(img,label);
+    return frame;
+  }
+  globalThis.Route127TownPortrait=townPortrait;
+
   function clear(figure) {
-    figure?.querySelectorAll('.r127-live-wanderer-road,.r127-live-wanderer-town')
+    figure?.querySelectorAll('.r127-live-wanderer-road,.r127-live-wanderer-town:not(.r127-live-player)')
       .forEach(node => node.remove());
     shownKey = '';
   }
@@ -148,7 +177,7 @@
     if (!file) { clear(figure); return; }
     const kind = encounterInfo.kind;
     const key = kind + ':' + encounterInfo.name;
-    const existing = figure.querySelector('.r127-live-wanderer-road,.r127-live-wanderer-town');
+    const existing = figure.querySelector('.r127-live-wanderer-road,.r127-live-wanderer-town:not(.r127-live-player)');
     if (key === shownKey && existing) return;
     clear(figure);
     const src = new URL(file,root).href;
@@ -169,18 +198,10 @@
           ? '25%' : '15%');
       figure.appendChild(img);
     } else {
-      const frame = document.createElement('div');
-      frame.className = 'r127-live-wanderer-town';
-      const label = document.createElement('span');
-      label.className = 'r127-live-wanderer-label';
-      label.textContent = (typeof RouteIdentity!=='undefined'?
-        RouteIdentity.wanderer?.[encounterInfo.name]:null)||encounterInfo.name;
-      frame.title='Open '+encounterInfo.name+' portrait';frame.tabIndex=0;
-      frame.setAttribute('role','button');frame.setAttribute('aria-label','Open full portrait of '+encounterInfo.name);
-      frame.addEventListener('click',()=>{if(globalThis.Route127WandererInfo)globalThis.Route127WandererInfo.open(encounterInfo.name,new URL(file,root).href);else expandPortrait(encounterInfo.name,file);});
-      frame.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();if(globalThis.Route127WandererInfo)globalThis.Route127WandererInfo.open(encounterInfo.name,new URL(file,root).href);else expandPortrait(encounterInfo.name,file);}});
-      frame.append(img,label);
-      figure.appendChild(frame);
+      figure.appendChild(townPortrait(encounterInfo.name,img,()=>{
+       if(globalThis.Route127WandererInfo)globalThis.Route127WandererInfo.open(encounterInfo.name,src);
+       else expandPortrait(encounterInfo.name,file);
+      }));
     }
     shownKey = key;
   }

@@ -1,0 +1,35 @@
+.r127-tire-maze {
+  width: min(94vw, 950px);
+  height: 90vh;
+  height: 90dvh;
+  max-width: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
+  padding: clamp(10px, 2vw, 24px);
+  border: 2px solid #9d8a62;
+  background: radial-gradient(ellipse at top, #292922, #111611);
+  color: #efe9d6;
+}
+
+.r127-tire-maze[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(5px, 1vh, 12px);
+  overflow: auto;
+}
+
+.r127-tire-maze::backdrop { background: #070906d9; }
+.r127-tire-maze h2, .r127-tire-maze p { margin: 0; text-align: center; }
+.r127-tire-maze h2 { color: #e6c780; }
+
+.tire-controls { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; }
+.tire-controls[hidden] { display: none; }
+.tire-controls button {
+  min-height: 44px;
+  padding: 4px 12px;
+  border: 1px solid #a59469;
+  background: #252b20;
+  color: #f7ecd0;
+  cursor: pointer;
+}

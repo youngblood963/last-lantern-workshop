@@ -454,7 +454,7 @@
 
   // Normal gameplay is presentation-only. The owner editor is available
   // separately via DEVTEST ?mapEditor=1 and never appears in the player map.
-  const editorMode=new URLSearchParams(location.search).get('mapEditor')==='1';
+  const editorMode=false;
   // DEVTEST-only visual placement studio. Saves solely to browser localStorage.
   // Does not edit graph nodes, route pearls, travel distances or game state.
   const storeKey='route127:devtest:landmark-layout:v1';

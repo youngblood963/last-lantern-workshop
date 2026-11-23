@@ -2,12 +2,45 @@
 (()=>{
 'use strict';
 if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||!/^\/route127\/playtest\/(?:index\.html)?$/.test(location.pathname)||typeof GraphicalUI==='undefined')return;
-const asset=(name,root=false)=>new URL(root?'../../'+encodeURIComponent(name):'../devtest/assets/enemies/'+encodeURIComponent(name),document.baseURI).href;
-const file=(name,root=false)=>({name,root});
+const asset=({name,root,directory})=>new URL(
+ root?'../../'+encodeURIComponent(name):'../devtest/assets/'+directory+'/'+encodeURIComponent(name),document.baseURI
+).href;
+const file=(name,root=false,directory='enemies')=>({name,root,directory});
+const industrialEncounterSprites=Object.freeze({
+ 'FUEL THIEVES':['fuel_thief_1.png','fuel_thief_2.png'],
+ 'INDUSTRIAL SPIDERS':['industrial_spider_1.png','industrial_spider_2.png','industrial_spider_3.png','industrial_spider_4.png'],
+ 'JUNKYARD HERMIT':['junkyard_hermit.png'],
+ 'PAYMENT REQUIRED':['payment_required.png'],
+ 'SCRAP TORCHERS':['scrap_torcher_1.png','scrap_torcher_2.png']
+});
+const lowlandsSprites=Object.freeze({
+ 'ALLIGATORS':['alligator.png'],
+ 'BACKWOODS CANNIBALS':['backwoods_cannibal_1.png','backwoods_cannibal_2.png','backwoods_cannibal_3.png'],
+ 'GIANT MOSQUITOES':Array(5).fill('giant_mosquito.png'),
+ 'HOSTILE SWAMP DWELLERS':['swamp_dweller_1.png','swamp_dweller_2.png'],
+ 'SALT MARSH HUNTERS':['marsh_dog_1.png','marsh_dog_2.png'],
+ 'SNAPPING TURTLES':Array(2).fill('snapping_turtle_1.png'),
+ 'WATER MOCCASINS':['water_moccasin_1.png','water_moccasin_2.png']
+});
+const industrialSprites={
+ ...industrialEncounterSprites,
+ 'THE SLEEPING ROBOT':['the_sleeping_robot.png'],
+ 'BROKEN CLEANER BOT':['broken_cleaner_bot.png'],
+ 'AUTONOMOUS SECURITY HOUNDS':['autonomous_security_hound_1.png','autonomous_security_hound_2.png'],
+ 'FACTORY ENFORCERS':['factory_enforcer_1.png','factory_enforcer_2.png','factory_enforcer_3.png']
+};
 const scenes={
+ 'COAST ROAD SCAVENGER':()=>file('highway_hunter_rifleman.png'),
+ 'THE ROAD EATER':()=>file('the_road_eater.png'),
+ 'THE SALVAGE YARD LEDGER':()=>file('the_salvage_yard_ledger.png'),
+ 'THE SCRAP CLAIM':()=>file('the_scrap_claim.png'),
+ 'LOCKER IN THE CONCRETE PIPE':()=>file('the_spring_trap.png',false,'scenarios'),
+ 'THE TOOL CRIB':()=>file('the_tool_crib.png',false,'scenarios'),
  'ROACH NEST':()=>[file('roach_nest_ordinary.png'),file('roach_nest_contaminated.png'),file('roach_nest_aggressive_swarm.png',true)][typeof r18RoachVariant==='function'?r18RoachVariant():0],
  'ROACH SWARM':()=>scenes['ROACH NEST'](),
- 'TUNNEL RATS':()=>typeof player!=='undefined'&&player.flags?.r18TunnelBoarPending?file('Tunnel Rats - Wild Boar.png'):file('Tunnel Rats.png'),
+ 'TUNNEL RATS':()=>typeof player!=='undefined'&&player.flags?.r18TunnelBoarPending
+  ?file('Tunnel Rats - Wild Boar.png')
+  :[file('Tunnel Rat 1.png'),file('Tunnel Rat 2.png')],
  'FERAL DOG':()=>[file('feral_dog_mother_pups.png'),file('feral_dog_hungry_lone.png',true),file('feral_dog_aggressive_lone.png',true),file('feral_dog_pack_concept.png',true)][typeof r18DogVariant==='function'?r18DogVariant():0],
  'LONE SCAVENGER':()=>[file('Lone Scavenger - Suspicious Scavenger.png'),file('Lone Scavenger - Friendly Scrapper.png'),file('Lone Scavenger - Weary Trader.png')][typeof r18ScavengerVariant==='function'?r18ScavengerVariant():0],
  'ROADBLOCK':()=>[file('Spear Robber.png'),file('Pipe Robber.png')],
@@ -36,15 +69,33 @@ function current(){
  const combat=typeof combatState!=='undefined'?combatState:null;
  const encounter=stage==='encounter'&&typeof currentEncounter==='function'?currentEncounter():null;
  const origin=typeof currentEncounter==='function'&&['encounter','combat','combatItems'].includes(stage)?currentEncounter():null;
+ const target=globalThis.DailyBounties?.artTarget();
+ if(target)return {title:target.name.toUpperCase(),items:[file(target.art)],combat};
+ const western=globalThis.Route127WesternArt?.current();
+ if(western){
+  const {title,variant}=western;
+  return {title,items:variant.units.map(path=>file(path.split('/').at(-1))),combat,lowlands:true,western:true};
+ }
  const aliases={'THE MILK CRATES':'THE HIGHWAY HUNTERS','SCAVENGER':'LONE SCAVENGER','WRECKERS':'THE WRECKERS','DRAIN CREATURE':'SOMETHING IN THE DRAIN',
  'FERAL BOAR':'TUNNEL RATS','PANTRY RAT PACK':'RATS IN THE PANTRY','LARGE CONTAMINATED ROACHES':'ROACH NEST','AGGRESSIVE ROACH SWARM':'ROACH NEST'};
  const raw=normalize(combat?.name||encounter?.title);
  const title=aliases[raw]||raw;
  if(!title)return null;
+ const lowlands=lowlandsSprites[title==='MARSH DOG PACK'?'SALT MARSH HUNTERS':title]||
+  lowlandsSprites[normalize(origin?.title)];
+ if(lowlands)return {title,items:lowlands.map(name=>file(name)),combat,lowlands:true};
+ const taxi=origin?.wo7==='WO8-TAXI'||combat?.wo7Id==='WO8-TAXI';
+ const industrial=taxi?['the_last_autonomous_taxi.gif']:industrialSprites[title]||industrialSprites[normalize(origin?.title)];
+ if(industrial&&(taxi||route127CurrentRegion(lanternState())==='INDUSTRIAL')){
+  return {title,items:industrial.map(name=>file(name)),combat};
+ }
  if(['HIGHWAY ROBBERS','LOOTERS','PARKING LOT RAIDERS','GANG LOOKOUT','THE HOLLOWED',
  'THE SQUATTERS','GUNSHOP OWNER','RABID RACCOONS','BAT COLONY',
  'SILAS CROWE','RIVET AND CREW'].includes(title))return null;
  let spec=scenes[title]||scenes[normalize(origin?.title)];
+ // Pack combat must retain its three-dog artwork, not fall back to a newly
+ // selected FERAL DOG approach variant (which can show the mother and pups).
+ if(combat&&(combat.r18DogPack||raw==='FERAL DOG PACK'))spec=()=>file('feral_dog_pack_concept.png',true);
  if(combat?.r18WallFight||normalize(encounter?.displayName)==='THE SENTRY')spec=scenes['THE SENTRY'];
  if(combat?.r18WardenId)spec=scenes['THE WARDEN'];
  if(raw==='FERAL BOAR')spec=()=>file('Tunnel Rats - Wild Boar.png');
@@ -52,7 +103,8 @@ function current(){
  if(!spec&&/CHEMICAL BURNER/.test(title))spec=()=>[file('Chemical Burner 1.png'),file('Chemical Burner 2.png')];
  if(!spec&&/SENTRY/.test(title))spec=()=>file('sentry.png');
  if(!spec&&/PIPE ROBBER/.test(title))spec=()=>file('Pipe Robber.png');
- return spec?{title,items:[].concat(spec()).filter(Boolean),combat}:null;
+ // The Road Eater artwork depicts the whole machine. Its three targets keep their existing HP panel.
+ return spec?{title,items:[].concat(spec()).filter(Boolean),combat:combat?.r18RoadEater?null:combat}:null;
 }
 const css=document.createElement('style');
 css.textContent=`
@@ -72,17 +124,17 @@ function inScope(){
 }
 function scenarioChoices(){
  if(stage!=='encounter'||!inScope()||player.flags?.r18HoundNaming||(player.flags?.devFoodChoice&&/TUNNEL RATS$/.test(currentEncounter()?.title||'')))return null;
- const encounter=currentEncounter();if(!encounter)return null;
+ const encounter=currentEncounter();if(!encounter||(encounter.title==='THE SALT MINERS'&&player.flags.marlowRescuePending))return null;
  const labels=encounterChoices(encounter).split(/\s{2,}/).filter(Boolean);
  if(typeof questRoadMarkers==='function')labels.push(...questRoadMarkers().map(row=>row[1]));
  const exits=/^(BACK AWAY|MOVE ON|KEEP MOVING|WALK AWAY|LEAVE|WITHDRAW|RETREAT|BACK DOWN)$/i;
- const exit=labels.find(label=>/^(BACK AWAY|MOVE ON|WALK AWAY|LEAVE|KEEP MOVING)$/i.test(label))||labels.find(label=>exits.test(label))||'LEAVE';
+ const exit=labels.find(label=>/^(BACK AWAY|MOVE ON|WALK AWAY|LEAVE|KEEP MOVING)$/i.test(label))||labels.find(label=>exits.test(label))||(encounter.wo7==='WO8-HOUNDS'?null:'LEAVE');
  const actions=labels.filter(label=>label!==exit);
- // Generic LEAVE is already supported by resolveEncounter.
- actions.push(exit);
+ // Active security hounds use their existing escape attempt.
+ if(exit)actions.push(exit);
  return actions.map((label,i)=>({key:String(i+1),command:choiceCommand(label),label}));
 }
-globalThis.Route127RoadsidePresentation=Object.freeze({choices:scenarioChoices,current,inScope});
+globalThis.Route127RoadsidePresentation=Object.freeze({choices:scenarioChoices,current,inScope,industrialEncounterSprites,lowlandsSprites});
 Route127MenuAuthority.register('roadside-scenarios',{
  supports:()=>stage==='encounter'&&inScope()&&!player.flags?.r18HoundNaming,
  choices:context=>context.base
@@ -93,6 +145,10 @@ presentation.textContent=`
 .gfx-frame.r127-route-scene .r127-road-unit{height:82%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0!important;margin:0;border:0!important;border-image:none!important;background:transparent!important;box-shadow:none!important;min-height:0!important;pointer-events:auto;cursor:pointer}
 .gfx-frame.r127-route-scene .r127-road-art img,.gfx-frame.r127-route-scene .r127-road-art.single img{width:100%;height:calc(100% - 31px);object-fit:contain;object-position:center bottom}
 .gfx-frame.r127-route-scene .r127-road-unit[hidden]{display:none}
+.gfx-frame.r127-route-scene .r127-road-art.r127-lowlands-units{display:grid;grid-template-columns:repeat(var(--lowlands-count),minmax(0,1fr))}
+.gfx-frame.r127-route-scene .r127-lowlands-units .r127-road-unit{width:100%;grid-row:1}
+.gfx-frame.r127-route-scene .r127-lowlands-units.single .r127-road-unit{width:54%;justify-self:center}
+.gfx-frame.r127-route-scene .r127-lowlands-units .r127-road-hp{font-size:clamp(10px,2.8vw,16px);padding:3px 4px}
 .gfx-frame.r127-route-scene :is(.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-combat){display:flex;flex-direction:column;align-items:center;gap:3px}
 .gfx-frame.r127-route-scene :is(.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-combat)>img{height:calc(100% - 31px)!important;flex:1;min-height:0;object-position:center bottom}
 .gfx-frame.r127-route-scene :is(.r127-bat-hp,.r127-raccoon-label,.r127-human-hp,.r127-npc-label,.r127-road-hp){position:static!important;transform:none!important;left:auto;bottom:auto;display:block;flex:none;z-index:2;white-space:nowrap;color:#ffaaa4;background:#32100e;border:1px solid #aa413b;border-radius:4px;padding:3px 6px;font:700 clamp(13.5px,1.5vw,18px)/1.15 sans-serif}
@@ -115,8 +171,31 @@ presentation.textContent=`
 .gfx-frame.r127-route-scene .gfx-art-caption{top:8px;bottom:auto;font-size:16px}
 
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"] .r127-road-unit{width:46%!important;height:49%}
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"]:not(.single) .r127-road-unit,
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="RAT PACK"] .r127-road-unit{width:31%!important;height:49%}
+/* Two separate Tunnel Rat sprites must stay on the narrow Causeway roadway.
+   Only the two-rat variant is positioned; the Wild Boar variant is unchanged.
+   HP labels and per-rat defeated visibility remain owned by the existing renderer. */
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"]:not(.single){display:block}
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"]:not(.single) .r127-road-unit{
+ position:absolute!important;width:20%!important;height:43%!important;
+ bottom:5%!important;transform:translateX(-50%)!important;
+}
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"]:not(.single) .r127-road-unit:nth-child(1){left:45%!important}
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="TUNNEL RATS"]:not(.single) .r127-road-unit:nth-child(2){left:56%!important;bottom:7%!important}
+/* The Causeway's narrow pavement needs a smaller centered roach swarm.
+   Other road regions and the roach combat/HP logic are untouched. */
+.gfx-frame.r127-route-scene .r127-road-art[data-region="CAUSEWAY"]:is([data-key^="ROACH NEST"],[data-key^="ROACH SWARM"]){justify-content:center!important;align-items:flex-end!important}
+.gfx-frame.r127-route-scene .r127-road-art[data-region="CAUSEWAY"]:is([data-key^="ROACH NEST"],[data-key^="ROACH SWARM"]) .r127-road-unit{
+ width:29%!important;height:52%!important;flex:0 0 29%!important;margin-bottom:0!important;
+  /* Actual placement is controlled by CombatLayouts, including saved layouts. */
+}
+/* The preview needs less clearance than the live combat HP label. */
+.gfx-frame.r127-route-scene .r127-road-art[data-region="CAUSEWAY"]:is([data-key^="ROACH NEST"],[data-key^="ROACH SWARM"]) div.r127-road-unit::after{height:10px}
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="SOMETHING IN THE DRAIN"] .r127-road-unit{width:48%!important;height:30%}
 .gfx-frame.r127-route-scene .r127-road-art[data-key^="FERAL DOG"] .r127-road-unit{width:52%!important;height:60%}
+/* Keep the Road Eater's tracks down on the pavement instead of hovering above it. */
+.gfx-frame.r127-route-scene .r127-road-art[data-key^="THE ROAD EATER"] .r127-road-unit{position:relative;top:10%}
 
 .gfx-frame.r127-route-scene :is(.r127-bat-layer,.r127-raccoon-layer,.r127-human-layer,.r127-npc-scene){bottom:6%}
 .gfx-frame.r127-route-scene .r127-road-art{top:0;bottom:0}
@@ -145,25 +224,32 @@ GraphicalUI.sync=function(...args){
   const combat=typeof combatState!=='undefined'?combatState:null;
   if(scene&&combat&&['HIGHWAY ROBBERS'].includes(scene.title))scene.items=[];
   const completeUnits=!scene?.combat?.enemies?.length||scene.combat.enemies.length===scene.items.length;
-  e.frame.classList.toggle('r127-road-combat-active',!!scene?.combat&&completeUnits);
+  e.frame.classList.toggle('r127-road-combat-active',!!scene?.combat&&completeUnits&&(!scene.western||!!scene.items.length));
   if(!scene||!scene.items.length){layer?.remove();return result}
   const key=scene.title+':'+scene.items.map(x=>x.name).join('|')+':'+!!scene.combat;
   if(layer?.dataset.key!==key){
    layer?.remove();layer=document.createElement('div');layer.className='r127-road-art'+(scene.items.length===1?' single':'');layer.dataset.key=key;
+   if(scene.lowlands){
+    layer.classList.add('r127-lowlands-units');
+    layer.style.setProperty('--lowlands-count',String(scene.items.length));
+   }
    scene.items.forEach((f,i)=>{
     const interactive=!!scene.combat&&(!scene.combat.r18TunnelRat||completeUnits);
     const unit=document.createElement(interactive?'button':'div');
-    unit.className='r127-road-unit';unit.style.width=(scene.items.length===1?'54%':'38%');
+    unit.className='r127-road-unit';
+    if(scene.lowlands){unit.dataset.index=String(i);unit.style.gridColumn=String(i+1);}
+    else unit.style.width=(scene.items.length===1?'54%':'38%');
     if(interactive){
      unit.type='button';
      unit.addEventListener('click',()=>{if(!busy)handleCommand(scene.combat.enemies?.length?'attack '+(i+1):'attack')});
     }
-    const img=document.createElement('img');img.src=asset(f.name,f.root)+'?v=wo27-art-fit';img.alt='';
+    const img=document.createElement('img');img.src=asset(f)+(f.name==='roach_nest_ordinary.png'?'?v=roach-food-carton-20261120':'?v=wo27-art-fit');img.alt='';
     img.onerror=()=>{img.hidden=true;img.dataset.failed='true';e.frame.classList.add('r127-sprite-failed');e.frame.classList.remove('r127-road-combat-active');console.warn('Missing DEVTEST encounter art',f.name)};
     unit.append(img);layer.append(unit);
    });
    e.figure.append(layer);
   }
+  layer.dataset.region=typeof route127CurrentRegion==='function'?route127CurrentRegion(lanternState()):'';
   if(scene.combat&&completeUnits){
    const units=[...layer.children],fighters=scene.combat.enemies?.length?scene.combat.enemies:[scene.combat];
    // Composite artwork retains its composition; individual fighters still have

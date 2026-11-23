@@ -10,21 +10,51 @@ function v53Normalize(cmd){
 const v53OldChoice=choiceCommand;choiceCommand=function(label){return v53Normalize(v53OldChoice(label));};
 let v53OfficialMenu=false,v53RenderingWanderer=false,v53OutputSerial=0,v53LastMenuSerial=-1,v53LastMenuContext='';
 function v53Context(){return stage+'|'+mercyLocation+'|'+townWandererFocus+'|'+currentRoadWanderer+'|'+(combatState?.name||'');}
+function v53WandererContext(){
+ if(stage==='wandererRoad'&&currentRoadWanderer)return 'road:'+currentRoadWanderer;
+ if(stage==='mercy'&&townWandererFocus&&townWandererFocus===currentTownWanderer)return 'town:'+townWandererFocus;
+ if(stage==='port55Guest'&&player.flags.port55VisitingName)return 'guest:'+player.flags.port55VisitingName;
+ const offer=player.flags.portHireOffer;
+ if(stage==='port55Recruit'&&offer)return 'hire:'+offer.origin+':'+offer.name;
+ return '';
+}
 function v53LegacyMenu(text){return /SMALL TALK|\bTALK\b/.test(text)&&/INSPECT/.test(text)&&/FIGHT/.test(text)&&/MOVE ON|LEAVE|TOWN/.test(text);}
+function v53LegacyWandererOutput(text,cls){
+ if(v53OfficialMenu||!cls.includes('system')||!(v53RenderingWanderer||v53WandererContext()))return false;
+ return v53LegacyMenu(text)||
+  /^(?:TRADE|STEAL)(?: |$)/.test(text)&&/ {2,}/.test(text)||
+  stage==='port55Guest'&&text==='CONFIRM FIGHT   BACK OFF';
+}
+let v53PendingWandererMenu;
 function v53Display(text){let out=String(text??'').replace(/SMALL TALK/gi,'TALK');if(stage==='mercy'&&mercyLocation==='johnny'&&player.flags.solaceMenu==='shop')out=out.split(/\s{2,}/).filter(x=>!/^ASK ABOUT RELAY PARTS$/i.test(x)).join('   ');if(v53RenderingWanderer||stage==='wandererRoad'||stage==='mercy'&&(townWandererFocus||player.flags.v50Trade))out=out.replace(/\bTRADE\b/g,'BROWSE WARES');return out;}
 const v53OldAdd=add;add=function(text='',cls=''){
- if(!v53OfficialMenu&&v53LegacyMenu(text)&&(v53RenderingWanderer||stage==='wandererRoad'||stage==='mercy'&&townWandererFocus))return;
+ if(v53LegacyWandererOutput(text,cls))return;
  if(!v53OfficialMenu&&stage==='combat'&&/ATTACK/.test(text)&&/USE ITEM/.test(text)&&/BACK OFF/.test(text))return;
- if(!v53OfficialMenu&&(v53RenderingWanderer||stage==='wandererRoad'||stage==='mercy'&&townWandererFocus)&&/^(?:TRADE|STEAL)(?: |$)/.test(text)&&cls==='system')return;
  if(!v53OfficialMenu)v53OutputSerial++;return v53OldAdd(v53Display(text),cls);
 };
 const v53OldImmediate=addImmediate;addImmediate=function(text='',cls=''){
+ if(v53LegacyWandererOutput(text,cls))return;
  if(!v53OfficialMenu&&stage==='combat'&&/ATTACK/.test(text)&&/USE ITEM/.test(text)&&/BACK OFF/.test(text))return;
  if(!v53OfficialMenu)v53OutputSerial++;return v53OldImmediate(v53Display(text),cls);
 };
 function v53Choices(parts){
  const labels=[...new Set(parts)],serial=v53OutputSerial;
- outputQueue=outputQueue.then(()=>{v53OfficialMenu=true;try{currentHotkeys={};numberedChoices={};usedHotkeys=new Set();addImmediate(hotkeyLine(labels.join('   ')),'system');v53LastMenuSerial=serial;v53LastMenuContext=v53Context();}finally{v53OfficialMenu=false;}});
+ // Road entry assigns its stage immediately after showWanderer returns.
+ const context=v53WandererContext()||(v53RenderingWanderer&&currentRoadWanderer?'road:'+currentRoadWanderer:'');
+ const pending=context?{context}:null;
+ if(pending){
+  v53PendingWandererMenu=pending;
+  currentHotkeys={};numberedChoices={};usedHotkeys=new Set();
+ }
+ outputQueue=outputQueue.then(()=>{
+  if(pending&&(v53PendingWandererMenu!==pending||v53WandererContext()!==context))return;
+  v53OfficialMenu=true;
+  try{
+   currentHotkeys={};numberedChoices={};usedHotkeys=new Set();
+   addImmediate(hotkeyLine(labels.join('   ')),'system');
+   v53LastMenuSerial=serial;v53LastMenuContext=v53Context();
+  }finally{v53OfficialMenu=false;}
+ });
 }
 function v53WandererMenu(w,road){
  if(!w||!wandererAlive(w))return;
@@ -33,6 +63,7 @@ function v53WandererMenu(w,road){
 }
 const v53OldRender=renderCurrentChoices;
 renderCurrentChoices=function(){
+ if(stage==='mercy'&&['ashSurvivorTownsfolk','ashSurvivorCottage'].includes(mercyLocation))return player.flags.r18Ash?.reunionAvailable?ashSurvivorMenu():ashSurvivorCommand('return to town');
  if(player.flags.v53Sale&&['mercy','wandererRoad'].includes(stage))return v53SaleMenu();
  if(player.flags.v53BoardEntry)return v53BoardPrompt();
  if(player.flags.v53BoardDraft!==undefined)return v53BoardConfirm();
@@ -44,28 +75,88 @@ renderCurrentChoices=function(){
  return v53OldRender();
 };
 const v53OldContext=showCurrentContext;showCurrentContext=function(){if(stage==='combat'||stage==='wandererRoad'||stage==='mercy')return renderCurrentChoices();return v53OldContext();};
-const v53OldShow=showWanderer;showWanderer=function(w,context){v53RenderingWanderer=true;try{v53OldShow(w,context);}finally{v53RenderingWanderer=false;}v53WandererMenu(w,context==='road');};
-function v53TimMenu(){mercyLocation='tim';townWandererFocus=null;player.flags.solaceMenu='tim53';add('TIM — SOLACE','place');v53Choices(['TALK TIM',...(r18CourierEligible('tim')?['DELIVER TIM LETTER']:[]),...(player.flags.r18ClaraMet&&player.flags.r18DanielQuest!=='done'?['ASK ABOUT DANIEL']:[]),...(v52Crime().bounty>0?['PAY FINE','OFFER BRIBE']:[]),...(player.flags.r18BribePending?.lawman==='Tim'?['CONFIRM BRIBE','CANCEL BRIBE']:[]),'INSPECT TIM','TOWN']);}
+const v53OldShow=showWanderer;showWanderer=function(w,context){v53RenderingWanderer=true;try{v53OldShow(w,context);v53WandererMenu(w,context==='road');}finally{v53RenderingWanderer=false;}};
+function v53TimMenu(){mercyLocation='tim';townWandererFocus=null;player.flags.solaceMenu='tim53';add('TIM — SOLACE','place');v53Choices(['TALK TIM','BOUNTIES',...(r18CourierEligible('tim')?['DELIVER TIM LETTER']:[]),...(player.flags.r18ClaraMet&&player.flags.r18DanielQuest!=='done'?['ASK ABOUT DANIEL']:[]),...(v52Crime().bounty>0?['PAY FINE','OFFER BRIBE']:[]),...(player.flags.r18BribePending?.lawman==='Tim'?['CONFIRM BRIBE','CANCEL BRIBE']:[]),'INSPECT TIM','TOWN']);}
 // Martha buys one identified carried valuable per confirmed transaction.
 function r18MarthaEligible(i){return !!i&&i.type==='valuable'&&v48Ordinary(i)&&!i.unique&&!i.protected&&!protectedUniqueEquipment(i.name)&&v48SellPrice(i)>0;}
-function r18MarthaPrice(i){return ({'Old World Pocket Compass':35,'Old Transit Token':25,"Vintage Bus Driver's Badge":35})[i.name]||v48SellPrice(i)*2;}
-function r18MarthaMenu(){mercyLocation='johnny';player.flags.solaceMenu='marthaCounter';add('MARTHA — OLD WORLD COUNTER','place');const q=player.flags.r18MarthaSale;if(q){add('Sell '+q.name+(q.stolen?' (stolen)':'')+' for '+q.price+' Bolts?','system');v53Choices(['CONFIRM MARTHA SALE','CANCEL MARTHA SALE']);return;}const seen=new Set(),options=[];for(const i of player.pack.filter(r18MarthaEligible)){const k=i.name+'|'+!!i.stolen;if(seen.has(k))continue;seen.add(k);options.push('SELL MARTHA '+i.name.toUpperCase()+(i.stolen?' (STOLEN)':''));}v53Choices(options.concat(['RETURN TO JOHNNY']));}
+function r18MarthaPrice(i){return i.name==='Old World Pocket Compass'?35:(typeof OLD_WORLD_TREASURES==='undefined'?null:OLD_WORLD_TREASURES[i.name]?.martha)??v48SellPrice(i)*2;}
+function r18MarthaMenu(entering=false){
+ mercyLocation='johnny';
+ const flags=player.flags;
+ flags.solaceMenu='marthaCounter';
+ add('MARTHA — OLD WORLD COUNTER','place');
+ if(!flags.r18MarthaCounterIntroduced){
+  flags.r18MarthaCounterIntroduced=true;
+  add("MARTHA > Johnny buys things he can sell again. Me? I buy pieces of the world we lost.",'bright');
+  add("Old coins, photographs, jewelry, keepsakes. Things people once treasured.",'bright');
+  add("Bring them to me before selling them to an ordinary merchant. I pay considerably more for the right pieces.",'bright');
+  v49Autosave();
+ }else if(entering){
+  add("MARTHA > Find anything interesting out there? Let's see what the Old World left behind.",'bright');
+ }
+ const q=flags.r18MarthaSale;
+ if(q){
+  add('Sell '+q.name+(q.stolen?' (stolen)':'')+' for '+q.price+' Bolts?','system');
+  v53Choices(['CONFIRM MARTHA SALE','CANCEL MARTHA SALE']);return;
+ }
+ const options=player.pack.filter(r18MarthaEligible).map(i=>
+  'SELL '+i.name.toUpperCase()+(i.stolen?' (STOLEN)':'')+' — '+r18MarthaPrice(i)+' BOLTS');
+ v53Choices([...new Set(options),'RETURN TO JOHNNY']);
+}
 function r18MarthaCommand(cmd){if(mercyLocation!=='johnny'||player.flags.solaceMenu!=='marthaCounter'||!player.flags.r18MarthaSettled)return false;const f=player.flags;
  if(['return to johnny','back','b'].includes(cmd)){delete f.r18MarthaSale;johnnyMainMenu();return true;}
  if(cmd==='cancel martha sale'){delete f.r18MarthaSale;r18MarthaMenu();return true;}
- if(cmd.startsWith('sell martha ')){const raw=cmd.slice(12),stolen=raw.endsWith(' (stolen)'),name=stolen?raw.slice(0,-9):raw;const item=player.pack.find(i=>i.name.toLowerCase()===name&&!!i.stolen===stolen&&r18MarthaEligible(i));if(!item){add('That valuable is unavailable or protected. Nothing sold.','system');r18MarthaMenu();return true;}f.r18MarthaSale={name:item.name,stolen,price:r18MarthaPrice(item)};r18MarthaMenu();return true;}
+ if(cmd.startsWith('sell ')){const raw=cmd.replace(/^sell (?:martha )?/,'').replace(/ — \d+ bolts$/,''),stolen=raw.endsWith(' (stolen)'),name=stolen?raw.slice(0,-9):raw;const item=player.pack.find(i=>i.name.toLowerCase()===name&&!!i.stolen===stolen&&r18MarthaEligible(i));if(!item){add('That valuable is unavailable or protected. Nothing sold.','system');r18MarthaMenu();return true;}f.r18MarthaSale={name:item.name,stolen,price:r18MarthaPrice(item)};r18MarthaMenu();return true;}
  if(cmd==='confirm martha sale'){const q=f.r18MarthaSale,i=q&&player.pack.find(i=>i.name===q.name&&!!i.stolen===q.stolen&&r18MarthaEligible(i));if(!i||r18MarthaPrice(i)!==q.price||!Number.isSafeInteger(player.bolts+q.price)){delete f.r18MarthaSale;add('The item or price changed. Nothing sold.','system');r18MarthaMenu();return true;}if(q.stolen){const fday=Number(day)||1,next=Number(f.r18CrimeCooldowns?.sellStolen)||0;if(fday<next){delete f.r18MarthaSale;add('Another stolen-goods sale attempt is unavailable until day '+next+'. Nothing sold.','system');r18MarthaMenu();return true;}if(Math.random()<.2){(f.r18CrimeCooldowns||(f.r18CrimeCooldowns={})).sellStolen=fday+3;delete f.r18MarthaSale;v52Record('Selling Stolen Property','Martha','Attempted to sell stolen property to Martha',25);add('Martha recognizes the stolen item. Nothing was sold.','danger');r18MarthaMenu();return true;}}
-  i.qty--;if(!i.qty)player.pack.splice(player.pack.indexOf(i),1);delete f.r18MarthaSale;gainBolts(q.price);updateHud();add('Martha pays '+q.price+' Bolts for '+q.name+'.','reward');if(q.name==="Vintage Bus Driver's Badge")add('MARTHA > My father drove that route. He used to polish his badge before every shift.','bright');if(typeof v49Autosave==='function')v49Autosave();r18MarthaMenu();return true;}
+  i.qty--;if(!i.qty)player.pack.splice(player.pack.indexOf(i),1);delete f.r18MarthaSale;gainBolts(q.price);updateHud();add('Martha pays '+q.price+' Bolts for '+q.name+'.','reward');const reaction=(typeof OLD_WORLD_TREASURES==='undefined'?null:OLD_WORLD_TREASURES[q.name]?.reaction);if(reaction)add('MARTHA > '+reaction,'bright');if(typeof v49Autosave==='function')v49Autosave();r18MarthaMenu();return true;}
  r18MarthaMenu();return true;}
 function r18GideonMenu(){mercyLocation='gideon';player.flags.solaceMenu='gideon';add('GIDEON — SALT AND PRESERVATION','place');add('GIDEON > Salt gives food a better chance of lasting the road.','bright');v53Choices(['LEARN PRESERVATION','ASK ABOUT PRESERVATION','RETURN TO TOWN']);}
+const ashMotherResponses=new Map([
+ ['i found your daughter',"Ruth? My Ruth? She's alive? After all these years?"],
+ ["ruth thinks you're dead","Of course she does. I tried to find her. I never stopped looking."],
+ ["she's waiting at ash cemetery","Ash Cemetery? Then that's where I need to be."]
+]);
+function ashSurvivorMenu(){
+ if(mercyLocation==='ashSurvivorTownsfolk'){
+  add('SOLACE — ASK THE TOWNSFOLK','place');
+  add("TOWNFOLK > You're looking for a woman who survived the abandonment? There's an older lady living in a cottage near the edge of town. Might be who you're looking for.",'bright');
+  return r5DirectChoices(['VISIT THE COTTAGE','RETURN TO TOWN']);
+ }
+ add("SOLACE — RUTH'S MOTHER'S COTTAGE",'place');
+ if(player.flags.r18Ash.reunion)return r5DirectChoices(['RETURN TO TOWN']);
+ add("RUTH'S MOTHER > You found me. But why? What happened?",'bright');
+ return r5DirectChoices([...Array.from(ashMotherResponses.keys(),choice=>choice.toUpperCase()),'RETURN TO TOWN']);
+}
+function ashSurvivorCommand(cmd){
+ const q=player.flags.r18Ash;
+ if(['return to town','back','b'].includes(cmd)||!q?.reunionAvailable){
+  mercyLocation='town';
+  return mercyMenu();
+ }
+ if(mercyLocation==='ashSurvivorTownsfolk'){
+  if(!q.reunion&&cmd==='visit the cottage')mercyLocation='ashSurvivorCottage';
+  return ashSurvivorMenu();
+ }
+ const answer=ashMotherResponses.get(cmd.trim().replace(/[.]+$/,'').replaceAll('’',"'"));
+ if(q.reunion||!answer)return ashSurvivorMenu();
+ add("RUTH'S MOTHER > "+answer,'bright');
+ add("RUTH'S MOTHER > Tell her I'm coming. Please. Tell her I'm alive.",'bright');
+ q.reunion=true;
+ lanternSave();
+ return r5DirectChoices(['RETURN TO TOWN']);
+}
 const v53OldSolace=handleSolace;handleSolace=function(cmd,raw=cmd){
- if(mercyLocation==='town'&&cmd==='seek ash survivor'&&player.flags.r18Ash?.reunionAvailable&&!player.flags.r18Ash?.reunion){player.flags.r18Ash.reunion=true;add('A Solace resident recognizes the letter. She agrees to meet her daughter at Ash Cemetery.','reward');mercyMenu();return;}
+ if(mercyLocation==='town'&&cmd==='seek ash survivor'&&player.flags.r18Ash?.reunionAvailable&&!player.flags.r18Ash.reunion){
+  mercyLocation='ashSurvivorTownsfolk';
+  return ashSurvivorMenu();
+ }
+ if(['ashSurvivorTownsfolk','ashSurvivorCottage'].includes(mercyLocation))return ashSurvivorCommand(cmd);
  if(mercyLocation==='town'&&cmd==='post office'&&player.flags.r18Courier?.phase==='service'){r18CourierMenu();return;}
  if(mercyLocation==='postOffice'&&player.flags.r18Courier?.phase==='service'){r18CourierCommand(cmd);return;}
  if(mercyLocation==='tim'&&cmd==='deliver tim letter'&&r18CourierEligible('tim')){r18CourierDeliver('tim');v53TimMenu();return;}
  if(mercyLocation==='jen'&&cmd==='deliver jen letter'&&r18CourierEligible('jen')){r18CourierDeliver('jen');npcTalk('jen');return;}
  if(r18MarthaCommand(cmd))return;
- if(cmd==='old world counter'&&mercyLocation==='johnny'&&player.flags.r18MarthaSettled){r18MarthaMenu();return;}
+ if(cmd==='old world counter'&&mercyLocation==='johnny'&&player.flags.r18MarthaSettled){r18MarthaMenu(true);return;}
  if(v53SaleCommand(cmd))return;
  if(mercyLocation==='jen'&&cmd==='ask about wasteland stew'&&r18StewReady()){const learned=player.flags.r11Learned||(player.flags.r11Learned={});if(!learned.wastelandStew){learned.wastelandStew=true;add('JEN > Meat, fruit and vegetables. Put them together and you have a meal worth sharing. BLUEPRINT LEARNED — WASTELAND STEW.','reward');}else{const lines={'Raw Rat Meat':'Rat stew? Add enough seasoning and nobody asks questions.','Raw Wolf Meat':'Wolf makes a hearty stew. Give it time to cook.','Raw Rabbit Meat':'Rabbit is for the pot only if it was never your pet.','Raw Chicken Meat':'Chicken is a welcome change around here.','Raw Boar Meat':'Boar stew will keep you going on a long road.','Raw Venison':'Venison deserves a good slow simmer.','Raw Bird Meat':'A little bird meat can stretch a long way.','Raw Snake Meat':'Snake works fine. Just watch the bones.'};add('JEN > '+(lines[player.flags.r18LastStewMeat]||'You already know the recipe. Make it your own.'),'bright');}npcTalk('jen');return;}
  if(cmd==='talk to gideon'&&mercyLocation==='town'&&player.flags.r18SaltWorkersFreed){r18GideonMenu();return;}
@@ -94,13 +185,30 @@ const v53OldWanted=v52WantedBoard;v52WantedBoard=function(){v53OldWanted();add(`
 const v53OldQuests=showQuests;showQuests=function(){v53OldQuests();if(v52Crime().bounty>0)add(`OPTIONAL — CLEAR YOUR NAME: Speak with Tim in Solace and PAY FINE (${v52Crime().bounty} Bolts). No XP or Bolt reward.`,'system');};
 const v53OldVendor=johnnyShop;johnnyShop=function(){v53OldVendor();add('NEXT RESTOCK: '+refillText().slice(0,5),'system');};
 const v53OldArmory=showEquipmentShop;showEquipmentShop=function(){v53OldArmory();add('NEXT RESTOCK: '+refillText().slice(0,5),'system');};
+// Legacy snapshots may encode stack quantities as strings.
+const v53Ordinary=v48Ordinary;
+v48Ordinary=function(item){
+ return !item?.unique&&!item?.protected&&v53Ordinary(typeof item?.qty==='string'?{...item,qty:Number(item.qty)}:item);
+};
 // Quantity selection and a single transaction commit for all sale outlets.
 function v53SaleStart(name,merchant=null){
  // The displayed stack quantity is menu metadata, not part of the item name.
  name=String(name).replace(/\s+[×x]\d+$/i,'').trim();
  const item=r18NamedStack(player.pack,name),unit=v48SellPrice(item);
  if(!item||unit<=0){add('That item cannot be sold. Equipped, quest and Legendary items are protected.','system');return false;}
- player.flags.v53Sale={name:item.name,type:item.type,stolen:!!item.stolen,available:item.qty,unit,qty:1,merchant,location:mercyLocation,mode:'quantity'};if(!merchant)player.flags.v48Sale={name:item.name,type:item.type,qty:1,total:unit};v53SaleMenu();return true;
+ // A single item needs no quantity choice. Preserve confirmation for rare/epic gear.
+ // All sales still pass through v53SaleCommand's merchant, price, inventory,
+ // stolen-property and balance validation before anything is transferred.
+ const gear=typeof GEAR!=='undefined'?GEAR[item.name]:null;
+ const protectedConfirm=gear&&['weapon','armor','accessory'].includes(gear.type)&&['rare','epic'].includes(gear.rarity);
+ // Cloud/legacy inventory can contain quantities stored as "1" instead of 1.
+ // Treat either as a single item: there is no quantity to choose.
+ const available=Number(item.qty);
+ const single=Number.isSafeInteger(available)&&available===1;
+ player.flags.v53Sale={name:item.name,type:item.type,stolen:!!item.stolen,available,unit,qty:1,merchant,location:mercyLocation,mode:single?'confirm':'quantity'};
+ if(!merchant)player.flags.v48Sale={name:item.name,type:item.type,qty:1,total:unit};
+ if(single&&!protectedConfirm)return v53SaleCommand('confirm sale');
+ v53SaleMenu();return true;
 }
 function v53SaleMenu(){const q=player.flags.v53Sale;if(!q)return;
  add(`SELL ${q.name}${q.stolen?' (STOLEN)':''} — ${q.available} AVAILABLE — ${q.unit} BOLTS EACH${q.merchant?' — MERCHANT CASH '+v52Inventory(wandererByName(q.merchant)).bolts+' BOLTS':''}`,'system');
@@ -112,7 +220,7 @@ function v53SaleCommand(cmd){
  const q=player.flags.v53Sale;if(!q)return false;
  if(['cancel sale','cancel','back','b','town','return to town'].includes(cmd)){delete player.flags.v53Sale;delete player.flags.v48Sale;delete player.flags.v50Sale;if(cmd.includes('town')){mercyLocation='town';mercyMenu();}else if(q.merchant)v50Trade(wandererByName(q.merchant));else v48SaleMenu();return true;}
  if(cmd==='custom amount'){q.mode='custom';v53SaleMenu();return true;}
- if(cmd==='confirm sale'){
+ if(cmd==='confirm sale'&&q.mode==='confirm'){
   const item=player.pack.find(i=>i.name===q.name&&i.type===q.type&&!!i.stolen===!!q.stolen),total=q.qty*q.unit;
   const w=q.merchant?wandererByName(q.merchant):null,inv=w?v52Inventory(w):null;
   const present=q.merchant?w&&wandererAlive(w)&&(stage==='wandererRoad'?currentRoadWanderer===w.name:stage==='mercy'&&currentTownWanderer===w.name):stage==='mercy'&&mercyLocation===q.location&&['johnny','jen','wayne','mara'].includes(mercyLocation);
@@ -120,17 +228,49 @@ function v53SaleCommand(cmd){
   if(item.stolen&&r18SaleDetected(item,q.merchant||mercyLocation)){delete player.flags.v53Sale;delete player.flags.v48Sale;delete player.flags.v50Sale;if(w)v50Trade(w);else v48SaleMenu();return true;}
   item.qty-=q.qty;if(item.qty===0)player.pack.splice(player.pack.indexOf(item),1);
   if(inv){inv.bolts-=total;const held=inv.items.find(i=>i.name===q.name&&i.type===q.type&&!!i.stolen===!!q.stolen);if(held)held.qty+=q.qty;else inv.items.push({name:q.name,type:q.type,qty:q.qty,trade:false,...(q.stolen?{stolen:true}:{})});}
-  delete player.flags.v53Sale;delete player.flags.v48Sale;delete player.flags.v50Sale;gainBolts(total);add(`SOLD ${q.qty} × ${q.name} — ${total} BOLTS TOTAL`,'reward');v48Checkpoint();if(w)v50Trade(w);else v48SaleMenu();return true;
+  delete player.flags.v53Sale;delete player.flags.v48Sale;delete player.flags.v50Sale;gainBolts(total);add(`SOLD ${q.qty} × ${q.name} — ${total} BOLTS TOTAL`,'reward');v48Checkpoint();if(w)v53WandererSaleList(w);else v48SaleMenu();return true;
  }
- let n;if(q.mode==='custom'&&/^\d+$/.test(cmd))n=Number(cmd);else if(cmd==='sell all')n=q.available;else if(/^sell \d+$/.test(cmd))n=Number(cmd.slice(5));
+ let n;if(q.mode==='custom'&&/^\d+$/.test(cmd))n=Number(cmd);else if(cmd==='sell all')n=Number(q.available);else if(/^sell \d+$/.test(cmd))n=Number(cmd.slice(5));
  if(Number.isSafeInteger(n)&&n>=1&&n<=q.available){q.qty=n;q.mode='confirm';v53SaleMenu();return true;}
  add('Choose a valid quantity or cancel.','system');v53SaleMenu();return true;
 }
+// Own the item selection here; the legacy handler would redraw the list
+// again after the transaction already did so.
+const v53LegacyVendorCommand=handleV48Command;
+handleV48Command=function(cmd){
+ if(stage==='mercy'&&['johnny','jen','wayne','mara'].includes(mercyLocation)){
+  if(['sell','sell items'].includes(cmd)){v48SaleMenu();return true;}
+  if(cmd.startsWith('sell ')){
+   const item=cmd==='sell all scrap'?'Scrap Metal':cmd.slice(5).split(/\s+[—–-]\s+/)[0];
+   if(!v53SaleStart(item))v48SaleMenu();
+   return true;
+  }
+ }
+ return v53LegacyVendorCommand(cmd);
+};
 v48Sell=function(name,confirmed=false){if(confirmed){if(player.flags.v53Sale)return v53SaleCommand('confirm sale');add('Choose a quantity before confirming.','system');return false;}return v53SaleStart(name);};
-v48SaleMenu=function(){player.flags.v48Shop='sell';if(player.flags.v53Sale)return v53SaleMenu();add('SELL CARRIED ITEMS — SELECT AN ITEM (default quantity 1)','place');v53Choices([...player.pack.filter(i=>v48SellPrice(i)>0).map(i=>`SELL ${r18ItemLabel(i).toUpperCase()} ×${i.qty} — ${v48SellPrice(i)} BOLTS EACH`),'BACK']);};
-const v53OldTradeCommand=v50TradeCommand;v50TradeCommand=function(cmd){if(v53SaleCommand(cmd))return true;const w=wandererByName(player.flags.v50Trade);if(w&&cmd.startsWith('sell ')&&cmd!=='sell items'){v53SaleStart(cmd.slice(5).split(' ×')[0].split(' —')[0],w.name);return true;}return v53OldTradeCommand(cmd);};
+v48SaleMenu=function(){player.flags.v48Shop='sell';if(player.flags.v53Sale)return v53SaleMenu();add('SELL CARRIED ITEMS — SELECT AN ITEM','place');v53Choices([...player.pack.filter(i=>v48SellPrice(i)>0).map(i=>`SELL ${r18ItemLabel(i).toUpperCase()} ×${i.qty} — ${v48SellPrice(i)} BOLTS EACH`),'BACK']);};
+function v53WandererSaleList(w){
+ player.flags.v50Trade=w.name;
+ add('TRADE — SELL CARRIED ITEMS','place');
+ v53Choices([...player.pack.filter(i=>v48SellPrice(i)>0).map(i=>`SELL ${r18ItemLabel(i).toUpperCase()} ×${i.qty} — ${v48SellPrice(i)} BOLTS EACH`),'LEAVE TRADE']);
+}
+const v53OldTradeCommand=v50TradeCommand;
+v50TradeCommand=function(cmd){
+ if(v53SaleCommand(cmd))return true;
+ const w=wandererByName(player.flags.v50Trade);
+ const present=w&&wandererAlive(w)&&(stage==='wandererRoad'?currentRoadWanderer===w.name:stage==='mercy'&&currentTownWanderer===w.name);
+ if(present&&!v50Profile(w).hostile){
+  if(cmd==='sell items'){v53WandererSaleList(w);return true;}
+  if(cmd.startsWith('sell ')){
+   if(!v53SaleStart(cmd.slice(5).split(/\s+[—–-]\s+/)[0],w.name))v53WandererSaleList(w);
+   return true;
+  }
+ }
+ return v53OldTradeCommand(cmd);
+};
 // Board content stays local/shared; no per-character Relay completion announcement.
-showBulletinBoard=function(){const counter=document.querySelector('#v53-board-counter');if(counter)counter.hidden=true;mercyLocation='town';player.flags.solaceMenu='board';townWandererFocus=null;add('SOLACE BULLETIN BOARD','place');add('MISSING: Two runners. Last seen eastbound.');add('NOTICE: Stop leaving broken glass outside The Rusty Lantern Tavern.');add('Someone has added underneath: THEN GIVE US BETTER CUPS.','system');getBoardPosts().forEach(p=>add(`> ${p.handle||'TRAVELER'} — DAY ${p.day||1}: ${p.text}`,'system'));v53Choices(['POST A MESSAGE','VIEW BOUNTIES','RETURN TO TOWN']);};
+showBulletinBoard=function(){const counter=document.querySelector('#v53-board-counter');if(counter)counter.hidden=true;mercyLocation='town';player.flags.solaceMenu='board';townWandererFocus=null;add('SOLACE BULLETIN BOARD','place');add('MISSING: Two runners. Last seen eastbound.');add('NOTICE: Stop leaving broken glass outside The Rusty Lantern Tavern.');add('Someone has added underneath: THEN GIVE US BETTER CUPS.','system');getBoardPosts().forEach(p=>add(`> ${p.handle||'TRAVELER'} — DAY ${p.day||1}: ${p.text}`,'system'));v53Choices(['POST A MESSAGE',"WASTELAND'S MOST WANTED",'RETURN TO TOWN']);};
 function v53BoardPrompt(){add(`WRITE A MESSAGE — MAX ${BOARD_MAX_CHARS} CHARACTERS. ${BOARD_MAX_CHARS-(input.value||'').length} REMAINING. Enter message or CANCEL.`,'system');}
 function v53BoardConfirm(){const counter=document.querySelector('#v53-board-counter');if(counter)counter.hidden=true;const text=player.flags.v53BoardDraft;add(`POST AS ${player.handle||'TRAVELER'}: ${text}`,'system');v53Choices(['POST MESSAGE','EDIT MESSAGE','CANCEL MESSAGE']);}
 function v53BoardCommand(raw){

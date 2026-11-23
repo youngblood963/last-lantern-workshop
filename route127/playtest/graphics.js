@@ -2,7 +2,7 @@
  * No renderer calls migration, menu reconstruction, RNG, travel or reward handlers. */
 // Resolve images beside this script, even when the host serves a nested URL.
 const ROUTE127_ASSET_BASE=typeof document.currentScript?.src==='string'&&document.currentScript.src
- ? new URL('.',document.currentScript.src).href:null;
+ ? new URL('../devtest/',document.currentScript.src).href:null;
 const OLD_HOUSE_ART='../playtest/assets/locations/abandoned_house_interior.png';
 let oldHouseArtReady=false;
 const ROUTE127_ART={
@@ -95,7 +95,7 @@ const GraphicalUI={
  eligible(){const g=typeof lanternState==='function'?lanternState():null;if(!g||['title','wake','wakeNamed','standing','handle','confirmHandle','hello','listen','savecoords','confirmNewSlot','selectNewOverwrite','confirmNewOverwrite'].includes(stage))return false;return !!(g.currentEdgeId||g.discoveredEdges?.length||g.nodeId!=='house'||player.flags.mercyDiscovered);},
  active(){return this.eligible()&&this.preference()==='graphics';},
  setMode(mode){if(!['classic','graphics'].includes(mode))return false;this.preferred=mode;try{localStorage.setItem(this.modeKey,mode);}catch{}this.optionsOpen=false;this.navOpen=false;this.sync();return true;},
- context(){const overlays=new Set(['inventory','inventoryItem','confirmDrop','quests','interfaceStatus','interfaceMap','interfaceSave','combatItems','r5Loot','r18HorseTravel','corvetteRescue']);let place=overlays.has(stage)?returnStage:stage;const g=typeof lanternState==='function'?lanternState():null,c=combatState;
+ context(){const overlays=new Set(['inventory','inventoryItem','confirmDrop','quests','interfaceStatus','interfaceMap','interfaceSave','combatItems','r5Loot','r18HorseTravel','corvetteRescue']);let place=overlays.has(stage)?returnStage:stage;if(place==='port55Recruit'&&player.flags?.portHireOffer?.origin)place=player.flags.portHireOffer.origin;const g=typeof lanternState==='function'?lanternState():null,c=combatState;
   if(route127HouseScene(place,g))return 'house-interior';
   if(/^r18Ash/.test(place)||c?.source==='r18AshFight')return 'ash-cemetery';
   if(/^stationNine|^r18Station/.test(place)||['stationNineSecurity','r18StationFight'].includes(c?.source))return 'station-nine';
@@ -111,7 +111,7 @@ const GraphicalUI={
  },
  choices(){const rows=[],used=new Set();for(const [key,value]of Object.entries(numberedChoices||{})){if(!value)continue;const command=String(value);rows.push({key,command,label:route127RoadChoiceLabel(command)});used.add(command);}
   for(const [key,value]of Object.entries(currentHotkeys||{})){const command=String(value);if(!command||used.has(command))continue;rows.push({key,command,label:route127RoadChoiceLabel(command)});used.add(command);}return rows;},
- layout(){if(combatState)return 'combat';if(['inventory','inventoryItem','confirmDrop','r5Loot'].includes(stage))return 'inventory';if(stage==='interfaceMap')return 'map';if(stage==='interfaceStatus')return 'character';if(stage==='quests')return 'journal';if(/Craft|craft|Bench|Forge|Recipes/.test(stage))return 'crafting';if(stage==='mercy'&&mercyLocation!=='town'||/^r11Talk|^r18Fence|^port55Talk/.test(stage))return 'dialogue';if(stage==='mercy'||/^port|^seaport/.test(stage))return 'town';return 'highway';},
+ layout(){if(combatState)return 'combat';if(stage==='port55Recruit')return player.flags?.portHireOffer?.origin==='wandererRoad'?'highway':'town';if(['inventory','inventoryItem','confirmDrop','r5Loot'].includes(stage))return 'inventory';if(stage==='interfaceMap')return 'map';if(stage==='interfaceStatus')return 'character';if(stage==='quests')return 'journal';if(/Craft|craft|Bench|Forge|Recipes/.test(stage))return 'crafting';if(stage==='mercy'&&mercyLocation!=='town'||/^r11Talk|^r18Fence|^port55Talk/.test(stage))return 'dialogue';if(stage==='mercy'||/^port|^seaport/.test(stage))return 'town';return 'highway';},
  model(){const id=this.context(),art=ROUTE127_ART[id],g=typeof lanternState==='function'?lanternState():null;return {active:this.active(),eligible:this.eligible(),layout:this.layout(),location:id,title:art?.title||(g?.currentEdgeId?(lanternEdge()?.name||'Route 127'):LG_NODES[g?.nodeId]?.name||'Route 127'),art:art?.path&&oldHouseArtReady?art.path:art?.file?'assets/locations/'+art.file:route127RegionalArt(g),choices:this.choices(),hp:Number(player.hp)||0,maxHp:Number(player.maxHp)||1,level:Number(player.level)||1,xp:Number(player.xp)||0,nextXp:Number(player.nextXp)||1,bolts:Number(player.bolts)||0,turns:Number(player.turns)||0,maxTurns:Number(player.maxTurns)||150,pack:packSlotsUsed(),capacity:player.packMax,time:timePhase(),enemies:combatState?(combatState.enemies?.length?combatState.enemies:[combatState]).filter(e=>!combatState.r18TunnelRat||e.hp>0).map(e=>({name:e.name,hp:e.hp,maxHp:e.maxHp||e.hp})):[]};},
  preview(){const g=typeof lanternState==='function'?lanternState():null;if(!g||g.currentEdgeId)return '';if(g.nodeId==='northern-ridge')return 'Grand City rises above the northern approach: lamps glow behind repaired walls, and smoke curls from roofs where people are building a life again. The city interior remains beyond this preview.';if(g.nodeId==='broken-bridge')return 'The ruined span ends above the dark water. Weathered roads lead back into the wasteland; the territory across the broken crossing remains inaccessible.';return '';},
  statuses(){const c=combatState;if(!c)return [];const rows=[];for(const [key,label]of [['r18RatBleed','Bite bleeding'],['r18PowderBleed','Shrapnel bleeding'],['r18RatGuardBreak','Guard weakened']])if(c[key]>0)rows.push(label+': '+c[key]+' exchanges');if(c.wo3Cover)rows.push('Container cover ready');if(c.wo3LightShot)rows.push('Drone floodlight disabled');if(c.r18PowderGrenadePending)rows.push('Grenade readied');return rows;},
@@ -121,8 +121,17 @@ const GraphicalUI={
   if(!current){this.sync();return false;}
   if(busy||commandProcessing)return false;
   const encounter=stage==='encounter'&&!!currentEncounter();
+  // Roadside wanderers use the same textual action menu as road encounters.
+  // Dispatch the selected command, not its transient number: other renderers
+  // can rebuild numberedChoices while a wanderer portrait/menu is updating.
+  const vendorSale=stage==='mercy'&&player.flags.v48Shop==='sell';
+  const wanderer=!!v53WandererContext();
   this.navOpen=false;
-  await handleCommand(encounter?current.command:current.key);
+  if(wanderer||vendorSale||player.flags.v50Trade){
+   commandProcessing=true;
+   try{await handleCommand(current.command);}
+   finally{commandProcessing=false;}
+  }else await handleCommand(encounter?current.command:current.key);
   this.sync();return true;
  },
  node(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;},
@@ -150,8 +159,39 @@ const GraphicalUI={
     e.settings.appendChild(this.button('CLASSIC BBS',()=>this.setMode('classic')));
     e.settings.appendChild(this.button('CLOSE OPTIONS',()=>{this.optionsOpen=false;this.sync();}));
   }
-  e.choices.replaceChildren();e.choices.style.setProperty('--gfx-choice-rows',String(Math.max(1,Math.ceil(m.choices.length/2))));for(const [i,c]of m.choices.entries()){const b=this.button('',()=>this.dispatch(c),'gfx-choice');b.disabled=!!busy;if(c.label!==c.command){b.classList.add('gfx-road-choice');b.setAttribute('title',c.label);b.setAttribute('aria-label',c.key+' '+c.label);}b.appendChild(this.node('span','gfx-choice-key',c.key.toUpperCase()));b.appendChild(this.node('span','gfx-choice-label',c.label));b.appendChild(this.node('span','gfx-choice-arrow','›'));e.choices.appendChild(b);globalThis.Route127ShopComparison?.bind(b,c);}
+  this.renderChoices(m.choices,e.choices);
  }finally{this.rendering=false;}},
+ renderChoices(choices,container){
+  const context=v53WandererContext();
+  const bindings=numberedChoices;
+  const disabled=!!busy||!!context&&commandProcessing;
+  const previous=this.wandererButtons;
+  if(context&&previous?.context===context&&previous.bindings===bindings&&
+     previous.disabled===disabled&&previous.choices.length===choices.length&&
+     choices.every((choice,i)=>['key','command','label'].every(k=>choice[k]===previous.choices[i][k])))return;
+  this.wandererButtons=context?{context,bindings,disabled,choices}:null;
+  container.replaceChildren();
+  container.style.setProperty('--gfx-choice-rows',String(Math.max(1,Math.ceil(choices.length/2))));
+  for(const choice of choices){
+   const button=this.button('',()=>{
+    const activeContext=v53WandererContext();
+    if((context||activeContext)&&(!container.contains(button)||context!==activeContext||bindings!==numberedChoices))return;
+    return this.dispatch(choice);
+   },'gfx-choice');
+   button.disabled=disabled;
+   if(choice.command.startsWith('inspect survivor '))button.classList.add('r127-player-choice');
+   if(choice.label!==choice.command){
+    if(!choice.command.startsWith('inspect survivor '))button.classList.add('gfx-road-choice');
+    button.setAttribute('title',choice.label);
+    button.setAttribute('aria-label',choice.key+' '+choice.label);
+   }
+   button.appendChild(this.node('span','gfx-choice-key',choice.key.toUpperCase()));
+   button.appendChild(this.node('span','gfx-choice-label',choice.label));
+   button.appendChild(this.node('span','gfx-choice-arrow','›'));
+   container.appendChild(button);
+   globalThis.Route127ShopComparison?.bind(button,choice);
+  }
+ },
  schedule(){if(this.scheduled)return;this.scheduled=true;outputQueue=outputQueue.then(()=>{this.scheduled=false;this.sync();});}
 };
 const sceneArtwork=createSceneArtworkLoader(GraphicalUI);
@@ -247,7 +287,7 @@ const Route127MapOverlay={
   const close=document.createElement('button');close.type='button';close.textContent='X';close.setAttribute('aria-label','Close map');close.addEventListener('click',()=>this.close());header.appendChild(close);dialog.appendChild(header);
   const body=document.createElement('div');body.className='route127-map-body';dialog.appendChild(body);
   const position=document.createElement('p');position.textContent=g.currentEdgeId?lanternProgressText():'YOU ARE HERE — '+LG_NODES[g.nodeId].name;body.appendChild(position);
-  const v=LANTERN_MAP_VISUAL,W=v.width,H=v.height,figure=document.createElement('figure');figure.className='lantern-map';figure.setAttribute('aria-label','Approved Lantern Highway map with current position');const p=lanternMarker();const paths=LANTERN_WORLD_GRAPH.edges.filter(e=>e.id===g.currentEdgeId).map(e=>`<polyline data-active-road="${e.id}" points="${v.edges[e.id].map(q=>q.join(',')).join(' ')}" fill="none" stroke="${lanternAllowed(e)?'#37bdae':'#ef7777'}" stroke-width="2" ${v.approximateEdges[e.id]?'stroke-dasharray="5 6"':''} opacity=".65"><title>${LG_NODES[e.a].name} to ${LG_NODES[e.b].name}: ${e.distanceTurns} turns</title></polyline>`).join('');const dots=LANTERN_WORLD_GRAPH.nodes.map((n,index)=>{const q=v.nodes[n.id],number=index+1;return `<g class="canonical-map-node" data-map-node="${n.id}" data-node-number="${number}" role="img" aria-label="Node ${number}: ${n.name}"><circle cx="${q[0]}" cy="${q[1]}" r="16" fill="#10181f" stroke="#10181f" stroke-width="3"/><circle cx="${q[0]}" cy="${q[1]}" r="13" fill="#10181f" stroke="${g.discoveredNodes.includes(n.id)?'#ffd487':'#aebdc7'}" stroke-width="2"/><text x="${q[0]}" y="${q[1]+4}" text-anchor="middle" fill="#f6e8c7" font-size="12" font-family="monospace" font-weight="bold">${number}</text><title>Node ${number}: ${n.name}${n.futureInterior?' — exterior only':''}</title></g>`;}).join('');figure.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="You are here: ${g.currentEdgeId?lanternProgressText():LG_NODES[g.nodeId].name}"><image href="${v.image||LANTERN_WORLD_GRAPH.image}" width="${W}" height="${H}"/>${paths}${dots}${r18StationMapMarker()}${lanternVisualSiteMarker(player.flags.r18Ash,'ASH CEMETERY')}<circle id="lantern-player-marker" cx="${p[0]*W}" cy="${p[1]*H}" r="20" fill="none" stroke="#ffbd4a" stroke-width="3"/><text x="${p[0]*W+15}" y="${p[1]*H-16}" fill="#ffcf70" stroke="#10151c" stroke-width="5" paint-order="stroke" font-size="20" font-weight="bold">YOU ARE HERE</text></svg>`;body.appendChild(figure);
+  const v=LANTERN_MAP_VISUAL,W=v.width,H=v.height,figure=document.createElement('figure');figure.className='lantern-map';figure.setAttribute('aria-label','Approved Lantern Highway map with current position');const p=lanternMarker();const paths=LANTERN_WORLD_GRAPH.edges.filter(e=>e.id===g.currentEdgeId).map(e=>`<polyline data-active-road="${e.id}" points="${v.edges[e.id].map(q=>q.join(',')).join(' ')}" fill="none" stroke="${lanternAllowed(e)?'#37bdae':'#ef7777'}" stroke-width="2" ${v.approximateEdges[e.id]?'stroke-dasharray="5 6"':''} opacity=".65"><title>${LG_NODES[e.a].name} to ${LG_NODES[e.b].name}: ${e.distanceTurns} turns</title></polyline>`).join('');const dots=LANTERN_WORLD_GRAPH.nodes.map((n,index)=>{const q=v.nodes[n.id],number=index+1;return `<g class="canonical-map-node" data-map-node="${n.id}" data-node-number="${number}" role="img" aria-label="Node ${number}: ${n.name}"><circle cx="${q[0]}" cy="${q[1]}" r="16" fill="#10181f" stroke="#10181f" stroke-width="3"/><circle cx="${q[0]}" cy="${q[1]}" r="13" fill="#10181f" stroke="${g.discoveredNodes.includes(n.id)?'#ffd487':'#aebdc7'}" stroke-width="2"/><text x="${q[0]}" y="${q[1]+4}" text-anchor="middle" fill="#f6e8c7" font-size="12" font-family="monospace" font-weight="bold">${number}</text><title>Node ${number}: ${n.name}${n.futureInterior?' — exterior only':''}</title></g>`;}).join('');figure.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="You are here: ${g.currentEdgeId?lanternProgressText():LG_NODES[g.nodeId].name}"><image href="${v.image||LANTERN_WORLD_GRAPH.image}" width="${W}" height="${H}"/>${paths}${dots}${r18StationMapMarker()}${lanternVisualSiteMarker(player.flags.r18Ash,'ASH CEMETERY')}${globalThis.Route127OldManFinn?.mapMarker()||''}<circle id="lantern-player-marker" cx="${p[0]*W}" cy="${p[1]*H}" r="20" fill="none" stroke="#ffbd4a" stroke-width="3"/><text x="${p[0]*W+15}" y="${p[1]*H-16}" fill="#ffcf70" stroke="#10151c" stroke-width="5" paint-order="stroke" font-size="20" font-weight="bold">YOU ARE HERE</text></svg>`;body.appendChild(figure);
   const legend=document.createElement('p');legend.textContent='Amber: your position. Teal: current road. Close with X or Escape.';body.appendChild(legend);
   dialog.addEventListener('cancel',event=>{event.preventDefault();this.close();});
   document.body.appendChild(dialog);this.dialog=dialog;dialog.showModal();close.focus();return true;

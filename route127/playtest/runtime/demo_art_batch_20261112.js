@@ -72,7 +72,7 @@
  const oldModel=GraphicalUI.model;
  GraphicalUI.model=function(...args){
   const m=oldModel.apply(this,args),spec=presentation();
-  if(spec&&m.active&&ready(spec)){m.art=spec.file;m.regionalSky=null;}
+  if(spec&&m.active&&ready(spec)){m.art=spec.file;m.regionalSky=null;m.scenarioBackdrop={art:spec.file,mode:spec.layers};}
   return m;
  };
  const css=document.createElement('style');
@@ -92,15 +92,27 @@
  .gfx-art.r127-demo-art[data-demo-layers="regional"]>.gfx-image:not(.r127-layout-unit){
   transform:scale(.95);transform-origin:center center;
  }
+ /* The Road Enforcer is a transparent full-figure cutout, not a full-bleed scene.
+    Scale the actual image within the artwork viewport so the head and feet remain visible. */
+ .gfx-frame .gfx-art.r127-demo-art[data-demo-id="road-enforcer"]>.gfx-image:not(.r127-layout-unit){
+  display:block!important;position:relative!important;
+  width:76%!important;height:88%!important;max-width:76%!important;max-height:88%!important;
+  margin:3% auto 0!important;object-fit:contain!important;object-position:center center!important;
+  transform:none!important;top:auto!important;left:auto!important;right:auto!important;
+ }
+ /* Last Patrol: fit the entire image inside the art viewport instead of
+    letting saved layout transforms crop the checkpoint sergeant. */
+ .gfx-frame .gfx-art.r127-demo-art[data-demo-id="last-patrol"]>.gfx-image:not(.r127-layout-unit){
+  display:block!important;position:relative!important;
+  width:92%!important;height:90%!important;max-width:92%!important;max-height:90%!important;
+  margin:2% auto 0!important;object-fit:contain!important;object-position:center center!important;
+  transform:none!important;top:auto!important;left:auto!important;right:auto!important;
+ }
  .gfx-art.r127-demo-art>.gfx-art-caption{position:relative;z-index:9}
- .gfx-art.r127-demo-art[data-demo-period="dawn"]>.gfx-image,
- .gfx-art.r127-demo-art[data-demo-period="dawn"]>.r127-demo-road{filter:brightness(.92) saturate(.91) sepia(.13)}
- .gfx-art.r127-demo-art[data-demo-period="dusk"]>.gfx-image,
- .gfx-art.r127-demo-art[data-demo-period="dusk"]>.r127-demo-road{filter:brightness(.83) saturate(.88) sepia(.18)}
- .gfx-art.r127-demo-art[data-demo-period="night"]>.gfx-image,
- .gfx-art.r127-demo-art[data-demo-period="night"]>.r127-demo-road{filter:brightness(.62) saturate(.68) sepia(.12) hue-rotate(165deg)}
+ .gfx-art:is(.r127-demo-art[data-demo-period="dawn"],.r127-relay-quest-art[data-relay-period="dawn"])>:is(.gfx-image,.r127-demo-road,.r127-relay-ground){filter:brightness(.92) saturate(.91) sepia(.13) var(--r127-road-art-shadow, )}
+ .gfx-art:is(.r127-demo-art[data-demo-period="dusk"],.r127-relay-quest-art[data-relay-period="dusk"])>:is(.gfx-image,.r127-demo-road,.r127-relay-ground){filter:brightness(.83) saturate(.88) sepia(.18) var(--r127-road-art-shadow, )}
+ .gfx-art:is(.r127-demo-art[data-demo-period="night"],.r127-relay-quest-art[data-relay-period="night"])>:is(.gfx-image,.r127-demo-road,.r127-relay-ground){filter:brightness(.62) saturate(.68) sepia(.12) hue-rotate(165deg) var(--r127-road-art-shadow, )}
  .gfx-art.r127-demo-art[data-demo-id="ridgeline"]>.gfx-image,
- .gfx-art.r127-demo-art[data-demo-id="armory"]>.gfx-image{object-fit:cover}
  .gfx-art.r127-demo-art[data-demo-id="solace-guard"]>.gfx-image{object-fit:cover}
  /* Phone-only: give layered encounter artwork breathing room. Desktop remains unchanged. */
  @media (max-width:760px) {

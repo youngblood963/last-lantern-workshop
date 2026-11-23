@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Copper and iron gear">
+<defs><linearGradient id="m" x2="1" y2="1"><stop stop-color="#bc895f"/><stop offset=".4" stop-color="#423934"/><stop offset=".75" stop-color="#7b6251"/><stop offset="1" stop-color="#c4986e"/></linearGradient></defs>
+<path d="M54 5h20l4 16 13 5 15-8 14 14-9 16 5 12 17 4v20l-17 4-5 13 9 15-14 14-15-8-13 5-4 16H54l-4-16-13-5-15 8-14-14 8-15-5-13-16-4V64l16-4 5-12-8-16 14-14 15 8 13-5z" transform="translate(0 -5) scale(.96)" fill="url(#m)" stroke="#251b16" stroke-width="4"/>
+<circle cx="64" cy="64" r="40" fill="#24282c" stroke="#ae825a" stroke-width="6"/><circle cx="64" cy="64" r="27" fill="none" stroke="#54463d" stroke-width="6"/><circle cx="64" cy="64" r="13" fill="url(#m)" stroke="#2c221b" stroke-width="3"/>
+</svg>

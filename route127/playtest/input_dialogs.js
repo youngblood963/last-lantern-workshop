@@ -62,7 +62,7 @@ const FocusedEntry={
   this.legacy.hidden=GraphicalUI.active();this.legacy.replaceChildren();
   if(!GraphicalUI.active()&&!d){
    let choices=GraphicalUI.choices().map(c=>[c.command,()=>this.dispatch(c.key)]);
-   if(stage==='title')choices=[['New Game',()=>this.dispatch('new game')],['Skip Intro',()=>this.dispatch('skip intro')],...(newestSave()?[['Continue',()=>this.dispatch('continue')],...[1,2,3].filter(n=>getSaveData(n)).map(n=>['Load '+n,()=>this.dispatch('load '+n)])]:[])];
+   if(stage==='title')choices=[['New Game',()=>this.dispatch('new game')],...(globalThis.ROUTE127_ENV?.name==='DEVTEST'?[['Skip Intro',()=>this.dispatch('skip intro')]]:[]),...(newestSave()?[['Continue',()=>this.dispatch('continue')],...[1,2,3].filter(n=>getSaveData(n)).map(n=>['Load '+n,()=>this.dispatch('load '+n)])]:[])];
    if(stage==='listen')choices=[['Listen',()=>this.dispatch('listen')]];
    if(stage==='savecoords')choices=[['Log Coordinates',()=>this.dispatch('log coordinates')]];
    if(stage==='confirmHandle')choices=[['Confirm '+pendingHandle,()=>this.dispatch('yes')],['Change Name',()=>this.dispatch('no')]];

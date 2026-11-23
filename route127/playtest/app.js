@@ -999,8 +999,8 @@ function titleScreen(){
     if(getSaveData("auto")){const d=getSaveData("auto");add(`(A) AUTOSAVE — ${(d.player&&d.player.handle)||"NO HANDLE"} — LV ${(d.player&&d.player.level)||1} — DAY ${d.day||1} — ${saveLocationLabel(d)} — ${new Date(d.savedAt).toLocaleString()}`,"system");}
     add("CONTINUE loads the newest save. LOAD 1 / LOAD 2 / LOAD 3 loads a specific slot.", "system");
   } else {
-    add("NO SAVE FOUND","system");add("(N) NEW GAME   (K) SKIP INTRO","system");add("");
-    add("No save exists in this build yet. SKIP INTRO starts at the old house so you do not have to replay the transmission while testing.", "system");
+    add("NO SAVE FOUND","system");add("(N) NEW GAME","system");add("");
+    add("Start a new game to begin the transmission.", "system");
   }
   input.focus();
 }
@@ -3310,7 +3310,7 @@ async function handleCommandCore(raw) {
   if(cmd==="load autosave"){loadGame("auto");return;}
   if(stage === "title") {
     if(cmd === "continue" || cmd === "load" || cmd === "load game" || cmd === "load game 01") {
-      const latest=newestSave(); if(latest) loadGame(latest.slot); else { add("No save exists yet. Type SKIP INTRO for testing or NEW GAME for the full opening.", "system"); }
+      const latest=newestSave(); if(latest) loadGame(latest.slot); else { add("No save exists yet. Type NEW GAME to begin.", "system"); }
     } else if(cmd === "new game" || cmd === "new") {
       const empty = allSaveData().find(x=>!x.data);
       if(empty){
@@ -3325,8 +3325,7 @@ async function handleCommandCore(raw) {
         add("Choose SAVE 1, SAVE 2, or SAVE 3 to replace, or CANCEL.","system");
       }
     } else if(/^load [123]$/.test(cmd)){ const slot=Number(cmd.slice(-1)); if(getSaveData(slot)) loadGame(slot); else add(`SAVE ${slot} is empty.`,"system"); }
-    else if(cmd === "skip intro" || cmd === "skip" || (QA_BUILD && cmd === "testing")) { skipIntroForTesting(); }
-    else add("Type CONTINUE, LOAD 1/2/3, NEW GAME, or SKIP INTRO.", "system");
+    else add("Type CONTINUE, LOAD 1/2/3, or NEW GAME.", "system");
     return;
   }
   if(stage === "confirmNewSlot") {

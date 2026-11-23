@@ -147,7 +147,10 @@
     its upper portion rather than hiding the sky asset behind opaque pixels. */
  .r127-regional-layered[data-sky-region="CAUSEWAY"] .r127-regional-sky{z-index:2;opacity:.78;mask-image:linear-gradient(to bottom,#000 0%,#000 17%,transparent 48%);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 17%,transparent 48%)}
  .r127-regional-layered[data-sky-region="CAUSEWAY"][data-sky-period="dusk"] .r127-regional-sky{filter:sepia(.42) hue-rotate(-18deg) saturate(1.4);opacity:.58}
- .gfx-frame .gfx-art.r127-regional-layered>.gfx-image,.r127-sky-preview-art.r127-regional-layered>img{position:relative;z-index:1;background:transparent;object-fit:cover;object-position:center}
+ .gfx-frame .gfx-art.r127-regional-layered>.gfx-image,.r127-sky-preview-art.r127-regional-layered>img{position:relative;z-index:1;background:transparent;object-position:center}
+ /* Regional terrain fills the viewport. Dedicated compositions set their own foreground fit. */
+ .gfx-frame .gfx-art.r127-regional-layered:where(:not(.r127-demo-art,.r127-finish-art,.r127-approved-road))>.gfx-image,
+ .r127-sky-preview-art.r127-regional-layered>img{object-fit:cover}
  .r127-regional-layered[data-sky-period="dawn"]>img{filter:brightness(.94) saturate(.92) sepia(.16)}
  .r127-regional-layered[data-sky-period="day"]>img{filter:brightness(1.04) saturate(1.02)}
  .r127-regional-layered[data-sky-period="night"]>img{filter:brightness(.65) saturate(.65) sepia(.12) hue-rotate(165deg)}

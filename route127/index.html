@@ -42,16 +42,15 @@ body{background:#090a09;color:#ebe1ce}
 @media(max-width:650px){.r127-grid{grid-template-columns:1fr}.r127-hero{padding:66px 20px}.r127-hero:before{background:linear-gradient(90deg,rgba(8,10,9,.92),rgba(8,10,9,.68)),url('../route-127-showcase.png') center/cover no-repeat}.r127-section{padding:50px 20px}}
 .r127-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:26px}
 .r127-actions .r127-back{margin-top:0}
-.r127-play{display:inline-flex;align-items:center;justify-content:center;gap:.6rem;box-sizing:border-box;min-height:54px;max-width:100%;padding:12px 26px;color:#ffe2ab;text-decoration:none;text-align:center;font:900 clamp(1rem,3.6vw,1.25rem)/1.2 system-ui,sans-serif;letter-spacing:.08em;text-shadow:0 2px 2px #000;border:2px solid #8b5430;
- background:
- radial-gradient(circle at 9px 9px,#d39c63 0 1px,#60432b 2px 3px,#130e0a 4px,transparent 5px),
- radial-gradient(circle at calc(100% - 9px) 9px,#d39c63 0 1px,#60432b 2px 3px,#130e0a 4px,transparent 5px),
- radial-gradient(circle at 9px calc(100% - 9px),#d39c63 0 1px,#60432b 2px 3px,#130e0a 4px,transparent 5px),
- radial-gradient(circle at calc(100% - 9px) calc(100% - 9px),#d39c63 0 1px,#60432b 2px 3px,#130e0a 4px,transparent 5px),
- repeating-linear-gradient(118deg,#aa693313 0 1px,transparent 1px 6px),
- linear-gradient(145deg,#3d291e,#1a1714 45%,#211913 76%,#473122);
- box-shadow:inset 0 0 0 2px #201811,inset 0 0 12px #a45d30a0,0 4px 12px #0009}
-.r127-play:hover,.r127-play:focus-visible{color:#fff2d9;border-color:#e29a52;box-shadow:inset 0 0 0 2px #352319,inset 0 0 14px #b97036b0,0 0 14px #e0873b60}
+/* Route 127 navigation treatment from playtest/traveler_panels.css. */
+@font-face{font-family:'Route 127 Stencil';src:url('playtest/assets/fonts/SairaStencilOne-Regular.woff') format('woff');font-weight:400;font-style:normal;font-display:swap}
+.r127-play{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:66px;max-width:100%;padding:4px 14px;text-align:center;text-decoration:none;
+ border:12px solid transparent;border-image:url('playtest/assets/ui/iron-button-plate.webp') 150 fill stretch;background:none;border-radius:0;box-shadow:0 3px 5px #0009;
+ font:400 clamp(16px,4vw,24px)/1.2 'Route 127 Stencil',Impact,'Arial Narrow',sans-serif;font-synthesis:none;letter-spacing:.7px;color:#deceb0;text-shadow:0 1px 0 #fff2,1px 2px 1px #000,0 -1px 1px #2b1e12}
+.r127-play .iron-title-text{mask:url('playtest/assets/ui/stencil-wear.svg') 0 0/120px 32px repeat}
+.r127-play::after{content:'';position:absolute;inset:-3px;border:1px solid #da973c;border-radius:2px;box-shadow:0 0 5px #d18a2655;opacity:0;pointer-events:none}
+.r127-play:hover,.r127-play:focus-visible{color:#ffe4b2;filter:brightness(1.16)}
+.r127-play:hover::after,.r127-play:focus-visible::after{opacity:1}
 .r127-play:focus-visible{outline:2px solid #ffd395;outline-offset:4px}
 @media(max-width:450px){.r127-actions{align-items:stretch;flex-direction:column}.r127-actions .r127-back{text-align:center}}
 </style>
@@ -59,7 +58,7 @@ body{background:#090a09;color:#ebe1ce}
 <body>
 <header><div class="nav-wrap"><a class="brand" href="../" aria-label="Last Lantern Workshop home"><img src="../last-lantern-logo.png" alt=""><span>Last Lantern Workshop™</span></a><nav><a href="../#projects">Projects</a><a href="../support.html">Support</a><a href="../privacy.html">Privacy</a></nav></div></header>
 <main>
-<section class="r127-hero"><div class="r127-container"><div class="r127-overline">Incoming transmission // game project</div><h1>ROUTE 127</h1><p class="r127-tagline">THE ROAD REMEMBERS.<br>THE WASTELAND DOESN'T FORGIVE.</p><span class="r127-label">Public Playtest — Now Live</span><p class="r127-intro">Civilization is gone. The roads are dangerous. Every stranger has a story, and every decision has a cost. Route 127 brings the spirit of classic BBS door games into a persistent, post-apocalyptic world built around exploration, survival, and the choices you make.</p><div class="r127-actions"><a class="r127-play" href="/route127/playtest/"><span aria-hidden="true">▶</span> PLAY ROUTE 127</a><a class="r127-back" href="#features">Explore the wasteland ↓</a></div></div></section>
+<section class="r127-hero"><div class="r127-container"><div class="r127-overline">Incoming transmission // game project</div><h1>ROUTE 127</h1><p class="r127-tagline">THE ROAD REMEMBERS.<br>THE WASTELAND DOESN'T FORGIVE.</p><span class="r127-label">Public Playtest — Now Live</span><p class="r127-intro">Civilization is gone. The roads are dangerous. Every stranger has a story, and every decision has a cost. Route 127 brings the spirit of classic BBS door games into a persistent, post-apocalyptic world built around exploration, survival, and the choices you make.</p><div class="r127-actions"><a class="r127-play" href="/route127/playtest/"><span aria-hidden="true">▶</span><span class="iron-title-text">PLAY ROUTE 127</span></a><a class="r127-back" href="#features">Explore the wasteland ↓</a></div></div></section>
 <section class="r127-section" id="features"><div class="r127-container"><div class="r127-overline">Field manual // what makes Route 127 different</div><h2>Survive your way.</h2><p class="r127-section-lead">More than a retro terminal. Build, bargain, gamble, fight, or earn a reputation nobody can ignore. These are the gameplay systems shaping the journey.</p>
 <div class="r127-grid">
 <article class="r127-feature"><small>01 // Workbenches</small><h3>Real-Time Crafting</h3><p>Scavenge materials and craft equipment at wasteland workbenches. Crafting runs on real-time timers, and success isn't guaranteed.</p></article>

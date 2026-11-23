@@ -1,0 +1,6 @@
+/* Scene overlay only: no artwork sizing, filters, backgrounds or sidebar rules. */
+.r127-dawn-clock{position:absolute;z-index:40;left:50%;top:50%;transform:translate(-50%,-50%);box-sizing:border-box;width:max-content;max-width:94%;padding:clamp(16px,2.5vw,32px);border:2px solid #c46b2e;border-radius:4px;background:#101318f5;box-shadow:0 8px 30px #000b,inset 0 0 0 2px #35251d;color:#fff;text-align:center;pointer-events:none}
+.r127-dawn-clock h2{margin:0 0 10px;color:#f4a351;font:700 clamp(13px,1.7vw,22px)/1.3 ui-monospace,monospace;letter-spacing:.12em}
+.r127-dawn-time{display:block;white-space:nowrap;font:800 clamp(38px,7vw,100px)/1.1 ui-monospace,monospace;font-variant-numeric:tabular-nums;letter-spacing:.03em;color:#fff;text-shadow:0 2px 0 #000}
+.r127-dawn-clock p{margin:12px 0 0;font:700 clamp(11px,1.3vw,17px)/1.3 ui-monospace,monospace;letter-spacing:.06em;color:#ffd4ab}
+@media(max-width:640px){.gfx-frame.r127-waiting-for-dawn .gfx-choices{grid-template-columns:repeat(2,minmax(0,1fr));max-height:none;flex-shrink:0}}

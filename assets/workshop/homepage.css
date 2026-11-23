@@ -108,3 +108,6 @@ body.midnight-workshop .privacy-copy h2{font-weight:700}
 body.midnight-workshop .privacy-copy a{color:#e9c18f}
 body.midnight-workshop .privacy-copy a:hover{color:#f3d4ad}
 body.midnight-workshop .privacy-intro{border-color:#73573d}
+
+body.midnight-workshop .privacy-copy section p{margin:0 0 16px}
+body.midnight-workshop .privacy-copy section p:last-child{margin-bottom:0}

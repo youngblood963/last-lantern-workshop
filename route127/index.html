@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Route 127 | Post-Apocalyptic Browser RPG & Classic BBS Adventure</title>
-<meta name="description" content="Discover Route 127, a post-apocalyptic browser RPG inspired by classic BBS games. Explore a wasteland with real-time crafting, crime and bounties, persistent wanderers, and an evolving interface. In development.">
+<meta name="description" content="Discover Route 127, a post-apocalyptic browser RPG inspired by classic BBS games. Explore a wasteland with real-time crafting, crime and bounties, persistent wanderers, and an evolving interface. Public playtest now live.">
 <link rel="icon" href="../Favicon.png" type="image/png">
 <link rel="canonical" href="https://lastlanternworkshop.com/route127/">
 <meta name="robots" content="index,follow">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Last Lantern Workshop™">
 <meta property="og:title" content="Route 127 — The Road Remembers">
-<meta property="og:description" content="A post-apocalyptic browser RPG with old-school BBS roots, real-time crafting, bounty systems, and an interface that evolves with you. In development.">
+<meta property="og:description" content="A post-apocalyptic browser RPG with old-school BBS roots, real-time crafting, bounty systems, and an interface that evolves with you. Public playtest now live.">
 <meta property="og:image" content="https://lastlanternworkshop.com/route-127-showcase.png">
 <meta property="og:url" content="https://lastlanternworkshop.com/route127/">
 <link rel="stylesheet" href="../styles.css">
@@ -40,12 +40,26 @@ body{background:#090a09;color:#ebe1ce}
 .r127-back{display:inline-block;margin-top:30px;text-decoration:none;color:#efc48c;border:1px solid #9d6b3c;padding:13px 20px;background:#211a13}
 .r127-back:hover,.r127-back:focus-visible{background:#382517}
 @media(max-width:650px){.r127-grid{grid-template-columns:1fr}.r127-hero{padding:66px 20px}.r127-hero:before{background:linear-gradient(90deg,rgba(8,10,9,.92),rgba(8,10,9,.68)),url('../route-127-showcase.png') center/cover no-repeat}.r127-section{padding:50px 20px}}
+.r127-actions{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:26px}
+.r127-actions .r127-back{margin-top:0}
+.r127-play{display:inline-flex;align-items:center;justify-content:center;gap:.6rem;box-sizing:border-box;min-height:54px;max-width:100%;padding:12px 26px;color:#ffe2ab;text-decoration:none;text-align:center;font:900 clamp(1rem,3.6vw,1.25rem)/1.2 system-ui,sans-serif;letter-spacing:.08em;text-shadow:0 2px 2px #000;border:2px solid #8b5430;
+ background:
+ radial-gradient(circle at 9px 9px,#d39c63 0 1px,#60432b 2px 3px,#130e0a 4px,transparent 5px),
+ radial-gradient(circle at calc(100% - 9px) 9px,#d39c63 0 1px,#60432b 2px 3px,#130e0a 4px,transparent 5px),
+ radial-gradient(circle at 9px calc(100% - 9px),#d39c63 0 1px,#60432b 2px 3px,#130e0a 4px,transparent 5px),
+ radial-gradient(circle at calc(100% - 9px) calc(100% - 9px),#d39c63 0 1px,#60432b 2px 3px,#130e0a 4px,transparent 5px),
+ repeating-linear-gradient(118deg,#aa693313 0 1px,transparent 1px 6px),
+ linear-gradient(145deg,#3d291e,#1a1714 45%,#211913 76%,#473122);
+ box-shadow:inset 0 0 0 2px #201811,inset 0 0 12px #a45d30a0,0 4px 12px #0009}
+.r127-play:hover,.r127-play:focus-visible{color:#fff2d9;border-color:#e29a52;box-shadow:inset 0 0 0 2px #352319,inset 0 0 14px #b97036b0,0 0 14px #e0873b60}
+.r127-play:focus-visible{outline:2px solid #ffd395;outline-offset:4px}
+@media(max-width:450px){.r127-actions{align-items:stretch;flex-direction:column}.r127-actions .r127-back{text-align:center}}
 </style>
 </head>
 <body>
 <header><div class="nav-wrap"><a class="brand" href="../" aria-label="Last Lantern Workshop home"><img src="../last-lantern-logo.png" alt=""><span>Last Lantern Workshop™</span></a><nav><a href="../#projects">Projects</a><a href="../support.html">Support</a><a href="../privacy.html">Privacy</a></nav></div></header>
 <main>
-<section class="r127-hero"><div class="r127-container"><div class="r127-overline">Incoming transmission // game project</div><h1>ROUTE 127</h1><p class="r127-tagline">THE ROAD REMEMBERS.<br>THE WASTELAND DOESN'T FORGIVE.</p><span class="r127-label">In development · Browser RPG</span><p class="r127-intro">Civilization is gone. The roads are dangerous. Every stranger has a story, and every decision has a cost. Route 1<a href="playtest/" aria-label="Play Route 127 playtest" title="Play Route 127" style="color:inherit;text-decoration:none">2</a>7 brings the spirit of classic BBS door games into a persistent, post-apocalyptic world built around exploration, survival, and the choices you make.</p><a class="r127-back" href="#features">Explore the wasteland ↓</a></div></section>
+<section class="r127-hero"><div class="r127-container"><div class="r127-overline">Incoming transmission // game project</div><h1>ROUTE 127</h1><p class="r127-tagline">THE ROAD REMEMBERS.<br>THE WASTELAND DOESN'T FORGIVE.</p><span class="r127-label">Public Playtest — Now Live</span><p class="r127-intro">Civilization is gone. The roads are dangerous. Every stranger has a story, and every decision has a cost. Route 127 brings the spirit of classic BBS door games into a persistent, post-apocalyptic world built around exploration, survival, and the choices you make.</p><div class="r127-actions"><a class="r127-play" href="/route127/playtest/"><span aria-hidden="true">▶</span> PLAY ROUTE 127</a><a class="r127-back" href="#features">Explore the wasteland ↓</a></div></div></section>
 <section class="r127-section" id="features"><div class="r127-container"><div class="r127-overline">Field manual // what makes Route 127 different</div><h2>Survive your way.</h2><p class="r127-section-lead">More than a retro terminal. Build, bargain, gamble, fight, or earn a reputation nobody can ignore. These are the gameplay systems shaping the journey.</p>
 <div class="r127-grid">
 <article class="r127-feature"><small>01 // Workbenches</small><h3>Real-Time Crafting</h3><p>Scavenge materials and craft equipment at wasteland workbenches. Crafting runs on real-time timers, and success isn't guaranteed.</p></article>
@@ -57,7 +71,7 @@ body{background:#090a09;color:#ebe1ce}
 <article class="r127-feature"><small>07 // Every Step Counts</small><h3>Turn-Based Exploration</h3><p>Make your daily turns count as you travel between settlements, scavenge, and face unpredictable encounters along the highway.</p></article>
 <article class="r127-feature"><small>08 // Coming Later</small><h3>Liberate &amp; Rebuild Seaport</h3><p>Free a captive settlement and recruit survivors for its shops and services. Seaport recruitment is in development and not yet a released feature.</p></article>
 </div></div></section>
-<section class="r127-section"><div class="r127-container"><div class="r127-overline">Status // transmission pending</div><h2>The journey is being built.</h2><div class="r127-signal"><strong>&gt; SYSTEM STATUS:</strong> IN DEVELOPMENT<br>&gt; PUBLIC DEMO: NOT YET RELEASED<br>&gt; DESTINATION: UNKNOWN<br>&gt; KEEP YOUR RADIO ON<span aria-hidden="true">_</span></div><p class="r127-note">Route 1<a href="devtest/?cloud=1" aria-label="Open Route 127 DEVTEST cloud mode" style="color:inherit;text-decoration:none">2</a>7 is an active work in progress. Features and presentation may change during development. This page is a preview, not a link to our private playtest or QA areas.</p><a class="r127-back" href="../#projects">← Back to the Workshop</a></div></section>
+<section class="r127-section"><div class="r127-container"><div class="r127-overline">Status // transmission received</div><h2>The wasteland is open.</h2><div class="r127-signal"><strong>&gt; SYSTEM STATUS:</strong> PUBLIC PLAYTEST — NOW LIVE<br>&gt; DEVELOPMENT: ONGOING<br>&gt; KEEP YOUR RADIO ON<span aria-hidden="true">_</span></div><p class="r127-note">Route 1<a href="devtest/?cloud=1" aria-label="Open Route 127 DEVTEST cloud mode" style="color:inherit;text-decoration:none">2</a>7 is an active work in progress. Features and presentation may change during development. Enter the wasteland through the public playtest and see how far the road takes you.</p><a class="r127-back" href="../#projects">← Back to the Workshop</a></div></section>
 </main>
 <footer>© 2026 Last Lantern Workshop™</footer>
 </body></html>

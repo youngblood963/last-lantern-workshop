@@ -74,11 +74,13 @@ async function handle(req,env){
  const localWorld=env.DEVTEST_WORLD_LOCAL==='true'&&
   ['https://localhost:8787','https://127.0.0.1:8787'].includes(url.origin);
  const devtestCommunity=path.startsWith('/route127/devtest/api/community/');
- if(devtestWorld||devtestPresence||devtestCommunity){
-  const referer=req.headers.get('Referer');
-  if(!referer||![url.origin+'/route127/devtest/',url.origin+'/route127/devtest/index.html']
-   .includes(referer.split('?')[0]))return response({error:'DEVTEST required'},403);
- }
+ const referer=(req.headers.get('Referer')||'').split('?')[0];
+ const devtestPages=[url.origin+'/route127/devtest/',url.origin+'/route127/devtest/index.html'];
+ const playtestPages=[url.origin+'/route127/playtest/',url.origin+'/route127/playtest/index.html'];
+ const playtestCommunity=devtestCommunity&&playtestPages.includes(referer);
+ if((devtestWorld||devtestPresence||devtestCommunity)&&
+    !devtestPages.includes(referer)&&!playtestCommunity)
+  return response({error:'DEVTEST required'},403);
  if(path.startsWith('/route127/devtest/api/')){
   if(!localWorld&&(env.WO61_DIRECT_DEVTEST!=='true'||url.origin!=='https://lastlanternworkshop.com'))
    return response({error:'Not found'},404);
@@ -115,6 +117,8 @@ async function handle(req,env){
   return response({ok:true,accountId:account,character:await character(env,account)},200,{'Set-Cookie':cookie(token)});
  }
  const auth=await session(env,req);
+ if(playtestCommunity&&!(env.COMMUNITY_ADMIN_ACCOUNTS||'').split(',').map(id=>id.trim()).includes(auth.account_id))
+  fail(403,'Community access is limited to studio administrators.');
  if(path==='/api/logout'&&req.method==='POST'){
   await env.DB.prepare('DELETE FROM r127_sessions WHERE token_hash=?').bind(auth.tokenHash).run();return response({ok:true},200,{'Set-Cookie':cookie('',0)});
  }

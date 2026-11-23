@@ -8,8 +8,8 @@ const entry=origin+'/route127/devtest/';
 const setup=()=>{
  const env={ENVIRONMENT:'development',DEV_BACKUP_ENABLED:'true',DEVTEST_WORLD_LOCAL:'true',
   AUTH_PEPPER:crypto.randomUUID()+crypto.randomUUID(),DB:database()};
- const call=async(path,data,cookie,root=entry+'api/')=>{
-  const headers={Referer:entry,'User-Agent':'DEVTEST iPad fixture'};
+ const call=async(path,data,cookie,root=entry+'api/',referer=entry)=>{
+  const headers={Referer:referer,'User-Agent':'DEVTEST iPad fixture'};
   if(cookie)headers.Cookie=cookie;
   if(data)Object.assign(headers,{Origin:origin,'Content-Type':'application/json'});
   const r=await worker.fetch(new Request(root+path,{method:data?'POST':'GET',headers,body:data?JSON.stringify(data):undefined}),env);
@@ -19,7 +19,7 @@ const setup=()=>{
   const registered=await call('register',{login:name.toLowerCase(),password:'dev-'+crypto.randomUUID()});
   const created=await call('character',{snapshot:{version:38,stage:'mercy',player:{handle:name,level,flags:{}}}},registered.cookie);
   assert.equal(created.status,201);
-  return {id:registered.data.accountId,cookie:registered.cookie,call:(path,data)=>call('community/'+path,data,registered.cookie)};
+  return {id:registered.data.accountId,cookie:registered.cookie,call:(path,data,root=entry+'api/',referer=entry)=>call('community/'+path,data,registered.cookie,root,referer)};
  };
  return {env,call,player};
 };
@@ -57,6 +57,17 @@ test('DEVTEST community shares notices and enforces author and moderator permiss
  assert.equal((await owner.call('board',{id,action:'remove'})).status,200);
  assert.equal((await owner.call('board?kind=announcement')).data.posts[0].identity,'Luna');
  assert.equal((await admin.call('board',{id:official.id,action:'remove'})).status,200);
+});
+
+test('PLAYTEST community entry is restricted to configured studio administrators',async()=>{
+ const {env,player}=setup();
+ const owner=await player('Studio',2),other=await player('Survivor',3);
+ env.COMMUNITY_ADMIN_ACCOUNTS=owner.id;
+ const playtest=origin+'/route127/playtest/',direct=origin+'/route127/devtest/api/';
+ assert.equal((await owner.call('board',undefined,direct,playtest)).status,200);
+ assert.equal((await other.call('board',undefined,direct,playtest)).status,403);
+ assert.equal((await owner.call('board',post({identity:'Luna'}),direct,playtest)).status,201);
+ assert.equal((await other.call('board',post(),direct,entry)).status,201);
 });
 
 test('private feedback validates fields, retries delivery failures and allows one successful send per cooldown',async()=>{

@@ -140,6 +140,8 @@ style.textContent=`
 .gfx-art.r127-quest-discovery{position:relative;isolation:isolate;overflow:hidden;background:#202326!important}
 .gfx-art.r127-quest-discovery>.r127-quest-background{position:absolute;inset:0;z-index:0;background-position:center;background-size:cover;background-repeat:no-repeat;pointer-events:none}
 .gfx-art.r127-quest-discovery>.gfx-image{position:relative;z-index:3;width:100%;height:100%;max-width:none;object-fit:contain;object-position:center center;background:transparent!important;filter:drop-shadow(5px 9px 7px #0009)}
+/* Tim's badge is a small roadside find, not a full-screen scene: 25% of original display dimensions. */
+.gfx-art.r127-quest-discovery.r127-tim-badge>.gfx-image{position:absolute!important;width:25%!important;height:25%!important;max-width:25%!important;max-height:25%!important;left:50%;bottom:12%;transform:translateX(-50%);object-fit:contain!important;object-position:center bottom}
 .gfx-art.r127-quest-discovery>.gfx-art-caption{z-index:8}
 .gfx-art.r127-quest-discovery>.r127-regional-sky{display:none!important}
 .gfx-art.r127-quest-discovery[data-quest-period="dawn"]>.gfx-image{filter:brightness(.89) sepia(.13) drop-shadow(5px 9px 7px #0009)}
@@ -154,6 +156,7 @@ GraphicalUI.sync=function(...args){
   const e=this.element;if(!e?.figure)return result;
   const info=!e.frame.hidden&&graphics()?active():null;
   e.figure.classList.toggle('r127-quest-discovery',!!info);
+  e.figure.classList.toggle('r127-tim-badge',info?.key==='tim');
   let background=e.figure.querySelector(':scope > .r127-quest-background');
   if(!info){background?.remove();delete e.figure.dataset.questPeriod;return result;}
   if(!background){background=document.createElement('div');background.className='r127-quest-background';background.setAttribute('aria-hidden','true');e.figure.insertBefore(background,e.img);}

@@ -6,6 +6,8 @@ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||!/^\/route127\/playtest\/(?:index
 const root=new URL('../devtest/',document.baseURI);
 const asset=name=>new URL('assets/enemies/'+name,root).href;
 const groups={
+ 'TANKER SCAVENGERS':{files:['tanker_scavenger_1.png','tanker_scavenger_2.png'],count:2},
+ 'SETTLEMENT WATER GUARDS':{files:['settlement_water_guard_1.png','settlement_water_guard_2.png'],count:2},
  // Interim Highway Robbers sprites reuse approved looter art until unique robber art is supplied.
  'HIGHWAY ROBBERS':{files:['Tire Iron Robber.png','Spear Robber.png'],count:2},
  'LOOTERS':{files:['looters_1.png','looters_2.png','looters_3.png'],count:3},

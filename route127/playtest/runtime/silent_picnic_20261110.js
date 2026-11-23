@@ -8,11 +8,11 @@
  const css=document.createElement('style');
  css.textContent=`
  .gfx-art .r127-silent-picnic{position:absolute;inset:0;z-index:5;pointer-events:none;display:flex;justify-content:center;align-items:flex-end;overflow:hidden}
- .gfx-art .r127-silent-picnic img{display:block;height:96%;max-width:92%;width:auto;object-fit:contain;object-position:center bottom;filter:drop-shadow(3px 9px 5px #000a)}
+ .gfx-art .r127-silent-picnic img{display:block;height:80%;max-width:80%;width:auto;object-fit:contain;object-position:center bottom;filter:drop-shadow(3px 9px 5px #000a)}
  .gfx-art .r127-silent-picnic[hidden]{display:none!important}
  .gfx-art[data-sky-period="night"] .r127-silent-picnic img{filter:brightness(.64) saturate(.65) drop-shadow(3px 9px 5px #000b)}
  .gfx-art[data-sky-period="dusk"] .r127-silent-picnic img{filter:brightness(.82) sepia(.15) drop-shadow(3px 9px 5px #000a)}
- @media(max-width:650px){.gfx-art .r127-silent-picnic img{height:93%;max-width:95%}}
+ @media(max-width:650px){.gfx-art .r127-silent-picnic img{height:80%;max-width:82%}}
  `;
  document.head.append(css);
  const oldSync=GraphicalUI.sync;

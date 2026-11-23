@@ -51,6 +51,13 @@ body.full-graphics .gfx-frame[data-layout="seaport-crab-racing"] .gfx-choice{
  100%{transform:translate(-50%,-50%) rotate(-2deg) scaleY(.99)}
 }
 .r127-crab-track.is-running .r127-crab-racer.is-paused{animation-play-state:paused}
+.r127-crab-result{position:absolute;z-index:8;top:5%;left:50%;transform:translateX(-50%);
+ width:max-content;max-width:94%;box-sizing:border-box;padding:9px 16px;
+ border:2px solid #e8c46f;border-radius:8px;background:rgba(15,12,9,.94);
+ color:#ffdf8d;text-align:center;font-size:clamp(12px,2vw,18px);font-weight:800;
+ line-height:1.45;box-shadow:0 4px 18px #000c;pointer-events:none}
+.r127-crab-result span{display:block;font-size:clamp(11px,1.6vw,15px);color:#f2ead5}
+.r127-crab-result.is-loss{border-color:#999;color:#eee}
 .r127-crab-racer.is-winner{animation:r127-crab-victory .33s ease-in-out 4 alternate}
 @keyframes r127-crab-victory{
  from{transform:translate(-50%,-50%) rotate(-4deg)}
@@ -95,7 +102,24 @@ function create(figure){
  for(let i=0;i<5;i++)place(i,0);
  return surface;
 }
-function settled(winner,others){
+function showResult(r){
+ if(!track||r?.status!=='settled')return;
+ track.querySelector('.r127-crab-result')?.remove();
+ const won=r.pick===r.winner&&r.payout>0;
+ const result=document.createElement('div');
+ result.className='r127-crab-result'+(won?'':' is-loss');
+ result.setAttribute('role','status');
+ const headline=document.createElement('strong');
+ headline.textContent=(R6_CRABS[r.winner]||colors[r.winner])+' WINS!';
+ const detail=document.createElement('span');
+ const stake=Number(r.bet)||0,payout=Number(r.payout)||0;
+ detail.textContent=won
+  ?'YOU WON '+payout.toLocaleString()+' BOLTS!  NET PROFIT: +'+(payout-stake).toLocaleString()
+  :'YOUR BET LOST — -'+stake.toLocaleString()+' BOLTS';
+ result.append(headline,detail);
+ track.append(result);
+}
+function settled(winner,others,r){
  stop();if(!track)return;
  for(let i=0;i<5;i++){
   const el=track.querySelector('[data-crab-lane="'+i+'"]');
@@ -104,15 +128,17 @@ function settled(winner,others){
   el?.classList.remove('is-paused');
  }
  track.setAttribute('aria-label',(R6_CRABS[winner]||colors[winner])+' wins the five-crab race');
+ showResult(r);
 }
 function race(r){
  stop();if(!track)return;
+ track.querySelector('.r127-crab-result')?.remove();
  const winner=r.winner;
  const reduces=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
  const others=[.69,.75,.72,.77,.73];
  const seed=String(r.id||'').split('').reduce((a,c)=>(a*33+c.charCodeAt(0))>>>0,5381);
  for(let i=0;i<5;i++)others[i]=.65+((seed+i*193)%19)/100;
- if(reduces){settled(winner,others);return}
+ if(reduces){settled(winner,others,r);return}
  const token=++epoch,start=performance.now(),duration=8500;
  track.classList.add('is-running');
  track.querySelectorAll('.r127-crab-racer').forEach(el=>el.classList.remove('is-winner'));
@@ -135,7 +161,7 @@ function race(r){
    track.querySelector('[data-crab-lane="'+i+'"]')?.classList.toggle('is-paused',paused);
   }
   if(t<1){frame=requestAnimationFrame(tick);return}
-  frame=0;settled(winner,others);
+  frame=0;settled(winner,others,r);
  }
  frame=requestAnimationFrame(tick);
 }
@@ -161,7 +187,7 @@ GraphicalUI.sync=function(...args){
  if(key===lastKey)return result;
  lastKey=key;
  if(r.status==='settled'&&Number.isInteger(r.winner)&&r.winner>=0&&r.winner<5)race(r);
- else{stop();for(let i=0;i<5;i++)place(i,0);
+ else{stop();track.querySelector('.r127-crab-result')?.remove();for(let i=0;i<5;i++)place(i,0);
   track.setAttribute('aria-label','Five crabs await the starting signal');}
  return result;
 };

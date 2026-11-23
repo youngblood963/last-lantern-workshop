@@ -1,0 +1,106 @@
+.cloud-login {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 1rem;
+  border: 0;
+  color: #f1ddbc;
+  background: linear-gradient(#090a095e, #090a09db),
+    #090a09 url('../../../route-127-showcase.png') center / cover no-repeat;
+  overflow: auto;
+}
+
+.cloud-login[open] { display: grid; place-items: center; }
+
+.cloud-login-frame {
+  width: min(100%, 27rem);
+  padding: clamp(.75rem, 3vw, 1.5rem);
+  border: 16px solid transparent;
+  border-image: url('../assets/ui/rust-frame.svg') 24 stretch;
+  background: #090b09 url('../assets/ui/scratched-metal.svg') center / 640px 128px;
+  box-shadow: 0 3px 24px #000;
+}
+
+.cloud-login-brand {
+  position: relative;
+  aspect-ratio: 4 / 1;
+  margin: 0 0 1rem;
+  background: url('../assets/ui/approved-interface.png') left top / 124.405% 896.191% no-repeat;
+}
+
+.cloud-login-brand span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.cloud-login form label { display: grid; gap: .35rem; margin-bottom: .85rem; }
+
+.cloud-login input {
+  width: 100%;
+  min-height: 44px;
+  padding: .5rem;
+  color: inherit;
+  font: inherit;
+  background: #0c0d0b;
+  border: 1px solid #a0805b;
+  border-radius: 3px;
+}
+
+.cloud-login-actions, #cloud-feedback {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+}
+
+.cloud-login-feedback { margin-top: .75rem; }
+.cloud-login-feedback #cloud-status { width: 100%; }
+
+.cloud-login button {
+  padding: .35rem .65rem;
+  color: inherit;
+  font: inherit;
+  background: #211a13;
+  border: 1px solid #a0805b;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.cloud-login button { min-height: 44px; }
+.cloud-login button:disabled { opacity: .65; cursor: wait; }
+.cloud-login :focus-visible { outline: 2px solid #ffc778; outline-offset: 2px; }
+
+.cloud-notice {
+  pointer-events: none;
+  position: fixed;
+  z-index: 30;
+  right: max(.5rem, env(safe-area-inset-right));
+  bottom: max(.5rem, env(safe-area-inset-bottom));
+  width: max-content;
+  max-width: calc(100vw - 1rem);
+  padding: .25rem .4rem;
+  color: #f1ddbc;
+  background: #0c0d0bf2;
+  border: 1px solid #806549;
+  border-radius: 3px;
+  font-size: .75rem;
+}
+
+.cloud-notice:empty { display: none; }
+
+.cloud-account {
+  padding-top: .65rem;
+  border-top: 1px solid #624a34;
+}
+
+.cloud-account h2 { margin: 0 0 .45rem; }
+
+/* The cloud adapter saves automatically. The explicit legacy QA path keeps its controls. */
+.r127-cloud-game [data-command="save current"] { display: none; }

@@ -361,7 +361,7 @@ const WO7={
  save(){v49Autosave();},
  has(name,qty=1){return player.pack.filter(i=>i.name===name&&i.qty>0).reduce((n,i)=>n+i.qty,0)>=qty;},
  take(items){if(items.some(([n,q])=>!this.has(n,q))){add('You need '+items.map(([n,q])=>q+' '+n).join(' and ')+'. Nothing was consumed.','system');return false;}for(const [name,qty] of items){let left=qty;for(const i of [...player.pack]){if(i.name!==name)continue;const n=Math.min(left,i.qty);i.qty-=n;left-=n;if(!i.qty)player.pack.splice(player.pack.indexOf(i),1);if(!left)break;}}return true;},
- damage(fraction,message){add(message,'danger');roadHurt(Math.max(2,Math.round((100+10*(this.level()-1))*fraction)));return stage!=='fallen';},
+ damage(severity,message){add(message,'danger');environmentalHurt(severity);return stage!=='fallen';},
  award(q,reward={}){if(q.done)return false;q.done=true;q.combat=false;if(reward.xp)gainXp(reward.xp);if(reward.bolts)gainBolts(reward.bolts);for(const [name,type='material',qty=1]of reward.items||[])for(let i=0;i<qty;i++)r18RetainRoadReward(name,type);return true;},
  finish(q,message,reward={}){if(!this.award(q,reward))return true;add(message,'reward');this.save();completeRoadTurn();return true;},
  observe(q,key,message){q.seen[key]=true;add(message,'system');this.save();this.render(q.id);return true;},
@@ -396,7 +396,7 @@ const WO7={
   if(cmd==='DONATE FOOD'||cmd==='DONATE MEDICINE'||cmd==='DONATE MATERIALS'){const item=cmd==='DONATE FOOD'?'Energy Bars':cmd==='DONATE MEDICINE'?'Bandage':'Cloth';if(!this.take([[item,1]]))return false;return finish('The family accepts your '+item+' and thanks you without promising what they cannot afford.',{xp:xp(.8)});}
   if(!this.take([['Wire',1]]))return false;return finish('You agree a price before reconnecting the loose lead. The parent pays; their thanks are careful.',{xp:xp(.6),bolts:bolts(2)});
  case 'W2':
-  if(cmd==='FREE THE ANIMAL'){if(Math.random()<.35&&!this.damage(.035,'The animal kicks as the trap opens.'))return true;return finish('The deer limps into cover. The abandoned chain stays behind.',{xp:xp(.9)});}
+  if(cmd==='FREE THE ANIMAL'){if(Math.random()<.35&&!this.damage('moderate','The animal kicks as the trap opens.'))return true;return finish('The deer limps into cover. The abandoned chain stays behind.',{xp:xp(.9)});}
   if(cmd==='KILL THE ANIMAL')return finish('You put the trapped animal down and use its existing meat and bone resources.',{xp:xp(.4),items:[['Raw Venison'],['Animal Bones']]});
   return finish('You dismantle the trap. The freed deer scrambles away from the broken jaws.',{xp:xp(.5),items:[['Scrap Metal']]});
  case 'W3':
@@ -410,7 +410,7 @@ const WO7={
   return finish(cmd==='FREE THE PRISONER'?'You cut the restraints without declaring a verdict. The prisoner staggers toward cover.':'You leave the prisoner restrained beneath the accusation.',cmd==='FREE THE PRISONER'?{xp:xp(.9)}:{});
  case 'W5':
   if(cmd==='DISTRACT WITH FOOD'){if(!this.take([['Energy Bars',1]]))return false;return finish('The ants follow the scattered ration. You retrieve the backpack without killing them.',{xp:xp(.8),items:[['Bandage','consumable'],['Cloth']]});}
-  if(cmd==='GRAB THE BACKPACK'&&Math.random()>=.45){if(!this.damage(.035,'Ants bite through your cuffs as you pull the pack free.'))return true;return finish('You escape the colony with the abandoned pack.',{xp:xp(.6),items:[['Energy Bars','consumable']]});}
+  if(cmd==='GRAB THE BACKPACK'&&Math.random()>=.45){if(!this.damage('minor','Ants bite through your cuffs as you pull the pack free.'))return true;return finish('You escape the colony with the abandoned pack.',{xp:xp(.6),items:[['Energy Bars','consumable']]});}
   return fight('ANT SWARM','animal',5,{bolts:0,items:[['Bandage','consumable'],['Cloth']]});
  case 'W6':
   if(cmd==='ENTER THE BUNKER'){q.entered=true;if(Math.random()<.3)return fight('FRIGHTENED BUNKER SURVIVOR');return observe('entered','A rifle rises from below. "Which front? Who sent you?" You can explain yourself or threaten the survivor.');}
@@ -434,36 +434,36 @@ const WO7={
   {const i=player.pack.find(i=>i.type==='material'&&i.qty>0&&!i.protected&&!i.unique&&(/Bones/.test(i.name)||R18_FOOD_GROUPS.meat.includes(i.name)));if(!i){add('You have no eligible existing meat or bones to trade.','system');return false;}if(i.stolen&&r18SaleDetected(i,'Traveling taxidermist'))return finish('The taxidermist refuses the recognized stolen material.');const name=i.name,price=name==='Small Animal Bones'?2:/Bones/.test(name)?4:3;this.take([[name,1]]);return finish('He pays for '+name+' and draws the wagon curtain over the ring.',{xp:xp(.3),bolts:price});}
  case 'I1':
   if(cmd==='INSPECT THE MACHINERY')return observe('mechanism','The off switch is beside a guard rail. The recycling chute returns every useless bracket to the same press.');
-  if(cmd==='FOLLOW THE CHUTE'){if(!this.damage(.035,'A falling bracket catches your shoulder as you reach the recycling bin.'))return true;return finish('You recover heavier scrap from the recycling loop and crawl out.',{xp:xp(.9),items:[['Scrap Metal','material',2]]});}
-  if(!q.seen.mechanism&&Math.random()<.3&&!this.damage(.04,'The moving belt snags your sleeve before the stop catches.'))return true;return finish('The conveyor stops. You remove recoverable controls instead of the useless stamped parts.',{xp:xp(.8),items:[['Electronics'],['Wire']]});
+  if(cmd==='FOLLOW THE CHUTE'){if(!this.damage('moderate','A falling bracket catches your shoulder as you reach the recycling bin.'))return true;return finish('You recover heavier scrap from the recycling loop and crawl out.',{xp:xp(.9),items:[['Scrap Metal','material',2]]});}
+  if(!q.seen.mechanism&&Math.random()<.3&&!this.damage('moderate','The moving belt snags your sleeve before the stop catches.'))return true;return finish('The conveyor stops. You remove recoverable controls instead of the useless stamped parts.',{xp:xp(.8),items:[['Electronics'],['Wire']]});
  case 'I2':
   if(cmd==='REPLY TO THE FAX')return finish('The fax prints: YOUR APPEAL HAS BEEN DENIED. A loose cable comes free as the paper tray falls shut.',{xp:xp(.7),items:[['Wire']]});
   return finish(cmd==='INVESTIGATE HUMAN RESOURCES'?'Human Resources contains blank review forms and a stamp reading SATISFACTORY ABSENCE. You take the clean packing cloth.':'You disconnect the fax. The overdue-review notice is its final performance.',{xp:xp(.7),items:[[cmd==='SALVAGE THE MACHINE'?'Electronics':'Cloth']]});
  case 'I3':
   if(cmd==='SEARCH FOR A BADGE'){q.badge=true;return observe('badge','A cracked badge is still clipped to the inside of a discarded coat. You can use it here without keeping another access card.');}
   if(cmd==='TAMPER WITH THE READER'&&!this.take([['Wire',1]]))return false;
-  if(cmd==='FORCE THE ENTRANCE'&&!this.damage(.035,'The door jerks loose and catches your knuckles.'))return true;
+  if(cmd==='FORCE THE ENTRANCE'&&!this.damage('minor','The door jerks loose and catches your knuckles.'))return true;
   return finish('The door opens. "YOU ARE LATE FOR WORK. THIS INCIDENT HAS BEEN RECORDED." Maintenance supplies wait beyond the reader.',{xp:xp(.8),items:[['Scrap Metal'],['Cloth']]});
  case 'I4':
   if(cmd==='FIND THE EMERGENCY SHUTOFF'){q.safe=true;return observe('shutoff','The disconnect is above the waterline. You cut power; the maintenance bay can now be reached safely.');}
-  if(!q.safe&&Math.random()<.6){if(!this.damage(.06,'Current arcs across the flooded floor. You retreat before reaching the maintenance bay.'))return true;return finish('The engine remains in the maintenance bay. It can be recovered on a future visit; nothing unique was claimed.');}
+  if(!q.safe&&Math.random()<.6){if(!this.damage('severe','Current arcs across the flooded floor. You retreat before reaching the maintenance bay.'))return true;return finish('The engine remains in the maintenance bay. It can be recovered on a future visit; nothing unique was claimed.');}
   this.recoverEngine();return finish('You reach the maintenance bay and recover usable battery leads.',{xp:xp(1.1),items:[['Wire'],['Scrap Metal']]});
  case 'I5':
   return finish(cmd==='WATCH THE VIDEO'?'IN THE EVENT OF NUCLEAR WAR, PLEASE REMAIN AT YOUR WORKSTATION UNTIL MANAGEMENT PROVIDES FURTHER INSTRUCTIONS. The tape loops back to workplace punctuality.':cmd==='SEARCH THE ROOM'?'A sealed emergency ration survives behind the training-room chair.':'You salvage the tired video equipment without waiting for further instructions.',{xp:xp(.7),...(cmd==='WATCH THE VIDEO'?{}:{items:[[cmd==='SEARCH THE ROOM'?'Energy Bars':'Electronics',cmd==='SEARCH THE ROOM'?'consumable':'material']]})});
  case 'I6':
   if(cmd==='DISCONNECT THE POWER SOURCE'){q.safe=true;return observe('power','You disconnect a local generator. The speaker announces: SERVICE WILL BE RESTORED IN SIX TO EIGHT BUSINESS DAYS.');}
-  if(cmd==='CROSS THE CABLES'&&!q.safe&&!this.damage(.05,'An energized cable lashes the truck\'s frame.'))return true;
+  if(cmd==='CROSS THE CABLES'&&!q.safe&&!this.damage('moderate','An energized cable lashes the truck\'s frame.'))return true;
   return finish('From the utility truck you hear: SERVICE RESTORATION REQUIRES SIX TO EIGHT BUSINESS DAYS. You recover equipment and leave the cable field.',{xp:xp(.8),items:cmd==='SEARCH THE TRUCK SAFELY'?[['Wire']]:[['Wire'],['Scrap Metal']]});
  case 'I7':
   if(cmd==='INSPECT THE SUPPORTS')return observe('supports','The failure is at a corroded support joint, not the floor panels. One Wire can brace it long enough for a crossing.');
   if(cmd==='STABILIZE WITH WIRE'){if(!this.take([['Wire',1]]))return false;q.braced=true;return observe('brace','You tension the damaged joint with wire. The catwalk stops shifting, but the repair is temporary.');}
   if(cmd==='BYPASS THE DAMAGED SECTION')return finish('You stay below the failed support and retrieve a loose cable from the lower landing.',{xp:xp(.5),items:[['Wire']]});
-  if(!q.braced&&Math.random()<.5){if(!this.damage(.065,'The support folds. You catch a lower rail and scramble down without reaching the shelf.'))return true;return finish('The unstable crossing is over. You leave the inaccessible shelf alone.');}
+  if(!q.braced&&Math.random()<.5){if(!this.damage('severe','The support folds. You catch a lower rail and scramble down without reaching the shelf.'))return true;return finish('The unstable crossing is over. You leave the inaccessible shelf alone.');}
   return finish('You cross the supported span and bring down the maintenance case.',{xp:xp(1.1),items:[['Scrap Metal','material',2],['Electronics']]});
  case 'I8':
   if(cmd==='SEARCH THE DRIVERS CAB'){q.cab=true;return observe('cab','The cargo key and a diagram show how to open the doors without levering against the leaning wall.');}
   if(cmd==='STABILIZE THE VEHICLE'){if(!this.take([['Wire',1]]))return false;q.safe=true;return observe('vehicle','You secure the truck to a surviving anchor. The door can be opened without shifting the warehouse wall.');}
-  if(!q.safe&&!q.cab&&Math.random()<.55){if(!this.damage(.055,'A warehouse panel slams against the truck. You back out before opening the crate.'))return true;return finish('The battery remains recoverable. No unique part was claimed by the failed attempt.');}
+  if(!q.safe&&!q.cab&&Math.random()<.55){if(!this.damage('severe','A warehouse panel slams against the truck. You back out before opening the crate.'))return true;return finish('The battery remains recoverable. No unique part was claimed by the failed attempt.');}
   this.recoverBattery();return finish('The doors open and you secure the automotive salvage.',{xp:xp(),items:[['Scrap Metal']]});
  case 'I9':
   if(cmd==='INSPECT MAINTENANCE RECORDS')return observe('records','The work order is marked unresolved. "PLEASE RATE YOUR CUSTOMER SATISFACTION AFTER MAINTENANCE," the speaker murmurs. The isolation switch is labelled.');
@@ -472,7 +472,7 @@ const WO7={
  case 'I10':
   if(cmd==='SEARCH FOR THE SUPERVISOR CODE'){q.code=true;return observe('code','The supervisor wrote the local code inside a drawer: 0417. No access credential needs to be kept.');}
   if(cmd==='BYPASS THE INVENTORY TERMINAL'&&!this.take([['Wire',1]]))return false;
-  if(cmd==='FORCE THE CAGE'&&!this.damage(.03,'The cage latch snaps against your wrist.'))return true;
+  if(cmd==='FORCE THE CAGE'&&!this.damage('minor','The cage latch snaps against your wrist.'))return true;
   return finish('The cage opens. "LATE RETURN FEE: EXCEEDS AVAILABLE DISPLAY SPACE." You take tools as ordinary salvage, not a permanent loan.',{xp:xp(.8),items:[['Scrap Metal'],['Wire']]});
  case 'I11':
   if(cmd==='INVESTIGATE THE RECORDS')return observe('ledger','Human names sit beside shipment weights. A Dominion shipping notation appears on an old invoice, but the ledger alone cannot distinguish wages from prices.');
@@ -483,7 +483,7 @@ const WO7={
   if(cmd==='QUESTION GIDEON')return observe('gideon','Gideon was scavenging parts for a settlement water pump. "Fix the hydraulics. Do not just shove the thing onto my other leg."');
   if(cmd==='ROB GIDEON'){if(player.flags.wo7GideonRobbed){add('You already took Gideon’s belongings. His rescue remains possible.','system');return false;}if(!r18TheftAllowed())return false;r18TheftCaught('Gideon Briggs');player.flags.wo7GideonRobbed=true;return finish('You rob Gideon while he is trapped. He has not been rescued and is not unlocked for recruitment.',{bolts:bolts(2)});}
   if(cmd==='REPAIR THE HYDRAULIC LIFT'){if(!this.take([['Wire',1],['Scrap Metal',1]]))return false;return this.rescue(q);}
-  if(Math.random()<.5)return this.rescue(q);q.failedLift=true;if(!this.damage(.035,'The machine settles back onto its supports. Gideon remains trapped; the hydraulic repair is still possible.'))return true;this.save();this.render(id);return true;
+  if(Math.random()<.5)return this.rescue(q);q.failedLift=true;if(!this.damage('moderate','The machine settles back onto its supports. Gideon remains trapped; the hydraulic repair is still possible.'))return true;this.save();this.render(id);return true;
  case 'I13':
   if(cmd==='NEGOTIATE A COMPROMISE')return finish('The tanker manifest names a third settlement that no longer exists. Neither present group inherited it. They divide the water by need and thank you with supplies and Bolts.',{xp:xp(1.4),bolts:bolts(),items:[['Energy Bars','consumable']]});
   if(cmd==='STEAL WATER'){if(!r18TheftAllowed())return false;r18TheftCaught('Water shipment claimants');add('You siphon a share. Both groups notice; scavengers block your escape.','danger');return fight('TANKER SCAVENGERS','human',2,{bolts:bolts(2),items:[['Energy Bars','consumable']]});}
@@ -505,14 +505,15 @@ const WO7={
  case 'I17':
   if(cmd==='CLOSE THE LEAKING VALVE'){q.safe=true;return observe('valve','You close the source valve. The drainage level falls, exposing dry maintenance stones across the channel.');}
   if(cmd==='SEARCH FOR A SAFER ROUTE')return finish('You follow the high maintenance ledge and retrieve the toolbox\'s loose cable without entering the runoff.',{xp:xp(.6),items:[['Wire']]});
-  if(!q.safe&&!this.damage(.05,'Chemical waste splashes your boots and burns exposed skin as you cross.'))return true;
+  if(!q.safe&&!this.damage('severe','Chemical waste splashes your boots and burns exposed skin as you cross.'))return true;
   return finish(q.safe?'With the source stopped, you bring the maintenance toolbox across dry stones.':'You reach the toolbox and retreat across the contaminated ground.',{xp:xp(q.safe?1:.6),items:q.safe?[['Scrap Metal','material',2],['Wire']]:[['Scrap Metal']]});
  }
  return false;
  },
  install(){if(this.installed||!RoadScenarioRegistry.ready)return;this.installed=true;const wo=this,r=RoadScenarioRegistry;
   for(const [id,title,region,category,text]of WO7_DEFINITIONS){if(r.regionalByTitle.has(title))throw Error('WO7 duplicate title '+title);const e={title,text,exclusive:false,wo7:id,prompt(){return wo.choices(id).join('   ');},resolve(cmd){return wo.act(id,cmd);}};
-   const index=encounters.push(e)-1,key='early:'+index,metadata={number:null,id:key,workOrderId:id,legacyName:title,name:title,classification:'REGIONAL',regions:[region],encounter:e,authority:'Owner approved WO7'};r.originalIds.set(e,key);r.regionalCatalog.push(metadata);r.regionalById.set(key,metadata);r.regionalByTitle.set(title,metadata);const entry={id:key,canonicalId:key,name:title,classification:'REGIONAL',region,regions:[region],encounter:e,references:[]};
+   const regions=id==='I11'?[region,'CAUSEWAY']:[region];
+   const index=encounters.push(e)-1,key='early:'+index,metadata={number:null,id:key,workOrderId:id,legacyName:title,name:title,classification:'REGIONAL',regions,encounter:e,authority:'Owner approved WO7'};r.originalIds.set(e,key);r.regionalCatalog.push(metadata);r.regionalById.set(key,metadata);r.regionalByTitle.set(title,metadata);const entry={id:key,canonicalId:key,name:title,classification:'REGIONAL',region:regions.join('+'),regions:[region],encounter:e,references:[]};
    for(const road of ['early','east','coast']){const pool=r.pool(road);let i=pool.indexOf(e);if(i<0)i=pool.push(e)-1;R10_POOLS[road][category].push(i);entry.references.push({road,category,index:i});}r.entries.push(entry);r.byId[key]=entry;
   }
   const resolve=resolveEncounter;resolveEncounter=function(cmd){const e=currentEncounter();if(e?.wo7)return wo.act(e.wo7,cmd);return resolve(cmd);};

@@ -22,7 +22,6 @@
   if(place==='r11Craft')return 'crafting-workbench'; // Stage alone identifies the craft screen; restored saves may omit r11Bench.
   if(place==='factoryBench')return 'crafting-workbench';
   if(place==='mercy'&&mercyLocation==='murphy'&&!!player?.flags?.v49MurphyMenu)return 'crafting-workbench';
-  if(place==='port55Service'&&player?.flags?.portStaffUI?.role==='workshop')return 'crafting-workbench';
   if(place==='factoryRusty')return 'factory-rusty';
   if(['factoryWorkshop','factoryTerminal','factoryForge'].includes(place))return 'factory-workshop';
   const g=typeof lanternState==='function'?lanternState():null;
@@ -89,7 +88,7 @@
    const shops={
     'clinic':['Clinic','seaport_clinic.png'],
     'general store':['General Store','seaport_general_store.png'],
-    'workshop':['Workshop','seaport_workshop.png'],
+    'workshop':['Workshop','seaport_crafting_shop.png'],
     'bank':['Bank','seaport_bank.png'],
     'armory':['Armory','seaport_armory.png']
    };
@@ -135,8 +134,7 @@
   const bench=String(player?.flags?.r11Bench||'').toLowerCase();
   const craftingHere=(craftingStage==='r11Craft'&&['home','murphy','factory','seaport','port'].includes(bench))||
     craftingStage==='factoryBench'||
-    (craftingStage==='mercy'&&mercyLocation==='murphy'&&!!player?.flags?.v49MurphyMenu)||
-    (craftingStage==='port55Service'&&player?.flags?.portStaffUI?.role==='workshop');
+    (craftingStage==='mercy'&&mercyLocation==='murphy'&&!!player?.flags?.v49MurphyMenu);
   if(craftingHere){
     model.title='Crafting';
     model.art='../devtest/assets/locations/crafting_workbench.png?v=wo41-shared';
@@ -152,9 +150,18 @@
  GraphicalUI.sync=function(...args){
    const result=workbenchSync.apply(this,args);
    const el=this.element;
-   if(stage==='r11Craft' && el?.figure && el?.img &&
+   // The first Forge lesson uses factoryBench; later crafting uses r11Craft.
+   // Both show the same workbench without changing the tutorial's gameplay.
+   if((stage==='r11Craft'||stage==='factoryBench') && el?.figure && el?.img &&
       /\/crafting_workbench\.png(?:\?|$)/.test(el.img.getAttribute('src')||'')){
      el.figure.hidden=false;
+   }
+   // The Unauthorized Cargo forklift is cinematic artwork, not a crop-to-fill
+   // background. Give just this scene a full-image fit.
+   if(el?.frame && el?.img){
+     el.frame.classList.toggle('r127-unauthorized-cargo-contain',
+       /unauthorized cargo/i.test(el.caption?.textContent||'') &&
+       /unauthorized[_-]cargo/i.test(el.img.getAttribute('src')||''));
    }
    return result;
  };
@@ -165,6 +172,7 @@
  benchStyle.textContent=`
  body.full-graphics .gfx-frame[data-layout="crafting"] .gfx-art:not([hidden]){min-height:clamp(130px,28dvh,280px)}
  body.full-graphics .gfx-frame[data-layout="crafting"] #screen{height:clamp(100px,17dvh,185px);max-height:32dvh}
+ body.full-graphics .gfx-frame.r127-unauthorized-cargo-contain .gfx-art .gfx-image{object-fit:contain!important;object-position:center center!important}
  @media(max-width:760px){
   body.full-graphics .gfx-frame[data-layout="crafting"] .gfx-art:not([hidden]){min-height:130px}
   body.full-graphics .gfx-frame[data-layout="crafting"] #screen{height:clamp(95px,18dvh,155px);max-height:30dvh}
@@ -200,7 +208,7 @@
   }else{
    page='main';
    baseSubmenu('Sheriff Kaiden',
-    ['ASK ABOUT SEAPORT','SMALL TALK','VIEW BOUNTIES',
+    ['ASK ABOUT SEAPORT','SMALL TALK','BOUNTIES','VIEW WARRANTS',
      ...(wanted()?['PAY FINE','OFFER BRIBE']:[]),'BACK']);
   }
   currentHotkeys.b='back';
@@ -248,7 +256,7 @@
   }
   if(page==='small-talk'){
    if(cmd==='how is seaport holding up?'||cmd==='how is seaport holding up'){
-    add('KAIDEN > The docks are open again. Keeping them safe is the hard part. We need reliable lights, honest traders, and a watch that actually stays put.','bright');
+    add('KAIDEN > The docks are open again. Keeping them safe is the hard part. An old communications terminal in the Rusty Anchor back room might help us reach the Tomorrow Project. I used to work with them. Ask me about Keeping the Lights On if you want to get it running.','bright');
     menu('small-talk');return true;
    }
    if(cmd==='ask about keeping the lights on'){
@@ -259,6 +267,12 @@
   }
   if(cmd==='ask about seaport'){
    add('KAIDEN > The fishermen are gone, but keeping this town safe will take more than a cleared dock. People need working shops, open roads, and someone watching the harbor.','bright');
+   add("KAIDEN > Tomorrow Project, huh?",'bright');
+   add("KAIDEN > Haven't heard that name in years.",'bright');
+   add("KAIDEN > Used to be part of that outfit myself. Crazy bunch. Big ideas about bringing people together and rebuilding civilization.",'bright');
+   add("KAIDEN > Never amounted to much, far as I could tell.",'bright');
+   add("KAIDEN > There's an old communications terminal in the back room of the bar. Hasn't worked in decades.",'bright');
+   add("KAIDEN > If you're trying to reach those people, that might be your best shot.",'bright');
    // Original liberation dialogue counted speaking to Kaiden toward chapter completion.
    const q=port55State();
    if(q.stage==='meet'&&!q.metKaiden){
@@ -268,7 +282,7 @@
    menu();return true;
   }
   if(cmd==='small talk'){menu('small-talk');return true;}
-  if(cmd==='view bounties'){
+  if(cmd==='view warrants'){
    v52Wanted();
    const crime=v52Crime();
    if(crime.active?.length)crime.active.slice(-8).forEach(x=>

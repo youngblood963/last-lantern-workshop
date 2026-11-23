@@ -28,8 +28,9 @@
 
  class EnvironmentalEffects {
   static register(name,definition){if(!definition?.create||!definition?.draw)throw Error('Weather requires create and draw');effects.set(name,definition);}
-  constructor(root,scenery,{effect,period='day',region='CENTRAL',buttonDroplets=false,buttonLimit=1}={}){
+  constructor(root,scenery,{effect,period='day',region='CENTRAL',buttonDroplets=false,buttonLimit=1,powerActive=true}={}){
    owners.get(root)?.stop();owners.set(root,this);this.root=root;this.scenery=scenery;this.effect=effect;this.period=period;this.region=region;
+   this.powerActive=powerActive;
    this.running=false;this.stopped=false;this.frame=null;this.elapsed=0;this.last=0;this.listeners=[];this.layers=[];
    this.wetButtons=new Map();this.buttonDroplets=buttonDroplets&&effect==='rain';this.buttonLimit=buttonLimit;
    this.randomState=(Date.now()+(sequence++*2654435761))>>>0;
@@ -37,7 +38,8 @@
    this.pointer={x:0,y:0,target:0,strength:0,until:0,focused:false};this.lastPointer=-1000;
    root.classList.add('r127-env-host');scenery.classList.add('r127-env-host');root.dataset.environmentEffect=effect;
    this.atmosphere=document.createElement('div');this.atmosphere.className='r127-env-atmosphere';this.atmosphere.setAttribute('aria-hidden','true');scenery.append(this.atmosphere);
-   for(const [host,name]of [[scenery,'scenery'],[root,'interface']]){
+   const layers=[[scenery,'scenery'],[root,'interface']];
+   for(const [host,name]of layers){
     const canvas=document.createElement('canvas');canvas.className='r127-env-canvas';canvas.dataset.layer=name;canvas.setAttribute('aria-hidden','true');host.append(canvas);
     this.layers.push({host,canvas,context:canvas.getContext?.('2d'),width:1,height:1,x:0,y:0});
    }
@@ -58,8 +60,8 @@
    this.listen(root,'pointerleave',()=>{if(this.effect==='fog'&&!this.pointer.focused)this.release();});
    this.listen(root,'focusin',e=>{if(this.effect==='glass'&&(this.reduced||!this.running))this.draw(0);if(performance.now()-this.lastPointer<300)return;const b=e.target.closest?.('button');if(b){const r=b.getBoundingClientRect(),box=root.getBoundingClientRect();if(this.effect!=='fog')return;this.interact(r.left+r.width/2-box.left,r.top+r.height/2-box.top,true);}});
    this.listen(root,'focusout',()=>{if(this.effect==='fog'){this.pointer.focused=false;this.release();}});
-   this.listen(document,'visibilitychange',()=>this.schedule());
-   this.listen(this.motion,'change',e=>{this.reduced=e.matches;this.schedule();});
+   this.listen(document,'visibilitychange',()=>{if(this.effect==='wires'&&!document.hidden)this.draw(0);this.schedule();});
+   this.listen(this.motion,'change',e=>{this.reduced=e.matches;if(this.effect==='wires'||this.effect==='furnace'){this.state.contact=null;this.draw(0);}this.schedule();});
    if(typeof ResizeObserver!=='undefined'){this.observer=new ResizeObserver(()=>this.resize());this.observer.observe(root);this.observer.observe(scenery);}
    else this.listen(window,'resize',()=>this.resize());
    this.resize();this.play();
@@ -67,6 +69,20 @@
   random(){this.randomState=(Math.imul(this.randomState,1664525)+1013904223)>>>0;return this.randomState/4294967296;}
   listen(target,type,fn){target.addEventListener?.(type,fn,{passive:true});this.listeners.push([target,type,fn]);}
   approach(event,touch=false){
+   if(this.effect==='furnace'){
+    const button=event.target?.closest?.('.gfx-choice');
+    if(button&&this.running&&!this.reduced)this.state.contact={button,time:this.elapsed};
+    return;
+   }
+   if(this.effect==='wires'){
+    if(!this.powerActive||this.reduced||!this.running)return;
+    const button=event.target?.closest?.('.gfx-choice');
+    if(button){
+     const rect=button.getBoundingClientRect();
+     this.state.contact={button,x:event.clientX-rect.left,time:this.elapsed};
+    }
+    return;
+   }
    if(this.effect==='glass'){
     const button=event.target?.closest?.('.gfx-choice');
     if(!button){this.state.highlight=null;return;}
@@ -139,15 +155,30 @@
   }
   play(){if(this.stopped)return;this.running=true;this.last=0;this.schedule();}
   pause(){this.running=false;this.cancel();}
-  restart(){if(this.stopped)return;this.clearBeads();this.clearSoot();this.elapsed=0;this.state=effects.get(this.effect).create(this);this.pointer.strength=0;this.pointer.target=0;this.play();}
+  restart(){if(this.stopped)return;this.clearBeads();this.clearSoot();this.elapsed=0;this.state=effects.get(this.effect).create(this);this.pointer.strength=0;this.pointer.target=0;if(this.effect==='wires')this.draw(0);this.play();}
   cancel(){if(this.frame!==null){cancelAnimationFrame(this.frame);this.frame=null;}}
-  schedule(){if(this.stopped||document.hidden||!this.running){this.cancel();return;}if(this.reduced){this.cancel();this.draw(0);return;}if(this.frame!==null)return;
-   this.frame=requestAnimationFrame(time=>{this.frame=null;const dt=this.last?Math.min(.05,(time-this.last)/1000):0;this.last=time;this.elapsed+=dt;this.draw(dt);this.schedule();});
+  schedule(){if(this.stopped||document.hidden||!this.running){this.cancel();return;}if(this.reduced){this.cancel();this.draw(0);return;}if(this.effect==='wires'&&!this.powerActive&&this.state.glow===0){this.cancel();return;}if(this.frame!==null)return;
+   this.frame=requestAnimationFrame(time=>{this.frame=null;if(!['wires','furnace'].includes(this.effect)||time-this.last>=32){
+     const dt=this.last?Math.min(.05,(time-this.last)/1000):0;this.last=time;this.elapsed+=dt;this.draw(dt);
+    }
+    this.schedule();});
   }
   draw(dt){if(this.stopped||document.hidden)return;const p=this.pointer;if(p.until&&performance.now()>p.until&&!p.focused){p.until=0;p.target=0;}p.strength+=(p.target-p.strength)*(this.reduced?1:Math.min(1,dt*5));
-   this.atmosphere.style.background=this.effect==='rain'?'rgba(96,37,24,.19)':this.effect==='glass'?'transparent':this.effect==='ash'?'rgba(63,59,54,.12)':'rgba(145,154,111,.07)';
+   if(this.effect==='wires'){
+    this.state.glow=this.powerActive?1:this.reduced?0:Math.max(0,this.state.glow-dt*3);
+   }
+   this.atmosphere.style.background=this.effect==='rain'?'rgba(96,37,24,.19)':(['glass','wires','furnace'].includes(this.effect))?'transparent':this.effect==='ash'?'rgba(63,59,54,.12)':'rgba(145,154,111,.07)';
    this.atmosphere.style.opacity=this.period==='night'?'.85':'.65';
    for(const layer of this.layers){const c=layer.context;if(!c)continue;c.clearRect(0,0,layer.width,layer.height);effects.get(this.effect).draw(c,layer,this,dt);if(layer.canvas.dataset.layer==='interface'&&this.buttonDroplets)this.drawBeads(c,dt);}
+  }
+  setPowerActive(active){
+   if(this.effect!=='wires'||active===this.powerActive)return;
+   this.powerActive=active;
+   this.state.contact=null;
+   if(active||this.reduced||!this.running)this.state.glow=Number(active);
+   this.last=0;
+   this.draw(0);
+   this.schedule();
   }
   clearBeads(){for(const b of this.wetButtons.keys())delete b.dataset.wetBeads;this.wetButtons.clear();}
   setButtonDroplets(enabled,limit=1){this.clearBeads();this.buttonDroplets=!!enabled&&this.effect==='rain';this.buttonLimit=limit;this.draw(0);}
@@ -175,7 +206,7 @@
    }
   }
   stop(){if(this.stopped)return;this.stopped=true;this.running=false;this.cancel();this.clearBeads();this.clearSoot();this.observer?.disconnect();for(const [target,type,fn]of this.listeners)target.removeEventListener?.(type,fn);this.listeners=[];for(const l of this.layers)l.canvas.remove();this.layers=[];this.atmosphere?.remove();this.scenery.classList.remove('r127-env-host');this.root.classList.remove('r127-env-host');delete this.root.dataset.environmentEffect;if(owners.get(this.root)===this)owners.delete(this.root);}
-  diagnostics(){return {effect:this.effect,running:this.running,stopped:this.stopped,frame:this.frame!==null,layers:this.layers.length,elapsed:this.elapsed,reducedMotion:this.reduced,clearing:this.pointer.strength};}
+  diagnostics(){return {effect:this.effect,running:this.running,stopped:this.stopped,frame:this.frame!==null,layers:this.layers.length,elapsed:this.elapsed,reducedMotion:this.reduced,clearing:this.pointer.strength,...(this.effect==='wires'?{powerActive:this.powerActive,region:this.region}:{})};}
  }
  EnvironmentalEffects.register('rain',{
   create(engine){return {drops:Array.from({length:110},()=>({x:engine.random(),y:engine.random(),length:(10+engine.random()*24)*RAIN_VISUAL_SCALE,speed:300+engine.random()*320,depth:.35+engine.random()*.65})),nextLightning:9+engine.random()*12,flash:0};},
@@ -338,7 +369,7 @@
   [[.81,.72],[.72,.68],[.66,.82],[.58,.85]]
  ];
 
- function glassLine(context,points,color,width){
+ function strokePath(context,points,color,width){
   context.beginPath();
   context.moveTo(...points[0]);
   for(let i=1;i<points.length;i++)context.lineTo(...points[i]);
@@ -367,7 +398,7 @@
   const point=q=>[start[0]+(end[0]-start[0])*q,start[1]+(end[1]-start[1])*q];
   const head=point(progress);
   const color=glassLight[engine.period]||glassLight.day;
-  glassLine(context,[point(t),head],'rgba('+color.join(',')+','+strength+')',road?2.6:1.35);
+  strokePath(context,[point(t),head],'rgba('+color.join(',')+','+strength+')',road?2.6:1.35);
   context.fillStyle='rgba('+color.join(',')+','+strength+')';
   context.fillRect(head[0]-1,head[1]-1,road?3:2,road?3:2);
  }
@@ -429,10 +460,10 @@
     glassPolygon(context,[center,a,split],glassFacets[color]);
     glassPolygon(context,[a,b,split],glassFacets[(color+2)%glassFacets.length]);
     glassPolygon(context,[b,center,split],glassFacets[(color+4)%glassFacets.length]);
-    glassLine(context,[a,split,b],i%3===0?'rgba(185,213,132,.55)':'rgba(19,47,27,.57)',i%3===0?1.1:.8);
+    strokePath(context,[a,split,b],i%3===0?'rgba(185,213,132,.55)':'rgba(19,47,27,.57)',i%3===0?1.1:.8);
    }
    context.restore();
-   glassLine(context,[...rim,rim[0]],night?'rgba(142,191,158,.32)':'rgba(162,195,111,.59)',1.25);
+   strokePath(context,[...rim,rim[0]],night?'rgba(142,191,158,.32)':'rgba(162,195,111,.59)',1.25);
    glassGlint(context,[points[index%points.length],points[(index+1)%points.length]],engine,index*1.37,true);
    glassGlint(context,[center,points[(index+3)%points.length]],engine,index*1.37+1.9,true);
   }
@@ -460,8 +491,8 @@
     const near=highlight?.button===button&&highlight.until>performance.now()&&
      Math.hypot((mirror?1-middle[0]:middle[0])*rect.width-highlight.x,middle[1]*rect.height-highlight.y)<85;
     const focused=button.matches?.(':focus-visible')&&(crackIndex===0||crackIndex===3);
-    glassLine(context,points,'rgba(12,22,15,.48)',2.1);
-    glassLine(context,points,near||focused?'rgba(204,232,159,.68)':'rgba(152,181,116,.38)',1);
+    strokePath(context,points,'rgba(12,22,15,.48)',2.1);
+    strokePath(context,points,near||focused?'rgba(204,232,159,.68)':'rgba(152,181,116,.38)',1);
     if(crackIndex===index%buttonCracks.length)glassGlint(context,points,engine,index*.87,false);
    }
    context.restore();
@@ -476,57 +507,209 @@
   }
  });
 
- const descriptors=[{title:'THE RED RAIN',effect:'rain'},{title:'THE LIME FOG',effect:'fog'},{title:'THE BLACK SNOW',effect:'ash'},{title:'THE GLASS FIELD',effect:'glass'}];
- function records(){return descriptors.map(d=>({...d,entry:RoadScenarioRegistry.entries.find(r=>r.encounter.title===d.title)})).filter(d=>d.entry);}
- function liveEffect(){if(stage!=='encounter'||combatState||!GraphicalUI.active()||TravelerPanels.dialog||Route127MapOverlay.dialog?.open||previewDialog)return null;const current=currentEncounter();return records().find(d=>d.entry.encounter===current)||null;}
- let live=null,previewDialog=null;
+ // Cable runs stay low in the frame so the skyline and road remain visible.
+ const wireRuns=[
+  [[-.02,.73],[.10,.77],[.21,.83],[.31,.85],[.42,.82],[.49,.77]],
+  [[1.02,.58],[.90,.65],[.83,.73],[.75,.77],[.68,.76],[.63,.72]],
+  [[1.02,.91],[.92,.88],[.86,.87],[.80,.91],[.75,.92]]
+ ];
+ const wireBlue=alpha=>'rgba(137,211,255,'+alpha+')';
+
+ function drawWireScenery(context,layer,engine){
+  const {width,height}=layer;
+  const size=Math.max(.72,Math.min(1.5,width/650));
+  context.save();
+  context.lineJoin='round';
+  context.lineCap='round';
+  for(const [index,run] of wireRuns.entries()){
+   const points=run.map(([x,y])=>[x*width,y*height]);
+   strokePath(context,points,'rgba(10,11,13,.85)',5*size);
+   strokePath(context,points,'rgba(102,96,88,.58)',1.6*size);
+   const glow=engine.state.glow;
+   if(!glow)continue;
+   // Stagger three contacts along each cable without changing the pulse timing.
+   for(let site=0;site<3;site++){
+    const end=points.length-3+site;
+    const [x,y]=points[end];
+    const [px,py]=points[end-1];
+    const dx=x-px,dy=y-py;
+    const radius=18*size;
+    const light=context.createRadialGradient(x,y,0,x,y,radius);
+    light.addColorStop(0,wireBlue(.42*glow));
+    light.addColorStop(1,wireBlue(0));
+    context.fillStyle=light;
+    context.fillRect(x-radius,y-radius,radius*2,radius*2);
+    strokePath(context,[[x-dx*.23,y-dy*.23],[x,y]],wireBlue(.35*glow),1.8*size);
+    if(engine.reduced||!engine.powerActive)continue;
+    const phase=(engine.elapsed+.4+index*2.3+site*7/3)%7/1.55;
+    if(phase>=1)continue;
+    const trail=Math.max(0,phase-.34);
+    const head=[px+dx*phase,py+dy*phase];
+    const strength=Math.sin(phase*Math.PI);
+    strokePath(context,[[px+dx*trail,py+dy*trail],head],wireBlue(.88*strength),2.4*size);
+    const arc=Math.pow(strength,2);
+    const reach=11*size;
+    strokePath(context,[head,[head[0]+reach*.35,head[1]-reach*.65],
+     [head[0]+reach*.68,head[1]-reach*.48],[head[0]+reach,head[1]-reach]],wireBlue(.76*arc),1.6*size);
+   }
+  }
+  context.restore();
+ }
+
+ function drawWireButtons(context,engine){
+  if(!engine.powerActive||engine.reduced)return;
+  const bounds=engine.root.getBoundingClientRect();
+  const contact=engine.state.contact;
+  const buttons=Array.from(engine.root.querySelectorAll('.gfx-choice')).slice(0,engine.buttonLimit);
+  for(const [index,button] of buttons.entries()){
+   const rect=button.getBoundingClientRect();
+   if(rect.width<16||rect.height<8)continue;
+   const left=rect.left-bounds.left,top=rect.top-bounds.top+2;
+   const right=left+rect.width-3,bottom=top+rect.height-4;
+   strokePath(context,[[left+3,top+5],[left+3,top],[left+18,top]],wireBlue(.48),1.4);
+   strokePath(context,[[right-15,bottom],[right,bottom],[right,bottom-5]],wireBlue(.48),1.4);
+   for(let trace=0;trace<3;trace++){
+    const phase=(engine.elapsed+.6+index*2.1+trace*8/3)%8/1.6;
+    if(phase>=1)continue;
+    const x=left+5+(rect.width-10)*phase;
+    const y=trace===1?bottom:top;
+    const inward=trace===1?-1:1;
+    const strength=Math.sin(phase*Math.PI);
+    strokePath(context,[[Math.max(left+3,x-32),y],[x,y]],wireBlue(.84*strength),2);
+    strokePath(context,[[x,y],[x+2,y+3*inward],[x+3,y+inward]],wireBlue(.65*strength),1.3);
+   }
+   if(contact?.button!==button)continue;
+   const age=engine.elapsed-contact.time;
+   if(age>=.55)continue;
+   const x=left+Math.max(8,Math.min(rect.width-8,contact.x));
+   strokePath(context,[[x-7,top],[x+7,top]],wireBlue(.65*(1-age/.55)),2);
+  }
+ }
+
+ EnvironmentalEffects.register('wires',{
+  create(engine){return {glow:Number(engine.powerActive),contact:null};},
+  draw(context,layer,engine){
+   if(layer.canvas.dataset.layer==='scenery')drawWireScenery(context,layer,engine);
+   else drawWireButtons(context,engine);
+  }
+ });
+
+ // Resample only thin bands of the loaded artwork, keeping the heat distortion
+ // in the lower-center plume. No pixel readback or full-scene copy.
+ function furnaceShimmer(c,layer,engine){
+  const image=layer.host.querySelector?.('img');
+  if(!image?.naturalWidth||!image.naturalHeight||!c.drawImage)return;
+  const box=image.getBoundingClientRect(),host=layer.host.getBoundingClientRect();
+  if(!box.width||!box.height)return;
+  const fit=getComputedStyle(image);
+  const scale=(fit.objectFit==='contain'?Math.min:Math.max)(box.width/image.naturalWidth,box.height/image.naturalHeight);
+  const width=image.naturalWidth*scale,height=image.naturalHeight*scale;
+  const alignment=value=>value?.endsWith('%')?parseFloat(value)/100:.5;
+  const [ox,oy]=fit.objectPosition.split(' ').map(alignment);
+  const left=box.left-host.left+(box.width-width)*ox;
+  const top=box.top-host.top+(box.height-height)*oy;
+  const x=box.left-host.left+box.width*.28,span=box.width*.44;
+  const plumeTop=box.top-host.top+box.height*.47;
+  const plumeHeight=box.height*.44;
+  c.save();
+  c.beginPath();c.rect(x,plumeTop,span,plumeHeight);c.clip();
+  for(let i=0;i<12;i++){
+   const rise=(i/12+engine.elapsed*.11)%1;
+   const y=plumeTop+(1-rise)*plumeHeight;
+   const band=Math.min(5,plumeHeight/18);
+   const wave=Math.sin(rise*18-engine.elapsed*.85)*4;
+   c.globalAlpha=.57*Math.sin(rise*Math.PI);
+   c.drawImage(image,(x-left)/scale,(y-top)/scale,span/scale,band/scale,x+wave,y,span,band);
+  }
+  c.restore();
+ }
+
+ function furnaceGlow(c,x,y,radius,opacity){
+  const light=c.createRadialGradient(x,y,0,x,y,radius);
+  light.addColorStop(0,'rgba(255,101,26,'+opacity+')');
+  light.addColorStop(.46,'rgba(232,66,16,'+(opacity*.54)+')');
+  light.addColorStop(1,'rgba(232,66,16,0)');
+  c.fillStyle=light;
+  c.fillRect(x-radius,y-radius,radius*2,radius*2);
+ }
+
+ function drawFurnaceScenery(c,layer,engine){
+  const {width,height}=layer;
+  if(!engine.reduced)furnaceShimmer(c,layer,engine);
+  const pulse=engine.reduced?0:Math.sin(engine.elapsed*.55)*.035;
+  furnaceGlow(c,width*.5,height*.98,Math.min(width*.62,height*.67),.55+pulse);
+  if(engine.reduced)return;
+  const count=width<650?44:64;
+  for(let i=0;i<count;i++){
+   const ember=engine.state.embers[i];
+   const age=(ember.phase+engine.elapsed*ember.speed)%1;
+   const x=width*(ember.x+Math.sin(ember.phase*13+engine.elapsed*.9)*.035);
+   const y=height*(.96-age*ember.rise);
+   const alpha=Math.min(1,age*10)*(1-age)*ember.brightness;
+   c.fillStyle='rgba(243,62,16,'+(alpha*.42)+')';
+   c.beginPath();c.ellipse(x,y,ember.size*1.9,ember.size*1.9,0,0,Math.PI*2);c.fill();
+   c.fillStyle='rgba(255,'+ember.green+',53,'+alpha+')';
+   c.beginPath();c.ellipse(x,y,ember.size,ember.size*.8,0,0,Math.PI*2);c.fill();
+  }
+ }
+
+ function drawFurnaceButtons(c,engine){
+  const bounds=engine.root.getBoundingClientRect();
+  const contact=engine.state.contact;
+  for(const [i,button] of Array.from(engine.root.querySelectorAll('.gfx-choice')).slice(0,engine.buttonLimit).entries()){
+   const rect=button.getBoundingClientRect();
+   if(rect.width<20||rect.height<12)continue;
+   const x=rect.left-bounds.left+3,y=rect.bottom-bounds.top-3,width=rect.width-6;
+   const response=contact?.button===button?Math.max(0,1-(engine.elapsed-contact.time)/.7):0;
+   strokePath(c,[[x,y-5],[x,y],[x+width,y],[x+width,y-5]],
+    'rgba(255,120,49,'+(.48+response*.25)+')',1.6);
+   if(engine.reduced)continue;
+   for(let j=0;j<3;j++){
+    const phase=(engine.elapsed*.22+j/3+i*.13)%1;
+    const px=x+width*(.1+j*.37)+Math.sin(phase*Math.PI*2)*6;
+    const strength=Math.sin(phase*Math.PI);
+    c.fillStyle='rgba(255,149,58,'+(.75*strength)+')';
+    c.fillRect(px,y-6*phase,2.5,2.5);
+    strokePath(c,[[px-8,y+2],[px,y+1+Math.sin(phase*Math.PI*2)],[px+8,y+2]],
+     'rgba(255,92,29,'+(.34*strength)+')',1);
+   }
+  }
+ }
+
+ EnvironmentalEffects.register('furnace',{
+  create(engine){
+   return {contact:null,embers:Array.from({length:64},()=>({
+    x:.12+engine.random()*.76,phase:engine.random(),speed:.08+engine.random()*.075,
+    rise:.44+engine.random()*.48,size:1.3+engine.random()*2.1,
+    brightness:.72+engine.random()*.28,green:104+Math.round(engine.random()*104)
+   }))};
+  },
+  draw(context,layer,engine){
+   if(layer.canvas.dataset.layer==='scenery')drawFurnaceScenery(context,layer,engine);
+   else drawFurnaceButtons(context,engine);
+  }
+ });
+
+ // Local scene coordinates keep the shoreline and props together as the figure resizes.
+ const descriptors=[{title:'THE RED RAIN',effect:'rain'},{title:'THE LIME FOG',effect:'fog'},{title:'THE BLACK SNOW',effect:'ash'},{title:'THE GLASS FIELD',effect:'glass'},
+  {id:'early:186',title:'LIVE WIRES — ELECTRICAL HAZARD',effect:'wires'},
+  {id:'east:7',title:'THE FURNACE PIT',effect:'furnace'}];
+ function records(){return descriptors.map(d=>({...d,entry:RoadScenarioRegistry.entries.find(r=>d.id?r.id===d.id:r.encounter.title===d.title)})).filter(d=>d.entry);}
+ function liveEffect(){if(stage!=='encounter'||combatState||!GraphicalUI.active()||TravelerPanels.dialog||Route127MapOverlay.dialog?.open)return null;const current=currentEncounter();return records().find(d=>d.entry.encounter===current)||null;}
+ let live=null;
  function update(){const spec=liveEffect(),root=GraphicalUI.element?.frame,figure=GraphicalUI.element?.figure;if(!spec||!root||!figure||root.hidden){live?.stop();live=null;return;}
   if(live&&(live.effect!==spec.effect||live.root!==root)){live.stop();live=null;}
   const period=Route127RegionalSky.phase(player.flags.worldHour);
-  const region=spec.effect==='glass'?route127CurrentRegion(lanternState()):'CENTRAL';
+  const wires=spec.effect==='wires';
+  const region=spec.region||(wires||spec.effect==='furnace'?'INDUSTRIAL':spec.effect==='glass'?route127CurrentRegion(lanternState()):'CENTRAL');
   if(live&&live.region!==region){live.stop();live=null;}
-  if(!live)live=new EnvironmentalEffects(root,figure,{effect:spec.effect,period,region,buttonDroplets:spec.effect==='rain',buttonLimit:4});else if(live.period!==period){live.clearBeads();live.clearSoot();live.period=period;}
+  // Read the current visit's gameplay flag without initializing or modifying it.
+  const visit=player.flags.wo7Scene;
+  const powerActive=!wires||visit?.key!==RoadLifecycle.occurrence()+'|I6'||visit.safe!==true;
+  if(!live)live=new EnvironmentalEffects(root,figure,{effect:spec.effect,period,region,powerActive,buttonDroplets:spec.effect==='rain',buttonLimit:4});else if(live.period!==period){live.clearBeads();live.clearSoot();live.period=period;}
+
  }
- function preview(){if(previewDialog?.open)return;live?.stop();live=null;
-  const dialog=document.createElement('dialog');previewDialog=dialog;dialog.className='r127-env-preview';dialog.setAttribute('aria-label','Environmental effects preview');
-  const title=document.createElement('h2');title.textContent='ENVIRONMENTAL EFFECTS';const controls=document.createElement('div');controls.className='r127-env-controls';dialog.append(title,controls);
-  const select=(label,items)=>{const wrap=document.createElement('label');wrap.textContent=label;const s=document.createElement('select');s.setAttribute('aria-label',label);for(const [value,text]of items){const o=document.createElement('option');o.value=value;o.textContent=text;s.append(o);}wrap.append(s);controls.append(wrap);return s;};
-  const available=records(),encounter=select('Environmental encounter',available.map(d=>[d.effect,d.title]));
-  const region=select('Weather preview region',Object.entries(Route127RegionalSky.regions).map(([key,row])=>[key,row[2]]));
-  const period=select('Weather time of day',['dawn','day','dusk','night'].map(p=>[p,p.toUpperCase()]));
-  const layout=select('Preview layout',[['desktop','Full width'],['phone','Phone width (390px)']]);
-  const wetWrap=document.createElement('label'),wet=document.createElement('input');wet.type='checkbox';wet.checked=true;wet.setAttribute('aria-label','Button Droplets');wetWrap.append(wet,document.createTextNode('Button Droplets: ON'));controls.append(wetWrap);
-  const stage=document.createElement('section');stage.className='r127-env-stage';const figure=document.createElement('figure');figure.className='r127-sky-preview-art';const img=document.createElement('img');img.alt='Environmental region background';figure.append(img);const choices=document.createElement('div');choices.className='r127-env-choices';stage.append(figure,choices);
-  const status=document.createElement('p');status.setAttribute('role','status');status.textContent='Preview only — no gameplay or saved progress changes.';
-  let controller=null,revision=0,closed=false,mode='playing';
-  function start(){controller?.stop();controller=new EnvironmentalEffects(stage,figure,{effect:encounter.value,period:period.value,region:region.value,buttonDroplets:wet.checked,buttonLimit:4});if(mode==='paused')controller.pause();if(mode==='stopped'){controller.stop();controller=null;}}
-  wet.addEventListener('change',()=>{controller?.setButtonDroplets(wet.checked,4);wetWrap.lastChild.textContent='Button Droplets: '+(wet.checked?'ON':'OFF');});
-  layout.addEventListener('change',()=>{stage.classList.toggle('r127-env-phone',layout.value==='phone');controller?.resize();});
-  async function render(){const version=++revision,spec=available.find(d=>d.effect===encounter.value);controller?.stop();controller=null;wetWrap.hidden=encounter.value!=='rain';choices.replaceChildren();
-   for(const label of spec.entry.encounter.choices.split(/\s{2,}/).filter(Boolean)){const b=GraphicalUI.button(label,()=>{status.textContent=label+' — visual interaction only; no outcome executed.';},'gfx-choice');choices.append(b);}
-   const scene=Route127RegionalSky.describe(region.value,{dawn:6,day:12,dusk:18,night:22}[period.value]),base=new URL('../../assets/regions/',document.currentScript?.src||new URL('../devtest/runtime/environmental_effects_wo46.js',document.baseURI));
-   const source=file=>new URL(file,base).href;const files=scene.sky?[scene.overlay,scene.sky]:[scene.original];
-   try{await Promise.all(files.map(file=>new Promise((resolve,reject)=>{const im=new Image();im.onload=resolve;im.onerror=reject;im.src=source(file);})));
-    if(closed||version!==revision)return;
-    img.src=source(scene.sky?scene.overlay:scene.original);
-    let sky=figure.querySelector('.r127-regional-sky');if(!sky){sky=document.createElement('div');sky.className='r127-regional-sky';sky.setAttribute('aria-hidden','true');figure.insertBefore(sky,img);}
-    sky.hidden=!scene.sky;sky.style.backgroundImage=scene.sky?'url("'+source(scene.sky)+'")':'';figure.classList.toggle('r127-regional-layered',!!scene.sky);if(scene.sky)figure.dataset.skyPeriod=scene.period;else delete figure.dataset.skyPeriod;
-    img.alt=scene.title+' — '+scene.period;start();status.textContent=spec.title+' — '+scene.title+' — '+scene.period+' — '+mode;
-   }catch{if(!closed&&version===revision)status.textContent='Regional artwork failed to load. Change a selector to retry.';}
-  }
-  const button=(label,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',fn);controls.append(b);return b;};
-  button('PLAY',()=>{mode='playing';if(controller)controller.play();else start();status.textContent='Playing';});
-  button('PAUSE',()=>{mode='paused';controller?.pause();status.textContent='Paused';});
-  button('RESTART',()=>{mode='playing';if(controller)controller.restart();else start();status.textContent='Restarted';});
-  button('STOP',()=>{mode='stopped';controller?.stop();controller=null;status.textContent='Stopped — all weather layers removed';});
-  button('Close effects',()=>dialog.close());
-  for(const s of [encounter,region,period])s.addEventListener('change',render);
-  dialog.addEventListener('keydown',event=>event.stopPropagation());
-  dialog.addEventListener('close',()=>{closed=true;revision++;controller?.stop();dialog.remove();previewDialog=null;GraphicalUI.sync();},{once:true});
-  dialog.append(stage,status);document.body.append(dialog);dialog.showModal();encounter.focus();render();
- }
- const oldKey=FocusedEntry.key;FocusedEntry.key=function(event){if(previewDialog?.open)return;return oldKey.call(this,event);};
  const oldSync=GraphicalUI.sync;GraphicalUI.sync=function(...args){const result=oldSync.apply(this,args);update();return result;};
- const oldLoad=loadGame;loadGame=function(...args){live?.stop();live=null;previewDialog?.close();return oldLoad.apply(this,args);};
- globalThis.Route127Environment=Object.freeze({Controller:EnvironmentalEffects,records,liveEffect,preview,diagnostics:()=>live?.diagnostics()||null});
+ const oldLoad=loadGame;loadGame=function(...args){live?.stop();live=null;return oldLoad.apply(this,args);};
+ globalThis.Route127Environment=Object.freeze({Controller:EnvironmentalEffects,records,liveEffect,diagnostics:()=>live?.diagnostics()||null});
 })();

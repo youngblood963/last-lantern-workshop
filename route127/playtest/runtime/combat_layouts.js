@@ -14,11 +14,50 @@
  const assetName=path=>decodeURIComponent(new URL(path,root).pathname.split('/').at(-1));
  const unitKey=(path,index)=>index+':'+assetName(path);
  const states=new Map();
- function register(title,units,phase='both',variant='Standard',background=null){
+ function register(title,units,phase='both',variant='Standard',background=null,composition=null){
   const rows=states.get(title)||[];
-  rows.push({units,phase,variant,background});
+  rows.push({units,phase,variant,background,composition});
   states.set(title,rows);
  }
+ const industrialCinematics=new Map([
+  ['THE PARTS TRUCK','the_parts_truck.png'],
+  ['THE MIDNIGHT SHIFT','the_midnight_shift.png'],
+  ['THE LAST PAYCHECK','the_last_paycheck.png'],
+  ['THE LAST FAX MACHINE','the_last_fax_machine.png'],
+  ['THE EMPTY ASSEMBLY LINE','the_empty_assembly_line.gif'],
+  ['THE COLLAPSING CATWALK','the_collapsing_catwalk.gif'],
+  ['THE BATTERY ROOM','the_battery_room.png'],
+  ['THE FACTORY WHISTLE','the_factory_whistle.gif'],
+  ['THE TRAINING VIDEO','the_training_video.png'],
+  ['THE TRAPPED WORKER','the_trapped_worker.png'],
+  ['THE WATER SHIPMENT','the_water_shipment.png'],
+  ['CHEMICAL RUNOFF','chemical_runoff.gif'],
+  ['DRAINAGE CULVERT','drainage_culvert.gif'],
+  ['EMPLOYEE ENTRANCE ONLY','employee_entrance_only.png']
+ ]);
+ for(const [title,file] of industrialCinematics)register(title,[],'both','Full cinematic',scenery(file));
+ for(const [title,files] of Object.entries({
+  'BROKEN CLEANER BOT':['broken_cleaner_bot.png'],
+  'AUTONOMOUS SECURITY HOUNDS':['autonomous_security_hound_1.png','autonomous_security_hound_2.png'],
+  'FACTORY ENFORCERS':['factory_enforcer_1.png','factory_enforcer_2.png','factory_enforcer_3.png']
+ }))register(title,sprite(...files));
+ for(const [title,files] of Object.entries(globalThis.Route127RoadsidePresentation?.industrialEncounterSprites||{})){
+  register(title,sprite(...files));
+ }
+ register('TUNNEL RATS',sprite('Tunnel Rat 1.png','Tunnel Rat 2.png'),'both','Two separate rats');
+ for(const [title,file] of Object.entries({
+  'THE SLEEPING ROBOT':'the_sleeping_robot.png',
+  'THE LAST AUTONOMOUS TAXI':'the_last_autonomous_taxi.gif',
+  'THE ROAD EATER':'the_road_eater.png',
+  'THE SALVAGE YARD LEDGER':'the_salvage_yard_ledger.png',
+  'THE SCRAP CLAIM':'the_scrap_claim.png'
+ }))register(title,sprite(file));
+ register('LOCKER IN THE CONCRETE PIPE',[scenery('the_spring_trap.png')]);
+ register('THE TOOL CRIB',[scenery('the_tool_crib.png')]);
+ register('THE WATER SHIPMENT',sprite('tanker_scavenger_1.png','tanker_scavenger_2.png'),
+  'combat','Tanker Scavengers',scenery('the_water_shipment.png'));
+ register('THE WATER SHIPMENT',sprite('settlement_water_guard_1.png','settlement_water_guard_2.png'),
+  'combat','Settlement Water Guards',scenery('the_water_shipment.png'));
  for(const [title,files] of Object.entries({
   'BAT COLONY':Array(4).fill('bat_colony.png'),
   'RABID RACCOONS':Array(3).fill('rabid_raccoon.png'),
@@ -43,11 +82,29 @@
   'DRAINAGE STALKER':['culvert_crawler.png'],
   'THE WAX MUSEUM':['The Curator.png'],
   'THE WRECKERS':['Lone Scavenger - Friendly Scrapper.png','The Wreckers - Chain.png'],
-  'RATS IN THE PANTRY':['Snarling Rats at a Rusted Sewer Drain.png'],
+  // Replaced below with the pantry-specific scene and combatants.
   'CHEMICAL BURNERS':['Chemical Burner 1.png','Chemical Burner 2.png'],
-  'THE GRINDER CREW':['rivet.png'],
+  'THE GRINDER CREW':['rivet.png','masked_scavenger.png'],
   'THE STEEL ORCHARD':['martha.png']
  }))register(title,sprite(...files));
+ // Owner's rural encounter artwork. These variants feed the existing DEVTEST
+ // visual editor; the shared scene files remain distinct from movable sprites.
+ const ruralScene=(title,background,composition='sky',units=[],phase='approach',variant='Owner artwork')=>
+  register(title,units,phase,variant,scenery(background),composition);
+ ruralScene('THE COIN WELL','the_coin_well.png','road');
+ ruralScene('RATS IN THE PANTRY','rats_in_the_pantry.png','road',[],'approach','Abandoned pantry');
+ ruralScene('RATS IN THE PANTRY','rats_in_the_pantry.png','road',sprite('pantry_rat.png','pantry_rat.png','pantry_rat.png'),'combat','Three pantry rats');
+ ruralScene('DUST OVER THE SCHOOLYARD','dust_over_the_schoolyard.png','sky',[],'approach','Fawn and mother in scene');
+ ruralScene('DUST OVER THE SCHOOLYARD','dust_over_the_schoolyard.png','sky',sprite('schoolyard_deer.png'),'combat','Schoolyard doe');
+ ruralScene('DUST OVER THE SCHOOLYARD','dust_over_the_schoolyard.png','sky',sprite('territorial_buck.png'),'combat','Buck fight');
+ ruralScene('CORNFIELD STALKERS','cornfield_stalkers_scene.png','sky',sprite('cornfield_stalker_1.png','cornfield_stalker_2.png'),'both','Two independent stalkers');
+ ruralScene('THE DARK CELLAR','dark_cellar_scene.png','road',[],'approach','Frightened resident embedded');
+ ruralScene('THE DARK CELLAR','dark_cellar_scene.png','road',[],'combat','Frightened resident embedded');
+ ruralScene('THE SAGGING FARMHOUSE','the_sagging_farmhouse.png','road',[],'approach','Farmhouse exploration');
+ register('THE WHEELBARROW',[scenery('the_wheelbarrow.png')],'approach','Wheelbarrow prop',null,'regional');
+ register('THE WHEELBARROW',[scenery('the_wheelbarrow.png'),enemy('wheelbarrow_snake.gif')],'combat','Wheelbarrow and triggered snake',null,'regional');
+ register('TERRITORIAL FARMERS',sprite('territorial_farmer_1.png','territorial_farmer_2.png'),'both','Neutral farmers — independent sprites',null,'regional');
+ register('FERAL BULL',sprite('feral_bull.png'),'both','Feral bull',null,'regional');
  register('GANG LOOKOUT',sprite('gang_lookout_1.png','gang_lookout_2.png'),'combat','Reinforcements');
  register('THE PAINTED ARROWS',sprite('Painted Arrows - Club Scavenger.png','Painted Arrows - Knife Scavenger.png'),'combat','Red arrow ambush');
  register('THE HANGING CAGE',sprite('silas_crowe_caged.png'),'approach','Caged');
@@ -56,7 +113,7 @@
   'ROACH NEST':[enemy('roach_nest_ordinary.png'),enemy('roach_nest_contaminated.png'),'../../roach_nest_aggressive_swarm.png'],
   'FERAL DOG':[enemy('feral_dog_mother_pups.png'),'../../feral_dog_hungry_lone.png','../../feral_dog_aggressive_lone.png','../../feral_dog_pack_concept.png'],
   'LONE SCAVENGER':sprite('Lone Scavenger - Suspicious Scavenger.png','Lone Scavenger - Friendly Scrapper.png','Lone Scavenger - Weary Trader.png'),
-  'TUNNEL RATS':sprite('Tunnel Rats.png','Tunnel Rats - Wild Boar.png')
+  'TUNNEL RATS':sprite('Tunnel Rats - Wild Boar.png')
  }))for(const path of files)register(title,[path],'both',assetName(path).replace(/\.png$/i,''));
  for(const [title,file] of Object.entries({
   'THE HANGING SHOES':'the_hanging_shoes.png','THE IRON HARVEST':'the_iron_harvest.png',
@@ -167,6 +224,70 @@
  register('SCRAP CRAB NEST',sprite('scrap_crab_nest.png'),'both','Nest Guardian — regional sky');
 
 
+ register('COLD ROAD CAMP',[],'approach','Abandoned camp',scenery('cold_road_camp.png'));
+ register('COLD ROAD CAMP',[scenery('cold_road_camp_traveler.png')],'approach','Occupied camp',scenery('cold_road_camp.png'));
+ register('SALT ON THE ROAD',[],'approach','Salt circle',scenery('salt_on_the_road.png'));
+ register('SALT ON THE ROAD',sprite('chair_man.png'),'combat','Chair Man fight',scenery('salt_on_the_road.png'));
+ register('FALLING WATCH PLATFORM',[],'approach','Collapsing lookout',scenery('collapsing_lookout.png'));
+ register('TERRITORIAL SURVIVALISTS',sprite('territorial_survivalist_rifleman.png','territorial_survivalist_shotgun.png'));
+ register('MOUNTAIN POACHERS',sprite('mountain_poacher_rifleman.png','mountain_poacher_trapper.png'));
+ register('MOUNTAIN LIONS',sprite('mountain_lion.png'));
+
+ register('THE CINDER WOLVES',[],'both','Cinder wolf pack',enemy('the_cinder_wolves.png'));
+ register('THE DUST HORSES',[],'approach','Stampeding herd',scenery('the_dust_horses.png'));
+ register('THE DUST HORSES',[scenery('dust_horse_brown.png')],'approach','Horse rescue');
+ register('THE COLLAPSED DAM',[],'approach','Collapsed dam',scenery('the_collapsed_dam.png'));
+ register('THE CHAIN BRIDGE',[],'approach','Animated chain bridge',scenery('the_chain_bridge.gif'));
+
+ // These scenes are drawn by owner_final_scenarios using canonical IDs.
+ // Match its combatant order so saved placement keys reach the correct sprites.
+ const northernRuntimeScenes=new Map([
+  ['east:22',[
+   {units:[],phase:'approach',variant:'Salt quarry',background:scenery('salt_miners.png')},
+   {units:[scenery('marlow_vance.png')],phase:'approach',variant:'Rescued Marlow',background:scenery('salt_miners.png')},
+   {units:sprite('saltmaster.png','salt_overseer.png'),phase:'combat',variant:'Guard fight',background:scenery('salt_miners.png')}
+  ]],
+  ['east:12',[
+   {units:[],phase:'approach',variant:'Suspended beam',background:scenery('the_quarry_lift.png')},
+   {units:sprite('quarry_hookman.png','quarry_chain_swinger.png','quarry_strangler.png'),
+    phase:'combat',variant:'Three gang members',background:scenery('the_quarry_lift.png')},
+   {units:sprite('quarry_hookman.png','quarry_strangler.png'),
+    phase:'combat',variant:'Beam dropped',background:scenery('the_quarry_lift_no_beam.png')}
+  ]]
+ ]);
+
+ // The owner uploaded these complete scenes under assets/locations.
+ const lowlandsCinematics=new Map([
+  ['east:27',[
+   ['Surface','sunken_chapel_exterior.png','sky'],
+   ['Underwater','sunken_chapel_interior.png','none']
+  ]],
+  ['early:34',[['Greenhouse','rain_barrel.png','none']]],
+  ['east:19',[['Quicksand cut','quicksand_cut.gif','sky']]],
+  ['east:52',[['River of Fire','river_of_fire.gif','sky']]],
+  ['east:77',[['Dominion Survey','dominion_survey.png','none']]],
+  ['early:1',[['Washout salvage','washout_salvage.png','sky']]]
+ ].map(([id,scenes])=>[id,scenes.map(([variant,file,composition])=>({
+  units:[],phase:'approach',variant,background:locationArt(file),composition
+ }))]));
+ // Fixed location art follows the canonical encounter ID across registry aliases.
+ const canonicalScenes=new Map([
+  ['east:4',[{units:[],phase:'approach',variant:'Roadside procession',background:'assets/cemetery/ash_procession_road_arrival.png',composition:'sky'}]],
+  ['early:12',[
+   {units:[enemy('janitor_harlan.png')],phase:'approach',variant:'County Offices — Harlan',background:scenery('county_offices.png'),composition:'road'},
+   {units:[scenery('caleb_reed.png')],phase:'approach',variant:'Caleb Reed freed',background:scenery('county_offices.png'),composition:'road'},
+   {units:[enemy('janitor_harlan.png')],phase:'combat',variant:'Janitor Harlan fight',background:scenery('county_offices.png'),composition:'road'}
+  ]],
+  ['east:67',[{units:[],phase:'approach',variant:'Fresh Mart',background:locationArt('fresh_mart.png'),composition:'none'}]],
+  ['east:81',[{units:[],phase:'approach',variant:'St. Mercy Hospital discovery',
+   background:locationArt('st_mercy_hospital.png'),composition:'none'}]]
+ ]);
+ const lowlandsSprites=globalThis.Route127RoadsidePresentation?.lowlandsSprites||{};
+ for(const [title,files] of Object.entries(lowlandsSprites)){
+  register(title,sprite(...files),'both','Individual combatants');
+ }
+
+ const western=globalThis.Route127WesternArt;
  const rows=new Map();
  const byEncounter=new Map();
  const byTitle=new Map();
@@ -177,16 +298,44 @@
   byEncounter.set(entry.encounter,id);
   byTitle.set(title,id);
   if(rows.has(id))continue;
-  const fight=!!entry.encounter.combat||entry.references?.some(ref=>ref.category==='combat')||
-   states.get(title)?.some(spec=>spec.phase==='combat');
+  const westernVariants=western?.scenes.get(title);
+  const fixedVariants=canonicalScenes.get(id);
+  const variants=fixedVariants||westernVariants||lowlandsCinematics.get(id)||northernRuntimeScenes.get(id)||states.get(title)||[];
+  const regionalSprites=Object.hasOwn(lowlandsSprites,title);
+  const fight=regionalSprites||!!entry.encounter.combat||entry.references?.some(ref=>ref.category==='combat')||
+   variants.some(spec=>spec.phase==='combat'||spec.embedded);
   rows.set(id,{
-   id,title,name:entry.encounter.displayName||entry.name||entry.encounter.title,
+   id,title,name:id==='early:12'?'County Offices — Harlan / Caleb Reed':id==='east:77'?'The Dominion Survey':title==='MOUNTAIN LIONS'?'Mountain Lion':entry.encounter.displayName||entry.name||entry.encounter.title,
    classification:entry.classification||'GLOBAL',regions:entry.regions||[],
-   combat:!!fight,variants:states.get(title)||[]
+   combat:!!fight,nonCombatantAssets:id==='early:12'?['caleb_reed.png']:undefined,western:!!westernVariants,fullCinematic:!!fixedVariants||industrialCinematics.has(title)||title==='ABANDONED SUPPLY TRUCK',regionalSprites,variants
   });
+ }
+ const ruralRows=new Map([
+  ['THE COIN WELL',{initialPositions:[]}],
+  ['RATS IN THE PANTRY',{initialPositions:[[50,61,24,48,1,false,2],[40,67,20,42,.88,false,2],[61,67,20,42,.88,true,3]]}],
+  ['DUST OVER THE SCHOOLYARD',{initialPositions:[[50,56,34,64,1,false,2]]}],
+  ['CORNFIELD STALKERS',{initialPositions:[[40,59,28,74,.82,false,1],[62,56,28,74,.9,true,3]]}],
+  ['THE DARK CELLAR',{initialPositions:[]}],
+  ['THE SAGGING FARMHOUSE',{initialPositions:[]}],
+  ['THE WHEELBARROW',{nonCombatantAssets:['the_wheelbarrow.png'],initialPositions:[[52,72,45,50,.92,false,2],[55,60,26,58,.8,false,3]]}],
+  ['TERRITORIAL FARMERS',{initialPositions:[[36,61,32,76,.92,false,2],[67,61,32,76,.92,true,3]]}],
+  ['FERAL BULL',{initialPositions:[[51,67,54,69,.9,false,2]]}]
+ ]);
+ for(const row of rows.values()){
+  const config=ruralRows.get(row.title);
+  if(config){Object.assign(row,config);row.fullCinematic=['THE COIN WELL','RATS IN THE PANTRY','DUST OVER THE SCHOOLYARD','CORNFIELD STALKERS','THE DARK CELLAR','THE SAGGING FARMHOUSE'].includes(row.title);}
+ }
+ // The registry retains the older titles for these repurposed encounter IDs.
+ for(const [id,variant] of [
+  ['east:75',{units:sprite('wild_bear.png'),phase:'both',variant:'Wild bear',background:null}],
+  ['east:72',{units:[],phase:'approach',variant:'Lost convoy',background:scenery('the_lost_convoy.png')}]
+ ]){
+  const row=rows.get(id);
+  if(row)row.variants.push(variant);
  }
  // Combat names differ from their saved encounter titles in the reworked scenes.
  for(const [combatName,encounterTitle] of [
+  ['MARSH DOG PACK','SALT MARSH HUNTERS'],
   ['MALFUNCTIONING FORKLIFT','FREIGHT CAR AMBUSH'],
   ['CRANE NEST BIRDS','THE CRANE NEST'],
   ['POWDER MONKEY WITH KNIFE','THE POWDER MONKEY']
@@ -208,9 +357,10 @@
  for(const [floor,names] of FACTORY_ENEMIES.entries()){
   for(const [slot,name] of names.entries()){
    const id='factory:floor:'+floor+':'+slot;
+   const unit=enemy(name.toLowerCase().replaceAll(' ','_')+'.png');
    rows.set(id,{id,title:name,name,classification:'FIXED',regions:['INDUSTRIAL'],
     site:'Factory — '+FACTORY_FLOORS[floor].name,combat:true,variants:[
-     {units:[],background:locationArt(floorFiles[floor]),phase:'combat',variant:'Floor background'}
+     {units:[unit],background:locationArt(floorFiles[floor]),phase:'combat',variant:'Factory enemy'}
     ]});
   }
  }
@@ -234,9 +384,9 @@
   ['gateGuards','Solace Gate Guard','Solace Gate','CENTRAL'],
   ['jenBoss','Raider Captain','Last Call quest'],
   ['terribleBilly','Terrible Billy','Bounty encounter'],
-  ['r18StationFight','Signal Hunters','Station Nine storyline'],
+  ['r18StationFight','Station Nine Tracker & Breacher','Station Nine tower','WEST'],
   ['r18DepotFight','County Unit 07','County Depot'],
-  ['stationNineSecurity','Station Nine Security Unit','Station Nine garage'],
+  ['stationNineSecurity','Station Nine Security Unit','Station Nine garage','WEST'],
   ['r18RedFight','Red’s Fight','Rusty Anchor','SEAPORT'],
  ];
  const scriptIds=new Map();
@@ -247,6 +397,86 @@
   rows.set(id,{id,name,title:normalize(name),classification:'FIXED',site,
    regions:region?[region]:[],combat:true,variants:source==='r18DepotFight'?
     [{units:[enemy('county_unit_07.png')],background:scenery('county_depot_interior.png'),phase:'combat',variant:'County Depot fight'}]:[]});
+ }
+ rows.get('scripted:r18stationfight').variants=[
+  {units:sprite('station_nine_tracker.png','station_nine_breacher.png'),phase:'combat',variant:'Station Nine Tracker and Breacher'}
+ ];
+ rows.get('scripted:stationninesecurity').variants=[
+  {units:sprite('station_nine_security_unit.png'),phase:'combat',variant:'Station Nine garage security'}
+ ];
+ for(const [id,name,region,file] of [
+  ['scripted:r18stationevelyn','Evelyn Cross — Station Nine','WEST','evelyn_cross_station_nine.png'],
+  ['seaport:caleb-docks','Caleb Reed — Seaport Docks','SEAPORT','caleb_seaport_docks.png']
+ ]){
+  rows.set(id,{id,name,title:normalize(name),classification:'FIXED',regions:[region],
+   combat:false,fullCinematic:true,variants:[{units:[],phase:'approach',variant:name,background:locationArt(file),composition:'none'}]});
+ }
+ const ashGate='assets/cemetery/ash_cemetery_gate_closed.png';
+ rows.set('ash:arrival',{id:'ash:arrival',title:'ASH CEMETERY — ARRIVAL',name:'Ash Cemetery — Arrival',
+  classification:'FIXED',regions:['WEST'],combat:false,fullCinematic:true,
+  nonCombatantAssets:['ash_cemetery_gate_closed.png'],initialPositions:[[50,59,80,76,1,false,2]],
+  variants:[{units:[ashGate],phase:'approach',variant:'Closed gate',
+   background:'assets/cemetery/ash_cemetery_stage_0_abandoned.png',composition:'sky'}]});
+ const cemeteryAsset=name=>'assets/cemetery/'+name+'.png';
+ const cemeteryStages=[
+  ['discovery','Discovery',0],['day0','Day 0',0],['day3','Day 3',1],
+  ['day7','Day 7',1],['day14','Day 14',1],['day30','Day 30+',2]
+ ];
+ const cemeteryEndings=[['mercy','Mercy'],['justice','Justice'],['redemption','Redemption'],['violent','Violent confrontation']];
+ const cemeteryEvents=[['normal','Normal Cemetery Visit'],['restoration','Cemetery Restoration'],['reunion',"Ruth's Reunion"]];
+ const cemeteryId=(stage,ending,event)=>'ash:editor:'+stage+':'+ending+':'+event;
+ const cemeteryBackgrounds=["ash_cemetery_stage_0_abandoned","ash_cemetery_stage_1_restoration","ash_cemetery_stage_2_restored"].map(cemeteryAsset);
+ const cemeteryUnits=[
+  'ash_cemetery_gate_closed',
+  'ash_cemetery_gate_open',
+  'ash_elias_vane_undertaker',
+  'ash_miriam_hiding_grave',
+  'ash_miriam_tending_restored_grave',
+  'ash_procession_mourners_coffin_sprite',
+  'ash_anya_scattering_seed',
+  'ash_ruth_planting_seeds',
+  'ash_tomas_raking_soil',
+  'ash_leah_clearing_weeds',
+  'ash_jo_brushing_headstone',
+  'ash_hal_tending_grave',
+  'ash_ruth_mother_laying_flowers',
+  'ash_ruth_mother_reunion',
+  'ash_elias_vane_restoration'
+ ].map(cemeteryAsset);
+ const [closedGate,openGate,elias,hiddenMiriam,tendingMiriam,mourners,anya,ruth,tomas,leah,jo,hal,mother,reunion,restoringElias]=cemeteryUnits;
+ const cemeteryWorkers=[anya,ruth,tomas,leah,jo,hal,tendingMiriam,mother];
+ const cemeteryEditor=Object.freeze({stages:cemeteryStages,endings:cemeteryEndings,events:cemeteryEvents,id:cemeteryId});
+ for(const [stage,label,background] of cemeteryStages){
+  for(const [ending] of cemeteryEndings){
+   for(const [event] of cemeteryEvents){
+    const id=cemeteryId(stage,ending,event);
+    const discovery=stage==='discovery';
+    const visible=new Set([cemeteryBackgrounds[background],discovery?closedGate:openGate]);
+    if(event==='reunion')visible.add(reunion);
+    else if(event==='restoration'){
+     const workers=background===0?[anya,tomas]:background===1?[ruth,leah,jo]:[hal,tendingMiriam,mother];
+     workers.forEach(path=>visible.add(path));
+    }else if(discovery){visible.add(mourners);visible.add(hiddenMiriam);}
+    else if(background===1){visible.add(anya);visible.add(jo);}
+    else if(background===2){visible.add(tendingMiriam);visible.add(mother);}
+    const vaneCanRestore=!discovery&&(ending==='mercy'||ending==='redemption');
+    if(ending!=='violent'&&discovery)visible.add(elias);
+    if(vaneCanRestore&&event==='restoration')visible.add(restoringElias);
+    const units=cemeteryUnits.filter(path=>(path!==elias||ending!=='violent')&&
+     (path!==restoringElias||vaneCanRestore));
+    rows.set(id,{id,title:'ASH CEMETERY — '+label,name:label,classification:'FIXED',regions:['WEST'],
+     combat:false,fullCinematic:true,previewOnly:true,initialPositions:units.map(path=>{
+      if(path===closedGate||path===openGate)return [50,59,80,76,1,false,20];
+      if(path===mourners)return [50,65,61,55,1,false,6];
+      if(path===reunion)return [51,63,36,58,1,false,9];
+      const index=cemeteryWorkers.indexOf(path);
+      return [index<0?(path===elias||path===restoringElias?73:25):20+(index%4)*20,61+(index>=4?10:0),28,51,1,false,5+Math.max(index,0)];
+     }),
+     cemetery:{backgrounds:cemeteryBackgrounds,visible,gates:[closedGate,openGate],
+      shared:cemeteryId(stage,'mercy','normal')},
+     variants:[{units,phase:'approach',variant:label,background:cemeteryBackgrounds[background],composition:'sky'}]});
+   }
+  }
  }
  // The scripted loop above allocates the canonical serviceBoss row; attach its
  // cinematic art AFTER that loop so it is not overwritten with an empty variant.
@@ -265,6 +495,17 @@
    phase:'both',variant:'Red portrait — live HP meter in combat'}];
  const yardmanRow=rows.get('scripted:serviceboss');
  if(yardmanRow)yardmanRow.variants=[{units:[],phase:'both',variant:'Yardman cinematic — sky only',background:scenery('the_yardman.png')}];
+ // Terrible Billy already has approved cinematic artwork; expose it to both
+ // Combat Visual Testing states rather than reporting the scripted row as missing.
+ const billyRow=rows.get('scripted:terriblebilly');
+ if(billyRow)billyRow.variants=[{units:[],phase:'both',variant:'Terrible Billy bounty artwork',background:scenery('terrible_billy.png')}];
+ // Last Call's Raider Captain already renders from the sidequest art handler.
+ // Expose that same existing image to Combat Visual Testing without changing
+ // its dynamic-sky/environment backdrop or the quest's combat behavior.
+ const captainRow=rows.get('scripted:jenboss');
+ if(captainRow)captainRow.variants=[{units:[],phase:'combat',
+  variant:'Last Call — Raider Captain (existing combat artwork)',
+  background:enemy('last_call_raider_captain.png')}];
  // Crazy Steve is a level-five promotional menu, not a random road registry fight.
  rows.set('scripted:crazy-steve',{id:'scripted:crazy-steve',title:'CRAZY STEVE',
   name:'Crazy Steve — Casino Announcement',classification:'FIXED',regions:['CENTRAL'],
@@ -275,7 +516,11 @@
  if(gateGuard)gateGuard.variants=[{units:[enemy('solace_gate_guard.png')],
   background:'../playtest/assets/locations/solace_town_gate.png',
   phase:'combat',variant:'Solace gate — guard emerges'}];
- const installed=new Map([...rows.values()].flatMap(row=>row.variants.flatMap(v=>
+ const gideon='wanderer:Gideon Briggs';
+ rows.set(gideon,{id:gideon,title:'GIDEON BRIGGS',name:'Gideon Briggs',classification:'GLOBAL',
+  regions:[],site:'Road wanderer',combat:false,variants:[{units:['assets/wanderers/rob_gideon.png'],
+   phase:'approach',variant:'Road portrait',background:null}]});
+ const installed=new Map([...rows.values()].filter(row=>!row.previewOnly).flatMap(row=>row.variants.flatMap(v=>
   v.units.map(path=>[assetName(path),path]))));
  const bounds={x:[0,100],y:[0,100],width:[2,150],height:[2,150],scale:[.1,3],z:[0,30]};
  function unit(value){
@@ -295,13 +540,23 @@
   const scenes=Object.create(null);
   for(const [scene,units] of Object.entries(doc.scenes)){
    const [id,phase,device,...extra]=scene.split('/');
-   if(!rows.has(id)||!['approach','combat'].includes(phase)||!['desktop','phone'].includes(device)||extra.length||
+   const row=rows.get(id);
+   if(!row||!['approach','combat'].includes(phase)||!['desktop','phone'].includes(device)||extra.length||
       !units||typeof units!=='object'||Array.isArray(units)||Object.keys(units).length>256)throw new Error('Invalid scene '+scene);
+   const validCemeteryUnits=row.previewOnly?new Set([
+    ...row.cemetery.backgrounds.map(path=>'background:'+assetName(path)),
+    ...row.variants[0].units.map(unitKey)
+   ]):null;
    const safe=Object.create(null);
    for(const [id,layout] of Object.entries(units)){
     if(!/^(?:background|attachment|\d{1,3}):[^/\\]{1,150}$/.test(id))throw new Error('Invalid unit key');
     if(id.startsWith('attachment:')&&!installed.has(id.slice(11)))throw new Error('Unknown attached asset');
+    if(validCemeteryUnits&&!validCemeteryUnits.has(id))throw new Error('Unknown cemetery artwork');
     safe[id]=unit(layout);
+    if(row.previewOnly&&Object.hasOwn(layout,'visible')){
+     if(typeof layout.visible!=='boolean')throw new Error('Invalid artwork visibility');
+     safe[id].visible=layout.visible;
+    }
    }
    scenes[scene]=safe;
   }
@@ -331,9 +586,70 @@
   for(const [scene,units] of Object.entries(incoming))next[scene]={...next[scene],...units};
   save(next);
  }
+ const ashGateClosed=cemeteryAsset('ash_cemetery_gate_closed');
+ const ashGateOpen=cemeteryAsset('ash_cemetery_gate_open');
+ const ashElias=cemeteryAsset('ash_elias_vane_undertaker');
+ const ashReunion=cemeteryAsset('ash_ruth_mother_reunion');
+ const ashMother=cemeteryAsset('ash_ruth_mother_laying_flowers');
+ function cemeteryPresentation(q,currentDay,mode,device='desktop'){
+  const locked=mode==='locked';
+  if(!q&&!locked)return null;
+  const elapsed=Math.max(0,(Number(currentDay)||1)-(Number(q?.completedDay)||1));
+  const milestone=elapsed>=30?'day30':elapsed>=14?'day14':elapsed>=7?'day7':elapsed>=3?'day3':'day0';
+  const special=mode==='reunion'||mode==='combat';
+  const resolved=!!q?.ending&&!special;
+  const id=cemeteryId(resolved?milestone:'discovery',resolved?q.ending:'mercy',mode==='reunion'?'reunion':'normal');
+  const row=rows.get(id);
+  const supported=row?.variants[0];
+  if(!supported)return null;
+  const placements={...published[sceneKey(id,'approach','desktop')],...published[sceneKey(id,'approach',device)]};
+  const selected=locked?[ashGateClosed]:mode==='reunion'?[ashGateOpen,ashReunion]:mode==='combat'?[ashGateOpen,ashElias]:null;
+  const background=resolved?row.cemetery.backgrounds.find(path=>placements['background:'+assetName(path)]?.visible)||supported.background:cemeteryBackgrounds[0];
+  const backdrop=placements['background:'+assetName(background)];
+  if(!backdrop)return null;
+  const layers=[{path:background,placement:backdrop,scenery:true}];
+  for(const [index,path] of supported.units.entries()){
+   const placement=placements[unitKey(path,index)];
+   if(!placement)continue;
+   const gate=row.cemetery.gates.includes(path);
+   const visible=selected?selected.includes(path):gate?!resolved&&path===ashGateOpen:placement.visible;
+   if(!visible||path===ashMother&&!q?.reunionSeen||!special&&path===ashReunion||
+      q?.ending==='violent'&&[ashElias,restoringElias].includes(path))continue;
+   const hp=mode==='combat'&&path===ashElias;
+   const gateLayer=hp?placements['1:'+assetName(ashGateOpen)]?.z??0:0;
+   layers.push({path,index,placement:{...placement,z:Math.max(placement.z,backdrop.z+1,gateLayer+1)},hp});
+  }
+  return {id,mode,layers};
+ }
  function get(id,phase,device){
   const scene=sceneKey(id,phase,device),desktop=sceneKey(id,phase,'desktop');
-  return {...published[desktop],...local[desktop],...published[scene],...local[scene]};
+  const layouts={...published[desktop],...local[desktop],...published[scene],...local[scene]};
+  // The Causeway has a narrow paved centerline. Override old published/browser
+  // layout coordinates for the Roach Nest while crossing it; preserve custom
+  // placements everywhere else and leave encounter/combat logic untouched.
+  if(id==='early:15'&&typeof route127CurrentRegion==='function'&&
+     typeof lanternState==='function'&&route127CurrentRegion(lanternState())==='CAUSEWAY'){
+   for(const file of ['roach_nest_ordinary.png','roach_nest_contaminated.png','roach_nest_aggressive_swarm.png']){
+    const key='0:'+file;
+    layouts[key]={...layouts[key],x:50,y:70,width:42,height:64,scale:.78,z:2,flip:false};
+   }
+  }
+  // On the narrow Causeway, The Stray's published left-shoulder position
+  // places him over water. Shift only his sprite toward the road center.
+  // Keep existing scale, depth, facing, and all other regional layouts.
+  if(id==='early:6'&&typeof route127CurrentRegion==='function'&&
+     typeof lanternState==='function'&&route127CurrentRegion(lanternState())==='CAUSEWAY'){
+   const stray='0:The Stray.png';
+   if(layouts[stray])layouts[stray]={...layouts[stray],x:52};
+  }
+  // Scrap Duel is a full cinematic scene, not a reduced sprite over regional sky.
+  // Correct old device-saved layouts as well as the published 0.76-scale default.
+  if(id==='east:11'&&layouts['background:the_scrap_duel.png']){
+   layouts['background:the_scrap_duel.png']={
+    ...layouts['background:the_scrap_duel.png'],x:50,y:50,width:100,height:100,scale:1,z:1,flip:false
+   };
+  }
+  return layouts;
  }
 
  // DEVTEST-only live art mapping: the Visual Testing assignments must also appear
@@ -356,16 +672,59 @@
   if(!onRoad)return model;
   const encounter=typeof currentEncounter==='function'?currentEncounter():null;
   const title=normalize(encounter?.title||c?.name);
+  const id=byEncounter.get(encounter);
+  const scenes=stage==='encounter'&&lowlandsCinematics.get(id);
+  if(scenes&&model.active){
+   if(id==='east:77')model.title='THE DOMINION SURVEY';
+   const underwater=id==='east:27'&&player.flags.r18ChapelScene?.underwater===true;
+   const scene=scenes[underwater?1:0];
+   const art=new URL(scene.background,root).href;
+   const region=route127CurrentRegion(lanternState());
+   const sky=scene.composition==='sky'?Route127EditorSky.describe(region,player.flags.worldHour):null;
+   const imageReady=GraphicalUI.sceneArtworkReady(art);
+   const skyReady=!sky||GraphicalUI.sceneArtworkReady(sky.sky);
+   // Keep the currently available regional presentation until both layers decode.
+   if(imageReady&&skyReady){
+    model.art=art;
+    model.scenarioBackdrop={art,mode:scene.composition};
+    model.causewayBacking=false;
+    model.regionalSky=sky&&{region,period:sky.period,sky:new URL(sky.sky).pathname.split('/').at(-1)};
+   }
+   return model;
+  }
+  const cinematic=industrialCinematics.get(title);
+  if(cinematic&&route127CurrentRegion(lanternState())==='INDUSTRIAL'){
+   model.art='../devtest/'+scenery(cinematic);
+   model.regionalSky=null;
+   return model;
+  }
   const file=ownerRoadArt.get(title)||ownerRoadArt.get(normalize(c?.name));
-  if(file)model.art='../devtest/assets/'+(file.startsWith('../scenarios/')?'scenarios/'+file.slice('../scenarios/'.length):'enemies/'+file);
+  if(file){
+   const art='../devtest/assets/'+(file.startsWith('../scenarios/')?'scenarios/'+file.slice('../scenarios/'.length):'enemies/'+file);
+   if(['shipwreck_scavengers.png','toxic_cargo.png'].includes(file)){
+    const phase=Route127RegionalSky.phase(player.flags.worldHour);
+    const sky=new URL('../assets/regions/sky_'+(phase==='dusk'?'dawn':phase)+'.png',root).href;
+    if(![art,sky].map(url=>this.sceneArtworkReady(url)).every(Boolean))return model;
+    model.scenarioBackdrop={art,mode:'sky'};
+    model.regionalSky=null;
+   }
+   model.art=art;
+  }
   return model;
  };
 
- const selector='.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-figure,.r127-npc-combat,.r127-road-unit,.r127-silo-boar';
+ const selector='.r127-live-wanderer-road,.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-figure,.r127-npc-combat,.r127-road-unit,.r127-silo-boar,.r127-final-unit,[data-miles-road]';
  function activeScene(){
   // The level-five Crazy Steve promotional menu is a standalone graphical stage.
   if(typeof stage!=='undefined'&&stage==='r127StevePromo')return {id:'scripted:crazy-steve',phase:'approach'};
   const c=typeof combatState==='undefined'?null:combatState;
+  if(!c&&(stage==='wandererRoad'&&currentRoadWanderer==='Gideon Briggs'||
+   stage==='port55Recruit'&&player.flags.portHireOffer?.name==='Gideon Briggs'&&
+   player.flags.portHireOffer.origin==='wandererRoad'))return {id:gideon,phase:'approach'};
+  if(!c&&stage==='r18Station'&&globalThis.Route127StationNinePresentation?.viewingEvelyn())
+   return {id:'scripted:r18stationevelyn',phase:'approach'};
+  if(!c&&stage==='r11Caleb'&&player.flags.r18CalebRescued)return {id:'seaport:caleb-docks',phase:'approach'};
+  if(c?.r18Harlan)return {id:'early:12',phase:'combat'};
   if(c?.r18DanielCaptors)return {id:'factory:captors',phase:'combat'};
   if(stage==='factoryDungeonRoom'&&!c){
    const f=player.flags.factoryDungeon;
@@ -390,20 +749,49 @@
   const id=byEncounter.get(encounter)||byTitle.get(normalize(encounter?.title||c?.name));
   return id?{id,phase:c?'combat':'approach'}:null;
  }
- const getSlot=(node,index)=>node.dataset.batIndex??node.dataset.raccoonIndex??node.dataset.humanIndex??node.dataset.index??index;
+ const getSlot=(node,index)=>node.dataset.batIndex??node.dataset.raccoonIndex??node.dataset.humanIndex??node.dataset.crewSlot??node.dataset.index??index;
+ function artworkPlacement(img,scene,index,allowBackdrop=false){
+  const name=assetName(img.src);
+  // The Mask Market's live composition uses its WebP asset. Keep accepting
+  // the published/editor placement key for the same scene artwork.
+  const backdropName=name==='the_mask_market.webp'?'the_mask_market.png':name;
+  for(const variant of rows.get(scene.id)?.variants||[]){
+   if(variant.phase!=='both'&&variant.phase!==scene.phase)continue;
+   if(allowBackdrop&&variant.background&&assetName(variant.background)===backdropName)
+    return {key:'background:'+backdropName,background:true};
+   if(variant.units[index]&&assetName(variant.units[index])===name)
+    return {key:unitKey(img.src,index),background:false};
+  }
+  return null;
+ }
  function figureUnits(e,scene){
   const units=[...e.figure.querySelectorAll(selector)].flatMap((node,index)=>{
    const img=node.tagName==='IMG'?node:node.querySelector('img');
-   return img?.src?[{node,img,key:unitKey(img.src,getSlot(node,index))}]:[];
+   if(!img?.src)return [];
+   const slot=getSlot(node,index);
+   const placement=node.matches('.r127-final-unit,[data-miles-road]')?
+    artworkPlacement(img,scene,slot,node.matches('.r127-final-freight,[data-miles-road]')):
+    {key:unitKey(img.src,slot),background:false};
+   return placement?[{node,img,...placement}]:[];
   });
-  const row=rows.get(scene.id);
-  if(e.img?.src&&row?.variants.some(v=>v.background&&assetName(v.background)===assetName(e.img.src))){
-   units.push({node:e.img,img:e.img,key:'background:'+assetName(e.img.src),background:true});
+  if(e.img?.src){
+   const placement=artworkPlacement(e.img,scene,0,true);
+   if(placement)units.push({node:e.img,img:e.img,...placement});
   }
   return units;
  }
  const styled=new Set();
+ // Contain fits the pixels inside the image box. Saved transforms can still
+ // move that box beyond the clipped road figure, especially with old drafts.
+ function fitMilesRoadLayout(layout){
+  const scale=Math.min(layout.scale,100/layout.width,100/layout.height);
+  const halfWidth=layout.width*scale/2,halfHeight=layout.height*scale/2;
+  return {...layout,scale,
+   x:Math.min(100-halfWidth,Math.max(halfWidth,layout.x)),
+   y:Math.min(100-halfHeight,Math.max(halfHeight,layout.y))};
+ }
  function apply(node,layout,background=false){
+  if(node.hasAttribute('data-miles-road'))layout=fitMilesRoadLayout(layout);
   node.classList.add('r127-layout-unit');
   node.classList.toggle('r127-layout-background',background);
   node.classList.toggle('r127-layout-flipped',layout.flip);
@@ -412,15 +800,58 @@
   }
   styled.add(node);
  }
+ const viewportDevice=()=>typeof matchMedia==='function'&&matchMedia('(max-width:600px)').matches?'phone':'desktop';
+ function applyOverlay(node,index){
+  const scene=activeScene(),img=node.querySelector('img');
+  if(!scene||!img?.src)return;
+  const placement=artworkPlacement(img,scene,index,node.matches('.r127-final-freight,[data-miles-road]'));
+  const layout=placement&&get(scene.id,scene.phase,viewportDevice())[placement.key];
+  if(layout)apply(node,layout);
+ }
  const css=document.createElement('style');
  css.textContent=`
+ body.full-graphics .gfx-frame .gfx-art > .gfx-image:is(
+  [src$="/the_parts_truck.png"],
+  [src$="/the_midnight_shift.png"],
+  [src$="/the_last_paycheck.png"],
+  [src$="/the_last_fax_machine.png"],
+  [src$="/the_battery_room.png"],
+  [src$="/the_training_video.png"],
+  [src$="/the_trapped_worker.png"],
+  [src$="/the_water_shipment.png"]
+ ){object-fit:contain;object-position:center}
+ .gfx-frame .gfx-art>.gfx-image:is([src*="/quicksand_cut.gif"],[src*="/river_of_fire.gif"]){
+  object-fit:cover;object-position:right bottom
+ }
  .r127-layout-attachments{position:absolute;inset:0;z-index:5;pointer-events:none}
  .r127-layout-attachments img{object-fit:contain}
- /* Full-scene illustrations must not be cropped as sprite tiles. */
+ .gfx-frame.r127-factory-unit-ready .gfx-main>.gfx-combat{display:none!important}
+ .r127-factory-unit>img{display:block;width:100%;height:100%;object-position:center bottom}
+ .r127-factory-unit>.r127-road-hp{
+  position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  white-space:nowrap;color:#ffaaa4;background:#32100e;border:1px solid #aa413b;
+  border-radius:4px;padding:3px 6px;font:700 clamp(10px,1.5vw,18px)/1.15 sans-serif
+ }
+ /* Smaller five-gull composition; leave artwork and regional scenery intact. */
+  body.full-graphics .gfx-frame .gfx-art > img.gfx-image[src*="aggressive_seagulls.png"]:not(.r127-layout-unit){
+   object-fit:contain!important;
+   object-position:center center!important;
+   transform:scale(.78)!important;
+   transform-origin:center center!important;
+  }
+  /* Full-scene illustrations must not be cropped as sprite tiles. */
  .gfx-frame .gfx-art img[src*="miles_the_courier.png"],
  .gfx-frame .gfx-art img[src*="the_carousel_horse.png"]{object-fit:contain!important;object-position:center center!important}
  .gfx-frame .gfx-art.r127-layout-has-background{aspect-ratio:16/9;min-height:150px}
+ /* Scrap Duel's authored scene fills the complete artwork viewport; no sky margin. */
+ .gfx-frame .gfx-art img[src*="the_scrap_duel.png"]{object-fit:cover!important;object-position:center!important}
  .gfx-frame .gfx-art .r127-layout-unit{position:absolute!important;left:var(--r127-layout-x)!important;top:var(--r127-layout-y)!important;width:var(--r127-layout-width)!important;height:var(--r127-layout-height)!important;transform:translate(-50%,-50%) scale(var(--r127-layout-scale))!important;scale:none!important;z-index:var(--r127-layout-z)!important}
+ /* Saved coordinates are relative to the scene, rather than a sprite grid cell. */
+ .gfx-frame .gfx-art .r127-lowlands-units>.r127-layout-unit{grid-area:auto!important}
+ .gfx-frame .gfx-art > img.gfx-image.r127-layout-unit:not(.r127-layout-background){
+  max-width:none;max-height:none;object-fit:contain;object-position:center bottom
+ }
+ .gfx-frame .gfx-art img.r127-live-wanderer-road.r127-layout-unit{right:auto;bottom:auto;max-width:none;object-position:center}
  .gfx-frame .gfx-art .r127-layout-unit:not(.r127-layout-background)>img{transform:none!important}
  .gfx-frame .gfx-art .r127-layout-unit.r127-layout-flipped:not(.r127-layout-background)>img{transform:scaleX(-1)!important}
  .gfx-frame .gfx-art img.r127-layout-flipped{transform:translate(-50%,-50%) scale(calc(-1 * var(--r127-layout-scale)),var(--r127-layout-scale))!important}
@@ -442,6 +873,7 @@
   const result=oldSync.apply(this,args), e=this.element, scene=activeScene();
   for(const node of styled)node.classList.remove('r127-layout-unit','r127-layout-background','r127-layout-flipped');
   styled.clear();
+  e?.frame?.classList.remove('r127-factory-unit-ready');
   if(!scene||!e?.figure||e.frame.hidden){
    attachmentLayer?.remove();attachmentLayer=null;
    e?.figure?.classList.remove('r127-layout-has-background');
@@ -449,11 +881,19 @@
   }
   // DAY intentionally has no filter: preserve the original bright character artwork.
   e.figure.dataset.r127CharacterLight=typeof Route127RegionalSky?.phase==='function'?Route127RegionalSky.phase(player?.flags?.worldHour):'day';
-  const device=typeof matchMedia==='function'&&matchMedia('(max-width:600px)').matches?'phone':'desktop';
+  const device=viewportDevice();
   const layouts=get(scene.id,scene.phase,device);
+  const westernScene=rows.get(scene.id)?.western?western.current()?.variant:null;
+  if(westernScene){
+   if(westernScene.composition==='none')e.figure.dataset.r127CharacterLight='day';
+   westernScene.units.forEach((path,index)=>{
+    layouts[unitKey(path,index)]??=western.placement(index,westernScene.units.length,false);
+   });
+   if(westernScene.background)layouts['background:'+assetName(westernScene.background)]??=western.placement(0,0,true);
+  }
   e.figure.classList.toggle('r127-layout-has-background',!!e.img?.src&&!!layouts['background:'+assetName(e.img.src)]);
   if(Object.keys(layouts).length)for(const item of figureUnits(e,scene)){
-   if(layouts[item.key])apply(item.node,layouts[item.key],item.background);
+   if(!item.node.classList.contains('r127-final-unit')&&layouts[item.key])apply(item.node,layouts[item.key],item.background);
   }
   const attachments=Object.entries(layouts).filter(([key])=>key.startsWith('attachment:'));
   // The two crane enemies are individual sprites above the regional Lowlands
@@ -470,6 +910,18 @@
      {x,y,width,height,scale:1,z:4,flip:false}]);
    });
   }
+  const factoryEnemy=combatState&&scene.id.startsWith('factory:floor:')?combatState:null;
+  let factoryKey;
+  if(factoryEnemy){
+   // Ordinary Factory encounters have one fighter, identified by the active floor and combat name.
+   const [path]=rows.get(scene.id).variants[0].units;
+   const key=factoryKey='attachment:'+assetName(path);
+   const index=attachments.findIndex(([id])=>id===key);
+   if(factoryEnemy.hp>0){
+    if(index<0)attachments.push([key,layouts[unitKey(path,0)]||
+     {x:50,y:60,width:48,height:70,scale:1,z:4,flip:false}]);
+   }else if(index>=0)attachments.splice(index,1);
+  }
   const signature=scene.id+'/'+scene.phase+'/'+attachments.map(([key])=>key).join('/');
   if(attachmentLayer?.dataset.signature!==signature){
    attachmentLayer?.remove();attachmentLayer=null;
@@ -481,12 +933,29 @@
      const image=document.createElement('img');
      image.src=new URL(installed.get(key.slice(11)),root).href;
      image.alt='';
-     attachmentLayer.append(image);
+     if(key===factoryKey){
+      const unit=document.createElement('div');
+      unit.className='r127-factory-unit';
+      const hp=document.createElement('span');
+      hp.className='r127-road-hp';
+      image.addEventListener('load',()=>GraphicalUI.schedule());
+      unit.append(image,hp);
+      attachmentLayer.append(unit);
+     }else attachmentLayer.append(image);
     }
     e.figure.append(attachmentLayer);
    }
   }
-  attachments.forEach(([,layout],index)=>apply(attachmentLayer.children[index],layout));
+  attachments.forEach(([key,layout],index)=>{
+   const node=attachmentLayer.children[index];
+   apply(node,layout);
+   if(key!==factoryKey)return;
+   const image=node.querySelector('img'),label=node.querySelector('.r127-road-hp');
+   const ready=image.complete&&image.naturalWidth>0;
+   label.hidden=!ready;
+   label.textContent=factoryEnemy.hp+' / '+factoryEnemy.maxHp+' HP';
+   e.frame.classList.toggle('r127-factory-unit-ready',ready);
+  });
   return result;
  };
  function capture(scene,device){
@@ -508,6 +977,6 @@
   }));
  }
  globalThis.Route127CombatLayouts=Object.freeze({
-  rows,installed,root,regionArt,assetName,unitKey,sceneKey,get,local:()=>local,published:()=>published,merged,json,save,importJSON,capture,activeScene
+  rows,installed,root,cemeteryEditor,cemeteryPresentation,applyCemeteryLayout:apply,regionArt,assetName,unitKey,sceneKey,get,applyOverlay,local:()=>local,published:()=>published,merged,json,save,importJSON,capture,activeScene
  });
 })();

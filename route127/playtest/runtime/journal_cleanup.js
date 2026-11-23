@@ -4,7 +4,7 @@
  */
 (()=>{
 'use strict';
-if(!/(?:^|\/)route127\/(?:playtest|devtest)\/(?:index\.html)?$/.test(location.pathname)||typeof TravelerPanels==='undefined')return;
+if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST'||typeof TravelerPanels==='undefined')return;
 const panel=TravelerPanels;
 const done=state=>['done','complete','completed'].includes(String(state||'').toLowerCase());
 const visible=state=>state!==undefined&&state!==null&&state!==false&&
@@ -43,9 +43,22 @@ const descriptions={
  jenUnpaidTab:'Settle the unpaid tavern tab.',
  jenFamiliarFace:'Follow Jen’s lead on the familiar traveler.'
 };
-function objective(){
+function storyProgress(){
  const f=player.flags;
- if(f.chapterOneComplete)return 'Chapter One completed. Further chapters are in development.';
+ // Later milestones are proof of earlier progress, even if old save slots
+ // retained a stale Solace/Relay flag. Read-only: never rewrite the cloud save.
+ const seaportLiberated=!!(f.seaport55?.freed||f.chapterOneComplete);
+ const boulderCleared=!!(f.portRoadCleared||seaportLiberated);
+ const factoryReached=!!(f.v49FactoryMet||f.factoryQuest==='active'||
+   done(f.factoryQuest)||f.portChargePrepared||boulderCleared);
+ return {seaportLiberated,boulderCleared,factoryReached};
+}
+function objective(){
+ const f=player.flags,p=storyProgress();
+ if(p.seaportLiberated)return portQuestObjective();
+ if(p.boulderCleared)return 'Liberate Seaport — defeat the fishermen and free the survivors at Harbor Docks.';
+ if(p.factoryReached)
+  return typeof portQuestObjective==='function'?portQuestObjective():'Prepare the charge at the Factory.';
  if(f.mainSolaceQuest!=='done'&&f.mainSolaceQuest!=='complete')
   return 'Reach Solace and find shelter.';
  if(!done(f.relayQuest)){
@@ -75,6 +88,21 @@ function build(page){
   return rows;
  }
  const completed=page==='completed';
+ const progress=storyProgress();
+ // Main story milestones are independent from Chapter One completion. In particular,
+ // liberating Seaport must stay completed while the transmitter remains unfinished.
+ if(completed){
+  if(progress.boulderCleared)
+   push('Factory — Prepare the Dynamite',['The charge was prepared and the boulder at Boulder Junction was destroyed. Road to Seaport opened.','Completed.']);
+  if(progress.seaportLiberated)
+   push('Liberate Seaport',['Fishermen defeated; prisoners freed. Seaport liberated.','Completed.']);
+ }else if(progress.seaportLiberated){
+  if(!f.tomorrowProjectChoice)push('The Road to Seaport — Tomorrow Project',[portQuestObjective()]);
+ }else if(progress.boulderCleared){
+  push('Liberate Seaport',['Travel to Seaport, defeat the fishermen enforcers and free the survivors at Harbor Docks.']);
+ }else if(progress.factoryReached){
+  push('Factory — Prepare the Dynamite',[typeof portQuestObjective==='function'?portQuestObjective():'Prepare the charge and clear Boulder Junction.']);
+ }
  // Quest flags are authoritative; raw log strings and location breadcrumbs are not.
  if(typeof R5_QUESTS!=='undefined')for(const [key,name] of R5_QUESTS){
   if(key==='relayQuest')continue;
@@ -109,7 +137,8 @@ function build(page){
  if(typeof R11_QUESTS!=='undefined'&&f.r11Quests)for(const [key,state] of Object.entries(f.r11Quests)){
   if(visible(state)&&done(state)===completed&&R11_QUESTS[key])
    push(R11_QUESTS[key].name,completed?['Completed.']:
-    [state==='ready'?'Return to '+R11_QUESTS[key].giver+' to report your findings.':'Follow the leads from '+R11_QUESTS[key].giver+'.']);
+    [key==='lights'&&state==='ready'?'Use FIX COMPUTER in the Rusty Anchor back room.':
+     state==='ready'?'Return to '+R11_QUESTS[key].giver+' to report your findings.':'Follow the leads from '+R11_QUESTS[key].giver+'.']);
  }
  return rows;
 }

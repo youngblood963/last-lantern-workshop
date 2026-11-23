@@ -13,8 +13,7 @@
     casinoRound()?.game==='rats';
  const names=typeof CASINO_RATS!=='undefined'?CASINO_RATS:['Nibbles','Rustbucket','Sir Squeaks-a-Lot','Cheeseburger'];
  const base='assets/locations/rats/';
- const asset=p=>typeof ROUTE127_ASSET_BASE!=='undefined'&&ROUTE127_ASSET_BASE?
-   new URL(base+p,ROUTE127_ASSET_BASE).href:base+p;
+ const asset=p=>new URL('../playtest/'+base+p,document.baseURI).href;
  const previousModel=GraphicalUI.model;
  GraphicalUI.model=function(){
    const m=previousModel.call(this);

@@ -112,7 +112,7 @@ function lanternMigrate(saved){
 }
 function lanternSave(){if(typeof v49Autosave==='function')v49Autosave();}
 function lanternNodeMenu(){const g=lanternState();if(g.nodeId==='solace'&&!g.currentEdgeId&&!g.solaceAdmitted)return arriveSettlement();if(g.currentEdgeId)return lanternRoadMenu();stage='lanternNode';const n=LG_NODES[g.nodeId];add(n.name.toUpperCase(),'place');
- if(n.futureInterior)add(n.id==='broken-bridge'?'The broken span is impassable. The approach roads remain open; there is no crossing or interior here.':'You can inspect the exterior and take the connecting roads. The interior is reserved for future expansion.','system');
+ if(n.futureInterior&&n.id!=='abandoned-motel')add(n.id==='broken-bridge'?'The broken span is impassable. The approach roads remain open; there is no crossing or interior here.':'You can inspect the exterior and take the connecting roads. The interior is reserved for future expansion.','system');
  if(g.nodeId==='boulder-junction')add(player.flags.portRoadCleared?'The shared harbor passage is clear.':'All harbor approach lanes meet here. One boulder seals the only city passage. Prepare the charge with Forge at the Factory.','system');
  const options=[...renderRoadMarkerActions(),...r11RoadQuestOptions(),...lanternConnections(g.nodeId).map(e=>'TAKE ROAD TO '+LG_NODES[lanternOther(e,g.nodeId)].name.toUpperCase())];
  if(typeof r18AshAvailable==='function'&&r18AshAvailable())options.unshift('VISIT ASH CEMETERY');

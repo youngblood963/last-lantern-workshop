@@ -781,12 +781,12 @@ const WandererWorldExpansion={
   const oldCost=portHireCost;
   portHireCost=function(w){const o=expansion.option(w);return o&&!o.bolts?0:oldCost(w);};
   const oldMenu=portHireMenu;
-  portHireMenu=function(){const offer=player.flags.portHireOffer,w=offer&&wandererByName(offer.name),d=expansion.definition(w);if(!d)return oldMenu();add(w.name.toUpperCase()+' > '+d.dialogue[2],'bright');const option=expansion.option(w);if(option){add(expansion.terms(w,option),'system');portStaffChoices('CONFIRM ARRANGEMENT',['CONFIRM HIRE','CANCEL HIRE']);}else portStaffChoices('RECRUIT '+w.name.toUpperCase(),[...d.options.filter(o=>expansion.available(o)).map(o=>o.label),'CANCEL HIRE']);};
+  portHireMenu=function(){const offer=player.flags.portHireOffer,w=offer&&wandererByName(offer.name),d=expansion.definition(w);if(!d)return oldMenu();add(w.name.toUpperCase()+' > '+d.dialogue[2],'bright');const option=expansion.option(w);if(option){add(expansion.terms(w,option),'system');portStaffChoices('CONFIRM ARRANGEMENT',['CONFIRM HIRE','CANCEL HIRE']);}else portStaffChoices('RECRUIT '+w.name.toUpperCase(),[...d.options.filter(o=>expansion.available(o)).map(o=>offer.settlement==='motel'?o.label.replace(/seaport/ig,'Motel'):o.label),'CANCEL HIRE']);};
   const oldCommand=portRecruitCommand;
   portRecruitCommand=function(cmd){
    const offer=player.flags.portHireOffer,w=offer&&wandererByName(offer.name),d=expansion.definition(w);
    if(stage!=='port55Recruit'||!d)return oldCommand(cmd);
-   const selected=d.options.find(o=>o.label.toLowerCase()===cmd&&expansion.available(o));
+   const selected=d.options.find(o=>(offer.settlement==='motel'?o.label.replace(/seaport/ig,'Motel'):o.label).toLowerCase()===cmd&&expansion.available(o));
    if(selected){offer.worldOption=selected.id;portHireMenu();v49Autosave();return true;}
    if(cmd!=='confirm hire')return oldCommand(cmd);
    const option=expansion.option(w);if(!option){portHireMenu();return true;}
@@ -802,7 +802,7 @@ const WandererWorldExpansion={
    receipts[w.name]={option:option.id,bolts:option.bolts?oldCost(w):0,...(option.item?{item:option.item,qty:option.qty}:{}),method:d.method};
    const result=oldCommand(cmd);
    if(!portIsHired(w.name)){player.pack=pack;player.bolts=wallet;delete receipts[w.name];v49Autosave();return result;}
-   add(option.response||w.name+' accepts the agreed supplies and joins the Seaport workforce.','reward');return result;
+   add((option.response||w.name+' accepts the agreed supplies and joins the Seaport workforce.').replace(/Seaport/g,offer.settlement==='motel'?'the Motel':'Seaport'),'reward');return result;
   };
   const render=renderCurrentChoices;renderCurrentChoices=function(){if(stage==='port55Recruit'&&expansion.definition(player.flags.portHireOffer?.name))return portHireMenu();return render();};
   const load=loadGame;loadGame=function(slot){const result=load(slot);if(stage==='port55Recruit'&&expansion.definition(player.flags.portHireOffer?.name))portHireMenu();return result;};

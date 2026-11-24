@@ -628,7 +628,7 @@ for(let i=EQUIPMENT_CATALOG.length-1;i>=0;i--){
 for(const name of ['Reinforced Pipe','Tempered Steel Pipe']){
  Object.defineProperty(GEAR,name,{enumerable:false});
 }
-const REGIONAL_EQUIPMENT_CONFIG={solace:{cap:10,rareChance:.10},seaport:{cap:20,rareChance:.10}};
+const REGIONAL_EQUIPMENT_CONFIG={solace:{cap:10,rareChance:.10},seaport:{cap:20,rareChance:.10},motel:{cap:20,rareChance:.10}};
 function regionalEquipmentStock(region){
  ensureRefillClock();const config=REGIONAL_EQUIPMENT_CONFIG[region];if(!config)throw Error('Unknown region');
  const stocks=player.flags.regionalEquipment||(player.flags.regionalEquipment={}),period=Number(player.flags.nextRefillAt);
@@ -644,7 +644,7 @@ function regionalEquipmentStock(region){
  if(typeof v49Autosave==='function')v49Autosave();
  return stocks[region];
 }
-function regionalEquipmentPrice(name,region){const g=GEAR[name];if(!g||!g.id)return 0;const base=(50+3*g.level)*(g.rarity==='rare'?2:1);const rating=region==='seaport'&&typeof portStaffRating==='function'?portStaffRating('general store'):1;return Math.max(1,Math.round(base*(1-(Math.max(1,rating)-1)*.02)));}
+function regionalEquipmentPrice(name,region){const g=GEAR[name];if(!g||!g.id)return 0;const base=(50+3*g.level)*(g.rarity==='rare'?2:1);const rating=['seaport','motel'].includes(region)&&typeof portStaffRating==='function'?portStaffRating(region==='motel'?'armory':'general store'):1;return Math.max(1,Math.round(base*(1-(Math.max(1,rating)-1)*.02)));}
 function regionalEquipmentText(slot,region){const g=GEAR[slot.name];if(!g)return slot.name+' — UNAVAILABLE';return `${gearLabel(slot.name)} — ${g.type==='weapon'?`DMG ${g.min}–${g.max}`:`DEF ${g.def}`} — ${regionalEquipmentPrice(slot.name,region)} BOLTS${slot.sold?' — SOLD OUT':''}`;}
 function regionalEquipmentBuy(region,wanted){
  const stock=regionalEquipmentStock(region),slot=stock.slots.find(x=>x.name.toLowerCase()===wanted.toLowerCase());
@@ -1333,7 +1333,7 @@ const wandererSpots=["road","mercy","jen","johnny","murphy","wayne","amii","gate
 let wandererLocations={};
 function rollWandererLocations(previous={}){
   const out={};
-  wanderers.forEach(w=>{ if(typeof portIsHired==="function"&&portIsHired(w.name)){out[w.name]="seaport";return;} if(!wandererAlive(w)){out[w.name]="dead";return;} const choices=wandererSpots.filter(x=>x!==previous[w.name]); out[w.name]=choices[Math.floor(Math.random()*choices.length)]; });
+  wanderers.forEach(w=>{ if(typeof portIsHired==="function"&&portIsHired(w.name)){out[w.name]=typeof portHiredSettlement==="function"?portHiredSettlement(w.name):"seaport";return;} if(!wandererAlive(w)){out[w.name]="dead";return;} const choices=wandererSpots.filter(x=>x!==previous[w.name]); out[w.name]=choices[Math.floor(Math.random()*choices.length)]; });
   return out;
 }
 function moveWanderers(){ wandererLocations=rollWandererLocations(wandererLocations||{}); }

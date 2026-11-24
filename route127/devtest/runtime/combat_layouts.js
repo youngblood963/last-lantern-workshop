@@ -289,6 +289,9 @@
 
  const western=globalThis.Route127WesternArt;
  const rows=new Map();
+ rows.set('motel:pool',{id:'motel:pool',name:'The Deep End — Motel Pool',title:'THE DEEP END',classification:'FIXED',regions:['WEST'],combat:true,fullCinematic:true,
+ variants:[{units:[],phase:'approach',variant:'Pool arena',background:locationArt('motel_arena.png'),composition:'none'},
+ {units:['roadblock.png','riot.png','grizzly.png'].map(file=>new URL('assets/fighters/'+file,root).href),phase:'combat',variant:'Motel fighters',background:locationArt('motel_arena.png'),composition:'none'}]});
  const byEncounter=new Map();
  const byTitle=new Map();
  for(const entry of [...RoadScenarioRegistry.entries,...RoadScenarioRegistry.regionalCatalog]){
@@ -727,6 +730,7 @@
 
  const selector='.r127-live-wanderer-road,.r127-bat-unit,.r127-raccoon-unit,.r127-human-unit,.r127-npc-figure,.r127-npc-combat,.r127-road-unit,.r127-silo-boar,.r127-final-unit,[data-miles-road]';
  function activeScene(){
+  if(typeof lanternState==='function'&&lanternState()?.nodeId==='abandoned-motel'&&player.flags.motelRoom==='pool')return {id:'motel:pool',phase:combatState?'combat':'approach'};
   // The level-five Crazy Steve promotional menu is a standalone graphical stage.
   if(typeof stage!=='undefined'&&stage==='r127StevePromo')return {id:'scripted:crazy-steve',phase:'approach'};
   const c=typeof combatState==='undefined'?null:combatState;

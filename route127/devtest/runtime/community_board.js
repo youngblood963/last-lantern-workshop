@@ -11,7 +11,7 @@
  const readOnlyMessage='Read-only while you have no turns. Posting and replies return when your turns replenish.';
  const entries=[['announcement','Wasteland News'],['discussion','Community Discussions']];
  const categories=['Report a Bug','Suggest a Feature','Gameplay Balancing','Artwork or Visual Issue','General Feedback'];
- let dialog,renderVersion=0,returningFromBounties=false,origin='town',view=null,permission=canDiscuss();
+ let dialog,renderVersion=0,returningFromBounties=false,origin='town',settlementReturn=null,view=null,permission=canDiscuss();
  const make=(tag,text)=>{
   const node=document.createElement(tag);
   if(text!==undefined)node.textContent=text;
@@ -114,7 +114,7 @@
     returningFromBounties=false;dialog.showModal();
     panel.append(make('p','Wanted posters are temporarily unavailable.'));
    }
-  }),control('Back to Town',town));
+  }),control(origin==='settlement'?'Back to Motel':'Back to Town',town));
  }
  function mutation(form,values,onSuccess,path='board',label='Post Notice'){
   const send=make('button',label),line=status();
@@ -216,14 +216,14 @@
   },'feedback','Test Feedback Submission');
   form.append(control('Cancel',backToOrigin));panel.append(form);
  }
- function openBoard(source,draw){
-  origin=source;
+ function openBoard(source,draw,onReturn=null){
+  origin=source;settlementReturn=onReturn;
   if(!dialog){
    dialog=make('dialog');dialog.className='route127-community-board';
    dialog.setAttribute('aria-labelledby','community-board-title');
    dialog.addEventListener('close',()=>{
     if(dialog.open||returningFromBounties)return;
-    renderVersion++;if(origin==='town')mercyMenu();
+    renderVersion++;if(origin==='settlement')settlementReturn?.();else if(origin==='town')mercyMenu();
    });
    dialog.addEventListener('keydown',event=>event.stopPropagation());
    document.body.append(dialog);
@@ -237,6 +237,7 @@
  };
  // Public-service enforcement is a separate release requirement; this adapter stays local.
  globalThis.Route127Community=Object.freeze({
+  settlement(onReturn){openBoard('settlement',home,onReturn);},
   news(){openBoard('waiting',()=>listing('announcement'));},
   discussions(){openBoard('waiting',()=>listing('discussion'));},
   feedback(){openBoard('waiting',feedback);},

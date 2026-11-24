@@ -5,9 +5,10 @@
 if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||typeof GraphicalUI==='undefined'||typeof casinoWagerMenu!=='function')return;
 const root=new URL('../devtest/',document.baseURI);
 const src=file=>new URL('assets/enemies/'+file,root).href;
-const arenaArt=key=>new URL(key==='ring'?'../../the_fighting_ring.png':'../../the_forgotten_arena.png',root).href;
+const arenaArt=key=>key==='deep'?new URL('assets/locations/motel_arena.png',root).href:new URL(key==='ring'?'../../the_fighting_ring.png':'../../the_forgotten_arena.png',root).href;
 const roster={ring:[['SCRAPPER','arena_scrapper.png'],['BRUISER','arena_bruiser.png'],['THE HAMMER','arena_the_hammer.png']],grave:[['DRIFTER','arena_drifter.png'],['IRONBACK','arena_ironback.png'],['GRAVEKEEPER','arena_gravekeeper.png']]};
-const title=key=>key==='ring'?'THE FIGHTING RING':'THE FORGOTTEN ARENA';
+roster.deep=[['ROADBLOCK','../fighters/roadblock.png'],['RIOT','../fighters/riot.png'],['GRIZZLY','../fighters/grizzly.png']];
+const title=key=>key==='deep'?'THE DEEP END':key==='ring'?'THE FIGHTING RING':'THE FORGOTTEN ARENA';
 function identify(){
  if(typeof currentEncounter!=='function')return null;
  const name=String(currentEncounter()?.title||'').toUpperCase().replace(/^EAST ROAD — /,'');
@@ -90,6 +91,7 @@ function leave(){
  if(timer){clearInterval(timer);timer=0;}
  session=null;
  const g=typeof lanternState==='function'?lanternState():null;
+ if(g?.nodeId==='abandoned-motel'&&!g.currentEdgeId){Route127Motel.open();GraphicalUI.schedule();return;}
  if(g?.pending){stage='encounter';completeRoadTurn();}
  else if(g?.currentEdgeId){stage='lanternRoad';lanternRoadMenu();}
  else{stage='lanternNode';lanternNodeMenu();}
@@ -157,6 +159,7 @@ loadGame=function(...args){
    key=identify();
   }catch(error){console.warn('Saved arena encounter unavailable',error);}
  }
+ if(graph?.nodeId==='abandoned-motel'&&!graph.currentEdgeId)key='deep';
  if(key){
   add('Arena lobby restored. Interrupted exhibitions do not resume.','system');
   Route127ArenaLobby.open(key);

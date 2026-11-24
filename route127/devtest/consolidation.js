@@ -4,7 +4,8 @@ function v53Normalize(cmd){
  let s=String(cmd).trim().toLowerCase();
  if(s==='leave browse wares')return 'back';
  if(/^browse wares(?: |$)/.test(s))return s.replace(/^browse wares/,'trade');
- if(/^talk(?: |$)/.test(s)&&!s.startsWith('talk to '))return s.replace(/^talk/,'small talk');
+ // Only the bare wanderer command is an alias. Narrative encounter verbs must survive unchanged.
+ if(s==='talk')return 'small talk';
  return s;
 }
 const v53OldChoice=choiceCommand;choiceCommand=function(label){return v53Normalize(v53OldChoice(label));};

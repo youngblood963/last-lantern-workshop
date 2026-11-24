@@ -684,9 +684,12 @@ function packSlotsUsed() { r127NormalizeEdiblePack();return player.pack.filter(i
 function r18ItemLabel(item){return item.name+(item.stolen?' (STOLEN)':'');}
 function r18NamedStack(items,label){const value=String(label).trim(),tagged=/ \(stolen\)$/i.test(value),name=value.replace(/ \(stolen\)$/i,'').toLowerCase(),matches=items.filter(i=>i.name.toLowerCase()===name);return tagged?matches.find(i=>!!i.stolen):matches.find(i=>!i.stolen)||matches[0];}
 function findItem(name) {const value=String(name).trim(),tagged=/ \(stolen\)$/i.test(value),query=value.replace(/ \(stolen\)$/i,'').toLowerCase(),exact=player.pack.filter(i=>i.name.toLowerCase()===query),matches=exact.length?exact:player.pack.filter(i=>i.name.toLowerCase().includes(query));return tagged?matches.find(i=>!!i.stolen):matches.find(i=>!i.stolen)||matches[0];}
-function hasItem(name) { return !!findItem(name); }
+const EncounterInteraction={active:null,isInformation:()=>false,
+ requirement(name,need=1,available){const have=available??(Number(findItem(name)?.qty)||0);this.active?.requirements.push({name,need,have});return have;}};
+function hasItem(name) { return EncounterInteraction.requirement(name,1)>0; }
 function removeItem(name, qty=1) {
-  const item=findItem(name); if(!item) return false;
+  const item=findItem(name); const have=EncounterInteraction.requirement(name,qty);
+  if(!Number.isInteger(qty)||qty<=0||!item||have<qty)return false;
   item.qty-=qty; if(item.qty<=0) player.pack=player.pack.filter(i=>i!==item); updateHud(); return true;
 }
 // Bonus finds are separate common items, never copies of quest or one-time rewards.

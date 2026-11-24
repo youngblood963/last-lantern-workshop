@@ -3542,15 +3542,16 @@ const RoadLifecycle={
   return !!this.oldClaims[id]?.[key]||id==='east:52'&&key==='INSPECT THE RED MITTEN'||id==='early:194'&&key==='SALVAGE WARNING EQUIPMENT';
  },
  scope(e,cmd,fn){const entry=this.entry(e),p=this.policies[entry?.id];if(!p||['Fixed','Inactive'].includes(p.lifecycle)||this.active?.id===entry.id)return fn();const id=entry.id,key=this.key(e,cmd),finite=this.finiteAction(id,key),claims=finite?this.record(id).claims:this.visitClaims(id),alias=this.aliases(id,key);
-  if(!this.leaving(key)&&(this.done(id)||!this.transaction(key)&&!this.horseRetry(id,key)&&(claims[alias]||finite&&this.claimed(id,key)))){add('That part of this encounter has already been completed.','system');return false;}
-  const prior=this.active,ctx={id,key,alias,finite,earned:false,scene:this.occurrence(),leaving:this.leaving(key)};this.active=ctx;let result;try{result=fn();return result;}finally{this.active=prior;
+  const information=EncounterInteraction.active?.information;
+  if(!information&&!this.leaving(key)&&(this.done(id)||!this.transaction(key)&&!this.horseRetry(id,key)&&(claims[alias]||finite&&this.claimed(id,key)))){add('That part of this encounter has already been completed.','system');return false;}
+  const prior=this.active,ctx={id,key,alias,finite,earned:false,repeatInformation:information&&!!(claims[alias]||this.claimed(id,key)),scene:this.occurrence(),leaving:this.leaving(key)};this.active=ctx;let result;try{result=fn();return result;}finally{this.active=prior;
    if(ctx.earned&&!combatState&&!ctx.leaving&&!this.transaction(key)){claims[alias]=true;this.updateWO7Outcome(id,key);}
    if(id==='east:79'&&key==='POINT OUT A SHELTERED SPOT'&&result!==false)this.record(id).tommySheltered=true;
    if(id==='east:40'&&(key==='LEAVE THE HORSE'||player.flags.r18HorseOwned))this.record(id).horseResolved=true;
    if(result!==false)v49Autosave();
   }
  },
- updateWO7Outcome(id,key){const p=this.policies[id],q=this.record(id).wo7;if(!q||p.lifecycle==='Repeatable')return;const w=p.workOrderId;if(w==='I4'||w==='I8'||w==='I12')return;
+ updateWO7Outcome(id,key){if(EncounterInteraction.active?.information)return;const p=this.policies[id],q=this.record(id).wo7;if(!q||p.lifecycle==='Repeatable')return;const w=p.workOrderId;if(w==='I4'||w==='I8'||w==='I12')return;
   if(w==='I16'&&key==='SALVAGE THE LOADING AREA')return;
   if(w==='I5'){q.resolved=key==='SALVAGE THE PROJECTOR'||this.claimed(id,'WATCH THE VIDEO')&&this.claimed(id,'SEARCH THE ROOM');return;}
   q.resolved=true;q.outcome=key;
@@ -3567,20 +3568,20 @@ const RoadLifecycle={
   v49Autosave();
  },
  install(){const life=this;
-  const xp=gainXp;gainXp=function(n){if(life.active&&n>0)life.active.earned=true;return xp(n);};
-  const bolts=gainBolts;gainBolts=function(n){if(life.active&&n>0)life.active.earned=true;return bolts(n);};
-  const pack=addPack;addPack=function(...args){const result=pack(...args);if(result&&life.active)life.active.earned=true;return result;};
-  const retain=r18RetainRoadReward;r18RetainRoadReward=function(...args){if(life.active)life.active.earned=true;return retain(...args);};
+  const xp=gainXp;gainXp=function(n){if(life.active?.repeatInformation)return; if(life.active&&n>0)life.active.earned=true;return xp(n);};
+  const bolts=gainBolts;gainBolts=function(n){if(life.active?.repeatInformation)return; if(life.active&&n>0)life.active.earned=true;return bolts(n);};
+  const pack=addPack;addPack=function(...args){if(life.active?.repeatInformation)return true;const result=pack(...args);if(result&&life.active)life.active.earned=true;return result;};
+  const retain=r18RetainRoadReward;r18RetainRoadReward=function(...args){if(life.active?.repeatInformation)return true;if(life.active)life.active.earned=true;return retain(...args);};
   for(const encounter of new Set([...encounters,...eastEncounters])){const entry=this.entry(encounter);if(!entry||!this.policies[entry.id]||['Fixed','Inactive'].includes(this.policies[entry.id].lifecycle))continue;
    const resolve=encounter.resolve;encounter.resolve=function(cmd,...args){return life.scope(this,cmd,()=>resolve.call(this,cmd,...args));};
    if(encounter.prompt)encounter.wo13Prompt=encounter.prompt;else encounter.wo13Prompt=function(){return this.choices;};
-   encounter.prompt=function(){const p=life.policies[entry.id];return life.labels(this).filter(key=>life.leaving(key)||life.transaction(key)||!life.finiteAction(entry.id,key)||life.horseRetry(entry.id,key)||!life.claimed(entry.id,key)).join('   ');};
+   encounter.prompt=function(){const p=life.policies[entry.id];return life.labels(this).filter(key=>EncounterInteraction.isInformation(key)||life.leaving(key)||life.transaction(key)||!life.finiteAction(entry.id,key)||life.horseRetry(entry.id,key)||!life.claimed(entry.id,key)).join('   ');};
   }
   const resolve=resolveEncounter;resolveEncounter=function(cmd,...args){const e=currentEncounter();return life.scope(e,cmd,()=>resolve(cmd,...args));};
-  const choices=WO7.choices;WO7.choices=function(id){const entry=RoadScenarioRegistry.regionalCatalog.find(e=>e.workOrderId===id);return choices.call(this,id).filter(key=>!entry||life.leaving(key)||life.transaction(key)||!life.finiteAction(entry.id,key)||!life.claimed(entry.id,key));};
+  const choices=WO7.choices;WO7.choices=function(id){const entry=RoadScenarioRegistry.regionalCatalog.find(e=>e.workOrderId===id);return choices.call(this,id).filter(key=>!entry||EncounterInteraction.isInformation(key)||life.leaving(key)||life.transaction(key)||!life.finiteAction(entry.id,key)||!life.claimed(entry.id,key));};
   const act=WO7.act;WO7.act=function(id,cmd){const e=RoadScenarioRegistry.regionalCatalog.find(e=>e.workOrderId===id)?.encounter;return life.scope(e,cmd,()=>act.call(this,id,cmd));};
   const candidates=r10Candidates;r10Candidates=function(pool,kind){return candidates(pool,kind).filter(i=>life.eligible(r10Pool(pool)[i]));};
-  const prepare=r10PrepareEncounter;r10PrepareEncounter=function(...args){life.state();if(resumeSavedEncounter&&!combatState){const e=currentEncounter();if(e&&life.done(e)){resumeSavedEncounter=false;delete player.encounterDone[roadTurn];const g=lanternState();if(g)g.encounterIndex=null;}}return prepare(...args);};
+  const prepare=r10PrepareEncounter;r10PrepareEncounter=function(...args){life.state();if(resumeSavedEncounter&&!combatState){const e=currentEncounter();if(e&&life.done(e)&&!life.labels(e).some(label=>EncounterInteraction.isInformation(label))){resumeSavedEncounter=false;delete player.encounterDone[roadTurn];const g=lanternState();if(g)g.encounterIndex=null;}}return prepare(...args);};
   const start=startCombat;startCombat=function(spec,source,...args){const ctx=life.active;const result=start(spec,source,...args);if(combatState&&source==='encounter'&&ctx)combatState.wo13Origin={id:ctx.id,scene:ctx.scene,key:ctx.key};return result;};
   const combat=handleCombat;handleCombat=function(cmd,...args){const c=combatState;if(c&&c.source==='encounter'&&!c.wo13Origin){const entry=life.entry(currentEncounter());if(entry&&life.policies[entry.id]){c.wo13Origin={id:entry.id,scene:life.occurrence(),key:life.key(currentEncounter(),c.action||'fight')};if(life.policies[entry.id].workOrderId)life.wo7State(life.policies[entry.id].workOrderId);}}if(c?.wo13Awarded){combatState=null;return completeRoadTurn();}const result=combat(cmd,...args);if(c&&c.hp<=0&&stage!=='fallen'&&combatState!==c){c.wo13Awarded=true;life.battleWon(c);}return result;};
  }

@@ -155,7 +155,7 @@ function r6CraftMaterialMatches(item,name){
  return item.name===name&&item.type==='material';
 }
 function r6MaterialCount(name){return player.pack.filter(i=>r6CraftMaterialMatches(i,name)&&i.name!==player.weapon&&i.name!==player.armor).reduce((s,i)=>s+i.qty,0);}
-function r6ConsumeMaterial(name,qty){if(r6MaterialCount(name)<qty)return false;for(const i of [...player.pack]){if(!r6CraftMaterialMatches(i,name))continue;const use=Math.min(qty,i.qty);i.qty-=use;qty-=use;if(!i.qty)player.pack.splice(player.pack.indexOf(i),1);if(!qty)break;}return true;}
+function r6ConsumeMaterial(name,qty){const have=r6MaterialCount(name);EncounterInteraction.requirement(name,qty,have);if(have<qty)return false;for(const i of [...player.pack]){if(!r6CraftMaterialMatches(i,name))continue;const use=Math.min(qty,i.qty);i.qty-=use;qty-=use;if(!i.qty)player.pack.splice(player.pack.indexOf(i),1);if(!qty)break;}return true;}
 const r6Map=v49LiveMap;v49LiveMap=function(){if(r6Road()?.active&&player.level>=5){const q=r6Road(),el=document.querySelector('#live-map');if(el){el.textContent=`${q.leg==='coast'?'FACTORY':'SOLACE'} — ${q.pos}/${q.n} — ${q.leg==='coast'?'SEAPORT':'FACTORY'} | ${q.dir>0?'EAST →':'← WEST'}`;return;}}return r6Map();};
 // A round journal prevents restoring an earlier in-round save to reroll or repay.
 // It covers this browser's casino session, not deliberate editing of save files.

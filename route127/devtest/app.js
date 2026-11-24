@@ -1464,9 +1464,12 @@ function r18CampVariant(){
 // A scene-scoped stock roll survives redraws and save/load without duplicating purchases.
 function r18PeteStock(){const g=typeof lanternState==='function'?lanternState():null,scene=g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`,f=player.flags;if(f.r18PeteStock?.scene===scene){if(r127RetiredItem(f.r18PeteStock.equipment?.name))f.r18PeteStock.equipment=null;f.r18PeteStock.water??=4;return f.r18PeteStock;}const stock={scene,water:4,potato:Math.random()<.5,equipment:null};if(Math.random()<.25){const pool=EQUIPMENT_CATALOG.filter(x=>x.rarity==='uncommon'&&['weapon','armor'].includes(x.type)),def=pool[Math.floor(Math.random()*pool.length)];if(def){const level=Math.max(def.minLevel,Math.min(def.maxLevel,Math.floor(Number(player.level)||1)));stock.equipment={name:catalogInstanceName(def,level),type:def.type,price:80+level*3,sold:false};}}f.r18PeteStock=stock;return stock;}
 function r18FreezerScene(){
- const g=typeof lanternState==='function'?lanternState():null;
- const scene=typeof RoadLifecycle!=='undefined'?RoadLifecycle.sceneKey('early:32'):g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`;
- if(typeof RoadLifecycle!=='undefined'&&player.flags.r18FreezerScene)player.flags.r18FreezerScene.scene=scene;if(player.flags.r18FreezerScene?.scene!==scene)player.flags.r18FreezerScene={scene,ambush:Math.random()>=.6,opened:false};
+ const g=typeof lanternState==='function'?lanternState():null,life=typeof RoadLifecycle!=='undefined'?RoadLifecycle:null;
+ const scene=life?life.occurrence():g?.sceneId||`${day}:${dailyRoadTurns}:${roadGoal}:${roadTurn}`;
+ const previous=player.flags.r18FreezerScene;
+ // Keep an unfinished legacy visit stable. A completed old ambush may roll anew.
+ if(previous?.scene==='WO13:early:32'&&!life?.record('early:32',false).resolved)previous.scene=scene;
+ if(player.flags.r18FreezerScene?.scene!==scene)player.flags.r18FreezerScene={scene,ambush:Math.random()>=.6,opened:false};
  return player.flags.r18FreezerScene;
 }
 function r18OpenMechanicChest(){

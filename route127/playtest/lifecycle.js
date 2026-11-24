@@ -1161,7 +1161,7 @@ const ROAD_LIFECYCLE={
         "OPEN FREEZER"
       ]
     ],
-    "completion": "Stable freezer variant; rescue reward or ambush combat victory resolves the encounter."
+    "completion": "Stable variant within each road occurrence; new visits can recur until Lisa is peacefully rescued."
   },
   "early:34": {
     "name": "THE RAIN BARREL",
@@ -3510,7 +3510,7 @@ const RoadLifecycle={
   if(id==='early:8')return !!f.billboard&&(f.r18BillboardFrontSeen||[]).length>=6&&this.claimed(id,'SEARCH BASE');
   if(id==='early:9')return !!f.travelerInSolace||!!f.helpedTraveler||!!q.resolved;
   if(id==='early:27')return !!f.r18MazeClaimed&&!(f.wo3Corvette?.active&&(Number(f.wo3Corvette.tiresRecovered)||0)<4);
-  if(id==='early:32')return !!f.r18FreezerRescueReward||!!q.resolved;
+  if(id==='early:32')return !!f.r18FreezerRescueReward;
   if(id==='early:60')return !!f.r18RadioCasing&&!!f.r18RadioCircuit&&!!(f.r18Station?.edge||f.r18Station?.node);
   if(id==='early:62')return !!(f.r18RabbitAdopted||f.r18RabbitHarvested)&&!!f.r18RabbitGardenSearched&&!!f.r18RabbitShedSearched;
   if(id==='east:40')return !!f.r18HorseHerdHelped&&!!f.r18HorseSaddleClaimed&&!!(q.horseResolved||f.r18HorseOwned);
@@ -3538,6 +3538,7 @@ const RoadLifecycle={
  transaction(key){if(key==='RECOVER SUITABLE TIRE')return true;return /^(?:BUY |SELL |BARTER |WAGER |CONFIRM .*WAGER|CANCEL |RECYCLE |START NEXT MATCH|ENTER TOURNAMENT|CHALLENGE TRAINING)/.test(key);},
  leaving(key){return /^(?:LEAVE$|BACK(?: AWAY)?$|MOVE ON$|KEEP MOVING$|WALK AWAY$|WITHDRAW$|RETREAT$|LEAVE (?:MAZE|CHAPEL|WORKER|DEPOT)|SURFACE AND LEAVE)/.test(key);},
  finiteAction(id,key){const p=this.policies[id];if(!p||this.transaction(key)||this.leaving(key)||['Fixed','Inactive'].includes(p.lifecycle))return false;if(id==='early:8'&&key==='STUDY FRONT')return false;
+  if(id==='early:32')return false; // Freezer actions/ambush rewards belong to one visit.
   if(p.lifecycle!=='Repeatable')return true;
   return !!this.oldClaims[id]?.[key]||id==='east:52'&&key==='INSPECT THE RED MITTEN'||id==='early:194'&&key==='SALVAGE WARNING EQUIPMENT';
  },
@@ -3562,9 +3563,9 @@ const RoadLifecycle={
   q=rec.wo7;if(q.visit!==visit&&!q.resolved){q.done=false;q.combat=false;delete q.combatReward;q.visit=visit;}
   q.key=key;q.seen=q.seen||{};player.flags.wo7Scene=q;return q;
  },
- battleWon(c){const origin=c.wo13Origin;if(!origin)return;const p=this.policies[origin.id],rec=this.record(origin.id),claims=p.lifecycle==='Repeatable'?this.claims(origin.id):rec.claims;claims['COMBAT:'+c.name]=true;claims[this.aliases(origin.id,origin.key)]=true;
+ battleWon(c){const origin=c.wo13Origin;if(!origin)return;const p=this.policies[origin.id],rec=this.record(origin.id),claims=origin.id==='early:32'?this.visitClaims(origin.id):p.lifecycle==='Repeatable'?this.claims(origin.id):rec.claims;claims['COMBAT:'+c.name]=true;claims[this.aliases(origin.id,origin.key)]=true;
   if(p.workOrderId&&p.lifecycle!=='Repeatable'){const q=rec.wo7;if(q){if(!['I4','I8','I12'].includes(p.workOrderId)){q.resolved=true;q.outcome='COMBAT VICTORY';}}}
-  else if(['early:6','early:7','early:32','east:26'].includes(origin.id))rec.resolved=true;
+  else if(['early:6','early:7','east:26'].includes(origin.id))rec.resolved=true;
   v49Autosave();
  },
  install(){const life=this;

@@ -6,7 +6,7 @@ if(globalThis.ROUTE127_ENV?.name!=='PLAYTEST')return;
 const layers='.r127-regional-sky,.r127-regional-ground,.r127-demo-sky,.r127-demo-road,.r127-finish-sky,.r127-finish-ground,.r127-approved-sky,.r127-approved-ground,.r127-new-sky,.r127-shipwreck-sky,.r127-final-road';
 const regional=src=>/\/assets\/regions\//.test(String(src||''));
 function cinematic(model){
- if(!model?.active||regional(model.art))return false;
+ if(!model?.active||['location','casino'].includes(model.artworkCategory)||regional(model.art))return false;
  if(model.scenarioBackdrop)return ['sky','road','none','standalone'].includes(model.scenarioBackdrop.mode);
  const active=globalThis.Route127CombatLayouts?.activeScene(),row=active&&Route127CombatLayouts.rows.get(active.id);
  if(!row)return false;

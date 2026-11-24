@@ -1,6 +1,12 @@
-/* DEVTEST: contain encounter/location illustrations, not regional terrain.
-   Regional originals and transparent terrain overlays retain their cover fit. */
+/* Scenario containment stays unchanged. Permanent locations are classified by
+   runtime context, so a shared file may cover a shop but contain a road scene. */
 body.full-graphics .gfx-frame .gfx-art > img.gfx-image:not([src*="/assets/regions/"]){
  object-fit:contain!important;
  object-position:center center!important;
+}
+/* Specificity intentionally supersedes older filename-based interior overrides
+   in graphics.css and ui_stabilization_20261104.css. No dimensions are changed. */
+body.full-graphics .gfx-frame .gfx-art[data-artwork-category="location"] > img.gfx-image,
+body.full-graphics .gfx-frame .gfx-art[data-artwork-category="regional"] > img.gfx-image{
+ object-fit:cover!important;
 }

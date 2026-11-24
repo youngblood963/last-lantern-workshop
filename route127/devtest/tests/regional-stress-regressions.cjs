@@ -1,5 +1,5 @@
 /* Supplemental regressions for defects first reproduced through continuous graphical play. */
-const assert=require('node:assert/strict'),create=require('./helpers/menu_audit.cjs');
+const assert=require('node:assert/strict'),create=require(process.env.ROUTE127_TEST_ENTRY==='playtest'?'./helpers/release_menu.cjs':'./helpers/menu_audit.cjs');
 (async()=>{
  let {run,flush,ctx}=create();await flush();await run("outputQueue");
  const reset=()=>{({run,flush,ctx}=create());return run("resetPlayer();player.handle='Regional Regression';player.level=15;player.hp=player.maxHp=baseHpForLevel(15);player.turns=10;testMode=false;player.flags.interfaceUnlocked=true;player.flags.mercyDiscovered=true;lanternMigrate();Object.assign(lanternState(),{nodeId:'lowlands',currentEdgeId:null,pending:false});lanternProject();busy=false;commandProcessing=false;FocusedEntry.close();FocusedEntry.dismissed=null;combatState=null;returnStage=null;resultBuffer=null;outputQueue=Promise.resolve();screen.replaceChildren();numberedChoices={};currentHotkeys={};GraphicalUI.active=()=>true;GraphicalUI.preferred='graphics';stage='lanternNode';menuAuditMessages=[];");};

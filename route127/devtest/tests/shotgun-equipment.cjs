@@ -1,5 +1,5 @@
 /* Focused real-engine equipment/Backpack regression; no public services. */
-const assert=require('node:assert/strict'),create=require('./helpers/menu_audit.cjs');
+const assert=require('node:assert/strict'),create=require(process.env.ROUTE127_TEST_ENTRY==='playtest'?'./helpers/release_menu.cjs':'./helpers/menu_audit.cjs');
 (async()=>{
 let cases=0;
 for(const base of ['Sawed-Off Shotgun','Double-Barrel Shotgun','Tactical Shotgun','Thunderhead Shotgun'])for(const mode of ['acquired','saved','stolen-stack']){

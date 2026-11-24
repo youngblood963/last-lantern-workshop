@@ -1,6 +1,6 @@
 # Regional gameplay session — concluded for owner review
 
-DEVTEST ONLY. The owner ended the extended run; original coverage targets are withdrawn for this session. No additional regional travel was performed during finalization. No merge or public deployment.
+The owner ended the extended run; original coverage targets are withdrawn for this session. No additional regional travel was performed during finalization. The subsequent **Finalize & Deploy Gameplay Repairs** work order authorizes merge and deployment of the verified repairs to DEVTEST and PLAYTEST. See `release-verification.md` for the promotion checks.
 
 ## Actual graphical coverage
 

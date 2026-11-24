@@ -36,7 +36,7 @@ function render(){
  if(r.game==='ROULETTE'){
   addImmediate('European single zero. Place chips on the felt. Combined stakes: 1–1,000 Bolts. Zero loses ordinary outside bets.','system');
   addImmediate('CHIPS: '+r.bets.reduce((s,b)=>s+b.amount,0)+' Bolts. Set chip with WAGER <amount>. BBS bet: PLACE <bet id>.','system');
-  return choices(['CHIP 10','CHIP 50','CHIP 100','CUSTOM','UNDO BET','CLEAR BETS','SPIN','BACK']);
+  return choices(['CHIP 10','CUSTOM','UNDO BET','CLEAR BETS','SPIN','BACK']);
  }
  if(r.custom){addImmediate('CUSTOM WAGER — enter 1 to 1,000 whole Bolts.','system');return choices(['BACK']);}
  return choices(r.game==='SLOTS'?['WAGER 10','WAGER 20','WAGER 50','BACK']:['WAGER 10','WAGER 50','WAGER 100','WAGER 500','CUSTOM','BACK']);

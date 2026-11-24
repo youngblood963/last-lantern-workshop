@@ -7,8 +7,10 @@ const panels=new Set(['inventory','inventoryItem','confirmDrop','quests','interf
 function classify(model,context={}){
  if(!model?.active)return 'inactive';
  const current=context.stage??stage,place=panels.has(current)?(context.returnStage??returnStage):current;
+ const interior=context.mercyLocation??mercyLocation;
  const combat=context.combat??(typeof combatState==='undefined'?null:combatState);
  // Casino tables keep their own sizing and overlay coordinate system.
+ if(place==='mercy'&&['casino','casinoGame','jenGames','dice','diceBet','diceAgain'].includes(interior))return 'casino';
  if(/casino|poker|blackjack|slots/i.test(model.layout||'')||/casino|blackjack|slots|roulette|keno/i.test(place))return 'casino';
  // Fresh Mart is an established fixed location, also registered in the art editor.
  if(place==='wo6FreshMart'&&!combat)return 'location';

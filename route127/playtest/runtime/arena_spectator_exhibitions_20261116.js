@@ -22,7 +22,7 @@ function menu(){
  add(title(session.key),'place');
  if(session.result)add(session.result,'reward');
  add('Watch the exhibition, back a fighter, or enter the championship. Spectating costs no travel turns.','system');
- r5DirectChoices(['WATCH A ROUND','BET ON A ROUND','ENTER TOURNAMENT','BACK AWAY']);
+ DevtestMenuModel.publishQueued('arena-exhibition-lobby',['WATCH A ROUND','BET ON A ROUND','ENTER TOURNAMENT','BACK AWAY'],'BACK AWAY',r5DirectChoices,{direct:true});
  GraphicalUI.schedule();
 }
 globalThis.Route127ArenaLobby=Object.freeze({open(key){

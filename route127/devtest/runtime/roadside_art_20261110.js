@@ -211,13 +211,13 @@ GraphicalUI.sync=function(...args){
   const scene=roadStage&&encounterCombat&&!e.frame.hidden&&this.preference()==='graphics'?current():null;
   e.frame.classList.toggle('r127-route-scene',roadStage&&(inScope()||!!scene?.items.length));
   e.frame.classList.toggle('r127-sprite-failed',!!e.figure.querySelector('img[data-failed="true"]'));
-  if(inScope()&&stage==='encounter')e.caption.textContent=currentEncounter()?.displayName||currentEncounter()?.title||e.caption.textContent;
-  if(inScope()&&['combat','combatItems'].includes(stage)&&combatState?.source==='encounter'){
+  if((inScope()||scene?.items.length)&&stage==='encounter')e.caption.textContent=currentEncounter()?.displayName||currentEncounter()?.title||e.caption.textContent;
+  if((inScope()||scene?.items.length)&&['combat','combatItems'].includes(stage)&&combatState?.source==='encounter'){
    if(combatState.r18WallFight)e.caption.textContent='THE SENTRY';
    else if(combatState.r18WardenId)e.caption.textContent='THE WARDEN';
    else if(combatState.r18GardenChickens||combatState.r18Harlan||currentEncounter()?.title==='THE KNIFE WIND'){
     e.caption.textContent=currentEncounter()?.displayName||e.caption.textContent;
-   }
+   }else e.caption.textContent=currentEncounter()?.displayName||currentEncounter()?.title||e.caption.textContent;
   }
   let layer=e.figure.querySelector('.r127-road-art');
   // Dedicated HP-linked sprite layers already own these combat visuals.

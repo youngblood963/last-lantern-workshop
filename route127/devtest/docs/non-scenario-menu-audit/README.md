@@ -1,8 +1,10 @@
 # DEVTEST non-scenario interaction audit
 
+**Correction — November 23, 2026:** the original DOM loader skipped attributed inline scripts, including the approved Seaport Slots implementation and slot stake/odds adapter. Its Captain’s Dice coverage was a legacy fixture artifact. The actual graphical menu is **Blackjack, Slots, Pirate’s Poker, Crab Racing, Knife Throwing, Return to Mia**. See [the corrected runtime investigation and graphical evidence](../seaport-casino-regression/README.md). The counts and coverage files below are historical partial-loader results, not certification of the omitted slot paths. The corrected loader and new targeted regression now execute those paths.
+
 Reviewed against main `c1581ab` on November 23, 2026. DEVTEST changes only; no merge or deployment performed.
 
-| Metric | Result |
+| Historical partial-loader metric | Result |
 |---|---:|
 | Distinct published menu variants exercised | 236 |
 | Conditional menu states exercised | 1,398 |

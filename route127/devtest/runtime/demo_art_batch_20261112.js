@@ -27,14 +27,14 @@
   if(guard())return {id:'solace-guard',file:new URL('../playtest/assets/locations/solace_town_gate.png',root).href,layers:'none',guard:true};
   if(enforcer())return {id:'road-enforcer',file:asset('scenarios','the_road_enforcer.png'),layers:'road'};
   if(yardman())return {id:'the-yardman',file:asset('scenarios','the_yardman.png'),layers:'sky'};
-  if(stage!=='encounter')return null;
+  if(stage!=='encounter'&&!(isFight()&&fight()?.source==='encounter'))return null;
   const title=norm(encounter()?.title),display=norm(encounter()?.displayName);
   // Owner's latest approved artwork: the first group uses sky only, the
   // second uses sky and dirt foreground. Reapers art lives in enemies,
   // and Old Pete's uploaded filename is normalized to old_pete.png.
   const newlyApproved={
    'OVERTURNED MAINTENANCE CART':{id:'maintenance-cart',folder:'scenarios',file:'overturned_cart_battery.png',layers:'regional'},
-   'THE KNIFE WIND':{id:'the-road-reapers',folder:'enemies',file:'the_road_reapers.png',layers:'regional'},
+   'THE KNIFE WIND':{id:'the-road-reapers',folder:'enemies',file:'the_road_reapers.png',layers:'regional',combat:true},
    'THE LIMPING HOUND':{id:'the-limping-hound',folder:'scenarios',file:'the_limping_hound.png',layers:'regional'},
    'THE WALKING PEDDLER':{id:'old-pete',folder:'scenarios',file:'old_pete.png',layers:'regional'},
    'THE TIPPED DELIVERY TRUCK':{id:'delivery-truck',folder:'scenarios',file:'the_tipped_delivery_truck.png',layers:'road'},
@@ -44,7 +44,8 @@
    'THE LAST PATROL':{id:'last-patrol',folder:'scenarios',file:'the_last_patrol.png',layers:'road'}
   };
   const approved=newlyApproved[title]||newlyApproved[display];
-  if(approved)return {id:approved.id,file:asset(approved.folder,approved.file),layers:approved.layers};
+  if(approved&&(stage==='encounter'||approved.combat))return {id:approved.id,file:asset(approved.folder,approved.file),layers:approved.layers};
+  if(stage!=='encounter')return null;
   if(title==='RIDGELINE'||display==='RIDGELINE')return {id:'ridgeline',file:asset('scenarios','ridgeline.gif'),layers:'none'};
   if(title==='SCRATCHING IN THE SHED'||display==='SCRATCHING IN THE SHED')return {id:'shed',file:asset('scenarios',discoveredRabbit()?'scratching_in_the_shed_rabbit.gif':'scratching_in_the_shed_empty.gif'),layers:'road'};
   if(title==='THE DRY FOUNTAIN'||display==='THE ROAD ENFORCER')return {id:'road-enforcer',file:asset('scenarios','the_road_enforcer.png'),layers:'road'};

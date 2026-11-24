@@ -1,0 +1,173 @@
+{
+  "naturalSpins": [
+    {
+      "before": 4920,
+      "after": 4910,
+      "bet": 10,
+      "payout": 0,
+      "reels": [
+        "SCRAP",
+        "BOLTS",
+        "BOLTS"
+      ],
+      "id": "5b6564f0-e3f2-459e-b110-067bad9bdc4d",
+      "correct": true
+    },
+    {
+      "before": 4910,
+      "after": 4900,
+      "bet": 10,
+      "payout": 0,
+      "reels": [
+        "LANTERN",
+        "RAT",
+        "SKULL"
+      ],
+      "id": "6359edd5-e338-422c-87df-934445635e69",
+      "correct": true
+    },
+    {
+      "before": 4900,
+      "after": 4890,
+      "bet": 10,
+      "payout": 0,
+      "reels": [
+        "BOLTS",
+        "LANTERN",
+        "BOLTS"
+      ],
+      "id": "357f55f1-2906-4662-876f-0e6d64db918a",
+      "correct": true
+    },
+    {
+      "before": 4890,
+      "after": 4880,
+      "bet": 10,
+      "payout": 0,
+      "reels": [
+        "SCRAP",
+        "RAT",
+        "BOLTS"
+      ],
+      "id": "8ac5d150-a94e-436a-a79e-e8694ba57835",
+      "correct": true
+    },
+    {
+      "before": 4880,
+      "after": 4870,
+      "bet": 10,
+      "payout": 0,
+      "reels": [
+        "SCRAP",
+        "SKULL",
+        "LANTERN"
+      ],
+      "id": "0754dc6f-941b-4864-b3ec-c2039793e6f5",
+      "correct": true
+    },
+    {
+      "before": 4870,
+      "after": 4860,
+      "bet": 10,
+      "payout": 0,
+      "reels": [
+        "SCRAP",
+        "RAT",
+        "BLACKGLASS"
+      ],
+      "id": "9473a3ad-9d49-47c4-8562-8c2894922787",
+      "correct": true
+    },
+    {
+      "before": 4860,
+      "after": 4950,
+      "bet": 10,
+      "payout": 100,
+      "reels": [
+        "SCRAP",
+        "SCRAP",
+        "SCRAP"
+      ],
+      "id": "9980f007-489a-47f5-a273-1945aaa311d5",
+      "correct": true
+    }
+  ],
+  "losingReload": {
+    "stage": "r6Casino",
+    "bolts": 4970,
+    "turns": 30,
+    "round": {
+      "game": "SLOTS",
+      "status": "settled",
+      "bet": 20,
+      "id": "60cc7946-7dbc-4cda-a998-c04a6215bf7b",
+      "r11Lucky": false,
+      "reels": [
+        "RAT",
+        "SKULL",
+        "SCRAP"
+      ],
+      "payout": 0,
+      "message": "RAT / SKULL / SCRAP"
+    },
+    "games": [
+      "BLACKJACK",
+      "SLOTS",
+      "PIRATE'S POKER",
+      "CRAB RACING",
+      "KNIFE THROWING"
+    ]
+  },
+  "winningBefore": {
+    "stage": "r6Casino",
+    "bolts": 4950,
+    "turns": 30,
+    "round": {
+      "game": "SLOTS",
+      "status": "settled",
+      "bet": 10,
+      "id": "9980f007-489a-47f5-a273-1945aaa311d5",
+      "r11Lucky": false,
+      "reels": [
+        "SCRAP",
+        "SCRAP",
+        "SCRAP"
+      ],
+      "payout": 100,
+      "message": "SCRAP / SCRAP / SCRAP"
+    },
+    "games": [
+      "BLACKJACK",
+      "SLOTS",
+      "PIRATE'S POKER",
+      "CRAB RACING",
+      "KNIFE THROWING"
+    ]
+  },
+  "winningAfter": {
+    "stage": "r6Casino",
+    "bolts": 4950,
+    "turns": 30,
+    "round": {
+      "game": "SLOTS",
+      "status": "settled",
+      "bet": 10,
+      "id": "9980f007-489a-47f5-a273-1945aaa311d5",
+      "r11Lucky": false,
+      "reels": [
+        "SCRAP",
+        "SCRAP",
+        "SCRAP"
+      ],
+      "payout": 100,
+      "message": "SCRAP / SCRAP / SCRAP"
+    },
+    "games": [
+      "BLACKJACK",
+      "SLOTS",
+      "PIRATE'S POKER",
+      "CRAB RACING",
+      "KNIFE THROWING"
+    ]
+  }
+}

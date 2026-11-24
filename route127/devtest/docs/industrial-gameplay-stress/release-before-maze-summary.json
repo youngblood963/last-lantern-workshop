@@ -1,0 +1,104 @@
+{
+  "entry": "PLAYTEST",
+  "scenarios": 91,
+  "cases": 2606,
+  "uniqueCommands": 507,
+  "branches": 640,
+  "combatStats": {
+    "completed": 316,
+    "commands": 2618,
+    "retreats": 0,
+    "deaths": 9
+  },
+  "issues": [
+    {
+      "id": "early:27",
+      "name": "CEMETERY OF TIRES",
+      "condition": "supplied-day-low",
+      "path": [],
+      "command": "enter tire maze",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] enter tire maze",
+        "[2] leave maze"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openMaze')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/industrial.png",
+      "kind": "throw"
+    },
+    {
+      "id": "early:27",
+      "name": "CEMETERY OF TIRES",
+      "condition": "supplied-day-high",
+      "path": [],
+      "command": "enter tire maze",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] enter tire maze",
+        "[2] leave maze"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openMaze')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/industrial.png",
+      "kind": "throw"
+    },
+    {
+      "id": "early:27",
+      "name": "CEMETERY OF TIRES",
+      "condition": "supplied-night",
+      "path": [],
+      "command": "enter tire maze",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] enter tire maze",
+        "[2] leave maze"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openMaze')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/industrial.png",
+      "kind": "throw"
+    },
+    {
+      "id": "early:27",
+      "name": "CEMETERY OF TIRES",
+      "condition": "empty-day",
+      "path": [],
+      "command": "enter tire maze",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] enter tire maze",
+        "[2] leave maze"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openMaze')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/industrial.png",
+      "kind": "throw"
+    }
+  ],
+  "limits": []
+}

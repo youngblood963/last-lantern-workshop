@@ -52,7 +52,7 @@ base(){
 const encounters = [
   {title:"COUNTY WORK TRUCK",exclusive:false,text:"A county maintenance truck leans into a ditch. Muddy tracks lead toward the tree line.",prompt(){const q=r18CountyTruckScene(),f=player.flags;return q.followed?['INSPECT COUNTY MAP',...(f.r18CountyQuest!=='done'?['ENTER COUNTY DEPOT']:[]),...(!f.r18CountyWorkerHelped?['GIVE WORKER A BANDAGE','HELP WORKER TO SAFETY','LEAVE WORKER']:['MOVE ON']), 'RETURN TO TRUCK'].join('   '):`CHECK GLOVEBOX   SEARCH TRUCK BED${f.r18CountyQuest==='done'?(f.r18CountyMapSeen?'   FOLLOW COUNTY MAP':''):f.r18CountyWorkerHelped?'   FOLLOW COUNTY MAP':'   FOLLOW TRACKS'}   MOVE ON`;},resolve(cmd){const q=r18CountyTruckScene(),f=player.flags;
    if(cmd==='return to truck'){q.followed=false;add('You return to the truck.','system');return true;}
-   if(cmd.includes('move on')||cmd.includes('leave worker')){add('You leave the county truck behind.');return true;}
+   if(cmd==='leave'||cmd.includes('move on')||cmd.includes('leave worker')){add('You leave the county truck behind.');return true;}
    if(cmd.includes('glove')){if(!addPack('Bandage','consumable'))return false;gainXp(7);add('A sealed first-aid pouch remains.');return true;}
    if(cmd.includes('bed')){gainBolts(6);gainXp(6);add('Six Bolts roll out of an overturned parts bin.');return true;}
    if((cmd.includes('tracks')&&f.r18CountyQuest!=='done')||cmd==='follow county map'&&(f.r18CountyMapSeen||f.r18CountyWorkerHelped)){q.followed=true;add(f.r18CountyWorkerHelped?'The county map points along a trail toward the maintenance depot.':'The tracks lead to an injured county worker holding a folded service map. A trail continues toward the depot.','bright');return true;}
@@ -227,13 +227,13 @@ const encounters = [
    if(cmd.includes("reinforce")||cmd.includes("stones")){add("You add stones to the warning so travelers can spot the weak shoulder sooner.");if(!player.flags.r18SinkholeReinforced){player.flags.r18SinkholeReinforced=true;gainXp(Math.max(5,player.level));}return true;}
    if(cmd.includes("back")||cmd.includes("away")){add("You take a wide path around the unstable pavement.");return true;}return false;
   }},
-  {title:"CEMETERY OF TIRES",exclusive:false,text:"Stacks of tires form a maze beneath a collapsed overpass. A crate glints inside.",
-   prompt(){return 'ENTER TIRE MAZE   LEAVE MAZE';},
-   resolve(cmd){
-    if(cmd==='leave maze'||cmd==='leave'){add('You leave the tire maze.','system');return true;}
-    return cmd==='enter tire maze'&&globalThis.Route127RoadMinigames.openMaze();
-   }
-  },
+  {title:"CEMETERY OF TIRES",exclusive:false,text:"Stacks of tires form a maze beneath a collapsed overpass. A crate glints inside.",prompt(){const q=r18MazeScene();if(!q.started)return 'ENTER TIRE MAZE   LEAVE MAZE';if(q.finished)return 'LEAVE MAZE';return ['UP','DOWN','LEFT','RIGHT'].map(d=>`MOVE ${d} STEP ${q.step}`).concat(['LEAVE MAZE']).join('   ');},resolve(cmd){const q=r18MazeScene(),f=player.flags;
+   if(cmd.includes('leave')){add('You leave the tire maze.','system');return true;}
+   if(cmd.includes('enter')&&!q.started){q.started=true;q.step++;add('Reach the crate ◆. You are @. Tires are ■.','system');add(r18MazeDraw(q),'system');return true;}
+   if(!q.started||q.finished||!cmd.includes('move'))return false;const d=cmd.includes('up')?[0,-1]:cmd.includes('down')?[0,1]:cmd.includes('left')?[-1,0]:cmd.includes('right')?[1,0]:null;if(!d)return false;const grid=R18_MAZES[q.variant],x=q.x+d[0],y=q.y+d[1];q.step++;
+   if(!grid[y]||grid[y][x]==='#'||grid[y][x]===undefined){const amount=Math.max(1,Math.ceil(player.maxHp*.02));hurt(amount);add(`You bump the tire wall and lose up to ${amount} HP.`,'danger');if(stage==='fallen')return true;}else{q.x=x;q.y=y;if(grid[y][x]==='G'&&!f.r18MazeClaimed){r18RetainRoadReward('Scrap Metal','material');gainBolts(8);gainXp(Math.max(10,player.level*3));if(typeof v555AwardEquipmentDrop==='function'&&Math.random()<.25)v555AwardEquipmentDrop();f.r18MazeClaimed=true;q.finished=true;add('You reach the crate and recover its contents.','reward');}}
+   add(r18MazeDraw(q),'system');return true;
+  }},
   {exclusive:true,title:"THE HONEY JAR",text:"A beekeeper's suit hangs in an old orchard. Bees crowd a hollow tree, and honey glistens inside.",choices:"HARVEST HONEY   INSPECT BEEKEEPER GEAR   BACK AWAY",resolve(cmd){
    if(cmd.includes("harvest")){if(player.flags.r18HoneyHarvested){add("This hive has already been harvested; the bees need time undisturbed.","system");return false;}if(!addPack("Wild Honey","consumable"))return false;player.flags.r18HoneyHarvested=true;if(Math.random()<.35){environmentalHurt('minor');add("A few bees sting as you recover the honey.","danger");}else add("You gather a sealed jar of Wild Honey and leave the hive intact.","reward");gainXp(Math.max(8,player.level*2));return true;}
    if(cmd.includes("gear")||cmd.includes("inspect")){add("The veil and gloves are patched. A note says to move slowly and leave enough for the bees.");if(!player.flags.r18HoneyGearSeen){player.flags.r18HoneyGearSeen=true;gainXp(4);}return true;}

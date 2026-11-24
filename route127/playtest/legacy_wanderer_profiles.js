@@ -9,7 +9,7 @@
  const profiles=[
   {
     "name": "Tess",
-    "displayName": "Tess Calder",
+    "displayName": "Tess Arden",
     "occupation": "Guard",
     "aptitudes": {
       "medicine": 2,

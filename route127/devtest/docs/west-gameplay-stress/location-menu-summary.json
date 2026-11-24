@@ -1,0 +1,2594 @@
+{
+  "menus": 54,
+  "actions": 243,
+  "nestedPaths": 48,
+  "cases": 583,
+  "issues": [],
+  "duplicates": [],
+  "truncations": [],
+  "menuCoverage": [
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [],
+      "stage": "motelHome",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "motel vendors",
+          "label": "MOTEL VENDORS",
+          "presentationSource": "motel vendors",
+          "id": "motel-motelHome:motel vendors"
+        },
+        {
+          "key": "2",
+          "command": "the lounge",
+          "label": "THE LOUNGE",
+          "presentationSource": "the lounge",
+          "id": "motel-motelHome:the lounge"
+        },
+        {
+          "key": "3",
+          "command": "talk to jessica",
+          "label": "TALK TO JESSICA",
+          "presentationSource": "talk to jessica",
+          "id": "motel-motelHome:talk to jessica"
+        },
+        {
+          "key": "4",
+          "command": "the deep end",
+          "label": "THE DEEP END",
+          "presentationSource": "the deep end",
+          "id": "motel-motelHome:the deep end"
+        },
+        {
+          "key": "5",
+          "command": "behind the motel",
+          "label": "BEHIND THE MOTEL",
+          "presentationSource": "behind the motel",
+          "id": "motel-motelHome:behind the motel"
+        },
+        {
+          "key": "6",
+          "command": "bulletin board",
+          "label": "BULLETIN BOARD",
+          "presentationSource": "bulletin board",
+          "id": "motel-motelHome:bulletin board"
+        },
+        {
+          "key": "7",
+          "command": "leave motel",
+          "label": "LEAVE MOTEL",
+          "presentationSource": "leave motel",
+          "id": "motel-motelHome:leave motel"
+        }
+      ]
+    },
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [
+        "motel vendors"
+      ],
+      "stage": "motelVendors",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "general store",
+          "label": "GENERAL STORE",
+          "presentationSource": "general store",
+          "id": "motel-motelVendors:general store"
+        },
+        {
+          "key": "2",
+          "command": "armory",
+          "label": "ARMORY",
+          "presentationSource": "armory",
+          "id": "motel-motelVendors:armory"
+        },
+        {
+          "key": "3",
+          "command": "workshop",
+          "label": "WORKSHOP",
+          "presentationSource": "workshop",
+          "id": "motel-motelVendors:workshop"
+        },
+        {
+          "key": "4",
+          "command": "clinic",
+          "label": "CLINIC",
+          "presentationSource": "clinic",
+          "id": "motel-motelVendors:clinic"
+        },
+        {
+          "key": "5",
+          "command": "bank",
+          "label": "BANK",
+          "presentationSource": "bank",
+          "id": "motel-motelVendors:bank"
+        },
+        {
+          "key": "6",
+          "command": "rani's accessories",
+          "label": "RANI'S ACCESSORIES",
+          "presentationSource": "rani's accessories",
+          "id": "motel-motelVendors:rani's accessories"
+        },
+        {
+          "key": "7",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelVendors:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [
+        "the lounge"
+      ],
+      "stage": "motelLounge",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy drinks",
+          "label": "BUY DRINKS",
+          "presentationSource": "buy drinks",
+          "id": "motel-motelLounge:buy drinks"
+        },
+        {
+          "key": "2",
+          "command": "sell items",
+          "label": "SELL ITEMS",
+          "presentationSource": "sell items",
+          "id": "motel-motelLounge:sell items"
+        },
+        {
+          "key": "3",
+          "command": "conversation",
+          "label": "CONVERSATION",
+          "presentationSource": "conversation",
+          "id": "motel-motelLounge:conversation"
+        },
+        {
+          "key": "4",
+          "command": "small talk",
+          "label": "SMALL TALK",
+          "presentationSource": "small talk",
+          "id": "motel-motelLounge:small talk"
+        },
+        {
+          "key": "5",
+          "command": "gamble",
+          "label": "GAMBLE",
+          "presentationSource": "gamble",
+          "id": "motel-motelLounge:gamble"
+        },
+        {
+          "key": "6",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelLounge:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [
+        "talk to jessica"
+      ],
+      "stage": "motelJessica",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "talk jessica",
+          "label": "TALK JESSICA",
+          "presentationSource": "talk jessica",
+          "id": "motel-motelJessica:talk jessica"
+        },
+        {
+          "key": "2",
+          "command": "small talk",
+          "label": "SMALL TALK",
+          "presentationSource": "small talk",
+          "id": "motel-motelJessica:small talk"
+        },
+        {
+          "key": "3",
+          "command": "bounties",
+          "label": "BOUNTIES",
+          "presentationSource": "bounties",
+          "id": "motel-motelJessica:bounties"
+        },
+        {
+          "key": "4",
+          "command": "inspect jessica",
+          "label": "INSPECT JESSICA",
+          "presentationSource": "inspect jessica",
+          "id": "motel-motelJessica:inspect jessica"
+        },
+        {
+          "key": "5",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelJessica:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [
+        "the deep end"
+      ],
+      "stage": "r127ArenaLobby",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "watch a round",
+          "label": "WATCH A ROUND",
+          "presentationSource": "watch a round",
+          "id": "arena-exhibition-lobby:watch a round"
+        },
+        {
+          "key": "2",
+          "command": "bet on a round",
+          "label": "BET ON A ROUND",
+          "presentationSource": "bet on a round",
+          "id": "arena-exhibition-lobby:bet on a round"
+        },
+        {
+          "key": "3",
+          "command": "enter tournament",
+          "label": "ENTER TOURNAMENT",
+          "presentationSource": "enter tournament",
+          "id": "arena-exhibition-lobby:enter tournament"
+        },
+        {
+          "key": "4",
+          "command": "back away",
+          "label": "BACK AWAY",
+          "presentationSource": "back away",
+          "id": "arena-exhibition-lobby:back away"
+        }
+      ]
+    },
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [
+        "behind the motel"
+      ],
+      "stage": "motelRear",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelRear:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [
+        "leave motel"
+      ],
+      "stage": "lanternNode",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "take road to west ridge road",
+          "label": "TAKE ROAD TO WEST RIDGE ROAD",
+          "presentationSource": "\u2197 NE \u2014 WEST RIDGE ROAD (4 TURNS)",
+          "id": "motel-lanternNode:take road to west ridge road"
+        },
+        {
+          "key": "2",
+          "command": "take road to old service junction",
+          "label": "TAKE ROAD TO OLD SERVICE JUNCTION",
+          "presentationSource": "\u2193 S \u2014 OLD SERVICE JUNCTION (4 TURNS)",
+          "id": "motel-lanternNode:take road to old service junction"
+        },
+        {
+          "key": "3",
+          "command": "take road to interior junction",
+          "label": "TAKE ROAD TO INTERIOR JUNCTION",
+          "presentationSource": "\u2192 E \u2014 INTERIOR JUNCTION (4 TURNS)",
+          "id": "motel-lanternNode:take road to interior junction"
+        },
+        {
+          "key": "4",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-lanternNode:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [
+        "motel vendors",
+        "general store"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "assign staff",
+          "label": "ASSIGN STAFF",
+          "presentationSource": "assign staff",
+          "id": "motel-native-port55Service:assign staff"
+        },
+        {
+          "key": "2",
+          "command": "return to motel vendors",
+          "label": "RETURN TO MOTEL VENDORS",
+          "presentationSource": "return to motel vendors",
+          "id": "motel-native-port55Service:return to motel vendors"
+        }
+      ]
+    },
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [
+        "motel vendors",
+        "armory"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "assign staff",
+          "label": "ASSIGN STAFF",
+          "presentationSource": "assign staff",
+          "id": "motel-native-port55Service:assign staff"
+        },
+        {
+          "key": "2",
+          "command": "return to motel vendors",
+          "label": "RETURN TO MOTEL VENDORS",
+          "presentationSource": "return to motel vendors",
+          "id": "motel-native-port55Service:return to motel vendors"
+        }
+      ]
+    },
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [
+        "motel vendors",
+        "workshop"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "assign staff",
+          "label": "ASSIGN STAFF",
+          "presentationSource": "assign staff",
+          "id": "motel-native-port55Service:assign staff"
+        },
+        {
+          "key": "2",
+          "command": "return to motel vendors",
+          "label": "RETURN TO MOTEL VENDORS",
+          "presentationSource": "return to motel vendors",
+          "id": "motel-native-port55Service:return to motel vendors"
+        }
+      ]
+    },
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [
+        "motel vendors",
+        "clinic"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "assign staff",
+          "label": "ASSIGN STAFF",
+          "presentationSource": "assign staff",
+          "id": "motel-native-port55Service:assign staff"
+        },
+        {
+          "key": "2",
+          "command": "return to motel vendors",
+          "label": "RETURN TO MOTEL VENDORS",
+          "presentationSource": "return to motel vendors",
+          "id": "motel-native-port55Service:return to motel vendors"
+        }
+      ]
+    },
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [
+        "motel vendors",
+        "bank"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "assign staff",
+          "label": "ASSIGN STAFF",
+          "presentationSource": "assign staff",
+          "id": "motel-native-port55Service:assign staff"
+        },
+        {
+          "key": "2",
+          "command": "return to motel vendors",
+          "label": "RETURN TO MOTEL VENDORS",
+          "presentationSource": "return to motel vendors",
+          "id": "motel-native-port55Service:return to motel vendors"
+        }
+      ]
+    },
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [
+        "motel vendors",
+        "rani's accessories"
+      ],
+      "stage": "motelRani",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "sell items",
+          "label": "SELL ITEMS",
+          "presentationSource": "sell items",
+          "id": "motel-motelRani:sell items"
+        },
+        {
+          "key": "2",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelRani:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [
+        "motel vendors",
+        "back"
+      ],
+      "stage": "motelHome",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "motel vendors",
+          "label": "MOTEL VENDORS",
+          "presentationSource": "motel vendors",
+          "id": "motel-motelHome:motel vendors"
+        },
+        {
+          "key": "2",
+          "command": "the lounge",
+          "label": "THE LOUNGE",
+          "presentationSource": "the lounge",
+          "id": "motel-motelHome:the lounge"
+        },
+        {
+          "key": "3",
+          "command": "talk to jessica",
+          "label": "TALK TO JESSICA",
+          "presentationSource": "talk to jessica",
+          "id": "motel-motelHome:talk to jessica"
+        },
+        {
+          "key": "4",
+          "command": "the deep end",
+          "label": "THE DEEP END",
+          "presentationSource": "the deep end",
+          "id": "motel-motelHome:the deep end"
+        },
+        {
+          "key": "5",
+          "command": "behind the motel",
+          "label": "BEHIND THE MOTEL",
+          "presentationSource": "behind the motel",
+          "id": "motel-motelHome:behind the motel"
+        },
+        {
+          "key": "6",
+          "command": "bulletin board",
+          "label": "BULLETIN BOARD",
+          "presentationSource": "bulletin board",
+          "id": "motel-motelHome:bulletin board"
+        },
+        {
+          "key": "7",
+          "command": "leave motel",
+          "label": "LEAVE MOTEL",
+          "presentationSource": "leave motel",
+          "id": "motel-motelHome:leave motel"
+        }
+      ]
+    },
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [
+        "the lounge",
+        "buy drinks"
+      ],
+      "stage": "r11Drinks",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "beer \u2014 5 bolts / 5% max hp (min 5)",
+          "label": "BEER \u2014 5 BOLTS / 5% MAX HP (MIN 5)",
+          "presentationSource": "beer \u2014 5 bolts / 5% max hp (min 5)",
+          "id": "motel-native-r11Drinks:beer \u2014 5 bolts / 5% max hp (min 5)"
+        },
+        {
+          "key": "2",
+          "command": "shot \u2014 9 bolts / 9% max hp (min 10)",
+          "label": "SHOT \u2014 9 BOLTS / 9% MAX HP (MIN 10)",
+          "presentationSource": "shot \u2014 9 bolts / 9% max hp (min 10)",
+          "id": "motel-native-r11Drinks:shot \u2014 9 bolts / 9% max hp (min 10)"
+        },
+        {
+          "key": "3",
+          "command": "house special \u2014 15 bolts / 15% max hp (min 15)",
+          "label": "HOUSE SPECIAL \u2014 15 BOLTS / 15% MAX HP (MIN 15)",
+          "presentationSource": "house special \u2014 15 bolts / 15% max hp (min 15)",
+          "id": "motel-native-r11Drinks:house special \u2014 15 bolts / 15% max hp (min 15)"
+        },
+        {
+          "key": "4",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-r11Drinks:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [
+        "the lounge",
+        "sell items"
+      ],
+      "stage": "motelSale",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "sell cloth \u2014 3 bolts",
+          "label": "SELL CLOTH \u2014 3 BOLTS",
+          "presentationSource": "sell cloth \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell cloth \u2014 3 bolts"
+        },
+        {
+          "key": "2",
+          "command": "sell scrap metal \u2014 4 bolts",
+          "label": "SELL SCRAP METAL \u2014 4 BOLTS",
+          "presentationSource": "sell scrap metal \u2014 4 bolts",
+          "id": "motel-native-motelSale:sell scrap metal \u2014 4 bolts"
+        },
+        {
+          "key": "3",
+          "command": "sell wire \u2014 4 bolts",
+          "label": "SELL WIRE \u2014 4 BOLTS",
+          "presentationSource": "sell wire \u2014 4 bolts",
+          "id": "motel-native-motelSale:sell wire \u2014 4 bolts"
+        },
+        {
+          "key": "4",
+          "command": "sell electronics \u2014 9 bolts",
+          "label": "SELL ELECTRONICS \u2014 9 BOLTS",
+          "presentationSource": "sell electronics \u2014 9 bolts",
+          "id": "motel-native-motelSale:sell electronics \u2014 9 bolts"
+        },
+        {
+          "key": "5",
+          "command": "sell small animal bones \u2014 2 bolts",
+          "label": "SELL SMALL ANIMAL BONES \u2014 2 BOLTS",
+          "presentationSource": "sell small animal bones \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell small animal bones \u2014 2 bolts"
+        },
+        {
+          "key": "6",
+          "command": "sell animal bones \u2014 3 bolts",
+          "label": "SELL ANIMAL BONES \u2014 3 BOLTS",
+          "presentationSource": "sell animal bones \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell animal bones \u2014 3 bolts"
+        },
+        {
+          "key": "7",
+          "command": "sell large animal bones \u2014 4 bolts",
+          "label": "SELL LARGE ANIMAL BONES \u2014 4 BOLTS",
+          "presentationSource": "sell large animal bones \u2014 4 bolts",
+          "id": "motel-native-motelSale:sell large animal bones \u2014 4 bolts"
+        },
+        {
+          "key": "8",
+          "command": "sell tempered steel \u2014 16 bolts",
+          "label": "SELL TEMPERED STEEL \u2014 16 BOLTS",
+          "presentationSource": "sell tempered steel \u2014 16 bolts",
+          "id": "motel-native-motelSale:sell tempered steel \u2014 16 bolts"
+        },
+        {
+          "key": "9",
+          "command": "sell explosive components \u2014 8 bolts",
+          "label": "SELL EXPLOSIVE COMPONENTS \u2014 8 BOLTS",
+          "presentationSource": "sell explosive components \u2014 8 bolts",
+          "id": "motel-native-motelSale:sell explosive components \u2014 8 bolts"
+        },
+        {
+          "key": "10",
+          "command": "sell animal hide \u2014 4 bolts",
+          "label": "SELL ANIMAL HIDE \u2014 4 BOLTS",
+          "presentationSource": "sell animal hide \u2014 4 bolts",
+          "id": "motel-native-motelSale:sell animal hide \u2014 4 bolts"
+        },
+        {
+          "key": "11",
+          "command": "sell uncommon electrical parts \u2014 12 bolts",
+          "label": "SELL UNCOMMON ELECTRICAL PARTS \u2014 12 BOLTS",
+          "presentationSource": "sell uncommon electrical parts \u2014 12 bolts",
+          "id": "motel-native-motelSale:sell uncommon electrical parts \u2014 12 bolts"
+        },
+        {
+          "key": "12",
+          "command": "sell glass \u2014 2 bolts",
+          "label": "SELL GLASS \u2014 2 BOLTS",
+          "presentationSource": "sell glass \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell glass \u2014 2 bolts"
+        },
+        {
+          "key": "13",
+          "command": "sell water \u2014 1 bolts",
+          "label": "SELL WATER \u2014 1 BOLTS",
+          "presentationSource": "sell water \u2014 1 bolts",
+          "id": "motel-native-motelSale:sell water \u2014 1 bolts"
+        },
+        {
+          "key": "14",
+          "command": "sell salt \u2014 2 bolts",
+          "label": "SELL SALT \u2014 2 BOLTS",
+          "presentationSource": "sell salt \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell salt \u2014 2 bolts"
+        },
+        {
+          "key": "15",
+          "command": "sell raw rat meat \u2014 2 bolts",
+          "label": "SELL RAW RAT MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw rat meat \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell raw rat meat \u2014 2 bolts"
+        },
+        {
+          "key": "16",
+          "command": "sell raw rabbit meat \u2014 2 bolts",
+          "label": "SELL RAW RABBIT MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw rabbit meat \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell raw rabbit meat \u2014 2 bolts"
+        },
+        {
+          "key": "17",
+          "command": "sell raw bird meat \u2014 2 bolts",
+          "label": "SELL RAW BIRD MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw bird meat \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell raw bird meat \u2014 2 bolts"
+        },
+        {
+          "key": "18",
+          "command": "sell raw chicken meat \u2014 2 bolts",
+          "label": "SELL RAW CHICKEN MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw chicken meat \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell raw chicken meat \u2014 2 bolts"
+        },
+        {
+          "key": "19",
+          "command": "sell raw boar meat \u2014 3 bolts",
+          "label": "SELL RAW BOAR MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell raw boar meat \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell raw boar meat \u2014 3 bolts"
+        },
+        {
+          "key": "20",
+          "command": "sell raw venison \u2014 3 bolts",
+          "label": "SELL RAW VENISON \u2014 3 BOLTS",
+          "presentationSource": "sell raw venison \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell raw venison \u2014 3 bolts"
+        },
+        {
+          "key": "21",
+          "command": "sell raw snake meat \u2014 2 bolts",
+          "label": "SELL RAW SNAKE MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw snake meat \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell raw snake meat \u2014 2 bolts"
+        },
+        {
+          "key": "22",
+          "command": "sell raw wolf meat \u2014 3 bolts",
+          "label": "SELL RAW WOLF MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell raw wolf meat \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell raw wolf meat \u2014 3 bolts"
+        },
+        {
+          "key": "23",
+          "command": "sell energy bars \u2014 2 bolts",
+          "label": "SELL ENERGY BARS \u2014 2 BOLTS",
+          "presentationSource": "sell energy bars \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell energy bars \u2014 2 bolts"
+        },
+        {
+          "key": "24",
+          "command": "sell bandage \u2014 3 bolts",
+          "label": "SELL BANDAGE \u2014 3 BOLTS",
+          "presentationSource": "sell bandage \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell bandage \u2014 3 bolts"
+        },
+        {
+          "key": "25",
+          "command": "sell reinforced bandage \u2014 8 bolts",
+          "label": "SELL REINFORCED BANDAGE \u2014 8 BOLTS",
+          "presentationSource": "sell reinforced bandage \u2014 8 bolts",
+          "id": "motel-native-motelSale:sell reinforced bandage \u2014 8 bolts"
+        },
+        {
+          "key": "26",
+          "command": "sell fresh apple \u2014 2 bolts",
+          "label": "SELL FRESH APPLE \u2014 2 BOLTS",
+          "presentationSource": "sell fresh apple \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh apple \u2014 2 bolts"
+        },
+        {
+          "key": "27",
+          "command": "sell fresh pear \u2014 2 bolts",
+          "label": "SELL FRESH PEAR \u2014 2 BOLTS",
+          "presentationSource": "sell fresh pear \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh pear \u2014 2 bolts"
+        },
+        {
+          "key": "28",
+          "command": "sell fresh carrot \u2014 2 bolts",
+          "label": "SELL FRESH CARROT \u2014 2 BOLTS",
+          "presentationSource": "sell fresh carrot \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh carrot \u2014 2 bolts"
+        },
+        {
+          "key": "29",
+          "command": "sell fresh potato \u2014 2 bolts",
+          "label": "SELL FRESH POTATO \u2014 2 BOLTS",
+          "presentationSource": "sell fresh potato \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh potato \u2014 2 bolts"
+        },
+        {
+          "key": "30",
+          "command": "sell fresh tomato \u2014 2 bolts",
+          "label": "SELL FRESH TOMATO \u2014 2 BOLTS",
+          "presentationSource": "sell fresh tomato \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh tomato \u2014 2 bolts"
+        },
+        {
+          "key": "31",
+          "command": "sell fresh cabbage \u2014 2 bolts",
+          "label": "SELL FRESH CABBAGE \u2014 2 BOLTS",
+          "presentationSource": "sell fresh cabbage \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh cabbage \u2014 2 bolts"
+        },
+        {
+          "key": "32",
+          "command": "sell fresh berries \u2014 2 bolts",
+          "label": "SELL FRESH BERRIES \u2014 2 BOLTS",
+          "presentationSource": "sell fresh berries \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh berries \u2014 2 bolts"
+        },
+        {
+          "key": "33",
+          "command": "sell preserved vegetables \u2014 5 bolts",
+          "label": "SELL PRESERVED VEGETABLES \u2014 5 BOLTS",
+          "presentationSource": "sell preserved vegetables \u2014 5 bolts",
+          "id": "motel-native-motelSale:sell preserved vegetables \u2014 5 bolts"
+        },
+        {
+          "key": "34",
+          "command": "sell preserved meat \u2014 3 bolts",
+          "label": "SELL PRESERVED MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell preserved meat \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell preserved meat \u2014 3 bolts"
+        },
+        {
+          "key": "35",
+          "command": "sell wasteland stew \u2014 5 bolts",
+          "label": "SELL WASTELAND STEW \u2014 5 BOLTS",
+          "presentationSource": "sell wasteland stew \u2014 5 bolts",
+          "id": "motel-native-motelSale:sell wasteland stew \u2014 5 bolts"
+        },
+        {
+          "key": "36",
+          "command": "sell roadhouse hash \u2014 4 bolts",
+          "label": "SELL ROADHOUSE HASH \u2014 4 BOLTS",
+          "presentationSource": "sell roadhouse hash \u2014 4 bolts",
+          "id": "motel-native-motelSale:sell roadhouse hash \u2014 4 bolts"
+        },
+        {
+          "key": "37",
+          "command": "sell wild honey \u2014 6 bolts",
+          "label": "SELL WILD HONEY \u2014 6 BOLTS",
+          "presentationSource": "sell wild honey \u2014 6 bolts",
+          "id": "motel-native-motelSale:sell wild honey \u2014 6 bolts"
+        },
+        {
+          "key": "38",
+          "command": "sell claw hammer \u2014 25 bolts",
+          "label": "SELL CLAW HAMMER \u2014 25 BOLTS",
+          "presentationSource": "sell claw hammer \u2014 25 bolts",
+          "id": "motel-native-motelSale:sell claw hammer \u2014 25 bolts"
+        },
+        {
+          "key": "39",
+          "command": "sell bluefang hunting knife \u2014 89 bolts",
+          "label": "SELL BLUEFANG HUNTING KNIFE \u2014 89 BOLTS",
+          "presentationSource": "sell bluefang hunting knife \u2014 89 bolts",
+          "id": "motel-native-motelSale:sell bluefang hunting knife \u2014 89 bolts"
+        },
+        {
+          "key": "40",
+          "command": "sell battered flashlight \u2014 5 bolts",
+          "label": "SELL BATTERED FLASHLIGHT \u2014 5 BOLTS",
+          "presentationSource": "sell battered flashlight \u2014 5 bolts",
+          "id": "motel-native-motelSale:sell battered flashlight \u2014 5 bolts"
+        },
+        {
+          "key": "41",
+          "command": "sell old world pocket compass \u2014 30 bolts",
+          "label": "SELL OLD WORLD POCKET COMPASS \u2014 30 BOLTS",
+          "presentationSource": "sell old world pocket compass \u2014 30 bolts",
+          "id": "motel-native-motelSale:sell old world pocket compass \u2014 30 bolts"
+        },
+        {
+          "key": "42",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-motelSale:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel",
+      "profile": "supplied",
+      "path": [
+        "the lounge",
+        "gamble"
+      ],
+      "stage": "motelCasino",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "poker",
+          "label": "POKER",
+          "presentationSource": "poker",
+          "id": "motel-casino-motelCasino:poker"
+        },
+        {
+          "key": "2",
+          "command": "slots",
+          "label": "SLOTS",
+          "presentationSource": "slots",
+          "id": "motel-casino-motelCasino:slots"
+        },
+        {
+          "key": "3",
+          "command": "big six wheel",
+          "label": "BIG SIX WHEEL",
+          "presentationSource": "big six wheel",
+          "id": "motel-casino-motelCasino:big six wheel"
+        },
+        {
+          "key": "4",
+          "command": "keno",
+          "label": "KENO",
+          "presentationSource": "keno",
+          "id": "motel-casino-motelCasino:keno"
+        },
+        {
+          "key": "5",
+          "command": "roulette",
+          "label": "ROULETTE",
+          "presentationSource": "roulette",
+          "id": "motel-casino-motelCasino:roulette"
+        },
+        {
+          "key": "6",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-casino-motelCasino:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [],
+      "stage": "motelHome",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "motel vendors",
+          "label": "MOTEL VENDORS",
+          "presentationSource": "motel vendors",
+          "id": "motel-motelHome:motel vendors"
+        },
+        {
+          "key": "2",
+          "command": "the lounge",
+          "label": "THE LOUNGE",
+          "presentationSource": "the lounge",
+          "id": "motel-motelHome:the lounge"
+        },
+        {
+          "key": "3",
+          "command": "talk to jessica",
+          "label": "TALK TO JESSICA",
+          "presentationSource": "talk to jessica",
+          "id": "motel-motelHome:talk to jessica"
+        },
+        {
+          "key": "4",
+          "command": "the deep end",
+          "label": "THE DEEP END",
+          "presentationSource": "the deep end",
+          "id": "motel-motelHome:the deep end"
+        },
+        {
+          "key": "5",
+          "command": "behind the motel",
+          "label": "BEHIND THE MOTEL",
+          "presentationSource": "behind the motel",
+          "id": "motel-motelHome:behind the motel"
+        },
+        {
+          "key": "6",
+          "command": "mail room",
+          "label": "MAIL ROOM",
+          "presentationSource": "mail room",
+          "id": "motel-motelHome:mail room"
+        },
+        {
+          "key": "7",
+          "command": "bulletin board",
+          "label": "BULLETIN BOARD",
+          "presentationSource": "bulletin board",
+          "id": "motel-motelHome:bulletin board"
+        },
+        {
+          "key": "8",
+          "command": "leave motel",
+          "label": "LEAVE MOTEL",
+          "presentationSource": "leave motel",
+          "id": "motel-motelHome:leave motel"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "the deep end"
+      ],
+      "stage": "r127ArenaLobby",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "watch a round",
+          "label": "WATCH A ROUND",
+          "presentationSource": "watch a round",
+          "id": "arena-exhibition-lobby:watch a round"
+        },
+        {
+          "key": "2",
+          "command": "bet on a round",
+          "label": "BET ON A ROUND",
+          "presentationSource": "bet on a round",
+          "id": "arena-exhibition-lobby:bet on a round"
+        },
+        {
+          "key": "3",
+          "command": "enter tournament",
+          "label": "ENTER TOURNAMENT",
+          "presentationSource": "enter tournament",
+          "id": "arena-exhibition-lobby:enter tournament"
+        },
+        {
+          "key": "4",
+          "command": "back away",
+          "label": "BACK AWAY",
+          "presentationSource": "back away",
+          "id": "arena-exhibition-lobby:back away"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "behind the motel"
+      ],
+      "stage": "motelRear",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelRear:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room"
+      ],
+      "stage": "motelMail",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "accept next delivery",
+          "label": "ACCEPT NEXT DELIVERY",
+          "presentationSource": "accept next delivery",
+          "id": "motel-native-motelMail:accept next delivery"
+        },
+        {
+          "key": "2",
+          "command": "ask about deliveries",
+          "label": "ASK ABOUT DELIVERIES",
+          "presentationSource": "ask about deliveries",
+          "id": "motel-native-motelMail:ask about deliveries"
+        },
+        {
+          "key": "3",
+          "command": "return to town",
+          "label": "RETURN TO TOWN",
+          "presentationSource": "return to town",
+          "id": "motel-native-motelMail:return to town"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "leave motel"
+      ],
+      "stage": "lanternNode",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "take road to west ridge road",
+          "label": "TAKE ROAD TO WEST RIDGE ROAD",
+          "presentationSource": "\u2197 NE \u2014 WEST RIDGE ROAD (4 TURNS)",
+          "id": "motel-lanternNode:take road to west ridge road"
+        },
+        {
+          "key": "2",
+          "command": "take road to old service junction",
+          "label": "TAKE ROAD TO OLD SERVICE JUNCTION",
+          "presentationSource": "\u2193 S \u2014 OLD SERVICE JUNCTION (4 TURNS)",
+          "id": "motel-lanternNode:take road to old service junction"
+        },
+        {
+          "key": "3",
+          "command": "take road to interior junction",
+          "label": "TAKE ROAD TO INTERIOR JUNCTION",
+          "presentationSource": "\u2192 E \u2014 INTERIOR JUNCTION (4 TURNS)",
+          "id": "motel-lanternNode:take road to interior junction"
+        },
+        {
+          "key": "4",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-lanternNode:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "the deep end",
+        "bet on a round"
+      ],
+      "stage": "r127ArenaLobby",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "grizzly",
+          "label": "GRIZZLY",
+          "presentationSource": "grizzly",
+          "id": "motel-native-r127ArenaLobby:grizzly"
+        },
+        {
+          "key": "2",
+          "command": "riot",
+          "label": "RIOT",
+          "presentationSource": "riot",
+          "id": "motel-native-r127ArenaLobby:riot"
+        },
+        {
+          "key": "3",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-r127ArenaLobby:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "the deep end",
+        "enter tournament"
+      ],
+      "stage": "r18Tournament",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "start next match",
+          "label": "START NEXT MATCH",
+          "presentationSource": "start next match",
+          "id": "motel-native-r18Tournament:start next match"
+        },
+        {
+          "key": "2",
+          "command": "bet 10 bolts",
+          "label": "BET 10 BOLTS",
+          "presentationSource": "bet 10 bolts",
+          "id": "motel-native-r18Tournament:bet 10 bolts"
+        },
+        {
+          "key": "3",
+          "command": "bet 25 bolts",
+          "label": "BET 25 BOLTS",
+          "presentationSource": "bet 25 bolts",
+          "id": "motel-native-r18Tournament:bet 25 bolts"
+        },
+        {
+          "key": "4",
+          "command": "leave arena",
+          "label": "LEAVE ARENA",
+          "presentationSource": "leave arena",
+          "id": "motel-native-r18Tournament:leave arena"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "accept next delivery"
+      ],
+      "stage": "motelMail",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "open sealed parcel",
+          "label": "OPEN SEALED PARCEL",
+          "presentationSource": "open sealed parcel",
+          "id": "motel-native-motelMail:open sealed parcel"
+        },
+        {
+          "key": "2",
+          "command": "ask about deliveries",
+          "label": "ASK ABOUT DELIVERIES",
+          "presentationSource": "ask about deliveries",
+          "id": "motel-native-motelMail:ask about deliveries"
+        },
+        {
+          "key": "3",
+          "command": "return to town",
+          "label": "RETURN TO TOWN",
+          "presentationSource": "return to town",
+          "id": "motel-native-motelMail:return to town"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town"
+      ],
+      "stage": "motelHome",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "motel vendors",
+          "label": "MOTEL VENDORS",
+          "presentationSource": "motel vendors",
+          "id": "motel-motelHome:motel vendors"
+        },
+        {
+          "key": "2",
+          "command": "the lounge",
+          "label": "THE LOUNGE",
+          "presentationSource": "the lounge",
+          "id": "motel-motelHome:the lounge"
+        },
+        {
+          "key": "3",
+          "command": "talk to jessica",
+          "label": "TALK TO JESSICA",
+          "presentationSource": "talk to jessica",
+          "id": "motel-motelHome:talk to jessica"
+        },
+        {
+          "key": "4",
+          "command": "the deep end",
+          "label": "THE DEEP END",
+          "presentationSource": "the deep end",
+          "id": "motel-motelHome:the deep end"
+        },
+        {
+          "key": "5",
+          "command": "behind the motel",
+          "label": "BEHIND THE MOTEL",
+          "presentationSource": "behind the motel",
+          "id": "motel-motelHome:behind the motel"
+        },
+        {
+          "key": "6",
+          "command": "mail room",
+          "label": "MAIL ROOM",
+          "presentationSource": "mail room",
+          "id": "motel-motelHome:mail room"
+        },
+        {
+          "key": "7",
+          "command": "bulletin board",
+          "label": "BULLETIN BOARD",
+          "presentationSource": "bulletin board",
+          "id": "motel-motelHome:bulletin board"
+        },
+        {
+          "key": "8",
+          "command": "leave motel",
+          "label": "LEAVE MOTEL",
+          "presentationSource": "leave motel",
+          "id": "motel-motelHome:leave motel"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "the deep end",
+        "bet on a round",
+        "grizzly"
+      ],
+      "stage": "r127ArenaLobby",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "wager 10",
+          "label": "Wager 10",
+          "presentationSource": "wager 10"
+        },
+        {
+          "key": "2",
+          "command": "wager 50",
+          "label": "Wager 50",
+          "presentationSource": "wager 50"
+        },
+        {
+          "key": "3",
+          "command": "wager 100",
+          "label": "Wager 100",
+          "presentationSource": "wager 100"
+        },
+        {
+          "key": "4",
+          "command": "wager 500",
+          "label": "Wager 500",
+          "presentationSource": "wager 500"
+        },
+        {
+          "key": "c",
+          "command": "custom wager",
+          "label": "Custom Wager",
+          "presentationSource": "custom wager"
+        },
+        {
+          "key": "b",
+          "command": "back",
+          "label": "Back",
+          "presentationSource": "back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "the deep end",
+        "enter tournament",
+        "bet 10 bolts"
+      ],
+      "stage": "r18Tournament",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "start next match",
+          "label": "START NEXT MATCH",
+          "presentationSource": "start next match",
+          "id": "motel-native-r18Tournament:start next match"
+        },
+        {
+          "key": "2",
+          "command": "leave arena",
+          "label": "LEAVE ARENA",
+          "presentationSource": "leave arena",
+          "id": "motel-native-r18Tournament:leave arena"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "accept next delivery",
+        "open sealed parcel"
+      ],
+      "stage": "motelMail",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm parcel tampering",
+          "label": "CONFIRM PARCEL TAMPERING",
+          "presentationSource": "confirm parcel tampering",
+          "id": "motel-native-motelMail:confirm parcel tampering"
+        },
+        {
+          "key": "2",
+          "command": "cancel parcel tampering",
+          "label": "CANCEL PARCEL TAMPERING",
+          "presentationSource": "cancel parcel tampering",
+          "id": "motel-native-motelMail:cancel parcel tampering"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town",
+        "motel vendors"
+      ],
+      "stage": "motelVendors",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "general store",
+          "label": "GENERAL STORE",
+          "presentationSource": "general store",
+          "id": "motel-motelVendors:general store"
+        },
+        {
+          "key": "2",
+          "command": "armory",
+          "label": "ARMORY",
+          "presentationSource": "armory",
+          "id": "motel-motelVendors:armory"
+        },
+        {
+          "key": "3",
+          "command": "workshop",
+          "label": "WORKSHOP",
+          "presentationSource": "workshop",
+          "id": "motel-motelVendors:workshop"
+        },
+        {
+          "key": "4",
+          "command": "clinic",
+          "label": "CLINIC",
+          "presentationSource": "clinic",
+          "id": "motel-motelVendors:clinic"
+        },
+        {
+          "key": "5",
+          "command": "bank",
+          "label": "BANK",
+          "presentationSource": "bank",
+          "id": "motel-motelVendors:bank"
+        },
+        {
+          "key": "6",
+          "command": "rani's accessories",
+          "label": "RANI'S ACCESSORIES",
+          "presentationSource": "rani's accessories",
+          "id": "motel-motelVendors:rani's accessories"
+        },
+        {
+          "key": "7",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelVendors:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town",
+        "the lounge"
+      ],
+      "stage": "motelLounge",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy drinks",
+          "label": "BUY DRINKS",
+          "presentationSource": "buy drinks",
+          "id": "motel-motelLounge:buy drinks"
+        },
+        {
+          "key": "2",
+          "command": "sell items",
+          "label": "SELL ITEMS",
+          "presentationSource": "sell items",
+          "id": "motel-motelLounge:sell items"
+        },
+        {
+          "key": "3",
+          "command": "conversation",
+          "label": "CONVERSATION",
+          "presentationSource": "conversation",
+          "id": "motel-motelLounge:conversation"
+        },
+        {
+          "key": "4",
+          "command": "small talk",
+          "label": "SMALL TALK",
+          "presentationSource": "small talk",
+          "id": "motel-motelLounge:small talk"
+        },
+        {
+          "key": "5",
+          "command": "gamble",
+          "label": "GAMBLE",
+          "presentationSource": "gamble",
+          "id": "motel-motelLounge:gamble"
+        },
+        {
+          "key": "6",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelLounge:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town",
+        "talk to jessica"
+      ],
+      "stage": "motelJessica",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "talk jessica",
+          "label": "TALK JESSICA",
+          "presentationSource": "talk jessica",
+          "id": "motel-motelJessica:talk jessica"
+        },
+        {
+          "key": "2",
+          "command": "small talk",
+          "label": "SMALL TALK",
+          "presentationSource": "small talk",
+          "id": "motel-motelJessica:small talk"
+        },
+        {
+          "key": "3",
+          "command": "bounties",
+          "label": "BOUNTIES",
+          "presentationSource": "bounties",
+          "id": "motel-motelJessica:bounties"
+        },
+        {
+          "key": "4",
+          "command": "inspect jessica",
+          "label": "INSPECT JESSICA",
+          "presentationSource": "inspect jessica",
+          "id": "motel-motelJessica:inspect jessica"
+        },
+        {
+          "key": "5",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelJessica:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town",
+        "the deep end"
+      ],
+      "stage": "r127ArenaLobby",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "watch a round",
+          "label": "WATCH A ROUND",
+          "presentationSource": "watch a round",
+          "id": "arena-exhibition-lobby:watch a round"
+        },
+        {
+          "key": "2",
+          "command": "bet on a round",
+          "label": "BET ON A ROUND",
+          "presentationSource": "bet on a round",
+          "id": "arena-exhibition-lobby:bet on a round"
+        },
+        {
+          "key": "3",
+          "command": "enter tournament",
+          "label": "ENTER TOURNAMENT",
+          "presentationSource": "enter tournament",
+          "id": "arena-exhibition-lobby:enter tournament"
+        },
+        {
+          "key": "4",
+          "command": "back away",
+          "label": "BACK AWAY",
+          "presentationSource": "back away",
+          "id": "arena-exhibition-lobby:back away"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town",
+        "behind the motel"
+      ],
+      "stage": "motelRear",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelRear:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town",
+        "mail room"
+      ],
+      "stage": "motelMail",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "accept next delivery",
+          "label": "ACCEPT NEXT DELIVERY",
+          "presentationSource": "accept next delivery",
+          "id": "motel-native-motelMail:accept next delivery"
+        },
+        {
+          "key": "2",
+          "command": "ask about deliveries",
+          "label": "ASK ABOUT DELIVERIES",
+          "presentationSource": "ask about deliveries",
+          "id": "motel-native-motelMail:ask about deliveries"
+        },
+        {
+          "key": "3",
+          "command": "return to town",
+          "label": "RETURN TO TOWN",
+          "presentationSource": "return to town",
+          "id": "motel-native-motelMail:return to town"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town",
+        "leave motel"
+      ],
+      "stage": "lanternNode",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "take road to west ridge road",
+          "label": "TAKE ROAD TO WEST RIDGE ROAD",
+          "presentationSource": "\u2197 NE \u2014 WEST RIDGE ROAD (4 TURNS)",
+          "id": "motel-lanternNode:take road to west ridge road"
+        },
+        {
+          "key": "2",
+          "command": "take road to old service junction",
+          "label": "TAKE ROAD TO OLD SERVICE JUNCTION",
+          "presentationSource": "\u2193 S \u2014 OLD SERVICE JUNCTION (4 TURNS)",
+          "id": "motel-lanternNode:take road to old service junction"
+        },
+        {
+          "key": "3",
+          "command": "take road to interior junction",
+          "label": "TAKE ROAD TO INTERIOR JUNCTION",
+          "presentationSource": "\u2192 E \u2014 INTERIOR JUNCTION (4 TURNS)",
+          "id": "motel-lanternNode:take road to interior junction"
+        },
+        {
+          "key": "4",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-lanternNode:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "the deep end",
+        "bet on a round",
+        "grizzly",
+        "wager 10"
+      ],
+      "stage": "r127ArenaLobby",
+      "location": "town",
+      "choices": []
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "the deep end",
+        "bet on a round",
+        "grizzly",
+        "back"
+      ],
+      "stage": "r127ArenaLobby",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "grizzly",
+          "label": "GRIZZLY",
+          "presentationSource": "grizzly",
+          "id": "motel-native-r127ArenaLobby:grizzly"
+        },
+        {
+          "key": "2",
+          "command": "riot",
+          "label": "RIOT",
+          "presentationSource": "riot",
+          "id": "motel-native-r127ArenaLobby:riot"
+        },
+        {
+          "key": "3",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-r127ArenaLobby:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "accept next delivery",
+        "open sealed parcel",
+        "cancel parcel tampering"
+      ],
+      "stage": "motelMail",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "open sealed parcel",
+          "label": "OPEN SEALED PARCEL",
+          "presentationSource": "open sealed parcel",
+          "id": "motel-native-motelMail:open sealed parcel"
+        },
+        {
+          "key": "2",
+          "command": "ask about deliveries",
+          "label": "ASK ABOUT DELIVERIES",
+          "presentationSource": "ask about deliveries",
+          "id": "motel-native-motelMail:ask about deliveries"
+        },
+        {
+          "key": "3",
+          "command": "return to town",
+          "label": "RETURN TO TOWN",
+          "presentationSource": "return to town",
+          "id": "motel-native-motelMail:return to town"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "accept next delivery",
+        "open sealed parcel",
+        "back"
+      ],
+      "stage": "motelHome",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "motel vendors",
+          "label": "MOTEL VENDORS",
+          "presentationSource": "motel vendors",
+          "id": "motel-motelHome:motel vendors"
+        },
+        {
+          "key": "2",
+          "command": "the lounge",
+          "label": "THE LOUNGE",
+          "presentationSource": "the lounge",
+          "id": "motel-motelHome:the lounge"
+        },
+        {
+          "key": "3",
+          "command": "talk to jessica",
+          "label": "TALK TO JESSICA",
+          "presentationSource": "talk to jessica",
+          "id": "motel-motelHome:talk to jessica"
+        },
+        {
+          "key": "4",
+          "command": "the deep end",
+          "label": "THE DEEP END",
+          "presentationSource": "the deep end",
+          "id": "motel-motelHome:the deep end"
+        },
+        {
+          "key": "5",
+          "command": "behind the motel",
+          "label": "BEHIND THE MOTEL",
+          "presentationSource": "behind the motel",
+          "id": "motel-motelHome:behind the motel"
+        },
+        {
+          "key": "6",
+          "command": "mail room",
+          "label": "MAIL ROOM",
+          "presentationSource": "mail room",
+          "id": "motel-motelHome:mail room"
+        },
+        {
+          "key": "7",
+          "command": "bulletin board",
+          "label": "BULLETIN BOARD",
+          "presentationSource": "bulletin board",
+          "id": "motel-motelHome:bulletin board"
+        },
+        {
+          "key": "8",
+          "command": "leave motel",
+          "label": "LEAVE MOTEL",
+          "presentationSource": "leave motel",
+          "id": "motel-motelHome:leave motel"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town",
+        "motel vendors",
+        "general store"
+      ],
+      "stage": "port55Service",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "assign staff",
+          "label": "ASSIGN STAFF",
+          "presentationSource": "assign staff",
+          "id": "motel-native-port55Service:assign staff"
+        },
+        {
+          "key": "2",
+          "command": "return to motel vendors",
+          "label": "RETURN TO MOTEL VENDORS",
+          "presentationSource": "return to motel vendors",
+          "id": "motel-native-port55Service:return to motel vendors"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town",
+        "motel vendors",
+        "armory"
+      ],
+      "stage": "port55Service",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "assign staff",
+          "label": "ASSIGN STAFF",
+          "presentationSource": "assign staff",
+          "id": "motel-native-port55Service:assign staff"
+        },
+        {
+          "key": "2",
+          "command": "return to motel vendors",
+          "label": "RETURN TO MOTEL VENDORS",
+          "presentationSource": "return to motel vendors",
+          "id": "motel-native-port55Service:return to motel vendors"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town",
+        "motel vendors",
+        "workshop"
+      ],
+      "stage": "port55Service",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "assign staff",
+          "label": "ASSIGN STAFF",
+          "presentationSource": "assign staff",
+          "id": "motel-native-port55Service:assign staff"
+        },
+        {
+          "key": "2",
+          "command": "return to motel vendors",
+          "label": "RETURN TO MOTEL VENDORS",
+          "presentationSource": "return to motel vendors",
+          "id": "motel-native-port55Service:return to motel vendors"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town",
+        "motel vendors",
+        "clinic"
+      ],
+      "stage": "port55Service",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "assign staff",
+          "label": "ASSIGN STAFF",
+          "presentationSource": "assign staff",
+          "id": "motel-native-port55Service:assign staff"
+        },
+        {
+          "key": "2",
+          "command": "return to motel vendors",
+          "label": "RETURN TO MOTEL VENDORS",
+          "presentationSource": "return to motel vendors",
+          "id": "motel-native-port55Service:return to motel vendors"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town",
+        "motel vendors",
+        "bank"
+      ],
+      "stage": "port55Service",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "assign staff",
+          "label": "ASSIGN STAFF",
+          "presentationSource": "assign staff",
+          "id": "motel-native-port55Service:assign staff"
+        },
+        {
+          "key": "2",
+          "command": "return to motel vendors",
+          "label": "RETURN TO MOTEL VENDORS",
+          "presentationSource": "return to motel vendors",
+          "id": "motel-native-port55Service:return to motel vendors"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town",
+        "motel vendors",
+        "rani's accessories"
+      ],
+      "stage": "motelRani",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "sell items",
+          "label": "SELL ITEMS",
+          "presentationSource": "sell items",
+          "id": "motel-motelRani:sell items"
+        },
+        {
+          "key": "2",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelRani:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town",
+        "the lounge",
+        "buy drinks"
+      ],
+      "stage": "r11Drinks",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "beer \u2014 5 bolts / 5% max hp (min 5)",
+          "label": "BEER \u2014 5 BOLTS / 5% MAX HP (MIN 5)",
+          "presentationSource": "beer \u2014 5 bolts / 5% max hp (min 5)",
+          "id": "motel-native-r11Drinks:beer \u2014 5 bolts / 5% max hp (min 5)"
+        },
+        {
+          "key": "2",
+          "command": "shot \u2014 9 bolts / 9% max hp (min 10)",
+          "label": "SHOT \u2014 9 BOLTS / 9% MAX HP (MIN 10)",
+          "presentationSource": "shot \u2014 9 bolts / 9% max hp (min 10)",
+          "id": "motel-native-r11Drinks:shot \u2014 9 bolts / 9% max hp (min 10)"
+        },
+        {
+          "key": "3",
+          "command": "house special \u2014 15 bolts / 15% max hp (min 15)",
+          "label": "HOUSE SPECIAL \u2014 15 BOLTS / 15% MAX HP (MIN 15)",
+          "presentationSource": "house special \u2014 15 bolts / 15% max hp (min 15)",
+          "id": "motel-native-r11Drinks:house special \u2014 15 bolts / 15% max hp (min 15)"
+        },
+        {
+          "key": "4",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-r11Drinks:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town",
+        "the lounge",
+        "sell items"
+      ],
+      "stage": "motelSale",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "sell cloth \u2014 3 bolts",
+          "label": "SELL CLOTH \u2014 3 BOLTS",
+          "presentationSource": "sell cloth \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell cloth \u2014 3 bolts"
+        },
+        {
+          "key": "2",
+          "command": "sell scrap metal \u2014 4 bolts",
+          "label": "SELL SCRAP METAL \u2014 4 BOLTS",
+          "presentationSource": "sell scrap metal \u2014 4 bolts",
+          "id": "motel-native-motelSale:sell scrap metal \u2014 4 bolts"
+        },
+        {
+          "key": "3",
+          "command": "sell wire \u2014 4 bolts",
+          "label": "SELL WIRE \u2014 4 BOLTS",
+          "presentationSource": "sell wire \u2014 4 bolts",
+          "id": "motel-native-motelSale:sell wire \u2014 4 bolts"
+        },
+        {
+          "key": "4",
+          "command": "sell electronics \u2014 9 bolts",
+          "label": "SELL ELECTRONICS \u2014 9 BOLTS",
+          "presentationSource": "sell electronics \u2014 9 bolts",
+          "id": "motel-native-motelSale:sell electronics \u2014 9 bolts"
+        },
+        {
+          "key": "5",
+          "command": "sell small animal bones \u2014 2 bolts",
+          "label": "SELL SMALL ANIMAL BONES \u2014 2 BOLTS",
+          "presentationSource": "sell small animal bones \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell small animal bones \u2014 2 bolts"
+        },
+        {
+          "key": "6",
+          "command": "sell animal bones \u2014 3 bolts",
+          "label": "SELL ANIMAL BONES \u2014 3 BOLTS",
+          "presentationSource": "sell animal bones \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell animal bones \u2014 3 bolts"
+        },
+        {
+          "key": "7",
+          "command": "sell large animal bones \u2014 4 bolts",
+          "label": "SELL LARGE ANIMAL BONES \u2014 4 BOLTS",
+          "presentationSource": "sell large animal bones \u2014 4 bolts",
+          "id": "motel-native-motelSale:sell large animal bones \u2014 4 bolts"
+        },
+        {
+          "key": "8",
+          "command": "sell tempered steel \u2014 16 bolts",
+          "label": "SELL TEMPERED STEEL \u2014 16 BOLTS",
+          "presentationSource": "sell tempered steel \u2014 16 bolts",
+          "id": "motel-native-motelSale:sell tempered steel \u2014 16 bolts"
+        },
+        {
+          "key": "9",
+          "command": "sell explosive components \u2014 8 bolts",
+          "label": "SELL EXPLOSIVE COMPONENTS \u2014 8 BOLTS",
+          "presentationSource": "sell explosive components \u2014 8 bolts",
+          "id": "motel-native-motelSale:sell explosive components \u2014 8 bolts"
+        },
+        {
+          "key": "10",
+          "command": "sell animal hide \u2014 4 bolts",
+          "label": "SELL ANIMAL HIDE \u2014 4 BOLTS",
+          "presentationSource": "sell animal hide \u2014 4 bolts",
+          "id": "motel-native-motelSale:sell animal hide \u2014 4 bolts"
+        },
+        {
+          "key": "11",
+          "command": "sell uncommon electrical parts \u2014 12 bolts",
+          "label": "SELL UNCOMMON ELECTRICAL PARTS \u2014 12 BOLTS",
+          "presentationSource": "sell uncommon electrical parts \u2014 12 bolts",
+          "id": "motel-native-motelSale:sell uncommon electrical parts \u2014 12 bolts"
+        },
+        {
+          "key": "12",
+          "command": "sell glass \u2014 2 bolts",
+          "label": "SELL GLASS \u2014 2 BOLTS",
+          "presentationSource": "sell glass \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell glass \u2014 2 bolts"
+        },
+        {
+          "key": "13",
+          "command": "sell water \u2014 1 bolts",
+          "label": "SELL WATER \u2014 1 BOLTS",
+          "presentationSource": "sell water \u2014 1 bolts",
+          "id": "motel-native-motelSale:sell water \u2014 1 bolts"
+        },
+        {
+          "key": "14",
+          "command": "sell salt \u2014 2 bolts",
+          "label": "SELL SALT \u2014 2 BOLTS",
+          "presentationSource": "sell salt \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell salt \u2014 2 bolts"
+        },
+        {
+          "key": "15",
+          "command": "sell raw rat meat \u2014 2 bolts",
+          "label": "SELL RAW RAT MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw rat meat \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell raw rat meat \u2014 2 bolts"
+        },
+        {
+          "key": "16",
+          "command": "sell raw rabbit meat \u2014 2 bolts",
+          "label": "SELL RAW RABBIT MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw rabbit meat \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell raw rabbit meat \u2014 2 bolts"
+        },
+        {
+          "key": "17",
+          "command": "sell raw bird meat \u2014 2 bolts",
+          "label": "SELL RAW BIRD MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw bird meat \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell raw bird meat \u2014 2 bolts"
+        },
+        {
+          "key": "18",
+          "command": "sell raw chicken meat \u2014 2 bolts",
+          "label": "SELL RAW CHICKEN MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw chicken meat \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell raw chicken meat \u2014 2 bolts"
+        },
+        {
+          "key": "19",
+          "command": "sell raw boar meat \u2014 3 bolts",
+          "label": "SELL RAW BOAR MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell raw boar meat \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell raw boar meat \u2014 3 bolts"
+        },
+        {
+          "key": "20",
+          "command": "sell raw venison \u2014 3 bolts",
+          "label": "SELL RAW VENISON \u2014 3 BOLTS",
+          "presentationSource": "sell raw venison \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell raw venison \u2014 3 bolts"
+        },
+        {
+          "key": "21",
+          "command": "sell raw snake meat \u2014 2 bolts",
+          "label": "SELL RAW SNAKE MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw snake meat \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell raw snake meat \u2014 2 bolts"
+        },
+        {
+          "key": "22",
+          "command": "sell raw wolf meat \u2014 3 bolts",
+          "label": "SELL RAW WOLF MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell raw wolf meat \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell raw wolf meat \u2014 3 bolts"
+        },
+        {
+          "key": "23",
+          "command": "sell energy bars \u2014 2 bolts",
+          "label": "SELL ENERGY BARS \u2014 2 BOLTS",
+          "presentationSource": "sell energy bars \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell energy bars \u2014 2 bolts"
+        },
+        {
+          "key": "24",
+          "command": "sell bandage \u2014 3 bolts",
+          "label": "SELL BANDAGE \u2014 3 BOLTS",
+          "presentationSource": "sell bandage \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell bandage \u2014 3 bolts"
+        },
+        {
+          "key": "25",
+          "command": "sell reinforced bandage \u2014 8 bolts",
+          "label": "SELL REINFORCED BANDAGE \u2014 8 BOLTS",
+          "presentationSource": "sell reinforced bandage \u2014 8 bolts",
+          "id": "motel-native-motelSale:sell reinforced bandage \u2014 8 bolts"
+        },
+        {
+          "key": "26",
+          "command": "sell fresh apple \u2014 2 bolts",
+          "label": "SELL FRESH APPLE \u2014 2 BOLTS",
+          "presentationSource": "sell fresh apple \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh apple \u2014 2 bolts"
+        },
+        {
+          "key": "27",
+          "command": "sell fresh pear \u2014 2 bolts",
+          "label": "SELL FRESH PEAR \u2014 2 BOLTS",
+          "presentationSource": "sell fresh pear \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh pear \u2014 2 bolts"
+        },
+        {
+          "key": "28",
+          "command": "sell fresh carrot \u2014 2 bolts",
+          "label": "SELL FRESH CARROT \u2014 2 BOLTS",
+          "presentationSource": "sell fresh carrot \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh carrot \u2014 2 bolts"
+        },
+        {
+          "key": "29",
+          "command": "sell fresh potato \u2014 2 bolts",
+          "label": "SELL FRESH POTATO \u2014 2 BOLTS",
+          "presentationSource": "sell fresh potato \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh potato \u2014 2 bolts"
+        },
+        {
+          "key": "30",
+          "command": "sell fresh tomato \u2014 2 bolts",
+          "label": "SELL FRESH TOMATO \u2014 2 BOLTS",
+          "presentationSource": "sell fresh tomato \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh tomato \u2014 2 bolts"
+        },
+        {
+          "key": "31",
+          "command": "sell fresh cabbage \u2014 2 bolts",
+          "label": "SELL FRESH CABBAGE \u2014 2 BOLTS",
+          "presentationSource": "sell fresh cabbage \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh cabbage \u2014 2 bolts"
+        },
+        {
+          "key": "32",
+          "command": "sell fresh berries \u2014 2 bolts",
+          "label": "SELL FRESH BERRIES \u2014 2 BOLTS",
+          "presentationSource": "sell fresh berries \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh berries \u2014 2 bolts"
+        },
+        {
+          "key": "33",
+          "command": "sell preserved vegetables \u2014 5 bolts",
+          "label": "SELL PRESERVED VEGETABLES \u2014 5 BOLTS",
+          "presentationSource": "sell preserved vegetables \u2014 5 bolts",
+          "id": "motel-native-motelSale:sell preserved vegetables \u2014 5 bolts"
+        },
+        {
+          "key": "34",
+          "command": "sell preserved meat \u2014 3 bolts",
+          "label": "SELL PRESERVED MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell preserved meat \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell preserved meat \u2014 3 bolts"
+        },
+        {
+          "key": "35",
+          "command": "sell wasteland stew \u2014 5 bolts",
+          "label": "SELL WASTELAND STEW \u2014 5 BOLTS",
+          "presentationSource": "sell wasteland stew \u2014 5 bolts",
+          "id": "motel-native-motelSale:sell wasteland stew \u2014 5 bolts"
+        },
+        {
+          "key": "36",
+          "command": "sell roadhouse hash \u2014 4 bolts",
+          "label": "SELL ROADHOUSE HASH \u2014 4 BOLTS",
+          "presentationSource": "sell roadhouse hash \u2014 4 bolts",
+          "id": "motel-native-motelSale:sell roadhouse hash \u2014 4 bolts"
+        },
+        {
+          "key": "37",
+          "command": "sell wild honey \u2014 6 bolts",
+          "label": "SELL WILD HONEY \u2014 6 BOLTS",
+          "presentationSource": "sell wild honey \u2014 6 bolts",
+          "id": "motel-native-motelSale:sell wild honey \u2014 6 bolts"
+        },
+        {
+          "key": "38",
+          "command": "sell claw hammer \u2014 25 bolts",
+          "label": "SELL CLAW HAMMER \u2014 25 BOLTS",
+          "presentationSource": "sell claw hammer \u2014 25 bolts",
+          "id": "motel-native-motelSale:sell claw hammer \u2014 25 bolts"
+        },
+        {
+          "key": "39",
+          "command": "sell bluefang hunting knife \u2014 89 bolts",
+          "label": "SELL BLUEFANG HUNTING KNIFE \u2014 89 BOLTS",
+          "presentationSource": "sell bluefang hunting knife \u2014 89 bolts",
+          "id": "motel-native-motelSale:sell bluefang hunting knife \u2014 89 bolts"
+        },
+        {
+          "key": "40",
+          "command": "sell battered flashlight \u2014 5 bolts",
+          "label": "SELL BATTERED FLASHLIGHT \u2014 5 BOLTS",
+          "presentationSource": "sell battered flashlight \u2014 5 bolts",
+          "id": "motel-native-motelSale:sell battered flashlight \u2014 5 bolts"
+        },
+        {
+          "key": "41",
+          "command": "sell old world pocket compass \u2014 30 bolts",
+          "label": "SELL OLD WORLD POCKET COMPASS \u2014 30 BOLTS",
+          "presentationSource": "sell old world pocket compass \u2014 30 bolts",
+          "id": "motel-native-motelSale:sell old world pocket compass \u2014 30 bolts"
+        },
+        {
+          "key": "42",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-motelSale:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-mail",
+      "profile": "supplied",
+      "path": [
+        "mail room",
+        "return to town",
+        "the lounge",
+        "gamble"
+      ],
+      "stage": "motelCasino",
+      "location": "postOffice",
+      "choices": [
+        {
+          "key": "1",
+          "command": "poker",
+          "label": "POKER",
+          "presentationSource": "poker",
+          "id": "motel-casino-motelCasino:poker"
+        },
+        {
+          "key": "2",
+          "command": "slots",
+          "label": "SLOTS",
+          "presentationSource": "slots",
+          "id": "motel-casino-motelCasino:slots"
+        },
+        {
+          "key": "3",
+          "command": "big six wheel",
+          "label": "BIG SIX WHEEL",
+          "presentationSource": "big six wheel",
+          "id": "motel-casino-motelCasino:big six wheel"
+        },
+        {
+          "key": "4",
+          "command": "keno",
+          "label": "KENO",
+          "presentationSource": "keno",
+          "id": "motel-casino-motelCasino:keno"
+        },
+        {
+          "key": "5",
+          "command": "roulette",
+          "label": "ROULETTE",
+          "presentationSource": "roulette",
+          "id": "motel-casino-motelCasino:roulette"
+        },
+        {
+          "key": "6",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-casino-motelCasino:back"
+        }
+      ]
+    },
+    {
+      "root": "west-service-junction",
+      "profile": "supplied",
+      "path": [],
+      "stage": "lanternNode",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "take road to abandoned motel",
+          "label": "\u2191 N \u2014 Abandoned Motel (4 Turns)",
+          "presentationSource": "\u2191 N \u2014 ABANDONED MOTEL (4 TURNS)"
+        },
+        {
+          "key": "2",
+          "command": "take road to old service road",
+          "label": "\u2193 S \u2014 Old Service Road (5 Turns)",
+          "presentationSource": "\u2193 S \u2014 OLD SERVICE ROAD (5 TURNS)"
+        },
+        {
+          "key": "3",
+          "command": "take road to iron pit arena",
+          "label": "\u2193 S \u2014 Iron Pit Arena (13 Turns)",
+          "presentationSource": "\u2193 S \u2014 IRON PIT ARENA (13 TURNS)"
+        },
+        {
+          "key": "4",
+          "command": "take road to interior junction",
+          "label": "\u2192 E \u2014 Interior Junction (2 Turns)",
+          "presentationSource": "\u2192 E \u2014 INTERIOR JUNCTION (2 TURNS)"
+        },
+        {
+          "key": "b",
+          "command": "back",
+          "label": "Back",
+          "presentationSource": "back"
+        }
+      ]
+    },
+    {
+      "root": "west-service-road",
+      "profile": "supplied",
+      "path": [],
+      "stage": "lanternNode",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "inspect signal cabinet",
+          "label": "Inspect Signal Cabinet",
+          "presentationSource": "inspect signal cabinet"
+        },
+        {
+          "key": "2",
+          "command": "take road to old service junction",
+          "label": "\u2190 W \u2014 Old Service Junction (5 Turns)",
+          "presentationSource": "\u2190 W \u2014 OLD SERVICE JUNCTION (5 TURNS)"
+        },
+        {
+          "key": "3",
+          "command": "take road to works junction",
+          "label": "\u2192 E \u2014 Works Junction (5 Turns)",
+          "presentationSource": "\u2192 E \u2014 WORKS JUNCTION (5 TURNS)"
+        },
+        {
+          "key": "4",
+          "command": "take road to interior junction",
+          "label": "\u2196 Nw \u2014 Interior Junction (4 Turns)",
+          "presentationSource": "\u2196 NW \u2014 INTERIOR JUNCTION (4 TURNS)"
+        },
+        {
+          "key": "b",
+          "command": "back",
+          "label": "Back",
+          "presentationSource": "back"
+        }
+      ]
+    },
+    {
+      "root": "west-service-road",
+      "profile": "supplied",
+      "path": [
+        "inspect signal cabinet"
+      ],
+      "stage": "relayBranch",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "back to old service road (free)",
+          "label": "Back to Old Service Road (Free)",
+          "presentationSource": "back to old service road (free)"
+        }
+      ]
+    },
+    {
+      "root": "west-iron-pit",
+      "profile": "supplied",
+      "path": [],
+      "stage": "lanternNode",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "take road to old service junction",
+          "label": "\u2191 N \u2014 Old Service Junction (13 Turns)",
+          "presentationSource": "\u2191 N \u2014 OLD SERVICE JUNCTION (13 TURNS)"
+        },
+        {
+          "key": "2",
+          "command": "take road to arena lower junction",
+          "label": "\u2192 E \u2014 Arena Lower Junction (5 Turns)",
+          "presentationSource": "\u2192 E \u2014 ARENA LOWER JUNCTION (5 TURNS)"
+        },
+        {
+          "key": "3",
+          "command": "take road to lowlands",
+          "label": "\u2193 S \u2014 Lowlands (12 Turns)",
+          "presentationSource": "\u2193 S \u2014 LOWLANDS (12 TURNS)"
+        },
+        {
+          "key": "b",
+          "command": "back",
+          "label": "Back",
+          "presentationSource": "back"
+        }
+      ]
+    },
+    {
+      "root": "west-scavenger-camp",
+      "profile": "supplied",
+      "path": [],
+      "stage": "lanternNode",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "take road to east ridge road",
+          "label": "\u2191 N \u2014 East Ridge Road (4 Turns)",
+          "presentationSource": "\u2191 N \u2014 EAST RIDGE ROAD (4 TURNS)"
+        },
+        {
+          "key": "2",
+          "command": "take road to trade junction",
+          "label": "\u2193 S \u2014 Trade Junction (4 Turns)",
+          "presentationSource": "\u2193 S \u2014 TRADE JUNCTION (4 TURNS)"
+        },
+        {
+          "key": "b",
+          "command": "back",
+          "label": "Back",
+          "presentationSource": "back"
+        }
+      ]
+    }
+  ]
+}

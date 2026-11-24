@@ -1,0 +1,34 @@
+[
+  {
+    "id": "west-motel",
+    "setup": "lanternState().nodeId='abandoned-motel';lanternNodeMenu();"
+  },
+  {
+    "id": "west-motel-staff",
+    "setup": "lanternState().nodeId='abandoned-motel';Object.assign(portStaffState(),{hired:['Tess'],assignments:{'general store':'Tess'}});lanternNodeMenu();"
+  },
+  {
+    "id": "west-motel-all-staff",
+    "setup": "lanternState().nodeId='abandoned-motel';Route127Motel.open('vendors');player.flags.motelStaff={hired:['Tess','Patch','Harlow','Bolt','Wren'],assignments:{'general store':'Tess',armory:'Patch',clinic:'Harlow',workshop:'Bolt',bank:'Wren'}};Route127Motel.open('vendors');"
+  },
+  {
+    "id": "west-motel-mail",
+    "setup": "lanternState().nodeId='abandoned-motel';player.flags.r18Courier={phase:'service'};lanternNodeMenu();"
+  },
+  {
+    "id": "west-service-junction",
+    "setup": "lanternState().nodeId='old-service-junction';lanternNodeMenu();"
+  },
+  {
+    "id": "west-service-road",
+    "setup": "lanternState().nodeId='old-service-road';lanternNodeMenu();"
+  },
+  {
+    "id": "west-iron-pit",
+    "setup": "lanternState().nodeId='iron-pit-arena';lanternNodeMenu();"
+  },
+  {
+    "id": "west-scavenger-camp",
+    "setup": "lanternState().nodeId='scavenger-camp';lanternNodeMenu();"
+  }
+]

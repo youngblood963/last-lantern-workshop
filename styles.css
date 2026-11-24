@@ -46,7 +46,8 @@ h1{font-size:clamp(3rem,8vw,6.3rem);line-height:.92;letter-spacing:-.035em;margi
 footer{text-align:center;padding:30px 24px;border-top:1px solid var(--line);color:#777168;font-size:.78rem;letter-spacing:.08em}
 .lantern-secret{
   position:fixed;
-  right:8px;
+  left:8px;
+  right:auto;
   bottom:8px;
   width:58px;
   height:58px;

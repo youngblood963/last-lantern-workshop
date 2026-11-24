@@ -1,0 +1,1116 @@
+stage,location,command,pathways,profiles,roots
+eastEnd,town,back,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+eastEnd,town,enter factory,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+eastEnd,town,explore roads,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+eastEnd,town,head north — solace,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+eastEnd,town,head south — seaport,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+eastEnd,town,inspect road,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryBench,town,back,graphical | terminal,full | poor | supplied,factory-authorized
+factoryBench,town,insert materials,graphical | terminal,full | poor | supplied,factory-authorized
+factoryDungeonFloor,town,0,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonFloor,town,1,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonFloor,town,2,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonFloor,town,3,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonFloor,town,4,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonFloor,town,5,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonFloor,town,6,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonHub,town,1,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonHub,town,2,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonHub,town,3,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonHub,town,4,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonHub,town,5,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonRoom,town,fight,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonRoom,town,inspect,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonRoom,town,release brake,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonRoom,town,return to floor,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonRoom,town,search,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryDungeonRoom,town,verify authorization,graphical | terminal,full | poor | supplied,factory-ready
+factoryForge,town,back,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryForge,town,prepare dynamite,graphical | terminal,full | poor | supplied,factory-ready
+factoryRusty,town,back,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryRusty,town,buy bandage,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryRusty,town,buy cloth,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryRusty,town,buy energy bars,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryRusty,town,buy scrap metal,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryRusty,town,buy supplies,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryRusty,town,buy tent,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryRusty,town,buy tire iron,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryRusty,town,buy wire,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryRusty,town,cancel rusty sale,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,confirm rusty sale,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,return to forge,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell animal bones,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell animal hide,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell bandage,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell battered flashlight,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell bluefang hunting knife,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell claw hammer,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell cloth,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell electronics,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell energy bars,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell explosive components,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell fresh apple,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell fresh berries,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell fresh cabbage,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell fresh carrot,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell fresh pear,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell fresh potato,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell fresh tomato,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell glass,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell items,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell large animal bones,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell old world pocket compass,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell preserved meat,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell preserved vegetables,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell raw bird meat,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell raw boar meat,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell raw chicken meat,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell raw rabbit meat,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell raw rat meat,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell raw snake meat,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell raw venison,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell raw wolf meat,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell reinforced bandage,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell roadhouse hash,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell salt,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell scrap metal,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell small animal bones,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell tempered steel,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell uncommon electrical parts,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell wasteland stew,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell water,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell wild honey,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryRusty,town,sell wire,graphical | terminal,full | supplied,factory-authorized | factory-ready
+factoryTerminal,town,exit terminal,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryTerminal,town,factory status,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryTerminal,town,personnel: forge,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryTerminal,town,project records,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryWorkshop,town,back,terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryWorkshop,town,enter inner factory,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryWorkshop,town,exit factory,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryWorkshop,town,rusty,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryWorkshop,town,talk to forge,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryWorkshop,town,tomorrow project terminal,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+factoryWorkshop,town,workbench,graphical | terminal,full | poor | supplied,factory-authorized | factory-ready
+house,town,check fireplace,graphical | terminal,full | poor | supplied,house
+house,town,check pack,graphical | terminal,full | poor | supplied,house
+house,town,search bathroom cabinet,graphical | terminal,full | poor | supplied,house
+house,town,↓ s — solace,graphical | terminal,full | poor | supplied,house
+interfaceStatus,town,back,graphical | terminal,full | poor | supplied,horse-travel
+interfaceStatus,town,horse travel,graphical | terminal,full | poor | supplied,horse-travel
+inventory,town,back,graphical | terminal,full | poor | supplied,inventory
+lanternGate,town,back,terminal,full | poor | supplied,inventory | journal
+lanternGate,town,return to town,graphical | terminal,full | poor | supplied,inventory | journal
+lanternGate,town,take road to interior junction,graphical | terminal,full | poor | supplied,inventory | journal
+lanternGate,town,take road to trade junction,graphical | terminal,full | poor | supplied,inventory | journal
+lanternGate,town,take road to upper highway junction,graphical | terminal,full | poor | supplied,inventory | journal
+lanternGate,town,take road to works junction,graphical | terminal,full | poor | supplied,inventory | journal
+lanternNode,town,back,graphical | terminal,full | poor | supplied,deep-end | factory | factory-authorized | factory-ready | house | wanderer
+lanternNode,town,enter factory,graphical | terminal,full | poor | supplied,factory | factory-authorized | factory-ready
+lanternNode,town,enter old house,graphical | terminal,full | poor | supplied,house
+lanternNode,town,enter solace,graphical | terminal,full | poor | supplied,wanderer
+lanternNode,town,enter the deep end,graphical | terminal,full | poor | supplied,deep-end
+lanternNode,town,take road to boulder junction,graphical | terminal,full | poor | supplied,factory | factory-authorized | factory-ready
+lanternNode,town,take road to east ridge road,graphical | terminal,full | poor | supplied,house
+lanternNode,town,take road to factory east junction,graphical | terminal,full | poor | supplied,factory | factory-authorized | factory-ready
+lanternNode,town,take road to factory west junction,graphical | terminal,full | poor | supplied,factory | factory-authorized | factory-ready
+lanternNode,town,take road to interior junction,graphical | terminal,full | poor | supplied,deep-end | wanderer
+lanternNode,town,take road to old service junction,graphical | terminal,full | poor | supplied,deep-end
+lanternNode,town,take road to trade junction,graphical | terminal,full | poor | supplied,wanderer
+lanternNode,town,take road to upper highway junction,graphical | terminal,full | poor | supplied,house | wanderer
+lanternNode,town,take road to west ridge road,graphical | terminal,full | poor | supplied,deep-end | house
+lanternNode,town,take road to works junction,graphical | terminal,full | poor | supplied,factory | factory-authorized | factory-ready | wanderer
+lanternRoad,town,back,graphical | terminal,full | poor | supplied,arena | seaport | seaport-locked
+lanternRoad,town,continue road,graphical | terminal,full | poor | supplied,arena | seaport | seaport-locked
+lanternRoad,town,resume road event,graphical,full | poor | supplied,arena | factory | factory-authorized | factory-ready | seaport
+lanternRoad,town,reverse direction,graphical | terminal,full | poor | supplied,arena | seaport | seaport-locked
+lanternRoad,town,skip stalled event,graphical,full | poor | supplied,arena | factory | factory-authorized | factory-ready | seaport
+mercy,amii,back,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,amii,change name,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,amii,deposit bolts,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,amii,retrieve items,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,amii,small talk,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,amii,stash items,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,amii,view storage,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,amii,withdraw bolts,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,casino,back,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,casino,blackjack,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,casino,dice,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,casino,rat racing,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,casino,rock paper scissors,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,casino,slots,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,ask about work,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,ask rumors,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,back,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,buy drinks,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,buy room,graphical | terminal,full | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,gamble,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,return to town,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell animal bones ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell animal bones ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell animal hide ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell animal hide ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell bandage ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell bandage ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell battered flashlight ×1,graphical | terminal,full | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell bluefang hunting knife ×1,graphical | terminal,full | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell claw hammer ×1,graphical | terminal,full | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell cloth ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell cloth ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell electronics ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell electronics ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell energy bars ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell energy bars ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell explosive components ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell explosive components ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell fresh apple ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell fresh apple ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell fresh berries ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell fresh berries ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell fresh cabbage ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell fresh cabbage ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell fresh carrot ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell fresh carrot ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell fresh pear ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell fresh pear ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell fresh potato ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell fresh potato ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell fresh tomato ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell fresh tomato ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell glass ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell glass ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell items,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell large animal bones ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell large animal bones ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell old world pocket compass ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell old world pocket compass ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell preserved meat ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell preserved meat ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell preserved vegetables ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell preserved vegetables ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell raw bird meat ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell raw bird meat ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell raw boar meat ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell raw boar meat ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell raw chicken meat ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell raw chicken meat ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell raw rabbit meat ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell raw rabbit meat ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell raw rat meat ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell raw rat meat ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell raw snake meat ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell raw snake meat ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell raw venison ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell raw venison ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell raw wolf meat ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell raw wolf meat ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell reinforced bandage ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell reinforced bandage ×100,graphical | terminal,supplied,crafting | quest-progress | relay | solace
+mercy,jen,sell reinforced bandage ×101,graphical | terminal,supplied,craft-ready
+mercy,jen,sell roadhouse hash ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell roadhouse hash ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell salt ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell salt ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell scrap metal ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell scrap metal ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell small animal bones ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell small animal bones ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell tempered steel ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell tempered steel ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell uncommon electrical parts ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell uncommon electrical parts ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell wasteland stew ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell wasteland stew ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell water ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell water ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell wild honey ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell wild honey ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,sell wire ×1,graphical | terminal,full,crafting | quest-progress | relay | solace
+mercy,jen,sell wire ×100,graphical | terminal,supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jen,talk jen,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jenDrinks,back,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jenDrinks,beer,graphical | terminal,full | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jenDrinks,house special,graphical | terminal,full | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jenDrinks,shot,graphical | terminal,full | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jenRoom,chest,graphical | terminal,full | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jenRoom,look around,graphical | terminal,full | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jenRoom,rest,graphical | terminal,full | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,jenRoom,return,graphical | terminal,full | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,johnny,accept,graphical | terminal,full | poor | supplied,martha
+mercy,johnny,ask about lost ledger,graphical | terminal,full | poor | supplied,martha
+mercy,johnny,ask about road,graphical | terminal,full | poor | supplied,martha
+mercy,johnny,back,graphical | terminal,full | poor | supplied,craft-ready | crafting | martha | quest-progress | relay | solace
+mercy,johnny,buy 16-slot backpack,graphical | terminal,full | poor | supplied,martha
+mercy,johnny,buy bandage,graphical | terminal,full | poor | supplied,martha
+mercy,johnny,buy battered flashlight,graphical | terminal,full | poor | supplied,martha
+mercy,johnny,buy clean water,graphical | terminal,full | poor | supplied,martha
+mercy,johnny,buy energy bar,graphical | terminal,full | poor | supplied,martha
+mercy,johnny,cancel martha sale,graphical | terminal,full | supplied,martha
+mercy,johnny,cancel sale,graphical | terminal,full | supplied,martha
+mercy,johnny,confirm martha sale,graphical | terminal,full | supplied,martha
+mercy,johnny,confirm sale,graphical | terminal,full | supplied,martha
+mercy,johnny,continue shopping,graphical | terminal,full | supplied,martha
+mercy,johnny,custom amount,graphical | terminal,supplied,martha
+mercy,johnny,decline,graphical | terminal,full | poor | supplied,martha
+mercy,johnny,old world counter,graphical | terminal,full | poor | supplied,martha
+mercy,johnny,return to johnny,graphical | terminal,full | poor | supplied,martha
+mercy,johnny,return to town,graphical | terminal,full | supplied,martha
+mercy,johnny,sell 1,graphical | terminal,supplied,martha
+mercy,johnny,sell 5,graphical | terminal,supplied,martha
+mercy,johnny,sell all,graphical | terminal,supplied,martha
+mercy,johnny,sell animal bones ×1,graphical | terminal,full,martha
+mercy,johnny,sell animal bones ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell animal hide ×1,graphical | terminal,full,martha
+mercy,johnny,sell animal hide ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell bandage ×1,graphical | terminal,full,martha
+mercy,johnny,sell bandage ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell battered flashlight ×1,graphical | terminal,full | supplied,martha
+mercy,johnny,sell bluefang hunting knife ×1,graphical | terminal,full | supplied,martha
+mercy,johnny,sell claw hammer ×1,graphical | terminal,full | supplied,martha
+mercy,johnny,sell cloth ×1,graphical | terminal,full,martha
+mercy,johnny,sell cloth ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell electronics ×1,graphical | terminal,full,martha
+mercy,johnny,sell electronics ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell energy bars ×1,graphical | terminal,full,martha
+mercy,johnny,sell energy bars ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell explosive components ×1,graphical | terminal,full,martha
+mercy,johnny,sell explosive components ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell fresh apple ×1,graphical | terminal,full,martha
+mercy,johnny,sell fresh apple ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell fresh berries ×1,graphical | terminal,full,martha
+mercy,johnny,sell fresh berries ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell fresh cabbage ×1,graphical | terminal,full,martha
+mercy,johnny,sell fresh cabbage ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell fresh carrot ×1,graphical | terminal,full,martha
+mercy,johnny,sell fresh carrot ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell fresh pear ×1,graphical | terminal,full,martha
+mercy,johnny,sell fresh pear ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell fresh potato ×1,graphical | terminal,full,martha
+mercy,johnny,sell fresh potato ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell fresh tomato ×1,graphical | terminal,full,martha
+mercy,johnny,sell fresh tomato ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell glass ×1,graphical | terminal,full,martha
+mercy,johnny,sell glass ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell items,graphical | terminal,full | poor | supplied,craft-ready | crafting | martha | quest-progress | relay | solace
+mercy,johnny,sell large animal bones ×1,graphical | terminal,full,martha
+mercy,johnny,sell large animal bones ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell old world pocket compass,graphical | terminal,full | supplied,martha
+mercy,johnny,sell old world pocket compass ×1,graphical | terminal,full,martha
+mercy,johnny,sell old world pocket compass ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell preserved meat ×1,graphical | terminal,full,martha
+mercy,johnny,sell preserved meat ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell preserved vegetables ×1,graphical | terminal,full,martha
+mercy,johnny,sell preserved vegetables ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell raw bird meat ×1,graphical | terminal,full,martha
+mercy,johnny,sell raw bird meat ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell raw boar meat ×1,graphical | terminal,full,martha
+mercy,johnny,sell raw boar meat ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell raw chicken meat ×1,graphical | terminal,full,martha
+mercy,johnny,sell raw chicken meat ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell raw rabbit meat ×1,graphical | terminal,full,martha
+mercy,johnny,sell raw rabbit meat ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell raw rat meat ×1,graphical | terminal,full,martha
+mercy,johnny,sell raw rat meat ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell raw snake meat ×1,graphical | terminal,full,martha
+mercy,johnny,sell raw snake meat ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell raw venison ×1,graphical | terminal,full,martha
+mercy,johnny,sell raw venison ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell raw wolf meat ×1,graphical | terminal,full,martha
+mercy,johnny,sell raw wolf meat ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell reinforced bandage ×1,graphical | terminal,full,martha
+mercy,johnny,sell reinforced bandage ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell roadhouse hash ×1,graphical | terminal,full,martha
+mercy,johnny,sell roadhouse hash ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell salt ×1,graphical | terminal,full,martha
+mercy,johnny,sell salt ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell scrap metal ×1,graphical | terminal,full,martha
+mercy,johnny,sell scrap metal ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell small animal bones ×1,graphical | terminal,full,martha
+mercy,johnny,sell small animal bones ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell tempered steel ×1,graphical | terminal,full,martha
+mercy,johnny,sell tempered steel ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell uncommon electrical parts ×1,graphical | terminal,full,martha
+mercy,johnny,sell uncommon electrical parts ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell wasteland stew ×1,graphical | terminal,full,martha
+mercy,johnny,sell wasteland stew ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell water ×1,graphical | terminal,full,martha
+mercy,johnny,sell water ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell wild honey ×1,graphical | terminal,full,martha
+mercy,johnny,sell wild honey ×100,graphical | terminal,supplied,martha
+mercy,johnny,sell wire ×1,graphical | terminal,full,martha
+mercy,johnny,sell wire ×100,graphical | terminal,supplied,martha
+mercy,johnny,small talk,graphical | terminal,full | poor | supplied,craft-ready | crafting | martha | quest-progress | relay | solace
+mercy,johnny,view stock,graphical | terminal,full | poor | supplied,craft-ready | crafting | martha | quest-progress | relay | solace
+mercy,mara,back,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,mara,buy mechanic's reinforced suit,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,mara,buy military entrenching tool,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,mara,buy serrated cleaver,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,mara,buy tactical crowbar,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,mara,buy wasteland ranger vest,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,mara,sell items,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,murphy,accept,graphical | terminal,full | poor | supplied,craft-ready | crafting
+mercy,murphy,ask about cars,graphical | terminal,full | poor | supplied,craft-ready | crafting
+mercy,murphy,ask about corvette,graphical | terminal,full | poor | supplied,craft-ready | crafting
+mercy,murphy,ask about corvette parts,graphical | terminal,full | poor | supplied,craft-ready | crafting
+mercy,murphy,ask about equipment,graphical | terminal,full | poor | supplied,craft-ready | crafting
+mercy,murphy,ask about relay station,graphical | terminal,full | poor | supplied,craft-ready | crafting
+mercy,murphy,ask about work,graphical | terminal,full | poor | supplied,craft-ready | crafting
+mercy,murphy,ask about workshop,graphical | terminal,full | poor | supplied,craft-ready | crafting
+mercy,murphy,back,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,murphy,crafting,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,murphy,crafting recipes,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,murphy,decline,graphical | terminal,full | poor | supplied,craft-ready | crafting
+mercy,murphy,inspect corvette photo,graphical | terminal,full | poor | supplied,craft-ready | crafting
+mercy,murphy,learn impact reinforcement,graphical | terminal,full | poor | supplied,craft-ready | crafting
+mercy,murphy,learn precision,graphical | terminal,full | poor | supplied,craft-ready | crafting
+mercy,murphy,small talk,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,relay,back,graphical | terminal,full | poor | supplied,relay
+mercy,relay,inspect antenna controls,graphical | terminal,full | poor | supplied,relay
+mercy,relay,inspect cables,graphical | terminal,full | poor | supplied,relay
+mercy,relay,inspect console,graphical | terminal,full | poor | supplied,relay
+mercy,relay,inspect monitor,graphical | terminal,full | poor | supplied,relay
+mercy,tim,accept,graphical | terminal,full | poor | supplied,craft-ready | crafting | relay | solace
+mercy,tim,ask about daniel,graphical | terminal,full | poor | supplied,quest-progress
+mercy,tim,ask about relay station,graphical | terminal,full | poor | supplied,quest-progress
+mercy,tim,ask about solace,graphical | terminal,poor,quest-progress
+mercy,tim,ask about work,graphical | terminal,full | poor | supplied,quest-progress
+mercy,tim,bounties,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,tim,collect bounty,graphical | terminal,poor,quest-progress
+mercy,tim,decline,graphical | terminal,full | poor | supplied,craft-ready | crafting | relay | solace
+mercy,tim,never mind,graphical | terminal,full | poor | supplied,quest-progress
+mercy,tim,pay off bounty,graphical | terminal,poor,quest-progress
+mercy,tim,talk tim,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,tim,town,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,tim,view bounties,graphical | terminal,poor,quest-progress
+mercy,tim,view warrants,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,town,armory,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,town,back,graphical | terminal,full | poor | supplied,horse-travel | inventory | journal | martha | wanderer
+mercy,town,back off,graphical | terminal,full | poor | supplied,inventory | journal
+mercy,town,back to solace,graphical | terminal,full | poor | supplied,craft-ready | crafting | inventory | journal | quest-progress | relay | solace
+mercy,town,bulletin board,graphical | terminal,full | poor | supplied,craft-ready | crafting | horse-travel | inventory | journal | martha | quest-progress | relay | solace | wanderer
+mercy,town,buy bandage,graphical | terminal,full | poor | supplied,inventory | martha | wanderer
+mercy,town,buy cloth,graphical | terminal,full | poor | supplied,horse-travel | inventory | journal
+mercy,town,buy energy bars,graphical | terminal,full | supplied,martha | wanderer
+mercy,town,buy scrap metal,graphical | terminal,full | poor | supplied,horse-travel | inventory | journal
+mercy,town,buy wire,graphical | terminal,full | poor | supplied,horse-travel | journal
+mercy,town,cancel sale,graphical | terminal,full | supplied,inventory | journal
+mercy,town,confirm fight,graphical | terminal,full | poor | supplied,inventory | journal
+mercy,town,confirm sale,graphical | terminal,full | supplied,inventory | journal
+mercy,town,custom amount,graphical | terminal,supplied,journal
+mercy,town,east gate,graphical | terminal,full | poor | supplied,craft-ready | crafting | inventory | journal | quest-progress | relay | solace
+mercy,town,fight ash,graphical | terminal,full,quest-progress
+mercy,town,fight bishop,graphical | terminal,full | poor | supplied,craft-ready | inventory | relay
+mercy,town,fight bolt,graphical | terminal,full | supplied,crafting | horse-travel
+mercy,town,fight cricket,graphical | terminal,full,wanderer
+mercy,town,fight crowley,graphical | terminal,full | poor | supplied,journal | martha | solace
+mercy,town,fight cutter,graphical | terminal,full | poor,crafting | horse-travel
+mercy,town,fight mercer,graphical | terminal,poor | supplied,martha | relay
+mercy,town,fight rowan,graphical | terminal,supplied,journal
+mercy,town,fight sable,graphical | terminal,poor | supplied,horse-travel | solace
+mercy,town,fight vale,graphical | terminal,full | supplied,quest-progress | solace
+mercy,town,fight wren,graphical | terminal,poor | supplied,journal | quest-progress | relay
+mercy,town,find tim,graphical | terminal,full | poor | supplied,craft-ready | crafting | horse-travel | inventory | journal | martha | quest-progress | relay | solace | wanderer
+mercy,town,gates,graphical | terminal,full | poor | supplied,craft-ready | crafting | horse-travel | inventory | journal | martha | quest-progress | relay | solace | wanderer
+mercy,town,inspect ash,graphical | terminal,full,quest-progress
+mercy,town,inspect bishop,graphical | terminal,full | poor | supplied,craft-ready | inventory | relay
+mercy,town,inspect bolt,graphical | terminal,full | supplied,crafting | horse-travel
+mercy,town,inspect cricket,graphical | terminal,full,wanderer
+mercy,town,inspect crowley,graphical | terminal,full | poor | supplied,journal | martha | solace
+mercy,town,inspect cutter,graphical | terminal,full | poor,crafting | horse-travel
+mercy,town,inspect mercer,graphical | terminal,poor | supplied,martha | relay
+mercy,town,inspect rowan,graphical | terminal,supplied,journal
+mercy,town,inspect sable,graphical | terminal,poor | supplied,horse-travel | solace
+mercy,town,inspect vale,graphical | terminal,full | supplied,quest-progress | solace
+mercy,town,inspect wren,graphical | terminal,poor | supplied,journal | quest-progress | relay
+mercy,town,johnny's trading post,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,town,last chance clinic,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,town,leave,graphical | terminal,full | poor | supplied,craft-ready | crafting | horse-travel | inventory | journal | martha | quest-progress | relay | solace | wanderer
+mercy,town,leave trade,graphical | terminal,full | poor | supplied,inventory | journal
+mercy,town,murphy's motor works,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,town,north gate,graphical | terminal,full | poor | supplied,craft-ready | crafting | inventory | journal | quest-progress | relay | solace
+mercy,town,sell 1,graphical | terminal,supplied,journal
+mercy,town,sell 5,graphical | terminal,supplied,journal
+mercy,town,sell all,graphical | terminal,supplied,journal
+mercy,town,sell animal bones ×1,graphical | terminal,full,inventory
+mercy,town,sell animal bones ×100,graphical | terminal,supplied,journal
+mercy,town,sell animal hide ×1,graphical | terminal,full,inventory
+mercy,town,sell animal hide ×100,graphical | terminal,supplied,journal
+mercy,town,sell bandage ×1,graphical | terminal,full,inventory
+mercy,town,sell bandage ×100,graphical | terminal,supplied,journal
+mercy,town,sell battered flashlight ×1,graphical | terminal,full | supplied,inventory | journal
+mercy,town,sell bluefang hunting knife ×1,graphical | terminal,full | supplied,inventory | journal
+mercy,town,sell claw hammer ×1,graphical | terminal,full | supplied,inventory | journal
+mercy,town,sell cloth ×1,graphical | terminal,full,inventory
+mercy,town,sell cloth ×100,graphical | terminal,supplied,journal
+mercy,town,sell electronics ×1,graphical | terminal,full,inventory
+mercy,town,sell electronics ×100,graphical | terminal,supplied,journal
+mercy,town,sell energy bars ×1,graphical | terminal,full,inventory
+mercy,town,sell energy bars ×100,graphical | terminal,supplied,journal
+mercy,town,sell explosive components ×1,graphical | terminal,full,inventory
+mercy,town,sell explosive components ×100,graphical | terminal,supplied,journal
+mercy,town,sell fresh apple ×1,graphical | terminal,full,inventory
+mercy,town,sell fresh apple ×100,graphical | terminal,supplied,journal
+mercy,town,sell fresh berries ×1,graphical | terminal,full,inventory
+mercy,town,sell fresh berries ×100,graphical | terminal,supplied,journal
+mercy,town,sell fresh cabbage ×1,graphical | terminal,full,inventory
+mercy,town,sell fresh cabbage ×100,graphical | terminal,supplied,journal
+mercy,town,sell fresh carrot ×1,graphical | terminal,full,inventory
+mercy,town,sell fresh carrot ×100,graphical | terminal,supplied,journal
+mercy,town,sell fresh pear ×1,graphical | terminal,full,inventory
+mercy,town,sell fresh pear ×100,graphical | terminal,supplied,journal
+mercy,town,sell fresh potato ×1,graphical | terminal,full,inventory
+mercy,town,sell fresh potato ×100,graphical | terminal,supplied,journal
+mercy,town,sell fresh tomato ×1,graphical | terminal,full,inventory
+mercy,town,sell fresh tomato ×100,graphical | terminal,supplied,journal
+mercy,town,sell glass ×1,graphical | terminal,full,inventory
+mercy,town,sell glass ×100,graphical | terminal,supplied,journal
+mercy,town,sell items,graphical | terminal,full | poor | supplied,horse-travel | inventory | journal | martha | wanderer
+mercy,town,sell large animal bones ×1,graphical | terminal,full,inventory
+mercy,town,sell large animal bones ×100,graphical | terminal,supplied,journal
+mercy,town,sell old world pocket compass ×1,graphical | terminal,full,inventory
+mercy,town,sell old world pocket compass ×100,graphical | terminal,supplied,journal
+mercy,town,sell preserved meat ×1,graphical | terminal,full,inventory
+mercy,town,sell preserved meat ×100,graphical | terminal,supplied,journal
+mercy,town,sell preserved vegetables ×1,graphical | terminal,full,inventory
+mercy,town,sell preserved vegetables ×100,graphical | terminal,supplied,journal
+mercy,town,sell raw bird meat ×1,graphical | terminal,full,inventory
+mercy,town,sell raw bird meat ×100,graphical | terminal,supplied,journal
+mercy,town,sell raw boar meat ×1,graphical | terminal,full,inventory
+mercy,town,sell raw boar meat ×100,graphical | terminal,supplied,journal
+mercy,town,sell raw chicken meat ×1,graphical | terminal,full,inventory
+mercy,town,sell raw chicken meat ×100,graphical | terminal,supplied,journal
+mercy,town,sell raw rabbit meat ×1,graphical | terminal,full,inventory
+mercy,town,sell raw rabbit meat ×100,graphical | terminal,supplied,journal
+mercy,town,sell raw rat meat ×1,graphical | terminal,full,inventory
+mercy,town,sell raw rat meat ×100,graphical | terminal,supplied,journal
+mercy,town,sell raw snake meat ×1,graphical | terminal,full,inventory
+mercy,town,sell raw snake meat ×100,graphical | terminal,supplied,journal
+mercy,town,sell raw venison ×1,graphical | terminal,full,inventory
+mercy,town,sell raw venison ×100,graphical | terminal,supplied,journal
+mercy,town,sell raw wolf meat ×1,graphical | terminal,full,inventory
+mercy,town,sell raw wolf meat ×100,graphical | terminal,supplied,journal
+mercy,town,sell reinforced bandage ×1,graphical | terminal,full,inventory
+mercy,town,sell reinforced bandage ×100,graphical | terminal,supplied,journal
+mercy,town,sell roadhouse hash ×1,graphical | terminal,full,inventory
+mercy,town,sell roadhouse hash ×100,graphical | terminal,supplied,journal
+mercy,town,sell salt ×1,graphical | terminal,full,inventory
+mercy,town,sell salt ×100,graphical | terminal,supplied,journal
+mercy,town,sell scrap metal ×1,graphical | terminal,full,inventory
+mercy,town,sell scrap metal ×100,graphical | terminal,supplied,journal
+mercy,town,sell small animal bones ×1,graphical | terminal,full,inventory
+mercy,town,sell small animal bones ×100,graphical | terminal,supplied,journal
+mercy,town,sell tempered steel ×1,graphical | terminal,full,inventory
+mercy,town,sell tempered steel ×100,graphical | terminal,supplied,journal
+mercy,town,sell uncommon electrical parts ×1,graphical | terminal,full,inventory
+mercy,town,sell uncommon electrical parts ×100,graphical | terminal,supplied,journal
+mercy,town,sell wasteland stew ×1,graphical | terminal,full,inventory
+mercy,town,sell wasteland stew ×100,graphical | terminal,supplied,journal
+mercy,town,sell water ×1,graphical | terminal,full,inventory
+mercy,town,sell water ×100,graphical | terminal,supplied,journal
+mercy,town,sell wild honey ×1,graphical | terminal,full,inventory
+mercy,town,sell wild honey ×100,graphical | terminal,supplied,journal
+mercy,town,sell wire ×1,graphical | terminal,full,inventory
+mercy,town,sell wire ×100,graphical | terminal,supplied,journal
+mercy,town,shops,graphical | terminal,full | poor | supplied,craft-ready | crafting | horse-travel | inventory | journal | martha | quest-progress | relay | solace | wanderer
+mercy,town,solace savings & loan,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,town,south gate,graphical | terminal,full | poor | supplied,craft-ready | crafting | inventory | journal | quest-progress | relay | solace
+mercy,town,steal from ash,graphical | terminal,full,quest-progress
+mercy,town,steal from bishop,graphical | terminal,full | poor | supplied,craft-ready | inventory | relay
+mercy,town,steal from bolt,graphical | terminal,full | supplied,crafting | horse-travel
+mercy,town,steal from cricket,graphical | terminal,full,wanderer
+mercy,town,steal from crowley,graphical | terminal,full | poor | supplied,journal | martha | solace
+mercy,town,steal from cutter,graphical | terminal,full | poor,crafting | horse-travel
+mercy,town,steal from mercer,graphical | terminal,poor | supplied,martha | relay
+mercy,town,steal from rowan,graphical | terminal,supplied,journal
+mercy,town,steal from sable,graphical | terminal,poor | supplied,horse-travel | solace
+mercy,town,steal from vale,graphical | terminal,full | supplied,quest-progress | solace
+mercy,town,steal from wren,graphical | terminal,poor | supplied,journal | quest-progress | relay
+mercy,town,talk ash,graphical | terminal,full,quest-progress
+mercy,town,talk bishop,graphical | terminal,full | poor | supplied,craft-ready | inventory | relay
+mercy,town,talk bolt,graphical | terminal,full | supplied,crafting | horse-travel
+mercy,town,talk cricket,graphical | terminal,full,wanderer
+mercy,town,talk crowley,graphical | terminal,full | poor | supplied,journal | martha | solace
+mercy,town,talk cutter,graphical | terminal,full | poor,crafting | horse-travel
+mercy,town,talk mercer,graphical | terminal,poor | supplied,martha | relay
+mercy,town,talk rowan,graphical | terminal,supplied,journal
+mercy,town,talk sable,graphical | terminal,poor | supplied,horse-travel | solace
+mercy,town,talk to ash,graphical | terminal,full,quest-progress
+mercy,town,talk to bishop,graphical | terminal,full | poor | supplied,craft-ready | inventory | relay
+mercy,town,talk to bolt,graphical | terminal,full | supplied,crafting | horse-travel
+mercy,town,talk to cricket,graphical | terminal,full,wanderer
+mercy,town,talk to crowley,graphical | terminal,full | poor | supplied,journal | martha | solace
+mercy,town,talk to cutter,graphical | terminal,full | poor,crafting | horse-travel
+mercy,town,talk to mercer,graphical | terminal,poor | supplied,martha | relay
+mercy,town,talk to rowan,graphical | terminal,supplied,journal
+mercy,town,talk to sable,graphical | terminal,poor | supplied,horse-travel | solace
+mercy,town,talk to vale,graphical | terminal,full | supplied,quest-progress | solace
+mercy,town,talk to wren,graphical | terminal,poor | supplied,journal | quest-progress | relay
+mercy,town,talk vale,graphical | terminal,full | supplied,quest-progress | solace
+mercy,town,talk wren,graphical | terminal,poor | supplied,journal | quest-progress | relay
+mercy,town,the rusty lantern,graphical | terminal,full | poor | supplied,craft-ready | crafting | horse-travel | inventory | journal | martha | quest-progress | relay | solace | wanderer
+mercy,town,trade ash,graphical | terminal,full,quest-progress
+mercy,town,trade bishop,graphical | terminal,full | poor | supplied,craft-ready | inventory | relay
+mercy,town,trade bolt,graphical | terminal,full | supplied,crafting | horse-travel
+mercy,town,trade cricket,graphical | terminal,full,wanderer
+mercy,town,trade cutter,graphical | terminal,full | poor,crafting | horse-travel
+mercy,town,trade mercer,graphical | terminal,poor | supplied,martha | relay
+mercy,town,trade rowan,graphical | terminal,supplied,journal
+mercy,town,trade sable,graphical | terminal,poor | supplied,horse-travel | solace
+mercy,town,trade vale,graphical | terminal,full | supplied,quest-progress | solace
+mercy,town,trade wren,graphical | terminal,poor | supplied,journal | quest-progress | relay
+mercy,town,west gate,graphical | terminal,full | poor | supplied,craft-ready | crafting | inventory | journal | quest-progress | relay | solace
+mercy,wayne,back,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,wayne,buy bandage,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,wayne,sell items,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,wayne,talk wayne,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+mercy,wayne,treat wounds,graphical | terminal,full | poor | supplied,craft-ready | crafting | quest-progress | relay | solace
+port55Docks,town,back,terminal,full | poor | supplied,caleb | seaport | seaport-locked | seaport-workshop
+port55Docks,town,confront fishermen,graphical | terminal,full | poor | supplied,seaport-locked
+port55Docks,town,dock bulletin board,graphical | terminal,full | poor | supplied,caleb | seaport | seaport-workshop
+port55Docks,town,inspect fishermen,graphical | terminal,full | poor | supplied,seaport-locked
+port55Docks,town,return to seaport,graphical | terminal,full | poor | supplied,caleb | seaport | seaport-locked | seaport-workshop
+port55Docks,town,talk to caleb,graphical | terminal,full | poor | supplied,caleb
+port55Docks,town,talk to docks clerk,graphical | terminal,full | poor | supplied,caleb | seaport | seaport-workshop
+port55Kaiden,town,ask about keeping the lights on,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Kaiden,town,ask about seaport,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Kaiden,town,back,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Kaiden,town,bounties,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Kaiden,town,how is seaport holding up?,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Kaiden,town,small talk,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Kaiden,town,view warrants,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Market,town,armory [vacant],graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Market,town,back,terminal,full | poor | supplied,seaport | seaport-workshop
+port55Market,town,bank [vacant],graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Market,town,clinic [vacant],graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Market,town,general store [vacant],graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Market,town,pet store,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Market,town,return to seaport,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Market,town,workshop,graphical | terminal,full | poor | supplied,seaport-workshop
+port55Market,town,workshop [vacant],graphical | terminal,full | poor | supplied,seaport
+port55Mia,town,buy drinks,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Mia,town,gamble,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Mia,town,rent room — 2000 bolts,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Mia,town,return to harbor,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Mia,town,small talk,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Mia,town,talk to red,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55MiaTalk,town,ask about house rules,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55MiaTalk,town,ask about mia,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55MiaTalk,town,ask about seaport,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55MiaTalk,town,ask about the rusty anchor,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55MiaTalk,town,back,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Recruit,town,cancel hire,graphical | terminal,full | poor | supplied,recruitment
+port55Recruit,town,confirm hire,graphical | terminal,full | poor | supplied,recruitment
+port55Recruit,town,offer tess a useful role in seaport,graphical | terminal,full | poor | supplied,recruitment
+port55Service,town,assign hollis,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Service,town,assign patch,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Service,town,assign rook,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Service,town,assign staff,graphical | terminal,full | poor | supplied,seaport | seaport-bank | seaport-staffed | seaport-workshop
+port55Service,town,assign tess,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed | seaport-workshop
+port55Service,town,back,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed | seaport-workshop
+port55Service,town,back to market,graphical | terminal,full | poor | supplied,seaport | seaport-bank | seaport-staffed | seaport-workshop
+port55Service,town,buy bandage,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Service,town,buy cloth,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Service,town,buy emergency trauma kit,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Service,town,buy energy bars,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Service,town,buy scrap metal,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Service,town,buy supplies,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Service,town,buy tent,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Service,town,buy wire,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Service,town,cancel assignment,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed | seaport-workshop
+port55Service,town,cancel store sale,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,cancel unassignment,graphical | terminal,full | poor | supplied,seaport-staffed | seaport-workshop
+port55Service,town,change name,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed
+port55Service,town,confirm assignment,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed | seaport-workshop
+port55Service,town,confirm store sale,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,confirm unassignment,graphical | terminal,full | poor | supplied,seaport-staffed | seaport-workshop
+port55Service,town,crafting,graphical | terminal,full | poor | supplied,seaport-staffed | seaport-workshop
+port55Service,town,deposit bolts,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed
+port55Service,town,inspect staff hollis,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Service,town,inspect staff patch,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Service,town,inspect staff rook,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Service,town,inspect staff tess,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed | seaport-workshop
+port55Service,town,retrieve items,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed
+port55Service,town,sell animal bones,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell animal hide,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell bandage,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell battered flashlight,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell bluefang hunting knife,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell claw hammer,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell cloth,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell electronics,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell energy bars,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell explosive components,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell fresh apple,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell fresh berries,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell fresh cabbage,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell fresh carrot,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell fresh pear,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell fresh potato,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell fresh tomato,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell glass,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell items,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Service,town,sell large animal bones,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell old world pocket compass,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell preserved meat,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell preserved vegetables,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell raw bird meat,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell raw boar meat,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell raw chicken meat,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell raw rabbit meat,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell raw rat meat,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell raw snake meat,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell raw venison,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell raw wolf meat,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell reinforced bandage,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell roadhouse hash,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell salt,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell scrap metal,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell small animal bones,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell tempered steel,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell uncommon electrical parts,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell wasteland stew,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell water,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell wild honey,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,sell wire,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash animal bones,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash animal hide,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash bandage,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash battered flashlight,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash bluefang hunting knife,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash claw hammer,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash clean water,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash cloth,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash electronics,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash emergency trauma kit,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash energy bars,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash explosive components,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash fresh apple,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash fresh berries,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash fresh cabbage,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash fresh carrot,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash fresh pear,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash fresh potato,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash fresh tomato,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash glass,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash items,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed
+port55Service,town,stash large animal bones,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash old world pocket compass,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash preserved meat,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash preserved vegetables,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash raw bird meat,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash raw boar meat,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash raw chicken meat,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash raw rabbit meat,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash raw rat meat,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash raw snake meat,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash raw venison,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash raw wolf meat,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash reinforced bandage,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash roadhouse hash,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash salt,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash scrap metal,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash small animal bones,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash tempered steel,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash uncommon electrical parts,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash wasteland stew,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash water,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash wild honey,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,stash wire,graphical | terminal,full | supplied,seaport-staffed
+port55Service,town,treat wounds,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Service,town,unassign staff,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed | seaport-workshop
+port55Service,town,withdraw bolts,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed
+port55Stop,town,armory — need to hire,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed | seaport-workshop
+port55Stop,town,back,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed | seaport-workshop
+port55Stop,town,bank — need to hire,graphical | terminal,full | poor | supplied,seaport-staffed | seaport-workshop
+port55Stop,town,bank — rook bennett,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Stop,town,bank — tess arden,graphical | terminal,full | poor | supplied,seaport-bank
+port55Stop,town,clinic — need to hire,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed | seaport-workshop
+port55Stop,town,clinic — tess arden,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Stop,town,general store — need to hire,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed | seaport-workshop
+port55Stop,town,general store — patch hensley,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Stop,town,pet store,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed | seaport-workshop
+port55Stop,town,return to harbor,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Stop,town,talk kaiden,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+port55Stop,town,workshop — hollis crane,graphical | terminal,full | poor | supplied,seaport-staffed
+port55Stop,town,workshop — need to hire,graphical | terminal,full | poor | supplied,seaport-bank | seaport-staffed | seaport-workshop
+port55Stop,town,workshop — tess arden,graphical | terminal,full | poor | supplied,seaport-workshop
+port55Vendor,town,back,graphical | terminal,full | poor | supplied,seaport | seaport-staffed | seaport-workshop
+port55Vendor,town,ferret — rare — 3000 bolts,graphical | terminal,full | poor | supplied,seaport-staffed | seaport-workshop
+port55Vendor,town,pack mule — epic — 6500 bolts,graphical | terminal,full | poor | supplied,seaport-staffed | seaport-workshop
+port55Vendor,town,purchase pets,graphical | terminal,full | poor | supplied,seaport | seaport-staffed | seaport-workshop
+port55Vendor,town,rust hound — uncommon — 1500 bolts,graphical | terminal,full | poor | supplied,seaport-staffed | seaport-workshop
+port55Vendor,town,scrap rat — common — 600 bolts,graphical | terminal,full | poor | supplied,seaport-staffed | seaport-workshop
+port55Vendor,town,stray cat — common — 800 bolts,graphical | terminal,full | poor | supplied,seaport-staffed | seaport-workshop
+port55Vendor,town,wasteland crow — common — 650 bolts,graphical | terminal,full | poor | supplied,seaport-staffed | seaport-workshop
+quests,town,active quests,graphical | terminal,full | poor | supplied,journal
+quests,town,back,graphical | terminal,full | poor | supplied,journal
+quests,town,completed quests,graphical | terminal,full | poor | supplied,journal
+r11Board,town,back,terminal,full | poor | supplied,caleb | seaport | seaport-workshop
+r11Board,town,post a message,graphical | terminal,full | poor | supplied,caleb | seaport | seaport-workshop
+r11Board,town,return to docks,graphical | terminal,full | poor | supplied,caleb | seaport | seaport-workshop
+r11Board,town,view bounties,graphical | terminal,full | poor | supplied,caleb | seaport | seaport-workshop
+r11Caleb,town,back,graphical | terminal,full | poor | supplied,caleb
+r11Caleb,town,return to docks,graphical | terminal,full | poor | supplied,caleb
+r11Craft,murphy,back,graphical | terminal,full | poor | supplied,craft-ready | crafting
+r11Craft,murphy,cancel batch,graphical | terminal,supplied,craft-ready | crafting
+r11Craft,murphy,cancel ingredients,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,check upgrade,terminal,supplied,crafting
+r11Craft,murphy,collect craft,graphical | terminal,supplied,craft-ready
+r11Craft,murphy,confirm ingredients,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,craft,terminal,full | poor | supplied,crafting
+r11Craft,murphy,craft 1,graphical | terminal,supplied,craft-ready | crafting
+r11Craft,murphy,craft 5,graphical | terminal,supplied,craft-ready | crafting
+r11Craft,murphy,craft all,graphical | terminal,supplied,craft-ready | crafting
+r11Craft,murphy,craft preserved meat,terminal,supplied,crafting
+r11Craft,murphy,craft reinforced bandage,terminal,supplied,crafting
+r11Craft,murphy,craft roadhouse hash,terminal,full | supplied,crafting
+r11Craft,murphy,craft wasteland stew,terminal,full | supplied,crafting
+r11Craft,murphy,custom amount,graphical | terminal,supplied,craft-ready | crafting
+r11Craft,murphy,modify,terminal,full | poor | supplied,crafting
+r11Craft,murphy,r127 bench craft,graphical,full | poor | supplied,crafting
+r11Craft,murphy,r127 bench modify,graphical,full | poor | supplied,crafting
+r11Craft,murphy,r127 bench upgrade,graphical,full | poor | supplied,crafting
+r11Craft,murphy,remove modification,terminal,full | poor | supplied,crafting
+r11Craft,murphy,select equipment 1 — rusted pipe (equipped),terminal,full | poor | supplied,crafting
+r11Craft,murphy,select equipment 2 — worn jacket (equipped),terminal,full | poor | supplied,crafting
+r11Craft,murphy,select equipment 3 — claw hammer,terminal,full | supplied,crafting
+r11Craft,murphy,select equipment 4 — worn jacket,terminal,full | supplied,crafting
+r11Craft,murphy,select equipment 5 — bluefang hunting knife,terminal,full | supplied,crafting
+r11Craft,murphy,select fruit — fresh apple,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,select fruit — fresh berries,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,select fruit — fresh pear,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,select meat — raw bird meat,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,select meat — raw boar meat,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,select meat — raw chicken meat,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,select meat — raw rabbit meat,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,select meat — raw rat meat,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,select meat — raw snake meat,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,select meat — raw venison,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,select meat — raw wolf meat,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,select salt — salt,graphical | terminal,supplied,crafting
+r11Craft,murphy,select vegetable — fresh cabbage,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,select vegetable — fresh carrot,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,select vegetable — fresh potato,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,select vegetable — fresh tomato,graphical | terminal,full | supplied,crafting
+r11Craft,murphy,start upgrade,terminal,supplied,crafting
+r11Craft,murphy,upgrade,terminal,full | poor | supplied,crafting
+r11Craft,murphy,view recipe: glue,terminal,full | poor | supplied,crafting
+r11Craft,murphy,view recipe: preserved meat,terminal,full | poor | supplied,crafting
+r11Craft,murphy,view recipe: reinforced bandage,terminal,full | poor | supplied,crafting
+r11Craft,murphy,view recipe: restored corvette windshield,terminal,full | poor | supplied,crafting
+r11Craft,murphy,view recipe: roadhouse hash,terminal,full | poor | supplied,crafting
+r11Craft,murphy,view recipe: wasteland stew,terminal,full | poor | supplied,crafting
+r11Craft,town,back,graphical | terminal,full | poor | supplied,craft-ready | factory-ready | seaport-staffed | seaport-workshop
+r11Craft,town,cancel batch,graphical | terminal,supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,cancel ingredients,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,check upgrade,terminal,supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,collect craft,graphical | terminal,full | poor | supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,confirm ingredients,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,craft,terminal,full | poor | supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,craft 1,graphical | terminal,supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,craft 5,graphical | terminal,supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,craft all,graphical | terminal,supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,craft preserved meat,terminal,supplied,seaport-workshop
+r11Craft,town,craft reinforced bandage,terminal,supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,craft roadhouse hash,terminal,full | supplied,seaport-workshop
+r11Craft,town,craft wasteland stew,terminal,full | supplied,seaport-workshop
+r11Craft,town,custom amount,graphical | terminal,supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,modify,terminal,full | poor | supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,r127 bench craft,graphical,full | poor | supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,r127 bench modify,graphical,full | poor | supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,r127 bench upgrade,graphical,full | poor | supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,remove modification,terminal,full | poor | supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,select equipment 1 — rusted pipe (equipped),terminal,full | poor | supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,select equipment 2 — worn jacket (equipped),terminal,full | poor | supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,select equipment 3 — claw hammer,terminal,full | supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,select equipment 4 — worn jacket,terminal,full | supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,select equipment 5 — bluefang hunting knife,terminal,full | supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,select fruit — fresh apple,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,select fruit — fresh berries,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,select fruit — fresh pear,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,select meat — raw bird meat,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,select meat — raw boar meat,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,select meat — raw chicken meat,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,select meat — raw rabbit meat,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,select meat — raw rat meat,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,select meat — raw snake meat,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,select meat — raw venison,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,select meat — raw wolf meat,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,select salt — salt,graphical | terminal,supplied,seaport-workshop
+r11Craft,town,select vegetable — fresh cabbage,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,select vegetable — fresh carrot,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,select vegetable — fresh potato,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,select vegetable — fresh tomato,graphical | terminal,full | supplied,seaport-workshop
+r11Craft,town,start upgrade,terminal,supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,upgrade,terminal,full | poor | supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,view recipe: glue,terminal,full | poor | supplied,seaport-workshop
+r11Craft,town,view recipe: preserved meat,terminal,full | poor | supplied,seaport-workshop
+r11Craft,town,view recipe: reinforced bandage,terminal,full | poor | supplied,craft-ready | factory-ready | seaport-workshop
+r11Craft,town,view recipe: restored corvette windshield,terminal,full | poor | supplied,seaport-workshop
+r11Craft,town,view recipe: roadhouse hash,terminal,full | poor | supplied,seaport-workshop
+r11Craft,town,view recipe: wasteland stew,terminal,full | poor | supplied,seaport-workshop
+r11Drinks,town,back,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+r11Drinks,town,beer — 5 bolts / 5% max hp (min 5),graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+r11Drinks,town,house special — 15 bolts / 15% max hp (min 15),graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+r11Drinks,town,shot — 9 bolts / 9% max hp (min 10),graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+r127ArenaLobby,town,back,graphical | terminal,full | poor | supplied,arena
+r127ArenaLobby,town,back away,graphical | terminal,full | poor | supplied,arena
+r127ArenaLobby,town,bet on a round,graphical | terminal,full | poor | supplied,arena
+r127ArenaLobby,town,bruiser,graphical | terminal,full | poor | supplied,arena
+r127ArenaLobby,town,custom wager,graphical | terminal,full | poor | supplied,arena
+r127ArenaLobby,town,enter tournament,graphical | terminal,full | poor | supplied,arena
+r127ArenaLobby,town,the hammer,graphical | terminal,full | poor | supplied,arena
+r127ArenaLobby,town,wager 10,graphical | terminal,full | poor | supplied,arena
+r127ArenaLobby,town,wager 100,graphical | terminal,full | poor | supplied,arena
+r127ArenaLobby,town,wager 50,graphical | terminal,full | poor | supplied,arena
+r127ArenaLobby,town,wager 500,graphical | terminal,full | poor | supplied,arena
+r127ArenaLobby,town,watch a round,graphical | terminal,full | poor | supplied,arena
+r18Ash,town,back,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,back to investigation,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,choose justice,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,choose mercy,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,choose redemption,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,choose violent stop,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,confront vane,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,examine the coffin,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,help restore memorial,graphical | terminal,poor | supplied,ash
+r18Ash,town,inspect the grave markers,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,leave cemetery,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,question vane,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,read the ledger,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,return to cemetery,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,search for survivor letter,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,sort memorial records,graphical | terminal,poor | supplied,ash
+r18Ash,town,talk to anya,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,talk to descendants,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,talk to hal,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,talk to jo,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,talk to leah,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,talk to miriam,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,talk to ruth,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,talk to tomas,graphical | terminal,full | poor | supplied,ash
+r18Ash,town,tend memorial flowers,graphical | terminal,poor | supplied,ash
+r18Depot,town,back,graphical | terminal,full | poor | supplied,depot
+r18Depot,town,disable unit with two wire,graphical | terminal,full | poor | supplied,depot
+r18Depot,town,fight unit 07,graphical | terminal,full | poor | supplied,depot
+r18Depot,town,free eli mercer,graphical | terminal,supplied,depot
+r18Depot,town,inspect depot log,graphical | terminal,full | poor | supplied,depot
+r18Depot,town,leave depot,graphical | terminal,full | poor | supplied,depot
+r18Depot,town,search depot locker,graphical | terminal,full | poor | supplied,depot
+r18Depot,town,sneak past unit,graphical | terminal,full | poor | supplied,depot
+r18Fence,town,back,terminal,full | poor | supplied,silas
+r18Fence,town,cancel silas sale,graphical | terminal,full | supplied,silas
+r18Fence,town,confirm silas sale,graphical | terminal,full | supplied,silas
+r18Fence,town,return to seaport,graphical | terminal,full | poor | supplied,silas
+r18Fence,town,sell to silas old world pocket compass,graphical | terminal,full | supplied,silas
+r18HorseTravel,town,back,graphical | terminal,full | poor | supplied,horse-travel
+r18HorseTravel,town,return to status,graphical | terminal,full | poor | supplied,horse-travel
+r18Miles,town,accept delivery job,graphical | terminal,full | poor | supplied,miles
+r18Miles,town,back,terminal,full | poor | supplied,miles
+r18Miles,town,return from miles,graphical | terminal,full | poor | supplied,miles
+r18Miles,town,talk to miles,graphical | terminal,full | poor | supplied,miles
+r18Red,town,ask red about seaport,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+r18Red,town,ask red about the iron pit,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+r18Red,town,ask red his name,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+r18Red,town,back,terminal,full | poor | supplied,seaport | seaport-workshop
+r18Red,town,buy red a drink — 5 bolts,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+r18Red,town,return to mia,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+r18Station,town,back,graphical | terminal,full | poor | supplied,station | station-restored
+r18Station,town,back to station,graphical | terminal,full | poor | supplied,station | station-restored
+r18Station,town,contribute electronics,graphical | terminal,full | poor | supplied,station
+r18Station,town,contribute scrap metal,graphical | terminal,full | poor | supplied,station
+r18Station,town,contribute wire,graphical | terminal,full | poor | supplied,station
+r18Station,town,leave station,graphical | terminal,full | poor | supplied,station | station-restored
+r18Station,town,listen to restored transmissions,graphical | terminal,full | poor | supplied,station-restored
+r18Station,town,talk to evelyn,graphical | terminal,full | poor | supplied,station | station-restored
+r18Station,town,talk to network trader,graphical | terminal,full | poor | supplied,station-restored
+r18StationTrader,town,back,graphical | terminal,full | poor | supplied,station-restored
+r18StationTrader,town,buy bandage — 10 bolts,graphical | terminal,full | poor | supplied,station-restored
+r18StationTrader,town,buy electronics — 30 bolts,graphical | terminal,full | poor | supplied,station-restored
+r18StationTrader,town,buy network coat,graphical | terminal,full | poor | supplied,station-restored
+r18StationTrader,town,buy network wrench,graphical | terminal,full | poor | supplied,station-restored
+r18StationTrader,town,buy scrap metal — 5 bolts,graphical | terminal,full | poor | supplied,station-restored
+r18StationTrader,town,buy wire — 8 bolts,graphical | terminal,full | poor | supplied,station-restored
+r18StationTrader,town,return to station,graphical | terminal,full | poor | supplied,station-restored
+r18Tournament,town,back,graphical | terminal,full | poor | supplied,arena | deep-end
+r18Tournament,town,bet 10 bolts,graphical | terminal,full | poor | supplied,deep-end
+r18Tournament,town,bet 25 bolts,graphical | terminal,full | poor | supplied,deep-end
+r18Tournament,town,cancel,graphical | terminal,full | poor | supplied,arena
+r18Tournament,town,leave arena,graphical | terminal,full | poor | supplied,deep-end
+r18Tournament,town,pay 50 bolts,graphical | terminal,full | poor | supplied,arena
+r18Tournament,town,start next match,graphical | terminal,full | poor | supplied,deep-end
+r5Loot,town,back,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,cancel replacement,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,confirm replacement,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,leave behind,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace an item,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace animal bones,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace animal hide,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace bandage,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace battered flashlight,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace bluefang hunting knife,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace claw hammer,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace clean water,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace cloth,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace electronics,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace emergency trauma kit,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace energy bars,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace explosive components,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace fresh apple,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace fresh berries,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace fresh cabbage,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace fresh carrot,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace fresh pear,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace fresh potato,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace fresh tomato,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace glass,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace large animal bones,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace old world pocket compass,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace preserved meat,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace preserved vegetables,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace raw bird meat,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace raw boar meat,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace raw chicken meat,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace raw rabbit meat,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace raw rat meat,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace raw snake meat,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace raw venison,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace raw wolf meat,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace reinforced bandage,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace roadhouse hash,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace salt,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace scrap metal,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace small animal bones,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace tempered steel,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace uncommon electrical parts,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace wasteland stew,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace water,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace wild honey,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r5Loot,town,replace wire,graphical | terminal,full,factory-authorized | factory-ready | station-restored
+r6Casino,town,back,terminal,full | poor | supplied,seaport | seaport-workshop
+r6Casino,town,blackjack,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+r6Casino,town,captain's dice,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+r6Casino,town,crab racing,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+r6Casino,town,knife throwing,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+r6Casino,town,pirate's poker,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+r6Casino,town,return to mia,graphical | terminal,full | poor | supplied,seaport | seaport-workshop
+r6Room,town,back,terminal,full | supplied,seaport | seaport-workshop
+r6Room,town,chest,graphical | terminal,full | supplied,seaport | seaport-workshop
+r6Room,town,look around,graphical | terminal,full | supplied,seaport | seaport-workshop
+r6Room,town,rest,graphical | terminal,full | supplied,seaport | seaport-workshop
+r6Room,town,return to mia,graphical | terminal,full | supplied,seaport | seaport-workshop
+seaport,town,back,terminal,full | poor | supplied,miles | seaport | seaport-locked | seaport-workshop | silas
+seaport,town,harbor docks,graphical | terminal,full | poor | supplied,miles | seaport | seaport-locked | seaport-workshop | silas
+seaport,town,market area,graphical | terminal,full | poor | supplied,miles | seaport | seaport-workshop | silas
+seaport,town,return to road,graphical | terminal,full | poor | supplied,miles | seaport | seaport-locked | seaport-workshop | silas
+seaport,town,rusty anchor,graphical | terminal,full | poor | supplied,miles | seaport | seaport-workshop | silas
+seaport,town,silas the fence,graphical | terminal,full | poor | supplied,silas
+seaport,town,talk to miles,graphical | terminal,full | poor | supplied,miles
+seaport,town,town streets,graphical | terminal,full | poor | supplied,miles | seaport | seaport-workshop | silas
+wandererRoad,town,back,graphical | terminal,full | poor | supplied,wanderer
+wandererRoad,town,buy bandage,graphical | terminal,full | poor | supplied,wanderer
+wandererRoad,town,buy cloth,graphical | terminal,full | poor | supplied,wanderer
+wandererRoad,town,buy scrap metal,graphical | terminal,full | poor | supplied,wanderer
+wandererRoad,town,cancel sale,graphical | terminal,full | supplied,wanderer
+wandererRoad,town,confirm sale,graphical | terminal,full | supplied,wanderer
+wandererRoad,town,custom amount,graphical | terminal,supplied,wanderer
+wandererRoad,town,fight,graphical | terminal,full | poor | supplied,recruitment | wanderer
+wandererRoad,town,inspect,graphical | terminal,full | poor | supplied,recruitment | wanderer
+wandererRoad,town,leave trade,graphical | terminal,full | poor | supplied,wanderer
+wandererRoad,town,move on,graphical | terminal,full | poor | supplied,recruitment | wanderer
+wandererRoad,town,recruit,graphical | terminal,full | poor | supplied,recruitment
+wandererRoad,town,sell 1,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell 5,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell all,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell animal bones ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell animal bones ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell animal hide ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell animal hide ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell bandage ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell bandage ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell battered flashlight ×1,graphical | terminal,full | supplied,wanderer
+wandererRoad,town,sell bluefang hunting knife ×1,graphical | terminal,full | supplied,wanderer
+wandererRoad,town,sell claw hammer ×1,graphical | terminal,full | supplied,wanderer
+wandererRoad,town,sell cloth ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell cloth ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell electronics ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell electronics ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell energy bars ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell energy bars ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell explosive components ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell explosive components ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell fresh apple ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell fresh apple ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell fresh berries ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell fresh berries ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell fresh cabbage ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell fresh cabbage ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell fresh carrot ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell fresh carrot ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell fresh pear ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell fresh pear ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell fresh potato ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell fresh potato ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell fresh tomato ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell fresh tomato ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell glass ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell glass ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell items,graphical | terminal,full | poor | supplied,wanderer
+wandererRoad,town,sell large animal bones ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell large animal bones ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell old world pocket compass ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell old world pocket compass ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell preserved meat ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell preserved meat ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell preserved vegetables ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell preserved vegetables ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell raw bird meat ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell raw bird meat ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell raw boar meat ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell raw boar meat ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell raw chicken meat ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell raw chicken meat ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell raw rabbit meat ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell raw rabbit meat ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell raw rat meat ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell raw rat meat ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell raw snake meat ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell raw snake meat ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell raw venison ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell raw venison ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell raw wolf meat ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell raw wolf meat ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell reinforced bandage ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell reinforced bandage ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell roadhouse hash ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell roadhouse hash ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell salt ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell salt ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell scrap metal ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell scrap metal ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell small animal bones ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell small animal bones ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell tempered steel ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell tempered steel ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell uncommon electrical parts ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell uncommon electrical parts ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell wasteland stew ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell wasteland stew ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell water ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell water ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell wild honey ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell wild honey ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,sell wire ×1,graphical | terminal,full,wanderer
+wandererRoad,town,sell wire ×100,graphical | terminal,supplied,wanderer
+wandererRoad,town,small talk,graphical | terminal,full | poor | supplied,recruitment | wanderer
+wandererRoad,town,steal,graphical | terminal,full | poor | supplied,recruitment | wanderer
+wandererRoad,town,trade,graphical | terminal,full | poor | supplied,recruitment | wanderer
+zeroTurns,town,back,terminal,full | poor | supplied,waiting
+zeroTurns,town,community discussions,terminal,full | poor | supplied,waiting
+zeroTurns,town,dawn discussions,graphical,full | poor | supplied,waiting
+zeroTurns,town,dawn feedback,graphical,full | poor | supplied,waiting
+zeroTurns,town,dawn logout,graphical,full | poor | supplied,waiting
+zeroTurns,town,dawn news,graphical,full | poor | supplied,waiting
+zeroTurns,town,log out,terminal,full | poor | supplied,waiting
+zeroTurns,town,wasteland news,terminal,full | poor | supplied,waiting
+zeroTurns,town,workshop feedback,terminal,full | poor | supplied,waiting

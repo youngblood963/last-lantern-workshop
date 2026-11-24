@@ -30,7 +30,7 @@ function check(expected,exit){
    await command(visitor);assert.equal(run('stage'),'port55Guest');check(null,'leave');
    await command('leave');assert.equal(run('player.flags.port55CurrentStop'),'Town Streets');
   }
-  await command('talk kaiden');check(['ask about seaport','small talk','view bounties','back'],'back');
+  await command('talk kaiden');check(['ask about seaport','small talk','bounties','view warrants','back'],'back');
   if(mode==='graphics'){
    assert.equal(await run("GraphicalUI.dispatch(GraphicalUI.choices().find(row=>row.command==='small talk'))"),true);
    await flush();
@@ -88,13 +88,9 @@ function check(expected,exit){
   check(null,'back');
   assert(run("GraphicalUI.choices().some(row=>row.command==='ask nessa about silas')"));
  }
- for(const slot of [1,2,3]){
-  run(`stage='seaport';player.characterId='local-'+crypto.randomUUID();activeSaveSlot=${slot};player.bolts=${100+slot};saveGame(${slot});`);await flush();
- }
- for(const slot of [1,2,3]){
-  run(`loadGame(${slot});`);await flush();
-  assert.equal(run('player.bolts'),100+slot);
-  assert(run("port55State().freed&&player.flags.r6AnchorRoomOwned&&player.flags.r18SilasOutcome==='released'"));
- }
+ // DEVTEST has one browser-local character; numbered legacy slots alias that save.
+ run("stage='seaport';player.bolts=103;saveGame(0);");await flush();
+ run("loadGame(0);");await flush();assert.equal(run('player.bolts'),103);
+ assert(run("port55State().freed&&player.flags.r6AnchorRoomOwned&&player.flags.r18SilasOutcome==='released'"));
  console.log('PASS WO40 Seaport shared menu bindings, navigation and liberation gates');
 })().catch(error=>{console.error(error);process.exitCode=1;});

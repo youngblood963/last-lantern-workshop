@@ -193,6 +193,7 @@ function r18FoodCraftCommand(cmd){
  r11Quiet(()=>v49Autosave());updateHud();add('Ingredients committed. '+r.name+' is underway.','reward');
  return r11CraftMenu();
 }
+function r11CraftMaterials(r){return {Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0,'Tempered Steel':r.tempered||0,'Small Animal Bones':r.smallBones||0,'Animal Bones':r.bones||0,'Explosive Components':r.explosives||0,'Animal Hide':r.hide||0,...(r.materials||{})};}
 function r11CraftMenu(where=player.flags.r11Bench||'murphy'){
  if(where==='seaport'&&(!portRecruitUnlocked()||!portStaffRating('workshop')))return;
  player.flags.r11Bench=where;stage='r11Craft';add((where==='seaport'?'SEAPORT WORKSHOP':where==='forge'?"FORGE'S WORKBENCH":"MURPHY'S WORKBENCH")+' — CRAFTING','place');
@@ -203,7 +204,7 @@ function r11CraftMenu(where=player.flags.r11Bench||'murphy'){
  if(player.flags.r18FoodDraft)return r18FoodCraftMenu();
  const keys=Object.keys(CRAFT_RECIPES).filter(k=>r11RecipeAvailable(k)&&r11Learned(k));
  add(`LEARNED: ${keys.length}   UNDISCOVERED: ${Object.keys(CRAFT_RECIPES).filter(k=>r11RecipeAvailable(k)).length-keys.length}`,'system');
- for(const k of keys){const r=CRAFT_RECIPES[k],m={Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0,'Tempered Steel':r.tempered||0,'Small Animal Bones':r.smallBones||0,'Animal Bones':r.bones||0,'Explosive Components':r.explosives||0,'Animal Hide':r.hide||0,...(r.materials||{})};const missing=Object.entries(m).some(([n,q])=>r6MaterialCount(n)<q)||Object.entries(r.questInputs||{}).some(([n,q])=>CorvetteRestoration.count(n)<q)||!!r.food?.some(k=>!r18FoodOptions(r,k).length)||!!(r.basicTent&&!r18ExactTent('Tent'))||player.bolts<r.bolts||(r.minLevel&&player.level<r.minLevel);add(`${r.name} — ${(r.rarity||GEAR[r.name]?.rarity||'common').toUpperCase()} — ${r.seconds}s — ${Math.round(r.chance*100)}% — ${r.food?'Choose: '+r.food.map(k=>r18FoodAmount(r,k)>1?r18FoodAmount(r,k)+' '+k:k).join(', '):[...(r.basicTent?['Tent '+(r18ExactTent('Tent')?'1/1':'0/1')]:[]),...Object.entries(m).filter(([,q])=>q).map(([n,q])=>`${n} ${r6MaterialCount(n)}/${q}`),...Object.entries(r.questInputs||{}).map(([n,q])=>`${n} ${CorvetteRestoration.count(n)}/${q}`)].join(', ')} — Bolts ${player.bolts}/${r.bolts} — ${missing?'UNAVAILABLE':'READY'}`,r.rarity||GEAR[r.name]?.rarity||'system');}
+ for(const k of keys){const r=CRAFT_RECIPES[k],m=r11CraftMaterials(r);const missing=Object.entries(m).some(([n,q])=>r6MaterialCount(n)<q)||Object.entries(r.questInputs||{}).some(([n,q])=>CorvetteRestoration.count(n)<q)||!!r.food?.some(k=>!r18FoodOptions(r,k).length)||!!(r.basicTent&&!r18ExactTent('Tent'))||player.bolts<r.bolts||(r.minLevel&&player.level<r.minLevel);add(`${r.name} — ${(r.rarity||GEAR[r.name]?.rarity||'common').toUpperCase()} — ${r.seconds}s — ${Math.round(r.chance*100)}% — ${r.food?'Choose: '+r.food.map(k=>r18FoodAmount(r,k)>1?r18FoodAmount(r,k)+' '+k:k).join(', '):[...(r.basicTent?['Tent '+(r18ExactTent('Tent')?'1/1':'0/1')]:[]),...Object.entries(m).filter(([,q])=>q).map(([n,q])=>`${n} ${r6MaterialCount(n)}/${q}`),...Object.entries(r.questInputs||{}).map(([n,q])=>`${n} ${CorvetteRestoration.count(n)}/${q}`)].join(', ')} — Bolts ${player.bolts}/${r.bolts} — ${missing?'UNAVAILABLE':'READY'}`,r.rarity||GEAR[r.name]?.rarity||'system');}
  r5DirectChoices([...keys.filter(k=>!CRAFT_RECIPES[k].minLevel||player.level>=CRAFT_RECIPES[k].minLevel).map(k=>'CRAFT '+CRAFT_RECIPES[k].name.toUpperCase()),'BACK']);
 }
 function r11CraftCommand(cmd){
@@ -225,8 +226,9 @@ function r11CraftCommand(cmd){
  const r=CRAFT_RECIPES[key];if(!player.flags.v49RecipeBandage||!r||R11_DISABLED_EPIC_RECIPES.has(key)||!r11Learned(key)||r.minLevel&&player.level<r.minLevel){add('That blueprint is not available to craft.','system');return;}
  if(r.questInputs&&(CorvetteRestoration.state().delivered.windshield||CorvetteRestoration.count('Restored Corvette Windshield'))){add('The windshield is already restored.','system');return;}
  if(r.food){player.flags.r18FoodDraft={key,selected:{}};return r18FoodCraftMenu();}
- const mats={Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0,'Tempered Steel':r.tempered||0,'Small Animal Bones':r.smallBones||0,'Animal Bones':r.bones||0,'Explosive Components':r.explosives||0,'Animal Hide':r.hide||0,...(r.materials||{})};
- if(Object.entries(r.questInputs||{}).some(([n,q])=>CorvetteRestoration.count(n)<q)||player.bolts<r.bolts||Object.entries(mats).some(([n,q])=>r6MaterialCount(n)<q)||(r.basicTent&&!r18ExactTent('Tent'))){add('Not enough materials or Bolts.','danger');return;}
+ const mats=r11CraftMaterials(r);
+ const shortages=[...Object.entries(mats).map(([name,need])=>({name,need,have:r6MaterialCount(name)})),...Object.entries(r.questInputs||{}).map(([name,need])=>({name,need,have:CorvetteRestoration.count(name)})),{name:'Bolts',need:r.bolts,have:player.bolts},...(r.basicTent?[{name:'Tent',need:1,have:r18ExactTent('Tent')?1:0}]:[])].filter(row=>row.have<row.need);
+ if(shortages.length){add('Missing requirements: '+shortages.map(row=>`${row.name} (need ${row.need}, have ${row.have})`).join('; ')+'. Nothing was consumed.','danger');return;}
  const def=r.catalogId?EQUIPMENT_CATALOG.find(x=>x.id===r.catalogId):null;if(r.catalogId&&!def){add('The equipment definition is unavailable. No materials were spent.','danger');return;}
  for(const [n,q]of Object.entries(mats))if(q)r6ConsumeMaterial(n,q);
  for(const [n,q]of Object.entries(r.questInputs||{}))CorvetteRestoration.take(n,q);

@@ -1,0 +1,5828 @@
+{
+  "distinctPublishedVariants": 236,
+  "conditionalStates": 1398,
+  "distinctStageLocationCommands": 1115,
+  "stateActions": 4353,
+  "handlerExecutions": 13403,
+  "nestedStatePaths": 1299,
+  "menus": [
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "shops",
+        "the rusty lantern",
+        "find tim",
+        "gates",
+        "talk to sable",
+        "bulletin board"
+      ],
+      "roots": [
+        "horse-travel",
+        "solace"
+      ],
+      "profiles": [
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "johnny's trading post",
+        "murphy's motor works",
+        "last chance clinic",
+        "solace savings & loan",
+        "armory",
+        "back to solace"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "shops"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "jen",
+      "graphicalCommands": [
+        "buy drinks",
+        "gamble",
+        "talk jen",
+        "sell items",
+        "return to town"
+      ],
+      "roots": [
+        "crafting",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "poor"
+      ],
+      "examplePath": [
+        "the rusty lantern"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "tim",
+      "graphicalCommands": [
+        "talk tim",
+        "bounties",
+        "view warrants",
+        "town"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "find tim"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "north gate",
+        "south gate",
+        "east gate",
+        "west gate",
+        "back to solace"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting",
+        "inventory",
+        "journal",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "gates"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "talk sable",
+        "trade sable",
+        "steal from sable",
+        "inspect sable",
+        "fight sable",
+        "leave"
+      ],
+      "roots": [
+        "horse-travel",
+        "solace"
+      ],
+      "profiles": [
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "talk to sable"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "johnny",
+      "graphicalCommands": [
+        "view stock",
+        "sell items",
+        "small talk",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "shops",
+        "johnny's trading post"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "murphy",
+      "graphicalCommands": [
+        "crafting recipes",
+        "crafting",
+        "small talk",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "shops",
+        "murphy's motor works"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "wayne",
+      "graphicalCommands": [
+        "treat wounds",
+        "buy bandage",
+        "sell items",
+        "talk wayne",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "shops",
+        "last chance clinic"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "amii",
+      "graphicalCommands": [
+        "deposit bolts",
+        "withdraw bolts",
+        "stash items",
+        "retrieve items",
+        "view storage",
+        "small talk",
+        "change name",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "shops",
+        "solace savings & loan"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "mara",
+      "graphicalCommands": [
+        "buy tactical crowbar",
+        "buy military entrenching tool",
+        "buy serrated cleaver",
+        "buy wasteland ranger vest",
+        "buy mechanic's reinforced suit",
+        "sell items",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "shops",
+        "armory"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "jenDrinks",
+      "graphicalCommands": [
+        "back"
+      ],
+      "roots": [
+        "crafting",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "poor"
+      ],
+      "examplePath": [
+        "the rusty lantern",
+        "buy drinks"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "casino",
+      "graphicalCommands": [
+        "dice",
+        "rock paper scissors",
+        "blackjack",
+        "slots",
+        "rat racing",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "the rusty lantern",
+        "gamble"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "jen",
+      "graphicalCommands": [
+        "ask about work",
+        "ask rumors",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "the rusty lantern",
+        "talk jen"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "jen",
+      "graphicalCommands": [
+        "back"
+      ],
+      "roots": [
+        "crafting",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "poor"
+      ],
+      "examplePath": [
+        "the rusty lantern",
+        "sell items"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "tim",
+      "graphicalCommands": [
+        "accept",
+        "decline"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "find tim",
+        "talk tim"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "shops",
+        "the rusty lantern",
+        "find tim",
+        "gates",
+        "talk to crowley",
+        "bulletin board"
+      ],
+      "roots": [
+        "journal",
+        "martha",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "mercy",
+      "location": "jen",
+      "graphicalCommands": [
+        "buy drinks",
+        "gamble",
+        "buy room",
+        "talk jen",
+        "sell items",
+        "return to town"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "the rusty lantern"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "talk crowley",
+        "steal from crowley",
+        "inspect crowley",
+        "fight crowley",
+        "leave"
+      ],
+      "roots": [
+        "journal",
+        "martha",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "talk to crowley"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "jenDrinks",
+      "graphicalCommands": [
+        "beer",
+        "shot",
+        "house special",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "the rusty lantern",
+        "buy drinks"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "jenRoom",
+      "graphicalCommands": [
+        "rest",
+        "chest",
+        "look around",
+        "return"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "the rusty lantern",
+        "buy room"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "jen",
+      "graphicalCommands": [
+        "sell cloth \u00d7100",
+        "sell scrap metal \u00d7100",
+        "sell wire \u00d7100",
+        "sell electronics \u00d7100",
+        "sell small animal bones \u00d7100",
+        "sell animal bones \u00d7100",
+        "sell large animal bones \u00d7100",
+        "sell tempered steel \u00d7100",
+        "sell explosive components \u00d7100",
+        "sell animal hide \u00d7100",
+        "sell uncommon electrical parts \u00d7100",
+        "sell glass \u00d7100",
+        "sell water \u00d7100",
+        "sell salt \u00d7100",
+        "sell raw rat meat \u00d7100",
+        "sell raw rabbit meat \u00d7100",
+        "sell raw bird meat \u00d7100",
+        "sell raw chicken meat \u00d7100",
+        "sell raw boar meat \u00d7100",
+        "sell raw venison \u00d7100",
+        "sell raw snake meat \u00d7100",
+        "sell raw wolf meat \u00d7100",
+        "sell energy bars \u00d7100",
+        "sell bandage \u00d7100",
+        "sell reinforced bandage \u00d7100",
+        "sell fresh apple \u00d7100",
+        "sell fresh pear \u00d7100",
+        "sell fresh carrot \u00d7100",
+        "sell fresh potato \u00d7100",
+        "sell fresh tomato \u00d7100",
+        "sell fresh cabbage \u00d7100",
+        "sell fresh berries \u00d7100",
+        "sell preserved vegetables \u00d7100",
+        "sell preserved meat \u00d7100",
+        "sell wasteland stew \u00d7100",
+        "sell roadhouse hash \u00d7100",
+        "sell wild honey \u00d7100",
+        "sell claw hammer \u00d71",
+        "sell bluefang hunting knife \u00d71",
+        "sell battered flashlight \u00d71",
+        "sell old world pocket compass \u00d7100",
+        "back"
+      ],
+      "roots": [
+        "crafting",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "the rusty lantern",
+        "sell items"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "shops",
+        "the rusty lantern",
+        "find tim",
+        "gates",
+        "talk to vale",
+        "bulletin board"
+      ],
+      "roots": [
+        "quest-progress",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "talk vale",
+        "trade vale",
+        "steal from vale",
+        "inspect vale",
+        "fight vale",
+        "leave"
+      ],
+      "roots": [
+        "quest-progress",
+        "solace"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "talk to vale"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "jen",
+      "graphicalCommands": [
+        "sell cloth \u00d71",
+        "sell scrap metal \u00d71",
+        "sell wire \u00d71",
+        "sell electronics \u00d71",
+        "sell small animal bones \u00d71",
+        "sell animal bones \u00d71",
+        "sell large animal bones \u00d71",
+        "sell tempered steel \u00d71",
+        "sell explosive components \u00d71",
+        "sell animal hide \u00d71",
+        "sell uncommon electrical parts \u00d71",
+        "sell glass \u00d71",
+        "sell water \u00d71",
+        "sell salt \u00d71",
+        "sell raw rat meat \u00d71",
+        "sell raw rabbit meat \u00d71",
+        "sell raw bird meat \u00d71",
+        "sell raw chicken meat \u00d71",
+        "sell raw boar meat \u00d71",
+        "sell raw venison \u00d71",
+        "sell raw snake meat \u00d71",
+        "sell raw wolf meat \u00d71",
+        "sell energy bars \u00d71",
+        "sell bandage \u00d71",
+        "sell reinforced bandage \u00d71",
+        "sell fresh apple \u00d71",
+        "sell fresh pear \u00d71",
+        "sell fresh carrot \u00d71",
+        "sell fresh potato \u00d71",
+        "sell fresh tomato \u00d71",
+        "sell fresh cabbage \u00d71",
+        "sell fresh berries \u00d71",
+        "sell preserved vegetables \u00d71",
+        "sell preserved meat \u00d71",
+        "sell wasteland stew \u00d71",
+        "sell roadhouse hash \u00d71",
+        "sell wild honey \u00d71",
+        "sell claw hammer \u00d71",
+        "sell bluefang hunting knife \u00d71",
+        "sell battered flashlight \u00d71",
+        "sell old world pocket compass \u00d71",
+        "back"
+      ],
+      "roots": [
+        "crafting",
+        "quest-progress",
+        "relay",
+        "solace"
+      ],
+      "profiles": [
+        "full"
+      ],
+      "examplePath": [
+        "the rusty lantern",
+        "sell items"
+      ]
+    },
+    {
+      "stage": "lanternNode",
+      "location": "town",
+      "graphicalCommands": [
+        "enter factory",
+        "take road to works junction",
+        "take road to factory east junction",
+        "take road to factory west junction",
+        "take road to boulder junction",
+        "back"
+      ],
+      "roots": [
+        "factory",
+        "factory-authorized",
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "lanternRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "resume road event",
+        "skip stalled event"
+      ],
+      "roots": [
+        "arena",
+        "factory",
+        "factory-authorized",
+        "factory-ready",
+        "seaport"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "take road to works junction"
+      ]
+    },
+    {
+      "stage": "seaport",
+      "location": "town",
+      "graphicalCommands": [
+        "town streets",
+        "harbor docks",
+        "market area",
+        "rusty anchor",
+        "return to road"
+      ],
+      "roots": [
+        "seaport",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "port55Stop",
+      "location": "town",
+      "graphicalCommands": [
+        "talk kaiden",
+        "return to harbor"
+      ],
+      "roots": [
+        "seaport",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "town streets"
+      ]
+    },
+    {
+      "stage": "port55Docks",
+      "location": "town",
+      "graphicalCommands": [
+        "dock bulletin board",
+        "talk to docks clerk",
+        "return to seaport"
+      ],
+      "roots": [
+        "seaport",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "harbor docks"
+      ]
+    },
+    {
+      "stage": "port55Market",
+      "location": "town",
+      "graphicalCommands": [
+        "clinic [vacant]",
+        "general store [vacant]",
+        "workshop [vacant]",
+        "bank [vacant]",
+        "armory [vacant]",
+        "pet store",
+        "return to seaport"
+      ],
+      "roots": [
+        "seaport"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "market area"
+      ]
+    },
+    {
+      "stage": "port55Mia",
+      "location": "town",
+      "graphicalCommands": [
+        "small talk",
+        "buy drinks",
+        "gamble",
+        "rent room \u2014 2000 bolts",
+        "talk to red",
+        "return to harbor"
+      ],
+      "roots": [
+        "seaport",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "rusty anchor"
+      ]
+    },
+    {
+      "stage": "lanternRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "continue road",
+        "reverse direction",
+        "back"
+      ],
+      "roots": [
+        "arena",
+        "seaport",
+        "seaport-locked"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "return to road"
+      ]
+    },
+    {
+      "stage": "port55Kaiden",
+      "location": "town",
+      "graphicalCommands": [
+        "ask about seaport",
+        "small talk",
+        "bounties",
+        "view warrants",
+        "back"
+      ],
+      "roots": [
+        "seaport",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "town streets",
+        "talk kaiden"
+      ]
+    },
+    {
+      "stage": "r11Board",
+      "location": "town",
+      "graphicalCommands": [
+        "post a message",
+        "view bounties",
+        "return to docks"
+      ],
+      "roots": [
+        "caleb",
+        "seaport",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "harbor docks",
+        "dock bulletin board"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "assign staff",
+        "back to market"
+      ],
+      "roots": [
+        "seaport",
+        "seaport-staffed",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "market area",
+        "clinic [vacant]"
+      ]
+    },
+    {
+      "stage": "port55Vendor",
+      "location": "town",
+      "graphicalCommands": [
+        "purchase pets",
+        "back"
+      ],
+      "roots": [
+        "seaport",
+        "seaport-staffed",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "market area",
+        "pet store"
+      ]
+    },
+    {
+      "stage": "port55MiaTalk",
+      "location": "town",
+      "graphicalCommands": [
+        "ask about seaport",
+        "ask about the rusty anchor",
+        "ask about mia",
+        "ask about house rules",
+        "back"
+      ],
+      "roots": [
+        "seaport",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "rusty anchor",
+        "small talk"
+      ]
+    },
+    {
+      "stage": "r11Drinks",
+      "location": "town",
+      "graphicalCommands": [
+        "beer \u2014 5 bolts / 5% max hp (min 5)",
+        "shot \u2014 9 bolts / 9% max hp (min 10)",
+        "house special \u2014 15 bolts / 15% max hp (min 15)",
+        "back"
+      ],
+      "roots": [
+        "seaport",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "rusty anchor",
+        "buy drinks"
+      ]
+    },
+    {
+      "stage": "r6Casino",
+      "location": "town",
+      "graphicalCommands": [
+        "blackjack",
+        "captain's dice",
+        "pirate's poker",
+        "crab racing",
+        "knife throwing",
+        "return to mia"
+      ],
+      "roots": [
+        "seaport",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "rusty anchor",
+        "gamble"
+      ]
+    },
+    {
+      "stage": "r18Red",
+      "location": "town",
+      "graphicalCommands": [
+        "ask red his name",
+        "ask red about seaport",
+        "ask red about the iron pit",
+        "buy red a drink \u2014 5 bolts",
+        "return to mia"
+      ],
+      "roots": [
+        "seaport",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "rusty anchor",
+        "talk to red"
+      ]
+    },
+    {
+      "stage": "port55Kaiden",
+      "location": "town",
+      "graphicalCommands": [
+        "how is seaport holding up?",
+        "ask about keeping the lights on",
+        "back"
+      ],
+      "roots": [
+        "seaport",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "town streets",
+        "talk kaiden",
+        "small talk"
+      ]
+    },
+    {
+      "stage": "r6Room",
+      "location": "town",
+      "graphicalCommands": [
+        "rest",
+        "chest",
+        "look around",
+        "return to mia"
+      ],
+      "roots": [
+        "seaport",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "rusty anchor",
+        "rent room \u2014 2000 bolts"
+      ]
+    },
+    {
+      "stage": "seaport",
+      "location": "town",
+      "graphicalCommands": [
+        "harbor docks",
+        "return to road"
+      ],
+      "roots": [
+        "seaport-locked"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "port55Docks",
+      "location": "town",
+      "graphicalCommands": [
+        "inspect fishermen",
+        "return to seaport"
+      ],
+      "roots": [
+        "seaport-locked"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "harbor docks"
+      ]
+    },
+    {
+      "stage": "port55Docks",
+      "location": "town",
+      "graphicalCommands": [
+        "confront fishermen",
+        "return to seaport"
+      ],
+      "roots": [
+        "seaport-locked"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "harbor docks",
+        "inspect fishermen"
+      ]
+    },
+    {
+      "stage": "house",
+      "location": "town",
+      "graphicalCommands": [
+        "search bathroom cabinet",
+        "check fireplace",
+        "check pack",
+        "\u2193 s \u2014 solace"
+      ],
+      "roots": [
+        "house"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "lanternNode",
+      "location": "town",
+      "graphicalCommands": [
+        "enter old house",
+        "take road to west ridge road",
+        "take road to east ridge road",
+        "take road to upper highway junction",
+        "back"
+      ],
+      "roots": [
+        "house"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "\u2193 s \u2014 solace"
+      ]
+    },
+    {
+      "stage": "inventory",
+      "location": "town",
+      "graphicalCommands": [
+        "back"
+      ],
+      "roots": [
+        "inventory"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "shops",
+        "the rusty lantern",
+        "find tim",
+        "gates",
+        "talk to bishop",
+        "bulletin board"
+      ],
+      "roots": [
+        "craft-ready",
+        "inventory",
+        "relay"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "talk bishop",
+        "trade bishop",
+        "steal from bishop",
+        "inspect bishop",
+        "fight bishop",
+        "leave"
+      ],
+      "roots": [
+        "craft-ready",
+        "inventory",
+        "relay"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "talk to bishop"
+      ]
+    },
+    {
+      "stage": "lanternGate",
+      "location": "town",
+      "graphicalCommands": [
+        "take road to upper highway junction",
+        "return to town"
+      ],
+      "roots": [
+        "inventory",
+        "journal"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "gates",
+        "north gate"
+      ]
+    },
+    {
+      "stage": "lanternGate",
+      "location": "town",
+      "graphicalCommands": [
+        "take road to works junction",
+        "return to town"
+      ],
+      "roots": [
+        "inventory",
+        "journal"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "gates",
+        "south gate"
+      ]
+    },
+    {
+      "stage": "lanternGate",
+      "location": "town",
+      "graphicalCommands": [
+        "take road to trade junction",
+        "return to town"
+      ],
+      "roots": [
+        "inventory",
+        "journal"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "gates",
+        "east gate"
+      ]
+    },
+    {
+      "stage": "lanternGate",
+      "location": "town",
+      "graphicalCommands": [
+        "take road to interior junction",
+        "return to town"
+      ],
+      "roots": [
+        "inventory",
+        "journal"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "gates",
+        "west gate"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "buy bandage",
+        "buy scrap metal",
+        "buy cloth",
+        "sell items",
+        "back"
+      ],
+      "roots": [
+        "inventory"
+      ],
+      "profiles": [
+        "full",
+        "poor"
+      ],
+      "examplePath": [
+        "back",
+        "talk to bishop",
+        "trade bishop"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "confirm fight",
+        "back off"
+      ],
+      "roots": [
+        "inventory",
+        "journal"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "talk to bishop",
+        "fight bishop"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "leave trade"
+      ],
+      "roots": [
+        "inventory"
+      ],
+      "profiles": [
+        "poor"
+      ],
+      "examplePath": [
+        "back",
+        "talk to bishop",
+        "trade bishop",
+        "sell items"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "sell cloth \u00d71",
+        "sell scrap metal \u00d71",
+        "sell wire \u00d71",
+        "sell electronics \u00d71",
+        "sell small animal bones \u00d71",
+        "sell animal bones \u00d71",
+        "sell large animal bones \u00d71",
+        "sell tempered steel \u00d71",
+        "sell explosive components \u00d71",
+        "sell animal hide \u00d71",
+        "sell uncommon electrical parts \u00d71",
+        "sell glass \u00d71",
+        "sell water \u00d71",
+        "sell salt \u00d71",
+        "sell raw rat meat \u00d71",
+        "sell raw rabbit meat \u00d71",
+        "sell raw bird meat \u00d71",
+        "sell raw chicken meat \u00d71",
+        "sell raw boar meat \u00d71",
+        "sell raw venison \u00d71",
+        "sell raw snake meat \u00d71",
+        "sell raw wolf meat \u00d71",
+        "sell energy bars \u00d71",
+        "sell bandage \u00d71",
+        "sell reinforced bandage \u00d71",
+        "sell fresh apple \u00d71",
+        "sell fresh pear \u00d71",
+        "sell fresh carrot \u00d71",
+        "sell fresh potato \u00d71",
+        "sell fresh tomato \u00d71",
+        "sell fresh cabbage \u00d71",
+        "sell fresh berries \u00d71",
+        "sell preserved vegetables \u00d71",
+        "sell preserved meat \u00d71",
+        "sell wasteland stew \u00d71",
+        "sell roadhouse hash \u00d71",
+        "sell wild honey \u00d71",
+        "sell claw hammer \u00d71",
+        "sell bluefang hunting knife \u00d71",
+        "sell battered flashlight \u00d71",
+        "sell old world pocket compass \u00d71",
+        "leave trade"
+      ],
+      "roots": [
+        "inventory"
+      ],
+      "profiles": [
+        "full"
+      ],
+      "examplePath": [
+        "back",
+        "talk to bishop",
+        "trade bishop",
+        "sell items"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "confirm sale",
+        "cancel sale"
+      ],
+      "roots": [
+        "inventory",
+        "journal"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "talk to bishop",
+        "trade bishop",
+        "sell items",
+        "sell bluefang hunting knife \u00d71"
+      ]
+    },
+    {
+      "stage": "interfaceStatus",
+      "location": "town",
+      "graphicalCommands": [],
+      "roots": [
+        "character"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "quests",
+      "location": "town",
+      "graphicalCommands": [
+        "active quests",
+        "completed quests",
+        "back"
+      ],
+      "roots": [
+        "journal"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "shops",
+        "the rusty lantern",
+        "find tim",
+        "gates",
+        "talk to wren",
+        "bulletin board"
+      ],
+      "roots": [
+        "journal",
+        "quest-progress",
+        "relay"
+      ],
+      "profiles": [
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "talk wren",
+        "trade wren",
+        "steal from wren",
+        "inspect wren",
+        "fight wren",
+        "leave"
+      ],
+      "roots": [
+        "journal",
+        "quest-progress",
+        "relay"
+      ],
+      "profiles": [
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "talk to wren"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "buy scrap metal",
+        "buy wire",
+        "buy cloth",
+        "sell items",
+        "back"
+      ],
+      "roots": [
+        "horse-travel",
+        "journal"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "talk to wren",
+        "trade wren"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "shops",
+        "the rusty lantern",
+        "find tim",
+        "gates",
+        "talk to rowan",
+        "bulletin board"
+      ],
+      "roots": [
+        "journal"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "back"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "talk rowan",
+        "trade rowan",
+        "steal from rowan",
+        "inspect rowan",
+        "fight rowan",
+        "leave"
+      ],
+      "roots": [
+        "journal"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "talk to rowan"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "buy wire",
+        "buy cloth",
+        "sell items",
+        "back"
+      ],
+      "roots": [
+        "journal"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "talk to rowan",
+        "trade rowan",
+        "buy scrap metal"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "sell cloth \u00d7100",
+        "sell scrap metal \u00d7100",
+        "sell wire \u00d7100",
+        "sell electronics \u00d7100",
+        "sell small animal bones \u00d7100",
+        "sell animal bones \u00d7100",
+        "sell large animal bones \u00d7100",
+        "sell tempered steel \u00d7100",
+        "sell explosive components \u00d7100",
+        "sell animal hide \u00d7100",
+        "sell uncommon electrical parts \u00d7100",
+        "sell glass \u00d7100",
+        "sell water \u00d7100",
+        "sell salt \u00d7100",
+        "sell raw rat meat \u00d7100",
+        "sell raw rabbit meat \u00d7100",
+        "sell raw bird meat \u00d7100",
+        "sell raw chicken meat \u00d7100",
+        "sell raw boar meat \u00d7100",
+        "sell raw venison \u00d7100",
+        "sell raw snake meat \u00d7100",
+        "sell raw wolf meat \u00d7100",
+        "sell energy bars \u00d7100",
+        "sell bandage \u00d7100",
+        "sell reinforced bandage \u00d7100",
+        "sell fresh apple \u00d7100",
+        "sell fresh pear \u00d7100",
+        "sell fresh carrot \u00d7100",
+        "sell fresh potato \u00d7100",
+        "sell fresh tomato \u00d7100",
+        "sell fresh cabbage \u00d7100",
+        "sell fresh berries \u00d7100",
+        "sell preserved vegetables \u00d7100",
+        "sell preserved meat \u00d7100",
+        "sell wasteland stew \u00d7100",
+        "sell roadhouse hash \u00d7100",
+        "sell wild honey \u00d7100",
+        "sell claw hammer \u00d71",
+        "sell bluefang hunting knife \u00d71",
+        "sell battered flashlight \u00d71",
+        "sell old world pocket compass \u00d7100",
+        "leave trade"
+      ],
+      "roots": [
+        "journal"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "talk to rowan",
+        "trade rowan",
+        "sell items"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "sell 1",
+        "sell 5",
+        "sell all",
+        "custom amount",
+        "cancel sale"
+      ],
+      "roots": [
+        "journal"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "talk to rowan",
+        "trade rowan",
+        "sell items",
+        "sell cloth \u00d7100"
+      ]
+    },
+    {
+      "stage": "wandererRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "small talk",
+        "trade",
+        "steal",
+        "inspect",
+        "fight",
+        "move on"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "wandererRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "buy bandage",
+        "buy scrap metal",
+        "buy cloth",
+        "sell items",
+        "back"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "trade"
+      ]
+    },
+    {
+      "stage": "lanternNode",
+      "location": "town",
+      "graphicalCommands": [
+        "enter solace",
+        "take road to trade junction",
+        "take road to works junction",
+        "take road to interior junction",
+        "take road to upper highway junction",
+        "back"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "move on"
+      ]
+    },
+    {
+      "stage": "wandererRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "leave trade"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "poor"
+      ],
+      "examplePath": [
+        "trade",
+        "sell items"
+      ]
+    },
+    {
+      "stage": "wandererRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "buy scrap metal",
+        "buy cloth",
+        "sell items",
+        "back"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "trade",
+        "buy bandage"
+      ]
+    },
+    {
+      "stage": "wandererRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "buy bandage",
+        "buy cloth",
+        "sell items",
+        "back"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "trade",
+        "buy scrap metal"
+      ]
+    },
+    {
+      "stage": "wandererRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "buy bandage",
+        "buy scrap metal",
+        "sell items",
+        "back"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "trade",
+        "buy cloth"
+      ]
+    },
+    {
+      "stage": "wandererRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "sell cloth \u00d7100",
+        "sell scrap metal \u00d7100",
+        "sell wire \u00d7100",
+        "sell electronics \u00d7100",
+        "sell small animal bones \u00d7100",
+        "sell animal bones \u00d7100",
+        "sell large animal bones \u00d7100",
+        "sell tempered steel \u00d7100",
+        "sell explosive components \u00d7100",
+        "sell animal hide \u00d7100",
+        "sell uncommon electrical parts \u00d7100",
+        "sell glass \u00d7100",
+        "sell water \u00d7100",
+        "sell salt \u00d7100",
+        "sell raw rat meat \u00d7100",
+        "sell raw rabbit meat \u00d7100",
+        "sell raw bird meat \u00d7100",
+        "sell raw chicken meat \u00d7100",
+        "sell raw boar meat \u00d7100",
+        "sell raw venison \u00d7100",
+        "sell raw snake meat \u00d7100",
+        "sell raw wolf meat \u00d7100",
+        "sell energy bars \u00d7100",
+        "sell bandage \u00d7100",
+        "sell reinforced bandage \u00d7100",
+        "sell fresh apple \u00d7100",
+        "sell fresh pear \u00d7100",
+        "sell fresh carrot \u00d7100",
+        "sell fresh potato \u00d7100",
+        "sell fresh tomato \u00d7100",
+        "sell fresh cabbage \u00d7100",
+        "sell fresh berries \u00d7100",
+        "sell preserved vegetables \u00d7100",
+        "sell preserved meat \u00d7100",
+        "sell wasteland stew \u00d7100",
+        "sell roadhouse hash \u00d7100",
+        "sell wild honey \u00d7100",
+        "sell claw hammer \u00d71",
+        "sell bluefang hunting knife \u00d71",
+        "sell battered flashlight \u00d71",
+        "sell old world pocket compass \u00d7100",
+        "leave trade"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "trade",
+        "sell items"
+      ]
+    },
+    {
+      "stage": "wandererRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "buy cloth",
+        "sell items",
+        "back"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "trade",
+        "buy bandage",
+        "buy scrap metal"
+      ]
+    },
+    {
+      "stage": "wandererRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "buy scrap metal",
+        "sell items",
+        "back"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "trade",
+        "buy bandage",
+        "buy cloth"
+      ]
+    },
+    {
+      "stage": "wandererRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "buy bandage",
+        "sell items",
+        "back"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "trade",
+        "buy scrap metal",
+        "buy cloth"
+      ]
+    },
+    {
+      "stage": "wandererRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "sell 1",
+        "sell 5",
+        "sell all",
+        "custom amount",
+        "cancel sale"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "trade",
+        "sell items",
+        "sell cloth \u00d7100"
+      ]
+    },
+    {
+      "stage": "wandererRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "confirm sale",
+        "cancel sale"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "trade",
+        "sell items",
+        "sell bluefang hunting knife \u00d71"
+      ]
+    },
+    {
+      "stage": "wandererRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "sell items",
+        "back"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "trade",
+        "buy bandage",
+        "buy scrap metal",
+        "buy cloth"
+      ]
+    },
+    {
+      "stage": "wandererRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "sell cloth \u00d71",
+        "sell scrap metal \u00d71",
+        "sell wire \u00d71",
+        "sell electronics \u00d71",
+        "sell small animal bones \u00d71",
+        "sell animal bones \u00d71",
+        "sell large animal bones \u00d71",
+        "sell tempered steel \u00d71",
+        "sell explosive components \u00d71",
+        "sell animal hide \u00d71",
+        "sell uncommon electrical parts \u00d71",
+        "sell glass \u00d71",
+        "sell water \u00d71",
+        "sell salt \u00d71",
+        "sell raw rat meat \u00d71",
+        "sell raw rabbit meat \u00d71",
+        "sell raw bird meat \u00d71",
+        "sell raw chicken meat \u00d71",
+        "sell raw boar meat \u00d71",
+        "sell raw venison \u00d71",
+        "sell raw snake meat \u00d71",
+        "sell raw wolf meat \u00d71",
+        "sell energy bars \u00d71",
+        "sell bandage \u00d71",
+        "sell reinforced bandage \u00d71",
+        "sell fresh apple \u00d71",
+        "sell fresh pear \u00d71",
+        "sell fresh carrot \u00d71",
+        "sell fresh potato \u00d71",
+        "sell fresh tomato \u00d71",
+        "sell fresh cabbage \u00d71",
+        "sell fresh berries \u00d71",
+        "sell preserved vegetables \u00d71",
+        "sell preserved meat \u00d71",
+        "sell wasteland stew \u00d71",
+        "sell roadhouse hash \u00d71",
+        "sell wild honey \u00d71",
+        "sell claw hammer \u00d71",
+        "sell bluefang hunting knife \u00d71",
+        "sell battered flashlight \u00d71",
+        "sell old world pocket compass \u00d71",
+        "leave trade"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "full"
+      ],
+      "examplePath": [
+        "trade",
+        "sell items"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "shops",
+        "the rusty lantern",
+        "find tim",
+        "gates",
+        "talk to cricket",
+        "bulletin board"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "full"
+      ],
+      "examplePath": [
+        "move on",
+        "enter solace"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "talk cricket",
+        "trade cricket",
+        "steal from cricket",
+        "inspect cricket",
+        "fight cricket",
+        "leave"
+      ],
+      "roots": [
+        "wanderer"
+      ],
+      "profiles": [
+        "full"
+      ],
+      "examplePath": [
+        "move on",
+        "enter solace",
+        "talk to cricket"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "buy energy bars",
+        "buy bandage",
+        "sell items",
+        "back"
+      ],
+      "roots": [
+        "martha",
+        "wanderer"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "move on",
+        "enter solace",
+        "talk to cricket",
+        "trade cricket"
+      ]
+    },
+    {
+      "stage": "r18Station",
+      "location": "town",
+      "graphicalCommands": [
+        "talk to evelyn",
+        "contribute electronics",
+        "contribute wire",
+        "contribute scrap metal",
+        "leave station",
+        "back"
+      ],
+      "roots": [
+        "station"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "r18Station",
+      "location": "town",
+      "graphicalCommands": [
+        "talk to evelyn",
+        "contribute electronics",
+        "contribute wire",
+        "contribute scrap metal",
+        "leave station",
+        "back to station",
+        "back"
+      ],
+      "roots": [
+        "station"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "talk to evelyn"
+      ]
+    },
+    {
+      "stage": "r18Station",
+      "location": "town",
+      "graphicalCommands": [
+        "talk to evelyn",
+        "talk to network trader",
+        "leave station",
+        "listen to restored transmissions",
+        "back"
+      ],
+      "roots": [
+        "station-restored"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "r18Station",
+      "location": "town",
+      "graphicalCommands": [
+        "talk to evelyn",
+        "talk to network trader",
+        "leave station",
+        "listen to restored transmissions",
+        "back to station",
+        "back"
+      ],
+      "roots": [
+        "station-restored"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "talk to evelyn"
+      ]
+    },
+    {
+      "stage": "r18StationTrader",
+      "location": "town",
+      "graphicalCommands": [
+        "buy electronics \u2014 30 bolts",
+        "buy wire \u2014 8 bolts",
+        "buy scrap metal \u2014 5 bolts",
+        "buy bandage \u2014 10 bolts",
+        "buy network wrench",
+        "buy network coat",
+        "return to station",
+        "back"
+      ],
+      "roots": [
+        "station-restored"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "talk to network trader"
+      ]
+    },
+    {
+      "stage": "r5Loot",
+      "location": "town",
+      "graphicalCommands": [
+        "replace an item",
+        "leave behind"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready",
+        "station-restored"
+      ],
+      "profiles": [
+        "full"
+      ],
+      "examplePath": [
+        "talk to network trader",
+        "buy network wrench"
+      ]
+    },
+    {
+      "stage": "r5Loot",
+      "location": "town",
+      "graphicalCommands": [
+        "replace cloth",
+        "replace scrap metal",
+        "replace wire",
+        "replace electronics",
+        "replace small animal bones",
+        "replace animal bones",
+        "replace large animal bones",
+        "replace tempered steel",
+        "replace explosive components",
+        "replace animal hide",
+        "replace uncommon electrical parts",
+        "replace glass",
+        "replace water",
+        "replace salt",
+        "replace raw rat meat",
+        "replace raw rabbit meat",
+        "replace raw bird meat",
+        "replace raw chicken meat",
+        "replace raw boar meat",
+        "replace raw venison",
+        "replace raw snake meat",
+        "replace raw wolf meat",
+        "replace energy bars",
+        "replace bandage",
+        "replace clean water",
+        "replace reinforced bandage",
+        "replace emergency trauma kit",
+        "replace fresh apple",
+        "replace fresh pear",
+        "replace fresh carrot",
+        "replace fresh potato",
+        "replace fresh tomato",
+        "replace fresh cabbage",
+        "replace fresh berries",
+        "replace preserved vegetables",
+        "replace preserved meat",
+        "replace wasteland stew",
+        "replace roadhouse hash",
+        "replace wild honey",
+        "replace claw hammer",
+        "replace bluefang hunting knife",
+        "replace battered flashlight",
+        "replace old world pocket compass",
+        "back"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready",
+        "station-restored"
+      ],
+      "profiles": [
+        "full"
+      ],
+      "examplePath": [
+        "talk to network trader",
+        "buy network wrench",
+        "replace an item"
+      ]
+    },
+    {
+      "stage": "r5Loot",
+      "location": "town",
+      "graphicalCommands": [
+        "confirm replacement",
+        "cancel replacement"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready",
+        "station-restored"
+      ],
+      "profiles": [
+        "full"
+      ],
+      "examplePath": [
+        "talk to network trader",
+        "buy network wrench",
+        "replace an item",
+        "replace cloth"
+      ]
+    },
+    {
+      "stage": "r18Depot",
+      "location": "town",
+      "graphicalCommands": [
+        "inspect depot log",
+        "search depot locker",
+        "disable unit with two wire",
+        "sneak past unit",
+        "fight unit 07",
+        "leave depot",
+        "back"
+      ],
+      "roots": [
+        "depot"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "r18Depot",
+      "location": "town",
+      "graphicalCommands": [
+        "inspect depot log",
+        "disable unit with two wire",
+        "sneak past unit",
+        "fight unit 07",
+        "leave depot",
+        "back"
+      ],
+      "roots": [
+        "depot"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "search depot locker"
+      ]
+    },
+    {
+      "stage": "r18Depot",
+      "location": "town",
+      "graphicalCommands": [
+        "inspect depot log",
+        "search depot locker",
+        "free eli mercer",
+        "leave depot",
+        "back"
+      ],
+      "roots": [
+        "depot"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "disable unit with two wire"
+      ]
+    },
+    {
+      "stage": "r18Depot",
+      "location": "town",
+      "graphicalCommands": [
+        "inspect depot log",
+        "free eli mercer",
+        "leave depot",
+        "back"
+      ],
+      "roots": [
+        "depot"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "search depot locker",
+        "disable unit with two wire"
+      ]
+    },
+    {
+      "stage": "r18HorseTravel",
+      "location": "town",
+      "graphicalCommands": [
+        "return to status",
+        "back"
+      ],
+      "roots": [
+        "horse-travel"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "interfaceStatus",
+      "location": "town",
+      "graphicalCommands": [
+        "horse travel",
+        "back"
+      ],
+      "roots": [
+        "horse-travel"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "return to status"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "shops",
+        "the rusty lantern",
+        "find tim",
+        "gates",
+        "talk to cutter",
+        "bulletin board"
+      ],
+      "roots": [
+        "crafting",
+        "horse-travel"
+      ],
+      "profiles": [
+        "full",
+        "poor"
+      ],
+      "examplePath": [
+        "return to status",
+        "back"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "talk cutter",
+        "trade cutter",
+        "steal from cutter",
+        "inspect cutter",
+        "fight cutter",
+        "leave"
+      ],
+      "roots": [
+        "crafting",
+        "horse-travel"
+      ],
+      "profiles": [
+        "full",
+        "poor"
+      ],
+      "examplePath": [
+        "return to status",
+        "back",
+        "talk to cutter"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "shops",
+        "the rusty lantern",
+        "find tim",
+        "gates",
+        "talk to bolt",
+        "bulletin board"
+      ],
+      "roots": [
+        "crafting",
+        "horse-travel"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "return to status",
+        "back"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "talk bolt",
+        "trade bolt",
+        "steal from bolt",
+        "inspect bolt",
+        "fight bolt",
+        "leave"
+      ],
+      "roots": [
+        "crafting",
+        "horse-travel"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "return to status",
+        "back",
+        "talk to bolt"
+      ]
+    },
+    {
+      "stage": "zeroTurns",
+      "location": "town",
+      "graphicalCommands": [
+        "dawn news",
+        "dawn discussions",
+        "dawn feedback",
+        "dawn logout"
+      ],
+      "roots": [
+        "waiting"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "factoryWorkshop",
+      "location": "town",
+      "graphicalCommands": [
+        "tomorrow project terminal",
+        "talk to forge",
+        "workbench",
+        "rusty",
+        "enter inner factory",
+        "exit factory"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "factoryTerminal",
+      "location": "town",
+      "graphicalCommands": [
+        "project records",
+        "factory status",
+        "personnel: forge",
+        "exit terminal"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "tomorrow project terminal"
+      ]
+    },
+    {
+      "stage": "factoryForge",
+      "location": "town",
+      "graphicalCommands": [
+        "back"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "talk to forge"
+      ]
+    },
+    {
+      "stage": "factoryBench",
+      "location": "town",
+      "graphicalCommands": [
+        "insert materials",
+        "back"
+      ],
+      "roots": [
+        "factory-authorized"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "workbench"
+      ]
+    },
+    {
+      "stage": "factoryRusty",
+      "location": "town",
+      "graphicalCommands": [
+        "buy supplies",
+        "sell items",
+        "return to forge"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "rusty"
+      ]
+    },
+    {
+      "stage": "factoryDungeonHub",
+      "location": "town",
+      "graphicalCommands": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "enter inner factory"
+      ]
+    },
+    {
+      "stage": "eastEnd",
+      "location": "town",
+      "graphicalCommands": [
+        "enter factory",
+        "head north \u2014 solace",
+        "head south \u2014 seaport",
+        "inspect road",
+        "explore roads",
+        "back"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back"
+      ]
+    },
+    {
+      "stage": "factoryRusty",
+      "location": "town",
+      "graphicalCommands": [
+        "buy bandage",
+        "buy energy bars",
+        "buy tent",
+        "buy cloth",
+        "buy scrap metal",
+        "buy wire",
+        "buy tire iron",
+        "back"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "rusty",
+        "buy supplies"
+      ]
+    },
+    {
+      "stage": "factoryRusty",
+      "location": "town",
+      "graphicalCommands": [
+        "back"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready"
+      ],
+      "profiles": [
+        "poor"
+      ],
+      "examplePath": [
+        "rusty",
+        "sell items"
+      ]
+    },
+    {
+      "stage": "factoryDungeonFloor",
+      "location": "town",
+      "graphicalCommands": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "enter inner factory",
+        "1"
+      ]
+    },
+    {
+      "stage": "factoryDungeonRoom",
+      "location": "town",
+      "graphicalCommands": [
+        "inspect",
+        "search",
+        "return to floor"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "enter inner factory",
+        "1",
+        "1"
+      ]
+    },
+    {
+      "stage": "factoryDungeonRoom",
+      "location": "town",
+      "graphicalCommands": [
+        "inspect",
+        "fight",
+        "search",
+        "return to floor"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "enter inner factory",
+        "1",
+        "2"
+      ]
+    },
+    {
+      "stage": "factoryDungeonRoom",
+      "location": "town",
+      "graphicalCommands": [
+        "inspect",
+        "release brake",
+        "return to floor"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "enter inner factory",
+        "1",
+        "4"
+      ]
+    },
+    {
+      "stage": "factoryDungeonRoom",
+      "location": "town",
+      "graphicalCommands": [
+        "inspect",
+        "fight",
+        "return to floor"
+      ],
+      "roots": [
+        "factory-authorized"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "enter inner factory",
+        "1",
+        "6"
+      ]
+    },
+    {
+      "stage": "factoryRusty",
+      "location": "town",
+      "graphicalCommands": [
+        "sell cloth",
+        "sell scrap metal",
+        "sell wire",
+        "sell electronics",
+        "sell small animal bones",
+        "sell animal bones",
+        "sell large animal bones",
+        "sell tempered steel",
+        "sell explosive components",
+        "sell animal hide",
+        "sell uncommon electrical parts",
+        "sell glass",
+        "sell water",
+        "sell salt",
+        "sell raw rat meat",
+        "sell raw rabbit meat",
+        "sell raw bird meat",
+        "sell raw chicken meat",
+        "sell raw boar meat",
+        "sell raw venison",
+        "sell raw snake meat",
+        "sell raw wolf meat",
+        "sell energy bars",
+        "sell bandage",
+        "sell reinforced bandage",
+        "sell fresh apple",
+        "sell fresh pear",
+        "sell fresh carrot",
+        "sell fresh potato",
+        "sell fresh tomato",
+        "sell fresh cabbage",
+        "sell fresh berries",
+        "sell preserved vegetables",
+        "sell preserved meat",
+        "sell wasteland stew",
+        "sell roadhouse hash",
+        "sell wild honey",
+        "sell claw hammer",
+        "sell bluefang hunting knife",
+        "sell battered flashlight",
+        "sell old world pocket compass",
+        "back"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "rusty",
+        "sell items"
+      ]
+    },
+    {
+      "stage": "factoryRusty",
+      "location": "town",
+      "graphicalCommands": [
+        "buy bandage",
+        "buy energy bars",
+        "buy tent",
+        "buy cloth",
+        "buy scrap metal",
+        "buy wire",
+        "back"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "rusty",
+        "buy supplies",
+        "buy tire iron"
+      ]
+    },
+    {
+      "stage": "factoryRusty",
+      "location": "town",
+      "graphicalCommands": [
+        "confirm rusty sale",
+        "cancel rusty sale"
+      ],
+      "roots": [
+        "factory-authorized",
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "rusty",
+        "sell items",
+        "sell cloth"
+      ]
+    },
+    {
+      "stage": "factoryForge",
+      "location": "town",
+      "graphicalCommands": [
+        "prepare dynamite",
+        "back"
+      ],
+      "roots": [
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "talk to forge"
+      ]
+    },
+    {
+      "stage": "r11Craft",
+      "location": "town",
+      "graphicalCommands": [
+        "r127 bench craft",
+        "r127 bench upgrade",
+        "r127 bench modify",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "factory-ready",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "workbench"
+      ]
+    },
+    {
+      "stage": "factoryDungeonFloor",
+      "location": "town",
+      "graphicalCommands": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "roots": [
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "enter inner factory",
+        "4"
+      ]
+    },
+    {
+      "stage": "factoryDungeonRoom",
+      "location": "town",
+      "graphicalCommands": [
+        "inspect",
+        "verify authorization",
+        "return to floor"
+      ],
+      "roots": [
+        "factory-ready"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "enter inner factory",
+        "4",
+        "1"
+      ]
+    },
+    {
+      "stage": "r11Craft",
+      "location": "town",
+      "graphicalCommands": [
+        "craft 1",
+        "craft 5",
+        "craft all",
+        "custom amount",
+        "cancel batch",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "factory-ready",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "workbench",
+        "craft",
+        "view recipe: reinforced bandage",
+        "craft reinforced bandage"
+      ]
+    },
+    {
+      "stage": "r11Craft",
+      "location": "town",
+      "graphicalCommands": [
+        "collect craft",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "factory-ready",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "workbench",
+        "craft",
+        "view recipe: reinforced bandage",
+        "craft reinforced bandage",
+        "craft 1"
+      ]
+    },
+    {
+      "stage": "r11Craft",
+      "location": "murphy",
+      "graphicalCommands": [
+        "r127 bench craft",
+        "r127 bench upgrade",
+        "r127 bench modify",
+        "back"
+      ],
+      "roots": [
+        "crafting"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "mercy",
+      "location": "murphy",
+      "graphicalCommands": [
+        "learn precision",
+        "learn impact reinforcement",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "crafting recipes"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "murphy",
+      "graphicalCommands": [
+        "ask about work",
+        "inspect corvette photo",
+        "ask about relay station",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "small talk"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "shops",
+        "the rusty lantern",
+        "find tim",
+        "gates",
+        "bulletin board"
+      ],
+      "roots": [
+        "crafting"
+      ],
+      "profiles": [
+        "poor"
+      ],
+      "examplePath": [
+        "back",
+        "back"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "murphy",
+      "graphicalCommands": [
+        "accept",
+        "decline"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "small talk",
+        "ask about work"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "murphy",
+      "graphicalCommands": [
+        "ask about work",
+        "ask about corvette",
+        "ask about relay station",
+        "back",
+        "ask about corvette parts"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "small talk",
+        "inspect corvette photo"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "murphy",
+      "graphicalCommands": [
+        "crafting recipes",
+        "ask about workshop",
+        "ask about cars",
+        "ask about corvette",
+        "ask about equipment",
+        "small talk",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "small talk",
+        "ask about relay station"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "murphy",
+      "graphicalCommands": [
+        "learn impact reinforcement",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "crafting recipes",
+        "learn precision"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "murphy",
+      "graphicalCommands": [
+        "learn precision",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "crafting recipes",
+        "learn impact reinforcement"
+      ]
+    },
+    {
+      "stage": "r11Craft",
+      "location": "murphy",
+      "graphicalCommands": [
+        "craft 1",
+        "craft 5",
+        "craft all",
+        "custom amount",
+        "cancel batch",
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "craft",
+        "view recipe: reinforced bandage",
+        "craft reinforced bandage"
+      ]
+    },
+    {
+      "stage": "r11Craft",
+      "location": "murphy",
+      "graphicalCommands": [
+        "select meat \u2014 raw rat meat",
+        "select meat \u2014 raw rabbit meat",
+        "select meat \u2014 raw bird meat",
+        "select meat \u2014 raw chicken meat",
+        "select meat \u2014 raw boar meat",
+        "select meat \u2014 raw venison",
+        "select meat \u2014 raw snake meat",
+        "select meat \u2014 raw wolf meat",
+        "select fruit \u2014 fresh apple",
+        "select fruit \u2014 fresh pear",
+        "select fruit \u2014 fresh berries",
+        "select vegetable \u2014 fresh carrot",
+        "select vegetable \u2014 fresh potato",
+        "select vegetable \u2014 fresh tomato",
+        "select vegetable \u2014 fresh cabbage",
+        "confirm ingredients",
+        "cancel ingredients",
+        "back"
+      ],
+      "roots": [
+        "crafting"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "craft",
+        "view recipe: wasteland stew",
+        "craft wasteland stew"
+      ]
+    },
+    {
+      "stage": "r11Craft",
+      "location": "murphy",
+      "graphicalCommands": [
+        "select meat \u2014 raw rat meat",
+        "select meat \u2014 raw rabbit meat",
+        "select meat \u2014 raw bird meat",
+        "select meat \u2014 raw chicken meat",
+        "select meat \u2014 raw boar meat",
+        "select meat \u2014 raw venison",
+        "select meat \u2014 raw snake meat",
+        "select meat \u2014 raw wolf meat",
+        "select salt \u2014 salt",
+        "confirm ingredients",
+        "cancel ingredients",
+        "back"
+      ],
+      "roots": [
+        "crafting"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "craft",
+        "view recipe: preserved meat",
+        "craft preserved meat"
+      ]
+    },
+    {
+      "stage": "r11Craft",
+      "location": "murphy",
+      "graphicalCommands": [
+        "select meat \u2014 raw rat meat",
+        "select meat \u2014 raw rabbit meat",
+        "select meat \u2014 raw bird meat",
+        "select meat \u2014 raw chicken meat",
+        "select meat \u2014 raw boar meat",
+        "select meat \u2014 raw venison",
+        "select meat \u2014 raw snake meat",
+        "select meat \u2014 raw wolf meat",
+        "select vegetable \u2014 fresh carrot",
+        "select vegetable \u2014 fresh potato",
+        "select vegetable \u2014 fresh tomato",
+        "select vegetable \u2014 fresh cabbage",
+        "confirm ingredients",
+        "cancel ingredients",
+        "back"
+      ],
+      "roots": [
+        "crafting"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "craft",
+        "view recipe: roadhouse hash",
+        "craft roadhouse hash"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "murphy",
+      "graphicalCommands": [
+        "back"
+      ],
+      "roots": [
+        "craft-ready",
+        "crafting"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "back",
+        "crafting recipes",
+        "learn precision",
+        "learn impact reinforcement"
+      ]
+    },
+    {
+      "stage": "r11Craft",
+      "location": "murphy",
+      "graphicalCommands": [
+        "collect craft",
+        "back"
+      ],
+      "roots": [
+        "craft-ready"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "collect craft",
+        "craft",
+        "view recipe: reinforced bandage",
+        "craft reinforced bandage",
+        "back",
+        "crafting",
+        "craft 1"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "jen",
+      "graphicalCommands": [
+        "sell cloth \u00d7100",
+        "sell scrap metal \u00d7100",
+        "sell wire \u00d7100",
+        "sell electronics \u00d7100",
+        "sell small animal bones \u00d7100",
+        "sell animal bones \u00d7100",
+        "sell large animal bones \u00d7100",
+        "sell tempered steel \u00d7100",
+        "sell explosive components \u00d7100",
+        "sell animal hide \u00d7100",
+        "sell uncommon electrical parts \u00d7100",
+        "sell glass \u00d7100",
+        "sell water \u00d7100",
+        "sell salt \u00d7100",
+        "sell raw rat meat \u00d7100",
+        "sell raw rabbit meat \u00d7100",
+        "sell raw bird meat \u00d7100",
+        "sell raw chicken meat \u00d7100",
+        "sell raw boar meat \u00d7100",
+        "sell raw venison \u00d7100",
+        "sell raw snake meat \u00d7100",
+        "sell raw wolf meat \u00d7100",
+        "sell energy bars \u00d7100",
+        "sell bandage \u00d7100",
+        "sell reinforced bandage \u00d7101",
+        "sell fresh apple \u00d7100",
+        "sell fresh pear \u00d7100",
+        "sell fresh carrot \u00d7100",
+        "sell fresh potato \u00d7100",
+        "sell fresh tomato \u00d7100",
+        "sell fresh cabbage \u00d7100",
+        "sell fresh berries \u00d7100",
+        "sell preserved vegetables \u00d7100",
+        "sell preserved meat \u00d7100",
+        "sell wasteland stew \u00d7100",
+        "sell roadhouse hash \u00d7100",
+        "sell wild honey \u00d7100",
+        "sell claw hammer \u00d71",
+        "sell bluefang hunting knife \u00d71",
+        "sell battered flashlight \u00d71",
+        "sell old world pocket compass \u00d7100",
+        "back"
+      ],
+      "roots": [
+        "craft-ready"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "collect craft",
+        "craft",
+        "view recipe: reinforced bandage",
+        "craft reinforced bandage",
+        "back",
+        "back",
+        "the rusty lantern",
+        "sell items"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [],
+      "roots": [
+        "pets"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "buy supplies",
+        "sell items",
+        "inspect staff patch",
+        "assign staff",
+        "unassign staff",
+        "back to market"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "buy energy bars",
+        "buy bandage",
+        "buy tent",
+        "buy scrap metal",
+        "buy wire",
+        "buy cloth",
+        "buy emergency trauma kit",
+        "back"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "buy supplies"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "back"
+      ],
+      "roots": [
+        "seaport-staffed",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "sell items"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "inspect staff patch",
+        "assign patch",
+        "back"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "assign staff"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "confirm unassignment",
+        "cancel unassignment"
+      ],
+      "roots": [
+        "seaport-staffed",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "unassign staff"
+      ]
+    },
+    {
+      "stage": "port55Stop",
+      "location": "town",
+      "graphicalCommands": [
+        "clinic \u2014 tess arden",
+        "general store \u2014 patch hensley",
+        "workshop \u2014 hollis crane",
+        "bank \u2014 rook bennett",
+        "armory \u2014 need to hire",
+        "pet store",
+        "back"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back to market"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "confirm assignment",
+        "cancel assignment"
+      ],
+      "roots": [
+        "seaport-bank",
+        "seaport-staffed",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "assign staff",
+        "assign patch"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "treat wounds",
+        "buy bandage",
+        "inspect staff tess",
+        "assign staff",
+        "unassign staff",
+        "back to market"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back to market",
+        "clinic \u2014 tess arden"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "crafting",
+        "inspect staff hollis",
+        "assign staff",
+        "unassign staff",
+        "back to market"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back to market",
+        "workshop \u2014 hollis crane"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "deposit bolts",
+        "withdraw bolts",
+        "stash items",
+        "retrieve items",
+        "change name",
+        "inspect staff rook",
+        "assign staff",
+        "unassign staff",
+        "back to market"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back to market",
+        "bank \u2014 rook bennett"
+      ]
+    },
+    {
+      "stage": "port55Stop",
+      "location": "town",
+      "graphicalCommands": [
+        "clinic \u2014 tess arden",
+        "general store \u2014 need to hire",
+        "workshop \u2014 hollis crane",
+        "bank \u2014 rook bennett",
+        "armory \u2014 need to hire",
+        "pet store",
+        "back"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "unassign staff",
+        "confirm unassignment",
+        "back to market"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "inspect staff tess",
+        "assign tess",
+        "back"
+      ],
+      "roots": [
+        "seaport-bank",
+        "seaport-staffed",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back to market",
+        "clinic \u2014 tess arden",
+        "assign staff"
+      ]
+    },
+    {
+      "stage": "r11Craft",
+      "location": "town",
+      "graphicalCommands": [
+        "back"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back to market",
+        "workshop \u2014 hollis crane",
+        "crafting"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "inspect staff hollis",
+        "assign hollis",
+        "back"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back to market",
+        "workshop \u2014 hollis crane",
+        "assign staff"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "inspect staff rook",
+        "assign rook",
+        "back"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back to market",
+        "bank \u2014 rook bennett",
+        "assign staff"
+      ]
+    },
+    {
+      "stage": "port55Vendor",
+      "location": "town",
+      "graphicalCommands": [
+        "scrap rat \u2014 common \u2014 600 bolts",
+        "wasteland crow \u2014 common \u2014 650 bolts",
+        "stray cat \u2014 common \u2014 800 bolts",
+        "rust hound \u2014 uncommon \u2014 1500 bolts",
+        "ferret \u2014 rare \u2014 3000 bolts",
+        "pack mule \u2014 epic \u2014 6500 bolts",
+        "back"
+      ],
+      "roots": [
+        "seaport-staffed",
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back to market",
+        "pet store",
+        "purchase pets"
+      ]
+    },
+    {
+      "stage": "port55Stop",
+      "location": "town",
+      "graphicalCommands": [
+        "clinic \u2014 need to hire",
+        "general store \u2014 patch hensley",
+        "workshop \u2014 hollis crane",
+        "bank \u2014 rook bennett",
+        "armory \u2014 need to hire",
+        "pet store",
+        "back"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back to market",
+        "clinic \u2014 tess arden",
+        "unassign staff",
+        "confirm unassignment",
+        "back to market"
+      ]
+    },
+    {
+      "stage": "port55Stop",
+      "location": "town",
+      "graphicalCommands": [
+        "clinic \u2014 tess arden",
+        "general store \u2014 patch hensley",
+        "workshop \u2014 need to hire",
+        "bank \u2014 rook bennett",
+        "armory \u2014 need to hire",
+        "pet store",
+        "back"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back to market",
+        "workshop \u2014 hollis crane",
+        "unassign staff",
+        "confirm unassignment",
+        "back to market"
+      ]
+    },
+    {
+      "stage": "port55Stop",
+      "location": "town",
+      "graphicalCommands": [
+        "clinic \u2014 tess arden",
+        "general store \u2014 patch hensley",
+        "workshop \u2014 hollis crane",
+        "bank \u2014 need to hire",
+        "armory \u2014 need to hire",
+        "pet store",
+        "back"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back to market",
+        "bank \u2014 rook bennett",
+        "unassign staff",
+        "confirm unassignment",
+        "back to market"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "sell cloth",
+        "sell scrap metal",
+        "sell wire",
+        "sell electronics",
+        "sell small animal bones",
+        "sell animal bones",
+        "sell large animal bones",
+        "sell tempered steel",
+        "sell explosive components",
+        "sell animal hide",
+        "sell uncommon electrical parts",
+        "sell glass",
+        "sell water",
+        "sell salt",
+        "sell raw rat meat",
+        "sell raw rabbit meat",
+        "sell raw bird meat",
+        "sell raw chicken meat",
+        "sell raw boar meat",
+        "sell raw venison",
+        "sell raw snake meat",
+        "sell raw wolf meat",
+        "sell energy bars",
+        "sell bandage",
+        "sell reinforced bandage",
+        "sell fresh apple",
+        "sell fresh pear",
+        "sell fresh carrot",
+        "sell fresh potato",
+        "sell fresh tomato",
+        "sell fresh cabbage",
+        "sell fresh berries",
+        "sell preserved vegetables",
+        "sell preserved meat",
+        "sell wasteland stew",
+        "sell roadhouse hash",
+        "sell wild honey",
+        "sell claw hammer",
+        "sell bluefang hunting knife",
+        "sell battered flashlight",
+        "sell old world pocket compass",
+        "back"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "sell items"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "buy energy bars",
+        "buy bandage",
+        "buy tent",
+        "buy scrap metal",
+        "buy wire",
+        "buy cloth",
+        "back"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "buy supplies",
+        "buy emergency trauma kit"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "confirm store sale",
+        "cancel store sale"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "sell items",
+        "sell cloth"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "stash cloth",
+        "stash scrap metal",
+        "stash wire",
+        "stash electronics",
+        "stash small animal bones",
+        "stash animal bones",
+        "stash large animal bones",
+        "stash tempered steel",
+        "stash explosive components",
+        "stash animal hide",
+        "stash uncommon electrical parts",
+        "stash glass",
+        "stash water",
+        "stash salt",
+        "stash raw rat meat",
+        "stash raw rabbit meat",
+        "stash raw bird meat",
+        "stash raw chicken meat",
+        "stash raw boar meat",
+        "stash raw venison",
+        "stash raw snake meat",
+        "stash raw wolf meat",
+        "stash energy bars",
+        "stash bandage",
+        "stash clean water",
+        "stash reinforced bandage",
+        "stash emergency trauma kit",
+        "stash fresh apple",
+        "stash fresh pear",
+        "stash fresh carrot",
+        "stash fresh potato",
+        "stash fresh tomato",
+        "stash fresh cabbage",
+        "stash fresh berries",
+        "stash preserved vegetables",
+        "stash preserved meat",
+        "stash wasteland stew",
+        "stash roadhouse hash",
+        "stash wild honey",
+        "stash claw hammer",
+        "stash bluefang hunting knife",
+        "stash battered flashlight",
+        "stash old world pocket compass",
+        "back"
+      ],
+      "roots": [
+        "seaport-staffed"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "back to market",
+        "bank \u2014 rook bennett",
+        "stash items"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "crafting",
+        "inspect staff tess",
+        "assign staff",
+        "unassign staff",
+        "back to market"
+      ],
+      "roots": [
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "port55Stop",
+      "location": "town",
+      "graphicalCommands": [
+        "clinic \u2014 need to hire",
+        "general store \u2014 need to hire",
+        "workshop \u2014 tess arden",
+        "bank \u2014 need to hire",
+        "armory \u2014 need to hire",
+        "pet store",
+        "back"
+      ],
+      "roots": [
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back to market"
+      ]
+    },
+    {
+      "stage": "port55Stop",
+      "location": "town",
+      "graphicalCommands": [
+        "clinic \u2014 need to hire",
+        "general store \u2014 need to hire",
+        "workshop \u2014 need to hire",
+        "bank \u2014 need to hire",
+        "armory \u2014 need to hire",
+        "pet store",
+        "back"
+      ],
+      "roots": [
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "unassign staff",
+        "confirm unassignment",
+        "back to market"
+      ]
+    },
+    {
+      "stage": "port55Market",
+      "location": "town",
+      "graphicalCommands": [
+        "clinic [vacant]",
+        "general store [vacant]",
+        "workshop",
+        "bank [vacant]",
+        "armory [vacant]",
+        "pet store",
+        "return to seaport"
+      ],
+      "roots": [
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back to market",
+        "back",
+        "market area"
+      ]
+    },
+    {
+      "stage": "r11Craft",
+      "location": "town",
+      "graphicalCommands": [
+        "select meat \u2014 raw rat meat",
+        "select meat \u2014 raw rabbit meat",
+        "select meat \u2014 raw bird meat",
+        "select meat \u2014 raw chicken meat",
+        "select meat \u2014 raw boar meat",
+        "select meat \u2014 raw venison",
+        "select meat \u2014 raw snake meat",
+        "select meat \u2014 raw wolf meat",
+        "select fruit \u2014 fresh apple",
+        "select fruit \u2014 fresh pear",
+        "select fruit \u2014 fresh berries",
+        "select vegetable \u2014 fresh carrot",
+        "select vegetable \u2014 fresh potato",
+        "select vegetable \u2014 fresh tomato",
+        "select vegetable \u2014 fresh cabbage",
+        "confirm ingredients",
+        "cancel ingredients",
+        "back"
+      ],
+      "roots": [
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "crafting",
+        "craft",
+        "view recipe: wasteland stew",
+        "craft wasteland stew"
+      ]
+    },
+    {
+      "stage": "r11Craft",
+      "location": "town",
+      "graphicalCommands": [
+        "select meat \u2014 raw rat meat",
+        "select meat \u2014 raw rabbit meat",
+        "select meat \u2014 raw bird meat",
+        "select meat \u2014 raw chicken meat",
+        "select meat \u2014 raw boar meat",
+        "select meat \u2014 raw venison",
+        "select meat \u2014 raw snake meat",
+        "select meat \u2014 raw wolf meat",
+        "select salt \u2014 salt",
+        "confirm ingredients",
+        "cancel ingredients",
+        "back"
+      ],
+      "roots": [
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "crafting",
+        "craft",
+        "view recipe: preserved meat",
+        "craft preserved meat"
+      ]
+    },
+    {
+      "stage": "r11Craft",
+      "location": "town",
+      "graphicalCommands": [
+        "select meat \u2014 raw rat meat",
+        "select meat \u2014 raw rabbit meat",
+        "select meat \u2014 raw bird meat",
+        "select meat \u2014 raw chicken meat",
+        "select meat \u2014 raw boar meat",
+        "select meat \u2014 raw venison",
+        "select meat \u2014 raw snake meat",
+        "select meat \u2014 raw wolf meat",
+        "select vegetable \u2014 fresh carrot",
+        "select vegetable \u2014 fresh potato",
+        "select vegetable \u2014 fresh tomato",
+        "select vegetable \u2014 fresh cabbage",
+        "confirm ingredients",
+        "cancel ingredients",
+        "back"
+      ],
+      "roots": [
+        "seaport-workshop"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "crafting",
+        "craft",
+        "view recipe: roadhouse hash",
+        "craft roadhouse hash"
+      ]
+    },
+    {
+      "stage": "port55Service",
+      "location": "town",
+      "graphicalCommands": [
+        "deposit bolts",
+        "withdraw bolts",
+        "stash items",
+        "retrieve items",
+        "change name",
+        "inspect staff tess",
+        "assign staff",
+        "unassign staff",
+        "back to market"
+      ],
+      "roots": [
+        "seaport-bank"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "port55Stop",
+      "location": "town",
+      "graphicalCommands": [
+        "clinic \u2014 need to hire",
+        "general store \u2014 need to hire",
+        "workshop \u2014 need to hire",
+        "bank \u2014 tess arden",
+        "armory \u2014 need to hire",
+        "pet store",
+        "back"
+      ],
+      "roots": [
+        "seaport-bank"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "back to market"
+      ]
+    },
+    {
+      "stage": "wandererRoad",
+      "location": "town",
+      "graphicalCommands": [
+        "small talk",
+        "trade",
+        "steal",
+        "inspect",
+        "recruit",
+        "fight",
+        "move on"
+      ],
+      "roots": [
+        "recruitment"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "port55Recruit",
+      "location": "town",
+      "graphicalCommands": [
+        "offer tess a useful role in seaport",
+        "cancel hire"
+      ],
+      "roots": [
+        "recruitment"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "recruit"
+      ]
+    },
+    {
+      "stage": "port55Recruit",
+      "location": "town",
+      "graphicalCommands": [
+        "confirm hire",
+        "cancel hire"
+      ],
+      "roots": [
+        "recruitment"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "recruit",
+        "offer tess a useful role in seaport"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "jenRoom",
+      "graphicalCommands": [],
+      "roots": [
+        "inn-room"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "mercy",
+      "location": "johnny",
+      "graphicalCommands": [
+        "return to johnny"
+      ],
+      "roots": [
+        "martha"
+      ],
+      "profiles": [
+        "full",
+        "poor"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "mercy",
+      "location": "johnny",
+      "graphicalCommands": [
+        "view stock",
+        "sell items",
+        "small talk",
+        "old world counter",
+        "back"
+      ],
+      "roots": [
+        "martha"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "return to johnny"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "johnny",
+      "graphicalCommands": [
+        "buy energy bar",
+        "buy clean water",
+        "buy bandage",
+        "buy battered flashlight",
+        "old world counter",
+        "buy 16-slot backpack",
+        "back"
+      ],
+      "roots": [
+        "martha"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "return to johnny",
+        "view stock"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "johnny",
+      "graphicalCommands": [
+        "back"
+      ],
+      "roots": [
+        "martha"
+      ],
+      "profiles": [
+        "poor"
+      ],
+      "examplePath": [
+        "return to johnny",
+        "sell items"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "johnny",
+      "graphicalCommands": [
+        "ask about lost ledger",
+        "ask about road",
+        "back"
+      ],
+      "roots": [
+        "martha"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "return to johnny",
+        "small talk"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "johnny",
+      "graphicalCommands": [
+        "accept",
+        "decline",
+        "back"
+      ],
+      "roots": [
+        "martha"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "return to johnny",
+        "small talk",
+        "ask about lost ledger"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "johnny",
+      "graphicalCommands": [
+        "sell old world pocket compass",
+        "return to johnny"
+      ],
+      "roots": [
+        "martha"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "mercy",
+      "location": "johnny",
+      "graphicalCommands": [
+        "confirm martha sale",
+        "cancel martha sale"
+      ],
+      "roots": [
+        "martha"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "sell old world pocket compass"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "johnny",
+      "graphicalCommands": [
+        "sell cloth \u00d7100",
+        "sell scrap metal \u00d7100",
+        "sell wire \u00d7100",
+        "sell electronics \u00d7100",
+        "sell small animal bones \u00d7100",
+        "sell animal bones \u00d7100",
+        "sell large animal bones \u00d7100",
+        "sell tempered steel \u00d7100",
+        "sell explosive components \u00d7100",
+        "sell animal hide \u00d7100",
+        "sell uncommon electrical parts \u00d7100",
+        "sell glass \u00d7100",
+        "sell water \u00d7100",
+        "sell salt \u00d7100",
+        "sell raw rat meat \u00d7100",
+        "sell raw rabbit meat \u00d7100",
+        "sell raw bird meat \u00d7100",
+        "sell raw chicken meat \u00d7100",
+        "sell raw boar meat \u00d7100",
+        "sell raw venison \u00d7100",
+        "sell raw snake meat \u00d7100",
+        "sell raw wolf meat \u00d7100",
+        "sell energy bars \u00d7100",
+        "sell bandage \u00d7100",
+        "sell reinforced bandage \u00d7100",
+        "sell fresh apple \u00d7100",
+        "sell fresh pear \u00d7100",
+        "sell fresh carrot \u00d7100",
+        "sell fresh potato \u00d7100",
+        "sell fresh tomato \u00d7100",
+        "sell fresh cabbage \u00d7100",
+        "sell fresh berries \u00d7100",
+        "sell preserved vegetables \u00d7100",
+        "sell preserved meat \u00d7100",
+        "sell wasteland stew \u00d7100",
+        "sell roadhouse hash \u00d7100",
+        "sell wild honey \u00d7100",
+        "sell claw hammer \u00d71",
+        "sell bluefang hunting knife \u00d71",
+        "sell battered flashlight \u00d71",
+        "sell old world pocket compass \u00d7100",
+        "back"
+      ],
+      "roots": [
+        "martha"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "return to johnny",
+        "sell items"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "shops",
+        "the rusty lantern",
+        "find tim",
+        "gates",
+        "talk to mercer",
+        "bulletin board"
+      ],
+      "roots": [
+        "martha",
+        "relay"
+      ],
+      "profiles": [
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "return to johnny",
+        "back"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "johnny",
+      "graphicalCommands": [
+        "continue shopping",
+        "return to town"
+      ],
+      "roots": [
+        "martha"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "return to johnny",
+        "view stock",
+        "buy energy bar"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "johnny",
+      "graphicalCommands": [
+        "sell 1",
+        "sell 5",
+        "sell all",
+        "custom amount",
+        "cancel sale"
+      ],
+      "roots": [
+        "martha"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "return to johnny",
+        "sell items",
+        "sell cloth \u00d7100"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "johnny",
+      "graphicalCommands": [
+        "confirm sale",
+        "cancel sale"
+      ],
+      "roots": [
+        "martha"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "return to johnny",
+        "sell items",
+        "sell bluefang hunting knife \u00d71"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "talk mercer",
+        "trade mercer",
+        "steal from mercer",
+        "inspect mercer",
+        "fight mercer",
+        "leave"
+      ],
+      "roots": [
+        "martha",
+        "relay"
+      ],
+      "profiles": [
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "return to johnny",
+        "back",
+        "talk to mercer"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "buy energy bars",
+        "sell items",
+        "back"
+      ],
+      "roots": [
+        "martha"
+      ],
+      "profiles": [
+        "supplied"
+      ],
+      "examplePath": [
+        "return to johnny",
+        "back",
+        "talk to mercer",
+        "trade mercer",
+        "buy bandage"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "johnny",
+      "graphicalCommands": [
+        "sell cloth \u00d71",
+        "sell scrap metal \u00d71",
+        "sell wire \u00d71",
+        "sell electronics \u00d71",
+        "sell small animal bones \u00d71",
+        "sell animal bones \u00d71",
+        "sell large animal bones \u00d71",
+        "sell tempered steel \u00d71",
+        "sell explosive components \u00d71",
+        "sell animal hide \u00d71",
+        "sell uncommon electrical parts \u00d71",
+        "sell glass \u00d71",
+        "sell water \u00d71",
+        "sell salt \u00d71",
+        "sell raw rat meat \u00d71",
+        "sell raw rabbit meat \u00d71",
+        "sell raw bird meat \u00d71",
+        "sell raw chicken meat \u00d71",
+        "sell raw boar meat \u00d71",
+        "sell raw venison \u00d71",
+        "sell raw snake meat \u00d71",
+        "sell raw wolf meat \u00d71",
+        "sell energy bars \u00d71",
+        "sell bandage \u00d71",
+        "sell reinforced bandage \u00d71",
+        "sell fresh apple \u00d71",
+        "sell fresh pear \u00d71",
+        "sell fresh carrot \u00d71",
+        "sell fresh potato \u00d71",
+        "sell fresh tomato \u00d71",
+        "sell fresh cabbage \u00d71",
+        "sell fresh berries \u00d71",
+        "sell preserved vegetables \u00d71",
+        "sell preserved meat \u00d71",
+        "sell wasteland stew \u00d71",
+        "sell roadhouse hash \u00d71",
+        "sell wild honey \u00d71",
+        "sell claw hammer \u00d71",
+        "sell bluefang hunting knife \u00d71",
+        "sell battered flashlight \u00d71",
+        "sell old world pocket compass \u00d71",
+        "back"
+      ],
+      "roots": [
+        "martha"
+      ],
+      "profiles": [
+        "full"
+      ],
+      "examplePath": [
+        "return to johnny",
+        "sell items"
+      ]
+    },
+    {
+      "stage": "r18Fence",
+      "location": "town",
+      "graphicalCommands": [
+        "return to seaport"
+      ],
+      "roots": [
+        "silas"
+      ],
+      "profiles": [
+        "full",
+        "poor"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "seaport",
+      "location": "town",
+      "graphicalCommands": [
+        "town streets",
+        "harbor docks",
+        "market area",
+        "rusty anchor",
+        "silas the fence",
+        "return to road"
+      ],
+      "roots": [
+        "silas"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "return to seaport"
+      ]
+    },
+    {
+      "stage": "r18Fence",
+      "location": "town",
+      "graphicalCommands": [
+        "sell to silas old world pocket compass",
+        "return to seaport"
+      ],
+      "roots": [
+        "silas"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "r18Fence",
+      "location": "town",
+      "graphicalCommands": [
+        "confirm silas sale",
+        "cancel silas sale"
+      ],
+      "roots": [
+        "silas"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "sell to silas old world pocket compass"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "relay",
+      "graphicalCommands": [
+        "inspect monitor",
+        "inspect console",
+        "inspect antenna controls",
+        "inspect cables",
+        "back"
+      ],
+      "roots": [
+        "relay"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "mercy",
+      "location": "tim",
+      "graphicalCommands": [
+        "talk tim",
+        "bounties",
+        "view warrants",
+        "ask about daniel",
+        "town"
+      ],
+      "roots": [
+        "quest-progress"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "find tim"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "tim",
+      "graphicalCommands": [
+        "ask about solace",
+        "ask about work",
+        "view bounties",
+        "collect bounty",
+        "pay off bounty",
+        "ask about relay station",
+        "never mind"
+      ],
+      "roots": [
+        "quest-progress"
+      ],
+      "profiles": [
+        "poor"
+      ],
+      "examplePath": [
+        "find tim",
+        "talk tim"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "tim",
+      "graphicalCommands": [
+        "ask about work",
+        "ask about relay station",
+        "never mind"
+      ],
+      "roots": [
+        "quest-progress"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "find tim",
+        "talk tim"
+      ]
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "shops",
+        "the rusty lantern",
+        "find tim",
+        "gates",
+        "talk to ash",
+        "bulletin board"
+      ],
+      "roots": [
+        "quest-progress"
+      ],
+      "profiles": [
+        "full"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "mercy",
+      "location": "town",
+      "graphicalCommands": [
+        "talk ash",
+        "trade ash",
+        "steal from ash",
+        "inspect ash",
+        "fight ash",
+        "leave"
+      ],
+      "roots": [
+        "quest-progress"
+      ],
+      "profiles": [
+        "full"
+      ],
+      "examplePath": [
+        "talk to ash"
+      ]
+    },
+    {
+      "stage": "r11Caleb",
+      "location": "town",
+      "graphicalCommands": [
+        "return to docks",
+        "back"
+      ],
+      "roots": [
+        "caleb"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "port55Docks",
+      "location": "town",
+      "graphicalCommands": [
+        "dock bulletin board",
+        "talk to docks clerk",
+        "talk to caleb",
+        "return to seaport"
+      ],
+      "roots": [
+        "caleb"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "return to docks"
+      ]
+    },
+    {
+      "stage": "r11Board",
+      "location": "town",
+      "graphicalCommands": [
+        "return to docks"
+      ],
+      "roots": [
+        "caleb"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "return to docks",
+        "dock bulletin board",
+        "view bounties"
+      ]
+    },
+    {
+      "stage": "r18Miles",
+      "location": "town",
+      "graphicalCommands": [
+        "accept delivery job",
+        "talk to miles",
+        "return from miles"
+      ],
+      "roots": [
+        "miles"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "r18Miles",
+      "location": "town",
+      "graphicalCommands": [
+        "talk to miles",
+        "return from miles"
+      ],
+      "roots": [
+        "miles"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "accept delivery job"
+      ]
+    },
+    {
+      "stage": "seaport",
+      "location": "town",
+      "graphicalCommands": [
+        "town streets",
+        "harbor docks",
+        "market area",
+        "rusty anchor",
+        "talk to miles",
+        "return to road"
+      ],
+      "roots": [
+        "miles"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "return from miles"
+      ]
+    },
+    {
+      "stage": "r18Ash",
+      "location": "town",
+      "graphicalCommands": [
+        "read the ledger",
+        "inspect the grave markers",
+        "examine the coffin",
+        "talk to miriam",
+        "question vane",
+        "talk to descendants",
+        "search for survivor letter",
+        "leave cemetery",
+        "back"
+      ],
+      "roots": [
+        "ash"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "r18Ash",
+      "location": "town",
+      "graphicalCommands": [
+        "talk to anya",
+        "talk to ruth",
+        "talk to tomas",
+        "talk to leah",
+        "talk to jo",
+        "talk to hal",
+        "return to cemetery",
+        "back"
+      ],
+      "roots": [
+        "ash"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "talk to descendants"
+      ]
+    },
+    {
+      "stage": "r18Ash",
+      "location": "town",
+      "graphicalCommands": [
+        "read the ledger",
+        "inspect the grave markers",
+        "examine the coffin",
+        "talk to miriam",
+        "question vane",
+        "talk to descendants",
+        "leave cemetery",
+        "back"
+      ],
+      "roots": [
+        "ash"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "search for survivor letter"
+      ]
+    },
+    {
+      "stage": "r18Ash",
+      "location": "town",
+      "graphicalCommands": [
+        "read the ledger",
+        "inspect the grave markers",
+        "examine the coffin",
+        "talk to miriam",
+        "question vane",
+        "talk to descendants",
+        "confront vane",
+        "leave cemetery",
+        "back"
+      ],
+      "roots": [
+        "ash"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "search for survivor letter",
+        "read the ledger"
+      ]
+    },
+    {
+      "stage": "r18Ash",
+      "location": "town",
+      "graphicalCommands": [
+        "choose mercy",
+        "choose justice",
+        "choose redemption",
+        "choose violent stop",
+        "back to investigation",
+        "back"
+      ],
+      "roots": [
+        "ash"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "search for survivor letter",
+        "read the ledger",
+        "confront vane"
+      ]
+    },
+    {
+      "stage": "r18Ash",
+      "location": "town",
+      "graphicalCommands": [
+        "help restore memorial",
+        "sort memorial records",
+        "tend memorial flowers",
+        "talk to miriam",
+        "talk to descendants",
+        "leave cemetery",
+        "back"
+      ],
+      "roots": [
+        "ash"
+      ],
+      "profiles": [
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "search for survivor letter",
+        "read the ledger",
+        "confront vane",
+        "choose mercy"
+      ]
+    },
+    {
+      "stage": "r18Ash",
+      "location": "town",
+      "graphicalCommands": [
+        "sort memorial records",
+        "tend memorial flowers",
+        "talk to miriam",
+        "talk to descendants",
+        "leave cemetery",
+        "back"
+      ],
+      "roots": [
+        "ash"
+      ],
+      "profiles": [
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "search for survivor letter",
+        "read the ledger",
+        "confront vane",
+        "choose mercy",
+        "help restore memorial"
+      ]
+    },
+    {
+      "stage": "r18Ash",
+      "location": "town",
+      "graphicalCommands": [
+        "help restore memorial",
+        "tend memorial flowers",
+        "talk to miriam",
+        "talk to descendants",
+        "leave cemetery",
+        "back"
+      ],
+      "roots": [
+        "ash"
+      ],
+      "profiles": [
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "search for survivor letter",
+        "read the ledger",
+        "confront vane",
+        "choose mercy",
+        "sort memorial records"
+      ]
+    },
+    {
+      "stage": "r18Ash",
+      "location": "town",
+      "graphicalCommands": [
+        "help restore memorial",
+        "sort memorial records",
+        "talk to miriam",
+        "talk to descendants",
+        "leave cemetery",
+        "back"
+      ],
+      "roots": [
+        "ash"
+      ],
+      "profiles": [
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "search for survivor letter",
+        "read the ledger",
+        "confront vane",
+        "choose mercy",
+        "tend memorial flowers"
+      ]
+    },
+    {
+      "stage": "r18Ash",
+      "location": "town",
+      "graphicalCommands": [
+        "tend memorial flowers",
+        "talk to miriam",
+        "talk to descendants",
+        "leave cemetery",
+        "back"
+      ],
+      "roots": [
+        "ash"
+      ],
+      "profiles": [
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "search for survivor letter",
+        "read the ledger",
+        "confront vane",
+        "choose mercy",
+        "help restore memorial",
+        "sort memorial records"
+      ]
+    },
+    {
+      "stage": "r18Ash",
+      "location": "town",
+      "graphicalCommands": [
+        "sort memorial records",
+        "talk to miriam",
+        "talk to descendants",
+        "leave cemetery",
+        "back"
+      ],
+      "roots": [
+        "ash"
+      ],
+      "profiles": [
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "search for survivor letter",
+        "read the ledger",
+        "confront vane",
+        "choose mercy",
+        "help restore memorial",
+        "tend memorial flowers"
+      ]
+    },
+    {
+      "stage": "r18Ash",
+      "location": "town",
+      "graphicalCommands": [
+        "help restore memorial",
+        "talk to miriam",
+        "talk to descendants",
+        "leave cemetery",
+        "back"
+      ],
+      "roots": [
+        "ash"
+      ],
+      "profiles": [
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "search for survivor letter",
+        "read the ledger",
+        "confront vane",
+        "choose mercy",
+        "sort memorial records",
+        "tend memorial flowers"
+      ]
+    },
+    {
+      "stage": "r18Ash",
+      "location": "town",
+      "graphicalCommands": [
+        "talk to miriam",
+        "talk to descendants",
+        "leave cemetery",
+        "back"
+      ],
+      "roots": [
+        "ash"
+      ],
+      "profiles": [
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "search for survivor letter",
+        "read the ledger",
+        "confront vane",
+        "choose mercy",
+        "help restore memorial",
+        "sort memorial records",
+        "tend memorial flowers"
+      ]
+    },
+    {
+      "stage": "r18Tournament",
+      "location": "town",
+      "graphicalCommands": [
+        "start next match",
+        "bet 10 bolts",
+        "bet 25 bolts",
+        "leave arena",
+        "back"
+      ],
+      "roots": [
+        "deep-end"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "lanternNode",
+      "location": "town",
+      "graphicalCommands": [
+        "enter the deep end",
+        "take road to west ridge road",
+        "take road to old service junction",
+        "take road to interior junction",
+        "back"
+      ],
+      "roots": [
+        "deep-end"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "leave arena"
+      ]
+    },
+    {
+      "stage": "r18Tournament",
+      "location": "town",
+      "graphicalCommands": [
+        "start next match",
+        "leave arena",
+        "back"
+      ],
+      "roots": [
+        "deep-end"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "bet 10 bolts"
+      ]
+    },
+    {
+      "stage": "r127ArenaLobby",
+      "location": "town",
+      "graphicalCommands": [
+        "watch a round",
+        "bet on a round",
+        "enter tournament",
+        "back away",
+        "back"
+      ],
+      "roots": [
+        "arena"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": []
+    },
+    {
+      "stage": "r127ArenaLobby",
+      "location": "town",
+      "graphicalCommands": [
+        "the hammer",
+        "bruiser",
+        "back"
+      ],
+      "roots": [
+        "arena"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "bet on a round"
+      ]
+    },
+    {
+      "stage": "r18Tournament",
+      "location": "town",
+      "graphicalCommands": [
+        "pay 50 bolts",
+        "cancel",
+        "back"
+      ],
+      "roots": [
+        "arena"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "enter tournament"
+      ]
+    },
+    {
+      "stage": "r127ArenaLobby",
+      "location": "town",
+      "graphicalCommands": [
+        "wager 10",
+        "wager 50",
+        "wager 100",
+        "wager 500",
+        "custom wager",
+        "back"
+      ],
+      "roots": [
+        "arena"
+      ],
+      "profiles": [
+        "full",
+        "poor",
+        "supplied"
+      ],
+      "examplePath": [
+        "bet on a round",
+        "the hammer"
+      ]
+    },
+    {
+      "stage": "r127ArenaLobby",
+      "location": "town",
+      "graphicalCommands": [],
+      "roots": [
+        "arena"
+      ],
+      "profiles": [
+        "full",
+        "supplied"
+      ],
+      "examplePath": [
+        "bet on a round",
+        "the hammer",
+        "wager 10"
+      ]
+    }
+  ]
+}

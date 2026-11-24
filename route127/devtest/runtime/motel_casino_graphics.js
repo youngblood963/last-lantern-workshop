@@ -61,7 +61,15 @@ function clear(){stop();observer?.disconnect();observer=null;scene?.remove();pan
 function el(tag,cls,parent){const n=document.createElement(tag);if(cls)n.className=cls;if(parent)parent.appendChild(n);return n;}
 function button(parent,label,fn){const b=el('button','',parent);b.type='button';b.textContent=label;b.addEventListener('click',fn);return b;}
 const dispatch=async cmd=>{await handleCommand(cmd);GraphicalUI.sync();};
-function fit(figure){if(!scene)return;const b=figure.getBoundingClientRect(),scale=Math.min(b.width/1671,b.height/941);scene.style.width=1671*scale+'px';scene.style.height=941*scale+'px';}
+function fit(figure){if(!scene)return;const b=figure.getBoundingClientRect(),scale=Math.min(b.width/1671,b.height/941);scene.style.width=1671*scale+'px';scene.style.height=941*scale+'px';
+ // The roulette grid can use the empty space to the right of the artwork.
+ // The plane and every wheel/ball transform retain their approved geometry.
+ const felt=scene.querySelector('.motel-felt-scene');
+ if(felt){const plane=scene.getBoundingClientRect();Object.assign(felt.style,{
+  width:Math.max(0,b.right-plane.left-plane.width*.39-12)+'px',
+  top:(b.top-plane.top+12)+'px',height:Math.max(0,b.height-24)+'px'
+ });}
+}
 function buildSlots(){
  for(let i=0;i<3;i++){const win=el('div','motel-reel',scene);win.dataset.reel=i;const scroll=el('div','motel-reel-scroll',win);
   for(let copy=0;copy<5;copy++)for(let index=0;index<6;index++){const cell=el('div','motel-reel-cell',scroll);cell.dataset.index=index;cell.style.backgroundImage=`url("${asset('motel_slot_reel_strip.png')}")`;}
@@ -83,7 +91,7 @@ function poseSlots(r,animate){
 
 function buildSix(r){
  const wheel=el('img','motel-six-wheel',scene);wheel.src=asset('motel_bigsix_wheel.png');wheel.alt='Six equal numbered segments';
- Object.assign(wheel.style,{position:'absolute',width:'43%',height:'76.4%',left:'28.5%',top:'13%',objectFit:'contain'});
+ Object.assign(wheel.style,{position:'absolute',width:'43%',height:'76.4%',left:'28.5%',top:'9.7%',objectFit:'contain'});
  const pointer=el('img','motel-six-pointer',scene);pointer.src=asset('motel_bigsix_pointer.png');pointer.alt='Fixed wheel pointer';
  Object.assign(pointer.style,{position:'absolute',width:'12%',height:'24%',left:'44%',top:'4.5%',objectFit:'contain',zIndex:2});
  const target=r.status==='settled'?((6-(r.winner-1))%6)*60:0;
@@ -167,10 +175,10 @@ function buildRoulette(r,figure){
  }
  function surface(parent){
   const grid=el('div','motel-number-grid',parent);
-  const zero=button(grid,'0',()=>clickNumber(0));zero.dataset.bet='n0';zero.className='motel-number zero';zero.style.gridColumn='1';zero.style.gridRow='1 / 4';
+  const zero=button(grid,'0',()=>clickNumber(0));zero.dataset.bet='n0';zero.className='motel-number zero';zero.style.gridColumn='1';zero.style.gridRow='1 / 4';zero.style.setProperty('--mobile-column','1 / 4');zero.style.setProperty('--mobile-row','1');
   for(let row=0;row<3;row++){
-   for(let col=0;col<12;col++){const n=(col+1)*3-row,b=button(grid,String(n),()=>clickNumber(n));b.dataset.bet='n'+n;b.dataset.number=n;b.className='motel-number '+(C.RED.has(n)?'red':'black');b.style.gridColumn=col+2;b.style.gridRow=row+1;b.title='Number '+n+' — 35:1 net';}
-   const column=3-row,b=button(grid,'2:1',()=>{if(C.place('column'+column)){paintChips(r);C.render();GraphicalUI.sync();}});b.dataset.bet='column'+column;b.style.gridColumn=14;b.style.gridRow=row+1;b.setAttribute('aria-label','Column '+column);
+   for(let col=0;col<12;col++){const n=(col+1)*3-row,b=button(grid,String(n),()=>clickNumber(n));b.dataset.bet='n'+n;b.dataset.number=n;b.className='motel-number '+(C.RED.has(n)?'red':'black');b.style.gridColumn=col+2;b.style.gridRow=row+1;b.style.setProperty('--mobile-column',String((n-1)%3+1));b.style.setProperty('--mobile-row',String(Math.floor((n-1)/3)+2));b.title='Number '+n+' — 35:1 net';}
+   const column=3-row,b=button(grid,'2:1',()=>{if(C.place('column'+column)){paintChips(r);C.render();GraphicalUI.sync();}});b.dataset.bet='column'+column;b.style.gridColumn=14;b.style.gridRow=row+1;b.setAttribute('aria-label','Column '+column+' — 2:1');b.style.setProperty('--mobile-column',String(column));b.style.setProperty('--mobile-row','14');
   }
   const outside=el('div','motel-outside',parent);
   for(const id of ['dozen1','dozen2','dozen3','low','even','red','black','odd','high']){const def=C.BETS.find(b=>b.id===id),b=button(outside,def.label,()=>{if(C.place(id)){paintChips(r);C.render();GraphicalUI.sync();}});b.dataset.bet=id;b.className=id;b.title=(def.mult-1)+':1 net';}
@@ -179,7 +187,17 @@ function buildRoulette(r,figure){
  surface(felt);surface(large);
  const list=el('div','motel-chip-list',panel);list.setAttribute('aria-live','polite');
  const payouts=el('div','motel-feedback',panel);payouts.textContent='Net odds: single 35:1 · split 17:1 · street 11:1 · corner 8:1 · six-line 5:1 · dozen/column 2:1 · outside 1:1.';
- const css=el('style','',scene);css.textContent=`.motel-felt{position:relative;background:#153f27;color:#f3d591;border:2px solid #a18a4d;box-sizing:border-box;display:flex;flex-direction:column}.motel-number-grid{display:grid;grid-template-columns:1.1fr repeat(12,1fr) 1.2fr;grid-template-rows:repeat(3,minmax(0,1fr));flex:3;min-height:0}.motel-felt button{position:relative;min-width:0;min-height:0;padding:0;border:1px solid #bdab72;color:#ffe7aa;background:#123e26;border-radius:0;font:700 14px/1 Georgia,serif;cursor:pointer;overflow:hidden}.motel-felt .red{background:#831e1a}.motel-felt .black{background:#131612}.motel-outside{display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(2,minmax(0,1fr));min-height:0;flex:2}.motel-outside button:nth-child(-n+3){grid-column:span 2}.motel-felt button:focus-visible{outline:2px solid #fff;z-index:4}.motel-chip{position:absolute;right:0;bottom:0;min-width:15px;border-radius:50%;background:#942f2e;color:white;border:2px dashed #f3e4c0;font:bold 10px Arial;padding:2px;pointer-events:none;box-shadow:0 1px 4px #000}.motel-felt-scroll{overflow-x:auto;margin-top:6px}.motel-felt-large{min-width:640px;height:185px}.motel-felt-scene button{font-size:clamp(8px,1.25vw,20px)}.motel-felt-scene .motel-chip{font-size:8px;padding:0;min-width:12px}.motel-chip-list{padding:5px;color:#ffe6b6}.motel-number.pending{outline:2px solid #56b4ff;z-index:3}.motel-felt-controls{display:flex;flex-wrap:wrap;gap:6px}@media(min-width:951px){.motel-felt-scroll{display:none}}`;
+ const css=el('style','',scene);css.textContent=`.motel-felt{position:relative;background:#153f27;color:#f3d591;border:2px solid #a18a4d;box-sizing:border-box;display:flex;flex-direction:column}.motel-number-grid{display:grid;grid-template-columns:1.1fr repeat(12,1fr) 1.2fr;grid-template-rows:repeat(3,minmax(0,1fr));flex:3;min-height:0}.motel-felt button{position:relative;min-width:0;min-height:0;padding:0;border:1px solid #bdab72;color:#ffe7aa;background:#123e26;border-radius:0;font:700 14px/1 Georgia,serif;cursor:pointer;overflow:hidden}.motel-felt .red{background:#831e1a}.motel-felt .black{background:#131612}.motel-outside{display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(2,minmax(0,1fr));min-height:0;flex:2}.motel-outside button:nth-child(-n+3){grid-column:span 2}.motel-felt button:focus-visible{outline:2px solid #fff;z-index:4}.motel-chip{position:absolute;right:0;bottom:0;min-width:15px;border-radius:50%;background:#942f2e;color:white;border:2px dashed #f3e4c0;font:bold 10px Arial;padding:2px;pointer-events:none;box-shadow:0 1px 4px #000}.motel-felt-scroll{overflow-x:auto;margin-top:6px}.motel-felt-large{min-width:640px;height:185px}.motel-felt-scene button{font-size:clamp(18px,1.4vw,22px)}.motel-felt-scene .motel-chip{font-size:8px;padding:0;min-width:12px}.motel-chip-list{padding:5px;color:#ffe6b6}.motel-number.pending{outline:2px solid #56b4ff;z-index:3}.motel-felt-controls{display:flex;flex-wrap:wrap;gap:6px}@media(min-width:951px){.motel-felt-scroll{display:none}}
+@media(max-width:950px){
+ .motel-felt-scene{display:none}
+ .motel-felt-large{min-width:0;height:auto}
+ .motel-felt-large .motel-number-grid{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(14,minmax(44px,auto));flex:none}
+ .motel-felt-large .motel-number-grid button{grid-column:var(--mobile-column)!important;grid-row:var(--mobile-row)!important}
+ .motel-felt-large .motel-outside{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(44px,auto));flex:none}
+ .motel-felt-large .motel-outside button:nth-child(-n+3){grid-column:span 1}
+ .motel-felt-large button{font-size:18px;min-height:44px}
+}
+`;
 }
 function paintChips(r){
  const nodes=[...scene.querySelectorAll('[data-bet]'),...panel.querySelectorAll('[data-bet]')];
@@ -188,9 +206,11 @@ function paintChips(r){
  for(const felt of [scene.querySelector('.motel-felt-scene'),panel.querySelector('.motel-felt-large')]){
   for(const chip of felt.querySelectorAll('.motel-group-chip'))chip.remove();
   for(const id of new Set(r.bets.map(c=>c.id).filter(id=>/^(split|street|corner|six)/.test(id)))){
-   const def=C.BETS.find(b=>b.id===id),positions=def.numbers.map(n=>n===0?[.5/14,.3]:[(Math.floor((n-1)/3)+1.5)/14,((3-(n%3||3))+.5)/3*.6]);
+   const def=C.BETS.find(b=>b.id===id),rect=felt.getBoundingClientRect();
+   if(!rect.width||!rect.height)continue;
+   const positions=def.numbers.map(n=>felt.querySelector('[data-bet="n'+n+'"]')?.getBoundingClientRect()).filter(Boolean);
    const chip=el('span','motel-chip motel-group-chip',felt);chip.textContent=r.bets.filter(c=>c.id===id).reduce((s,c)=>s+c.amount,0);chip.title=def.label;chip.setAttribute('aria-label',def.label+' '+chip.textContent+' Bolts');
-   Object.assign(chip.style,{left:positions.reduce((s,p)=>s+p[0],0)/positions.length*100+'%',top:positions.reduce((s,p)=>s+p[1],0)/positions.length*100+'%',right:'auto',bottom:'auto',transform:'translate(-50%,-50%)',zIndex:4});
+   Object.assign(chip.style,{left:(positions.reduce((s,p)=>s+(p.left+p.right)/2,0)/positions.length-rect.left)+'px',top:(positions.reduce((s,p)=>s+(p.top+p.bottom)/2,0)/positions.length-rect.top)+'px',right:'auto',bottom:'auto',transform:'translate(-50%,-50%)',zIndex:4});
   }
  }
  const list=panel.querySelector('.motel-chip-list');if(list)list.textContent='Chip: '+r.stake+' Bolts · Total: '+r.bets.reduce((s,c)=>s+c.amount,0)+' / 1,000 · '+(r.bets.map(c=>C.BETS.find(b=>b.id===c.id)?.label+' '+c.amount).join(' · ')||'No bets placed');
@@ -204,8 +224,8 @@ function refresh(){
   if(r.game==='SLOTS')buildSlots();
   if(r.game==='BIG SIX WHEEL')buildSix(r);
   if(r.game==='KENO')buildKeno(r,figure);
-  if(r.game==='ROULETTE')buildRoulette(r,figure);
-  observer=typeof ResizeObserver==='function'?new ResizeObserver(()=>{fit(figure);if(r.game==='SLOTS')poseSlots(r,false);}):null;observer?.observe(figure);
+  if(r.game==='ROULETTE'){buildRoulette(r,figure);scene.setAttribute('role','group');fit(figure);}
+  observer=typeof ResizeObserver==='function'?new ResizeObserver(()=>{fit(figure);if(r.game==='SLOTS')poseSlots(r,false);if(r.game==='ROULETTE')paintChips(r);}):null;observer?.observe(figure);
  }
  if(r.game==='KENO')paintKeno(r);
  if(r.game==='ROULETTE')paintChips(r);

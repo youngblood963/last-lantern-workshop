@@ -1,52 +1,64 @@
-# Regional graphical stress test — interrupted checkpoint
+# Regional gameplay session — concluded for owner review
 
-DEVTEST ONLY. **In progress, not an acceptance pass. Do not merge or deploy.**
-
-The execution/browser environment became unavailable during a mobile vendor check. Last confirmed native lifetime travel count: **271**. The minimum 500-step assignment is unfinished.
+DEVTEST ONLY. The owner ended the extended run; original coverage targets are withdrawn for this session. No additional regional travel was performed during finalization. No merge or public deployment.
 
 ## Actual graphical coverage
 
-- Disposable isolated Regional Stress Ranger, initially level 15 with native catalog equipment, normal damage, healing, loot and XP. Native DEVTEST unlimited-turn switch preserves turn-consuming travel and day/night processing. Reached level 17 naturally.
-- At least **85 combat victories** confirmed by the persisted observer at step 259. Later fights occurred, but their final aggregate could not be read after interruption. No confirmed player defeat. Several normal retreats, including Big Man, Road Eater and occupied-harbor fishermen.
-- **Two complete Causeway crossings**, one in each direction; target ten remains unfinished.
-- **13 page-open/reload observations** reached through desktop/mobile restoration; target 15 remains unfinished.
-- More than 100 uninterrupted travel steps between the reload at 146 and checkpoint at 252. Sample at 252: about 28 MB JS heap, 616 DOM nodes. No observed progressive slowdown. These are samples, not a memory-leak proof.
-- Desktop majority; mobile 390×844 travel, combat, loot, inventory and companion access. Mobile supply purchase check was interrupted and is not certified complete.
-- Character saves restored exact location, pending encounter, HP, equipment, inventory, currency and travel count at observed checkpoints. Owner storage namespace and public services were isolated.
-- Watchtower image failure followed the preview-server interruption; its approved exterior subsequently loaded correctly. This was not counted as a game defect.
-- Causeway position 3 displayed bridge/water/sky correctly beneath a natural crab fight. Coast positions 1–2 used the approved coast boundary. No black bridge background observed in the completed crossings.
+| Measure | Confirmed coverage |
+| --- | --- |
+| Normal travel | 271 steps |
+| Unique encounters | At least 76 distinct registry titles corroborated by preserved observations; exact total unavailable |
+| Combat victories | At least 85 recorded at step 259; additional victories occurred before step 271 but final aggregate was lost |
+| Defeats | None observed; defeat recovery is not certified |
+| Retreats | At least 4 explicitly confirmed (Big Man, fishermen, Road Eater, Warden); exact aggregate unavailable |
+| Causeway crossings | 2 complete, one each direction |
+| Save/reload observations | 13 desktop/mobile restorations observed |
+| Platforms | Desktop majority; representative 390×844 mobile travel, combat and loot; mobile vendor/inventory check interrupted |
 
-## Roads
+See `documented-encounters.json` for the conservative distinct-title list. No static registry traversal is counted as graphical gameplay. Named wanderers, combat aliases and the free announcement are excluded from that list.
 
-Both directions completed: Iron Pit–Lowlands; Iron Pit–Arena Lower; Arena Lower–Factory West; Lowlands–Broken Bridge; Broken Bridge–West Coastal; Lowlands–Factory West; Factory West–West Coastal; West Coastal–West Harbor; East Harbor–Boulder; Coastal Road–East Harbor; Watchtower–Coastal Road; East Coastal–Watchtower; Factory East–East Coastal; Factory East–Coastal Road; Industrial Junction–East Coastal; Boulder–Seaport.
+Lowlands, Seaport Coast and Causeway were played, including adjoining industrial boundary roads. Both directions completed: Iron Pit–Lowlands; Iron Pit–Arena Lower; Arena Lower–Factory West; Lowlands–Broken Bridge; Broken Bridge–West Coastal; Lowlands–Factory West; Factory West–West Coastal; West Coastal–West Harbor; East Harbor–Boulder; Coastal Road–East Harbor; Watchtower–Coastal Road; East Coastal–Watchtower; Factory East–East Coastal; Factory East–Coastal Road; Industrial Junction–East Coastal; Boulder–Seaport. West Harbor→Boulder was completed in one direction. Factory–Boulder reached its final pending encounter at step 271, not yet resolved. This is not 100% road coverage.
 
-West Harbor→Boulder completed; reverse remains outstanding. The Old Service/Iron Pit, Arena Lower/Arena East, and Factory West/Factory boundary roads still need complete coverage. Factory–Boulder reached its final pending encounter at step 271 and was not yet resolved on interruption. No claim of 100% regional road coverage.
-
-## Natural interactions exercised
-
-Rescued and named the limping hound, then equipped it through Character→Manage Companions. County truck/depot chain used native Wire requirements, disabled Unit 07 and freed Eli. Miles' lost-letter handoff completed and three delivery items were accepted; deliveries are unfinished. Pete's bicycle repair, vendor purchases, full-pack rejection, confirmation-based spare equipment disposal, limited Finn stock, missing Bandage feedback, information actions, rescue alternatives and loot Leave Behind were exercised.
-
-Seaport was reached occupied. Inspect Fishermen preserved the scene and exposed Confront. Normal night combat was attempted, healing consumed normally, and retreat restored the occupied docks without liberation rewards. **Liberation, post-liberation services, recruitment/staffing, regional quests and bounties remain unfinished.** Mid-level night fights were supply-heavy; this is a balance observation only, with no balance changes.
+Natural interactions included County Depot/Unit 07/Eli, Miles' letter handoff and delivery acceptance, Pete's bicycle repair and trading, limited Finn stock, full-pack purchase rejection without charge, equipment disposal confirmation, missing Bandage feedback with choices retained, hound rescue/naming and desktop companion equipping. Deliveries remain unfinished. Seaport was reached occupied; Inspect preserved the scene, Confront started combat and retreat restored the occupied harbor without liberation rewards. Liberation and post-liberation services were not completed in this run. The separate casino check is documented in PR #197 and is not counted as continuous regional gameplay.
 
 ## Confirmed repairs
 
-1. Free Crazy Steve announcement no longer strands an already-paid pending Lantern road event.
-2. Wanderer Inspect/Small Talk restores the canonical trade/steal choices instead of a shortened legacy menu.
-3. Explicit successful Leave completes the interaction; historical saves that recorded Leave as consumed retain a usable exit. Actual Corvette save recovery verified without another travel charge.
-4. Approved Road Reapers artwork now remains during encounter-sourced combat. Replayed naturally and visually verified; screenshot captured before interruption.
-5. Arena lobby publishes its canonical four choices, avoiding the duplicate visible Back while preserving native command aliases. Remaining exit verified through natural play.
-6. Roadside caption uses available scene artwork outside the old region whitelist; existing special combat captions retained.
+1. Free Crazy Steve news no longer strands an already-paid pending Lantern encounter.
+2. Wanderer Inspect/Small Talk restores canonical trade/steal choices.
+3. Successful explicit Leave completes an interaction; historical Corvette saves that consumed Leave retain usable controls without another travel charge.
+4. Approved Road Reapers artwork remains visible during encounter-sourced combat; verified in a later natural fight.
+5. Arena lobby publishes one visible exit through the canonical menu model while preserving both native exit aliases.
+6. Roadside scene captions work beyond the former region whitelist when artwork is available.
+7. Manual equipment swapping uses the existing `routeKeepGear` transfer guard. Previously, returning a stronger old weapon to the pack triggered the ordinary pickup auto-upgrade and immediately replaced the manually chosen shotgun again. This shared fix covers weapon/armor swaps and both graphical/terminal paths; normal loot auto-upgrades remain enabled.
 
-No PLAYTEST/backend files, probabilities, costs, rewards, quest requirements, turn rules or approved artwork positions changed. The observer is not loaded by any shipped entry.
+The Factory Whistle still triggers its intended combat; the drone fight concluded and travel resumed. No balance, rewards, probabilities, recipes, quest requirements, approved artwork positions, public backend or PLAYTEST files changed.
 
-## Supplemental tests
+## Shotgun investigation
 
-`node route127/devtest/tests/regional-stress-regressions.cjs` **PASS** before interruption: real handlers for announcement/pending-event preservation, historical Leave save recovery, wanderer menus, arena visible exit/native aliases, and Reapers approach/combat ownership. These tests supplement rather than replace actual graphical play. The Reapers model test stubs artwork readiness only; actual browser combat separately verified loaded approved PNG and regional background.
+All four canonical catalog variants were exercised: Sawed-Off (Common), Double-Barrel (Uncommon), Tactical (Rare), Thunderhead (Epic). Twelve isolated real-engine cases cover acquisition or saved inventory, weapon classification, actual graphical Backpack Equip callbacks, weaker/stronger swapping, stack quantities, stolen provenance, native save/load and native ranged combat damage. Normal pickup auto-upgrade was separately retained.
 
-## Evidence and remaining work
+A preliminary probe passed bare display names as item identifiers, which produced materials: real catalog instances carry level/rarity suffixes, while the UI hides those suffixes. That synthetic input was not established as a live acquisition defect. Provisional alias/stat changes were removed; no new legacy stat policy was introduced. The reproducible valid-item failure was the shared manual-swap/auto-upgrade conflict. Public PLAYTEST was not changed or live-tested for this repair.
 
-Actual native event and graphical-action logs plus representative desktop/mobile screenshots were captured in the workspace. The environment went offline before final aggregation/compression and screenshot attachment; they are **not yet attached to this PR**. A local preview restart caused a native POST-telemetry gap around steps 170–185, while the separate graphical action trace and browser counters continued. Do not present the partial native log alone as complete coverage.
+## Targeted regression results
 
-Swamp-dweller nighttime presentation looked very small/dark at saved layout scale. Approved images loaded; positions/scales were preserved and this remains an artwork review note.
+- `node route127/devtest/tests/regional-stress-regressions.cjs` — PASS: paid event preservation, historical Leave recovery, wanderer menus, arena exit/native aliases, Reapers presentation ownership.
+- `node route127/devtest/tests/non-scenario-panels.cjs` — PASS: actual Backpack use/drop cancel/parent restoration, Character/Journal, Options feedback, numeric entry and workbench overlay navigation.
+- `node route127/devtest/tests/shotgun-equipment.cjs` — PASS: 12 shotgun cases plus unchanged normal automatic pickup upgrades.
 
-Resume the same isolated save when the environment returns. Finish 500 steps, 150 encounters with unique/repeat accounting, ten crossings, fifteen reload checks, outstanding roads, Seaport liberation/services/quests/staffing and representative mobile vendor completion. Aggregate exact victories/retreats/unique encounters and errors, attach screenshots, recheck changed sequences, then update this report and mark ready. No public deployment or merge authorized.
+The new shotgun checks use the actual offline DOM buttons and native handlers with isolated storage; they are not a fresh hosted browser playthrough. Existing live graphical repair verification occurred during the concluded run. Test-only deterministic combat RNG does not alter shipped code.
+
+## Save and evidence preservation limitation
+
+**The original isolated character could not be recovered after the execution/browser environment was replaced.** The replacement workspace was empty and its browser had no previous tabs. A read-only recovery page at the identical preview origin found zero records under the isolated `route127:devtest:regionalstress:v1:` prefix. Owner/public saves were never used.
+
+`last-confirmed-state.json` preserves the last fully observed identity, location, equipment, inventory and known progression. It is explicitly an observation manifest, **not an importable complete save**: full quest flags, encounter history, account-free storage snapshot and changes during the timed-out mobile purchase call are unavailable. No character was reset or invented to conceal the loss. Future testing needs a replacement controlled checkpoint unless the previous environment's full storage is recovered externally.
+
+The raw event/action logs and screenshots were captured only in the former workspace and were lost with it before attachment. Consequently exact unique/victory/retreat totals cannot be reconstructed. Counts above are conservative verified values, not estimates presented as exact totals. The previously observed telemetry gap around steps 170–185 is superseded by loss of the full local logs. Prior inline screenshots remain in the conversation, but no unavailable screenshot files are linked here.
+
+## Remaining review notes / future work
+
+- Complete Seaport liberation, shops, bank, clinic, workshop, lodging, post-liberation NPCs, quests/bounties and recruitment/staffing in a future work order.
+- Complete outstanding boundary roads and additional bridge crossings later; original numerical targets are no longer required now.
+- No observed progressive slowdown in the >100-step uninterrupted stretch. Sample at step 252: ~28 MB JavaScript heap and 616 DOM nodes; this is not a leak-proof benchmark. Cold proxy downloads and preview restart failures are infrastructure observations, not production game defects.
+- Swamp-dweller art loaded but appeared small/dark at saved scale under night shading. Approved positioning was preserved. Owner subsequently indicated the artwork was fine; no additional resizing was applied.
+- Night fishermen/drone fights were supply-heavy for the test gear. Balance concern only; no balancing changes.

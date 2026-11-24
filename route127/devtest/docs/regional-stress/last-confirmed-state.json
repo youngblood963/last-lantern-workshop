@@ -1,0 +1,128 @@
+{
+  "warning": "Observation manifest ONLY, not a complete save or importable checkpoint. Original isolated localStorage, full quest flags and logs were lost with the execution/browser environment. Mobile purchase/drop call at this same travel position timed out; final inventory/currency after that call cannot be verified. No replacement character was seeded.",
+  "lastFullyObserved": {
+    "handle": "Regional Stress Ranger",
+    "stage": "encounter",
+    "node": "boulder-junction",
+    "edge": "factory--boulder-junction",
+    "step": 0,
+    "direction": -1,
+    "pending": true,
+    "scene": "factory--boulder-junction:0:271",
+    "title": "THE WALKING PEDDLER",
+    "level": 17,
+    "hp": 723,
+    "maxHp": 735,
+    "xp": 105,
+    "bolts": 13319,
+    "turns": 150,
+    "lifetimeTurns": 271,
+    "worldHour": 16,
+    "weapon": "Suppressed Service Pistol (L15 RARE)",
+    "armor": "Dominion Tactical Vest (L16 RARE)",
+    "pack": [
+      {
+        "name": "Cloth",
+        "qty": 16
+      },
+      {
+        "name": "Scrap Metal",
+        "qty": 52
+      },
+      {
+        "name": "Wire",
+        "qty": 35
+      },
+      {
+        "name": "Rope",
+        "qty": 7
+      },
+      {
+        "name": "Dog Food",
+        "qty": 3
+      },
+      {
+        "name": "Battered Flashlight",
+        "qty": 1
+      },
+      {
+        "name": "Sharpened Machete (L15 UNCOMMON)",
+        "qty": 1
+      },
+      {
+        "name": "Electronics",
+        "qty": 10
+      },
+      {
+        "name": "Precision Hunting Rifle (L15 RARE)",
+        "qty": 1
+      },
+      {
+        "name": "Crab Meat",
+        "qty": 7
+      },
+      {
+        "name": "Raw Snake Meat",
+        "qty": 7
+      },
+      {
+        "name": "Small Animal Bones",
+        "qty": 6
+      },
+      {
+        "name": "Fresh Apple",
+        "qty": 2
+      },
+      {
+        "name": "Fresh Carrot",
+        "qty": 9
+      },
+      {
+        "name": "Fresh Potato",
+        "qty": 2
+      },
+      {
+        "name": "Sealed Letter for Tim",
+        "qty": 1
+      },
+      {
+        "name": "Sealed Letter for Jen",
+        "qty": 1
+      },
+      {
+        "name": "Sealed Parcel for Seaport Docks",
+        "qty": 1
+      },
+      {
+        "name": "Damaged Corvette Windshield",
+        "qty": 1
+      },
+      {
+        "name": "Corvette Battery",
+        "qty": 1
+      },
+      {
+        "name": "Pre-War Silver Coin",
+        "qty": 2
+      },
+      {
+        "name": "Highway Patrol Jacket (L16 COMMON)",
+        "qty": 1
+      },
+      {
+        "name": "Reinforced Motorcycle Armor (L16 UNCOMMON)",
+        "qty": 1
+      }
+    ]
+  },
+  "knownProgress": [
+    "Relay complete checkpoint at start",
+    "County Depot: Unit 07 disabled using Wire; Eli freed",
+    "Miles lost-letter handoff completed; three deliveries accepted but unfinished",
+    "Pete bicycle repaired",
+    "Corvette location discovered; windshield and battery acquired",
+    "Hound rescued, named harbor and equipped",
+    "Seaport occupied; fishermen inspected, confronted and retreated from; liberation not complete"
+  ],
+  "storageRecovery": "Replacement browser at the identical preview origin returned 0 matching route127:devtest:regionalstress:v1: records."
+}

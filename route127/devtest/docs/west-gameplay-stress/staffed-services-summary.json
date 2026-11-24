@@ -1,0 +1,4880 @@
+{
+  "menus": 91,
+  "actions": 212,
+  "nestedPaths": 90,
+  "cases": 1121,
+  "issues": [],
+  "duplicates": [],
+  "truncations": [],
+  "menuCoverage": [
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [],
+      "stage": "motelVendors",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "general store \u2014 tess",
+          "label": "GENERAL STORE \u2014 Tess",
+          "presentationSource": "general store \u2014 tess",
+          "id": "motel-motelVendors:general store \u2014 tess"
+        },
+        {
+          "key": "2",
+          "command": "armory \u2014 patch",
+          "label": "ARMORY \u2014 Patch",
+          "presentationSource": "armory \u2014 patch",
+          "id": "motel-motelVendors:armory \u2014 patch"
+        },
+        {
+          "key": "3",
+          "command": "workshop \u2014 bolt",
+          "label": "WORKSHOP \u2014 Bolt",
+          "presentationSource": "workshop \u2014 bolt",
+          "id": "motel-motelVendors:workshop \u2014 bolt"
+        },
+        {
+          "key": "4",
+          "command": "clinic \u2014 harlow",
+          "label": "CLINIC \u2014 Harlow",
+          "presentationSource": "clinic \u2014 harlow",
+          "id": "motel-motelVendors:clinic \u2014 harlow"
+        },
+        {
+          "key": "5",
+          "command": "bank \u2014 wren",
+          "label": "BANK \u2014 Wren",
+          "presentationSource": "bank \u2014 wren",
+          "id": "motel-motelVendors:bank \u2014 wren"
+        },
+        {
+          "key": "6",
+          "command": "rani's accessories",
+          "label": "RANI'S ACCESSORIES",
+          "presentationSource": "rani's accessories",
+          "id": "motel-motelVendors:rani's accessories"
+        },
+        {
+          "key": "7",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelVendors:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy supplies",
+          "label": "BUY SUPPLIES",
+          "presentationSource": "buy supplies",
+          "id": "motel-native-port55Service:buy supplies"
+        },
+        {
+          "key": "2",
+          "command": "buy equipment",
+          "label": "BUY EQUIPMENT",
+          "presentationSource": "buy equipment",
+          "id": "motel-native-port55Service:buy equipment"
+        },
+        {
+          "key": "3",
+          "command": "sell items",
+          "label": "SELL ITEMS",
+          "presentationSource": "sell items",
+          "id": "motel-native-port55Service:sell items"
+        },
+        {
+          "key": "4",
+          "command": "inspect staff tess",
+          "label": "INSPECT STAFF TESS",
+          "presentationSource": "inspect staff tess",
+          "id": "motel-native-port55Service:inspect staff tess"
+        },
+        {
+          "key": "5",
+          "command": "assign staff",
+          "label": "ASSIGN STAFF",
+          "presentationSource": "assign staff",
+          "id": "motel-native-port55Service:assign staff"
+        },
+        {
+          "key": "6",
+          "command": "unassign staff",
+          "label": "UNASSIGN STAFF",
+          "presentationSource": "unassign staff",
+          "id": "motel-native-port55Service:unassign staff"
+        },
+        {
+          "key": "7",
+          "command": "return to motel vendors",
+          "label": "RETURN TO MOTEL VENDORS",
+          "presentationSource": "return to motel vendors",
+          "id": "motel-native-port55Service:return to motel vendors"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "armory \u2014 patch"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy equipment",
+          "label": "BUY EQUIPMENT",
+          "presentationSource": "buy equipment",
+          "id": "motel-native-port55Service:buy equipment"
+        },
+        {
+          "key": "2",
+          "command": "sell items",
+          "label": "SELL ITEMS",
+          "presentationSource": "sell items",
+          "id": "motel-native-port55Service:sell items"
+        },
+        {
+          "key": "3",
+          "command": "inspect staff patch",
+          "label": "INSPECT STAFF PATCH",
+          "presentationSource": "inspect staff patch",
+          "id": "motel-native-port55Service:inspect staff patch"
+        },
+        {
+          "key": "4",
+          "command": "assign staff",
+          "label": "ASSIGN STAFF",
+          "presentationSource": "assign staff",
+          "id": "motel-native-port55Service:assign staff"
+        },
+        {
+          "key": "5",
+          "command": "unassign staff",
+          "label": "UNASSIGN STAFF",
+          "presentationSource": "unassign staff",
+          "id": "motel-native-port55Service:unassign staff"
+        },
+        {
+          "key": "6",
+          "command": "return to motel vendors",
+          "label": "RETURN TO MOTEL VENDORS",
+          "presentationSource": "return to motel vendors",
+          "id": "motel-native-port55Service:return to motel vendors"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "workshop \u2014 bolt"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "crafting",
+          "label": "CRAFTING",
+          "presentationSource": "crafting",
+          "id": "motel-native-port55Service:crafting"
+        },
+        {
+          "key": "2",
+          "command": "manage equipment",
+          "label": "MANAGE EQUIPMENT",
+          "presentationSource": "manage equipment",
+          "id": "motel-native-port55Service:manage equipment"
+        },
+        {
+          "key": "3",
+          "command": "inspect staff bolt",
+          "label": "INSPECT STAFF BOLT",
+          "presentationSource": "inspect staff bolt",
+          "id": "motel-native-port55Service:inspect staff bolt"
+        },
+        {
+          "key": "4",
+          "command": "assign staff",
+          "label": "ASSIGN STAFF",
+          "presentationSource": "assign staff",
+          "id": "motel-native-port55Service:assign staff"
+        },
+        {
+          "key": "5",
+          "command": "unassign staff",
+          "label": "UNASSIGN STAFF",
+          "presentationSource": "unassign staff",
+          "id": "motel-native-port55Service:unassign staff"
+        },
+        {
+          "key": "6",
+          "command": "return to motel vendors",
+          "label": "RETURN TO MOTEL VENDORS",
+          "presentationSource": "return to motel vendors",
+          "id": "motel-native-port55Service:return to motel vendors"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "clinic \u2014 harlow"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "treat wounds",
+          "label": "TREAT WOUNDS \u2014 6 Bolts",
+          "presentationSource": "TREAT WOUNDS \u2014 6 Bolts",
+          "id": "motel-native-port55Service:treat wounds"
+        },
+        {
+          "key": "2",
+          "command": "buy bandage \u2014 14 bolts",
+          "label": "BUY BANDAGE \u2014 14 BOLTS",
+          "presentationSource": "buy bandage \u2014 14 bolts",
+          "id": "motel-native-port55Service:buy bandage \u2014 14 bolts"
+        },
+        {
+          "key": "3",
+          "command": "inspect staff harlow",
+          "label": "INSPECT STAFF HARLOW",
+          "presentationSource": "inspect staff harlow",
+          "id": "motel-native-port55Service:inspect staff harlow"
+        },
+        {
+          "key": "4",
+          "command": "assign staff",
+          "label": "ASSIGN STAFF",
+          "presentationSource": "assign staff",
+          "id": "motel-native-port55Service:assign staff"
+        },
+        {
+          "key": "5",
+          "command": "unassign staff",
+          "label": "UNASSIGN STAFF",
+          "presentationSource": "unassign staff",
+          "id": "motel-native-port55Service:unassign staff"
+        },
+        {
+          "key": "6",
+          "command": "return to motel vendors",
+          "label": "RETURN TO MOTEL VENDORS",
+          "presentationSource": "return to motel vendors",
+          "id": "motel-native-port55Service:return to motel vendors"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "bank \u2014 wren"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "bank bolts",
+          "label": "BANK BOLTS",
+          "presentationSource": "bank bolts",
+          "id": "motel-native-port55Service:bank bolts"
+        },
+        {
+          "key": "2",
+          "command": "stash items",
+          "label": "STASH ITEMS",
+          "presentationSource": "stash items",
+          "id": "motel-native-port55Service:stash items"
+        },
+        {
+          "key": "3",
+          "command": "retrieve items",
+          "label": "RETRIEVE ITEMS",
+          "presentationSource": "retrieve items",
+          "id": "motel-native-port55Service:retrieve items"
+        },
+        {
+          "key": "4",
+          "command": "change name \u2014 500 bolts",
+          "label": "CHANGE NAME \u2014 500 BOLTS",
+          "presentationSource": "change name \u2014 500 bolts",
+          "id": "motel-native-port55Service:change name \u2014 500 bolts"
+        },
+        {
+          "key": "5",
+          "command": "inspect staff wren",
+          "label": "INSPECT STAFF WREN",
+          "presentationSource": "inspect staff wren",
+          "id": "motel-native-port55Service:inspect staff wren"
+        },
+        {
+          "key": "6",
+          "command": "assign staff",
+          "label": "ASSIGN STAFF",
+          "presentationSource": "assign staff",
+          "id": "motel-native-port55Service:assign staff"
+        },
+        {
+          "key": "7",
+          "command": "unassign staff",
+          "label": "UNASSIGN STAFF",
+          "presentationSource": "unassign staff",
+          "id": "motel-native-port55Service:unassign staff"
+        },
+        {
+          "key": "8",
+          "command": "return to motel vendors",
+          "label": "RETURN TO MOTEL VENDORS",
+          "presentationSource": "return to motel vendors",
+          "id": "motel-native-port55Service:return to motel vendors"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "rani's accessories"
+      ],
+      "stage": "motelRani",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "sell items",
+          "label": "SELL ITEMS",
+          "presentationSource": "sell items",
+          "id": "motel-motelRani:sell items"
+        },
+        {
+          "key": "2",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelRani:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "back"
+      ],
+      "stage": "motelHome",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "motel vendors",
+          "label": "MOTEL VENDORS",
+          "presentationSource": "motel vendors",
+          "id": "motel-motelHome:motel vendors"
+        },
+        {
+          "key": "2",
+          "command": "the lounge",
+          "label": "THE LOUNGE",
+          "presentationSource": "the lounge",
+          "id": "motel-motelHome:the lounge"
+        },
+        {
+          "key": "3",
+          "command": "talk to jessica",
+          "label": "TALK TO JESSICA",
+          "presentationSource": "talk to jessica",
+          "id": "motel-motelHome:talk to jessica"
+        },
+        {
+          "key": "4",
+          "command": "the deep end",
+          "label": "THE DEEP END",
+          "presentationSource": "the deep end",
+          "id": "motel-motelHome:the deep end"
+        },
+        {
+          "key": "5",
+          "command": "behind the motel",
+          "label": "BEHIND THE MOTEL",
+          "presentationSource": "behind the motel",
+          "id": "motel-motelHome:behind the motel"
+        },
+        {
+          "key": "6",
+          "command": "bulletin board",
+          "label": "BULLETIN BOARD",
+          "presentationSource": "bulletin board",
+          "id": "motel-motelHome:bulletin board"
+        },
+        {
+          "key": "7",
+          "command": "leave motel",
+          "label": "LEAVE MOTEL",
+          "presentationSource": "leave motel",
+          "id": "motel-motelHome:leave motel"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy supplies"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy energy bars \u2014 8 bolts (8 left)",
+          "label": "BUY ENERGY BARS \u2014 8 BOLTS (8 LEFT)",
+          "presentationSource": "buy energy bars \u2014 8 bolts (8 left)",
+          "id": "motel-native-port55Service:buy energy bars \u2014 8 bolts (8 left)"
+        },
+        {
+          "key": "2",
+          "command": "buy clean water \u2014 10 bolts (10 left)",
+          "label": "BUY CLEAN WATER \u2014 10 BOLTS (10 LEFT)",
+          "presentationSource": "buy clean water \u2014 10 bolts (10 left)",
+          "id": "motel-native-port55Service:buy clean water \u2014 10 bolts (10 left)"
+        },
+        {
+          "key": "3",
+          "command": "buy bandage \u2014 18 bolts (6 left)",
+          "label": "BUY BANDAGE \u2014 18 BOLTS (6 LEFT)",
+          "presentationSource": "buy bandage \u2014 18 bolts (6 left)",
+          "id": "motel-native-port55Service:buy bandage \u2014 18 bolts (6 left)"
+        },
+        {
+          "key": "4",
+          "command": "buy scrap metal \u2014 8 bolts (8 left)",
+          "label": "BUY SCRAP METAL \u2014 8 BOLTS (8 LEFT)",
+          "presentationSource": "buy scrap metal \u2014 8 bolts (8 left)",
+          "id": "motel-native-port55Service:buy scrap metal \u2014 8 bolts (8 left)"
+        },
+        {
+          "key": "5",
+          "command": "buy wire \u2014 8 bolts (6 left)",
+          "label": "BUY WIRE \u2014 8 BOLTS (6 LEFT)",
+          "presentationSource": "buy wire \u2014 8 bolts (6 left)",
+          "id": "motel-native-port55Service:buy wire \u2014 8 bolts (6 left)"
+        },
+        {
+          "key": "6",
+          "command": "buy cloth \u2014 6 bolts (6 left)",
+          "label": "BUY CLOTH \u2014 6 BOLTS (6 LEFT)",
+          "presentationSource": "buy cloth \u2014 6 bolts (6 left)",
+          "id": "motel-native-port55Service:buy cloth \u2014 6 bolts (6 left)"
+        },
+        {
+          "key": "7",
+          "command": "buy emergency trauma kit \u2014 44 bolts (1 left)",
+          "label": "BUY EMERGENCY TRAUMA KIT \u2014 44 BOLTS (1 LEFT)",
+          "presentationSource": "buy emergency trauma kit \u2014 44 bolts (1 left)",
+          "id": "motel-native-port55Service:buy emergency trauma kit \u2014 44 bolts (1 left)"
+        },
+        {
+          "key": "8",
+          "command": "buy glass \u2014 4 bolts (6 left)",
+          "label": "BUY GLASS \u2014 4 BOLTS (6 LEFT)",
+          "presentationSource": "buy glass \u2014 4 bolts (6 left)",
+          "id": "motel-native-port55Service:buy glass \u2014 4 bolts (6 left)"
+        },
+        {
+          "key": "9",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy equipment"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy tactical crowbar (l10 uncommon)",
+          "label": "BUY TACTICAL CROWBAR (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY TACTICAL CROWBAR (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy tactical crowbar (l10 uncommon)"
+        },
+        {
+          "key": "2",
+          "command": "buy military entrenching tool (l10 uncommon)",
+          "label": "BUY MILITARY ENTRENCHING TOOL (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY MILITARY ENTRENCHING TOOL (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy military entrenching tool (l10 uncommon)"
+        },
+        {
+          "key": "3",
+          "command": "buy serrated cleaver (l10 uncommon)",
+          "label": "BUY SERRATED CLEAVER (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY SERRATED CLEAVER (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy serrated cleaver (l10 uncommon)"
+        },
+        {
+          "key": "4",
+          "command": "buy wasteland ranger vest (l10 uncommon)",
+          "label": "BUY WASTELAND RANGER VEST (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY WASTELAND RANGER VEST (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy wasteland ranger vest (l10 uncommon)"
+        },
+        {
+          "key": "5",
+          "command": "buy mechanic's reinforced suit (l10 uncommon)",
+          "label": "BUY MECHANIC'S REINFORCED SUIT (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY MECHANIC'S REINFORCED SUIT (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy mechanic's reinforced suit (l10 uncommon)"
+        },
+        {
+          "key": "6",
+          "command": "sell items",
+          "label": "SELL ITEMS",
+          "presentationSource": "sell items",
+          "id": "motel-native-port55Service:sell items"
+        },
+        {
+          "key": "7",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "sell cloth \u2014 3 bolts",
+          "label": "SELL CLOTH \u2014 3 BOLTS",
+          "presentationSource": "sell cloth \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell cloth \u2014 3 bolts"
+        },
+        {
+          "key": "2",
+          "command": "sell scrap metal \u2014 4 bolts",
+          "label": "SELL SCRAP METAL \u2014 4 BOLTS",
+          "presentationSource": "sell scrap metal \u2014 4 bolts",
+          "id": "motel-native-port55Service:sell scrap metal \u2014 4 bolts"
+        },
+        {
+          "key": "3",
+          "command": "sell wire \u2014 4 bolts",
+          "label": "SELL WIRE \u2014 4 BOLTS",
+          "presentationSource": "sell wire \u2014 4 bolts",
+          "id": "motel-native-port55Service:sell wire \u2014 4 bolts"
+        },
+        {
+          "key": "4",
+          "command": "sell electronics \u2014 9 bolts",
+          "label": "SELL ELECTRONICS \u2014 9 BOLTS",
+          "presentationSource": "sell electronics \u2014 9 bolts",
+          "id": "motel-native-port55Service:sell electronics \u2014 9 bolts"
+        },
+        {
+          "key": "5",
+          "command": "sell small animal bones \u2014 2 bolts",
+          "label": "SELL SMALL ANIMAL BONES \u2014 2 BOLTS",
+          "presentationSource": "sell small animal bones \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell small animal bones \u2014 2 bolts"
+        },
+        {
+          "key": "6",
+          "command": "sell animal bones \u2014 3 bolts",
+          "label": "SELL ANIMAL BONES \u2014 3 BOLTS",
+          "presentationSource": "sell animal bones \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell animal bones \u2014 3 bolts"
+        },
+        {
+          "key": "7",
+          "command": "sell large animal bones \u2014 4 bolts",
+          "label": "SELL LARGE ANIMAL BONES \u2014 4 BOLTS",
+          "presentationSource": "sell large animal bones \u2014 4 bolts",
+          "id": "motel-native-port55Service:sell large animal bones \u2014 4 bolts"
+        },
+        {
+          "key": "8",
+          "command": "sell tempered steel \u2014 16 bolts",
+          "label": "SELL TEMPERED STEEL \u2014 16 BOLTS",
+          "presentationSource": "sell tempered steel \u2014 16 bolts",
+          "id": "motel-native-port55Service:sell tempered steel \u2014 16 bolts"
+        },
+        {
+          "key": "9",
+          "command": "sell explosive components \u2014 8 bolts",
+          "label": "SELL EXPLOSIVE COMPONENTS \u2014 8 BOLTS",
+          "presentationSource": "sell explosive components \u2014 8 bolts",
+          "id": "motel-native-port55Service:sell explosive components \u2014 8 bolts"
+        },
+        {
+          "key": "10",
+          "command": "sell animal hide \u2014 4 bolts",
+          "label": "SELL ANIMAL HIDE \u2014 4 BOLTS",
+          "presentationSource": "sell animal hide \u2014 4 bolts",
+          "id": "motel-native-port55Service:sell animal hide \u2014 4 bolts"
+        },
+        {
+          "key": "11",
+          "command": "sell uncommon electrical parts \u2014 12 bolts",
+          "label": "SELL UNCOMMON ELECTRICAL PARTS \u2014 12 BOLTS",
+          "presentationSource": "sell uncommon electrical parts \u2014 12 bolts",
+          "id": "motel-native-port55Service:sell uncommon electrical parts \u2014 12 bolts"
+        },
+        {
+          "key": "12",
+          "command": "sell glass \u2014 2 bolts",
+          "label": "SELL GLASS \u2014 2 BOLTS",
+          "presentationSource": "sell glass \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell glass \u2014 2 bolts"
+        },
+        {
+          "key": "13",
+          "command": "sell water \u2014 1 bolts",
+          "label": "SELL WATER \u2014 1 BOLTS",
+          "presentationSource": "sell water \u2014 1 bolts",
+          "id": "motel-native-port55Service:sell water \u2014 1 bolts"
+        },
+        {
+          "key": "14",
+          "command": "sell salt \u2014 2 bolts",
+          "label": "SELL SALT \u2014 2 BOLTS",
+          "presentationSource": "sell salt \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell salt \u2014 2 bolts"
+        },
+        {
+          "key": "15",
+          "command": "sell raw rat meat \u2014 2 bolts",
+          "label": "SELL RAW RAT MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw rat meat \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell raw rat meat \u2014 2 bolts"
+        },
+        {
+          "key": "16",
+          "command": "sell raw rabbit meat \u2014 2 bolts",
+          "label": "SELL RAW RABBIT MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw rabbit meat \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell raw rabbit meat \u2014 2 bolts"
+        },
+        {
+          "key": "17",
+          "command": "sell raw bird meat \u2014 2 bolts",
+          "label": "SELL RAW BIRD MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw bird meat \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell raw bird meat \u2014 2 bolts"
+        },
+        {
+          "key": "18",
+          "command": "sell raw chicken meat \u2014 2 bolts",
+          "label": "SELL RAW CHICKEN MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw chicken meat \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell raw chicken meat \u2014 2 bolts"
+        },
+        {
+          "key": "19",
+          "command": "sell raw boar meat \u2014 3 bolts",
+          "label": "SELL RAW BOAR MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell raw boar meat \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell raw boar meat \u2014 3 bolts"
+        },
+        {
+          "key": "20",
+          "command": "sell raw venison \u2014 3 bolts",
+          "label": "SELL RAW VENISON \u2014 3 BOLTS",
+          "presentationSource": "sell raw venison \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell raw venison \u2014 3 bolts"
+        },
+        {
+          "key": "21",
+          "command": "sell raw snake meat \u2014 2 bolts",
+          "label": "SELL RAW SNAKE MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw snake meat \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell raw snake meat \u2014 2 bolts"
+        },
+        {
+          "key": "22",
+          "command": "sell raw wolf meat \u2014 3 bolts",
+          "label": "SELL RAW WOLF MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell raw wolf meat \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell raw wolf meat \u2014 3 bolts"
+        },
+        {
+          "key": "23",
+          "command": "sell energy bars \u2014 2 bolts",
+          "label": "SELL ENERGY BARS \u2014 2 BOLTS",
+          "presentationSource": "sell energy bars \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell energy bars \u2014 2 bolts"
+        },
+        {
+          "key": "24",
+          "command": "sell bandage \u2014 3 bolts",
+          "label": "SELL BANDAGE \u2014 3 BOLTS",
+          "presentationSource": "sell bandage \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell bandage \u2014 3 bolts"
+        },
+        {
+          "key": "25",
+          "command": "sell reinforced bandage \u2014 8 bolts",
+          "label": "SELL REINFORCED BANDAGE \u2014 8 BOLTS",
+          "presentationSource": "sell reinforced bandage \u2014 8 bolts",
+          "id": "motel-native-port55Service:sell reinforced bandage \u2014 8 bolts"
+        },
+        {
+          "key": "26",
+          "command": "sell fresh apple \u2014 2 bolts",
+          "label": "SELL FRESH APPLE \u2014 2 BOLTS",
+          "presentationSource": "sell fresh apple \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh apple \u2014 2 bolts"
+        },
+        {
+          "key": "27",
+          "command": "sell fresh pear \u2014 2 bolts",
+          "label": "SELL FRESH PEAR \u2014 2 BOLTS",
+          "presentationSource": "sell fresh pear \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh pear \u2014 2 bolts"
+        },
+        {
+          "key": "28",
+          "command": "sell fresh carrot \u2014 2 bolts",
+          "label": "SELL FRESH CARROT \u2014 2 BOLTS",
+          "presentationSource": "sell fresh carrot \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh carrot \u2014 2 bolts"
+        },
+        {
+          "key": "29",
+          "command": "sell fresh potato \u2014 2 bolts",
+          "label": "SELL FRESH POTATO \u2014 2 BOLTS",
+          "presentationSource": "sell fresh potato \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh potato \u2014 2 bolts"
+        },
+        {
+          "key": "30",
+          "command": "sell fresh tomato \u2014 2 bolts",
+          "label": "SELL FRESH TOMATO \u2014 2 BOLTS",
+          "presentationSource": "sell fresh tomato \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh tomato \u2014 2 bolts"
+        },
+        {
+          "key": "31",
+          "command": "sell fresh cabbage \u2014 2 bolts",
+          "label": "SELL FRESH CABBAGE \u2014 2 BOLTS",
+          "presentationSource": "sell fresh cabbage \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh cabbage \u2014 2 bolts"
+        },
+        {
+          "key": "32",
+          "command": "sell fresh berries \u2014 2 bolts",
+          "label": "SELL FRESH BERRIES \u2014 2 BOLTS",
+          "presentationSource": "sell fresh berries \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh berries \u2014 2 bolts"
+        },
+        {
+          "key": "33",
+          "command": "sell preserved vegetables \u2014 5 bolts",
+          "label": "SELL PRESERVED VEGETABLES \u2014 5 BOLTS",
+          "presentationSource": "sell preserved vegetables \u2014 5 bolts",
+          "id": "motel-native-port55Service:sell preserved vegetables \u2014 5 bolts"
+        },
+        {
+          "key": "34",
+          "command": "sell preserved meat \u2014 3 bolts",
+          "label": "SELL PRESERVED MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell preserved meat \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell preserved meat \u2014 3 bolts"
+        },
+        {
+          "key": "35",
+          "command": "sell wasteland stew \u2014 5 bolts",
+          "label": "SELL WASTELAND STEW \u2014 5 BOLTS",
+          "presentationSource": "sell wasteland stew \u2014 5 bolts",
+          "id": "motel-native-port55Service:sell wasteland stew \u2014 5 bolts"
+        },
+        {
+          "key": "36",
+          "command": "sell roadhouse hash \u2014 4 bolts",
+          "label": "SELL ROADHOUSE HASH \u2014 4 BOLTS",
+          "presentationSource": "sell roadhouse hash \u2014 4 bolts",
+          "id": "motel-native-port55Service:sell roadhouse hash \u2014 4 bolts"
+        },
+        {
+          "key": "37",
+          "command": "sell wild honey \u2014 6 bolts",
+          "label": "SELL WILD HONEY \u2014 6 BOLTS",
+          "presentationSource": "sell wild honey \u2014 6 bolts",
+          "id": "motel-native-port55Service:sell wild honey \u2014 6 bolts"
+        },
+        {
+          "key": "38",
+          "command": "sell claw hammer \u2014 25 bolts",
+          "label": "SELL CLAW HAMMER \u2014 25 BOLTS",
+          "presentationSource": "sell claw hammer \u2014 25 bolts",
+          "id": "motel-native-port55Service:sell claw hammer \u2014 25 bolts"
+        },
+        {
+          "key": "39",
+          "command": "sell bluefang hunting knife \u2014 90 bolts",
+          "label": "SELL BLUEFANG HUNTING KNIFE \u2014 90 BOLTS",
+          "presentationSource": "sell bluefang hunting knife \u2014 90 bolts",
+          "id": "motel-native-port55Service:sell bluefang hunting knife \u2014 90 bolts"
+        },
+        {
+          "key": "40",
+          "command": "sell battered flashlight \u2014 5 bolts",
+          "label": "SELL BATTERED FLASHLIGHT \u2014 5 BOLTS",
+          "presentationSource": "sell battered flashlight \u2014 5 bolts",
+          "id": "motel-native-port55Service:sell battered flashlight \u2014 5 bolts"
+        },
+        {
+          "key": "41",
+          "command": "sell old world pocket compass \u2014 30 bolts",
+          "label": "SELL OLD WORLD POCKET COMPASS \u2014 30 BOLTS",
+          "presentationSource": "sell old world pocket compass \u2014 30 bolts",
+          "id": "motel-native-port55Service:sell old world pocket compass \u2014 30 bolts"
+        },
+        {
+          "key": "42",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "assign staff"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "inspect wanderers",
+          "label": "INSPECT WANDERERS",
+          "presentationSource": "inspect wanderers",
+          "id": "motel-native-port55Service:inspect wanderers"
+        },
+        {
+          "key": "2",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "unassign staff"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm unassignment",
+          "label": "CONFIRM UNASSIGNMENT",
+          "presentationSource": "confirm unassignment",
+          "id": "motel-native-port55Service:confirm unassignment"
+        },
+        {
+          "key": "2",
+          "command": "cancel unassignment",
+          "label": "CANCEL UNASSIGNMENT",
+          "presentationSource": "cancel unassignment",
+          "id": "motel-native-port55Service:cancel unassignment"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "return to motel vendors"
+      ],
+      "stage": "motelVendors",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "general store \u2014 tess",
+          "label": "GENERAL STORE \u2014 Tess",
+          "presentationSource": "general store \u2014 tess",
+          "id": "motel-motelVendors:general store \u2014 tess"
+        },
+        {
+          "key": "2",
+          "command": "armory \u2014 patch",
+          "label": "ARMORY \u2014 Patch",
+          "presentationSource": "armory \u2014 patch",
+          "id": "motel-motelVendors:armory \u2014 patch"
+        },
+        {
+          "key": "3",
+          "command": "workshop \u2014 bolt",
+          "label": "WORKSHOP \u2014 Bolt",
+          "presentationSource": "workshop \u2014 bolt",
+          "id": "motel-motelVendors:workshop \u2014 bolt"
+        },
+        {
+          "key": "4",
+          "command": "clinic \u2014 harlow",
+          "label": "CLINIC \u2014 Harlow",
+          "presentationSource": "clinic \u2014 harlow",
+          "id": "motel-motelVendors:clinic \u2014 harlow"
+        },
+        {
+          "key": "5",
+          "command": "bank \u2014 wren",
+          "label": "BANK \u2014 Wren",
+          "presentationSource": "bank \u2014 wren",
+          "id": "motel-motelVendors:bank \u2014 wren"
+        },
+        {
+          "key": "6",
+          "command": "rani's accessories",
+          "label": "RANI'S ACCESSORIES",
+          "presentationSource": "rani's accessories",
+          "id": "motel-motelVendors:rani's accessories"
+        },
+        {
+          "key": "7",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelVendors:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "armory \u2014 patch",
+        "buy equipment"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy tactical crowbar (l10 uncommon)",
+          "label": "BUY TACTICAL CROWBAR (L10 UNCOMMON)",
+          "presentationSource": "buy tactical crowbar",
+          "id": "motel-native-port55Service:buy tactical crowbar (l10 uncommon)"
+        },
+        {
+          "key": "2",
+          "command": "buy military entrenching tool (l10 uncommon)",
+          "label": "BUY MILITARY ENTRENCHING TOOL (L10 UNCOMMON)",
+          "presentationSource": "buy military entrenching tool",
+          "id": "motel-native-port55Service:buy military entrenching tool (l10 uncommon)"
+        },
+        {
+          "key": "3",
+          "command": "buy serrated cleaver (l10 uncommon)",
+          "label": "BUY SERRATED CLEAVER (L10 UNCOMMON)",
+          "presentationSource": "buy serrated cleaver",
+          "id": "motel-native-port55Service:buy serrated cleaver (l10 uncommon)"
+        },
+        {
+          "key": "4",
+          "command": "buy wasteland ranger vest (l10 uncommon)",
+          "label": "BUY WASTELAND RANGER VEST (L10 UNCOMMON)",
+          "presentationSource": "buy wasteland ranger vest",
+          "id": "motel-native-port55Service:buy wasteland ranger vest (l10 uncommon)"
+        },
+        {
+          "key": "5",
+          "command": "buy mechanic's reinforced suit (l10 uncommon)",
+          "label": "BUY MECHANIC'S REINFORCED SUIT (L10 UNCOMMON)",
+          "presentationSource": "buy mechanic's reinforced suit",
+          "id": "motel-native-port55Service:buy mechanic's reinforced suit (l10 uncommon)"
+        },
+        {
+          "key": "6",
+          "command": "sell items",
+          "label": "SELL ITEMS",
+          "presentationSource": "sell items",
+          "id": "motel-native-port55Service:sell items"
+        },
+        {
+          "key": "7",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "armory \u2014 patch",
+        "sell items"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "sell cloth \u2014 3 bolts",
+          "label": "SELL CLOTH \u2014 3 BOLTS",
+          "presentationSource": "sell cloth \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell cloth \u2014 3 bolts"
+        },
+        {
+          "key": "2",
+          "command": "sell scrap metal \u2014 4 bolts",
+          "label": "SELL SCRAP METAL \u2014 4 BOLTS",
+          "presentationSource": "sell scrap metal \u2014 4 bolts",
+          "id": "motel-native-port55Service:sell scrap metal \u2014 4 bolts"
+        },
+        {
+          "key": "3",
+          "command": "sell wire \u2014 4 bolts",
+          "label": "SELL WIRE \u2014 4 BOLTS",
+          "presentationSource": "sell wire \u2014 4 bolts",
+          "id": "motel-native-port55Service:sell wire \u2014 4 bolts"
+        },
+        {
+          "key": "4",
+          "command": "sell electronics \u2014 9 bolts",
+          "label": "SELL ELECTRONICS \u2014 9 BOLTS",
+          "presentationSource": "sell electronics \u2014 9 bolts",
+          "id": "motel-native-port55Service:sell electronics \u2014 9 bolts"
+        },
+        {
+          "key": "5",
+          "command": "sell small animal bones \u2014 2 bolts",
+          "label": "SELL SMALL ANIMAL BONES \u2014 2 BOLTS",
+          "presentationSource": "sell small animal bones \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell small animal bones \u2014 2 bolts"
+        },
+        {
+          "key": "6",
+          "command": "sell animal bones \u2014 3 bolts",
+          "label": "SELL ANIMAL BONES \u2014 3 BOLTS",
+          "presentationSource": "sell animal bones \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell animal bones \u2014 3 bolts"
+        },
+        {
+          "key": "7",
+          "command": "sell large animal bones \u2014 4 bolts",
+          "label": "SELL LARGE ANIMAL BONES \u2014 4 BOLTS",
+          "presentationSource": "sell large animal bones \u2014 4 bolts",
+          "id": "motel-native-port55Service:sell large animal bones \u2014 4 bolts"
+        },
+        {
+          "key": "8",
+          "command": "sell tempered steel \u2014 16 bolts",
+          "label": "SELL TEMPERED STEEL \u2014 16 BOLTS",
+          "presentationSource": "sell tempered steel \u2014 16 bolts",
+          "id": "motel-native-port55Service:sell tempered steel \u2014 16 bolts"
+        },
+        {
+          "key": "9",
+          "command": "sell explosive components \u2014 8 bolts",
+          "label": "SELL EXPLOSIVE COMPONENTS \u2014 8 BOLTS",
+          "presentationSource": "sell explosive components \u2014 8 bolts",
+          "id": "motel-native-port55Service:sell explosive components \u2014 8 bolts"
+        },
+        {
+          "key": "10",
+          "command": "sell animal hide \u2014 4 bolts",
+          "label": "SELL ANIMAL HIDE \u2014 4 BOLTS",
+          "presentationSource": "sell animal hide \u2014 4 bolts",
+          "id": "motel-native-port55Service:sell animal hide \u2014 4 bolts"
+        },
+        {
+          "key": "11",
+          "command": "sell uncommon electrical parts \u2014 12 bolts",
+          "label": "SELL UNCOMMON ELECTRICAL PARTS \u2014 12 BOLTS",
+          "presentationSource": "sell uncommon electrical parts \u2014 12 bolts",
+          "id": "motel-native-port55Service:sell uncommon electrical parts \u2014 12 bolts"
+        },
+        {
+          "key": "12",
+          "command": "sell glass \u2014 2 bolts",
+          "label": "SELL GLASS \u2014 2 BOLTS",
+          "presentationSource": "sell glass \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell glass \u2014 2 bolts"
+        },
+        {
+          "key": "13",
+          "command": "sell water \u2014 1 bolts",
+          "label": "SELL WATER \u2014 1 BOLTS",
+          "presentationSource": "sell water \u2014 1 bolts",
+          "id": "motel-native-port55Service:sell water \u2014 1 bolts"
+        },
+        {
+          "key": "14",
+          "command": "sell salt \u2014 2 bolts",
+          "label": "SELL SALT \u2014 2 BOLTS",
+          "presentationSource": "sell salt \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell salt \u2014 2 bolts"
+        },
+        {
+          "key": "15",
+          "command": "sell raw rat meat \u2014 2 bolts",
+          "label": "SELL RAW RAT MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw rat meat \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell raw rat meat \u2014 2 bolts"
+        },
+        {
+          "key": "16",
+          "command": "sell raw rabbit meat \u2014 2 bolts",
+          "label": "SELL RAW RABBIT MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw rabbit meat \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell raw rabbit meat \u2014 2 bolts"
+        },
+        {
+          "key": "17",
+          "command": "sell raw bird meat \u2014 2 bolts",
+          "label": "SELL RAW BIRD MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw bird meat \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell raw bird meat \u2014 2 bolts"
+        },
+        {
+          "key": "18",
+          "command": "sell raw chicken meat \u2014 2 bolts",
+          "label": "SELL RAW CHICKEN MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw chicken meat \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell raw chicken meat \u2014 2 bolts"
+        },
+        {
+          "key": "19",
+          "command": "sell raw boar meat \u2014 3 bolts",
+          "label": "SELL RAW BOAR MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell raw boar meat \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell raw boar meat \u2014 3 bolts"
+        },
+        {
+          "key": "20",
+          "command": "sell raw venison \u2014 3 bolts",
+          "label": "SELL RAW VENISON \u2014 3 BOLTS",
+          "presentationSource": "sell raw venison \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell raw venison \u2014 3 bolts"
+        },
+        {
+          "key": "21",
+          "command": "sell raw snake meat \u2014 2 bolts",
+          "label": "SELL RAW SNAKE MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw snake meat \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell raw snake meat \u2014 2 bolts"
+        },
+        {
+          "key": "22",
+          "command": "sell raw wolf meat \u2014 3 bolts",
+          "label": "SELL RAW WOLF MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell raw wolf meat \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell raw wolf meat \u2014 3 bolts"
+        },
+        {
+          "key": "23",
+          "command": "sell energy bars \u2014 2 bolts",
+          "label": "SELL ENERGY BARS \u2014 2 BOLTS",
+          "presentationSource": "sell energy bars \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell energy bars \u2014 2 bolts"
+        },
+        {
+          "key": "24",
+          "command": "sell bandage \u2014 3 bolts",
+          "label": "SELL BANDAGE \u2014 3 BOLTS",
+          "presentationSource": "sell bandage \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell bandage \u2014 3 bolts"
+        },
+        {
+          "key": "25",
+          "command": "sell reinforced bandage \u2014 8 bolts",
+          "label": "SELL REINFORCED BANDAGE \u2014 8 BOLTS",
+          "presentationSource": "sell reinforced bandage \u2014 8 bolts",
+          "id": "motel-native-port55Service:sell reinforced bandage \u2014 8 bolts"
+        },
+        {
+          "key": "26",
+          "command": "sell fresh apple \u2014 2 bolts",
+          "label": "SELL FRESH APPLE \u2014 2 BOLTS",
+          "presentationSource": "sell fresh apple \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh apple \u2014 2 bolts"
+        },
+        {
+          "key": "27",
+          "command": "sell fresh pear \u2014 2 bolts",
+          "label": "SELL FRESH PEAR \u2014 2 BOLTS",
+          "presentationSource": "sell fresh pear \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh pear \u2014 2 bolts"
+        },
+        {
+          "key": "28",
+          "command": "sell fresh carrot \u2014 2 bolts",
+          "label": "SELL FRESH CARROT \u2014 2 BOLTS",
+          "presentationSource": "sell fresh carrot \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh carrot \u2014 2 bolts"
+        },
+        {
+          "key": "29",
+          "command": "sell fresh potato \u2014 2 bolts",
+          "label": "SELL FRESH POTATO \u2014 2 BOLTS",
+          "presentationSource": "sell fresh potato \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh potato \u2014 2 bolts"
+        },
+        {
+          "key": "30",
+          "command": "sell fresh tomato \u2014 2 bolts",
+          "label": "SELL FRESH TOMATO \u2014 2 BOLTS",
+          "presentationSource": "sell fresh tomato \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh tomato \u2014 2 bolts"
+        },
+        {
+          "key": "31",
+          "command": "sell fresh cabbage \u2014 2 bolts",
+          "label": "SELL FRESH CABBAGE \u2014 2 BOLTS",
+          "presentationSource": "sell fresh cabbage \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh cabbage \u2014 2 bolts"
+        },
+        {
+          "key": "32",
+          "command": "sell fresh berries \u2014 2 bolts",
+          "label": "SELL FRESH BERRIES \u2014 2 BOLTS",
+          "presentationSource": "sell fresh berries \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh berries \u2014 2 bolts"
+        },
+        {
+          "key": "33",
+          "command": "sell preserved vegetables \u2014 5 bolts",
+          "label": "SELL PRESERVED VEGETABLES \u2014 5 BOLTS",
+          "presentationSource": "sell preserved vegetables \u2014 5 bolts",
+          "id": "motel-native-port55Service:sell preserved vegetables \u2014 5 bolts"
+        },
+        {
+          "key": "34",
+          "command": "sell preserved meat \u2014 3 bolts",
+          "label": "SELL PRESERVED MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell preserved meat \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell preserved meat \u2014 3 bolts"
+        },
+        {
+          "key": "35",
+          "command": "sell wasteland stew \u2014 5 bolts",
+          "label": "SELL WASTELAND STEW \u2014 5 BOLTS",
+          "presentationSource": "sell wasteland stew \u2014 5 bolts",
+          "id": "motel-native-port55Service:sell wasteland stew \u2014 5 bolts"
+        },
+        {
+          "key": "36",
+          "command": "sell roadhouse hash \u2014 4 bolts",
+          "label": "SELL ROADHOUSE HASH \u2014 4 BOLTS",
+          "presentationSource": "sell roadhouse hash \u2014 4 bolts",
+          "id": "motel-native-port55Service:sell roadhouse hash \u2014 4 bolts"
+        },
+        {
+          "key": "37",
+          "command": "sell wild honey \u2014 6 bolts",
+          "label": "SELL WILD HONEY \u2014 6 BOLTS",
+          "presentationSource": "sell wild honey \u2014 6 bolts",
+          "id": "motel-native-port55Service:sell wild honey \u2014 6 bolts"
+        },
+        {
+          "key": "38",
+          "command": "sell claw hammer \u2014 25 bolts",
+          "label": "SELL CLAW HAMMER \u2014 25 BOLTS",
+          "presentationSource": "sell claw hammer \u2014 25 bolts",
+          "id": "motel-native-port55Service:sell claw hammer \u2014 25 bolts"
+        },
+        {
+          "key": "39",
+          "command": "sell bluefang hunting knife \u2014 90 bolts",
+          "label": "SELL BLUEFANG HUNTING KNIFE \u2014 90 BOLTS",
+          "presentationSource": "sell bluefang hunting knife \u2014 90 bolts",
+          "id": "motel-native-port55Service:sell bluefang hunting knife \u2014 90 bolts"
+        },
+        {
+          "key": "40",
+          "command": "sell battered flashlight \u2014 5 bolts",
+          "label": "SELL BATTERED FLASHLIGHT \u2014 5 BOLTS",
+          "presentationSource": "sell battered flashlight \u2014 5 bolts",
+          "id": "motel-native-port55Service:sell battered flashlight \u2014 5 bolts"
+        },
+        {
+          "key": "41",
+          "command": "sell old world pocket compass \u2014 30 bolts",
+          "label": "SELL OLD WORLD POCKET COMPASS \u2014 30 BOLTS",
+          "presentationSource": "sell old world pocket compass \u2014 30 bolts",
+          "id": "motel-native-port55Service:sell old world pocket compass \u2014 30 bolts"
+        },
+        {
+          "key": "42",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "armory \u2014 patch",
+        "assign staff"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "inspect wanderers",
+          "label": "INSPECT WANDERERS",
+          "presentationSource": "inspect wanderers",
+          "id": "motel-native-port55Service:inspect wanderers"
+        },
+        {
+          "key": "2",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "armory \u2014 patch",
+        "unassign staff"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm unassignment",
+          "label": "CONFIRM UNASSIGNMENT",
+          "presentationSource": "confirm unassignment",
+          "id": "motel-native-port55Service:confirm unassignment"
+        },
+        {
+          "key": "2",
+          "command": "cancel unassignment",
+          "label": "CANCEL UNASSIGNMENT",
+          "presentationSource": "cancel unassignment",
+          "id": "motel-native-port55Service:cancel unassignment"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "workshop \u2014 bolt",
+        "crafting"
+      ],
+      "stage": "r11Craft",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "seaport:r11Craft:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "workshop \u2014 bolt",
+        "assign staff"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "inspect wanderers",
+          "label": "INSPECT WANDERERS",
+          "presentationSource": "inspect wanderers",
+          "id": "motel-native-port55Service:inspect wanderers"
+        },
+        {
+          "key": "2",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "workshop \u2014 bolt",
+        "unassign staff"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm unassignment",
+          "label": "CONFIRM UNASSIGNMENT",
+          "presentationSource": "confirm unassignment",
+          "id": "motel-native-port55Service:confirm unassignment"
+        },
+        {
+          "key": "2",
+          "command": "cancel unassignment",
+          "label": "CANCEL UNASSIGNMENT",
+          "presentationSource": "cancel unassignment",
+          "id": "motel-native-port55Service:cancel unassignment"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "clinic \u2014 harlow",
+        "assign staff"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "inspect wanderers",
+          "label": "INSPECT WANDERERS",
+          "presentationSource": "inspect wanderers",
+          "id": "motel-native-port55Service:inspect wanderers"
+        },
+        {
+          "key": "2",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "clinic \u2014 harlow",
+        "unassign staff"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm unassignment",
+          "label": "CONFIRM UNASSIGNMENT",
+          "presentationSource": "confirm unassignment",
+          "id": "motel-native-port55Service:confirm unassignment"
+        },
+        {
+          "key": "2",
+          "command": "cancel unassignment",
+          "label": "CANCEL UNASSIGNMENT",
+          "presentationSource": "cancel unassignment",
+          "id": "motel-native-port55Service:cancel unassignment"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "bank \u2014 wren",
+        "bank bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "deposit bolts",
+          "label": "DEPOSIT BOLTS",
+          "presentationSource": "deposit bolts",
+          "id": "motel-native-port55Service:deposit bolts"
+        },
+        {
+          "key": "2",
+          "command": "withdraw bolts",
+          "label": "WITHDRAW BOLTS",
+          "presentationSource": "withdraw bolts",
+          "id": "motel-native-port55Service:withdraw bolts"
+        },
+        {
+          "key": "3",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "bank \u2014 wren",
+        "stash items"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "stash cloth \u2014 \u00d7100",
+          "label": "STASH CLOTH \u2014 \u00d7100",
+          "presentationSource": "stash cloth \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash cloth \u2014 \u00d7100"
+        },
+        {
+          "key": "2",
+          "command": "stash scrap metal \u2014 \u00d7100",
+          "label": "STASH SCRAP METAL \u2014 \u00d7100",
+          "presentationSource": "stash scrap metal \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash scrap metal \u2014 \u00d7100"
+        },
+        {
+          "key": "3",
+          "command": "stash wire \u2014 \u00d7100",
+          "label": "STASH WIRE \u2014 \u00d7100",
+          "presentationSource": "stash wire \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash wire \u2014 \u00d7100"
+        },
+        {
+          "key": "4",
+          "command": "stash electronics \u2014 \u00d7100",
+          "label": "STASH ELECTRONICS \u2014 \u00d7100",
+          "presentationSource": "stash electronics \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash electronics \u2014 \u00d7100"
+        },
+        {
+          "key": "5",
+          "command": "stash small animal bones \u2014 \u00d7100",
+          "label": "STASH SMALL ANIMAL BONES \u2014 \u00d7100",
+          "presentationSource": "stash small animal bones \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash small animal bones \u2014 \u00d7100"
+        },
+        {
+          "key": "6",
+          "command": "stash animal bones \u2014 \u00d7100",
+          "label": "STASH ANIMAL BONES \u2014 \u00d7100",
+          "presentationSource": "stash animal bones \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash animal bones \u2014 \u00d7100"
+        },
+        {
+          "key": "7",
+          "command": "stash large animal bones \u2014 \u00d7100",
+          "label": "STASH LARGE ANIMAL BONES \u2014 \u00d7100",
+          "presentationSource": "stash large animal bones \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash large animal bones \u2014 \u00d7100"
+        },
+        {
+          "key": "8",
+          "command": "stash tempered steel \u2014 \u00d7100",
+          "label": "STASH TEMPERED STEEL \u2014 \u00d7100",
+          "presentationSource": "stash tempered steel \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash tempered steel \u2014 \u00d7100"
+        },
+        {
+          "key": "9",
+          "command": "stash explosive components \u2014 \u00d7100",
+          "label": "STASH EXPLOSIVE COMPONENTS \u2014 \u00d7100",
+          "presentationSource": "stash explosive components \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash explosive components \u2014 \u00d7100"
+        },
+        {
+          "key": "10",
+          "command": "stash animal hide \u2014 \u00d7100",
+          "label": "STASH ANIMAL HIDE \u2014 \u00d7100",
+          "presentationSource": "stash animal hide \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash animal hide \u2014 \u00d7100"
+        },
+        {
+          "key": "11",
+          "command": "stash uncommon electrical parts \u2014 \u00d7100",
+          "label": "STASH UNCOMMON ELECTRICAL PARTS \u2014 \u00d7100",
+          "presentationSource": "stash uncommon electrical parts \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash uncommon electrical parts \u2014 \u00d7100"
+        },
+        {
+          "key": "12",
+          "command": "stash glass \u2014 \u00d7100",
+          "label": "STASH GLASS \u2014 \u00d7100",
+          "presentationSource": "stash glass \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash glass \u2014 \u00d7100"
+        },
+        {
+          "key": "13",
+          "command": "stash water \u2014 \u00d7100",
+          "label": "STASH WATER \u2014 \u00d7100",
+          "presentationSource": "stash water \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash water \u2014 \u00d7100"
+        },
+        {
+          "key": "14",
+          "command": "stash salt \u2014 \u00d7100",
+          "label": "STASH SALT \u2014 \u00d7100",
+          "presentationSource": "stash salt \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash salt \u2014 \u00d7100"
+        },
+        {
+          "key": "15",
+          "command": "stash raw rat meat \u2014 \u00d7100",
+          "label": "STASH RAW RAT MEAT \u2014 \u00d7100",
+          "presentationSource": "stash raw rat meat \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash raw rat meat \u2014 \u00d7100"
+        },
+        {
+          "key": "16",
+          "command": "stash raw rabbit meat \u2014 \u00d7100",
+          "label": "STASH RAW RABBIT MEAT \u2014 \u00d7100",
+          "presentationSource": "stash raw rabbit meat \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash raw rabbit meat \u2014 \u00d7100"
+        },
+        {
+          "key": "17",
+          "command": "stash raw bird meat \u2014 \u00d7100",
+          "label": "STASH RAW BIRD MEAT \u2014 \u00d7100",
+          "presentationSource": "stash raw bird meat \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash raw bird meat \u2014 \u00d7100"
+        },
+        {
+          "key": "18",
+          "command": "stash raw chicken meat \u2014 \u00d7100",
+          "label": "STASH RAW CHICKEN MEAT \u2014 \u00d7100",
+          "presentationSource": "stash raw chicken meat \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash raw chicken meat \u2014 \u00d7100"
+        },
+        {
+          "key": "19",
+          "command": "stash raw boar meat \u2014 \u00d7100",
+          "label": "STASH RAW BOAR MEAT \u2014 \u00d7100",
+          "presentationSource": "stash raw boar meat \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash raw boar meat \u2014 \u00d7100"
+        },
+        {
+          "key": "20",
+          "command": "stash raw venison \u2014 \u00d7100",
+          "label": "STASH RAW VENISON \u2014 \u00d7100",
+          "presentationSource": "stash raw venison \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash raw venison \u2014 \u00d7100"
+        },
+        {
+          "key": "21",
+          "command": "stash raw snake meat \u2014 \u00d7100",
+          "label": "STASH RAW SNAKE MEAT \u2014 \u00d7100",
+          "presentationSource": "stash raw snake meat \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash raw snake meat \u2014 \u00d7100"
+        },
+        {
+          "key": "22",
+          "command": "stash raw wolf meat \u2014 \u00d7100",
+          "label": "STASH RAW WOLF MEAT \u2014 \u00d7100",
+          "presentationSource": "stash raw wolf meat \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash raw wolf meat \u2014 \u00d7100"
+        },
+        {
+          "key": "23",
+          "command": "stash energy bars \u2014 \u00d7100",
+          "label": "STASH ENERGY BARS \u2014 \u00d7100",
+          "presentationSource": "stash energy bars \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash energy bars \u2014 \u00d7100"
+        },
+        {
+          "key": "24",
+          "command": "stash bandage \u2014 \u00d7100",
+          "label": "STASH BANDAGE \u2014 \u00d7100",
+          "presentationSource": "stash bandage \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash bandage \u2014 \u00d7100"
+        },
+        {
+          "key": "25",
+          "command": "stash clean water \u2014 \u00d7100",
+          "label": "STASH CLEAN WATER \u2014 \u00d7100",
+          "presentationSource": "stash clean water \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash clean water \u2014 \u00d7100"
+        },
+        {
+          "key": "26",
+          "command": "stash reinforced bandage \u2014 \u00d7100",
+          "label": "STASH REINFORCED BANDAGE \u2014 \u00d7100",
+          "presentationSource": "stash reinforced bandage \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash reinforced bandage \u2014 \u00d7100"
+        },
+        {
+          "key": "27",
+          "command": "stash emergency trauma kit \u2014 \u00d7100",
+          "label": "STASH EMERGENCY TRAUMA KIT \u2014 \u00d7100",
+          "presentationSource": "stash emergency trauma kit \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash emergency trauma kit \u2014 \u00d7100"
+        },
+        {
+          "key": "28",
+          "command": "stash fresh apple \u2014 \u00d7100",
+          "label": "STASH FRESH APPLE \u2014 \u00d7100",
+          "presentationSource": "stash fresh apple \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash fresh apple \u2014 \u00d7100"
+        },
+        {
+          "key": "29",
+          "command": "stash fresh pear \u2014 \u00d7100",
+          "label": "STASH FRESH PEAR \u2014 \u00d7100",
+          "presentationSource": "stash fresh pear \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash fresh pear \u2014 \u00d7100"
+        },
+        {
+          "key": "30",
+          "command": "stash fresh carrot \u2014 \u00d7100",
+          "label": "STASH FRESH CARROT \u2014 \u00d7100",
+          "presentationSource": "stash fresh carrot \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash fresh carrot \u2014 \u00d7100"
+        },
+        {
+          "key": "31",
+          "command": "stash fresh potato \u2014 \u00d7100",
+          "label": "STASH FRESH POTATO \u2014 \u00d7100",
+          "presentationSource": "stash fresh potato \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash fresh potato \u2014 \u00d7100"
+        },
+        {
+          "key": "32",
+          "command": "stash fresh tomato \u2014 \u00d7100",
+          "label": "STASH FRESH TOMATO \u2014 \u00d7100",
+          "presentationSource": "stash fresh tomato \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash fresh tomato \u2014 \u00d7100"
+        },
+        {
+          "key": "33",
+          "command": "stash fresh cabbage \u2014 \u00d7100",
+          "label": "STASH FRESH CABBAGE \u2014 \u00d7100",
+          "presentationSource": "stash fresh cabbage \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash fresh cabbage \u2014 \u00d7100"
+        },
+        {
+          "key": "34",
+          "command": "stash fresh berries \u2014 \u00d7100",
+          "label": "STASH FRESH BERRIES \u2014 \u00d7100",
+          "presentationSource": "stash fresh berries \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash fresh berries \u2014 \u00d7100"
+        },
+        {
+          "key": "35",
+          "command": "stash preserved vegetables \u2014 \u00d7100",
+          "label": "STASH PRESERVED VEGETABLES \u2014 \u00d7100",
+          "presentationSource": "stash preserved vegetables \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash preserved vegetables \u2014 \u00d7100"
+        },
+        {
+          "key": "36",
+          "command": "stash preserved meat \u2014 \u00d7100",
+          "label": "STASH PRESERVED MEAT \u2014 \u00d7100",
+          "presentationSource": "stash preserved meat \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash preserved meat \u2014 \u00d7100"
+        },
+        {
+          "key": "37",
+          "command": "stash wasteland stew \u2014 \u00d7100",
+          "label": "STASH WASTELAND STEW \u2014 \u00d7100",
+          "presentationSource": "stash wasteland stew \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash wasteland stew \u2014 \u00d7100"
+        },
+        {
+          "key": "38",
+          "command": "stash roadhouse hash \u2014 \u00d7100",
+          "label": "STASH ROADHOUSE HASH \u2014 \u00d7100",
+          "presentationSource": "stash roadhouse hash \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash roadhouse hash \u2014 \u00d7100"
+        },
+        {
+          "key": "39",
+          "command": "stash wild honey \u2014 \u00d7100",
+          "label": "STASH WILD HONEY \u2014 \u00d7100",
+          "presentationSource": "stash wild honey \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash wild honey \u2014 \u00d7100"
+        },
+        {
+          "key": "40",
+          "command": "stash claw hammer \u2014 \u00d71",
+          "label": "STASH CLAW HAMMER \u2014 \u00d71",
+          "presentationSource": "stash claw hammer \u2014 \u00d71",
+          "id": "motel-native-port55Service:stash claw hammer \u2014 \u00d71"
+        },
+        {
+          "key": "41",
+          "command": "stash bluefang hunting knife \u2014 \u00d71",
+          "label": "STASH BLUEFANG HUNTING KNIFE \u2014 \u00d71",
+          "presentationSource": "stash bluefang hunting knife \u2014 \u00d71",
+          "id": "motel-native-port55Service:stash bluefang hunting knife \u2014 \u00d71"
+        },
+        {
+          "key": "42",
+          "command": "stash battered flashlight \u2014 \u00d71",
+          "label": "STASH BATTERED FLASHLIGHT \u2014 \u00d71",
+          "presentationSource": "stash battered flashlight \u2014 \u00d71",
+          "id": "motel-native-port55Service:stash battered flashlight \u2014 \u00d71"
+        },
+        {
+          "key": "43",
+          "command": "stash old world pocket compass \u2014 \u00d7100",
+          "label": "STASH OLD WORLD POCKET COMPASS \u2014 \u00d7100",
+          "presentationSource": "stash old world pocket compass \u2014 \u00d7100",
+          "id": "motel-native-port55Service:stash old world pocket compass \u2014 \u00d7100"
+        },
+        {
+          "key": "44",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "bank \u2014 wren",
+        "retrieve items"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "bank \u2014 wren",
+        "assign staff"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "inspect wanderers",
+          "label": "INSPECT WANDERERS",
+          "presentationSource": "inspect wanderers",
+          "id": "motel-native-port55Service:inspect wanderers"
+        },
+        {
+          "key": "2",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "bank \u2014 wren",
+        "unassign staff"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm unassignment",
+          "label": "CONFIRM UNASSIGNMENT",
+          "presentationSource": "confirm unassignment",
+          "id": "motel-native-port55Service:confirm unassignment"
+        },
+        {
+          "key": "2",
+          "command": "cancel unassignment",
+          "label": "CANCEL UNASSIGNMENT",
+          "presentationSource": "cancel unassignment",
+          "id": "motel-native-port55Service:cancel unassignment"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "rani's accessories",
+        "sell items"
+      ],
+      "stage": "motelSale",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "sell cloth \u2014 3 bolts",
+          "label": "SELL CLOTH \u2014 3 BOLTS",
+          "presentationSource": "sell cloth \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell cloth \u2014 3 bolts"
+        },
+        {
+          "key": "2",
+          "command": "sell scrap metal \u2014 4 bolts",
+          "label": "SELL SCRAP METAL \u2014 4 BOLTS",
+          "presentationSource": "sell scrap metal \u2014 4 bolts",
+          "id": "motel-native-motelSale:sell scrap metal \u2014 4 bolts"
+        },
+        {
+          "key": "3",
+          "command": "sell wire \u2014 4 bolts",
+          "label": "SELL WIRE \u2014 4 BOLTS",
+          "presentationSource": "sell wire \u2014 4 bolts",
+          "id": "motel-native-motelSale:sell wire \u2014 4 bolts"
+        },
+        {
+          "key": "4",
+          "command": "sell electronics \u2014 9 bolts",
+          "label": "SELL ELECTRONICS \u2014 9 BOLTS",
+          "presentationSource": "sell electronics \u2014 9 bolts",
+          "id": "motel-native-motelSale:sell electronics \u2014 9 bolts"
+        },
+        {
+          "key": "5",
+          "command": "sell small animal bones \u2014 2 bolts",
+          "label": "SELL SMALL ANIMAL BONES \u2014 2 BOLTS",
+          "presentationSource": "sell small animal bones \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell small animal bones \u2014 2 bolts"
+        },
+        {
+          "key": "6",
+          "command": "sell animal bones \u2014 3 bolts",
+          "label": "SELL ANIMAL BONES \u2014 3 BOLTS",
+          "presentationSource": "sell animal bones \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell animal bones \u2014 3 bolts"
+        },
+        {
+          "key": "7",
+          "command": "sell large animal bones \u2014 4 bolts",
+          "label": "SELL LARGE ANIMAL BONES \u2014 4 BOLTS",
+          "presentationSource": "sell large animal bones \u2014 4 bolts",
+          "id": "motel-native-motelSale:sell large animal bones \u2014 4 bolts"
+        },
+        {
+          "key": "8",
+          "command": "sell tempered steel \u2014 16 bolts",
+          "label": "SELL TEMPERED STEEL \u2014 16 BOLTS",
+          "presentationSource": "sell tempered steel \u2014 16 bolts",
+          "id": "motel-native-motelSale:sell tempered steel \u2014 16 bolts"
+        },
+        {
+          "key": "9",
+          "command": "sell explosive components \u2014 8 bolts",
+          "label": "SELL EXPLOSIVE COMPONENTS \u2014 8 BOLTS",
+          "presentationSource": "sell explosive components \u2014 8 bolts",
+          "id": "motel-native-motelSale:sell explosive components \u2014 8 bolts"
+        },
+        {
+          "key": "10",
+          "command": "sell animal hide \u2014 4 bolts",
+          "label": "SELL ANIMAL HIDE \u2014 4 BOLTS",
+          "presentationSource": "sell animal hide \u2014 4 bolts",
+          "id": "motel-native-motelSale:sell animal hide \u2014 4 bolts"
+        },
+        {
+          "key": "11",
+          "command": "sell uncommon electrical parts \u2014 12 bolts",
+          "label": "SELL UNCOMMON ELECTRICAL PARTS \u2014 12 BOLTS",
+          "presentationSource": "sell uncommon electrical parts \u2014 12 bolts",
+          "id": "motel-native-motelSale:sell uncommon electrical parts \u2014 12 bolts"
+        },
+        {
+          "key": "12",
+          "command": "sell glass \u2014 2 bolts",
+          "label": "SELL GLASS \u2014 2 BOLTS",
+          "presentationSource": "sell glass \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell glass \u2014 2 bolts"
+        },
+        {
+          "key": "13",
+          "command": "sell water \u2014 1 bolts",
+          "label": "SELL WATER \u2014 1 BOLTS",
+          "presentationSource": "sell water \u2014 1 bolts",
+          "id": "motel-native-motelSale:sell water \u2014 1 bolts"
+        },
+        {
+          "key": "14",
+          "command": "sell salt \u2014 2 bolts",
+          "label": "SELL SALT \u2014 2 BOLTS",
+          "presentationSource": "sell salt \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell salt \u2014 2 bolts"
+        },
+        {
+          "key": "15",
+          "command": "sell raw rat meat \u2014 2 bolts",
+          "label": "SELL RAW RAT MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw rat meat \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell raw rat meat \u2014 2 bolts"
+        },
+        {
+          "key": "16",
+          "command": "sell raw rabbit meat \u2014 2 bolts",
+          "label": "SELL RAW RABBIT MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw rabbit meat \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell raw rabbit meat \u2014 2 bolts"
+        },
+        {
+          "key": "17",
+          "command": "sell raw bird meat \u2014 2 bolts",
+          "label": "SELL RAW BIRD MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw bird meat \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell raw bird meat \u2014 2 bolts"
+        },
+        {
+          "key": "18",
+          "command": "sell raw chicken meat \u2014 2 bolts",
+          "label": "SELL RAW CHICKEN MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw chicken meat \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell raw chicken meat \u2014 2 bolts"
+        },
+        {
+          "key": "19",
+          "command": "sell raw boar meat \u2014 3 bolts",
+          "label": "SELL RAW BOAR MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell raw boar meat \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell raw boar meat \u2014 3 bolts"
+        },
+        {
+          "key": "20",
+          "command": "sell raw venison \u2014 3 bolts",
+          "label": "SELL RAW VENISON \u2014 3 BOLTS",
+          "presentationSource": "sell raw venison \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell raw venison \u2014 3 bolts"
+        },
+        {
+          "key": "21",
+          "command": "sell raw snake meat \u2014 2 bolts",
+          "label": "SELL RAW SNAKE MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw snake meat \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell raw snake meat \u2014 2 bolts"
+        },
+        {
+          "key": "22",
+          "command": "sell raw wolf meat \u2014 3 bolts",
+          "label": "SELL RAW WOLF MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell raw wolf meat \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell raw wolf meat \u2014 3 bolts"
+        },
+        {
+          "key": "23",
+          "command": "sell energy bars \u2014 2 bolts",
+          "label": "SELL ENERGY BARS \u2014 2 BOLTS",
+          "presentationSource": "sell energy bars \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell energy bars \u2014 2 bolts"
+        },
+        {
+          "key": "24",
+          "command": "sell bandage \u2014 3 bolts",
+          "label": "SELL BANDAGE \u2014 3 BOLTS",
+          "presentationSource": "sell bandage \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell bandage \u2014 3 bolts"
+        },
+        {
+          "key": "25",
+          "command": "sell reinforced bandage \u2014 8 bolts",
+          "label": "SELL REINFORCED BANDAGE \u2014 8 BOLTS",
+          "presentationSource": "sell reinforced bandage \u2014 8 bolts",
+          "id": "motel-native-motelSale:sell reinforced bandage \u2014 8 bolts"
+        },
+        {
+          "key": "26",
+          "command": "sell fresh apple \u2014 2 bolts",
+          "label": "SELL FRESH APPLE \u2014 2 BOLTS",
+          "presentationSource": "sell fresh apple \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh apple \u2014 2 bolts"
+        },
+        {
+          "key": "27",
+          "command": "sell fresh pear \u2014 2 bolts",
+          "label": "SELL FRESH PEAR \u2014 2 BOLTS",
+          "presentationSource": "sell fresh pear \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh pear \u2014 2 bolts"
+        },
+        {
+          "key": "28",
+          "command": "sell fresh carrot \u2014 2 bolts",
+          "label": "SELL FRESH CARROT \u2014 2 BOLTS",
+          "presentationSource": "sell fresh carrot \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh carrot \u2014 2 bolts"
+        },
+        {
+          "key": "29",
+          "command": "sell fresh potato \u2014 2 bolts",
+          "label": "SELL FRESH POTATO \u2014 2 BOLTS",
+          "presentationSource": "sell fresh potato \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh potato \u2014 2 bolts"
+        },
+        {
+          "key": "30",
+          "command": "sell fresh tomato \u2014 2 bolts",
+          "label": "SELL FRESH TOMATO \u2014 2 BOLTS",
+          "presentationSource": "sell fresh tomato \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh tomato \u2014 2 bolts"
+        },
+        {
+          "key": "31",
+          "command": "sell fresh cabbage \u2014 2 bolts",
+          "label": "SELL FRESH CABBAGE \u2014 2 BOLTS",
+          "presentationSource": "sell fresh cabbage \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh cabbage \u2014 2 bolts"
+        },
+        {
+          "key": "32",
+          "command": "sell fresh berries \u2014 2 bolts",
+          "label": "SELL FRESH BERRIES \u2014 2 BOLTS",
+          "presentationSource": "sell fresh berries \u2014 2 bolts",
+          "id": "motel-native-motelSale:sell fresh berries \u2014 2 bolts"
+        },
+        {
+          "key": "33",
+          "command": "sell preserved vegetables \u2014 5 bolts",
+          "label": "SELL PRESERVED VEGETABLES \u2014 5 BOLTS",
+          "presentationSource": "sell preserved vegetables \u2014 5 bolts",
+          "id": "motel-native-motelSale:sell preserved vegetables \u2014 5 bolts"
+        },
+        {
+          "key": "34",
+          "command": "sell preserved meat \u2014 3 bolts",
+          "label": "SELL PRESERVED MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell preserved meat \u2014 3 bolts",
+          "id": "motel-native-motelSale:sell preserved meat \u2014 3 bolts"
+        },
+        {
+          "key": "35",
+          "command": "sell wasteland stew \u2014 5 bolts",
+          "label": "SELL WASTELAND STEW \u2014 5 BOLTS",
+          "presentationSource": "sell wasteland stew \u2014 5 bolts",
+          "id": "motel-native-motelSale:sell wasteland stew \u2014 5 bolts"
+        },
+        {
+          "key": "36",
+          "command": "sell roadhouse hash \u2014 4 bolts",
+          "label": "SELL ROADHOUSE HASH \u2014 4 BOLTS",
+          "presentationSource": "sell roadhouse hash \u2014 4 bolts",
+          "id": "motel-native-motelSale:sell roadhouse hash \u2014 4 bolts"
+        },
+        {
+          "key": "37",
+          "command": "sell wild honey \u2014 6 bolts",
+          "label": "SELL WILD HONEY \u2014 6 BOLTS",
+          "presentationSource": "sell wild honey \u2014 6 bolts",
+          "id": "motel-native-motelSale:sell wild honey \u2014 6 bolts"
+        },
+        {
+          "key": "38",
+          "command": "sell claw hammer \u2014 25 bolts",
+          "label": "SELL CLAW HAMMER \u2014 25 BOLTS",
+          "presentationSource": "sell claw hammer \u2014 25 bolts",
+          "id": "motel-native-motelSale:sell claw hammer \u2014 25 bolts"
+        },
+        {
+          "key": "39",
+          "command": "sell bluefang hunting knife \u2014 89 bolts",
+          "label": "SELL BLUEFANG HUNTING KNIFE \u2014 89 BOLTS",
+          "presentationSource": "sell bluefang hunting knife \u2014 89 bolts",
+          "id": "motel-native-motelSale:sell bluefang hunting knife \u2014 89 bolts"
+        },
+        {
+          "key": "40",
+          "command": "sell battered flashlight \u2014 5 bolts",
+          "label": "SELL BATTERED FLASHLIGHT \u2014 5 BOLTS",
+          "presentationSource": "sell battered flashlight \u2014 5 bolts",
+          "id": "motel-native-motelSale:sell battered flashlight \u2014 5 bolts"
+        },
+        {
+          "key": "41",
+          "command": "sell old world pocket compass \u2014 30 bolts",
+          "label": "SELL OLD WORLD POCKET COMPASS \u2014 30 BOLTS",
+          "presentationSource": "sell old world pocket compass \u2014 30 bolts",
+          "id": "motel-native-motelSale:sell old world pocket compass \u2014 30 bolts"
+        },
+        {
+          "key": "42",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-motelSale:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "rani's accessories",
+        "back"
+      ],
+      "stage": "motelHome",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "motel vendors",
+          "label": "MOTEL VENDORS",
+          "presentationSource": "motel vendors",
+          "id": "motel-motelHome:motel vendors"
+        },
+        {
+          "key": "2",
+          "command": "the lounge",
+          "label": "THE LOUNGE",
+          "presentationSource": "the lounge",
+          "id": "motel-motelHome:the lounge"
+        },
+        {
+          "key": "3",
+          "command": "talk to jessica",
+          "label": "TALK TO JESSICA",
+          "presentationSource": "talk to jessica",
+          "id": "motel-motelHome:talk to jessica"
+        },
+        {
+          "key": "4",
+          "command": "the deep end",
+          "label": "THE DEEP END",
+          "presentationSource": "the deep end",
+          "id": "motel-motelHome:the deep end"
+        },
+        {
+          "key": "5",
+          "command": "behind the motel",
+          "label": "BEHIND THE MOTEL",
+          "presentationSource": "behind the motel",
+          "id": "motel-motelHome:behind the motel"
+        },
+        {
+          "key": "6",
+          "command": "bulletin board",
+          "label": "BULLETIN BOARD",
+          "presentationSource": "bulletin board",
+          "id": "motel-motelHome:bulletin board"
+        },
+        {
+          "key": "7",
+          "command": "leave motel",
+          "label": "LEAVE MOTEL",
+          "presentationSource": "leave motel",
+          "id": "motel-motelHome:leave motel"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "back",
+        "the lounge"
+      ],
+      "stage": "motelLounge",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy drinks",
+          "label": "BUY DRINKS",
+          "presentationSource": "buy drinks",
+          "id": "motel-motelLounge:buy drinks"
+        },
+        {
+          "key": "2",
+          "command": "sell items",
+          "label": "SELL ITEMS",
+          "presentationSource": "sell items",
+          "id": "motel-motelLounge:sell items"
+        },
+        {
+          "key": "3",
+          "command": "conversation",
+          "label": "CONVERSATION",
+          "presentationSource": "conversation",
+          "id": "motel-motelLounge:conversation"
+        },
+        {
+          "key": "4",
+          "command": "small talk",
+          "label": "SMALL TALK",
+          "presentationSource": "small talk",
+          "id": "motel-motelLounge:small talk"
+        },
+        {
+          "key": "5",
+          "command": "gamble",
+          "label": "GAMBLE",
+          "presentationSource": "gamble",
+          "id": "motel-motelLounge:gamble"
+        },
+        {
+          "key": "6",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelLounge:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "back",
+        "talk to jessica"
+      ],
+      "stage": "motelJessica",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "talk jessica",
+          "label": "TALK JESSICA",
+          "presentationSource": "talk jessica",
+          "id": "motel-motelJessica:talk jessica"
+        },
+        {
+          "key": "2",
+          "command": "small talk",
+          "label": "SMALL TALK",
+          "presentationSource": "small talk",
+          "id": "motel-motelJessica:small talk"
+        },
+        {
+          "key": "3",
+          "command": "bounties",
+          "label": "BOUNTIES",
+          "presentationSource": "bounties",
+          "id": "motel-motelJessica:bounties"
+        },
+        {
+          "key": "4",
+          "command": "inspect jessica",
+          "label": "INSPECT JESSICA",
+          "presentationSource": "inspect jessica",
+          "id": "motel-motelJessica:inspect jessica"
+        },
+        {
+          "key": "5",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelJessica:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "back",
+        "the deep end"
+      ],
+      "stage": "r127ArenaLobby",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "watch a round",
+          "label": "WATCH A ROUND",
+          "presentationSource": "watch a round",
+          "id": "arena-exhibition-lobby:watch a round"
+        },
+        {
+          "key": "2",
+          "command": "bet on a round",
+          "label": "BET ON A ROUND",
+          "presentationSource": "bet on a round",
+          "id": "arena-exhibition-lobby:bet on a round"
+        },
+        {
+          "key": "3",
+          "command": "enter tournament",
+          "label": "ENTER TOURNAMENT",
+          "presentationSource": "enter tournament",
+          "id": "arena-exhibition-lobby:enter tournament"
+        },
+        {
+          "key": "4",
+          "command": "back away",
+          "label": "BACK AWAY",
+          "presentationSource": "back away",
+          "id": "arena-exhibition-lobby:back away"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "back",
+        "behind the motel"
+      ],
+      "stage": "motelRear",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-motelRear:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "back",
+        "leave motel"
+      ],
+      "stage": "lanternNode",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "take road to west ridge road",
+          "label": "TAKE ROAD TO WEST RIDGE ROAD",
+          "presentationSource": "\u2197 NE \u2014 WEST RIDGE ROAD (4 TURNS)",
+          "id": "motel-lanternNode:take road to west ridge road"
+        },
+        {
+          "key": "2",
+          "command": "take road to old service junction",
+          "label": "TAKE ROAD TO OLD SERVICE JUNCTION",
+          "presentationSource": "\u2193 S \u2014 OLD SERVICE JUNCTION (4 TURNS)",
+          "id": "motel-lanternNode:take road to old service junction"
+        },
+        {
+          "key": "3",
+          "command": "take road to interior junction",
+          "label": "TAKE ROAD TO INTERIOR JUNCTION",
+          "presentationSource": "\u2192 E \u2014 INTERIOR JUNCTION (4 TURNS)",
+          "id": "motel-lanternNode:take road to interior junction"
+        },
+        {
+          "key": "4",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-lanternNode:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy supplies",
+        "buy energy bars \u2014 8 bolts (8 left)"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy energy bars \u2014 8 bolts (7 left)",
+          "label": "BUY ENERGY BARS \u2014 8 BOLTS (7 LEFT)",
+          "presentationSource": "buy energy bars \u2014 8 bolts (7 left)",
+          "id": "motel-native-port55Service:buy energy bars \u2014 8 bolts (7 left)"
+        },
+        {
+          "key": "2",
+          "command": "buy clean water \u2014 10 bolts (10 left)",
+          "label": "BUY CLEAN WATER \u2014 10 BOLTS (10 LEFT)",
+          "presentationSource": "buy clean water \u2014 10 bolts (10 left)",
+          "id": "motel-native-port55Service:buy clean water \u2014 10 bolts (10 left)"
+        },
+        {
+          "key": "3",
+          "command": "buy bandage \u2014 18 bolts (6 left)",
+          "label": "BUY BANDAGE \u2014 18 BOLTS (6 LEFT)",
+          "presentationSource": "buy bandage \u2014 18 bolts (6 left)",
+          "id": "motel-native-port55Service:buy bandage \u2014 18 bolts (6 left)"
+        },
+        {
+          "key": "4",
+          "command": "buy scrap metal \u2014 8 bolts (8 left)",
+          "label": "BUY SCRAP METAL \u2014 8 BOLTS (8 LEFT)",
+          "presentationSource": "buy scrap metal \u2014 8 bolts (8 left)",
+          "id": "motel-native-port55Service:buy scrap metal \u2014 8 bolts (8 left)"
+        },
+        {
+          "key": "5",
+          "command": "buy wire \u2014 8 bolts (6 left)",
+          "label": "BUY WIRE \u2014 8 BOLTS (6 LEFT)",
+          "presentationSource": "buy wire \u2014 8 bolts (6 left)",
+          "id": "motel-native-port55Service:buy wire \u2014 8 bolts (6 left)"
+        },
+        {
+          "key": "6",
+          "command": "buy cloth \u2014 6 bolts (6 left)",
+          "label": "BUY CLOTH \u2014 6 BOLTS (6 LEFT)",
+          "presentationSource": "buy cloth \u2014 6 bolts (6 left)",
+          "id": "motel-native-port55Service:buy cloth \u2014 6 bolts (6 left)"
+        },
+        {
+          "key": "7",
+          "command": "buy emergency trauma kit \u2014 44 bolts (1 left)",
+          "label": "BUY EMERGENCY TRAUMA KIT \u2014 44 BOLTS (1 LEFT)",
+          "presentationSource": "buy emergency trauma kit \u2014 44 bolts (1 left)",
+          "id": "motel-native-port55Service:buy emergency trauma kit \u2014 44 bolts (1 left)"
+        },
+        {
+          "key": "8",
+          "command": "buy glass \u2014 4 bolts (6 left)",
+          "label": "BUY GLASS \u2014 4 BOLTS (6 LEFT)",
+          "presentationSource": "buy glass \u2014 4 bolts (6 left)",
+          "id": "motel-native-port55Service:buy glass \u2014 4 bolts (6 left)"
+        },
+        {
+          "key": "9",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy supplies",
+        "buy clean water \u2014 10 bolts (10 left)"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy energy bars \u2014 8 bolts (8 left)",
+          "label": "BUY ENERGY BARS \u2014 8 BOLTS (8 LEFT)",
+          "presentationSource": "buy energy bars \u2014 8 bolts (8 left)",
+          "id": "motel-native-port55Service:buy energy bars \u2014 8 bolts (8 left)"
+        },
+        {
+          "key": "2",
+          "command": "buy clean water \u2014 10 bolts (9 left)",
+          "label": "BUY CLEAN WATER \u2014 10 BOLTS (9 LEFT)",
+          "presentationSource": "buy clean water \u2014 10 bolts (9 left)",
+          "id": "motel-native-port55Service:buy clean water \u2014 10 bolts (9 left)"
+        },
+        {
+          "key": "3",
+          "command": "buy bandage \u2014 18 bolts (6 left)",
+          "label": "BUY BANDAGE \u2014 18 BOLTS (6 LEFT)",
+          "presentationSource": "buy bandage \u2014 18 bolts (6 left)",
+          "id": "motel-native-port55Service:buy bandage \u2014 18 bolts (6 left)"
+        },
+        {
+          "key": "4",
+          "command": "buy scrap metal \u2014 8 bolts (8 left)",
+          "label": "BUY SCRAP METAL \u2014 8 BOLTS (8 LEFT)",
+          "presentationSource": "buy scrap metal \u2014 8 bolts (8 left)",
+          "id": "motel-native-port55Service:buy scrap metal \u2014 8 bolts (8 left)"
+        },
+        {
+          "key": "5",
+          "command": "buy wire \u2014 8 bolts (6 left)",
+          "label": "BUY WIRE \u2014 8 BOLTS (6 LEFT)",
+          "presentationSource": "buy wire \u2014 8 bolts (6 left)",
+          "id": "motel-native-port55Service:buy wire \u2014 8 bolts (6 left)"
+        },
+        {
+          "key": "6",
+          "command": "buy cloth \u2014 6 bolts (6 left)",
+          "label": "BUY CLOTH \u2014 6 BOLTS (6 LEFT)",
+          "presentationSource": "buy cloth \u2014 6 bolts (6 left)",
+          "id": "motel-native-port55Service:buy cloth \u2014 6 bolts (6 left)"
+        },
+        {
+          "key": "7",
+          "command": "buy emergency trauma kit \u2014 44 bolts (1 left)",
+          "label": "BUY EMERGENCY TRAUMA KIT \u2014 44 BOLTS (1 LEFT)",
+          "presentationSource": "buy emergency trauma kit \u2014 44 bolts (1 left)",
+          "id": "motel-native-port55Service:buy emergency trauma kit \u2014 44 bolts (1 left)"
+        },
+        {
+          "key": "8",
+          "command": "buy glass \u2014 4 bolts (6 left)",
+          "label": "BUY GLASS \u2014 4 BOLTS (6 LEFT)",
+          "presentationSource": "buy glass \u2014 4 bolts (6 left)",
+          "id": "motel-native-port55Service:buy glass \u2014 4 bolts (6 left)"
+        },
+        {
+          "key": "9",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy supplies",
+        "buy bandage \u2014 18 bolts (6 left)"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy energy bars \u2014 8 bolts (8 left)",
+          "label": "BUY ENERGY BARS \u2014 8 BOLTS (8 LEFT)",
+          "presentationSource": "buy energy bars \u2014 8 bolts (8 left)",
+          "id": "motel-native-port55Service:buy energy bars \u2014 8 bolts (8 left)"
+        },
+        {
+          "key": "2",
+          "command": "buy clean water \u2014 10 bolts (10 left)",
+          "label": "BUY CLEAN WATER \u2014 10 BOLTS (10 LEFT)",
+          "presentationSource": "buy clean water \u2014 10 bolts (10 left)",
+          "id": "motel-native-port55Service:buy clean water \u2014 10 bolts (10 left)"
+        },
+        {
+          "key": "3",
+          "command": "buy bandage \u2014 18 bolts (5 left)",
+          "label": "BUY BANDAGE \u2014 18 BOLTS (5 LEFT)",
+          "presentationSource": "buy bandage \u2014 18 bolts (5 left)",
+          "id": "motel-native-port55Service:buy bandage \u2014 18 bolts (5 left)"
+        },
+        {
+          "key": "4",
+          "command": "buy scrap metal \u2014 8 bolts (8 left)",
+          "label": "BUY SCRAP METAL \u2014 8 BOLTS (8 LEFT)",
+          "presentationSource": "buy scrap metal \u2014 8 bolts (8 left)",
+          "id": "motel-native-port55Service:buy scrap metal \u2014 8 bolts (8 left)"
+        },
+        {
+          "key": "5",
+          "command": "buy wire \u2014 8 bolts (6 left)",
+          "label": "BUY WIRE \u2014 8 BOLTS (6 LEFT)",
+          "presentationSource": "buy wire \u2014 8 bolts (6 left)",
+          "id": "motel-native-port55Service:buy wire \u2014 8 bolts (6 left)"
+        },
+        {
+          "key": "6",
+          "command": "buy cloth \u2014 6 bolts (6 left)",
+          "label": "BUY CLOTH \u2014 6 BOLTS (6 LEFT)",
+          "presentationSource": "buy cloth \u2014 6 bolts (6 left)",
+          "id": "motel-native-port55Service:buy cloth \u2014 6 bolts (6 left)"
+        },
+        {
+          "key": "7",
+          "command": "buy emergency trauma kit \u2014 44 bolts (1 left)",
+          "label": "BUY EMERGENCY TRAUMA KIT \u2014 44 BOLTS (1 LEFT)",
+          "presentationSource": "buy emergency trauma kit \u2014 44 bolts (1 left)",
+          "id": "motel-native-port55Service:buy emergency trauma kit \u2014 44 bolts (1 left)"
+        },
+        {
+          "key": "8",
+          "command": "buy glass \u2014 4 bolts (6 left)",
+          "label": "BUY GLASS \u2014 4 BOLTS (6 LEFT)",
+          "presentationSource": "buy glass \u2014 4 bolts (6 left)",
+          "id": "motel-native-port55Service:buy glass \u2014 4 bolts (6 left)"
+        },
+        {
+          "key": "9",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy supplies",
+        "buy scrap metal \u2014 8 bolts (8 left)"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy energy bars \u2014 8 bolts (8 left)",
+          "label": "BUY ENERGY BARS \u2014 8 BOLTS (8 LEFT)",
+          "presentationSource": "buy energy bars \u2014 8 bolts (8 left)",
+          "id": "motel-native-port55Service:buy energy bars \u2014 8 bolts (8 left)"
+        },
+        {
+          "key": "2",
+          "command": "buy clean water \u2014 10 bolts (10 left)",
+          "label": "BUY CLEAN WATER \u2014 10 BOLTS (10 LEFT)",
+          "presentationSource": "buy clean water \u2014 10 bolts (10 left)",
+          "id": "motel-native-port55Service:buy clean water \u2014 10 bolts (10 left)"
+        },
+        {
+          "key": "3",
+          "command": "buy bandage \u2014 18 bolts (6 left)",
+          "label": "BUY BANDAGE \u2014 18 BOLTS (6 LEFT)",
+          "presentationSource": "buy bandage \u2014 18 bolts (6 left)",
+          "id": "motel-native-port55Service:buy bandage \u2014 18 bolts (6 left)"
+        },
+        {
+          "key": "4",
+          "command": "buy scrap metal \u2014 8 bolts (7 left)",
+          "label": "BUY SCRAP METAL \u2014 8 BOLTS (7 LEFT)",
+          "presentationSource": "buy scrap metal \u2014 8 bolts (7 left)",
+          "id": "motel-native-port55Service:buy scrap metal \u2014 8 bolts (7 left)"
+        },
+        {
+          "key": "5",
+          "command": "buy wire \u2014 8 bolts (6 left)",
+          "label": "BUY WIRE \u2014 8 BOLTS (6 LEFT)",
+          "presentationSource": "buy wire \u2014 8 bolts (6 left)",
+          "id": "motel-native-port55Service:buy wire \u2014 8 bolts (6 left)"
+        },
+        {
+          "key": "6",
+          "command": "buy cloth \u2014 6 bolts (6 left)",
+          "label": "BUY CLOTH \u2014 6 BOLTS (6 LEFT)",
+          "presentationSource": "buy cloth \u2014 6 bolts (6 left)",
+          "id": "motel-native-port55Service:buy cloth \u2014 6 bolts (6 left)"
+        },
+        {
+          "key": "7",
+          "command": "buy emergency trauma kit \u2014 44 bolts (1 left)",
+          "label": "BUY EMERGENCY TRAUMA KIT \u2014 44 BOLTS (1 LEFT)",
+          "presentationSource": "buy emergency trauma kit \u2014 44 bolts (1 left)",
+          "id": "motel-native-port55Service:buy emergency trauma kit \u2014 44 bolts (1 left)"
+        },
+        {
+          "key": "8",
+          "command": "buy glass \u2014 4 bolts (6 left)",
+          "label": "BUY GLASS \u2014 4 BOLTS (6 LEFT)",
+          "presentationSource": "buy glass \u2014 4 bolts (6 left)",
+          "id": "motel-native-port55Service:buy glass \u2014 4 bolts (6 left)"
+        },
+        {
+          "key": "9",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy supplies",
+        "buy wire \u2014 8 bolts (6 left)"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy energy bars \u2014 8 bolts (8 left)",
+          "label": "BUY ENERGY BARS \u2014 8 BOLTS (8 LEFT)",
+          "presentationSource": "buy energy bars \u2014 8 bolts (8 left)",
+          "id": "motel-native-port55Service:buy energy bars \u2014 8 bolts (8 left)"
+        },
+        {
+          "key": "2",
+          "command": "buy clean water \u2014 10 bolts (10 left)",
+          "label": "BUY CLEAN WATER \u2014 10 BOLTS (10 LEFT)",
+          "presentationSource": "buy clean water \u2014 10 bolts (10 left)",
+          "id": "motel-native-port55Service:buy clean water \u2014 10 bolts (10 left)"
+        },
+        {
+          "key": "3",
+          "command": "buy bandage \u2014 18 bolts (6 left)",
+          "label": "BUY BANDAGE \u2014 18 BOLTS (6 LEFT)",
+          "presentationSource": "buy bandage \u2014 18 bolts (6 left)",
+          "id": "motel-native-port55Service:buy bandage \u2014 18 bolts (6 left)"
+        },
+        {
+          "key": "4",
+          "command": "buy scrap metal \u2014 8 bolts (8 left)",
+          "label": "BUY SCRAP METAL \u2014 8 BOLTS (8 LEFT)",
+          "presentationSource": "buy scrap metal \u2014 8 bolts (8 left)",
+          "id": "motel-native-port55Service:buy scrap metal \u2014 8 bolts (8 left)"
+        },
+        {
+          "key": "5",
+          "command": "buy wire \u2014 8 bolts (5 left)",
+          "label": "BUY WIRE \u2014 8 BOLTS (5 LEFT)",
+          "presentationSource": "buy wire \u2014 8 bolts (5 left)",
+          "id": "motel-native-port55Service:buy wire \u2014 8 bolts (5 left)"
+        },
+        {
+          "key": "6",
+          "command": "buy cloth \u2014 6 bolts (6 left)",
+          "label": "BUY CLOTH \u2014 6 BOLTS (6 LEFT)",
+          "presentationSource": "buy cloth \u2014 6 bolts (6 left)",
+          "id": "motel-native-port55Service:buy cloth \u2014 6 bolts (6 left)"
+        },
+        {
+          "key": "7",
+          "command": "buy emergency trauma kit \u2014 44 bolts (1 left)",
+          "label": "BUY EMERGENCY TRAUMA KIT \u2014 44 BOLTS (1 LEFT)",
+          "presentationSource": "buy emergency trauma kit \u2014 44 bolts (1 left)",
+          "id": "motel-native-port55Service:buy emergency trauma kit \u2014 44 bolts (1 left)"
+        },
+        {
+          "key": "8",
+          "command": "buy glass \u2014 4 bolts (6 left)",
+          "label": "BUY GLASS \u2014 4 BOLTS (6 LEFT)",
+          "presentationSource": "buy glass \u2014 4 bolts (6 left)",
+          "id": "motel-native-port55Service:buy glass \u2014 4 bolts (6 left)"
+        },
+        {
+          "key": "9",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy supplies",
+        "buy cloth \u2014 6 bolts (6 left)"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy energy bars \u2014 8 bolts (8 left)",
+          "label": "BUY ENERGY BARS \u2014 8 BOLTS (8 LEFT)",
+          "presentationSource": "buy energy bars \u2014 8 bolts (8 left)",
+          "id": "motel-native-port55Service:buy energy bars \u2014 8 bolts (8 left)"
+        },
+        {
+          "key": "2",
+          "command": "buy clean water \u2014 10 bolts (10 left)",
+          "label": "BUY CLEAN WATER \u2014 10 BOLTS (10 LEFT)",
+          "presentationSource": "buy clean water \u2014 10 bolts (10 left)",
+          "id": "motel-native-port55Service:buy clean water \u2014 10 bolts (10 left)"
+        },
+        {
+          "key": "3",
+          "command": "buy bandage \u2014 18 bolts (6 left)",
+          "label": "BUY BANDAGE \u2014 18 BOLTS (6 LEFT)",
+          "presentationSource": "buy bandage \u2014 18 bolts (6 left)",
+          "id": "motel-native-port55Service:buy bandage \u2014 18 bolts (6 left)"
+        },
+        {
+          "key": "4",
+          "command": "buy scrap metal \u2014 8 bolts (8 left)",
+          "label": "BUY SCRAP METAL \u2014 8 BOLTS (8 LEFT)",
+          "presentationSource": "buy scrap metal \u2014 8 bolts (8 left)",
+          "id": "motel-native-port55Service:buy scrap metal \u2014 8 bolts (8 left)"
+        },
+        {
+          "key": "5",
+          "command": "buy wire \u2014 8 bolts (6 left)",
+          "label": "BUY WIRE \u2014 8 BOLTS (6 LEFT)",
+          "presentationSource": "buy wire \u2014 8 bolts (6 left)",
+          "id": "motel-native-port55Service:buy wire \u2014 8 bolts (6 left)"
+        },
+        {
+          "key": "6",
+          "command": "buy cloth \u2014 6 bolts (5 left)",
+          "label": "BUY CLOTH \u2014 6 BOLTS (5 LEFT)",
+          "presentationSource": "buy cloth \u2014 6 bolts (5 left)",
+          "id": "motel-native-port55Service:buy cloth \u2014 6 bolts (5 left)"
+        },
+        {
+          "key": "7",
+          "command": "buy emergency trauma kit \u2014 44 bolts (1 left)",
+          "label": "BUY EMERGENCY TRAUMA KIT \u2014 44 BOLTS (1 LEFT)",
+          "presentationSource": "buy emergency trauma kit \u2014 44 bolts (1 left)",
+          "id": "motel-native-port55Service:buy emergency trauma kit \u2014 44 bolts (1 left)"
+        },
+        {
+          "key": "8",
+          "command": "buy glass \u2014 4 bolts (6 left)",
+          "label": "BUY GLASS \u2014 4 BOLTS (6 LEFT)",
+          "presentationSource": "buy glass \u2014 4 bolts (6 left)",
+          "id": "motel-native-port55Service:buy glass \u2014 4 bolts (6 left)"
+        },
+        {
+          "key": "9",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy supplies",
+        "buy emergency trauma kit \u2014 44 bolts (1 left)"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy energy bars \u2014 8 bolts (8 left)",
+          "label": "BUY ENERGY BARS \u2014 8 BOLTS (8 LEFT)",
+          "presentationSource": "buy energy bars \u2014 8 bolts (8 left)",
+          "id": "motel-native-port55Service:buy energy bars \u2014 8 bolts (8 left)"
+        },
+        {
+          "key": "2",
+          "command": "buy clean water \u2014 10 bolts (10 left)",
+          "label": "BUY CLEAN WATER \u2014 10 BOLTS (10 LEFT)",
+          "presentationSource": "buy clean water \u2014 10 bolts (10 left)",
+          "id": "motel-native-port55Service:buy clean water \u2014 10 bolts (10 left)"
+        },
+        {
+          "key": "3",
+          "command": "buy bandage \u2014 18 bolts (6 left)",
+          "label": "BUY BANDAGE \u2014 18 BOLTS (6 LEFT)",
+          "presentationSource": "buy bandage \u2014 18 bolts (6 left)",
+          "id": "motel-native-port55Service:buy bandage \u2014 18 bolts (6 left)"
+        },
+        {
+          "key": "4",
+          "command": "buy scrap metal \u2014 8 bolts (8 left)",
+          "label": "BUY SCRAP METAL \u2014 8 BOLTS (8 LEFT)",
+          "presentationSource": "buy scrap metal \u2014 8 bolts (8 left)",
+          "id": "motel-native-port55Service:buy scrap metal \u2014 8 bolts (8 left)"
+        },
+        {
+          "key": "5",
+          "command": "buy wire \u2014 8 bolts (6 left)",
+          "label": "BUY WIRE \u2014 8 BOLTS (6 LEFT)",
+          "presentationSource": "buy wire \u2014 8 bolts (6 left)",
+          "id": "motel-native-port55Service:buy wire \u2014 8 bolts (6 left)"
+        },
+        {
+          "key": "6",
+          "command": "buy cloth \u2014 6 bolts (6 left)",
+          "label": "BUY CLOTH \u2014 6 BOLTS (6 LEFT)",
+          "presentationSource": "buy cloth \u2014 6 bolts (6 left)",
+          "id": "motel-native-port55Service:buy cloth \u2014 6 bolts (6 left)"
+        },
+        {
+          "key": "7",
+          "command": "buy glass \u2014 4 bolts (6 left)",
+          "label": "BUY GLASS \u2014 4 BOLTS (6 LEFT)",
+          "presentationSource": "buy glass \u2014 4 bolts (6 left)",
+          "id": "motel-native-port55Service:buy glass \u2014 4 bolts (6 left)"
+        },
+        {
+          "key": "8",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy supplies",
+        "buy glass \u2014 4 bolts (6 left)"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy energy bars \u2014 8 bolts (8 left)",
+          "label": "BUY ENERGY BARS \u2014 8 BOLTS (8 LEFT)",
+          "presentationSource": "buy energy bars \u2014 8 bolts (8 left)",
+          "id": "motel-native-port55Service:buy energy bars \u2014 8 bolts (8 left)"
+        },
+        {
+          "key": "2",
+          "command": "buy clean water \u2014 10 bolts (10 left)",
+          "label": "BUY CLEAN WATER \u2014 10 BOLTS (10 LEFT)",
+          "presentationSource": "buy clean water \u2014 10 bolts (10 left)",
+          "id": "motel-native-port55Service:buy clean water \u2014 10 bolts (10 left)"
+        },
+        {
+          "key": "3",
+          "command": "buy bandage \u2014 18 bolts (6 left)",
+          "label": "BUY BANDAGE \u2014 18 BOLTS (6 LEFT)",
+          "presentationSource": "buy bandage \u2014 18 bolts (6 left)",
+          "id": "motel-native-port55Service:buy bandage \u2014 18 bolts (6 left)"
+        },
+        {
+          "key": "4",
+          "command": "buy scrap metal \u2014 8 bolts (8 left)",
+          "label": "BUY SCRAP METAL \u2014 8 BOLTS (8 LEFT)",
+          "presentationSource": "buy scrap metal \u2014 8 bolts (8 left)",
+          "id": "motel-native-port55Service:buy scrap metal \u2014 8 bolts (8 left)"
+        },
+        {
+          "key": "5",
+          "command": "buy wire \u2014 8 bolts (6 left)",
+          "label": "BUY WIRE \u2014 8 BOLTS (6 LEFT)",
+          "presentationSource": "buy wire \u2014 8 bolts (6 left)",
+          "id": "motel-native-port55Service:buy wire \u2014 8 bolts (6 left)"
+        },
+        {
+          "key": "6",
+          "command": "buy cloth \u2014 6 bolts (6 left)",
+          "label": "BUY CLOTH \u2014 6 BOLTS (6 LEFT)",
+          "presentationSource": "buy cloth \u2014 6 bolts (6 left)",
+          "id": "motel-native-port55Service:buy cloth \u2014 6 bolts (6 left)"
+        },
+        {
+          "key": "7",
+          "command": "buy emergency trauma kit \u2014 44 bolts (1 left)",
+          "label": "BUY EMERGENCY TRAUMA KIT \u2014 44 BOLTS (1 LEFT)",
+          "presentationSource": "buy emergency trauma kit \u2014 44 bolts (1 left)",
+          "id": "motel-native-port55Service:buy emergency trauma kit \u2014 44 bolts (1 left)"
+        },
+        {
+          "key": "8",
+          "command": "buy glass \u2014 4 bolts (5 left)",
+          "label": "BUY GLASS \u2014 4 BOLTS (5 LEFT)",
+          "presentationSource": "buy glass \u2014 4 bolts (5 left)",
+          "id": "motel-native-port55Service:buy glass \u2014 4 bolts (5 left)"
+        },
+        {
+          "key": "9",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy supplies",
+        "back"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy supplies",
+          "label": "BUY SUPPLIES",
+          "presentationSource": "buy supplies",
+          "id": "motel-native-port55Service:buy supplies"
+        },
+        {
+          "key": "2",
+          "command": "buy equipment",
+          "label": "BUY EQUIPMENT",
+          "presentationSource": "buy equipment",
+          "id": "motel-native-port55Service:buy equipment"
+        },
+        {
+          "key": "3",
+          "command": "sell items",
+          "label": "SELL ITEMS",
+          "presentationSource": "sell items",
+          "id": "motel-native-port55Service:sell items"
+        },
+        {
+          "key": "4",
+          "command": "inspect staff tess",
+          "label": "INSPECT STAFF TESS",
+          "presentationSource": "inspect staff tess",
+          "id": "motel-native-port55Service:inspect staff tess"
+        },
+        {
+          "key": "5",
+          "command": "assign staff",
+          "label": "ASSIGN STAFF",
+          "presentationSource": "assign staff",
+          "id": "motel-native-port55Service:assign staff"
+        },
+        {
+          "key": "6",
+          "command": "unassign staff",
+          "label": "UNASSIGN STAFF",
+          "presentationSource": "unassign staff",
+          "id": "motel-native-port55Service:unassign staff"
+        },
+        {
+          "key": "7",
+          "command": "return to motel vendors",
+          "label": "RETURN TO MOTEL VENDORS",
+          "presentationSource": "return to motel vendors",
+          "id": "motel-native-port55Service:return to motel vendors"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy equipment",
+        "buy tactical crowbar (l10 uncommon)"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy military entrenching tool (l10 uncommon)",
+          "label": "BUY MILITARY ENTRENCHING TOOL (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY MILITARY ENTRENCHING TOOL (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy military entrenching tool (l10 uncommon)"
+        },
+        {
+          "key": "2",
+          "command": "buy serrated cleaver (l10 uncommon)",
+          "label": "BUY SERRATED CLEAVER (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY SERRATED CLEAVER (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy serrated cleaver (l10 uncommon)"
+        },
+        {
+          "key": "3",
+          "command": "buy wasteland ranger vest (l10 uncommon)",
+          "label": "BUY WASTELAND RANGER VEST (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY WASTELAND RANGER VEST (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy wasteland ranger vest (l10 uncommon)"
+        },
+        {
+          "key": "4",
+          "command": "buy mechanic's reinforced suit (l10 uncommon)",
+          "label": "BUY MECHANIC'S REINFORCED SUIT (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY MECHANIC'S REINFORCED SUIT (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy mechanic's reinforced suit (l10 uncommon)"
+        },
+        {
+          "key": "5",
+          "command": "sell items",
+          "label": "SELL ITEMS",
+          "presentationSource": "sell items",
+          "id": "motel-native-port55Service:sell items"
+        },
+        {
+          "key": "6",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy equipment",
+        "buy military entrenching tool (l10 uncommon)"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy tactical crowbar (l10 uncommon)",
+          "label": "BUY TACTICAL CROWBAR (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY TACTICAL CROWBAR (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy tactical crowbar (l10 uncommon)"
+        },
+        {
+          "key": "2",
+          "command": "buy serrated cleaver (l10 uncommon)",
+          "label": "BUY SERRATED CLEAVER (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY SERRATED CLEAVER (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy serrated cleaver (l10 uncommon)"
+        },
+        {
+          "key": "3",
+          "command": "buy wasteland ranger vest (l10 uncommon)",
+          "label": "BUY WASTELAND RANGER VEST (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY WASTELAND RANGER VEST (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy wasteland ranger vest (l10 uncommon)"
+        },
+        {
+          "key": "4",
+          "command": "buy mechanic's reinforced suit (l10 uncommon)",
+          "label": "BUY MECHANIC'S REINFORCED SUIT (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY MECHANIC'S REINFORCED SUIT (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy mechanic's reinforced suit (l10 uncommon)"
+        },
+        {
+          "key": "5",
+          "command": "sell items",
+          "label": "SELL ITEMS",
+          "presentationSource": "sell items",
+          "id": "motel-native-port55Service:sell items"
+        },
+        {
+          "key": "6",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy equipment",
+        "buy serrated cleaver (l10 uncommon)"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy tactical crowbar (l10 uncommon)",
+          "label": "BUY TACTICAL CROWBAR (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY TACTICAL CROWBAR (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy tactical crowbar (l10 uncommon)"
+        },
+        {
+          "key": "2",
+          "command": "buy military entrenching tool (l10 uncommon)",
+          "label": "BUY MILITARY ENTRENCHING TOOL (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY MILITARY ENTRENCHING TOOL (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy military entrenching tool (l10 uncommon)"
+        },
+        {
+          "key": "3",
+          "command": "buy wasteland ranger vest (l10 uncommon)",
+          "label": "BUY WASTELAND RANGER VEST (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY WASTELAND RANGER VEST (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy wasteland ranger vest (l10 uncommon)"
+        },
+        {
+          "key": "4",
+          "command": "buy mechanic's reinforced suit (l10 uncommon)",
+          "label": "BUY MECHANIC'S REINFORCED SUIT (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY MECHANIC'S REINFORCED SUIT (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy mechanic's reinforced suit (l10 uncommon)"
+        },
+        {
+          "key": "5",
+          "command": "sell items",
+          "label": "SELL ITEMS",
+          "presentationSource": "sell items",
+          "id": "motel-native-port55Service:sell items"
+        },
+        {
+          "key": "6",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy equipment",
+        "buy wasteland ranger vest (l10 uncommon)"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy tactical crowbar (l10 uncommon)",
+          "label": "BUY TACTICAL CROWBAR (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY TACTICAL CROWBAR (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy tactical crowbar (l10 uncommon)"
+        },
+        {
+          "key": "2",
+          "command": "buy military entrenching tool (l10 uncommon)",
+          "label": "BUY MILITARY ENTRENCHING TOOL (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY MILITARY ENTRENCHING TOOL (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy military entrenching tool (l10 uncommon)"
+        },
+        {
+          "key": "3",
+          "command": "buy serrated cleaver (l10 uncommon)",
+          "label": "BUY SERRATED CLEAVER (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY SERRATED CLEAVER (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy serrated cleaver (l10 uncommon)"
+        },
+        {
+          "key": "4",
+          "command": "buy mechanic's reinforced suit (l10 uncommon)",
+          "label": "BUY MECHANIC'S REINFORCED SUIT (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY MECHANIC'S REINFORCED SUIT (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy mechanic's reinforced suit (l10 uncommon)"
+        },
+        {
+          "key": "5",
+          "command": "sell items",
+          "label": "SELL ITEMS",
+          "presentationSource": "sell items",
+          "id": "motel-native-port55Service:sell items"
+        },
+        {
+          "key": "6",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy equipment",
+        "buy mechanic's reinforced suit (l10 uncommon)"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "buy tactical crowbar (l10 uncommon)",
+          "label": "BUY TACTICAL CROWBAR (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY TACTICAL CROWBAR (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy tactical crowbar (l10 uncommon)"
+        },
+        {
+          "key": "2",
+          "command": "buy military entrenching tool (l10 uncommon)",
+          "label": "BUY MILITARY ENTRENCHING TOOL (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY MILITARY ENTRENCHING TOOL (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy military entrenching tool (l10 uncommon)"
+        },
+        {
+          "key": "3",
+          "command": "buy serrated cleaver (l10 uncommon)",
+          "label": "BUY SERRATED CLEAVER (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY SERRATED CLEAVER (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy serrated cleaver (l10 uncommon)"
+        },
+        {
+          "key": "4",
+          "command": "buy wasteland ranger vest (l10 uncommon)",
+          "label": "BUY WASTELAND RANGER VEST (L10 UNCOMMON) \u2014 80 Bolts",
+          "presentationSource": "BUY WASTELAND RANGER VEST (L10 UNCOMMON) \u2014 80 Bolts",
+          "id": "motel-native-port55Service:buy wasteland ranger vest (l10 uncommon)"
+        },
+        {
+          "key": "5",
+          "command": "sell items",
+          "label": "SELL ITEMS",
+          "presentationSource": "sell items",
+          "id": "motel-native-port55Service:sell items"
+        },
+        {
+          "key": "6",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "buy equipment",
+        "sell items"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "sell cloth \u2014 3 bolts",
+          "label": "SELL CLOTH \u2014 3 BOLTS",
+          "presentationSource": "sell cloth \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell cloth \u2014 3 bolts"
+        },
+        {
+          "key": "2",
+          "command": "sell scrap metal \u2014 4 bolts",
+          "label": "SELL SCRAP METAL \u2014 4 BOLTS",
+          "presentationSource": "sell scrap metal \u2014 4 bolts",
+          "id": "motel-native-port55Service:sell scrap metal \u2014 4 bolts"
+        },
+        {
+          "key": "3",
+          "command": "sell wire \u2014 4 bolts",
+          "label": "SELL WIRE \u2014 4 BOLTS",
+          "presentationSource": "sell wire \u2014 4 bolts",
+          "id": "motel-native-port55Service:sell wire \u2014 4 bolts"
+        },
+        {
+          "key": "4",
+          "command": "sell electronics \u2014 9 bolts",
+          "label": "SELL ELECTRONICS \u2014 9 BOLTS",
+          "presentationSource": "sell electronics \u2014 9 bolts",
+          "id": "motel-native-port55Service:sell electronics \u2014 9 bolts"
+        },
+        {
+          "key": "5",
+          "command": "sell small animal bones \u2014 2 bolts",
+          "label": "SELL SMALL ANIMAL BONES \u2014 2 BOLTS",
+          "presentationSource": "sell small animal bones \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell small animal bones \u2014 2 bolts"
+        },
+        {
+          "key": "6",
+          "command": "sell animal bones \u2014 3 bolts",
+          "label": "SELL ANIMAL BONES \u2014 3 BOLTS",
+          "presentationSource": "sell animal bones \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell animal bones \u2014 3 bolts"
+        },
+        {
+          "key": "7",
+          "command": "sell large animal bones \u2014 4 bolts",
+          "label": "SELL LARGE ANIMAL BONES \u2014 4 BOLTS",
+          "presentationSource": "sell large animal bones \u2014 4 bolts",
+          "id": "motel-native-port55Service:sell large animal bones \u2014 4 bolts"
+        },
+        {
+          "key": "8",
+          "command": "sell tempered steel \u2014 16 bolts",
+          "label": "SELL TEMPERED STEEL \u2014 16 BOLTS",
+          "presentationSource": "sell tempered steel \u2014 16 bolts",
+          "id": "motel-native-port55Service:sell tempered steel \u2014 16 bolts"
+        },
+        {
+          "key": "9",
+          "command": "sell explosive components \u2014 8 bolts",
+          "label": "SELL EXPLOSIVE COMPONENTS \u2014 8 BOLTS",
+          "presentationSource": "sell explosive components \u2014 8 bolts",
+          "id": "motel-native-port55Service:sell explosive components \u2014 8 bolts"
+        },
+        {
+          "key": "10",
+          "command": "sell animal hide \u2014 4 bolts",
+          "label": "SELL ANIMAL HIDE \u2014 4 BOLTS",
+          "presentationSource": "sell animal hide \u2014 4 bolts",
+          "id": "motel-native-port55Service:sell animal hide \u2014 4 bolts"
+        },
+        {
+          "key": "11",
+          "command": "sell uncommon electrical parts \u2014 12 bolts",
+          "label": "SELL UNCOMMON ELECTRICAL PARTS \u2014 12 BOLTS",
+          "presentationSource": "sell uncommon electrical parts \u2014 12 bolts",
+          "id": "motel-native-port55Service:sell uncommon electrical parts \u2014 12 bolts"
+        },
+        {
+          "key": "12",
+          "command": "sell glass \u2014 2 bolts",
+          "label": "SELL GLASS \u2014 2 BOLTS",
+          "presentationSource": "sell glass \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell glass \u2014 2 bolts"
+        },
+        {
+          "key": "13",
+          "command": "sell water \u2014 1 bolts",
+          "label": "SELL WATER \u2014 1 BOLTS",
+          "presentationSource": "sell water \u2014 1 bolts",
+          "id": "motel-native-port55Service:sell water \u2014 1 bolts"
+        },
+        {
+          "key": "14",
+          "command": "sell salt \u2014 2 bolts",
+          "label": "SELL SALT \u2014 2 BOLTS",
+          "presentationSource": "sell salt \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell salt \u2014 2 bolts"
+        },
+        {
+          "key": "15",
+          "command": "sell raw rat meat \u2014 2 bolts",
+          "label": "SELL RAW RAT MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw rat meat \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell raw rat meat \u2014 2 bolts"
+        },
+        {
+          "key": "16",
+          "command": "sell raw rabbit meat \u2014 2 bolts",
+          "label": "SELL RAW RABBIT MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw rabbit meat \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell raw rabbit meat \u2014 2 bolts"
+        },
+        {
+          "key": "17",
+          "command": "sell raw bird meat \u2014 2 bolts",
+          "label": "SELL RAW BIRD MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw bird meat \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell raw bird meat \u2014 2 bolts"
+        },
+        {
+          "key": "18",
+          "command": "sell raw chicken meat \u2014 2 bolts",
+          "label": "SELL RAW CHICKEN MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw chicken meat \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell raw chicken meat \u2014 2 bolts"
+        },
+        {
+          "key": "19",
+          "command": "sell raw boar meat \u2014 3 bolts",
+          "label": "SELL RAW BOAR MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell raw boar meat \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell raw boar meat \u2014 3 bolts"
+        },
+        {
+          "key": "20",
+          "command": "sell raw venison \u2014 3 bolts",
+          "label": "SELL RAW VENISON \u2014 3 BOLTS",
+          "presentationSource": "sell raw venison \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell raw venison \u2014 3 bolts"
+        },
+        {
+          "key": "21",
+          "command": "sell raw snake meat \u2014 2 bolts",
+          "label": "SELL RAW SNAKE MEAT \u2014 2 BOLTS",
+          "presentationSource": "sell raw snake meat \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell raw snake meat \u2014 2 bolts"
+        },
+        {
+          "key": "22",
+          "command": "sell raw wolf meat \u2014 3 bolts",
+          "label": "SELL RAW WOLF MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell raw wolf meat \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell raw wolf meat \u2014 3 bolts"
+        },
+        {
+          "key": "23",
+          "command": "sell energy bars \u2014 2 bolts",
+          "label": "SELL ENERGY BARS \u2014 2 BOLTS",
+          "presentationSource": "sell energy bars \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell energy bars \u2014 2 bolts"
+        },
+        {
+          "key": "24",
+          "command": "sell bandage \u2014 3 bolts",
+          "label": "SELL BANDAGE \u2014 3 BOLTS",
+          "presentationSource": "sell bandage \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell bandage \u2014 3 bolts"
+        },
+        {
+          "key": "25",
+          "command": "sell reinforced bandage \u2014 8 bolts",
+          "label": "SELL REINFORCED BANDAGE \u2014 8 BOLTS",
+          "presentationSource": "sell reinforced bandage \u2014 8 bolts",
+          "id": "motel-native-port55Service:sell reinforced bandage \u2014 8 bolts"
+        },
+        {
+          "key": "26",
+          "command": "sell fresh apple \u2014 2 bolts",
+          "label": "SELL FRESH APPLE \u2014 2 BOLTS",
+          "presentationSource": "sell fresh apple \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh apple \u2014 2 bolts"
+        },
+        {
+          "key": "27",
+          "command": "sell fresh pear \u2014 2 bolts",
+          "label": "SELL FRESH PEAR \u2014 2 BOLTS",
+          "presentationSource": "sell fresh pear \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh pear \u2014 2 bolts"
+        },
+        {
+          "key": "28",
+          "command": "sell fresh carrot \u2014 2 bolts",
+          "label": "SELL FRESH CARROT \u2014 2 BOLTS",
+          "presentationSource": "sell fresh carrot \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh carrot \u2014 2 bolts"
+        },
+        {
+          "key": "29",
+          "command": "sell fresh potato \u2014 2 bolts",
+          "label": "SELL FRESH POTATO \u2014 2 BOLTS",
+          "presentationSource": "sell fresh potato \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh potato \u2014 2 bolts"
+        },
+        {
+          "key": "30",
+          "command": "sell fresh tomato \u2014 2 bolts",
+          "label": "SELL FRESH TOMATO \u2014 2 BOLTS",
+          "presentationSource": "sell fresh tomato \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh tomato \u2014 2 bolts"
+        },
+        {
+          "key": "31",
+          "command": "sell fresh cabbage \u2014 2 bolts",
+          "label": "SELL FRESH CABBAGE \u2014 2 BOLTS",
+          "presentationSource": "sell fresh cabbage \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh cabbage \u2014 2 bolts"
+        },
+        {
+          "key": "32",
+          "command": "sell fresh berries \u2014 2 bolts",
+          "label": "SELL FRESH BERRIES \u2014 2 BOLTS",
+          "presentationSource": "sell fresh berries \u2014 2 bolts",
+          "id": "motel-native-port55Service:sell fresh berries \u2014 2 bolts"
+        },
+        {
+          "key": "33",
+          "command": "sell preserved vegetables \u2014 5 bolts",
+          "label": "SELL PRESERVED VEGETABLES \u2014 5 BOLTS",
+          "presentationSource": "sell preserved vegetables \u2014 5 bolts",
+          "id": "motel-native-port55Service:sell preserved vegetables \u2014 5 bolts"
+        },
+        {
+          "key": "34",
+          "command": "sell preserved meat \u2014 3 bolts",
+          "label": "SELL PRESERVED MEAT \u2014 3 BOLTS",
+          "presentationSource": "sell preserved meat \u2014 3 bolts",
+          "id": "motel-native-port55Service:sell preserved meat \u2014 3 bolts"
+        },
+        {
+          "key": "35",
+          "command": "sell wasteland stew \u2014 5 bolts",
+          "label": "SELL WASTELAND STEW \u2014 5 BOLTS",
+          "presentationSource": "sell wasteland stew \u2014 5 bolts",
+          "id": "motel-native-port55Service:sell wasteland stew \u2014 5 bolts"
+        },
+        {
+          "key": "36",
+          "command": "sell roadhouse hash \u2014 4 bolts",
+          "label": "SELL ROADHOUSE HASH \u2014 4 BOLTS",
+          "presentationSource": "sell roadhouse hash \u2014 4 bolts",
+          "id": "motel-native-port55Service:sell roadhouse hash \u2014 4 bolts"
+        },
+        {
+          "key": "37",
+          "command": "sell wild honey \u2014 6 bolts",
+          "label": "SELL WILD HONEY \u2014 6 BOLTS",
+          "presentationSource": "sell wild honey \u2014 6 bolts",
+          "id": "motel-native-port55Service:sell wild honey \u2014 6 bolts"
+        },
+        {
+          "key": "38",
+          "command": "sell claw hammer \u2014 25 bolts",
+          "label": "SELL CLAW HAMMER \u2014 25 BOLTS",
+          "presentationSource": "sell claw hammer \u2014 25 bolts",
+          "id": "motel-native-port55Service:sell claw hammer \u2014 25 bolts"
+        },
+        {
+          "key": "39",
+          "command": "sell bluefang hunting knife \u2014 90 bolts",
+          "label": "SELL BLUEFANG HUNTING KNIFE \u2014 90 BOLTS",
+          "presentationSource": "sell bluefang hunting knife \u2014 90 bolts",
+          "id": "motel-native-port55Service:sell bluefang hunting knife \u2014 90 bolts"
+        },
+        {
+          "key": "40",
+          "command": "sell battered flashlight \u2014 5 bolts",
+          "label": "SELL BATTERED FLASHLIGHT \u2014 5 BOLTS",
+          "presentationSource": "sell battered flashlight \u2014 5 bolts",
+          "id": "motel-native-port55Service:sell battered flashlight \u2014 5 bolts"
+        },
+        {
+          "key": "41",
+          "command": "sell old world pocket compass \u2014 30 bolts",
+          "label": "SELL OLD WORLD POCKET COMPASS \u2014 30 BOLTS",
+          "presentationSource": "sell old world pocket compass \u2014 30 bolts",
+          "id": "motel-native-port55Service:sell old world pocket compass \u2014 30 bolts"
+        },
+        {
+          "key": "42",
+          "command": "back",
+          "label": "BACK",
+          "presentationSource": "back",
+          "id": "motel-native-port55Service:back"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell cloth \u2014 3 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell scrap metal \u2014 4 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell wire \u2014 4 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell electronics \u2014 9 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell small animal bones \u2014 2 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell animal bones \u2014 3 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell large animal bones \u2014 4 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell tempered steel \u2014 16 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell explosive components \u2014 8 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell animal hide \u2014 4 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell uncommon electrical parts \u2014 12 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell glass \u2014 2 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell water \u2014 1 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell salt \u2014 2 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell raw rat meat \u2014 2 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell raw rabbit meat \u2014 2 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell raw bird meat \u2014 2 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell raw chicken meat \u2014 2 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell raw boar meat \u2014 3 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell raw venison \u2014 3 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell raw snake meat \u2014 2 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell raw wolf meat \u2014 3 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell energy bars \u2014 2 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell bandage \u2014 3 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell reinforced bandage \u2014 8 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell fresh apple \u2014 2 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell fresh pear \u2014 2 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell fresh carrot \u2014 2 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell fresh potato \u2014 2 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell fresh tomato \u2014 2 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell fresh cabbage \u2014 2 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell fresh berries \u2014 2 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell preserved vegetables \u2014 5 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell preserved meat \u2014 3 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell wasteland stew \u2014 5 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell roadhouse hash \u2014 4 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell wild honey \u2014 6 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell claw hammer \u2014 25 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell bluefang hunting knife \u2014 90 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell battered flashlight \u2014 5 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    },
+    {
+      "root": "west-motel-all-staff",
+      "profile": "supplied",
+      "path": [
+        "general store \u2014 tess",
+        "sell items",
+        "sell old world pocket compass \u2014 30 bolts"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choices": [
+        {
+          "key": "1",
+          "command": "confirm store sale",
+          "label": "CONFIRM STORE SALE",
+          "presentationSource": "confirm store sale",
+          "id": "motel-native-port55Service:confirm store sale"
+        },
+        {
+          "key": "2",
+          "command": "cancel store sale",
+          "label": "CANCEL STORE SALE",
+          "presentationSource": "cancel store sale",
+          "id": "motel-native-port55Service:cancel store sale"
+        }
+      ]
+    }
+  ]
+}

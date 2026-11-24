@@ -1,0 +1,15 @@
+{
+  "entry": "DEVTEST",
+  "rooms": 22,
+  "commands": 313,
+  "combats": 13,
+  "heals": 43,
+  "searchGuards": 22,
+  "bosses": [
+    "SALVAGE KING",
+    "GRINDER",
+    "THE CHEMIST",
+    "THE FOREMAN"
+  ],
+  "reloadChecked": true
+}

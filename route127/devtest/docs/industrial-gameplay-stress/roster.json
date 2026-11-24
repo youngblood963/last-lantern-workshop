@@ -1,0 +1,457 @@
+[
+  {
+    "id": "early:4",
+    "name": "ROADBLOCK",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:6",
+    "name": "THE STRAY",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:13",
+    "name": "HIGHWAY ROBBERS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:15",
+    "name": "ROACH NEST",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:16",
+    "name": "TUNNEL RATS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:17",
+    "name": "FERAL DOG",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:18",
+    "name": "LONE SCAVENGER",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:19",
+    "name": "GANG LOOKOUT",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:20",
+    "name": "THE CRAWLER",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:21",
+    "name": "SECURITY DRONE",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:22",
+    "name": "THE WRECKERS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:39",
+    "name": "THE PAINTED ARROWS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:46",
+    "name": "THE FORGOTTEN GARDEN",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:48",
+    "name": "THE SCRAP CLAIM",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:51",
+    "name": "BROKEN CLEANER BOT",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:11",
+    "name": "THE BIG MAN",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:33",
+    "name": "THE ROAD REAPERS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:6",
+    "name": "THE IRON CHOIR",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:34",
+    "name": "THE WARDEN",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:14",
+    "name": "THE ROAD EATER",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:38",
+    "name": "THE MUD CANNON",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:57",
+    "name": "UNAUTHORIZED CARGO",
+    "policy": "One-time"
+  },
+  {
+    "id": "east:58",
+    "name": "THE LAST PATROL",
+    "policy": "One-time"
+  },
+  {
+    "id": "east:60",
+    "name": "FLOODLIGHT SWEEP",
+    "policy": "One-time"
+  },
+  {
+    "id": "east:61",
+    "name": "CULVERT CRAWLER",
+    "policy": "One-time"
+  },
+  {
+    "id": "east:63",
+    "name": "TACTICAL SNIPER",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:0",
+    "name": "COUNTY WORK TRUCK",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:14",
+    "name": "DRAINAGE CULVERT",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:54",
+    "name": "THE TIPPED DELIVERY TRUCK",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:10",
+    "name": "RIDGELINE",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:64",
+    "name": "THE WALKING PEDDLER",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:30",
+    "name": "THE PAPER STORM",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:27",
+    "name": "CEMETERY OF TIRES",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:50",
+    "name": "THE LIMPING HOUND",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:66",
+    "name": "MILES THE COURIER",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:13",
+    "name": "THE BLACK SNOW",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:18",
+    "name": "THE STEEL ORCHARD",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:39",
+    "name": "THE HANGING CAGE",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:8",
+    "name": "THE MASK MARKET",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:11",
+    "name": "THE SCRAP DUEL",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:21",
+    "name": "THE HOLLOW STATUE",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:29",
+    "name": "THE FIGHTING RING",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:42",
+    "name": "THE FORGOTTEN ARENA",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:68",
+    "name": "SHATTERED GLASS",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:5",
+    "name": "MAINTENANCE BOX",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:52",
+    "name": "THE DITCH BACKPACK",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:56",
+    "name": "THE LOCKED TOOL CHEST",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:60",
+    "name": "STATION NINE DISCOVERY STORYLINE",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:25",
+    "name": "THE LAST MAIL",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:2",
+    "name": "THE BURIED FREIGHT",
+    "policy": "One-time"
+  },
+  {
+    "id": "east:20",
+    "name": "THE GRINDER CREW",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:70",
+    "name": "OVERTURNED MAINTENANCE CART",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:71",
+    "name": "THE SPRING TRAP",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:8",
+    "name": "OLD BILLBOARD",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:9",
+    "name": "THE TRAVELER",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:61",
+    "name": "THE SPRAINED RUNNER",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:33",
+    "name": "THE BRIDGE TOLL",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:26",
+    "name": "THE FALSE SHOULDER",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:1",
+    "name": "THE GLASS FIELD",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:3",
+    "name": "THE RED RAIN",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:24",
+    "name": "THE BLADE CART",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:7",
+    "name": "THE FURNACE PIT",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:73",
+    "name": "TOXIC CARGO",
+    "policy": "One-time"
+  },
+  {
+    "id": "east:79",
+    "name": "TOMMY BRIGGS — POSTAL ENCOUNTER",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:139",
+    "name": "MURPHY'S LOST CORVETTE",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:153",
+    "name": "PAYMENT REQUIRED",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:154",
+    "name": "INDUSTRIAL SPIDERS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:155",
+    "name": "CHEMICAL BURNERS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:156",
+    "name": "JUNKYARD HERMIT",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:157",
+    "name": "FACTORY ENFORCERS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:158",
+    "name": "SCRAP TORCHERS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:159",
+    "name": "FUEL THIEVES",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:181",
+    "name": "THE EMPTY ASSEMBLY LINE",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:182",
+    "name": "THE LAST FAX MACHINE",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:183",
+    "name": "EMPLOYEE ENTRANCE ONLY",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:184",
+    "name": "THE BATTERY ROOM",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:185",
+    "name": "THE TRAINING VIDEO",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:186",
+    "name": "LIVE WIRES",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:187",
+    "name": "THE COLLAPSING CATWALK",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:188",
+    "name": "THE PARTS TRUCK",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:189",
+    "name": "THE SLEEPING ROBOT",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:190",
+    "name": "THE TOOL CRIB",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:191",
+    "name": "THE SALVAGE YARD LEDGER",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:192",
+    "name": "THE TRAPPED WORKER",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:193",
+    "name": "THE WATER SHIPMENT",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:194",
+    "name": "THE FACTORY WHISTLE",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:195",
+    "name": "THE LAST PAYCHECK",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:196",
+    "name": "THE MIDNIGHT SHIFT",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:197",
+    "name": "CHEMICAL RUNOFF",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:198",
+    "name": "AUTONOMOUS SECURITY HOUNDS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:199",
+    "name": "THE LAST AUTONOMOUS TAXI",
+    "policy": "Repeatable"
+  }
+]

@@ -52,7 +52,7 @@ base(){
 const encounters = [
   {title:"COUNTY WORK TRUCK",exclusive:false,text:"A county maintenance truck leans into a ditch. Muddy tracks lead toward the tree line.",prompt(){const q=r18CountyTruckScene(),f=player.flags;return q.followed?['INSPECT COUNTY MAP',...(f.r18CountyQuest!=='done'?['ENTER COUNTY DEPOT']:[]),...(!f.r18CountyWorkerHelped?['GIVE WORKER A BANDAGE','HELP WORKER TO SAFETY','LEAVE WORKER']:['MOVE ON']), 'RETURN TO TRUCK'].join('   '):`CHECK GLOVEBOX   SEARCH TRUCK BED${f.r18CountyQuest==='done'?(f.r18CountyMapSeen?'   FOLLOW COUNTY MAP':''):f.r18CountyWorkerHelped?'   FOLLOW COUNTY MAP':'   FOLLOW TRACKS'}   MOVE ON`;},resolve(cmd){const q=r18CountyTruckScene(),f=player.flags;
    if(cmd==='return to truck'){q.followed=false;add('You return to the truck.','system');return true;}
-   if(cmd.includes('move on')||cmd.includes('leave worker')){add('You leave the county truck behind.');return true;}
+   if(cmd==='leave'||cmd.includes('move on')||cmd.includes('leave worker')){add('You leave the county truck behind.');return true;}
    if(cmd.includes('glove')){if(!addPack('Bandage','consumable'))return false;gainXp(7);add('A sealed first-aid pouch remains.');return true;}
    if(cmd.includes('bed')){gainBolts(6);gainXp(6);add('Six Bolts roll out of an overturned parts bin.');return true;}
    if((cmd.includes('tracks')&&f.r18CountyQuest!=='done')||cmd==='follow county map'&&(f.r18CountyMapSeen||f.r18CountyWorkerHelped)){q.followed=true;add(f.r18CountyWorkerHelped?'The county map points along a trail toward the maintenance depot.':'The tracks lead to an injured county worker holding a folded service map. A trail continues toward the depot.','bright');return true;}

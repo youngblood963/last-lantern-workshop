@@ -1,6 +1,6 @@
 /* Execute offered non-encounter commands and replay nested paths in isolated DEVTEST engines. */
 const fs=require('node:fs'),assert=require('node:assert/strict');
-const create=require('./helpers/menu_audit.cjs'),roots=require('./fixtures/menu-audit-roots.json');
+const create=require('./helpers/menu_audit.cjs'),roots=require(process.env.MENU_ROOTS_FILE||'./fixtures/menu-audit-roots.json');
 const supplies=require('./fixtures/non-scenario-items.json');
 const profiles=['poor','supplied','full'];
 const reports=[],menus=new Map(),issues=[],duplicates=[],truncations=[];

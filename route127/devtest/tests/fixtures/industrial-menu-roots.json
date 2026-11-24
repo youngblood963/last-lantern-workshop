@@ -1,0 +1,5 @@
+[
+ {"id":"factory-authorized","setup":"player.flags.relayQuest='complete';lanternState().nodeId='factory';v49FactoryRoom();"},
+ {"id":"factory-cleared","setup":"player.flags.relayQuest='complete';lanternState().nodeId='factory';factoryState().done=[0,1,2,3];v49FactoryRoom();"},
+ {"id":"factory-locked","setup":"lanternState().nodeId='factory';v49FactoryRoom();"}
+]

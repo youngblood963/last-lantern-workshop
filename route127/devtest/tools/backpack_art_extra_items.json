@@ -1,0 +1,562 @@
+[
+  {
+    "name": "King's Breaker",
+    "type": "weapon",
+    "id": "item-king-s-breaker"
+  },
+  {
+    "name": "Grinder's Cutter",
+    "type": "weapon",
+    "id": "item-grinder-s-cutter"
+  },
+  {
+    "name": "Chemist's Injector",
+    "type": "weapon",
+    "id": "item-chemist-s-injector"
+  },
+  {
+    "name": "Foreman's Verdict",
+    "type": "weapon",
+    "id": "item-foreman-s-verdict"
+  },
+  {
+    "name": "Dockside Cleaver",
+    "type": "weapon",
+    "id": "item-dockside-cleaver"
+  },
+  {
+    "name": "Salvage Hook",
+    "type": "weapon",
+    "id": "item-salvage-hook"
+  },
+  {
+    "name": "Rotary Tooth",
+    "type": "weapon",
+    "id": "item-rotary-tooth"
+  },
+  {
+    "name": "Assembly Maul",
+    "type": "weapon",
+    "id": "item-assembly-maul"
+  },
+  {
+    "name": "Containment Scalpel",
+    "type": "weapon",
+    "id": "item-containment-scalpel"
+  },
+  {
+    "name": "Reactive Prod",
+    "type": "weapon",
+    "id": "item-reactive-prod"
+  },
+  {
+    "name": "Command Sledge",
+    "type": "weapon",
+    "id": "item-command-sledge"
+  },
+  {
+    "name": "Overseer Rail",
+    "type": "weapon",
+    "id": "item-overseer-rail"
+  },
+  {
+    "name": "Balanced Hunting Knife",
+    "type": "weapon",
+    "id": "item-balanced-hunting-knife"
+  },
+  {
+    "name": "Tempered Combat Machete",
+    "type": "weapon",
+    "id": "item-tempered-combat-machete"
+  },
+  {
+    "name": "Specialized Service Revolver",
+    "type": "weapon",
+    "id": "item-specialized-service-revolver"
+  },
+  {
+    "name": "Advanced Relay Vest",
+    "type": "armor",
+    "id": "item-advanced-relay-vest"
+  },
+  {
+    "name": "Padded Tactical Jacket",
+    "type": "armor",
+    "id": "item-padded-tactical-jacket"
+  },
+  {
+    "name": "Tempered Leather Armor",
+    "type": "armor",
+    "id": "item-tempered-leather-armor"
+  },
+  {
+    "name": "Salvaged Security Vest",
+    "type": "armor",
+    "id": "item-salvaged-security-vest"
+  },
+  {
+    "name": "Insulated Patrol Coat",
+    "type": "armor",
+    "id": "item-insulated-patrol-coat"
+  },
+  {
+    "name": "Yardman's Wrench",
+    "type": "weapon",
+    "id": "item-yardman-s-wrench"
+  },
+  {
+    "name": "Heavy Wrench",
+    "type": "weapon",
+    "id": "item-heavy-wrench"
+  },
+  {
+    "name": "Bluefang Hunting Knife",
+    "type": "weapon",
+    "id": "item-bluefang-hunting-knife"
+  },
+  {
+    "name": "Devastator's Iron Pipe",
+    "type": "weapon",
+    "id": "item-devastator-s-iron-pipe"
+  },
+  {
+    "name": "Worn Jacket",
+    "type": "armor",
+    "id": "item-worn-jacket"
+  },
+  {
+    "name": "Reinforced Jacket",
+    "type": "armor",
+    "id": "item-reinforced-jacket"
+  },
+  {
+    "name": "Padded Jacket",
+    "type": "armor",
+    "id": "item-padded-jacket"
+  },
+  {
+    "name": "Reinforced Work Vest",
+    "type": "armor",
+    "id": "item-reinforced-work-vest"
+  },
+  {
+    "name": "Hardened Scavenger Coat",
+    "type": "armor",
+    "id": "item-hardened-scavenger-coat"
+  },
+  {
+    "name": "Highway Warden's Coat",
+    "type": "armor",
+    "id": "item-highway-warden-s-coat"
+  },
+  {
+    "name": "Wraith's Reinforced Coat",
+    "type": "armor",
+    "id": "item-wraith-s-reinforced-coat"
+  },
+  {
+    "name": "Worn Leather Wristband",
+    "type": "accessory",
+    "id": "item-worn-leather-wristband"
+  },
+  {
+    "name": "Lucky Bottle Cap",
+    "type": "accessory",
+    "id": "item-lucky-bottle-cap"
+  },
+  {
+    "name": "Worn Belt",
+    "type": "accessory",
+    "id": "item-worn-belt"
+  },
+  {
+    "name": "Scavenger's Charm",
+    "type": "accessory",
+    "id": "item-scavenger-s-charm"
+  },
+  {
+    "name": "Reinforced Dog Tags",
+    "type": "accessory",
+    "id": "item-reinforced-dog-tags"
+  },
+  {
+    "name": "Road Warrior's Bracelet",
+    "type": "accessory",
+    "id": "item-road-warrior-s-bracelet"
+  },
+  {
+    "name": "Niko's Lucky Vest",
+    "type": "armor",
+    "id": "item-niko-s-lucky-vest"
+  },
+  {
+    "name": "Giant Dog Bone",
+    "type": "consumable",
+    "id": "item-giant-dog-bone"
+  },
+  {
+    "name": "Rusty License Plate",
+    "type": "accessory",
+    "id": "item-rusty-license-plate"
+  },
+  {
+    "name": "Niko's Collar",
+    "type": "accessory",
+    "id": "item-niko-s-collar"
+  },
+  {
+    "name": "Iron Reaper",
+    "type": "weapon",
+    "id": "item-iron-reaper"
+  },
+  {
+    "name": "Crazy Steve's Sandwich Board",
+    "type": "armor",
+    "id": "item-crazy-steve-s-sandwich-board"
+  },
+  {
+    "name": "Reinforced Salvage Maul",
+    "type": "weapon",
+    "id": "item-reinforced-salvage-maul"
+  },
+  {
+    "name": "Modified Rotary Cutter",
+    "type": "weapon",
+    "id": "item-modified-rotary-cutter"
+  },
+  {
+    "name": "Modified Chemical Sprayer",
+    "type": "weapon",
+    "id": "item-modified-chemical-sprayer"
+  },
+  {
+    "name": "Advanced Foreman Hammer",
+    "type": "weapon",
+    "id": "item-advanced-foreman-hammer"
+  },
+  {
+    "name": "Lantern Keeper\u2019s Coat",
+    "type": "armor",
+    "id": "item-lantern-keeper-s-coat"
+  },
+  {
+    "name": "Uncommon Electrical Parts",
+    "type": "material",
+    "id": "item-uncommon-electrical-parts"
+  },
+  {
+    "name": "Crude Shiv",
+    "type": "weapon",
+    "id": "item-crude-shiv"
+  },
+  {
+    "name": "Worn Crowbar",
+    "type": "weapon",
+    "id": "item-worn-crowbar"
+  },
+  {
+    "name": "Worn Canvas Coat",
+    "type": "armor",
+    "id": "item-worn-canvas-coat"
+  },
+  {
+    "name": "The River Before",
+    "type": "accessory",
+    "id": "item-the-river-before"
+  },
+  {
+    "name": "Roadhouse Hash",
+    "type": "consumable",
+    "id": "item-roadhouse-hash"
+  },
+  {
+    "name": "Crab Meat",
+    "type": "material",
+    "id": "item-crab-meat"
+  },
+  {
+    "name": "Rifle Ammunition",
+    "type": "material",
+    "id": "item-rifle-ammunition"
+  },
+  {
+    "name": "Bear Meat",
+    "type": "material",
+    "id": "item-bear-meat"
+  },
+  {
+    "name": "Animal Hide",
+    "type": "material",
+    "id": "item-animal-hide"
+  },
+  {
+    "name": "Corvette Tire",
+    "type": "quest",
+    "id": "item-corvette-tire"
+  },
+  {
+    "name": "Corvette Battery",
+    "type": "quest",
+    "id": "item-corvette-battery"
+  },
+  {
+    "name": "Damaged Corvette Windshield",
+    "type": "quest",
+    "id": "item-damaged-corvette-windshield"
+  },
+  {
+    "name": "Restored Corvette Windshield",
+    "type": "quest",
+    "id": "item-restored-corvette-windshield"
+  },
+  {
+    "name": "Corvette Brake Lines",
+    "type": "quest",
+    "id": "item-corvette-brake-lines"
+  },
+  {
+    "name": "Nessa's Locket",
+    "type": "quest",
+    "id": "item-nessa-s-locket"
+  },
+  {
+    "name": "Water",
+    "type": "material",
+    "id": "item-water"
+  },
+  {
+    "name": "Glass",
+    "type": "material",
+    "id": "item-glass"
+  },
+  {
+    "name": "Glue",
+    "type": "material",
+    "id": "item-glue"
+  },
+  {
+    "name": "Astrid Road Flare",
+    "type": "quest",
+    "id": "item-astrid-road-flare"
+  },
+  {
+    "name": "Harbor Guard Cutlass",
+    "type": "weapon",
+    "id": "item-harbor-guard-cutlass"
+  },
+  {
+    "name": "Cloth",
+    "type": "material",
+    "id": "item-cloth"
+  },
+  {
+    "name": "Scrap Metal",
+    "type": "material",
+    "id": "item-scrap-metal"
+  },
+  {
+    "name": "Wire",
+    "type": "material",
+    "id": "item-wire"
+  },
+  {
+    "name": "Electronics",
+    "type": "material",
+    "id": "item-electronics"
+  },
+  {
+    "name": "Small Animal Bones",
+    "type": "material",
+    "id": "item-small-animal-bones"
+  },
+  {
+    "name": "Animal Bones",
+    "type": "material",
+    "id": "item-animal-bones"
+  },
+  {
+    "name": "Large Animal Bones",
+    "type": "material",
+    "id": "item-large-animal-bones"
+  },
+  {
+    "name": "Tempered Steel",
+    "type": "material",
+    "id": "item-tempered-steel"
+  },
+  {
+    "name": "Explosive Components",
+    "type": "material",
+    "id": "item-explosive-components"
+  },
+  {
+    "name": "Salt",
+    "type": "material",
+    "id": "item-salt"
+  },
+  {
+    "name": "Raw Rat Meat",
+    "type": "material",
+    "id": "item-raw-rat-meat"
+  },
+  {
+    "name": "Raw Rabbit Meat",
+    "type": "material",
+    "id": "item-raw-rabbit-meat"
+  },
+  {
+    "name": "Raw Bird Meat",
+    "type": "material",
+    "id": "item-raw-bird-meat"
+  },
+  {
+    "name": "Raw Chicken Meat",
+    "type": "material",
+    "id": "item-raw-chicken-meat"
+  },
+  {
+    "name": "Raw Boar Meat",
+    "type": "material",
+    "id": "item-raw-boar-meat"
+  },
+  {
+    "name": "Raw Venison",
+    "type": "material",
+    "id": "item-raw-venison"
+  },
+  {
+    "name": "Raw Snake Meat",
+    "type": "material",
+    "id": "item-raw-snake-meat"
+  },
+  {
+    "name": "Raw Wolf Meat",
+    "type": "material",
+    "id": "item-raw-wolf-meat"
+  },
+  {
+    "name": "Energy Bars",
+    "type": "consumable",
+    "id": "item-energy-bars"
+  },
+  {
+    "name": "Bandage",
+    "type": "consumable",
+    "id": "item-bandage"
+  },
+  {
+    "name": "Clean Water",
+    "type": "consumable",
+    "id": "item-clean-water"
+  },
+  {
+    "name": "Reinforced Bandage",
+    "type": "consumable",
+    "id": "item-reinforced-bandage"
+  },
+  {
+    "name": "Emergency Trauma Kit",
+    "type": "consumable",
+    "id": "item-emergency-trauma-kit"
+  },
+  {
+    "name": "Fresh Apple",
+    "type": "consumable",
+    "id": "item-fresh-apple"
+  },
+  {
+    "name": "Fresh Pear",
+    "type": "consumable",
+    "id": "item-fresh-pear"
+  },
+  {
+    "name": "Fresh Carrot",
+    "type": "consumable",
+    "id": "item-fresh-carrot"
+  },
+  {
+    "name": "Fresh Potato",
+    "type": "consumable",
+    "id": "item-fresh-potato"
+  },
+  {
+    "name": "Fresh Tomato",
+    "type": "consumable",
+    "id": "item-fresh-tomato"
+  },
+  {
+    "name": "Fresh Cabbage",
+    "type": "consumable",
+    "id": "item-fresh-cabbage"
+  },
+  {
+    "name": "Fresh Berries",
+    "type": "consumable",
+    "id": "item-fresh-berries"
+  },
+  {
+    "name": "Preserved Vegetables",
+    "type": "consumable",
+    "id": "item-preserved-vegetables"
+  },
+  {
+    "name": "Preserved Meat",
+    "type": "consumable",
+    "id": "item-preserved-meat"
+  },
+  {
+    "name": "Wasteland Stew",
+    "type": "consumable",
+    "id": "item-wasteland-stew"
+  },
+  {
+    "name": "Wild Honey",
+    "type": "consumable",
+    "id": "item-wild-honey"
+  },
+  {
+    "name": "Battered Flashlight",
+    "type": "tool",
+    "id": "item-battered-flashlight"
+  },
+  {
+    "name": "Old World Pocket Compass",
+    "type": "valuable",
+    "id": "item-old-world-pocket-compass"
+  },
+  {
+    "name": "Tim's Old Badge",
+    "type": "quest",
+    "id": "item-tim-s-old-badge"
+  },
+  {
+    "name": "Usable Serpentine Belt",
+    "type": "quest",
+    "id": "item-usable-serpentine-belt"
+  },
+  {
+    "name": "Runner's Token",
+    "type": "quest",
+    "id": "item-runner-s-token"
+  },
+  {
+    "name": "Jen's Supply Crate",
+    "type": "quest",
+    "id": "item-jen-s-supply-crate"
+  },
+  {
+    "id": "item-postman-s-vest",
+    "name": "Postman's Vest",
+    "type": "armor"
+  },
+  {
+    "id": "weapon-rare-rim-reaper",
+    "name": "Rim Reaper",
+    "type": "weapon"
+  },
+  {
+    "id": "item-keeper-s-lantern",
+    "name": "Keeper's Lantern",
+    "type": "accessory"
+  }
+]

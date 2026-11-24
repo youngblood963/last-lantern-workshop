@@ -19,5 +19,15 @@ module.exports=function(){
  expanded=expanded.replace(/<script>\s*if\(!globalThis\.ROUTE127_ENV\?\.terminalPreview[^]*?cloud-save-bootstrap[^]*?<\/script>/,'');
  if(process.env.WO33_BASELINE)expanded=expanded.replace(/<script src="[^" ]*enemy_(?:scaling|reward_compat)_wo33\.js[^" ]*"><\/script>/g,'');
  source=source.replace("fs.readFileSync(path.join(gameDir,'index.html'),'utf8')",JSON.stringify(expanded));
+ // Match the browser's classic script tags regardless of attribute order, IDs,
+ // cache query strings, and data-* attributes. Preserve currentScript metadata.
+ source=source.split('\n').map(line=>line.startsWith('for(const match of index.matchAll(')?String.raw`for(const match of index.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)){
+ const attrs=match[1],src=attrs.match(/\bsrc="([^"]+)"/i)?.[1],type=attrs.match(/\btype="([^"]+)"/i)?.[1];
+ if(type&&!['text/javascript','application/javascript'].includes(type))continue;
+ const previous=document.currentScript,file=src&&src.split('?')[0];
+ document.currentScript=src?{src:new URL(src,document.baseURI).href,id:attrs.match(/\bid="([^"]+)"/i)?.[1]||'',dataset:Object.fromEntries([...attrs.matchAll(/data-([\w-]+)="([^"]*)"/g)].map(([,key,value])=>[key.replace(/-([a-z])/g,(_,c)=>c.toUpperCase()),value]))}:null;
+ try{run(file?fs.readFileSync(path.join(gameDir,file),'utf8'):match[2]);}catch(e){throw new Error((file||'inline')+': '+e.stack);}finally{document.currentScript=previous;}
+}`:line).join('\n');
+
  helper._compile(source,helperPath);return helper.exports();
 };

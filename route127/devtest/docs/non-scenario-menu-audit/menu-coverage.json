@@ -1,4 +1,17 @@
 {
+  "coverageCorrection": {
+    "status": "historical-partial-loader-results",
+    "reason": "Original DOM loader skipped attributed scripts. Legacy Captain's Dice entries do not describe the current graphical casino.",
+    "currentSeaportMenu": [
+      "Blackjack",
+      "Slots",
+      "Pirate's Poker",
+      "Crab Racing",
+      "Knife Throwing",
+      "Return to Mia"
+    ],
+    "verification": "../seaport-casino-regression/README.md"
+  },
   "distinctPublishedVariants": 236,
   "conditionalStates": 1398,
   "distinctStageLocationCommands": 1115,

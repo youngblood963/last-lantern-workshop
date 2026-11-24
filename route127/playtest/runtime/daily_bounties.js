@@ -44,23 +44,24 @@ function rngFor(deadline){
  for(const ch of String(player.characterId||player.handle||'survivor')+'|'+deadline)seed=(Math.imul(seed,31)+ch.charCodeAt(0))>>>0;
  return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/2**32);
 }
-function state(){
+function state(contact){
  ensureRefillClock();
- const deadline=Number(player.flags.nextRefillAt),prior=player.flags.dailyBounties;
+ const field=contact==='jessica'?'motelJessicaBounties':'dailyBounties';
+ const deadline=Number(player.flags.nextRefillAt),prior=player.flags[field];
  if(prior?.deadline===deadline)return prior;
- const rng=rngFor(deadline),regions=accessibleRegions();
+ const rng=rngFor(contact==='jessica'?deadline+'|jessica':deadline),regions=accessibleRegions();
  const contracts=[];
  if(regions.length)for(const tier of [DAILY_BOUNTY_ROSTER.slice(0,6),DAILY_BOUNTY_ROSTER.slice(6,13),DAILY_BOUNTY_ROSTER.slice(13)]){
   const pool=tier.filter(target=>!machine(target)||regions.some(region=>['CENTRAL','INDUSTRIAL','EAST'].includes(region)));
   const target=pool[Math.floor(rng()*pool.length)];
   if(!target)continue;
   const eligible=machine(target)?regions.filter(region=>['CENTRAL','INDUSTRIAL','EAST'].includes(region)):regions;
-  contracts.push({id:deadline+':'+target.id,target:target.id,region:eligible[Math.floor(rng()*eligible.length)],
+  contracts.push({issuer:contact==='jessica'?'jessica':'shared',id:(contact==='jessica'?'jessica:':'')+deadline+':'+target.id,target:target.id,region:eligible[Math.floor(rng()*eligible.length)],
    payment:quote(target),status:'available',steps:0});
  }
- const next=player.flags.dailyBounties={deadline,contracts,history:prior?.history||[]};
+ const next=player.flags[field]={deadline,contracts,history:prior?.history||[]};
  const g=lanternState();
- if(g?.dailyBountyTarget&&g.dailyBountyTarget!==billy.id){
+ if(g?.dailyBountyTarget&&g.dailyBountyTarget!==billy.id&&String(g.dailyBountyTarget).startsWith('jessica:')===(contact==='jessica')){
   delete g.dailyBountyTarget;
   if(stage==='encounter'&&g.pending&&!combatState){completeRoadTurn();add('The previous bounty has expired.','system');}
  }
@@ -72,12 +73,13 @@ function introductory(){
  return {id:billy.id,target:billy.id,region:'Solace–Factory road',payment:100,
   status:{active:'active',proof:'proof',done:'claimed'}[player.flags.terribleBillyBounty]||'available'};
 }
-function contracts(){
+function contracts(contact){
  processRefill();
- return [introductory(),...state().contracts];
+ if(contact==='jessica')return state('jessica').contracts;
+ return [introductory(),...state().contracts,...(!contact&&player.flags.motelJessicaBounties?state('jessica').contracts:[])];
 }
 function act(id,action,contact){
- const contract=contracts().find(row=>row.id===id);
+ const contract=contracts(contact).find(row=>row.id===id);
  if(!contract)return false;
  const intro=id===billy.id;
  if(action==='accept'&&contract.status==='available'){
@@ -85,13 +87,13 @@ function act(id,action,contact){
   else {contract.status='active';contract.steps=0;}
  }else if(action==='abandon'&&contract.status==='active'&&!intro){
   contract.status='available';contract.steps=0;
- }else if(action==='claim'&&contract.status==='proof'&&['tim','kaiden'].includes(contact)){
+ }else if(action==='claim'&&contract.status==='proof'&&(contract.issuer==='jessica'?contact==='jessica':['tim','kaiden'].includes(contact))){
   if(intro){
    player.flags.terribleBillyBounty='done';
    gainXp(140);
   }else{
    contract.status='claimed';
-   state().history.push({target:contract.target,payment:contract.payment,deadline:state().deadline});
+   state(contract.issuer==='jessica'?'jessica':undefined).history.push({target:contract.target,payment:contract.payment,deadline:state(contract.issuer==='jessica'?'jessica':undefined).deadline});
   }
   gainBolts(contract.payment);
   add('BOUNTY PAID — '+roster.get(contract.target).name+' · '+contract.payment+' Bolts.','reward');
@@ -103,7 +105,7 @@ function atCurrentRoad(){
  const g=lanternState();
  if(!g?.pending||!g.currentEdgeId||!g.dailyBountyTarget)return null;
  if(g.dailyBountyTarget===billy.id){const intro=introductory();return intro.status==='active'?intro:null;}
- const today=player.flags.dailyBounties;
+ const today=String(g.dailyBountyTarget).startsWith('jessica:')?player.flags.motelJessicaBounties:player.flags.dailyBounties;
  if(today?.deadline<=Date.now())return null;
  return today?.contracts.find(row=>row.id===g.dailyBountyTarget&&row.status==='active')||null;
 }
@@ -220,7 +222,7 @@ function draw(){
  if(!dialog?.open)return;
  const list=source==='preview'?[...roster.values()].map(target=>({
   id:target.id,target:target.id,region:'Rotating',payment:quote(target),status:'available'
- })):contracts();
+ })):contracts(source);
  const title=element('h2',"Wasteland’s Most Wanted");title.id='r127-wanted-title';
  const time=element('p','Daily bounties expire at the next daily reset. Defeat your target and collect your payment before time runs out.');
  const clock=element('strong',source==='preview'?'Roster preview':refillText());clock.id='r127-wanted-clock';time.append(' Time remaining ',clock);
@@ -240,6 +242,7 @@ function draw(){
    if(act(row.id,action,source)&&action==='claim'){
     dialog.close();
     if(source==='tim')v53TimMenu();
+    else if(source==='jessica')Route127Motel.open('jessica');
     else r18KaidenChoices();
     return;
    }
@@ -259,7 +262,7 @@ function draw(){
      element('strong',offer.payment+' Bolts'));
     cards.append(card);
    }
-   if(status==='claimed'&&source!=='preview')for(const entry of state().history.filter(entry=>entry.deadline!==state().deadline).slice(-12).reverse()){
+   if(status==='claimed'&&source!=='preview')for(const entry of state(source==='jessica'?'jessica':undefined).history.filter(entry=>entry.deadline!==state(source==='jessica'?'jessica':undefined).deadline).slice(-12).reverse()){
     cards.append(element('p',roster.get(entry.target)?.name+' · '+entry.payment+' Bolts'));
    }
    if(!cards.children.length)cards.append(element('p','None'));
@@ -283,12 +286,12 @@ function open(contact){
  draw();
  clearInterval(refresh);
  if(contact==='preview')return;
- let deadline=state().deadline;
+ let deadline=state(contact==='jessica'?'jessica':undefined).deadline;
  refresh=setInterval(()=>{
   if(!dialog.open)return;
   if(source==='preview')return;
   processRefill();
-  if(deadline!==state().deadline){deadline=state().deadline;selected=null;draw();}
+  if(deadline!==state(contact==='jessica'?'jessica':undefined).deadline){deadline=state(contact==='jessica'?'jessica':undefined).deadline;selected=null;draw();}
   else dialog.querySelector('#r127-wanted-clock').textContent=refillText();
  },1000);
 }
@@ -317,5 +320,5 @@ function artTarget(){
  return id&&id!==billy.id?roster.get(id):null;
 }
 window.addEventListener('keydown',event=>{if(dialog?.open)event.stopImmediatePropagation();},true);
-globalThis.DailyBounties={openBoard(onClose){open('board');dialog.addEventListener('close',onClose,{once:true});},artTarget,preview:()=>open('preview'),quote,roster:()=>[...roster.values()]};
+globalThis.DailyBounties={openContact:contact=>{if(contact==='jessica')open(contact);},openBoard(onClose){open('board');dialog.addEventListener('close',onClose,{once:true});},artTarget,preview:()=>open('preview'),quote,roster:()=>[...roster.values()]};
 })();

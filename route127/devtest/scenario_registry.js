@@ -1535,7 +1535,7 @@ wo2(){
 // Work Order 3 — six bounded revisions and their required dependencies.
 wo3Needs(part){
  const q=player.flags.wo3Corvette;if(!q?.active)return false;
- if(part==='battery')return !this.wo2State().wo3Battery&&!hasItem('Corvette Battery');
+ if(part==='battery')return !q.complete&&!q.delivered?.battery&&!this.wo2State().wo3Battery&&!hasItem('Corvette Battery');
  return !this.wo2State().windshield&&!hasItem('Damaged Corvette Windshield');
 },
 wo3Pick(region,kind,candidates,rng){
@@ -1635,8 +1635,10 @@ wo3(){
   'A maintenance cart lies beside the highway. Its battery cradle is intact; tools and recoverable materials remain in the tray.',{
    'STRIP THE BATTERY LEADS':()=>battery('strip the battery leads'),
    'SEARCH THE TOOL TRAY':()=>battery('search the tool tray'),
-   'RECOVER CORVETTE BATTERY':()=>{if(!r.wo3Needs('battery')){add('You do not need another battery. The tray still holds ordinary salvage.');return true;}return battery('recover corvette battery');}
+   'RECOVER CORVETTE BATTERY':()=>{if(!r.wo3Needs('battery')){add('No Corvette battery is currently requested. The tray still holds ordinary salvage.');return false;}return battery('recover corvette battery');}
   });
+ // The quest part is offered only while Murphy still needs it. Ordinary salvage remains.
+ cart.prompt=()=>cart.choices.split(/\s{2,}/).filter(label=>label!=='RECOVER CORVETTE BATTERY'||r.wo3Needs('battery')).join('   ');
  function food(){const item=player.pack.find(i=>i.qty>0&&i.type==='consumable'&&!i.protected&&!i.unique&&['Energy Bars','Preserved Meat'].includes(i.name));if(!item){add('You need an Energy Bar or Preserved Meat to distract the pack.','system');return false;}if(!removeItem(r18ItemLabel(item)))return false;r.wo2Once('wo3Dogs',()=>{r.wo2Item('Cloth');add('The dogs follow the food away from the den. You recover abandoned Cloth and pass without fighting.');});return true;}
  scene('SALT MARSH HUNTERS','MARSH DOG PACK',
   'Two lean marsh dogs close from opposite sides. One holds your attention while the other circles toward your flank. Their den contains scraps dragged from abandoned roadside supplies.',{

@@ -1,5 +1,40 @@
 /* DEVTEST: keep vendor buyback separate from ordinary vendor stock. */
 (()=>{'use strict';if(!location.pathname.includes('/route127/playtest/'))return;
+// Only player-resold equipment is filtered. Generated regional/wanderer goods stay intact.
+const commonEquipment=item=>{const g=GEAR[typeof item==='string'?item:item?.name];return !!g&&['weapon','armor','accessory'].includes(g.type)&&g.rarity==='common';};
+function cleanRusty(s){
+ if(!s?.stock)return s;
+ // Rusty's generated gear is one deterministic arm plus an optional Uncommon.
+ // Keep that arm's original allowance if a future catalog marks it Common.
+ const arms=['Claw Hammer','Tire Iron','Reinforced Jacket'].filter(n=>GEAR[n]);
+ const native=arms[Math.abs(Math.floor((Number(s.period)||0)/86400000))%arms.length];
+ for(const name of Object.keys(s.stock))if(commonEquipment(name)){
+  if(name===native)s.stock[name]=Math.min(1,Math.max(0,Number(s.stock[name])||0));else delete s.stock[name];
+ }
+ return s;
+}
+function cleanWanderer(inv){if(inv?.items)inv.items=inv.items.filter(i=>i.trade!==false||!commonEquipment(i));return inv;}
+function migrate(){
+ cleanRusty(player.flags.r5Rusty);
+ for(const state of Object.values(player.wandererState||{}))if(state.profile?.v52Inventory)cleanWanderer(state.profile.v52Inventory);
+ loadBuybackStock();
+}
+globalThis.Route127VendorBuyback=Object.freeze({allow:item=>!commonEquipment(item),commonEquipment,cleanRusty,cleanWanderer,migrate});
+// Native Rusty transactions write through this stock object. Reject only an
+// increase from sold Common equipment; ordinary purchases can decrement stock.
+const guardedStocks=new WeakSet(),rustyStock=r5RustyStock;
+r5RustyStock=function(...args){
+ const s=cleanRusty(rustyStock.apply(this,args));
+ if(!guardedStocks.has(s.stock)){
+  s.stock=new Proxy(s.stock,{set(stock,name,value){
+   if(commonEquipment(name)&&Number(value)>Number(stock[name]||0))return true;
+   stock[name]=value;return true;
+  }});guardedStocks.add(s.stock);
+ }
+ return s;
+};
+const inventory=v52Inventory;
+v52Inventory=function(...args){return cleanWanderer(inventory.apply(this,args));};
 const shops=new Set(['johnny','mara','jen','wayne']);
 const rarity=item=>GEAR[item.name]?.rarity||'common';
 function loadBuybackStock(){
@@ -15,7 +50,7 @@ const ledger=()=>loadBuybackStock()||(player.flags.devBuybacks={});
 const baseLoad=loadGame;
 loadGame=function(...args){
  const result=baseLoad.apply(this,args);
- loadBuybackStock();
+ migrate();
  return result;
 };
 const base=v53SaleCommand;

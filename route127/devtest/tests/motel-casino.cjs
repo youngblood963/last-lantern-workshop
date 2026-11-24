@@ -1,4 +1,4 @@
-const assert=require('node:assert/strict'),create=require('./helpers/menu_audit.cjs');
+const assert=require('node:assert/strict'),create=require(process.env.ROUTE127_RELEASE?'./helpers/release_menu.cjs':'./helpers/menu_audit.cjs');
 (async()=>{
  const game=create(),{run,flush,ctx}=game;await flush();
  const act=async c=>{await run('handleCommand('+JSON.stringify(c)+')');await flush();};

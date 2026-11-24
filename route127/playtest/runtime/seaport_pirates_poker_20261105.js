@@ -125,7 +125,7 @@
     const card=document.createElement(playerHand&&r.status==='active'?'button':'div');
     card.className='poker-card'+(hidden?' is-hidden':'');
     card.style.animationDelay=(i*65)+'ms';
-    if(hidden){card.textContent='✦';card.setAttribute('aria-label','Mia card face down');}
+    if(hidden){card.textContent='✦';card.setAttribute('aria-label',r.location==='motel'?'Dealer card face down':'Mia card face down');}
     else{
      const suit=symbol(n);card.dataset.suit=(suit==='♦'||suit==='♥')?'red':'black';
      const value=document.createElement('span');value.textContent=rank(n);
@@ -156,14 +156,14 @@
    container.appendChild(holder);
   };
   if(r.status==='waiting'){
-   label("PIRATE'S POKER");
+   label(r.location==='motel'?'POKER':"PIRATE'S POKER");
    const hint=document.createElement('div');hint.className='poker-hint';
    hint.textContent='Place a wager to deal five cards each.';
    container.appendChild(hint);
    return result;
   }
   if(!Array.isArray(r.hand)||!Array.isArray(r.dealer))return result;
-  label("MIA'S HAND");
+  label(r.location==='motel'?"DEALER'S HAND":"MIA'S HAND");
   row(r.dealer,r.status!=='settled',false);
   label('YOUR HAND');
   row(r.hand,false,true);

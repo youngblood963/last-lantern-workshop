@@ -4,8 +4,8 @@ function r18TournamentState(key){const all=player.flags.r18Tournaments||(player.
 function r18TournamentAt(key){const g=lanternState();if(!g)return false;if(key==='deep')return !g.currentEdgeId&&g.nodeId==='abandoned-motel';if(!g.currentEdgeId||!g.pending||!['encounter','r127ArenaLobby'].includes(stage)||typeof currentEncounter!=='function')return false;const title=String(currentEncounter()?.title||'').toUpperCase().replace(/^EAST ROAD — /,'').trim();return key==='ring'?title==='THE FIGHTING RING':key==='grave'?title==='THE FORGOTTEN ARENA':false;}
 // Roadside arenas are RANDOM ENCOUNTERS, not persistent navigation destinations.
 // Tournament rounds/prizes remain saved; entry is offered only inside the encounter.
-function r18TournamentOptions(){return r18TournamentAt('deep')?[R18_TOURNAMENTS.deep.label]:[];}
-function r18TournamentRoadCommand(cmd){if(cmd!==R18_TOURNAMENTS.deep.label.toLowerCase()||!r18TournamentAt('deep'))return false;r18TournamentEnter('deep');return true;}
+function r18TournamentOptions(){return []; /* The Motel arena is reached through its settlement menu. */}
+function r18TournamentRoadCommand(cmd){return false; /* Legacy roadside entrance retired. */}
 function r18TournamentEnter(key){
  if(!R18_TOURNAMENTS[key]||!r18TournamentAt(key)){
   add('Tournament entry is only available at the active arena encounter.','system');

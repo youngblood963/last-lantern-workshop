@@ -391,8 +391,8 @@
   if(!figure)return;
   const ui=player?.flags?.portStaffUI;
   const role=stage==='port55Service'?ui?.role:null;
-  const active=GraphicalUI.active()&&!figure.hidden&&roles.has(role)&&player.flags?.seaport55?.freed;
-  const name=active?player.flags?.seaportStaff?.assignments?.[role]:null;
+  const active=GraphicalUI.active()&&!figure.hidden&&roles.has(role)&&portRecruitUnlocked();
+  const name=active?portStaffState().assignments?.[role]:null;
   const file=name&&globalThis.Route127WandererPortraitFiles?.[name];
   const key=file?role+':'+name+':'+file:'';
   const existing=figure.querySelector('.r127-shop-worker');
@@ -562,24 +562,19 @@
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST'||
     !location.pathname.includes('/route127/devtest/'))return;
 
+ function renderAssignment(){
+  const ui=player.flags?.portStaffUI,def=portStaffRoleDefinitions()[ui?.role];
+  if(stage!=='port55Service'||ui?.page!=='assign'||!GraphicalUI.active()||!def)return false;
+  add((portStaffSettlement()==='motel'?'MOTEL':'SEAPORT')+' — '+def.name.toUpperCase(),'place');
+  add('Browse your hired wanderers to compare portraits, experience and aptitudes. Choose Assign to confirm a worker.','system');
+  portStaffChoices('ASSIGN A WANDERER',['INSPECT WANDERERS','BACK']);return true;
+ }
  const earlierRender=portStaffRender;
- portStaffRender=function(...args){
-  const ui=player.flags?.portStaffUI;
-  if(stage==='port55Service'&&ui?.page==='assign'&&GraphicalUI.active()){
-   const role=ui.role,def=PORT_STAFF_ROLES[role];
-   if(def){
-    add('SEAPORT — '+def.name.toUpperCase(),'place');
-    add('Browse your hired wanderers to compare portraits, experience and aptitudes. Choose Assign to confirm a worker.','system');
-    portStaffChoices('ASSIGN A WANDERER',['INSPECT WANDERERS','BACK']);
-    return;
-   }
-  }
-  return earlierRender.apply(this,args);
- };
+ portStaffRender=function(...args){if(renderAssignment())return;return earlierRender.apply(this,args);};
 
  function picker(){
   const role=player.flags?.portStaffUI?.role;
-  if(stage!=='port55Service'||player.flags?.portStaffUI?.page!=='assign'||!PORT_STAFF_ROLES[role])return;
+  if(stage!=='port55Service'||player.flags?.portStaffUI?.page!=='assign'||!portStaffRoleDefinitions()[role])return;
   document.querySelector('.r127-roster-picker')?.close();
   if(!document.getElementById('r127-roster-picker-css')){
    const style=document.createElement('style');style.id='r127-roster-picker-css';
@@ -608,9 +603,9 @@
    document.head.appendChild(style);
   }
   const d=document.createElement('dialog');d.className='r127-roster-picker';
-  d.setAttribute('aria-label','Hired wanderers for '+PORT_STAFF_ROLES[role].name);
+  d.setAttribute('aria-label','Hired wanderers for '+portStaffRoleDefinitions()[role].name);
   const head=document.createElement('div');head.className='r127-roster-head';
-  const title=document.createElement('h2');title.textContent='HIRED WANDERERS — '+PORT_STAFF_ROLES[role].name.toUpperCase();
+  const title=document.createElement('h2');title.textContent='HIRED WANDERERS — '+portStaffRoleDefinitions()[role].name.toUpperCase();
   const close=document.createElement('button');close.type='button';close.textContent='X — Close';
   close.addEventListener('click',()=>d.close());head.append(title,close);d.append(head);
   const list=document.createElement('div');list.className='r127-roster-list';
@@ -619,7 +614,7 @@
    const w=wandererByName(name);if(!w)continue;
    const assigned=portStaffAssignment(name);
    const eligible=!assigned||assigned===role;
-   const skill=PORT_STAFF_ROLES[role].skill;
+   const skill=portStaffRoleDefinitions()[role].skill;
    const rating=portAptitudes(w)[skill];
    const item=document.createElement('div');item.className='r127-roster-item';
    const person=document.createElement('button');person.type='button';person.className='r127-roster-person';
@@ -631,7 +626,7 @@
     (typeof RouteIdentity!=='undefined'?RouteIdentity.wanderer?.[name]:null)||name;
    const details=document.createElement('span');
    details.textContent=(w.occupation||'Wanderer')+' · '+skill.toUpperCase()+' '+rating+'/5'+
-    (assigned?' · '+(assigned===role?'Currently here':'Assigned: '+PORT_STAFF_ROLES[assigned]?.name):' · Available');
+    (assigned?' · '+(assigned===role?'Currently here':'Assigned: '+portStaffRoleDefinitions()[assigned]?.name):' · Available');
    person.append(label,details);person.title='View portrait and full stats';
    person.addEventListener('click',()=>{
     const file=globalThis.Route127WandererPortraitFiles?.[name];
@@ -672,6 +667,7 @@
   }
   return earlierCommand.apply(this,arguments);
  };
+ globalThis.Route127StaffPicker=Object.freeze({open:picker,render:renderAssignment});
 })();
 
 /* DEVTEST: Workshop equipment softlock repair.

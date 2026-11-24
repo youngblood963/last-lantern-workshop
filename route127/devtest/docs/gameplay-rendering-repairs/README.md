@@ -1,4 +1,4 @@
-# Gameplay and rendering repairs — DEVTEST
+# Gameplay, rendering and Motel integration repairs
 
 ## Repairs
 
@@ -26,4 +26,19 @@ Desktop browser verification used an isolated local DEVTEST fixture with actual 
 
 ![Garden: approved foreground dimensions, internal sky and dark side margins](desktop-garden.jpg)
 
-All production changes are confined to `route127/devtest/`. PLAYTEST files and artwork assets are unchanged. No extended gameplay audit was performed.
+## Motel integration and owner-authorized PLAYTEST promotion
+
+The owner subsequently requested the pending repairs and current Motel work be published to PLAYTEST as well as DEVTEST.
+
+- Leave Motel offers only its three existing road destinations (four turns each) and Back; the old roadside Deep End entrance is retired.
+- The Pool is now The Deep End. The current arena, roster, artwork, spectator and tournament mechanics are retained.
+- The Lounge's Gamble entrance opens Poker, Slots, Big Six, Keno and Roulette; Back returns to the Lounge.
+- All five staffed Motel shops share Seaport's roster picker, portrait/aptitude dossier and assignment confirmation path. Shop sprites and vendor names read the settlement-specific assignments. Rani remains outside staffing.
+- The three targeted suites above also PASS with `ROUTE127_RELEASE=1`, executing the actual public PLAYTEST entry. Public login, cloud bootstrap, QA restrictions and live bulletin-board API are retained; no DEVTEST sample board was promoted.
+- Actual desktop graphical checks cover recruitment, roster inspection/assignment/unassignment, assigned shop sprite, save/reload restoration, road-only exit choices and Motel navigation. The mobile 390px viewport shows the existing responsive roster/dossier and assigned Armory worker. The PLAYTEST local save reload restores the worker.
+
+No artwork assets, artwork sizing, road costs or combat balance were changed. No extended gameplay audit was performed.
+
+![Motel shopkeeper on desktop](motel-staff-desktop.jpg)
+![Existing roster popup at 390px](motel-roster-mobile.jpg)
+![Assigned Motel Armory worker at 390px](motel-shop-mobile.jpg)

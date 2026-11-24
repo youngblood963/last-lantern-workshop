@@ -3446,12 +3446,12 @@ async function handleCommandCore(raw) {
     useItem(cmd.slice(4)); return;
   }
   if (cmd.startsWith("use ")) { useItem(cmd.slice(4)); return; }
-  if (cmd.startsWith("dismantle ")) { dismantleItem(cmd.slice(10)); return; }
   // Authored encounter actions take precedence over the generic inventory verb.
-  if (stage === "encounter" && cmd.startsWith("drop ")) {
+  if (stage === "encounter" && /^(?:drop|dismantle) /.test(cmd)) {
     const action=choiceKey(cmd,currentEncounter());
     if(action && choiceCommand(action)===cmd){ resolveEncounter(cmd); return; }
   }
+  if (cmd.startsWith("dismantle ")) { dismantleItem(cmd.slice(10)); return; }
   if (cmd.startsWith("drop ")) { const item=findItem(cmd.slice(5)); if(!item){add("You are not carrying that.","system");return;} inventoryMode={item:item.name};stage="confirmDrop";add(`DROP ${item.name.toUpperCase()}? This cannot be undone.`,"danger");add("(Y) CONFIRM DROP   (N) CANCEL","system");return; }
 
   if(stage === "wakeNamed"){ stage="standing"; showStandingOptions(); return; }

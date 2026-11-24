@@ -3511,6 +3511,8 @@ const RoadLifecycle={
   if(id==='early:9')return !!f.travelerInSolace||!!f.helpedTraveler||!!q.resolved;
   if(id==='early:27')return !!f.r18MazeClaimed&&!(f.wo3Corvette?.active&&(Number(f.wo3Corvette.tiresRecovered)||0)<4);
   if(id==='early:32')return !!f.r18FreezerRescueReward;
+  // Hollow-piece salvage is only a side reward; the puzzle remains unresolved.
+  if(id==='early:41')return !!f.r18PicnicClaimed;
   if(id==='early:60')return !!f.r18RadioCasing&&!!f.r18RadioCircuit&&!!(f.r18Station?.edge||f.r18Station?.node);
   if(id==='early:62')return !!(f.r18RabbitAdopted||f.r18RabbitHarvested)&&!!f.r18RabbitGardenSearched&&!!f.r18RabbitShedSearched;
   if(id==='east:40')return !!f.r18HorseHerdHelped&&!!f.r18HorseSaddleClaimed&&!!(q.horseResolved||f.r18HorseOwned);

@@ -91,7 +91,7 @@ function portStoreStock(){
  return state.stock;
 }
 function portStorePrice(n){const base=VENDOR_BASE[n]||Math.max(1,(V48_LOOT_PRICES[n]||2)*2);return Math.max(1,Math.round(base*(1-(portStaffRating('general store')-1)*.02)));}
-function portStoreSellPrice(item){const price=v48SellPrice(item);if(item.type==='valuable'&&Object.hasOwn(OLD_WORLD_TREASURES,item.name))return price;return Math.floor(price*(1+(portStaffRating('general store')-1)*.02));}
+function portStoreSellPrice(item){const price=v48SellPrice(item);if(item.type==='valuable'&&typeof OLD_WORLD_TREASURES!=='undefined'&&Object.hasOwn(OLD_WORLD_TREASURES,item.name))return price;return Math.floor(price*(1+(portStaffRating('general store')-1)*.02));}
 function portClinicBandagePrice(){return 18-(portStaffRating('clinic')-1)*2;}
 function portBankFee(){return 0;}
 function portCraftSeconds(recipe){return Math.ceil(recipe.seconds*(1-(portStaffRating('workshop')-1)*.02));}

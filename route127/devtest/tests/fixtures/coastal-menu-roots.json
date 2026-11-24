@@ -1,0 +1,34 @@
+[
+  {
+    "id": "seaport",
+    "setup": "stage='seaport';lanternState().nodeId='seaport';player.flags.portRoadCleared=true;Object.assign(port55State(),{freed:true,stage:'done'});port55Menu();"
+  },
+  {
+    "id": "seaport-locked",
+    "setup": "stage='seaport';lanternState().nodeId='seaport';player.flags.portRoadCleared=true;Object.assign(port55State(),{freed:false,stage:'investigate'});port55Menu();"
+  },
+  {
+    "id": "seaport-staffed",
+    "setup": "stage='seaport';player.flags.seaport55={freed:true,stage:'done'};lanternState().nodeId='seaport';const workers=wanderers.filter(w=>wandererAlive(w)).slice(0,4).map(w=>w.name);Object.assign(portStaffState(),{hired:workers,assignments:Object.fromEntries(Object.keys(PORT_STAFF_ROLES).map((r,i)=>[r,workers[i]]))});portStaffOpen('general store');"
+  },
+  {
+    "id": "seaport-workshop",
+    "setup": "stage='seaport';player.flags.seaport55={freed:true,stage:'done'};player.flags.v49RecipeBandage=true;player.flags.r11Learned=Object.fromEntries(Object.keys(CRAFT_RECIPES).map(k=>[k,true]));lanternState().nodeId='seaport';const w=wanderers.find(w=>wandererAlive(w));Object.assign(portStaffState(),{hired:[w.name],assignments:{workshop:w.name}});portStaffOpen('workshop');"
+  },
+  {
+    "id": "seaport-bank",
+    "setup": "player.flags.seaport55={freed:true,stage:'done'};const w=wanderers.find(w=>wandererAlive(w));Object.assign(portStaffState(),{hired:[w.name],assignments:{bank:w.name}});portStaffOpen('bank');"
+  },
+  {
+    "id": "seaport-clinic",
+    "setup": "player.flags.seaport55={freed:true,stage:'done'};const w=wanderers.find(w=>wandererAlive(w));Object.assign(portStaffState(),{hired:[w.name],assignments:{clinic:w.name}});portStaffOpen('clinic');"
+  },
+  {
+    "id": "caleb",
+    "setup": "player.flags.seaport55={freed:true,stage:'done'};player.flags.r18CalebRescued=true;lanternState().nodeId='seaport';r11CalebMenu();"
+  },
+  {
+    "id": "miles",
+    "setup": "player.flags.seaport55={freed:true,stage:'done'};lanternState().nodeId='seaport';player.flags.r18MilesSchedule={day,place:'seaport'};player.flags.r18MilesVisit={place:'seaport'};r18MilesMenu();"
+  }
+]

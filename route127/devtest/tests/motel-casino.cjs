@@ -68,7 +68,7 @@ const assert=require('node:assert/strict'),create=require(process.env.ROUTE127_R
  }
  // Exercise the published graphical dispatch, not only typed commands.
  const click=async command=>{const row=run('GraphicalUI.choices()').find(c=>c.command===command);assert(row,'Missing clickable command '+command);await run('GraphicalUI.dispatch('+JSON.stringify(row)+')');await flush();};
- for(const game of ['poker','slots','big six wheel','keno','roulette']){await click(game);assert.equal(run('stage'),'r6Casino');await click('back');assert.equal(run('stage'),'motelCasino');}
+ for(const game of ['poker','slots','big six wheel','keno','roulette']){await click(game);assert.equal(run('stage'),'r6Casino');assert.equal(run('GraphicalUI.model().title'),game.toUpperCase());if(game==='poker'){assert(run('GraphicalUI.model().art').endsWith('/casino/motel_poker_table.webp'));assert.equal(run('GraphicalUI.model().layout'),'motel-poker');}await click('back');assert.equal(run('stage'),'motelCasino');}
  await click('back');assert.equal(run('stage'),'motelLounge');assert.equal(run('player.turns'),30);
  console.log('PASS committed debit interruption/reload for all instant games; all five native graphical dispatch/return paths; unchanged turns');
 })().catch(e=>{console.error(e);process.exitCode=1});

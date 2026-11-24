@@ -29,6 +29,31 @@ body.full-graphics .gfx-frame[data-layout="motel-casino"] .gfx-choices:has(butto
 body.full-graphics .gfx-frame[data-layout="motel-casino"] .gfx-choices:has(button:nth-child(7)){height:176px;min-height:176px}
 body.full-graphics .gfx-frame[data-layout="motel-casino"] .gfx-narrative{max-height:42px}
 .motel-panel{max-height:145px}.motel-panel .ticket-fields input{width:45px}.motel-panel button{min-height:38px}}
+
+body.full-graphics .gfx-frame[data-layout="motel-poker"] .gfx-art{position:relative;min-height:250px;overflow:hidden;background:#100b08!important}
+body.full-graphics .gfx-frame[data-layout="motel-poker"] .gfx-image{object-fit:contain!important}
+body.full-graphics .gfx-frame[data-layout="motel-poker"] .r127-poker-overlay{inset:22% 4% 8%;gap:5px;padding:0}
+body.full-graphics .gfx-frame[data-layout="motel-poker"] .gfx-narrative{flex:0 0 auto;max-height:78px;overflow:auto}
+body.full-graphics .gfx-frame[data-layout="motel-poker"] .gfx-choices{flex:0 0 auto;max-height:148px;overflow:auto}
+@media(max-width:950px){
+ body.full-graphics .gfx-frame:is([data-layout="motel-casino"],[data-layout="motel-poker"]) .gfx-main{overflow:hidden!important;gap:6px}
+ body.full-graphics .gfx-frame .motel-content{display:flex;flex-direction:column;flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;scrollbar-gutter:stable;gap:6px}
+ body.full-graphics .gfx-frame:is([data-layout="motel-casino"],[data-layout="motel-poker"]) .gfx-art{flex:0 0 auto;aspect-ratio:1671/941;min-height:155px;max-height:none}
+ body.full-graphics .gfx-frame[data-layout="motel-poker"] .gfx-art{aspect-ratio:3/2;min-height:240px}
+ body.full-graphics .gfx-frame:is([data-layout="motel-casino"],[data-layout="motel-poker"]) .motel-panel{flex:0 0 auto;max-height:none;overflow:visible;min-width:0;box-sizing:border-box}
+ body.full-graphics .gfx-frame:is([data-layout="motel-casino"],[data-layout="motel-poker"]) .gfx-choices{flex:0 0 auto;height:auto!important;min-height:0!important;max-height:none;overflow:visible;grid-auto-rows:minmax(44px,auto)}
+ body.full-graphics .gfx-frame:is([data-layout="motel-casino"],[data-layout="motel-poker"]) .gfx-narrative{flex:0 0 auto;max-height:62px;overflow:auto}
+ body.full-graphics .gfx-frame:is([data-layout="motel-casino"],[data-layout="motel-poker"]) .motel-felt-scroll{touch-action:pan-x pan-y}
+ body.full-graphics .gfx-frame[data-layout="motel-poker"] .r127-poker-overlay{gap:3px}
+ body.full-graphics .gfx-frame[data-layout="motel-poker"] .poker-card{width:34px;height:46px;min-height:0;font-size:17px}
+ body.full-graphics .gfx-frame[data-layout="motel-poker"] .poker-label{font-size:10px;padding:2px 6px}
+ body.full-graphics .gfx-frame[data-layout="motel-poker"] .poker-controls{gap:4px}
+ body.full-graphics .gfx-frame[data-layout="motel-poker"] .poker-controls button{min-height:32px;padding:4px 6px;font-size:10px}
+}
+@media(max-width:760px){
+ /* The game name is already in the mobile header. Keep artwork unobstructed. */
+ body.full-graphics .gfx-frame:is([data-layout="motel-casino"],[data-layout="motel-poker"]) .gfx-art-caption{display:none}
+}
 `;document.head.appendChild(style);
 let scene=null,panel=null,key='',animations=[],observer=null,lastAnimated='';
 function stop(){for(const a of animations)try{a.cancel();}catch{}animations=[];}
@@ -58,9 +83,9 @@ function poseSlots(r,animate){
 
 function buildSix(r){
  const wheel=el('img','motel-six-wheel',scene);wheel.src=asset('motel_bigsix_wheel.png');wheel.alt='Six equal numbered segments';
- Object.assign(wheel.style,{position:'absolute',width:'43%',height:'76.4%',left:'28.5%',top:'15.5%',objectFit:'contain'});
+ Object.assign(wheel.style,{position:'absolute',width:'43%',height:'76.4%',left:'28.5%',top:'13%',objectFit:'contain'});
  const pointer=el('img','motel-six-pointer',scene);pointer.src=asset('motel_bigsix_pointer.png');pointer.alt='Fixed wheel pointer';
- Object.assign(pointer.style,{position:'absolute',width:'12%',height:'24%',left:'44%',top:'7%',objectFit:'contain',zIndex:2});
+ Object.assign(pointer.style,{position:'absolute',width:'12%',height:'24%',left:'44%',top:'4.5%',objectFit:'contain',zIndex:2});
  const target=r.status==='settled'?((6-(r.winner-1))%6)*60:0;
  wheel.style.transform='rotate('+target+'deg)';
  scene.setAttribute('aria-label',r.status==='settled'?'Winning number '+r.winner:'Big Six wheel ready');
@@ -99,7 +124,7 @@ function paintKeno(r){
 }
 
 function buildRoulette(r,figure){
- const holder=el('div','motel-roulette-wheel',scene);Object.assign(holder.style,{position:'absolute',left:'3%',top:'27%',width:'31%',height:'55%',transform:'scaleY(.53)'});
+ const holder=el('div','motel-roulette-wheel',scene);Object.assign(holder.style,{position:'absolute',left:'4.2%',top:'24.5%',width:'31%',height:'55%',transform:'scaleY(.53)'});
  const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','-110 -110 220 220');svg.style.width='100%';svg.style.height='100%';holder.appendChild(svg);
  const rotor=document.createElementNS(ns,'g');svg.appendChild(rotor);
  function point(radius,angle){const rad=angle*Math.PI/180;return [radius*Math.sin(rad),-radius*Math.cos(rad)];}
@@ -109,7 +134,7 @@ function buildRoulette(r,figure){
   const text=document.createElementNS(ns,'text'),pt=point(84,i*delta);text.setAttribute('x',pt[0]);text.setAttribute('y',pt[1]);text.setAttribute('fill','#ffe9af');text.setAttribute('font-size','9');text.setAttribute('font-family','Georgia');text.setAttribute('text-anchor','middle');text.setAttribute('dominant-baseline','middle');text.setAttribute('transform',`rotate(${i*delta} ${pt[0]} ${pt[1]})`);text.textContent=n;rotor.appendChild(text);
  });
  const hub=document.createElementNS(ns,'circle');hub.setAttribute('r','66');hub.setAttribute('fill','#7a4f21');hub.setAttribute('stroke','#c6a556');hub.setAttribute('stroke-width','3');rotor.appendChild(hub);
- const handle=el('img','motel-roulette-handle',scene);handle.src=asset('motel_roulette_handle.png');handle.alt='Brass spindle handle';Object.assign(handle.style,{position:'absolute',left:'10%',top:'39%',width:'17%',height:'28%',objectFit:'contain',zIndex:2});
+ const handle=el('img','motel-roulette-handle',scene);handle.src=asset('motel_roulette_handle.png');handle.alt='Brass spindle handle';Object.assign(handle.style,{position:'absolute',left:'11.2%',top:'36.5%',width:'17%',height:'28%',objectFit:'contain',zIndex:2});
  const orbit=el('div','motel-ball-orbit',holder);Object.assign(orbit.style,{position:'absolute',inset:'0'});
  const ball=el('img','motel-roulette-ball',orbit);ball.src=asset('motel_roulette_ball.png');ball.alt='Roulette ball';Object.assign(ball.style,{position:'absolute',width:'6%',height:'6%',objectFit:'contain',left:'47%',top:'8%'});
  const idx=r.status==='settled'?C.ORDER.indexOf(r.winner):0,target=(360-idx*delta)%360;rotor.style.transform='rotate('+target+'deg)';rotor.style.transformOrigin='0px 0px';
@@ -186,6 +211,21 @@ function refresh(){
  if(r.game==='ROULETTE')paintChips(r);
  if(r.game==='SLOTS'){const animate=r.status==='settled'&&lastAnimated!==r.id;poseSlots(r,animate);if(animate)lastAnimated=r.id;}
 }
-const sync=GraphicalUI.sync;GraphicalUI.sync=function(){const result=sync.apply(this,arguments);refresh();return result;};
+let mobileContent=null;
+function syncViewport(){
+ const e=GraphicalUI.element;
+ const mobile=e&&C.inGame()&&GraphicalUI.active()&&GraphicalUI.preference()==='graphics'&&window.matchMedia('(max-width:950px)').matches;
+ if(!mobile){
+  if(mobileContent){for(const child of [...mobileContent.children])e.main.insertBefore(child,e.choices);mobileContent.remove();mobileContent=null;}
+  return;
+ }
+ if(!mobileContent){
+  mobileContent=el('div','motel-content');mobileContent.setAttribute('role','region');mobileContent.setAttribute('aria-label','Casino table and ticket');mobileContent.tabIndex=0;
+  e.main.insertBefore(mobileContent,e.figure);
+  for(const child of [e.figure,...(panel?[panel]:[]),e.enemies,e.narrative])mobileContent.appendChild(child);
+ }
+}
+window.addEventListener('resize',()=>{syncViewport();if(scene&&GraphicalUI.element?.figure)fit(GraphicalUI.element.figure);});
+const sync=GraphicalUI.sync;GraphicalUI.sync=function(){const result=sync.apply(this,arguments);refresh();syncViewport();return result;};
 globalThis.MotelCasinoGraphics={refresh};
 })();

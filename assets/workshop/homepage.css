@@ -151,7 +151,7 @@ body.midnight-workshop:has(> main > .workshop-hero) > footer{
 }
 body.midnight-workshop:has(> main > .workshop-hero) .lantern-secret{
  position:fixed;
- right:8px;bottom:6px;
+ left:8px;right:auto;bottom:6px;
  z-index:50;
 }
 /* On narrow or short screens allow scrolling rather than clipping controls. */

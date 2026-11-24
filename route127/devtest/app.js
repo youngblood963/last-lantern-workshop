@@ -1904,11 +1904,12 @@ function terribleBillyEligibleRoad(){
  const g=typeof lanternState==='function'?lanternState():null;
  return player.flags.terribleBillyBounty==='active'&&g?.currentEdgeId==='solace--works-junction'&&Number(g.stepIndex)>=3&&Number(g.stepIndex)<=5;
 }
+function isEncounterExitChoice(choice){return /^(?:leave|move on|walk away|keep moving|continue road|continue)$/i.test(choiceCommand(choice||''));}
 function encounterChoices(e){
   const base = e.prompt ? e.prompt() : e.choices;
   const done = player.encounterDone[roadTurn] || new Set();
   const parts = base.split(/\s{2,}/).filter(Boolean);
-  const available = parts.filter(choice => e.title==="THE SCRAP DUEL"||!done.has(choice));
+  const available = parts.filter(choice => e.title==="THE SCRAP DUEL"||isEncounterExitChoice(choice)||!done.has(choice));
   // Turn Complete owns road progression; do not inject a duplicate MOVE ON action.
   return available.join("   ");
 }
@@ -1972,7 +1973,8 @@ function showEncounter() {
   if(typeof lanternState==='function'&&lanternState()?.pending)add(lanternProgressText(),'system');
   else if(activeRoad?.active)add(`ROAD PROGRESS — STEP ${activeRoad.dir>0?activeRoad.pos:activeRoad.n-activeRoad.pos} / ${activeRoad.n} heading ${activeRoad.dir>0?'EAST':'WEST'} toward ${activeRoad.leg==='coast'?(activeRoad.dir>0?'Seaport':'the Factory'):(activeRoad.dir>0?'the Factory':'Solace')}.`,'system');
   else add(`ROAD PROGRESS — STEP ${roadGoal==="east"&&player.flags.eastReturning?roadTripLength-roadTurn-1:Math.min(roadTurn+1,roadTripLength)} / ${roadTripLength} toward ${roadGoal==="mercy"?"Solace":roadGoal==="east"?(player.flags.eastReturning?"Solace":"the Factory"):"the old house"}.`,"system");
-  if(!resumeSavedEncounter && showSteveAnnouncement())return;
+  // A free announcement must not strand the already-paid Lantern road event.
+  if(!resumeSavedEncounter && showSteveAnnouncement()&&!lanternState()?.pending)return;
   if(!resumeSavedEncounter && questRoadEvent()) return;
   if(typeof r10PrepareEncounter==='function'&&!r10PrepareEncounter())return;
   resumeSavedEncounter=false;
@@ -2493,7 +2495,7 @@ function resolveEncounter(cmd) {
   }
   const key=choiceKey(cmd,e);
   const doneToken=key&&e.title!=="THE SCRAP DUEL"?`${e.title}::${key}`:null;
-  if(doneToken && done.has(key)){ add("You've already done that here.","system"); add(encounterChoices(e),"system"); return; }
+  if(doneToken && done.has(key)&&!isEncounterExitChoice(key)){ add("You've already done that here.","system"); add(encounterChoices(e),"system"); return; }
   resultBuffer=[];
   const resolved=e.resolve(cmd);
   if(!resolved){
@@ -2509,7 +2511,10 @@ function resolveEncounter(cmd) {
   // A choice may enter a real fight; do not also finish the road turn.
   if(stage==="wo4Hospital"||stage==="combat"||stage==="r18Depot"||stage==="r18Station"||stage==="r18Tournament"||stage==="r18Recycle"||player.flags.r18HoundNaming)return;
   if(doneToken) done.add(key);
-  if(isPathChoice(e,key) || e.exclusive){
+  // Successful, explicitly offered exit actions conclude exploration too.
+  // Run the resolver first so discovery bookkeeping and failed requirements survive.
+  const explicitExit=leaving&&isEncounterExitChoice(key||cmd);
+  if(isPathChoice(e,key) || e.exclusive || explicitExit){
     completeRoadTurn(); return;
   }
   // Exploration encounters allow multiple independent actions in the same turn.
@@ -2546,11 +2551,11 @@ function showCurrentContext(){
 }
 function handleRoadWanderer(cmd){
   const w=wandererByName(currentRoadWanderer); if(!w){stage="between";showEncounter();return;}
-  if(cmd.includes("small talk")||cmd==="talk"){ ws(w.name); add(wandererDialogue(w),"bright"); add("SMALL TALK   INSPECT   FIGHT   MOVE ON","system"); return; }
-  if(cmd.includes("inspect")){ v50Inspect(w); add("SMALL TALK   INSPECT   FIGHT   MOVE ON","system"); return; }
+  if(cmd.includes("small talk")||cmd==="talk"){ ws(w.name); add(wandererDialogue(w),"bright"); v53WandererMenu(w,true); return; }
+  if(cmd.includes("inspect")){ v50Inspect(w); v53WandererMenu(w,true); return; }
   if(cmd.includes("fight")||cmd.includes("attack")){ startCombat({...v50WandererCombat(w),name:w.name.toUpperCase(),level:w.level,xp:10+w.level*4,bolts:Math.floor(w.level/2)+2,end:`${w.name} goes down and does not get back up.`},"roadWanderer",false,true); return; }
   if(cmd.includes("move")||cmd.includes("leave")||cmd.includes("continue")){ add(`${w.name} falls behind as you continue toward ${typeof lanternState==='function'&&lanternState()?.currentEdgeId?lanternDestination():roadGoal==="mercy"?"Solace":roadGoal==="east"?(player.flags.eastReturning?"Solace":"the Factory"):"the old house"}.`); currentRoadWanderer=null; completeRoadTurn(); return; }
-  add("SMALL TALK   INSPECT   FIGHT   MOVE ON","system");
+  v53WandererMenu(w,true);
 }
 function handleTownWanderer(cmd){
   const w=wandererByName(currentTownWanderer); if(!w)return false;
@@ -2565,11 +2570,11 @@ function handleTownWanderer(cmd){
   // A wanderer being in town does not own Solace's conversation context.
   // They only respond when explicitly addressed by name (or while confirming their fight).
   if(!named && pendingTownFight!==w.name) return false;
-  if((cmd.includes("small talk") && named)||cmd===`talk to ${w.name.toLowerCase()}`){ ws(w.name); add(wandererDialogue(w),"bright"); add("SMALL TALK   INSPECT   FIGHT   LEAVE","system"); return true; }
-  if(cmd.includes("inspect") && named){ v50Inspect(w); add("SMALL TALK   INSPECT   FIGHT   LEAVE","system"); return true; }
+  if((cmd.includes("small talk") && named)||cmd===`talk to ${w.name.toLowerCase()}`){ ws(w.name); add(wandererDialogue(w),"bright"); v53WandererMenu(w,false); return true; }
+  if(cmd.includes("inspect") && named){ v50Inspect(w); v53WandererMenu(w,false); return true; }
   if(cmd==="confirm fight" && pendingTownFight===w.name){ pendingTownFight=null; startCombat({...v50WandererCombat(w),name:w.name.toUpperCase(),level:w.level,xp:10+w.level*4,bolts:Math.floor(w.level/2)+2,end:`${w.name} goes down. Solace gets very quiet for a moment.`},"townWanderer",true,true); return true; }
   if(cmd.includes("fight") && named){ pendingTownFight=w.name; add(`START A FIGHT WITH ${w.name.toUpperCase()}?`,"danger"); add("This action will cost 1 TURN.","system"); add("CONFIRM FIGHT   BACK OFF","system"); return true; }
-  if(cmd==="back off" && pendingTownFight){ pendingTownFight=null; add("You decide not to start trouble."); add("SMALL TALK   INSPECT   FIGHT   LEAVE","system"); return true; }
+  if(cmd==="back off" && pendingTownFight){ pendingTownFight=null; add("You decide not to start trouble."); v53WandererMenu(w,false); return true; }
   if(cmd==="leave"||cmd==="town"){ townWandererFocus=null; add(`You leave ${w.name} to their business.`); return true; }
   return false;
 }
@@ -3178,7 +3183,7 @@ function renderCurrentChoices(){
   if(stage==="mercy" && mercyLocation==="murphy" && player.flags.v49MurphyMenu==="recipe")return v49MurphyRecipe(player.flags.v49MurphyRecipe||"bandage");
   if(stage==="mercy" && mercyLocation==="murphy" && player.flags.v49MurphyMenu==="recipes")return v49MurphyRecipes();
   if(stage==="mercy")return showSolaceContext();
-  if(stage==="encounter"){const actions=renderRoadMarkerActions();return add([encounterChoices(currentEncounter()),...actions].filter(Boolean).join("   "),"system");}
+  if(stage==="encounter"){const actions=renderRoadMarkerActions();return r5DirectChoices([...encounterChoices(currentEncounter()).split(/\s{2,}/).filter(Boolean),...actions]);}
   if(stage==="wandererRoad")return add("SMALL TALK   INSPECT   FIGHT   MOVE ON","system");
   if(stage==="overnightConfirm")return add("(Y) CONFIRM   (N) CANCEL","system");
   if(stage==="zeroTurns"){

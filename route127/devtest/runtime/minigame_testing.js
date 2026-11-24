@@ -204,6 +204,8 @@ globalThis.Route127RoadMinigames={
   if(!body)return false;
   const leave=button('Leave Maze',()=>dialog.close());
   roadGame={abandon(){
+   const scene=player.flags.r18MazeScene;
+   if(scene?.attempt?.occurrence===RoadLifecycle.occurrence())delete scene.attempt;
    if(stage==='encounter'&&currentEncounter()?.title==='CEMETERY OF TIRES'){completeRoadTurn();v49Autosave();}
   }};
   content.replaceChildren(body,leave);
@@ -362,6 +364,19 @@ function mountMaze(body,started,road=null){
  let clock,deadline,nextSmoke,nextShift,shiftAt,moves,remaining;
  let clouds=[],smoke=new Set(),firstCollapse;
  let phase='ready';
+ // The live road maze is one encounter, even when its dialog is recreated.
+ // Practice rounds continue to start from scratch.
+ const occurrence=road?RoadLifecycle.occurrence():null;
+ let savedSecond=null;
+ function persist(){
+  if(!road||!q||!grid)return;
+  const epoch=Date.now()-performance.now();
+  const state=player.flags.r18MazeScene||(player.flags.r18MazeScene={scene:RoadLifecycle.sceneKey('early:27')});
+  state.attempt={occurrence,q:{...q},grid:grid.map(row=>Array.from(row)),phase,deadline:deadline+epoch,
+   nextSmoke:nextSmoke+epoch,nextShift,shiftAt:shiftAt?shiftAt+epoch:0,
+   moves,firstCollapse,clouds:clouds.map(c=>({cells:[...c.cells],expires:c.expires+epoch}))};
+  v49Autosave();
+ }
  const status=element('p');status.setAttribute('role','status');
  const movement=element('div',null,'tire-controls');
  const tire=button('Recover Suitable Tire',()=>{
@@ -430,7 +445,7 @@ function mountMaze(body,started,road=null){
   smoke.clear();
   if(view)paintSmoke();
  }
- cleanup=()=>{stopClock();detachArt();};
+ cleanup=()=>{persist();stopClock();detachArt();};
  function tick(now){
   if(phase!=='playing')return false;
   if(now>=deadline){
@@ -444,8 +459,11 @@ function mountMaze(body,started,road=null){
    retry.focus();
    return false;
   }
-  setTime(Math.ceil((deadline-now)/1000));
+  const second=Math.ceil((deadline-now)/1000);
+  setTime(second);
+  let changed=false;
   if(shiftAt&&now>=shiftAt){
+   changed=true;
    shiftAt=0;
    nextShift=moves+hazards.randomBetween(rules.shiftInterval);
    const layout=hazards.shift(grid,[q.x,q.y]);
@@ -465,9 +483,11 @@ function mountMaze(body,started,road=null){
    nextSmoke=now+hazards.randomBetween(rules.smokeInterval);
   }
   if(spawn||clouds.length!==before){
+   changed=true;
    smoke=new Set(clouds.flatMap(cloud=>[...cloud.cells]));
    paintSmoke();
   }
+  if(changed||savedSecond!==second){savedSecond=second;persist();}
   return true;
  }
  function positionSurvivor(){
@@ -480,6 +500,7 @@ function mountMaze(body,started,road=null){
   movement.hidden=phase!=='playing';
   tireControls.hidden=!q.finished||!recoveringTires||tires>=4;
   if(movement.hidden&&movement.contains(document.activeElement))heading.focus();
+  persist();
  }
  function takeDamage(damage,message){
   if(road){
@@ -558,7 +579,22 @@ function mountMaze(body,started,road=null){
   move(direction);
   return true;
  };
- startAttempt();
+ const saved=road?player.flags.r18MazeScene?.attempt:null;
+ if(saved?.occurrence===occurrence&&saved.q&&Array.isArray(saved.grid)){
+  const epoch=Date.now()-performance.now();
+  q={...saved.q};grid=[...saved.grid];phase=saved.phase;
+  deadline=saved.deadline-epoch;nextSmoke=saved.nextSmoke-epoch;
+  nextShift=saved.nextShift;shiftAt=saved.shiftAt?saved.shiftAt-epoch:0;
+  moves=saved.moves;firstCollapse=saved.firstCollapse;
+  clouds=saved.clouds.map(c=>({cells:c.cells,expires:c.expires-epoch}));
+  smoke=new Set(clouds.flatMap(c=>c.cells));
+  rebuild();setTime(Math.max(0,Math.ceil((deadline-performance.now())/1000)));
+  retry.hidden=phase!=='timeout';
+  render(q.finished?'You reached the crate.':'Your current maze attempt resumes.');
+  // Recover a goal snapshot taken immediately before the guarded reward callback.
+  if(phase==='won'&&q.finished&&!player.flags.r18MazeClaimed)road.won();
+  if(phase==='playing'){tick(performance.now());clock=setInterval(()=>tick(performance.now()),100);}
+ }else startAttempt();
 }
 
 // Positions and radii are percentages of the uncropped image. The three

@@ -1,0 +1,15 @@
+{
+  "entry": "DEVTEST",
+  "scenarios": 3,
+  "cases": 100,
+  "uniqueCommands": 16,
+  "branches": 19,
+  "combatStats": {
+    "completed": 63,
+    "commands": 305,
+    "retreats": 0,
+    "deaths": 0
+  },
+  "issues": [],
+  "limits": []
+}

@@ -1,0 +1,99 @@
+{
+  "menus": 59,
+  "actions": 239,
+  "nestedPaths": 51,
+  "cases": 560,
+  "issues": [
+    {
+      "root": "seaport-staffed",
+      "profile": "supplied",
+      "path": [],
+      "stage": "port55Service",
+      "location": "town",
+      "choice": "sell items",
+      "pathway": "terminal",
+      "kind": "throw",
+      "error": "ReferenceError: OLD_WORLD_TREASURES is not defined\n    at portStoreSellPrice (evalmachine.<anonymous>:94:107)\n    at evalmachine.<anonymous>:57:218\n    at Array.map (<anonymous>)\n    at portStaffRender (evalmachine.<anonymous>:57:167)\n    at portStaffRender (evalmachine.<anonymous>:8:64)\n    at portStaffRender (evalmachine.<anonymous>:126:126)\n    at portStaffRender (evalmachine.<anonymous>:502:243)\n    at portStaffRender (evalmachine.<anonymous>:502:73)\n    at portStaffRender (evalmachine.<anonymous>:573:86)\n    at portStaffRender (evalmachine.<anonymous>:110:277)"
+    },
+    {
+      "root": "seaport-staffed",
+      "profile": "supplied",
+      "path": [],
+      "stage": "port55Service",
+      "location": "town",
+      "choice": "sell items",
+      "pathway": "terminal",
+      "kind": "stranded",
+      "after": "port55Service",
+      "messages": [
+        "SEAPORT \u2014 GENERAL STORE",
+        "Trader: Patch \u2014 APTITUDE UNKNOWN \u2014 INSPECT STAFF Patch"
+      ]
+    },
+    {
+      "root": "seaport-staffed",
+      "profile": "supplied",
+      "path": [],
+      "stage": "port55Service",
+      "location": "town",
+      "choice": "sell items",
+      "pathway": "graphical",
+      "kind": "throw",
+      "error": "ReferenceError: OLD_WORLD_TREASURES is not defined\n    at portStoreSellPrice (evalmachine.<anonymous>:94:107)\n    at evalmachine.<anonymous>:57:218\n    at Array.map (<anonymous>)\n    at portStaffRender (evalmachine.<anonymous>:57:167)\n    at portStaffRender (evalmachine.<anonymous>:8:64)\n    at portStaffRender (evalmachine.<anonymous>:126:126)\n    at portStaffRender (evalmachine.<anonymous>:502:243)\n    at portStaffRender (evalmachine.<anonymous>:502:73)\n    at portStaffRender (evalmachine.<anonymous>:573:86)\n    at portStaffRender (evalmachine.<anonymous>:110:277)"
+    },
+    {
+      "root": "seaport-staffed",
+      "profile": "supplied",
+      "path": [],
+      "stage": "port55Service",
+      "location": "town",
+      "choice": "sell items",
+      "pathway": "graphical",
+      "kind": "stranded",
+      "after": "port55Service",
+      "messages": [
+        "SEAPORT \u2014 GENERAL STORE",
+        "Trader: Patch \u2014 APTITUDE UNKNOWN \u2014 INSPECT STAFF Patch"
+      ]
+    },
+    {
+      "root": "seaport-staffed",
+      "profile": "supplied",
+      "path": [
+        "sell items"
+      ],
+      "kind": "setup",
+      "error": "ReferenceError: OLD_WORLD_TREASURES is not defined\n    at portStoreSellPrice (evalmachine.<anonymous>:94:107)\n    at evalmachine.<anonymous>:57:218\n    at Array.map (<anonymous>)\n    at portStaffRender (evalmachine.<anonymous>:57:167)\n    at portStaffRender (evalmachine.<anonymous>:8:64)\n    at portStaffRender (evalmachine.<anonymous>:126:126)\n    at portStaffRender (evalmachine.<anonymous>:502:243)\n    at portStaffRender (evalmachine.<anonymous>:502:73)\n    at portStaffRender (evalmachine.<anonymous>:573:86)\n    at portStaffRender (evalmachine.<anonymous>:110:277)"
+    },
+    {
+      "root": "seaport-staffed",
+      "profile": "supplied",
+      "path": [
+        "buy supplies",
+        "back"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choice": "sell items",
+      "pathway": "terminal",
+      "kind": "throw",
+      "error": "ReferenceError: OLD_WORLD_TREASURES is not defined\n    at portStoreSellPrice (evalmachine.<anonymous>:94:107)\n    at evalmachine.<anonymous>:57:218\n    at Array.map (<anonymous>)\n    at portStaffRender (evalmachine.<anonymous>:57:167)\n    at portStaffRender (evalmachine.<anonymous>:8:64)\n    at portStaffRender (evalmachine.<anonymous>:126:126)\n    at portStaffRender (evalmachine.<anonymous>:502:243)\n    at portStaffRender (evalmachine.<anonymous>:502:73)\n    at portStaffRender (evalmachine.<anonymous>:573:86)\n    at portStaffRender (evalmachine.<anonymous>:110:277)"
+    },
+    {
+      "root": "seaport-staffed",
+      "profile": "supplied",
+      "path": [
+        "buy supplies",
+        "back"
+      ],
+      "stage": "port55Service",
+      "location": "town",
+      "choice": "sell items",
+      "pathway": "graphical",
+      "kind": "throw",
+      "error": "ReferenceError: OLD_WORLD_TREASURES is not defined\n    at portStoreSellPrice (evalmachine.<anonymous>:94:107)\n    at evalmachine.<anonymous>:57:218\n    at Array.map (<anonymous>)\n    at portStaffRender (evalmachine.<anonymous>:57:167)\n    at portStaffRender (evalmachine.<anonymous>:8:64)\n    at portStaffRender (evalmachine.<anonymous>:126:126)\n    at portStaffRender (evalmachine.<anonymous>:502:243)\n    at portStaffRender (evalmachine.<anonymous>:502:73)\n    at portStaffRender (evalmachine.<anonymous>:573:86)\n    at portStaffRender (evalmachine.<anonymous>:110:277)"
+    }
+  ],
+  "duplicates": [],
+  "truncations": []
+}

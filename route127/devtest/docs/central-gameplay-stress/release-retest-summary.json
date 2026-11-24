@@ -1,0 +1,15 @@
+{
+  "entry": "PLAYTEST",
+  "scenarios": 3,
+  "cases": 308,
+  "uniqueCommands": 62,
+  "branches": 76,
+  "combatStats": {
+    "completed": 45,
+    "commands": 330,
+    "retreats": 0,
+    "deaths": 0
+  },
+  "issues": [],
+  "limits": []
+}

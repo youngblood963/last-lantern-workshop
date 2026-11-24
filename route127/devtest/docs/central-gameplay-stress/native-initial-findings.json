@@ -1,0 +1,517 @@
+{
+  "entry": "DEVTEST",
+  "scenarios": 81,
+  "cases": 2646,
+  "uniqueCommands": 476,
+  "branches": 641,
+  "combatStats": {
+    "completed": 242,
+    "commands": 2042,
+    "retreats": 0,
+    "deaths": 8
+  },
+  "issues": [
+    {
+      "id": "early:50",
+      "name": "THE LIMPING HOUND",
+      "condition": "supplied-day-low",
+      "path": [
+        "offer food",
+        "remove metal from paw",
+        "treat with bandage or cloth",
+        "adopt hound"
+      ],
+      "command": "@Continue",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "early:50",
+      "name": "THE LIMPING HOUND",
+      "condition": "supplied-day-high",
+      "path": [
+        "offer food",
+        "remove metal from paw",
+        "treat with bandage or cloth",
+        "adopt hound"
+      ],
+      "command": "@Continue",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "early:50",
+      "name": "THE LIMPING HOUND",
+      "condition": "supplied-night",
+      "path": [
+        "offer food",
+        "remove metal from paw",
+        "treat with bandage or cloth",
+        "adopt hound"
+      ],
+      "command": "@Continue",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-day-low",
+      "path": [
+        "wager custom amount"
+      ],
+      "command": "@Continue",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-day-low",
+      "path": [
+        "wager custom amount"
+      ],
+      "command": "@All",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-day-high",
+      "path": [
+        "wager custom amount"
+      ],
+      "command": "@Continue",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-day-high",
+      "path": [
+        "wager custom amount"
+      ],
+      "command": "@All",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-night",
+      "path": [
+        "wager custom amount"
+      ],
+      "command": "@Continue",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-night",
+      "path": [
+        "wager custom amount"
+      ],
+      "command": "@All",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:29",
+      "name": "THE FIGHTING RING",
+      "condition": "supplied-day-low",
+      "path": [
+        "bet on a round",
+        "scrapper",
+        "custom wager"
+      ],
+      "command": "@Continue",
+      "before": "r127ArenaLobby",
+      "after": "r127ArenaLobby",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "https://example.test/the_fighting_ring.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:29",
+      "name": "THE FIGHTING RING",
+      "condition": "supplied-day-low",
+      "path": [
+        "bet on a round",
+        "scrapper",
+        "custom wager"
+      ],
+      "command": "@All",
+      "before": "r127ArenaLobby",
+      "after": "r127ArenaLobby",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "https://example.test/the_fighting_ring.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:29",
+      "name": "THE FIGHTING RING",
+      "condition": "supplied-day-high",
+      "path": [
+        "bet on a round",
+        "the hammer",
+        "custom wager"
+      ],
+      "command": "@Continue",
+      "before": "r127ArenaLobby",
+      "after": "r127ArenaLobby",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "https://example.test/the_fighting_ring.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:29",
+      "name": "THE FIGHTING RING",
+      "condition": "supplied-day-high",
+      "path": [
+        "bet on a round",
+        "the hammer",
+        "custom wager"
+      ],
+      "command": "@All",
+      "before": "r127ArenaLobby",
+      "after": "r127ArenaLobby",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "https://example.test/the_fighting_ring.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:29",
+      "name": "THE FIGHTING RING",
+      "condition": "supplied-night",
+      "path": [
+        "bet on a round",
+        "bruiser",
+        "custom wager"
+      ],
+      "command": "@Continue",
+      "before": "r127ArenaLobby",
+      "after": "r127ArenaLobby",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "https://example.test/the_fighting_ring.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:29",
+      "name": "THE FIGHTING RING",
+      "condition": "supplied-night",
+      "path": [
+        "bet on a round",
+        "bruiser",
+        "custom wager"
+      ],
+      "command": "@All",
+      "before": "r127ArenaLobby",
+      "after": "r127ArenaLobby",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "https://example.test/the_fighting_ring.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:42",
+      "name": "THE FORGOTTEN ARENA",
+      "condition": "supplied-day-low",
+      "path": [
+        "bet on a round",
+        "drifter",
+        "custom wager"
+      ],
+      "command": "@Continue",
+      "before": "r127ArenaLobby",
+      "after": "r127ArenaLobby",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "https://example.test/the_forgotten_arena.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:42",
+      "name": "THE FORGOTTEN ARENA",
+      "condition": "supplied-day-low",
+      "path": [
+        "bet on a round",
+        "drifter",
+        "custom wager"
+      ],
+      "command": "@All",
+      "before": "r127ArenaLobby",
+      "after": "r127ArenaLobby",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "https://example.test/the_forgotten_arena.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:42",
+      "name": "THE FORGOTTEN ARENA",
+      "condition": "supplied-day-high",
+      "path": [
+        "bet on a round",
+        "gravekeeper",
+        "custom wager"
+      ],
+      "command": "@Continue",
+      "before": "r127ArenaLobby",
+      "after": "r127ArenaLobby",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "https://example.test/the_forgotten_arena.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:42",
+      "name": "THE FORGOTTEN ARENA",
+      "condition": "supplied-day-high",
+      "path": [
+        "bet on a round",
+        "gravekeeper",
+        "custom wager"
+      ],
+      "command": "@All",
+      "before": "r127ArenaLobby",
+      "after": "r127ArenaLobby",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "https://example.test/the_forgotten_arena.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:42",
+      "name": "THE FORGOTTEN ARENA",
+      "condition": "supplied-night",
+      "path": [
+        "bet on a round",
+        "ironback",
+        "custom wager"
+      ],
+      "command": "@Continue",
+      "before": "r127ArenaLobby",
+      "after": "r127ArenaLobby",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "https://example.test/the_forgotten_arena.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:42",
+      "name": "THE FORGOTTEN ARENA",
+      "condition": "supplied-night",
+      "path": [
+        "bet on a round",
+        "ironback",
+        "custom wager"
+      ],
+      "command": "@All",
+      "before": "r127ArenaLobby",
+      "after": "r127ArenaLobby",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "https://example.test/the_forgotten_arena.png",
+      "kind": "no-response"
+    }
+  ],
+  "limits": [
+    {
+      "id": "early:0",
+      "condition": "supplied-day-low",
+      "path": [
+        "follow tracks",
+        "return to truck",
+        "check glovebox"
+      ]
+    },
+    {
+      "id": "early:0",
+      "condition": "supplied-day-high",
+      "path": [
+        "follow tracks",
+        "return to truck",
+        "check glovebox"
+      ]
+    },
+    {
+      "id": "early:0",
+      "condition": "supplied-night",
+      "path": [
+        "follow tracks",
+        "return to truck",
+        "check glovebox"
+      ]
+    },
+    {
+      "id": "early:0",
+      "condition": "empty-day",
+      "path": [
+        "follow tracks",
+        "return to truck",
+        "check glovebox"
+      ]
+    },
+    {
+      "id": "early:62",
+      "condition": "supplied-day-low",
+      "path": [
+        "free the rabbit",
+        "search the garden"
+      ]
+    },
+    {
+      "id": "early:62",
+      "condition": "supplied-day-high",
+      "path": [
+        "free the rabbit",
+        "search the garden"
+      ]
+    },
+    {
+      "id": "early:62",
+      "condition": "supplied-night",
+      "path": [
+        "free the rabbit",
+        "search the garden"
+      ]
+    },
+    {
+      "id": "early:62",
+      "condition": "empty-day",
+      "path": [
+        "free the rabbit",
+        "search the garden"
+      ]
+    }
+  ]
+}

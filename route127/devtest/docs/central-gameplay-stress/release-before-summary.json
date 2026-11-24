@@ -1,0 +1,597 @@
+{
+  "entry": "PLAYTEST",
+  "scenarios": 81,
+  "cases": 2841,
+  "uniqueCommands": 483,
+  "branches": 697,
+  "combatStats": {
+    "completed": 260,
+    "commands": 2153,
+    "retreats": 0,
+    "deaths": 8
+  },
+  "issues": [
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-day-low",
+      "path": [],
+      "command": "watch the contest",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "[1] watch the contest",
+        "[2] compete",
+        "[3] wager 10 bolts",
+        "[4] wager 50 bolts",
+        "[5] wager 100 bolts",
+        "[6] wager 500 bolts",
+        "[7] wager custom amount",
+        "[8] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'watch')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-day-low",
+      "path": [],
+      "command": "compete",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] watch the contest",
+        "[2] compete",
+        "[3] wager 10 bolts",
+        "[4] wager 50 bolts",
+        "[5] wager 100 bolts",
+        "[6] wager 500 bolts",
+        "[7] wager custom amount",
+        "[8] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openRoadScrapDuel')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-day-low",
+      "path": [
+        "wager 10 bolts"
+      ],
+      "command": "confirm 10 bolt wager",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] confirm 10 bolt wager",
+        "[2] cancel wager",
+        "[3] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openRoadScrapDuel')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-day-low",
+      "path": [
+        "wager 50 bolts"
+      ],
+      "command": "confirm 50 bolt wager",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] confirm 50 bolt wager",
+        "[2] cancel wager",
+        "[3] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openRoadScrapDuel')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-day-low",
+      "path": [
+        "wager 100 bolts"
+      ],
+      "command": "confirm 100 bolt wager",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] confirm 100 bolt wager",
+        "[2] cancel wager",
+        "[3] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openRoadScrapDuel')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-day-low",
+      "path": [
+        "wager 500 bolts"
+      ],
+      "command": "confirm 500 bolt wager",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] confirm 500 bolt wager",
+        "[2] cancel wager",
+        "[3] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openRoadScrapDuel')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-day-high",
+      "path": [],
+      "command": "watch the contest",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "[1] watch the contest",
+        "[2] compete",
+        "[3] wager 10 bolts",
+        "[4] wager 50 bolts",
+        "[5] wager 100 bolts",
+        "[6] wager 500 bolts",
+        "[7] wager custom amount",
+        "[8] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'watch')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-day-high",
+      "path": [],
+      "command": "compete",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] watch the contest",
+        "[2] compete",
+        "[3] wager 10 bolts",
+        "[4] wager 50 bolts",
+        "[5] wager 100 bolts",
+        "[6] wager 500 bolts",
+        "[7] wager custom amount",
+        "[8] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openRoadScrapDuel')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-day-high",
+      "path": [
+        "wager 10 bolts"
+      ],
+      "command": "confirm 10 bolt wager",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] confirm 10 bolt wager",
+        "[2] cancel wager",
+        "[3] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openRoadScrapDuel')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-day-high",
+      "path": [
+        "wager 50 bolts"
+      ],
+      "command": "confirm 50 bolt wager",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] confirm 50 bolt wager",
+        "[2] cancel wager",
+        "[3] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openRoadScrapDuel')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-day-high",
+      "path": [
+        "wager 100 bolts"
+      ],
+      "command": "confirm 100 bolt wager",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] confirm 100 bolt wager",
+        "[2] cancel wager",
+        "[3] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openRoadScrapDuel')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-day-high",
+      "path": [
+        "wager 500 bolts"
+      ],
+      "command": "confirm 500 bolt wager",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] confirm 500 bolt wager",
+        "[2] cancel wager",
+        "[3] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openRoadScrapDuel')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-night",
+      "path": [],
+      "command": "watch the contest",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "[1] watch the contest",
+        "[2] compete",
+        "[3] wager 10 bolts",
+        "[4] wager 50 bolts",
+        "[5] wager 100 bolts",
+        "[6] wager 500 bolts",
+        "[7] wager custom amount",
+        "[8] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'watch')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-night",
+      "path": [],
+      "command": "compete",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] watch the contest",
+        "[2] compete",
+        "[3] wager 10 bolts",
+        "[4] wager 50 bolts",
+        "[5] wager 100 bolts",
+        "[6] wager 500 bolts",
+        "[7] wager custom amount",
+        "[8] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openRoadScrapDuel')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-night",
+      "path": [
+        "wager 10 bolts"
+      ],
+      "command": "confirm 10 bolt wager",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] confirm 10 bolt wager",
+        "[2] cancel wager",
+        "[3] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openRoadScrapDuel')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-night",
+      "path": [
+        "wager 50 bolts"
+      ],
+      "command": "confirm 50 bolt wager",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] confirm 50 bolt wager",
+        "[2] cancel wager",
+        "[3] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openRoadScrapDuel')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-night",
+      "path": [
+        "wager 100 bolts"
+      ],
+      "command": "confirm 100 bolt wager",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] confirm 100 bolt wager",
+        "[2] cancel wager",
+        "[3] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openRoadScrapDuel')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "supplied-night",
+      "path": [
+        "wager 500 bolts"
+      ],
+      "command": "confirm 500 bolt wager",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] confirm 500 bolt wager",
+        "[2] cancel wager",
+        "[3] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openRoadScrapDuel')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "empty-day",
+      "path": [],
+      "command": "watch the contest",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "[1] watch the contest",
+        "[2] compete",
+        "[3] wager 10 bolts",
+        "[4] wager 50 bolts",
+        "[5] wager 100 bolts",
+        "[6] wager 500 bolts",
+        "[7] wager custom amount",
+        "[8] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'watch')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "empty-day",
+      "path": [],
+      "command": "compete",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [
+        "That action cannot be completed yet. Check the encounter requirements and choose another action.",
+        "[1] watch the contest",
+        "[2] compete",
+        "[3] wager 10 bolts",
+        "[4] wager 50 bolts",
+        "[5] wager 100 bolts",
+        "[6] wager 500 bolts",
+        "[7] wager custom amount",
+        "[8] back away"
+      ],
+      "error": "TypeError: Cannot read properties of undefined (reading 'openRoadScrapDuel')",
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "throw"
+    },
+    {
+      "id": "east:11",
+      "name": "THE SCRAP DUEL",
+      "condition": "empty-day",
+      "path": [
+        "wager custom amount"
+      ],
+      "command": "@All",
+      "before": "encounter",
+      "after": "encounter",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "../assets/regions/central.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:29",
+      "name": "THE FIGHTING RING",
+      "condition": "empty-day",
+      "path": [
+        "bet on a round",
+        "bruiser",
+        "custom wager"
+      ],
+      "command": "@All",
+      "before": "r127ArenaLobby",
+      "after": "r127ArenaLobby",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "https://example.test/the_fighting_ring.png",
+      "kind": "no-response"
+    },
+    {
+      "id": "east:42",
+      "name": "THE FORGOTTEN ARENA",
+      "condition": "empty-day",
+      "path": [
+        "bet on a round",
+        "ironback",
+        "custom wager"
+      ],
+      "command": "@All",
+      "before": "r127ArenaLobby",
+      "after": "r127ArenaLobby",
+      "feedback": [],
+      "changed": false,
+      "hpDelta": 0,
+      "boltsDelta": 0,
+      "xpDelta": 0,
+      "turnDelta": 0,
+      "art": "https://example.test/the_forgotten_arena.png",
+      "kind": "no-response"
+    }
+  ],
+  "limits": []
+}

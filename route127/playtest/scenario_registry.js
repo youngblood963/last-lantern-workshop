@@ -858,6 +858,12 @@ if(r18ScrapDuel){
  r18ScrapDuel.resolve=function(cmd){
   const q=r18ScrapDuelScene();
   if(['back','back away'].includes(cmd)){q.phase='done';add('You leave the throwing contest behind.','system');return true;}
+  // PLAYTEST does not load the DEVTEST throwing-game package. A cached or
+  // shared encounter menu must still answer safely without accepting a stake.
+  if(!globalThis.Route127RoadMinigames&&(['watch','watch the contest','compete'].includes(cmd)||cmd.startsWith('wager')||cmd.startsWith('confirm '))){
+   q.phase='idle';q.stake=0;
+   add('The throwing contest is not available in this build. No wager was taken; no Bolts were spent. You can leave the contest.','system');return true;
+  }
   if(['watch','watch the contest'].includes(cmd))return globalThis.Route127RoadMinigames.watch();
   if(cmd==='compete'&&!['confirm','custom'].includes(q.phase))return globalThis.Route127RoadMinigames.openRoadScrapDuel(q,0);
   if(cmd.startsWith('wager')&&q.phase!=='confirm'){

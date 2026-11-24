@@ -127,12 +127,13 @@ const GraphicalUI={
   const vendorSale=stage==='mercy'&&player.flags.v48Shop==='sell';
   const wanderer=!!v53WandererContext();
   this.navOpen=false;
-  if(wanderer||vendorSale||player.flags.v50Trade){
-   commandProcessing=true;
-   try{await handleCommand(current.command);}
-   finally{commandProcessing=false;}
-  }else await handleCommand(encounter?current.command:current.key);
-  this.sync();return true;
+  commandProcessing=true;
+  this.sync();
+  try{
+   await handleCommand(wanderer||vendorSale||player.flags.v50Trade||encounter?current.command:current.key);
+   await outputQueue;
+  }finally{commandProcessing=false;this.sync();}
+  return true;
  },
  node(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;},
  icon(kind){const paths={map:'M3 5l6-2 6 2 6-2v16l-6 2-6-2-6 2z M9 3v16 M15 5v16',pack:'M7 8V5a5 5 0 0110 0v3 M5 8h14l2 13H3z M8 12v5h8v-5z',person:'M8 6a4 4 0 108 0 4 4 0 00-8 0 M3 22v-5a9 9 0 0118 0v5',tool:'M14 3a6 6 0 00-6 8L2 18l4 4 7-7a6 6 0 008-7l-4 4-4-4 4-4z',book:'M12 5C8 1 3 3 2 4v17c4-2 7-2 10 0 3-2 6-2 10 0V4c-4-2-7-2-10 1z M12 5v16',gear:'M12 2v4 M12 18v4 M2 12h4 M18 12h4 M5 5l3 3 M16 16l3 3 M5 19l3-3 M16 8l3-3 M7 12a5 5 0 1010 0 5 5 0 00-10 0'};const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),p=document.createElementNS('http://www.w3.org/2000/svg','path');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');p.setAttribute('d',paths[kind]||paths.gear);svg.appendChild(p);return svg;},
@@ -164,7 +165,7 @@ const GraphicalUI={
  renderChoices(choices,container){
   const context=v53WandererContext();
   const bindings=numberedChoices;
-  const disabled=!!busy||!!context&&commandProcessing;
+  const disabled=!!busy||commandProcessing;
   const previous=this.wandererButtons;
   if(context&&previous?.context===context&&previous.bindings===bindings&&
      previous.disabled===disabled&&previous.choices.length===choices.length&&

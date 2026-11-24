@@ -1,0 +1,16 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const create=require(process.env.ROUTE127_RELEASE?'./helpers/release_menu.cjs':'./helpers/menu_audit.cjs');
+(async()=>{
+ const {run,flush,ctx,walk}=create();await flush();run(fs.readFileSync(path.join(__dirname,'support/northern_stress_profile.js'),'utf8'));run('NorthernStressFixture.prepare();GraphicalUI.active=()=>true;GraphicalUI.preferred="graphics"');
+ const settle=async()=>{await flush();await run('outputQueue');await flush();};
+ async function dismiss(){for(const d of walk(ctx.document.body).filter(n=>n.classList?.contains('r127-scenario-results'))){const b=d.querySelector('button');for(const f of b?.events.click||[])await f({currentTarget:b});}await settle();}
+ async function enter(id,roll=.1){await dismiss();ctx.Math.random=()=>roll;run('NorthernStressFixture.enter('+JSON.stringify(id)+')');await settle();}
+ const choices=()=>run('GraphicalUI.choices()');
+ async function act(cmd){const c=choices().find(c=>c.command===cmd);assert(c,'Choice unavailable '+cmd);await run('GraphicalUI.dispatch('+JSON.stringify(c)+')');await settle();}
+ async function reload(){run('v49RollingAutosave()');await run("loadGame('auto')");await settle();}
+ await enter('east:40');await act('clear the snagged fence');const xp=run('player.xp'),offer=run('JSON.stringify(player.flags.r18HorseScene)');await reload();assert.equal(run('JSON.stringify(player.flags.r18HorseScene)'),offer);assert(choices().some(c=>c.command==='calm the horse'));assert(choices().some(c=>c.command==='leave the horse'));assert.equal(run('player.xp'),xp);await act('calm the horse');assert(run('player.flags.r18HorseOwned'));await reload();assert(run('player.flags.r18HorseOwned'));
+ await enter('east:40');assert.equal(run('player.xp'),xp,'Herd-help XP is intentionally permanent');assert(!choices().some(c=>c.command==='calm the horse'));assert(!choices().some(c=>c.command==='clear the snagged fence'));const cloth=run('findItem("Cloth").qty');await act('search the saddlebag');assert.equal(run('findItem("Cloth").qty'),cloth+1);await reload();assert(!run('RoadLifecycle.eligible(RoadScenarioRegistry.regionalById.get("east:40").encounter)'),'All permanent outcomes remain complete');assert.equal(run('findItem("Cloth").qty'),cloth+1);
+ const art=[];for(let i=0;i<4;i++){await enter('early:17',(i+.5)/4);art.push(run('Route127RoadsidePresentation.current().items[0].name'));}assert.equal(new Set(art).size,4);
+ await enter('early:17',.6);const dog=run('JSON.stringify(player.flags.r18DogScene)');await reload();assert.equal(run('JSON.stringify(player.flags.r18DogScene)'),dog);await act('back away');await enter('early:17',.1);const food=run('findItem("Energy Bars").qty');await act('offer food');assert.equal(run('findItem("Energy Bars").qty'),food-1);await enter('early:17',.2);assert(choices().some(c=>c.command==='offer food'));await act('offer food');
+ assert.equal(run('player.turns'),150);console.log('PASS '+(process.env.ROUTE127_RELEASE?'PLAYTEST':'DEVTEST')+': horse offer choices/state survive reload, permanent herd XP and saddlebag claim protected, ownership prevents duplicate horse, completed eligibility retained; four dog variants/artwork and active reload, fresh food choice and correct deduction; no travel charged');
+})().catch(e=>{console.error(e);process.exitCode=1});

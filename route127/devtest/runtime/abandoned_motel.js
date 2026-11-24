@@ -22,7 +22,7 @@ function render(){
  if(view==='vendors')return choices('MOTEL VENDORS',['GENERAL STORE','ARMORY','WORKSHOP','CLINIC','BANK',"RANI'S ACCESSORIES",'BACK']);
  if(view==='rani')return choices('RANI KAPOOR — ACCESSORIES',['SELL ITEMS','BACK']);
  if(view==='rear')return choices('BEHIND THE MOTEL',['BACK']);
- if(view==='lounge')return choices('THE LOUNGE',['BUY DRINKS','SELL ITEMS','CONVERSATION','SMALL TALK','BACK']);
+ if(view==='lounge')return choices('THE LOUNGE',['BUY DRINKS','SELL ITEMS','CONVERSATION','SMALL TALK','GAMBLE','BACK']);
  if(view==='jessica')return choices('JESSICA MERCER — SECURITY',['TALK JESSICA','SMALL TALK','BOUNTIES','INSPECT JESSICA','BACK']);
  if(view==='mail'){if(!mailUnlocked())return open();return r18CourierMenu();}
 }

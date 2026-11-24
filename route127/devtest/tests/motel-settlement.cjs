@@ -16,7 +16,7 @@ await act('motel vendors');assert.equal(offered().length,7);
 for(const role of ['general store','armory','workshop','clinic','bank']){await act(role);assert.equal(run('stage'),'port55Service');bounded();assert(offered().includes('assign staff'));await act('return to motel vendors');}
 await act("rani's accessories");assert.deepEqual(offered(),['sell items','back']);
 run("addPack('Scrap Metal','material',3,true);Route127Motel.open('rani')");await settle();await act('sell items');const sell=offered().find(c=>c.startsWith('sell scrap metal'));assert(sell);await act(sell);await act('confirm store sale');assert.equal(run("findItem('Scrap Metal').qty"),2);await act('back');assert.equal(run('stage'),'motelRani');await act('back');
-await act('the lounge');assert(!offered().some(c=>/casino|gambl/.test(c)));await act('buy drinks');const hp=run('player.hp'),bolts=run('player.bolts');await act(offered()[0]);assert(run('player.hp')>hp);assert(run('player.bolts')<bolts);await act('back');assert.equal(run('stage'),'motelLounge');await act('back');
+await act('the lounge');assert(offered().includes('gamble')); await act('buy drinks');const hp=run('player.hp'),bolts=run('player.bolts');await act(offered()[0]);assert(run('player.hp')>hp);assert(run('player.bolts')<bolts);await act('back');assert.equal(run('stage'),'motelLounge');await act('back');
 await act('talk to jessica');await act('small talk');assert.equal(run('player.flags.motelJessica.conversations'),1);bounded();await act('back');
 // Exercise the existing bounty dialog callbacks against Jessica's independent ledger.
 const click=async label=>{const b=game.buttons().find(b=>b.textContent===label);assert(b,'Missing dialog control '+label);for(const f of b.events.click||[])await f();await settle();};

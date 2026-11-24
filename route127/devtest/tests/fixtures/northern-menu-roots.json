@@ -1,0 +1,8 @@
+[
+ {"id":"house-unclaimed","setup":"lanternState().nodeId='house';arriveHouse();"},
+ {"id":"house-occupied","setup":"player.flags.houseQuest='active';lanternState().nodeId='house';arriveHouse();"},
+ {"id":"house-owned","setup":"player.flags.houseQuest='done';player.flags.houseOwned=true;lanternState().nodeId='house';arriveHouse();"},
+ {"id":"north-ridge","setup":"lanternState().nodeId='northern-ridge';lanternNodeMenu();"},
+ {"id":"east-ridge","setup":"lanternState().nodeId='east-ridge';lanternNodeMenu();"},
+ {"id":"west-ridge","setup":"lanternState().nodeId='west-ridge';lanternNodeMenu();"}
+]

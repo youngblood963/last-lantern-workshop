@@ -1,0 +1,347 @@
+[
+  {
+    "id": "early:4",
+    "name": "ROADBLOCK",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:6",
+    "name": "THE STRAY",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:13",
+    "name": "HIGHWAY ROBBERS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:15",
+    "name": "ROACH NEST",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:16",
+    "name": "TUNNEL RATS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:17",
+    "name": "FERAL DOG",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:18",
+    "name": "LONE SCAVENGER",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:19",
+    "name": "GANG LOOKOUT",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:20",
+    "name": "THE CRAWLER",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:21",
+    "name": "SECURITY DRONE",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:29",
+    "name": "SALT ON THE ROAD",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:39",
+    "name": "THE PAINTED ARROWS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:46",
+    "name": "THE FORGOTTEN GARDEN",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:11",
+    "name": "THE BIG MAN",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:23",
+    "name": "THE CINDER WOLVES",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:33",
+    "name": "THE ROAD REAPERS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:12",
+    "name": "THE QUARRY LIFT",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:10",
+    "name": "THE BONE HUNTERS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:34",
+    "name": "THE WARDEN",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:22",
+    "name": "THE SALT MINERS",
+    "policy": "One-time"
+  },
+  {
+    "id": "east:14",
+    "name": "THE ROAD EATER",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:26",
+    "name": "THE BONE COLLECTOR",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:38",
+    "name": "THE MUD CANNON",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:58",
+    "name": "THE LAST PATROL",
+    "policy": "One-time"
+  },
+  {
+    "id": "east:61",
+    "name": "CULVERT CRAWLER",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:0",
+    "name": "COUNTY WORK TRUCK",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:3",
+    "name": "ABANDONED SEDAN",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:54",
+    "name": "THE TIPPED DELIVERY TRUCK",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:10",
+    "name": "RIDGELINE",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:64",
+    "name": "THE WALKING PEDDLER",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:30",
+    "name": "THE PAPER STORM",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:50",
+    "name": "THE LIMPING HOUND",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:66",
+    "name": "MILES THE COURIER",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:13",
+    "name": "THE BLACK SNOW",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:18",
+    "name": "THE STEEL ORCHARD",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:39",
+    "name": "THE HANGING CAGE",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:8",
+    "name": "THE MASK MARKET",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:11",
+    "name": "THE SCRAP DUEL",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:29",
+    "name": "THE FIGHTING RING",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:42",
+    "name": "THE FORGOTTEN ARENA",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:65",
+    "name": "FRESH MEAT",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:5",
+    "name": "MAINTENANCE BOX",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:52",
+    "name": "THE DITCH BACKPACK",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:56",
+    "name": "THE LOCKED TOOL CHEST",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:60",
+    "name": "STATION NINE DISCOVERY STORYLINE",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:25",
+    "name": "THE LAST MAIL",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:69",
+    "name": "MILEPOST CACHE",
+    "policy": "One-time"
+  },
+  {
+    "id": "east:70",
+    "name": "OVERTURNED MAINTENANCE CART",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:8",
+    "name": "OLD BILLBOARD",
+    "policy": "One-time"
+  },
+  {
+    "id": "early:9",
+    "name": "THE TRAVELER",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:55",
+    "name": "COLD ROAD CAMP",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:61",
+    "name": "THE SPRAINED RUNNER",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:33",
+    "name": "THE BRIDGE TOLL",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:26",
+    "name": "THE FALSE SHOULDER",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:3",
+    "name": "THE RED RAIN",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:24",
+    "name": "THE BLADE CART",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "east:5",
+    "name": "THE COLLAPSED DAM",
+    "policy": "One-time"
+  },
+  {
+    "id": "east:15",
+    "name": "THE CHAIN BRIDGE",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:40",
+    "name": "THE DUST HORSES",
+    "policy": "Conditional"
+  },
+  {
+    "id": "east:72",
+    "name": "THE LOST CONVOY",
+    "policy": "One-time"
+  },
+  {
+    "id": "east:74",
+    "name": "COLLAPSING LOOKOUT",
+    "policy": "One-time"
+  },
+  {
+    "id": "east:75",
+    "name": "WILD BEAR",
+    "policy": "One-time"
+  },
+  {
+    "id": "east:79",
+    "name": "TOMMY BRIGGS — POSTAL ENCOUNTER",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:139",
+    "name": "MURPHY'S LOST CORVETTE",
+    "policy": "Conditional"
+  },
+  {
+    "id": "early:140",
+    "name": "MOUNTAIN POACHERS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:141",
+    "name": "TERRITORIAL SURVIVALISTS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:142",
+    "name": "MOUNTAIN LIONS",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:149",
+    "name": "BAT COLONY",
+    "policy": "Repeatable"
+  },
+  {
+    "id": "early:199",
+    "name": "THE LAST AUTONOMOUS TAXI",
+    "policy": "Repeatable"
+  }
+]

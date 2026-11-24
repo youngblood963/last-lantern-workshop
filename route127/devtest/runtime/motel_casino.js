@@ -16,7 +16,7 @@ function open(game){if(player.turns<=0&&!testMode){noTurnsMenu();return false;}i
 }
 const nativeRender=r6CasinoRender;
 function render(){
- const r=round();if(!r)return menu();stage='r6Casino';addImmediate('THE LOUNGE — '+name(r),'place');
+ const r=round();if(!r)return menu();stage='r6Casino';addImmediate(name(r),'place');
  if(r.status==='settled'){
   addImmediate(r.message,'reward');addImmediate(`WAGER ${r.bet} / RETURN ${r.payout} / NET ${r.payout-r.bet} Bolts`,'system');
   return choices(['PLAY AGAIN','BACK']);
@@ -112,9 +112,9 @@ handleCommandCore=async function(raw){
 };
 const oldModel=GraphicalUI.model;
 GraphicalUI.model=function(){const m=oldModel.apply(this,arguments);if(at()&&['motelCasino','r6Casino'].includes(stage)){
- const r=round();m.art=new URL('../devtest/assets/locations/'+(stage==='motelCasino'?'motel_casino.png':r?.game===poker?'seaport_pirates_poker.png':'casino/'+({SLOTS:'motel_slot_machine.png','BIG SIX WHEEL':'motel_bigsix_background.png',KENO:'motel_keno_board.png',ROULETTE:'motel_roulette_background.png'}[r?.game]||'motel_slot_machine.png')),document.baseURI).href;
- m.title='THE LOUNGE'+(stage==='r6Casino'?' — '+name(r):' — CASINO');m.regionalSky=null;m.scenarioBackdrop=null;
- if(r?.game!==poker||stage==='motelCasino')m.layout='motel-casino';
+ const r=round();m.art=new URL('../devtest/assets/locations/'+(stage==='motelCasino'?'motel_casino.png':r?.game===poker?'casino/motel_poker_table.webp':'casino/'+({SLOTS:'motel_slot_machine.png','BIG SIX WHEEL':'motel_bigsix_background.png',KENO:'motel_keno_board.png',ROULETTE:'motel_roulette_background.png'}[r?.game]||'motel_slot_machine.png')),document.baseURI).href;
+ m.title=stage==='r6Casino'?name(r):'THE LOUNGE — CASINO';m.regionalSky=null;m.scenarioBackdrop=null;
+ m.layout=r?.game===poker&&stage==='r6Casino'?'motel-poker':'motel-casino';
  }return m;};
 const oldLoad=loadGame;
 loadGame=function(){const result=oldLoad.apply(this,arguments);if(at()&&round()){

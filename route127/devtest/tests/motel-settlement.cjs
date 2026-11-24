@@ -1,12 +1,12 @@
-const assert=require('node:assert/strict'),create=require('./helpers/menu_audit.cjs');
+const assert=require('node:assert/strict'),create=require(process.env.ROUTE127_RELEASE?'./helpers/release_menu.cjs':'./helpers/menu_audit.cjs');
 (async()=>{
-const game=create(),{run,flush,ctx}=game;await flush();
+const game=create(),{run,flush,ctx,walk}=game;ctx.location.origin='https://local.test';await flush();
 const settle=async()=>{await flush();await Promise.resolve();await flush();};
 run("resetPlayer();player.handle='Motel Regression';player.level=20;player.hp=250;player.maxHp=900;player.turns=100;player.bolts=20000;player.packMax=40;player.flags.interfaceUnlocked=true;player.flags.mercyDiscovered=true;player.flags.murphyRideLevel10Astrid=true;lanternMigrate();Object.assign(lanternState(),{nodeId:'abandoned-motel',currentEdgeId:null,pending:false});GraphicalUI.active=()=>true;GraphicalUI.preferred='graphics';busy=false;commandProcessing=false;lanternNodeMenu()");await settle();
 const offered=()=>JSON.parse(run('JSON.stringify(GraphicalUI.choices().map(c=>c.command))'));
-const act=async c=>{const row=run('GraphicalUI.choices()').find(x=>x.command===c);assert(row,'Missing graphical command '+c+' in '+offered());await run('GraphicalUI.dispatch('+JSON.stringify(row)+')');await settle();};
+const act=async c=>{const row=run('GraphicalUI.choices()').find(x=>x.command===c||x.command.startsWith(c+' —'));assert(row,'Missing graphical command '+c+' in '+offered());await run('GraphicalUI.dispatch('+JSON.stringify(row)+')');await settle();};
 const bounded=()=>assert(offered().length<=8,'Oversized navigation '+offered());
-assert.deepEqual(offered(),['motel vendors','the lounge','talk to jessica','the pool','behind the motel','bulletin board','leave motel']);
+assert.deepEqual(offered(),['motel vendors','the lounge','talk to jessica','the deep end','behind the motel','bulletin board','leave motel']);
 for(const phase of ['new','initial']){run('player.flags.r18Courier={phase:'+JSON.stringify(phase)+'};Route127Motel.open()');await settle();assert(!offered().includes('mail room'));}
 run("player.flags.r18Courier={phase:'service'};Route127Motel.open()");await settle();assert.equal(offered().length,8);
 await act('mail room');assert.equal(run('stage'),'motelMail');bounded();await act('return to town');assert.equal(run('stage'),'motelHome');
@@ -16,7 +16,7 @@ await act('motel vendors');assert.equal(offered().length,7);
 for(const role of ['general store','armory','workshop','clinic','bank']){await act(role);assert.equal(run('stage'),'port55Service');bounded();assert(offered().includes('assign staff'));await act('return to motel vendors');}
 await act("rani's accessories");assert.deepEqual(offered(),['sell items','back']);
 run("addPack('Scrap Metal','material',3,true);Route127Motel.open('rani')");await settle();await act('sell items');const sell=offered().find(c=>c.startsWith('sell scrap metal'));assert(sell);await act(sell);await act('confirm store sale');assert.equal(run("findItem('Scrap Metal').qty"),2);await act('back');assert.equal(run('stage'),'motelRani');await act('back');
-await act('the lounge');assert(!offered().some(c=>/casino|gambl/.test(c)));await act('buy drinks');const hp=run('player.hp'),bolts=run('player.bolts');await act(offered()[0]);assert(run('player.hp')>hp);assert(run('player.bolts')<bolts);await act('back');assert.equal(run('stage'),'motelLounge');await act('back');
+await act('the lounge');assert(offered().includes('gamble')); await act('buy drinks');const hp=run('player.hp'),bolts=run('player.bolts');await act(offered()[0]);assert(run('player.hp')>hp);assert(run('player.bolts')<bolts);await act('back');assert.equal(run('stage'),'motelLounge');await act('back');
 await act('talk to jessica');await act('small talk');assert.equal(run('player.flags.motelJessica.conversations'),1);bounded();await act('back');
 // Exercise the existing bounty dialog callbacks against Jessica's independent ledger.
 const click=async label=>{const b=game.buttons().find(b=>b.textContent===label);assert(b,'Missing dialog control '+label);for(const f of b.events.click||[])await f();await settle();};
@@ -34,8 +34,15 @@ run("globalThis.staffNames=wanderers.filter(w=>wandererAlive(w)&&!v50Profile(w).
 await act('motel vendors');
 for(const [index,role]of ['general store','armory','workshop','clinic','bank'].entries()){
  await act(role);await act('assign staff');bounded();
- const name=run('staffNames['+index+']');while(!offered().includes('assign '+name.toLowerCase())){assert(offered().includes('next staff'));await act('next staff');bounded();}
- await act('inspect staff '+name.toLowerCase());await act('assign '+name.toLowerCase());await act('confirm assignment');bounded();
+ const name=run('staffNames['+index+']');assert.deepEqual(offered(),['inspect wanderers','back']);await act('inspect wanderers');
+ const picker=walk(ctx.document.body).find(n=>n.classList?.contains('r127-roster-picker')&&n.open);assert(picker?.open,JSON.stringify({messages:run('menuAuditMessages.slice(-10)'),stage:run('stage'),ui:run('player.flags.portStaffUI'),dialogs:walk(ctx.document.body).filter(n=>n.tagName==='DIALOG').map(d=>({cls:d.className,open:d.open,text:d.textContent.slice(0,80)}))}));
+ const row=walk(picker).find(n=>n.classList?.contains('r127-roster-item')&&n.textContent.includes(name));assert(row,'Roster row '+name);
+ const person=row.querySelector('button');for(const f of person.events.click||[])await f();await settle();
+ assert(ctx.document.querySelector('.r127-wanderer-info')||run('!!Route127WandererInfo'),'Existing dossier is available');
+ for(const d of walk(ctx.document.body).filter(n=>n.tagName==='DIALOG'&&n!==picker&&n.open))d.close();
+ const choose=walk(row).find(n=>n.tagName==='BUTTON'&&['ASSIGN','REASSIGN'].includes(n.textContent));for(const f of choose.events.click||[])await f();await settle();
+ await act('confirm assignment');bounded();
+
  assert.equal(run('portStaffState().assignments['+JSON.stringify(role)+']'),name);
  await act('return to motel vendors');
 }
@@ -43,13 +50,13 @@ assert.equal(run('JSON.stringify(player.flags.seaportStaff)'),run('seaportBefore
 await act('bank');await act('bank bolts');bounded();await act('deposit bolts');run("FocusedEntry.field.value='100'");await run("FocusedEntry.submit()");await settle();assert.equal(run('player.bankBolts'),100);if(run('!!FocusedEntry.dialog')){run('FocusedEntry.cancel()');await run('FocusedEntry.pendingCancellation');await settle();}if(offered().length===1&&offered()[0]==='back')await act('back');await act('return to motel vendors');
 await act('clinic');const oldHp=run('player.hp');await act('treat wounds');assert(run('player.hp')>oldHp);await act('return to motel vendors');
 await act('armory');await act('buy equipment');assert(run("!!player.flags.regionalEquipment.motel"));assert(!run('!!player.flags.regionalEquipment.seaport'));await act('back');await act('unassign staff');await act('confirm unassignment');assert.equal(run('portStaffState().assignments.armory'),undefined);await act('return to motel vendors');await act('back');
-await act('the pool');assert.equal(run('stage'),'r127ArenaLobby');bounded();await act('enter tournament');assert.equal(run('player.flags.r18TournamentFocus'),'deep');assert(run('r18TournamentAt("deep")'));await act('leave arena');assert.equal(run('stage'),'r127ArenaLobby');await act('back away');assert.equal(run('stage'),'motelHome');
+await act('the deep end');assert.equal(run('stage'),'r127ArenaLobby');bounded();await act('enter tournament');assert.equal(run('player.flags.r18TournamentFocus'),'deep');assert(run('r18TournamentAt("deep")'));await act('leave arena');assert.equal(run('stage'),'r127ArenaLobby');await act('back away');assert.equal(run('stage'),'motelHome');
 // Run native spectator timers in the fixture; wager settlement and controls must return.
 const nativeInterval=ctx.setInterval;let tick;ctx.setInterval=f=>{tick=f;return 99;};
-await act('the pool');await act('watch a round');for(let i=0;i<100&&!offered().includes('watch a round');i++){tick();await settle();}assert(offered().includes('watch a round'));assert.equal(run('player.turns'),100);
+await act('the deep end');await act('watch a round');for(let i=0;i<100&&!offered().includes('watch a round');i++){tick();await settle();}assert(offered().includes('watch a round'));assert.equal(run('player.turns'),100);
 await act('bet on a round');await act(offered()[0]);const wagerBolts=run('player.bolts');await act('wager 10');for(let i=0;i<100&&!offered().includes('watch a round');i++){tick();await settle();}assert([wagerBolts-10,wagerBolts+10].includes(run('player.bolts')));ctx.setInterval=nativeInterval;
 await act('enter tournament');await act('start next match');assert.equal(run('combatState.r18TournamentKey'),'deep');assert.equal(run('stage'),'combat');run('r18TournamentDefeat(combatState)');await settle();assert.equal(run('player.hp'),1);assert.equal(run('stage'),'r18Tournament');await act('leave arena');await act('back away');
 run("saveGame();player.flags.motelVisited=false;loadGame('auto')");await settle();assert.equal(run('stage'),'motelHome');assert(run('Route127Motel.mailUnlocked()'));assert.equal(run('lanternState().nodeId'),'abandoned-motel');assert.equal(run('player.turns'),100);
-await act('leave motel');assert.equal(run('stage'),'lanternNode');assert(offered().some(c=>c.startsWith('take road')));assert.equal(run('player.turns'),100);
+await act('leave motel');assert.equal(run('stage'),'lanternNode');assert(offered().some(c=>c.startsWith('take road')));assert(offered().every(c=>c.startsWith('take road')||c==='back'));await act('back');assert.equal(run('stage'),'motelHome');assert.equal(run('player.turns'),100);
 console.log('PASS: Motel menus/returns, completed-only mail gating, Rani sale, Lounge drink, Jessica, independent staff/stock, assign/inspect/unassign, bank/clinic, Jessica bounty acceptance/payment, native recruitment, Deep End watch/wager/combat/return, native save/load, unchanged travel turns');
 })().catch(e=>{console.error(e);process.exitCode=1});

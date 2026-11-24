@@ -4,7 +4,7 @@
  if(globalThis.ROUTE127_ENV?.name!=='DEVTEST')return;
  const I=EncounterInteraction;
  const labels=e=>(e.prompt?e.prompt():e.choices||'').split(/\s{2,}/).filter(Boolean);
- const information=label=>/^(?:inspect|examine|look|peek|read|observe|watch|listen|study|investigate)\b/i.test(label)&&!/^investigate the signal$/i.test(label)||/^check (?:.*from a distance|service bay)$/i.test(label);
+ const information=label=>/^(?:inspect|examine|look|peek|read|observe|watch|listen|study|investigate)\b/i.test(label)&&!/^investigate the signal$/i.test(label)||/^check (?:.*from a distance|service bay)$/i.test(label)||/^question the curator$/i.test(label);
  I.isInformation=information;
  const seen=new WeakMap();
  function history(){let h=seen.get(player.flags);if(!h){h=new Map();seen.set(player.flags,h);}return h;}

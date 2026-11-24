@@ -18,11 +18,11 @@ function render(){
  if(!here())return;
  const view=room();
  if(stage==='motelSale')return portStaffRender();
- if(view==='home')return choices('ABANDONED MOTEL',['MOTEL VENDORS','THE LOUNGE','TALK TO JESSICA','THE POOL','BEHIND THE MOTEL',...(mailUnlocked()?['MAIL ROOM']:[]),'BULLETIN BOARD','LEAVE MOTEL']);
- if(view==='vendors')return choices('MOTEL VENDORS',['GENERAL STORE','ARMORY','WORKSHOP','CLINIC','BANK',"RANI'S ACCESSORIES",'BACK']);
+ if(view==='home')return choices('ABANDONED MOTEL',['MOTEL VENDORS','THE LOUNGE','TALK TO JESSICA','THE DEEP END','BEHIND THE MOTEL',...(mailUnlocked()?['MAIL ROOM']:[]),'BULLETIN BOARD','LEAVE MOTEL']);
+ if(view==='vendors')return choices('MOTEL VENDORS',[...['GENERAL STORE','ARMORY','WORKSHOP','CLINIC','BANK'].map(label=>label+(portStaffState().assignments[label.toLowerCase()]?' — '+portStaffState().assignments[label.toLowerCase()]:'')),"RANI'S ACCESSORIES",'BACK']);
  if(view==='rani')return choices('RANI KAPOOR — ACCESSORIES',['SELL ITEMS','BACK']);
  if(view==='rear')return choices('BEHIND THE MOTEL',['BACK']);
- if(view==='lounge')return choices('THE LOUNGE',['BUY DRINKS','SELL ITEMS','CONVERSATION','SMALL TALK','BACK']);
+ if(view==='lounge')return choices('THE LOUNGE',['BUY DRINKS','SELL ITEMS','CONVERSATION','SMALL TALK','GAMBLE','BACK']);
  if(view==='jessica')return choices('JESSICA MERCER — SECURITY',['TALK JESSICA','SMALL TALK','BOUNTIES','INSPECT JESSICA','BACK']);
  if(view==='mail'){if(!mailUnlocked())return open();return r18CourierMenu();}
 }
@@ -31,9 +31,15 @@ const oldNode=lanternNodeMenu;
 lanternNodeMenu=function(...args){if(here())return open();return oldNode.apply(this,args);};
 const oldArrive=lanternArrive;
 lanternArrive=async function(id,...args){const r=await oldArrive.call(this,id,...args);if(id==='abandoned-motel'&&here()){lanternState().lastSettlement='abandoned-motel';open();}return r;};
-function leave(){delete player.flags.motelRoom;delete player.flags.motelSaleOrigin;stage='lanternNode';oldNode();v49Autosave();}
+function leave(){
+ delete player.flags.motelRoom;delete player.flags.motelSaleOrigin;stage='lanternNode';
+ const roads=lanternConnections('abandoned-motel');
+ choices('LEAVE MOTEL',[...roads.map(e=>'TAKE ROAD TO '+LG_NODES[lanternOther(e,'abandoned-motel')].name.toUpperCase()),'BACK']);
+ for(const e of roads)add(LG_NODES[lanternOther(e,'abandoned-motel')].name+': '+e.distanceTurns+' movement turns','system');
+ v49Autosave();
+}
 const oldRender=renderCurrentChoices;
-renderCurrentChoices=function(...args){if(stage==='motelRecruit')return hireDest();if(here()&&/^motel/.test(stage))return render();return oldRender.apply(this,args);};
+renderCurrentChoices=function(...args){if(here()&&stage==='lanternNode')return leave();if(stage==='motelRecruit')return hireDest();if(here()&&/^motel/.test(stage))return render();return oldRender.apply(this,args);};
 const oldRecruitUnlocked=portRecruitUnlocked;
 portRecruitUnlocked=function(){return here()&&stage==='motelSale'||oldRecruitUnlocked();};
 const oldRating=portStaffRating;
@@ -46,7 +52,7 @@ v53WandererMenu=function(w,road){const r=oldWandererMenu(w,road);if(player.flags
  }return r;};
 const oldCore=handleCommandCore;
 handleCommandCore=async function(raw){
- const cmd=v53Normalize(r5Mapped(raw));
+ const cmd=v53Normalize(r5Mapped(raw)).replace(/\s+—.*$/,'');
  if(!busy&&player.flags.motelVisited&&['wandererRoad','mercy'].includes(stage)&&!player.flags.v50Trade&&/^recruit(?: |$)/.test(cmd)){
   const w=wandererByName(stage==='wandererRoad'?currentRoadWanderer:townWandererFocus);
   if(w&&portRecruitEligible(w)){player.flags.motelRecruit={name:w.name,origin:stage};stage='motelRecruit';return hireDest();}
@@ -59,6 +65,8 @@ handleCommandCore=async function(raw){
   if(settlement){player.flags.portHireOffer={...q,settlement};delete player.flags.motelRecruit;stage='port55Recruit';return portHireMenu();}return hireDest();
  }
  if(here()&&!busy){
+  if(stage==='lanternNode'&&['back','b'].includes(cmd))return open();
+  if(stage==='lanternNode'&&cmd==='enter the deep end')return leave();
   if(stage==='fallen'&&['1','get up','continue'].includes(cmd))return open();
   if(stage==='r11Drinks'&&room()==='lounge'&&['back','b'].includes(cmd))return open('lounge');
   if(stage==='motelSale'){
@@ -69,7 +77,7 @@ handleCommandCore=async function(raw){
   if(/^motel/.test(stage)&&stage!=='motelSale'){
    if(['inventory','status','map','quests','save current','i','s','m','q','v'].includes(cmd)||/^(?:save|load)(?: |$)/.test(cmd))return oldCore.apply(this,arguments);
    if(stage==='motelHome'){
-    const target={'motel vendors':'vendors','the lounge':'lounge','talk to jessica':'jessica','the pool':'pool','behind the motel':'rear','mail room':'mail'}[cmd];
+    const target={'motel vendors':'vendors','the lounge':'lounge','talk to jessica':'jessica','the deep end':'pool','the pool':'pool','behind the motel':'rear','mail room':'mail'}[cmd];
     if(cmd==='bulletin board')return Route127Community.settlement(()=>open());
     if(cmd==='leave motel')return leave();
     if(target==='pool'){player.flags.motelRoom='pool';return Route127ArenaLobby.open('deep');}
@@ -99,8 +107,8 @@ handleCommandCore=async function(raw){
  return oldCore.apply(this,arguments);
 };
 const seaportStaffRender=portStaffRender,seaportStaffService=portStaffServiceCommand;
-portStaffRender=function(...args){if(here()){if(player.flags.portStaffUI?.role==='workshop'&&player.flags.portStaffUI.page==='craft')return r11CraftMenu('seaport');return settlementStaffRender.apply(this,args);}return seaportStaffRender.apply(this,args);};
-portStaffServiceCommand=function(...args){if(here()){args[0]=String(args[0]).replace(/\s+—.*$/,'');return settlementStaffServiceCommand.apply(this,args);}return seaportStaffService.apply(this,args);};
+portStaffRender=function(...args){if(here()){if(Route127StaffPicker.render())return;if(player.flags.portStaffUI?.role==='workshop'&&player.flags.portStaffUI.page==='craft')return r11CraftMenu('seaport');return settlementStaffRender.apply(this,args);}return seaportStaffRender.apply(this,args);};
+portStaffServiceCommand=function(...args){if(here()){args[0]=String(args[0]).replace(/\s+—.*$/,'');if(args[0]==='inspect wanderers'&&player.flags.portStaffUI?.page==='assign'){Route127StaffPicker.open();return true;}return settlementStaffServiceCommand.apply(this,args);}return seaportStaffService.apply(this,args);};
 const oldDirect=r5DirectChoices;
 r5DirectChoices=function(labels){
  if(here()&&(/^(motel|port55Service|r11Drinks|r127ArenaLobby|r18Tournament)/.test(stage)))
@@ -122,7 +130,7 @@ loadGame=function(...args){const r=oldLoad.apply(this,args);if(here()&&!combatSt
 const oldModel=GraphicalUI.model;
 GraphicalUI.model=function(...args){const m=oldModel.apply(this,args);if(here()&&m.active){
  const view=stage==='port55Service'?player.flags.portStaffUI?.role:room(),file=art[view];
- if(file){m.art=new URL('../devtest/assets/locations/'+file,document.baseURI).href;m.regionalSky=null;m.scenarioBackdrop=null;m.title=view==='pool'?'THE DEEP END — MOTEL POOL':view==='jessica'?'JESSICA MERCER':view==='lounge'?'THE LOUNGE':view==='rani'?"RANI'S ACCESSORIES":view==='mail'?'MOTEL MAIL ROOM':'MOTEL — '+String(view).toUpperCase();}
+ if(file){m.art=new URL('../devtest/assets/locations/'+file,document.baseURI).href;m.regionalSky=null;m.scenarioBackdrop=null;m.title=view==='pool'?'THE DEEP END':view==='jessica'?'JESSICA MERCER':view==='lounge'?'THE LOUNGE':view==='rani'?"RANI'S ACCESSORIES":view==='mail'?'MOTEL MAIL ROOM':'MOTEL — '+String(view).toUpperCase();}
  }return m;};
 const oldTournamentLeave=r18TournamentLeave;
 r18TournamentLeave=function(...args){if(here()){delete player.flags.r18TournamentFocus;player.flags.motelRoom='pool';return Route127ArenaLobby.open('deep');}return oldTournamentLeave.apply(this,args);};

@@ -3,7 +3,7 @@
  const endpoint='/route127/devtest/api/community/';
  const entries=[['announcement','Wasteland Announcements'],['discussion','Survivor Discussions']];
  const categories=['Report a Bug','Suggest a Feature','Gameplay Balancing','Artwork or Visual Issue','General Feedback'];
- let dialog,renderVersion=0,returningFromBounties=false;
+ let dialog,renderVersion=0,returningFromBounties=false,settlementReturn=null;
  const make=(tag,text)=>{
   const node=document.createElement(tag);
   if(text!==undefined)node.textContent=text;
@@ -182,13 +182,14 @@
   form.append(control('Cancel',home));panel.append(form);
  }
  showBulletinBoard=function(){
+  settlementReturn=null;
   mercyLocation='town';townWandererFocus=null;player.flags.solaceMenu='board';
   if(!dialog){
    dialog=make('dialog');dialog.className='route127-community-board';
    dialog.setAttribute('aria-labelledby','community-board-title');
    dialog.addEventListener('close',()=>{
     if(dialog.open||returningFromBounties)return;
-    renderVersion++;mercyMenu();
+    renderVersion++;if(settlementReturn)settlementReturn();else mercyMenu();
    });
    dialog.addEventListener('keydown',event=>event.stopPropagation());
    document.body.append(dialog);
@@ -196,4 +197,5 @@
   if(!dialog.open)dialog.showModal();
   home();
  };
+ globalThis.Route127Community=Object.freeze({settlement(onReturn){showBulletinBoard();settlementReturn=onReturn;},close(){dialog?.close();}});
 })();

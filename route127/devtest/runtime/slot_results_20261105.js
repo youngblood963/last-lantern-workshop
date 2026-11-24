@@ -29,7 +29,7 @@ function paint(r,spinning){
  else if(spinning){title='REELS SPINNING…';detail='Wager: '+r.bet+' Bolts';kind='spin';}
  else{
   const winning=r.payout>0;const triple=Array.isArray(r.reels)&&r.reels.length===3&&r.reels.every(x=>x===r.reels[0]);
-  const names=seaport()?portNames:solaceNames;const symbol=triple?names[r.reels[0]]||r.reels[0]:'';
+  const names=seaport()?(r.location==='motel'?{SCRAP:'Wrenches',BOLTS:'Cherries',LANTERN:'Car',SKULL:'Dice',RAT:'Gas Pump',BLACKGLASS:'Record'}:portNames):solaceNames;const symbol=triple?names[r.reels[0]]||r.reels[0]:'';
   const jackpot=winning&&triple&&r.reels[0]==='BLACKGLASS';
   title=jackpot?'JACKPOT! '+symbol.toUpperCase()+'!':winning?(triple?'THREE '+symbol.toUpperCase()+'! YOU WIN!':'YOU WIN!'):'NO MATCH';
   detail='Wager '+r.bet+' · Payout '+r.payout+' · Net '+(r.payout-r.bet)+' Bolts';

@@ -1,0 +1,194 @@
+[
+  {
+    "name": "Cloth",
+    "type": "material"
+  },
+  {
+    "name": "Scrap Metal",
+    "type": "material"
+  },
+  {
+    "name": "Wire",
+    "type": "material"
+  },
+  {
+    "name": "Electronics",
+    "type": "material"
+  },
+  {
+    "name": "Small Animal Bones",
+    "type": "material"
+  },
+  {
+    "name": "Animal Bones",
+    "type": "material"
+  },
+  {
+    "name": "Large Animal Bones",
+    "type": "material"
+  },
+  {
+    "name": "Tempered Steel",
+    "type": "material"
+  },
+  {
+    "name": "Explosive Components",
+    "type": "material"
+  },
+  {
+    "name": "Animal Hide",
+    "type": "material"
+  },
+  {
+    "name": "Uncommon Electrical Parts",
+    "type": "material"
+  },
+  {
+    "name": "Glass",
+    "type": "material"
+  },
+  {
+    "name": "Water",
+    "type": "material"
+  },
+  {
+    "name": "Salt",
+    "type": "material"
+  },
+  {
+    "name": "Raw Rat Meat",
+    "type": "material"
+  },
+  {
+    "name": "Raw Rabbit Meat",
+    "type": "material"
+  },
+  {
+    "name": "Raw Bird Meat",
+    "type": "material"
+  },
+  {
+    "name": "Raw Chicken Meat",
+    "type": "material"
+  },
+  {
+    "name": "Raw Boar Meat",
+    "type": "material"
+  },
+  {
+    "name": "Raw Venison",
+    "type": "material"
+  },
+  {
+    "name": "Raw Snake Meat",
+    "type": "material"
+  },
+  {
+    "name": "Raw Wolf Meat",
+    "type": "material"
+  },
+  {
+    "name": "Energy Bars",
+    "type": "consumable"
+  },
+  {
+    "name": "Bandage",
+    "type": "consumable"
+  },
+  {
+    "name": "Clean Water",
+    "type": "consumable"
+  },
+  {
+    "name": "Reinforced Bandage",
+    "type": "consumable"
+  },
+  {
+    "name": "Emergency Trauma Kit",
+    "type": "consumable"
+  },
+  {
+    "name": "Fresh Apple",
+    "type": "consumable"
+  },
+  {
+    "name": "Fresh Pear",
+    "type": "consumable"
+  },
+  {
+    "name": "Fresh Carrot",
+    "type": "consumable"
+  },
+  {
+    "name": "Fresh Potato",
+    "type": "consumable"
+  },
+  {
+    "name": "Fresh Tomato",
+    "type": "consumable"
+  },
+  {
+    "name": "Fresh Cabbage",
+    "type": "consumable"
+  },
+  {
+    "name": "Fresh Berries",
+    "type": "consumable"
+  },
+  {
+    "name": "Preserved Vegetables",
+    "type": "consumable"
+  },
+  {
+    "name": "Preserved Meat",
+    "type": "consumable"
+  },
+  {
+    "name": "Wasteland Stew",
+    "type": "consumable"
+  },
+  {
+    "name": "Roadhouse Hash",
+    "type": "consumable"
+  },
+  {
+    "name": "Wild Honey",
+    "type": "consumable"
+  },
+  {
+    "name": "Claw Hammer",
+    "type": "weapon"
+  },
+  {
+    "name": "Worn Jacket",
+    "type": "armor"
+  },
+  {
+    "name": "Bluefang Hunting Knife",
+    "type": "weapon"
+  },
+  {
+    "name": "Battered Flashlight",
+    "type": "tool"
+  },
+  {
+    "name": "Old World Pocket Compass",
+    "type": "valuable"
+  },
+  {
+    "name": "Tim's Old Badge",
+    "type": "quest"
+  },
+  {
+    "name": "Usable Serpentine Belt",
+    "type": "quest"
+  },
+  {
+    "name": "Runner's Token",
+    "type": "quest"
+  },
+  {
+    "name": "Jen's Supply Crate",
+    "type": "quest"
+  }
+]

@@ -1,0 +1,146 @@
+[
+  {
+    "id": "solace",
+    "setup": "stage='mercy';mercyLocation='town';lanternState().nodeId='solace';mercyMenu();"
+  },
+  {
+    "id": "factory",
+    "setup": "stage='factoryWorkshop';lanternState().nodeId='factory';v49FactoryRoom();"
+  },
+  {
+    "id": "seaport",
+    "setup": "stage='seaport';lanternState().nodeId='seaport';player.flags.portRoadCleared=true;Object.assign(port55State(),{freed:true,stage:'done'});port55Menu();"
+  },
+  {
+    "id": "seaport-locked",
+    "setup": "stage='seaport';lanternState().nodeId='seaport';player.flags.portRoadCleared=true;Object.assign(port55State(),{freed:false,stage:'investigate'});port55Menu();"
+  },
+  {
+    "id": "house",
+    "setup": "stage='house';lanternState().nodeId='house';showHouseChoices();"
+  },
+  {
+    "id": "inventory",
+    "setup": "stage='mercy';mercyLocation='town';openInterface('inventory');"
+  },
+  {
+    "id": "character",
+    "setup": "stage='mercy';mercyLocation='town';openInterface('status');"
+  },
+  {
+    "id": "journal",
+    "setup": "stage='mercy';mercyLocation='town';openInterface('quests');"
+  },
+  {
+    "id": "wanderer",
+    "setup": "stage='wandererRoad';currentRoadWanderer=wanderers.find(w=>wandererAlive(w)&&!v50Profile(w).hostile).name;v53WandererMenu(wanderers.find(w=>w.name===currentRoadWanderer),true);"
+  },
+  {
+    "id": "station",
+    "setup": "player.flags.r18Station={parts:{},hunters:'waiting',restored:false};stage='r18Station';r18StationMenu();"
+  },
+  {
+    "id": "station-restored",
+    "setup": "player.flags.r18Station={parts:{},restored:true};stage='r18Station';r18StationMenu();"
+  },
+  {
+    "id": "depot",
+    "setup": "player.flags.r18CountyDepot={};stage='r18Depot';r18DepotMenu();"
+  },
+  {
+    "id": "horse-travel",
+    "setup": "stage='mercy';mercyLocation='town';openInterface('status');player.flags.r18HorseOwned=true;r18HorseTravelMenu();"
+  },
+  {
+    "id": "waiting",
+    "setup": "stage='mercy';mercyLocation='town';player.turns=0;player.flags.devTurnLimitEnforced=true;testMode=false;player.flags.nextRefillAt=Date.now()+3600000;noTurnsMenu();"
+  },
+  {
+    "id": "factory-authorized",
+    "setup": "player.flags.relayQuest='complete';stage='factoryWorkshop';lanternState().nodeId='factory';v49FactoryRoom();"
+  },
+  {
+    "id": "factory-ready",
+    "setup": "player.flags.relayQuest='complete';player.flags.v49TerminalRead=true;player.flags.devForgeTalked=true;player.flags.v49RecipeBandage=true;player.flags.factoryDungeon={floor:-1,room:-1,done:[0,1,2,3],puzzles:[],searched:{},fights:{},pending:null};stage='factoryWorkshop';lanternState().nodeId='factory';v49FactoryRoom();"
+  },
+  {
+    "id": "crafting",
+    "setup": "player.level=50;player.flags.v49RecipeBandage=true;player.flags.r11Learned=Object.fromEntries(Object.keys(CRAFT_RECIPES).map(k=>[k,true]));stage='mercy';mercyLocation='murphy';r11CraftMenu('murphy');"
+  },
+  {
+    "id": "craft-ready",
+    "setup": "player.flags.v49RecipeBandage=true;player.flags.r11Bench='murphy';player.flags.v49MurphyJob={key:'bandage',endsAt:Date.now()-1,success:true};r11CraftMenu('murphy');"
+  },
+  {
+    "id": "pets",
+    "setup": "stage='interfaceStatus';player.flags.ownedPets=['Ferret','Stray Cat'];player.flags.seaport55={freed:true};stage='port55Pets';port55Pets();"
+  },
+  {
+    "id": "seaport-staffed",
+    "setup": "stage='seaport';player.flags.seaport55={freed:true,stage:'done'};lanternState().nodeId='seaport';const workers=wanderers.filter(w=>wandererAlive(w)).slice(0,4).map(w=>w.name);Object.assign(portStaffState(),{hired:workers,assignments:Object.fromEntries(Object.keys(PORT_STAFF_ROLES).map((r,i)=>[r,workers[i]]))});portStaffOpen('general store');"
+  },
+  {
+    "id": "seaport-workshop",
+    "setup": "stage='seaport';player.flags.seaport55={freed:true,stage:'done'};player.flags.v49RecipeBandage=true;player.flags.r11Learned=Object.fromEntries(Object.keys(CRAFT_RECIPES).map(k=>[k,true]));lanternState().nodeId='seaport';const w=wanderers.find(w=>wandererAlive(w));Object.assign(portStaffState(),{hired:[w.name],assignments:{workshop:w.name}});portStaffOpen('workshop');"
+  },
+  {
+    "id": "seaport-bank",
+    "setup": "player.flags.seaport55={freed:true,stage:'done'};const w=wanderers.find(w=>wandererAlive(w));Object.assign(portStaffState(),{hired:[w.name],assignments:{bank:w.name}});portStaffOpen('bank');"
+  },
+  {
+    "id": "seaport-clinic",
+    "setup": "player.flags.seaport55={freed:true,stage:'done'};const w=wanderers.find(w=>wandererAlive(w));Object.assign(portStaffState(),{hired:[w.name],assignments:{clinic:w.name}});portStaffOpen('clinic');"
+  },
+  {
+    "id": "recruitment",
+    "setup": "player.flags.seaport55={freed:true,stage:'done'};stage='wandererRoad';currentRoadWanderer=wanderers.find(w=>wandererAlive(w)&&!v50Profile(w).hostile).name;v53WandererMenu(wandererByName(currentRoadWanderer),true);"
+  },
+  {
+    "id": "inn-room",
+    "setup": "stage='mercy';mercyLocation='jen';player.flags.rustyRoomOwned=true;player.rustyRoomChest=[{name:'Cloth',type:'material',qty:2}];mercyLocation='jenRoom';handleInnRoom('look around');"
+  },
+  {
+    "id": "martha",
+    "setup": "stage='mercy';mercyLocation='johnny';player.flags.r18MarthaSettled=true;r18MarthaMenu();"
+  },
+  {
+    "id": "silas",
+    "setup": "player.flags.seaport55={freed:true,stage:'done'};player.flags.r18SilasOutcome='released';r18FenceMenu();"
+  },
+  {
+    "id": "relay",
+    "setup": "stage='mercy';mercyLocation='relay';player.flags.relayQuest='active';player.flags.relayPartsRevealed=true;showRelayChoices();"
+  },
+  {
+    "id": "quest-progress",
+    "setup": "stage='mercy';mercyLocation='town';player.flags.timQuest='found';player.flags.murphyQuest='found';player.flags.r18ClaraMet=true;player.flags.r18DanielQuest='active';player.flags.jenQuest='active';player.flags.r11Quests={shipment:'active',houseRules:'active',lights:'active'};mercyMenu();"
+  },
+  {
+    "id": "factory-dungeon",
+    "setup": "player.flags.relayQuest='complete';player.flags.devForgeTalked=true;player.flags.v49TerminalRead=true;lanternState().nodeId='factory';Object.assign(factoryState(),{done:[0,1,2]});factoryHub();"
+  },
+  {
+    "id": "factory-dungeon-locked",
+    "setup": "player.flags.relayQuest='complete';player.flags.devForgeTalked=true;player.flags.v49TerminalRead=true;lanternState().nodeId='factory';factoryHub();"
+  },
+  {
+    "id": "caleb",
+    "setup": "player.flags.seaport55={freed:true,stage:'done'};player.flags.r18CalebRescued=true;lanternState().nodeId='seaport';r11CalebMenu();"
+  },
+  {
+    "id": "miles",
+    "setup": "player.flags.seaport55={freed:true,stage:'done'};lanternState().nodeId='seaport';player.flags.r18MilesSchedule={day,place:'seaport'};player.flags.r18MilesVisit={place:'seaport'};r18MilesMenu();"
+  },
+  {
+    "id": "ash",
+    "setup": "player.flags.r18Ash={clues:{},ending:null};stage='r18Ash';r18AshMenu();"
+  },
+  {
+    "id": "deep-end",
+    "setup": "lanternState().nodeId='abandoned-motel';r18TournamentEnter('deep');"
+  },
+  {
+    "id": "arena",
+    "setup": "const e=RoadScenarioRegistry.regionalById.get('east:29').encounter;Object.assign(lanternState(),{currentEdgeId:'house--solace-upper-junction',stepIndex:1,pending:true,encounterRegion:'east',encounterIndex:eastEncounters.indexOf(e),sceneId:'menu-audit-arena'});stage='encounter';Route127ArenaLobby.open('ring');"
+  }
+]

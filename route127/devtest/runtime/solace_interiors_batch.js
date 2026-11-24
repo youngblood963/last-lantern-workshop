@@ -168,6 +168,14 @@ function roomMenu(){
  add(`${player.name||'PLAYER'}'S ROOM`,'place');
  DevtestMenuModel.publishLabels('solace-room',['REST','CHEST','LOOK AROUND','RETURN'],'RETURN');
 }
+// The room owns redraws after information/rest actions and graphical chest opening.
+// Falling through the generic town renderer used to reset the location to Main Street.
+const previousRoomRender=renderCurrentChoices;
+renderCurrentChoices=function(...args){
+ if(at('jenRoom')&&player.flags.rustyRoomOwned)return roomMenu();
+ if(at('jenRoomChest')&&player.flags.rustyRoomOwned)return handleInnRoom('redraw');
+ return previousRoomRender.apply(this,args);
+};
 const previousInnRoom=handleInnRoom;
 handleInnRoom=function(cmd){
  if(at('jenRoomChest')&&player.flags.rustyRoomOwned&&['back','b','return'].includes(cmd))return roomMenu();
@@ -285,7 +293,7 @@ handleCommandCore=async function(raw){
      if(price>0){
       const learned=player.flags.r11Learned||(player.flags.r11Learned={});
       if(learned[key])add('Blueprint already learned.','system');
-      else if(player.bolts<price)add('Not enough Bolts.','system');
+      else if(player.bolts<price)add('You need '+price+' Bolts. You currently have '+player.bolts+'.','system');
       else{player.bolts-=price;learned[key]=true;updateHud();v49Autosave();add('BLUEPRINT LEARNED — '+CRAFT_RECIPES[key].name,'reward');}
       return shopList();
      }

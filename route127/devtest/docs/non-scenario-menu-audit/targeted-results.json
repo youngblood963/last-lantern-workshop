@@ -1,0 +1,29 @@
+{
+  "arena-timed": {
+    "menus": 20,
+    "actions": 60,
+    "nestedPaths": 17,
+    "cases": 126,
+    "issues": [],
+    "duplicates": [],
+    "truncations": []
+  },
+  "graphics-fixed": {
+    "menus": 58,
+    "actions": 292,
+    "nestedPaths": 55,
+    "cases": 648,
+    "issues": [],
+    "duplicates": [],
+    "truncations": []
+  },
+  "changed-paths": {
+    "menus": 287,
+    "actions": 914,
+    "nestedPaths": 281,
+    "cases": 3103,
+    "issues": [],
+    "duplicates": [],
+    "truncations": []
+  }
+}

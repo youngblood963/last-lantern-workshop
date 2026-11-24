@@ -1,6 +1,6 @@
 /* DEVTEST: batch ordinary workshop crafting, persistent single-job result. */
 (()=>{'use strict';if(!location.pathname.includes('/route127/devtest/'))return;
-const mats=r=>({Cloth:r.cloth||0,'Scrap Metal':r.scrap||0,Wire:r.wire||0,'Uncommon Electrical Parts':r.parts||0,'Tempered Steel':r.tempered||0,'Small Animal Bones':r.smallBones||0,'Animal Bones':r.bones||0,'Explosive Components':r.explosives||0,'Animal Hide':r.hide||0,...(r.materials||{})});
+const mats=r11CraftMaterials;
 function maxBatch(r){
  let max=25;
  for(const [name,n]of Object.entries(mats(r)))if(n>0)max=Math.min(max,Math.floor(r6MaterialCount(name)/n));
@@ -38,7 +38,9 @@ r11CraftCommand=function(cmd){
   const r=CRAFT_RECIPES[q.key],max=maxBatch(r);
   const qty=cmd==='craft all'?max:cmd==='craft 5'?5:cmd==='craft 1'?1:q.custom&&/^\d+$/.test(cmd)?Number(cmd):0;
   if(!Number.isSafeInteger(qty)||qty<1||qty>max){
-   add('Insufficient materials or invalid quantity. Nothing consumed.','system');return menu();
+   const requested=Number.isSafeInteger(qty)&&qty>0?qty:1;
+   const shortages=[...Object.entries(mats(r)).map(([name,n])=>({name,need:n*requested,have:r6MaterialCount(name)})),{name:'Bolts',need:r.bolts*requested,have:player.bolts}].filter(row=>row.have<row.need);
+   add(shortages.length?'Missing requirements: '+shortages.map(row=>`${row.name} (need ${row.need}, have ${row.have})`).join('; ')+'. Nothing was consumed.':'Enter a whole-number quantity from 1 to '+max+'. Nothing was consumed.','system');return menu();
   }
   for(const [name,n]of Object.entries(mats(r)))if(n)r6ConsumeMaterial(name,n*qty);
   player.bolts-=r.bolts*qty;

@@ -22,39 +22,42 @@ Desktop graphical checks confirm the shirt and pipe portraits, correct item desc
 
 ## Artwork coverage — DEVTEST continuation
 
-The roster contains 204 item designs. This branch adds **5** verified portraits to the **54** registered in the merged Backpack feature, for **59/204 complete**. The remaining **140 are pending** and **5 were blocked by the generator**. These images use the existing manifest and item IDs; no PLAYTEST or gameplay changes are included.
+The roster contains 204 item designs. The merged Backpack feature had 54 registered portraits. This continuation adds 67, bringing coverage to **121/204 complete**, with **78 pending** and **5 generator-blocked**.
 
-### Completed in this pass
+### Completed in this continuation
 
-- Non-firearm weapons (5): Reinforced Stick, Heavy Crossbow, Highway Reaper, The Iron Executioner, Harbor Guard Cutlass.
+- Weapon: 5 newly registered.
+- Armor: 1 newly registered.
+- Accessory: 10 newly registered.
+- Consumable: 13 newly registered.
+- Material: 25 newly registered.
+- Quest: 11 newly registered.
+- Tool: 1 newly registered.
+- Valuable: 1 newly registered.
+
+Completed non-firearm weapons: Reinforced Stick, Heavy Crossbow, Highway Reaper, The Iron Executioner, and Harbor Guard Cutlass. Additional generated items were matched to their existing catalog identities and registered through the manifest.
 
 ### Coverage by category
 
 | Category | Complete | Pending | Generator blocked |
 | --- | ---: | ---: | ---: |
 | Weapon | 36 | 40 | 4 |
-| Armor | 18 | 39 | 0 |
-| Accessory | 0 | 10 | 0 |
-| Consumable | 5 | 13 | 0 |
-| Material | 0 | 25 | 1 |
-| Quest | 0 | 11 | 0 |
-| Tool | 0 | 1 | 0 |
-| Valuable | 0 | 1 | 0 |
+| Armor | 19 | 38 | 0 |
+| Accessory | 10 | 0 | 0 |
+| Consumable | 18 | 0 | 0 |
+| Material | 25 | 0 | 1 |
+| Quest | 11 | 0 | 0 |
+| Tool | 1 | 0 | 0 |
+| Valuable | 1 | 0 | 0 |
 
 ### Pending portraits
 
 - **Weapon (40):** Makeshift Spear, Rusted Revolver, Homemade Pistol, Sawed-Off Shotgun, Reinforced Hunting Rifle, Modified Revolver, Combat Knife, Double-Barrel Shotgun, Steel Pipe Maul, Restored Service Pistol, Short-Barrel Rifle, Tactical Crowbar, Reconditioned SMG, Precision Hunting Rifle, Modified Hunting Rifle, Ranger's Revolver, Tactical Shotgun, Military Marksman Rifle, Industrial War Hammer, Steel Fang Machete, Suppressed Service Pistol, Veteran's Assault Rifle, Dead Reckoning, Ghostline Sniper Rifle, Thunderhead Shotgun, Dominion War Rifle, Grinder's Cutter, Reactive Prod, Balanced Hunting Knife, Specialized Service Revolver, Yardman's Wrench, Heavy Wrench, Bluefang Hunting Knife, Devastator's Iron Pipe, Iron Reaper, Reinforced Salvage Maul, Modified Rotary Cutter, Modified Chemical Sprayer, Advanced Foreman Hammer, Worn Crowbar.
-- **Armor (39):** Highway Patrol Armor, Scavenger's Plated Vest, Military Surplus Vest, Reinforced Motorcycle Armor, Road Guard Chestplate, Salvaged Tactical Armor, Mechanic's Reinforced Suit, Wasteland Ranger Vest, Scrap Defender Armor, Ranger Combat Armor, Reinforced Riot Armor, Dominion Tactical Vest, Salvaged Military Plate, Seaport Marine Armor, Highway Enforcer Armor, Reinforced Combat Harness, Wasteland Recon Armor, Factory Security Armor, Armored Duster, Dominion Elite Combat Armor, Blackglass Assault Armor, Wasteland Juggernaut Plate, Tomorrow Project Recon Suit, Seaport Captain's Armor, Padded Tactical Jacket, Tempered Leather Armor, Salvaged Security Vest, Insulated Patrol Coat, Reinforced Jacket, Padded Jacket, Reinforced Work Vest, Hardened Scavenger Coat, Highway Warden's Coat, Wraith's Reinforced Coat, Niko's Lucky Vest, Crazy Steve's Sandwich Board, Lantern Keeper’s Coat, Worn Canvas Coat, Postman's Vest.
-- **Accessory (10):** Worn Leather Wristband, Lucky Bottle Cap, Worn Belt, Scavenger's Charm, Reinforced Dog Tags, Road Warrior's Bracelet, Rusty License Plate, Niko's Collar, The River Before, Keeper's Lantern.
-- **Consumable (13):** Giant Dog Bone, Roadhouse Hash, Fresh Apple, Fresh Pear, Fresh Carrot, Fresh Potato, Fresh Tomato, Fresh Cabbage, Fresh Berries, Preserved Vegetables, Preserved Meat, Wasteland Stew, Wild Honey.
-- **Material (25):** Uncommon Electrical Parts, Crab Meat, Rifle Ammunition, Bear Meat, Animal Hide, Water, Glass, Glue, Cloth, Scrap Metal, Wire, Electronics, Small Animal Bones, Animal Bones, Large Animal Bones, Tempered Steel, Salt, Raw Rat Meat, Raw Rabbit Meat, Raw Bird Meat, Raw Chicken Meat, Raw Boar Meat, Raw Venison, Raw Snake Meat, Raw Wolf Meat.
-- **Quest (11):** Corvette Tire, Corvette Battery, Damaged Corvette Windshield, Restored Corvette Windshield, Corvette Brake Lines, Nessa's Locket, Astrid Road Flare, Tim's Old Badge, Usable Serpentine Belt, Runner's Token, Jen's Supply Crate.
-- **Tool (1):** Battered Flashlight.
-- **Valuable (1):** Old World Pocket Compass.
+- **Armor (38):** Highway Patrol Armor, Scavenger's Plated Vest, Military Surplus Vest, Reinforced Motorcycle Armor, Road Guard Chestplate, Salvaged Tactical Armor, Mechanic's Reinforced Suit, Wasteland Ranger Vest, Scrap Defender Armor, Ranger Combat Armor, Reinforced Riot Armor, Dominion Tactical Vest, Salvaged Military Plate, Seaport Marine Armor, Highway Enforcer Armor, Reinforced Combat Harness, Wasteland Recon Armor, Factory Security Armor, Armored Duster, Dominion Elite Combat Armor, Blackglass Assault Armor, Wasteland Juggernaut Plate, Tomorrow Project Recon Suit, Seaport Captain's Armor, Padded Tactical Jacket, Tempered Leather Armor, Salvaged Security Vest, Insulated Patrol Coat, Reinforced Jacket, Padded Jacket, Hardened Scavenger Coat, Highway Warden's Coat, Wraith's Reinforced Coat, Niko's Lucky Vest, Crazy Steve's Sandwich Board, Lantern Keeper’s Coat, Worn Canvas Coat, Postman's Vest.
 
 ### Blocked by generator
 
-- **Explosive Components** (material): rejected during the preceding continuation; skipped without retry.
-- **Widowmaker, Crude Shiv, Ashfall Repeater, Rim Reaper** (weapons): rejected during this continuation; skipped without retry.
+- **Explosive Components** (material): rejected during the earlier continuation; skipped without retry.
+- **Widowmaker, Crude Shiv, Ashfall Repeater, Rim Reaper** (weapons): rejected; skipped without retry. No retry was made.
 
-The generated Dead Reckoning war-hammer image was excluded because Dead Reckoning is cataloged as a rifle; it is not registered to the wrong item. No firearm portrait was registered in this continuation. The newly registered files were checked for alpha transparency and full-object containment. Targeted Backpack verification is required before merge.
+The generated Dead Reckoning war-hammer image was excluded because Dead Reckoning is cataloged as a rifle; it is not registered to the wrong item. No firearm portrait was registered in this continuation. All added source images were checked for a fully transparent alpha channel and converted to WebP without resizing. All newly added prompt records are marked as reconstructed summaries from the saved image titles and known subject constraints; exact wording was unavailable after the timed-out workspace became read-only. DEVTEST only; no gameplay or PLAYTEST changes.

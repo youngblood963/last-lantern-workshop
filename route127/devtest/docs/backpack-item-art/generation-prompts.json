@@ -272,26 +272,403 @@
   {
     "id": "weapon-common-reinforced-stick",
     "name": "Reinforced Stick",
-    "prompt": "Single battered reinforced wooden club: split weathered wood shaft, two dull salvaged metal bands, wrapped cloth grip. One centered full item on transparent background, realistic cinematic post-apocalyptic prop art, no hands, people, scenery, labels, logos, or interface."
+    "prompt": "Single battered reinforced wooden club: split weathered wood shaft, two dull salvaged metal bands, wrapped cloth grip. One centered full item on transparent background, realistic cinematic post-apocalyptic prop art, no hands, people, scenery, labels, logos, or interface.",
+    "prompt_source": "reconstructed from tool prompt subject and constraints; not verbatim"
   },
   {
     "id": "weapon-uncommon-heavy-crossbow",
     "name": "Heavy Crossbow",
-    "prompt": "Single improvised heavy crossbow assembled from dark wood and salvaged metal, compact mechanical string assembly, full object visible. One centered item on transparent background, realistic cinematic post-apocalyptic prop art, no hands, people, scenery, labels, logos, or interface."
+    "prompt": "Single improvised heavy crossbow assembled from dark wood and salvaged metal, compact mechanical string assembly, full object visible. One centered item on transparent background, realistic cinematic post-apocalyptic prop art, no hands, people, scenery, labels, logos, or interface.",
+    "prompt_source": "reconstructed from tool prompt subject and constraints; not verbatim"
   },
   {
     "id": "weapon-rare-highway-reaper",
     "name": "Highway Reaper",
-    "prompt": "Single handmade long-handled wasteland cleaver with a broad chipped steel blade and wrapped grip. One centered full item on transparent background, realistic cinematic post-apocalyptic prop art, no hands, people, scenery, labels, logos, or interface."
+    "prompt": "Single handmade long-handled wasteland cleaver with a broad chipped steel blade and wrapped grip. One centered full item on transparent background, realistic cinematic post-apocalyptic prop art, no hands, people, scenery, labels, logos, or interface.",
+    "prompt_source": "reconstructed from tool prompt subject and constraints; not verbatim"
   },
   {
     "id": "weapon-epic-the-iron-executioner",
     "name": "The Iron Executioner",
-    "prompt": "Single weathered executioner-style axe with broad steel head and wrapped handle. One centered full item on transparent background, realistic cinematic post-apocalyptic prop art, no hands, people, scenery, labels, logos, or interface."
+    "prompt": "Single weathered executioner-style axe with broad steel head and wrapped handle. One centered full item on transparent background, realistic cinematic post-apocalyptic prop art, no hands, people, scenery, labels, logos, or interface.",
+    "prompt_source": "reconstructed from tool prompt subject and constraints; not verbatim"
   },
   {
     "id": "item-harbor-guard-cutlass",
     "name": "Harbor Guard Cutlass",
-    "prompt": "Single weathered naval cutlass with a curved steel blade and worn dark grip. One centered full item on transparent background, realistic cinematic post-apocalyptic prop art, no hands, people, scenery, labels, logos, or interface."
+    "prompt": "Single weathered naval cutlass with a curved steel blade and worn dark grip. One centered full item on transparent background, realistic cinematic post-apocalyptic prop art, no hands, people, scenery, labels, logos, or interface.",
+    "prompt_source": "reconstructed from tool prompt subject and constraints; not verbatim"
+  },
+  {
+    "id": "item-scrap-metal",
+    "name": "Scrap Metal",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Jagged scrap metal stack. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-electronics",
+    "name": "Electronics",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Salvaged Circuit Board Cache. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-wire",
+    "name": "Wire",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Neatly Coiled Salvaged Copper Wire. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-small-animal-bones",
+    "name": "Small Animal Bones",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Tidy bundle of animal bones. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-restored-corvette-windshield",
+    "name": "Restored Corvette Windshield",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Intact Curved Windshield. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-damaged-corvette-windshield",
+    "name": "Damaged Corvette Windshield",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Cracked Curved Windshield. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-corvette-tire",
+    "name": "Corvette Tire",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Weathered wasteland spare tire. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-corvette-battery",
+    "name": "Corvette Battery",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Scuffed Wasteland Battery. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-water",
+    "name": "Water",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Wasteland water bottle. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-glue",
+    "name": "Glue",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Sealed repair glue bottle. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-glass",
+    "name": "Glass",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Translucent glass shard bundle. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-cloth",
+    "name": "Cloth",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Worn folded cloth scrap. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-preserved-vegetables",
+    "name": "Preserved Vegetables",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Sealed jar of mixed vegetables. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-preserved-meat",
+    "name": "Preserved Meat",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Sealed preserved meat tin. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-fresh-cabbage",
+    "name": "Fresh Cabbage",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Fresh green cabbage. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-fresh-berries",
+    "name": "Fresh Berries",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Fresh Red and Dark Berry Cluster. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-fresh-tomato",
+    "name": "Fresh Tomato",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Fresh tomato inventory item. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-fresh-potato",
+    "name": "Fresh Potato",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Fresh potato from Route 127. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-fresh-carrot",
+    "name": "Fresh Carrot",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Fresh carrot inventory item. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-fresh-pear",
+    "name": "Fresh Pear",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Fresh pear inventory item. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-fresh-apple",
+    "name": "Fresh Apple",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Fresh red-green apple inventory portrait. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-raw-snake-meat",
+    "name": "Raw Snake Meat",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Paper-wrapped raw meat strips. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-raw-boar-meat",
+    "name": "Raw Boar Meat",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Securely wrapped meat portion. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-raw-rat-meat",
+    "name": "Raw Rat Meat",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Wrapped Raw Meat Ration. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-raw-venison",
+    "name": "Raw Venison",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Paper-wrapped venison ration. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-raw-chicken-meat",
+    "name": "Raw Chicken Meat",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Wrapped chicken ration. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-raw-rabbit-meat",
+    "name": "Raw Rabbit Meat",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Paper-Wrapped Meat Ration. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-raw-bird-meat",
+    "name": "Raw Bird Meat",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Neatly Wrapped Poultry Portion. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-raw-wolf-meat",
+    "name": "Raw Wolf Meat",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Salvaged wrapped meat portion. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-salt",
+    "name": "Salt",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Coarse Salt Cloth Pouch. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-uncommon-electrical-parts",
+    "name": "Uncommon Electrical Parts",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Salvaged fuse and wire connectors. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-bear-meat",
+    "name": "Bear Meat",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Wrapped Bear Meat Ration. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-rifle-ammunition",
+    "name": "Rifle Ammunition",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Neat Brass Rifle Cartridges. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-tempered-steel",
+    "name": "Tempered Steel",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Tempered steel salvage bar. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-jen-s-supply-crate",
+    "name": "Jen's Supply Crate",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Weathered Wooden Supply Crate. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-reinforced-work-vest",
+    "name": "Reinforced Work Vest",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Empty reinforced work vest. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-runner-s-token",
+    "name": "Runner's Token",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Plain brass token on cord. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-usable-serpentine-belt",
+    "name": "Usable Serpentine Belt",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Worn Black Serpentine Belt. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-corvette-brake-lines",
+    "name": "Corvette Brake Lines",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Weathered Automotive Brake Hoses. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-nessa-s-locket",
+    "name": "Nessa's Locket",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Tarnished Silver Locket. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-astrid-road-flare",
+    "name": "Astrid Road Flare",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Unlit red emergency road flare. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-tim-s-old-badge",
+    "name": "Tim's Old Badge",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Tarnished sheriff badge wasteland relic. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-wild-honey",
+    "name": "Wild Honey",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Golden wild honey jar. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-battered-flashlight",
+    "name": "Battered Flashlight",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Battered wasteland flashlight. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-old-world-pocket-compass",
+    "name": "Old World Pocket Compass",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Antique brass pocket compass. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-wasteland-stew",
+    "name": "Wasteland Stew",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Lidded metal bowl of stew. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-crab-meat",
+    "name": "Crab Meat",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Raw crab meat and legs. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-animal-hide",
+    "name": "Animal Hide",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Folded salvaged animal hide. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-animal-bones",
+    "name": "Animal Bones",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Clean animal bone bundle. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-large-animal-bones",
+    "name": "Large Animal Bones",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Clean Medium Animal Bone Bundle. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-keeper-s-lantern",
+    "name": "Keeper's Lantern",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Unlit brass-and-steel hand lantern. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-niko-s-collar",
+    "name": "Niko's Collar",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Worn dog collar with metal tag. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-roadhouse-hash",
+    "name": "Roadhouse Hash",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Sealed tin of hearty hash. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-the-river-before",
+    "name": "The River Before",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Weathered river keepsake photo. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-reinforced-dog-tags",
+    "name": "Reinforced Dog Tags",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Scratched metal dog tags. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-rusty-license-plate",
+    "name": "Rusty License Plate",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Weathered Blank Vehicle Plate. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-road-warrior-s-bracelet",
+    "name": "Road Warrior's Bracelet",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Braided leather bracelet with metal bead. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-scavenger-s-charm",
+    "name": "Scavenger's Charm",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Handmade Washer Scavenger Charm. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-worn-belt",
+    "name": "Worn Belt",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Cracked Brown Leather Utility Belt. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-giant-dog-bone",
+    "name": "Giant Dog Bone",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Clean pale dog bone. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-worn-leather-wristband",
+    "name": "Worn Leather Wristband",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Weathered Leather Wristband with Metal Clasp. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
+  },
+  {
+    "id": "item-lucky-bottle-cap",
+    "name": "Lucky Bottle Cap",
+    "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Lucky Brass Bottle Cap. Realistic cinematic post-apocalyptic prop art. One centered full object on a genuinely transparent background, fully visible with clean edges, no people, hands, scenery, text, labels, logos, or interface.",
+    "prompt_source": "reconstructed from the saved image description; exact original wording unavailable"
   }
 ]

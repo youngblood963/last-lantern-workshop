@@ -355,6 +355,378 @@ globalThis.Route127ItemArtworkManifest=Object.freeze({
       "name": "Harbor Guard Cutlass",
       "type": "weapon",
       "file": "item-harbor-guard-cutlass.webp"
+    },
+    {
+      "id": "item-scrap-metal",
+      "name": "Scrap Metal",
+      "type": "material",
+      "file": "item-scrap-metal.webp"
+    },
+    {
+      "id": "item-electronics",
+      "name": "Electronics",
+      "type": "material",
+      "file": "item-electronics.webp"
+    },
+    {
+      "id": "item-wire",
+      "name": "Wire",
+      "type": "material",
+      "file": "item-wire.webp"
+    },
+    {
+      "id": "item-small-animal-bones",
+      "name": "Small Animal Bones",
+      "type": "material",
+      "file": "item-small-animal-bones.webp"
+    },
+    {
+      "id": "item-restored-corvette-windshield",
+      "name": "Restored Corvette Windshield",
+      "type": "quest",
+      "file": "item-restored-corvette-windshield.webp"
+    },
+    {
+      "id": "item-damaged-corvette-windshield",
+      "name": "Damaged Corvette Windshield",
+      "type": "quest",
+      "file": "item-damaged-corvette-windshield.webp"
+    },
+    {
+      "id": "item-corvette-tire",
+      "name": "Corvette Tire",
+      "type": "quest",
+      "file": "item-corvette-tire.webp"
+    },
+    {
+      "id": "item-corvette-battery",
+      "name": "Corvette Battery",
+      "type": "quest",
+      "file": "item-corvette-battery.webp"
+    },
+    {
+      "id": "item-water",
+      "name": "Water",
+      "type": "material",
+      "file": "item-water.webp"
+    },
+    {
+      "id": "item-glue",
+      "name": "Glue",
+      "type": "material",
+      "file": "item-glue.webp"
+    },
+    {
+      "id": "item-glass",
+      "name": "Glass",
+      "type": "material",
+      "file": "item-glass.webp"
+    },
+    {
+      "id": "item-cloth",
+      "name": "Cloth",
+      "type": "material",
+      "file": "item-cloth.webp"
+    },
+    {
+      "id": "item-preserved-vegetables",
+      "name": "Preserved Vegetables",
+      "type": "consumable",
+      "file": "item-preserved-vegetables.webp"
+    },
+    {
+      "id": "item-preserved-meat",
+      "name": "Preserved Meat",
+      "type": "consumable",
+      "file": "item-preserved-meat.webp"
+    },
+    {
+      "id": "item-fresh-cabbage",
+      "name": "Fresh Cabbage",
+      "type": "consumable",
+      "file": "item-fresh-cabbage.webp"
+    },
+    {
+      "id": "item-fresh-berries",
+      "name": "Fresh Berries",
+      "type": "consumable",
+      "file": "item-fresh-berries.webp"
+    },
+    {
+      "id": "item-fresh-tomato",
+      "name": "Fresh Tomato",
+      "type": "consumable",
+      "file": "item-fresh-tomato.webp"
+    },
+    {
+      "id": "item-fresh-potato",
+      "name": "Fresh Potato",
+      "type": "consumable",
+      "file": "item-fresh-potato.webp"
+    },
+    {
+      "id": "item-fresh-carrot",
+      "name": "Fresh Carrot",
+      "type": "consumable",
+      "file": "item-fresh-carrot.webp"
+    },
+    {
+      "id": "item-fresh-pear",
+      "name": "Fresh Pear",
+      "type": "consumable",
+      "file": "item-fresh-pear.webp"
+    },
+    {
+      "id": "item-fresh-apple",
+      "name": "Fresh Apple",
+      "type": "consumable",
+      "file": "item-fresh-apple.webp"
+    },
+    {
+      "id": "item-raw-snake-meat",
+      "name": "Raw Snake Meat",
+      "type": "material",
+      "file": "item-raw-snake-meat.webp"
+    },
+    {
+      "id": "item-raw-boar-meat",
+      "name": "Raw Boar Meat",
+      "type": "material",
+      "file": "item-raw-boar-meat.webp"
+    },
+    {
+      "id": "item-raw-rat-meat",
+      "name": "Raw Rat Meat",
+      "type": "material",
+      "file": "item-raw-rat-meat.webp"
+    },
+    {
+      "id": "item-raw-venison",
+      "name": "Raw Venison",
+      "type": "material",
+      "file": "item-raw-venison.webp"
+    },
+    {
+      "id": "item-raw-chicken-meat",
+      "name": "Raw Chicken Meat",
+      "type": "material",
+      "file": "item-raw-chicken-meat.webp"
+    },
+    {
+      "id": "item-raw-rabbit-meat",
+      "name": "Raw Rabbit Meat",
+      "type": "material",
+      "file": "item-raw-rabbit-meat.webp"
+    },
+    {
+      "id": "item-raw-bird-meat",
+      "name": "Raw Bird Meat",
+      "type": "material",
+      "file": "item-raw-bird-meat.webp"
+    },
+    {
+      "id": "item-raw-wolf-meat",
+      "name": "Raw Wolf Meat",
+      "type": "material",
+      "file": "item-raw-wolf-meat.webp"
+    },
+    {
+      "id": "item-salt",
+      "name": "Salt",
+      "type": "material",
+      "file": "item-salt.webp"
+    },
+    {
+      "id": "item-uncommon-electrical-parts",
+      "name": "Uncommon Electrical Parts",
+      "type": "material",
+      "file": "item-uncommon-electrical-parts.webp"
+    },
+    {
+      "id": "item-bear-meat",
+      "name": "Bear Meat",
+      "type": "material",
+      "file": "item-bear-meat.webp"
+    },
+    {
+      "id": "item-rifle-ammunition",
+      "name": "Rifle Ammunition",
+      "type": "material",
+      "file": "item-rifle-ammunition.webp"
+    },
+    {
+      "id": "item-tempered-steel",
+      "name": "Tempered Steel",
+      "type": "material",
+      "file": "item-tempered-steel.webp"
+    },
+    {
+      "id": "item-jen-s-supply-crate",
+      "name": "Jen's Supply Crate",
+      "type": "quest",
+      "file": "item-jen-s-supply-crate.webp"
+    },
+    {
+      "id": "item-reinforced-work-vest",
+      "name": "Reinforced Work Vest",
+      "type": "armor",
+      "file": "item-reinforced-work-vest.webp"
+    },
+    {
+      "id": "item-runner-s-token",
+      "name": "Runner's Token",
+      "type": "quest",
+      "file": "item-runner-s-token.webp"
+    },
+    {
+      "id": "item-usable-serpentine-belt",
+      "name": "Usable Serpentine Belt",
+      "type": "quest",
+      "file": "item-usable-serpentine-belt.webp"
+    },
+    {
+      "id": "item-corvette-brake-lines",
+      "name": "Corvette Brake Lines",
+      "type": "quest",
+      "file": "item-corvette-brake-lines.webp"
+    },
+    {
+      "id": "item-nessa-s-locket",
+      "name": "Nessa's Locket",
+      "type": "quest",
+      "file": "item-nessa-s-locket.webp"
+    },
+    {
+      "id": "item-astrid-road-flare",
+      "name": "Astrid Road Flare",
+      "type": "quest",
+      "file": "item-astrid-road-flare.webp"
+    },
+    {
+      "id": "item-tim-s-old-badge",
+      "name": "Tim's Old Badge",
+      "type": "quest",
+      "file": "item-tim-s-old-badge.webp"
+    },
+    {
+      "id": "item-wild-honey",
+      "name": "Wild Honey",
+      "type": "consumable",
+      "file": "item-wild-honey.webp"
+    },
+    {
+      "id": "item-battered-flashlight",
+      "name": "Battered Flashlight",
+      "type": "tool",
+      "file": "item-battered-flashlight.webp"
+    },
+    {
+      "id": "item-old-world-pocket-compass",
+      "name": "Old World Pocket Compass",
+      "type": "valuable",
+      "file": "item-old-world-pocket-compass.webp"
+    },
+    {
+      "id": "item-wasteland-stew",
+      "name": "Wasteland Stew",
+      "type": "consumable",
+      "file": "item-wasteland-stew.webp"
+    },
+    {
+      "id": "item-crab-meat",
+      "name": "Crab Meat",
+      "type": "material",
+      "file": "item-crab-meat.webp"
+    },
+    {
+      "id": "item-animal-hide",
+      "name": "Animal Hide",
+      "type": "material",
+      "file": "item-animal-hide.webp"
+    },
+    {
+      "id": "item-animal-bones",
+      "name": "Animal Bones",
+      "type": "material",
+      "file": "item-animal-bones.webp"
+    },
+    {
+      "id": "item-large-animal-bones",
+      "name": "Large Animal Bones",
+      "type": "material",
+      "file": "item-large-animal-bones.webp"
+    },
+    {
+      "id": "item-keeper-s-lantern",
+      "name": "Keeper's Lantern",
+      "type": "accessory",
+      "file": "item-keeper-s-lantern.webp"
+    },
+    {
+      "id": "item-niko-s-collar",
+      "name": "Niko's Collar",
+      "type": "accessory",
+      "file": "item-niko-s-collar.webp"
+    },
+    {
+      "id": "item-roadhouse-hash",
+      "name": "Roadhouse Hash",
+      "type": "consumable",
+      "file": "item-roadhouse-hash.webp"
+    },
+    {
+      "id": "item-the-river-before",
+      "name": "The River Before",
+      "type": "accessory",
+      "file": "item-the-river-before.webp"
+    },
+    {
+      "id": "item-reinforced-dog-tags",
+      "name": "Reinforced Dog Tags",
+      "type": "accessory",
+      "file": "item-reinforced-dog-tags.webp"
+    },
+    {
+      "id": "item-rusty-license-plate",
+      "name": "Rusty License Plate",
+      "type": "accessory",
+      "file": "item-rusty-license-plate.webp"
+    },
+    {
+      "id": "item-road-warrior-s-bracelet",
+      "name": "Road Warrior's Bracelet",
+      "type": "accessory",
+      "file": "item-road-warrior-s-bracelet.webp"
+    },
+    {
+      "id": "item-scavenger-s-charm",
+      "name": "Scavenger's Charm",
+      "type": "accessory",
+      "file": "item-scavenger-s-charm.webp"
+    },
+    {
+      "id": "item-worn-belt",
+      "name": "Worn Belt",
+      "type": "accessory",
+      "file": "item-worn-belt.webp"
+    },
+    {
+      "id": "item-giant-dog-bone",
+      "name": "Giant Dog Bone",
+      "type": "consumable",
+      "file": "item-giant-dog-bone.webp"
+    },
+    {
+      "id": "item-worn-leather-wristband",
+      "name": "Worn Leather Wristband",
+      "type": "accessory",
+      "file": "item-worn-leather-wristband.webp"
+    },
+    {
+      "id": "item-lucky-bottle-cap",
+      "name": "Lucky Bottle Cap",
+      "type": "accessory",
+      "file": "item-lucky-bottle-cap.webp"
     }
   ]
 });

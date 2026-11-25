@@ -1252,8 +1252,8 @@ async function answerHello(rawResponse="") {
   const vulgar=/(fuck|shit|bitch|asshole|dick|cunt|motherfucker)/.test(r);
   let reply="MOST PEOPLE JUST SAY HI.";
   if(/^(hello|hi|hey|yo|sup|wassup|what'?s up|whats up)[!.? ]*$/.test(r)) reply=r.includes("what")||r.includes("wassup")||r==="sup"?"NOT MUCH. END OF THE WORLD. YOU?":"HELLO.";
-  else if(r.includes("fuck off")) reply="YOUR MOM.";
-  else if(vulgar) reply="MOST PEOPLE JUST SAY HI, ASSHOLE.";
+  else if(/^hola[!.? ]*$/.test(r)) reply="WELL, AT LEAST SOMEONE OUT THERE IS FRIENDLY.";
+  else if(vulgar) reply="MOST PEOPLE JUST SAY HI.";
   else if(r.includes("who are you")) reply="COMPLICATED.";
   else if(r.includes("where am i")) reply="SOMEWHERE YOU SHOULDN’T STAY.";
   else if(r==="help"||r.includes("help me")) reply="WORKING ON IT.";

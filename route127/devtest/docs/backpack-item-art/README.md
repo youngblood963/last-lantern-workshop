@@ -22,11 +22,11 @@ For this continuation, the manifest was checked for duplicate IDs and its entrie
 
 ## Artwork coverage — DEVTEST continuation
 
-The roster contains 204 item designs. The merged Backpack feature had 54 registered portraits. This continuation has added 67 general item portraits plus 38 armor portraits, bringing coverage to **159/204 complete**, with **40 pending** and **5 generator-blocked**.
+The roster contains 204 item designs. The merged Backpack feature had 54 registered portraits. This continuation has added 67 general item portraits, 38 additional armor portraits, and 15 additional non-firearm weapon portraits, bringing coverage to **174/204 complete**, with **21 pending** and **9 generator-blocked**.
 
 ### Completed in this continuation
 
-- Weapon: 5 newly registered (all non-firearm).
+- Weapon: 20 newly registered (5 earlier, plus 15 in this pass; all non-firearm).
 - Armor: 39 newly registered in this continuation (1 in the initial pass, then 38 here).
 - Accessory: 10 newly registered.
 - Consumable: 13 newly registered.
@@ -39,7 +39,7 @@ The roster contains 204 item designs. The merged Backpack feature had 54 registe
 
 | Category | Complete | Pending | Generator blocked |
 | --- | ---: | ---: | ---: |
-| Weapon | 36 | 40 | 4 |
+| Weapon | 51 | 21 | 8 |
 | Armor | 57 | 0 | 0 |
 | Accessory | 10 | 0 | 0 |
 | Consumable | 18 | 0 | 0 |
@@ -50,13 +50,13 @@ The roster contains 204 item designs. The merged Backpack feature had 54 registe
 
 ### Pending portraits
 
-- **Non-firearm weapons pending (19):** Makeshift Spear, Combat Knife, Steel Pipe Maul, Tactical Crowbar, Industrial War Hammer, Steel Fang Machete, Grinder's Cutter, Reactive Prod, Balanced Hunting Knife, Yardman's Wrench, Heavy Wrench, Bluefang Hunting Knife, Devastator's Iron Pipe, Iron Reaper, Reinforced Salvage Maul, Modified Rotary Cutter, Modified Chemical Sprayer, Advanced Foreman Hammer, Worn Crowbar.
 - **Firearms pending (21):** Rusted Revolver, Homemade Pistol, Sawed-Off Shotgun, Reinforced Hunting Rifle, Modified Revolver, Double-Barrel Shotgun, Restored Service Pistol, Short-Barrel Rifle, Reconditioned SMG, Precision Hunting Rifle, Modified Hunting Rifle, Ranger's Revolver, Tactical Shotgun, Military Marksman Rifle, Suppressed Service Pistol, Veteran's Assault Rifle, Dead Reckoning, Ghostline Sniper Rifle, Thunderhead Shotgun, Dominion War Rifle, Specialized Service Revolver.
+- **Non-firearm weapons:** none pending. Four requests were rejected by the generator and are listed below.
 - **Armor:** none pending. The latest 38 completed this round are: Highway Patrol Armor, Scavenger's Plated Vest, Military Surplus Vest, Reinforced Motorcycle Armor, Road Guard Chestplate, Salvaged Tactical Armor, Mechanic's Reinforced Suit, Wasteland Ranger Vest, Scrap Defender Armor, Ranger Combat Armor, Reinforced Riot Armor, Dominion Tactical Vest, Salvaged Military Plate, Seaport Marine Armor, Highway Enforcer Armor, Reinforced Combat Harness, Wasteland Recon Armor, Factory Security Armor, Armored Duster, Dominion Elite Combat Armor, Blackglass Assault Armor, Wasteland Juggernaut Plate, Tomorrow Project Recon Suit, Seaport Captain's Armor, Padded Tactical Jacket, Tempered Leather Armor, Salvaged Security Vest, Insulated Patrol Coat, Reinforced Jacket, Padded Jacket, Hardened Scavenger Coat, Highway Warden's Coat, Wraith's Reinforced Coat, Niko's Lucky Vest, Crazy Steve's Sandwich Board, Lantern Keeper’s Coat, Worn Canvas Coat, Postman's Vest.
 
 ### Blocked by generator
 
-- **Explosive Components** (material): rejected during the earlier continuation; skipped without retry.
-- **Widowmaker, Crude Shiv, Ashfall Repeater, Rim Reaper** (weapons): rejected; skipped without retry. Widowmaker is firearm-class in the catalog, but its rejected request described a spiked melee club, so no firearm portrait was created.
+- **Weapons:** Widowmaker, Crude Shiv, Ashfall Repeater, Rim Reaper, Makeshift Spear, Steel Fang Machete, Grinder's Cutter, and Iron Reaper (8): generator rejected these requests; each was skipped without retry. Widowmaker is cataloged as firearm-class, but its request described a spiked melee club.
+- **Explosive Components** (material): rejected during the earlier continuation and skipped without retry.
 
-The generated Dead Reckoning war-hammer image was excluded because Dead Reckoning is cataloged as a rifle; it is not registered to the wrong item. No firearm portrait has been registered. The 38 newly generated armor images were checked for transparent alpha, then converted to WebP without resizing.
+The generated Dead Reckoning war-hammer image was excluded because Dead Reckoning is cataloged as a rifle; it is not registered to the wrong item. No firearm portrait has been registered. The 38 newly generated armor images and 15 weapon images were checked for transparent alpha, then converted to WebP without resizing.

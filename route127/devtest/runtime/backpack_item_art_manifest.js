@@ -955,6 +955,96 @@ globalThis.Route127ItemArtworkManifest=Object.freeze({
       "name": "Postman's Vest",
       "type": "armor",
       "file": "item-postman-s-vest.webp"
+    },
+    {
+      "id": "weapon-uncommon-combat-knife",
+      "name": "Combat Knife",
+      "type": "weapon",
+      "file": "weapon-uncommon-combat-knife.webp"
+    },
+    {
+      "id": "weapon-uncommon-steel-pipe-maul",
+      "name": "Steel Pipe Maul",
+      "type": "weapon",
+      "file": "weapon-uncommon-steel-pipe-maul.webp"
+    },
+    {
+      "id": "weapon-uncommon-tactical-crowbar",
+      "name": "Tactical Crowbar",
+      "type": "weapon",
+      "file": "weapon-uncommon-tactical-crowbar.webp"
+    },
+    {
+      "id": "weapon-rare-industrial-war-hammer",
+      "name": "Industrial War Hammer",
+      "type": "weapon",
+      "file": "weapon-rare-industrial-war-hammer.webp"
+    },
+    {
+      "id": "item-reactive-prod",
+      "name": "Reactive Prod",
+      "type": "weapon",
+      "file": "item-reactive-prod.webp"
+    },
+    {
+      "id": "item-balanced-hunting-knife",
+      "name": "Balanced Hunting Knife",
+      "type": "weapon",
+      "file": "item-balanced-hunting-knife.webp"
+    },
+    {
+      "id": "item-yardman-s-wrench",
+      "name": "Yardman's Wrench",
+      "type": "weapon",
+      "file": "item-yardman-s-wrench.webp"
+    },
+    {
+      "id": "item-heavy-wrench",
+      "name": "Heavy Wrench",
+      "type": "weapon",
+      "file": "item-heavy-wrench.webp"
+    },
+    {
+      "id": "item-bluefang-hunting-knife",
+      "name": "Bluefang Hunting Knife",
+      "type": "weapon",
+      "file": "item-bluefang-hunting-knife.webp"
+    },
+    {
+      "id": "item-devastator-s-iron-pipe",
+      "name": "Devastator's Iron Pipe",
+      "type": "weapon",
+      "file": "item-devastator-s-iron-pipe.webp"
+    },
+    {
+      "id": "item-reinforced-salvage-maul",
+      "name": "Reinforced Salvage Maul",
+      "type": "weapon",
+      "file": "item-reinforced-salvage-maul.webp"
+    },
+    {
+      "id": "item-modified-rotary-cutter",
+      "name": "Modified Rotary Cutter",
+      "type": "weapon",
+      "file": "item-modified-rotary-cutter.webp"
+    },
+    {
+      "id": "item-modified-chemical-sprayer",
+      "name": "Modified Chemical Sprayer",
+      "type": "weapon",
+      "file": "item-modified-chemical-sprayer.webp"
+    },
+    {
+      "id": "item-advanced-foreman-hammer",
+      "name": "Advanced Foreman Hammer",
+      "type": "weapon",
+      "file": "item-advanced-foreman-hammer.webp"
+    },
+    {
+      "id": "item-worn-crowbar",
+      "name": "Worn Crowbar",
+      "type": "weapon",
+      "file": "item-worn-crowbar.webp"
     }
   ]
 });

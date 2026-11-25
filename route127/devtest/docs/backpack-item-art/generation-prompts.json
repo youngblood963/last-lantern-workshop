@@ -898,5 +898,95 @@
     "name": "Postman's Vest",
     "prompt": "Create an individual selectable inventory portrait for Route 127. Subject: Postman's Vest. Show the empty garment or armor piece frontally, without a person or mannequin. Realistic cinematic post-apocalyptic equipment made from salvaged, worn materials, with details appropriate to the named design. One centered object only, full silhouette visible with clean margins on a genuinely transparent background. No people, hands, scenery, text, labels, logos, or interface.",
     "prompt_source": "reconstructed summary; exact generator wording unavailable"
+  },
+  {
+    "id": "weapon-uncommon-combat-knife",
+    "name": "Combat Knife",
+    "prompt": "Create one isolated item portrait for a fictional post-apocalyptic video game called Route 127. Subject: Combat Knife. Realistic cinematic prop art with worn salvaged materials and restrained earth tones. Show exactly one complete object, centered with generous clear margins on a genuinely transparent background. No people, hands, scenery, blood, text, logos, labels, interface, cropping, or extra objects.",
+    "prompt_source": "reconstructed summary; exact generator wording unavailable"
+  },
+  {
+    "id": "weapon-uncommon-steel-pipe-maul",
+    "name": "Steel Pipe Maul",
+    "prompt": "Create one isolated item portrait for a fictional post-apocalyptic video game called Route 127. Subject: Steel Pipe Maul. Realistic cinematic prop art with worn salvaged materials and restrained earth tones. Show exactly one complete object, centered with generous clear margins on a genuinely transparent background. No people, hands, scenery, blood, text, logos, labels, interface, cropping, or extra objects.",
+    "prompt_source": "reconstructed summary; exact generator wording unavailable"
+  },
+  {
+    "id": "weapon-uncommon-tactical-crowbar",
+    "name": "Tactical Crowbar",
+    "prompt": "Create one isolated item portrait for a fictional post-apocalyptic video game called Route 127. Subject: Tactical Crowbar. Realistic cinematic prop art with worn salvaged materials and restrained earth tones. Show exactly one complete object, centered with generous clear margins on a genuinely transparent background. No people, hands, scenery, blood, text, logos, labels, interface, cropping, or extra objects.",
+    "prompt_source": "reconstructed summary; exact generator wording unavailable"
+  },
+  {
+    "id": "weapon-rare-industrial-war-hammer",
+    "name": "Industrial War Hammer",
+    "prompt": "Create one isolated item portrait for a fictional post-apocalyptic video game called Route 127. Subject: Industrial War Hammer. Realistic cinematic prop art with worn salvaged materials and restrained earth tones. Show exactly one complete object, centered with generous clear margins on a genuinely transparent background. No people, hands, scenery, blood, text, logos, labels, interface, cropping, or extra objects.",
+    "prompt_source": "reconstructed summary; exact generator wording unavailable"
+  },
+  {
+    "id": "item-reactive-prod",
+    "name": "Reactive Prod",
+    "prompt": "Create one isolated item portrait for a fictional post-apocalyptic video game called Route 127. Subject: Reactive Prod. Realistic cinematic prop art with worn salvaged materials and restrained earth tones. Show exactly one complete object, centered with generous clear margins on a genuinely transparent background. No people, hands, scenery, blood, text, logos, labels, interface, cropping, or extra objects.",
+    "prompt_source": "reconstructed summary; exact generator wording unavailable"
+  },
+  {
+    "id": "item-balanced-hunting-knife",
+    "name": "Balanced Hunting Knife",
+    "prompt": "Create one isolated item portrait for a fictional post-apocalyptic video game called Route 127. Subject: Balanced Hunting Knife. Realistic cinematic prop art with worn salvaged materials and restrained earth tones. Show exactly one complete object, centered with generous clear margins on a genuinely transparent background. No people, hands, scenery, blood, text, logos, labels, interface, cropping, or extra objects.",
+    "prompt_source": "reconstructed summary; exact generator wording unavailable"
+  },
+  {
+    "id": "item-yardman-s-wrench",
+    "name": "Yardman's Wrench",
+    "prompt": "Create one isolated item portrait for a fictional post-apocalyptic video game called Route 127. Subject: Yardman's Wrench. Realistic cinematic prop art with worn salvaged materials and restrained earth tones. Show exactly one complete object, centered with generous clear margins on a genuinely transparent background. No people, hands, scenery, blood, text, logos, labels, interface, cropping, or extra objects.",
+    "prompt_source": "reconstructed summary; exact generator wording unavailable"
+  },
+  {
+    "id": "item-heavy-wrench",
+    "name": "Heavy Wrench",
+    "prompt": "Create one isolated item portrait for a fictional post-apocalyptic video game called Route 127. Subject: Heavy Wrench. Realistic cinematic prop art with worn salvaged materials and restrained earth tones. Show exactly one complete object, centered with generous clear margins on a genuinely transparent background. No people, hands, scenery, blood, text, logos, labels, interface, cropping, or extra objects.",
+    "prompt_source": "reconstructed summary; exact generator wording unavailable"
+  },
+  {
+    "id": "item-bluefang-hunting-knife",
+    "name": "Bluefang Hunting Knife",
+    "prompt": "Create one isolated item portrait for a fictional post-apocalyptic video game called Route 127. Subject: Bluefang Hunting Knife. Realistic cinematic prop art with worn salvaged materials and restrained earth tones. Show exactly one complete object, centered with generous clear margins on a genuinely transparent background. No people, hands, scenery, blood, text, logos, labels, interface, cropping, or extra objects.",
+    "prompt_source": "reconstructed summary; exact generator wording unavailable"
+  },
+  {
+    "id": "item-devastator-s-iron-pipe",
+    "name": "Devastator's Iron Pipe",
+    "prompt": "Create one isolated item portrait for a fictional post-apocalyptic video game called Route 127. Subject: Devastator's Iron Pipe. Realistic cinematic prop art with worn salvaged materials and restrained earth tones. Show exactly one complete object, centered with generous clear margins on a genuinely transparent background. No people, hands, scenery, blood, text, logos, labels, interface, cropping, or extra objects.",
+    "prompt_source": "reconstructed summary; exact generator wording unavailable"
+  },
+  {
+    "id": "item-reinforced-salvage-maul",
+    "name": "Reinforced Salvage Maul",
+    "prompt": "Create one isolated item portrait for a fictional post-apocalyptic video game called Route 127. Subject: Reinforced Salvage Maul. Realistic cinematic prop art with worn salvaged materials and restrained earth tones. Show exactly one complete object, centered with generous clear margins on a genuinely transparent background. No people, hands, scenery, blood, text, logos, labels, interface, cropping, or extra objects.",
+    "prompt_source": "reconstructed summary; exact generator wording unavailable"
+  },
+  {
+    "id": "item-modified-rotary-cutter",
+    "name": "Modified Rotary Cutter",
+    "prompt": "Create one isolated item portrait for a fictional post-apocalyptic video game called Route 127. Subject: Modified Rotary Cutter. Realistic cinematic prop art with worn salvaged materials and restrained earth tones. Show exactly one complete object, centered with generous clear margins on a genuinely transparent background. No people, hands, scenery, blood, text, logos, labels, interface, cropping, or extra objects.",
+    "prompt_source": "reconstructed summary; exact generator wording unavailable"
+  },
+  {
+    "id": "item-modified-chemical-sprayer",
+    "name": "Modified Chemical Sprayer",
+    "prompt": "Create one isolated item portrait for a fictional post-apocalyptic video game called Route 127. Subject: Modified Chemical Sprayer. Realistic cinematic prop art with worn salvaged materials and restrained earth tones. Show exactly one complete object, centered with generous clear margins on a genuinely transparent background. No people, hands, scenery, blood, text, logos, labels, interface, cropping, or extra objects.",
+    "prompt_source": "reconstructed summary; exact generator wording unavailable"
+  },
+  {
+    "id": "item-advanced-foreman-hammer",
+    "name": "Advanced Foreman Hammer",
+    "prompt": "Create one isolated item portrait for a fictional post-apocalyptic video game called Route 127. Subject: Advanced Foreman Hammer. Realistic cinematic prop art with worn salvaged materials and restrained earth tones. Show exactly one complete object, centered with generous clear margins on a genuinely transparent background. No people, hands, scenery, blood, text, logos, labels, interface, cropping, or extra objects.",
+    "prompt_source": "reconstructed summary; exact generator wording unavailable"
+  },
+  {
+    "id": "item-worn-crowbar",
+    "name": "Worn Crowbar",
+    "prompt": "Create one isolated item portrait for a fictional post-apocalyptic video game called Route 127. Subject: Worn Crowbar. Realistic cinematic prop art with worn salvaged materials and restrained earth tones. Show exactly one complete object, centered with generous clear margins on a genuinely transparent background. No people, hands, scenery, blood, text, logos, labels, interface, cropping, or extra objects.",
+    "prompt_source": "reconstructed summary; exact generator wording unavailable"
   }
 ]

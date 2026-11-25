@@ -4,6 +4,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const hash=s=>crypto.createHash('sha256').update(s).digest('hex');
 for(const entry of ['devtest','playtest']){
  const s=fs.readFileSync(path.resolve(__dirname,'../../',entry,'runtime/motel_casino_graphics.js'),'utf8');
+ for(const feature of ['Tap Table to Place Bets','Done Betting','TOTAL WAGERED:','WINNING NUMBER:','motel-expanded','motel-result','motel-number.winner','felt.addEventListener(\'click\''])assert(s.includes(feature),entry+' roulette mobile UI includes '+feature);
+ assert(s.includes("button(expandedActions,'Spin'"),entry+' expanded roulette board can spin');
+ assert(s.includes("dispatch('spin')"),entry+' expanded roulette spin delegates to the shared command engine');
  const start=s.indexOf(" const holder=el('div','motel-roulette-wheel'"),end=s.indexOf(' // Correct the AI-printed',start);
  assert.equal(hash(s.slice(start,end)),'cb828273dbd02c5cfab5cf0666380a94e04ad68a9b4e046c306b7320364ff86c',entry+' approved roulette assembly must be byte-identical');
  const a=s.indexOf('function buildSix('),b=s.indexOf('\n\nfunction makePanel',a);
@@ -13,3 +16,4 @@ for(const entry of ['devtest','playtest']){
 
 }
 console.log('PASS both entries: approved roulette wheel/pockets/spindle/ball/animation byte-identical; Big Six only top changes, constant size/horizontal position/pointer/animation and centered full rotation');
+

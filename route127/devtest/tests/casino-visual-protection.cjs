@@ -4,7 +4,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const hash=s=>crypto.createHash('sha256').update(s).digest('hex');
 for(const entry of ['devtest','playtest']){
  const s=fs.readFileSync(path.resolve(__dirname,'../../',entry,'runtime/motel_casino_graphics.js'),'utf8');
- for(const feature of ['Tap Table to Place Bets','Done Betting','TOTAL WAGERED:','WINNING NUMBER:','motel-expanded','motel-result','motel-number.winner','felt.addEventListener(\'click\''])assert(s.includes(feature),entry+' roulette mobile UI includes '+feature);
+ for(const feature of ['Tap Table to Place Bets','Done Betting','Undo Bet','Clear Bets','TOTAL WAGERED:','WINNING NUMBER:','motel-expanded','motel-result','motel-number.winner','felt.addEventListener(\'click\''])assert(s.includes(feature),entry+' roulette mobile UI includes '+feature);
  assert(s.includes("button(expandedActions,'Spin'"),entry+' expanded roulette board can spin');
  assert(s.includes("dispatch('spin')"),entry+' expanded roulette spin delegates to the shared command engine');
  const start=s.indexOf(" const holder=el('div','motel-roulette-wheel'"),end=s.indexOf(' // Correct the AI-printed',start);

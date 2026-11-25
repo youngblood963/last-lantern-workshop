@@ -727,6 +727,234 @@ globalThis.Route127ItemArtworkManifest=Object.freeze({
       "name": "Lucky Bottle Cap",
       "type": "accessory",
       "file": "item-lucky-bottle-cap.webp"
+    },
+    {
+      "id": "armor-uncommon-highway-patrol-armor",
+      "name": "Highway Patrol Armor",
+      "type": "armor",
+      "file": "armor-uncommon-highway-patrol-armor.webp"
+    },
+    {
+      "id": "armor-uncommon-scavenger-s-plated-vest",
+      "name": "Scavenger's Plated Vest",
+      "type": "armor",
+      "file": "armor-uncommon-scavenger-s-plated-vest.webp"
+    },
+    {
+      "id": "armor-uncommon-military-surplus-vest",
+      "name": "Military Surplus Vest",
+      "type": "armor",
+      "file": "armor-uncommon-military-surplus-vest.webp"
+    },
+    {
+      "id": "armor-uncommon-reinforced-motorcycle-armor",
+      "name": "Reinforced Motorcycle Armor",
+      "type": "armor",
+      "file": "armor-uncommon-reinforced-motorcycle-armor.webp"
+    },
+    {
+      "id": "armor-uncommon-road-guard-chestplate",
+      "name": "Road Guard Chestplate",
+      "type": "armor",
+      "file": "armor-uncommon-road-guard-chestplate.webp"
+    },
+    {
+      "id": "armor-uncommon-salvaged-tactical-armor",
+      "name": "Salvaged Tactical Armor",
+      "type": "armor",
+      "file": "armor-uncommon-salvaged-tactical-armor.webp"
+    },
+    {
+      "id": "armor-uncommon-mechanic-s-reinforced-suit",
+      "name": "Mechanic's Reinforced Suit",
+      "type": "armor",
+      "file": "armor-uncommon-mechanic-s-reinforced-suit.webp"
+    },
+    {
+      "id": "armor-uncommon-wasteland-ranger-vest",
+      "name": "Wasteland Ranger Vest",
+      "type": "armor",
+      "file": "armor-uncommon-wasteland-ranger-vest.webp"
+    },
+    {
+      "id": "armor-uncommon-scrap-defender-armor",
+      "name": "Scrap Defender Armor",
+      "type": "armor",
+      "file": "armor-uncommon-scrap-defender-armor.webp"
+    },
+    {
+      "id": "armor-rare-ranger-combat-armor",
+      "name": "Ranger Combat Armor",
+      "type": "armor",
+      "file": "armor-rare-ranger-combat-armor.webp"
+    },
+    {
+      "id": "armor-rare-reinforced-riot-armor",
+      "name": "Reinforced Riot Armor",
+      "type": "armor",
+      "file": "armor-rare-reinforced-riot-armor.webp"
+    },
+    {
+      "id": "armor-rare-dominion-tactical-vest",
+      "name": "Dominion Tactical Vest",
+      "type": "armor",
+      "file": "armor-rare-dominion-tactical-vest.webp"
+    },
+    {
+      "id": "armor-rare-salvaged-military-plate",
+      "name": "Salvaged Military Plate",
+      "type": "armor",
+      "file": "armor-rare-salvaged-military-plate.webp"
+    },
+    {
+      "id": "armor-rare-seaport-marine-armor",
+      "name": "Seaport Marine Armor",
+      "type": "armor",
+      "file": "armor-rare-seaport-marine-armor.webp"
+    },
+    {
+      "id": "armor-rare-highway-enforcer-armor",
+      "name": "Highway Enforcer Armor",
+      "type": "armor",
+      "file": "armor-rare-highway-enforcer-armor.webp"
+    },
+    {
+      "id": "armor-rare-reinforced-combat-harness",
+      "name": "Reinforced Combat Harness",
+      "type": "armor",
+      "file": "armor-rare-reinforced-combat-harness.webp"
+    },
+    {
+      "id": "armor-rare-wasteland-recon-armor",
+      "name": "Wasteland Recon Armor",
+      "type": "armor",
+      "file": "armor-rare-wasteland-recon-armor.webp"
+    },
+    {
+      "id": "armor-rare-factory-security-armor",
+      "name": "Factory Security Armor",
+      "type": "armor",
+      "file": "armor-rare-factory-security-armor.webp"
+    },
+    {
+      "id": "armor-rare-armored-duster",
+      "name": "Armored Duster",
+      "type": "armor",
+      "file": "armor-rare-armored-duster.webp"
+    },
+    {
+      "id": "armor-epic-dominion-elite-combat-armor",
+      "name": "Dominion Elite Combat Armor",
+      "type": "armor",
+      "file": "armor-epic-dominion-elite-combat-armor.webp"
+    },
+    {
+      "id": "armor-epic-blackglass-assault-armor",
+      "name": "Blackglass Assault Armor",
+      "type": "armor",
+      "file": "armor-epic-blackglass-assault-armor.webp"
+    },
+    {
+      "id": "armor-epic-wasteland-juggernaut-plate",
+      "name": "Wasteland Juggernaut Plate",
+      "type": "armor",
+      "file": "armor-epic-wasteland-juggernaut-plate.webp"
+    },
+    {
+      "id": "armor-epic-tomorrow-project-recon-suit",
+      "name": "Tomorrow Project Recon Suit",
+      "type": "armor",
+      "file": "armor-epic-tomorrow-project-recon-suit.webp"
+    },
+    {
+      "id": "armor-epic-seaport-captain-s-armor",
+      "name": "Seaport Captain's Armor",
+      "type": "armor",
+      "file": "armor-epic-seaport-captain-s-armor.webp"
+    },
+    {
+      "id": "item-padded-tactical-jacket",
+      "name": "Padded Tactical Jacket",
+      "type": "armor",
+      "file": "item-padded-tactical-jacket.webp"
+    },
+    {
+      "id": "item-tempered-leather-armor",
+      "name": "Tempered Leather Armor",
+      "type": "armor",
+      "file": "item-tempered-leather-armor.webp"
+    },
+    {
+      "id": "item-salvaged-security-vest",
+      "name": "Salvaged Security Vest",
+      "type": "armor",
+      "file": "item-salvaged-security-vest.webp"
+    },
+    {
+      "id": "item-insulated-patrol-coat",
+      "name": "Insulated Patrol Coat",
+      "type": "armor",
+      "file": "item-insulated-patrol-coat.webp"
+    },
+    {
+      "id": "item-reinforced-jacket",
+      "name": "Reinforced Jacket",
+      "type": "armor",
+      "file": "item-reinforced-jacket.webp"
+    },
+    {
+      "id": "item-padded-jacket",
+      "name": "Padded Jacket",
+      "type": "armor",
+      "file": "item-padded-jacket.webp"
+    },
+    {
+      "id": "item-hardened-scavenger-coat",
+      "name": "Hardened Scavenger Coat",
+      "type": "armor",
+      "file": "item-hardened-scavenger-coat.webp"
+    },
+    {
+      "id": "item-highway-warden-s-coat",
+      "name": "Highway Warden's Coat",
+      "type": "armor",
+      "file": "item-highway-warden-s-coat.webp"
+    },
+    {
+      "id": "item-wraith-s-reinforced-coat",
+      "name": "Wraith's Reinforced Coat",
+      "type": "armor",
+      "file": "item-wraith-s-reinforced-coat.webp"
+    },
+    {
+      "id": "item-niko-s-lucky-vest",
+      "name": "Niko's Lucky Vest",
+      "type": "armor",
+      "file": "item-niko-s-lucky-vest.webp"
+    },
+    {
+      "id": "item-crazy-steve-s-sandwich-board",
+      "name": "Crazy Steve's Sandwich Board",
+      "type": "armor",
+      "file": "item-crazy-steve-s-sandwich-board.webp"
+    },
+    {
+      "id": "item-lantern-keeper-s-coat",
+      "name": "Lantern Keeper’s Coat",
+      "type": "armor",
+      "file": "item-lantern-keeper-s-coat.webp"
+    },
+    {
+      "id": "item-worn-canvas-coat",
+      "name": "Worn Canvas Coat",
+      "type": "armor",
+      "file": "item-worn-canvas-coat.webp"
+    },
+    {
+      "id": "item-postman-s-vest",
+      "name": "Postman's Vest",
+      "type": "armor",
+      "file": "item-postman-s-vest.webp"
     }
   ]
 });

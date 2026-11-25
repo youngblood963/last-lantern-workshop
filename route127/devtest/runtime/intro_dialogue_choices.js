@@ -8,7 +8,7 @@
   ['Where the hell am I?',"Somewhere you don't want to stay."],
   ['Who are you people?',"We're trying to help. That's all you need to know right now."],
   ['What happened out there?',"How much time do you have? Because we don't have much."],
-  ['Fuck off.',"Well, that's a hell of a way to greet your rescuers."]
+  ['Hola!',"Well, at least someone out there is friendly."]
  ];
  const shell=document.querySelector('.terminal-shell');
  let panel=null,lines=[],actions=[],page=0,displayedStage='';

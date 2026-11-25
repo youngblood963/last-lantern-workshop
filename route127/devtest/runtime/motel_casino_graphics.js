@@ -54,15 +54,15 @@ body.full-graphics .gfx-frame[data-layout="motel-poker"] .gfx-choices{flex:0 0 a
  body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-panel:not(.motel-expanded) .motel-tap-instruction{display:block}
  body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-tap-instruction[hidden],
  body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-expanded-actions[hidden]{display:none!important}
- body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-expanded{position:fixed;inset:env(safe-area-inset-top,0px) 0 0;z-index:10000;width:100vw;height:100dvh;max-height:none;overflow:auto;overscroll-behavior:contain;box-sizing:border-box;margin:0;padding:10px;background:#100b08;color:#f5ddb0}
- body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-panel.motel-expanded .motel-felt-controls,
- body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-panel.motel-expanded .motel-felt-scroll{display:block}
- body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-panel.motel-expanded .motel-felt-large{min-height:0}
- body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-expanded-actions{position:sticky;top:-10px;z-index:8;display:flex;gap:8px;padding:8px 0;background:#100b08}
- body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-expanded-actions button{flex:1;min-width:0;min-height:44px;padding:4px;font-size:12px}
- body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-result{display:block;margin:6px 0;padding:8px;background:#100b08eF;border:1px solid #b19159;text-align:center;line-height:1.35}
- body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-result[hidden]{display:none}
- body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-result strong{display:block;font-size:16px}
+ body.full-graphics .motel-expanded{position:fixed;inset:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);z-index:10000;width:100vw;height:auto;max-height:none;overflow:auto;overscroll-behavior:contain;box-sizing:border-box;margin:0;padding:10px;background:#100b08;color:#f5ddb0}
+ body.full-graphics .motel-panel.motel-expanded .motel-felt-controls,
+ body.full-graphics .motel-panel.motel-expanded .motel-felt-scroll{display:block}
+ body.full-graphics .motel-panel.motel-expanded .motel-felt-large{min-height:0}
+ body.full-graphics .motel-expanded-actions{position:sticky;top:-10px;z-index:8;display:flex;gap:8px;padding:8px 0;background:#100b08}
+ body.full-graphics .motel-expanded-actions button{flex:1;min-width:0;min-height:44px;padding:4px;font-size:12px}
+ body.full-graphics .motel-result{display:block;margin:6px 0;padding:8px;background:#100b08ef;border:1px solid #b19159;text-align:center;line-height:1.35}
+ body.full-graphics .motel-result[hidden]{display:none}
+ body.full-graphics .motel-result strong{display:block;font-size:16px}
  body.full-graphics .gfx-frame[data-layout="motel-poker"] .r127-poker-overlay{gap:3px}
  body.full-graphics .gfx-frame[data-layout="motel-poker"] .poker-card{width:34px;height:46px;min-height:0;font-size:17px}
  body.full-graphics .gfx-frame[data-layout="motel-poker"] .poker-label{font-size:10px;padding:2px 6px}
@@ -174,7 +174,7 @@ function buildRoulette(r,figure){
  // Correct the AI-printed columns and red/black assignments with an authoritative felt.
  const felt=el('div','motel-felt motel-felt-scene',scene);Object.assign(felt.style,{position:'absolute',left:'39%',top:'42%',width:'57%',height:'35%',pointerEvents:'auto'});
  felt.setAttribute('aria-hidden','true');
- makePanel(figure);let oldBodyOverflow='',expanded=false;
+ makePanel(figure);let oldBodyOverflow='',expanded=false,panelHome=null;
  const totalDisplay=el('div','motel-round-total',panel);
  const tap=button(panel,'Tap Table to Place Bets',()=>setExpanded(true));tap.className='motel-tap-instruction';tap.setAttribute('aria-label','Tap table to place bets');tap.hidden=r.status!=='waiting';
  const expandedActions=el('div','motel-expanded-actions',panel);
@@ -217,8 +217,8 @@ function buildRoulette(r,figure){
  surface(felt);surface(large);
  function setExpanded(value){
   const open=!!value&&window.matchMedia('(max-width:950px)').matches&&r.status==='waiting';if(open===expanded)return;
-  if(open){oldBodyOverflow=document.body.style.overflow;document.body.style.overflow='hidden';}
-  else document.body.style.overflow=oldBodyOverflow;
+  if(open){oldBodyOverflow=document.body.style.overflow;document.body.style.overflow='hidden';panelHome=panel.parentNode;document.body.appendChild(panel);panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-label','Roulette betting board');}
+  else{document.body.style.overflow=oldBodyOverflow;const figure=GraphicalUI.element?.figure,home=figure?.parentNode||panelHome,anchor=figure?.nextSibling;if(home)home.insertBefore(panel,anchor?.parentNode===home?anchor:null);panelHome=null;panel.removeAttribute('aria-modal');panel.removeAttribute('role');panel.removeAttribute('aria-label');}
   expanded=open;panel.classList.toggle('motel-expanded',open);
  }
  closeBoard=()=>setExpanded(false);

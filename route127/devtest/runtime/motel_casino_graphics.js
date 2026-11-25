@@ -59,7 +59,7 @@ body.full-graphics .gfx-frame[data-layout="motel-poker"] .gfx-choices{flex:0 0 a
  body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-panel.motel-expanded .motel-felt-scroll{display:block}
  body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-panel.motel-expanded .motel-felt-large{min-height:0}
  body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-expanded-actions{position:sticky;top:-10px;z-index:8;display:flex;gap:8px;padding:8px 0;background:#100b08}
- body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-expanded-actions button{flex:1;min-height:44px}
+ body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-expanded-actions button{flex:1;min-width:0;min-height:44px;padding:4px;font-size:12px}
  body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-result{display:block;margin:6px 0;padding:8px;background:#100b08eF;border:1px solid #b19159;text-align:center;line-height:1.35}
  body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-result[hidden]{display:none}
  body.full-graphics .gfx-frame[data-layout="motel-casino"] .motel-result strong{display:block;font-size:16px}
@@ -179,6 +179,8 @@ function buildRoulette(r,figure){
  const tap=button(panel,'Tap Table to Place Bets',()=>setExpanded(true));tap.className='motel-tap-instruction';tap.setAttribute('aria-label','Tap table to place bets');tap.hidden=r.status!=='waiting';
  const expandedActions=el('div','motel-expanded-actions',panel);
  button(expandedActions,'Done Betting',()=>setExpanded(false));
+ button(expandedActions,'Undo Bet',()=>dispatch('undo bet'));
+ button(expandedActions,'Clear Bets',()=>dispatch('clear bets'));
  button(expandedActions,'Spin',()=>{if(r.status!=='waiting')return;setExpanded(false);dispatch('spin');});
  expandedActions.hidden=r.status!=='waiting';
  const result=el('div','motel-result',panel);result.hidden=true;result.setAttribute('aria-live','polite');
@@ -301,4 +303,3 @@ window.addEventListener('resize',()=>{syncViewport();if(scene&&GraphicalUI.eleme
 const sync=GraphicalUI.sync;GraphicalUI.sync=function(){const result=sync.apply(this,arguments);refresh();syncViewport();return result;};
 globalThis.MotelCasinoGraphics={refresh};
 })();
-

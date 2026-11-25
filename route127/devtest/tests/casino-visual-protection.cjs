@@ -16,4 +16,3 @@ for(const entry of ['devtest','playtest']){
 
 }
 console.log('PASS both entries: approved roulette wheel/pockets/spindle/ball/animation byte-identical; Big Six only top changes, constant size/horizontal position/pointer/animation and centered full rotation');
-
